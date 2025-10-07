@@ -98,7 +98,7 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
         // SUMMARY projection should not have gene present or any AlleleSpecificCopyNumber. AlleleSpecificCopyNumber is null for this mutation profile
         for (MutationDTO mutationDTO : mutationResultSummary) {
             assertNull(mutationDTO.gene(), "Response should not have gene present");
-            assertNull(mutationDTO.alleleSpecificCopyNumber(), "Response should not have gene present");
+            assertNull(mutationDTO.alleleSpecificCopyNumber(), "Response should not have AlleleSpecificCopyNumber present");
         }
 
     }

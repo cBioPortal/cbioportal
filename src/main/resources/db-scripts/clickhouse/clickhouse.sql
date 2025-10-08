@@ -378,6 +378,13 @@ FROM clinical_event ce
          INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
+
+
+
+
+
+
+
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
     sample_unique_id String,
@@ -484,6 +491,53 @@ FROM
              ARRAY JOIN value, sample_id) AS subquery
         JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+
+
+--Adds primary key to the sample_cna_event table for Clickhouse-only
+DROP TABLE IF EXISTS sample_cna_event_BACKUP;
+CREATE TABLE sample_cna_event_BACKUP
+(
+    `cna_event_id` Int64 COMMENT 'References cna_event.cna_event_id.',
+    `sample_id` Int64 COMMENT 'References sample.internal_id.',
+    `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
+    `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotation details.'
+)
+    ENGINE = SharedMergeTree('/clickhouse/tables/{uuid}/{shard}', '{replica}')
+PRIMARY KEY (genetic_profile_id, cna_event_id, sample_id)
+ORDER BY (genetic_profile_id, cna_event_id, sample_id)
+SETTINGS index_granularity = 8192
+COMMENT 'Observed CNA events per sample and profile. References cna_event, sample, and genetic_profile.';
+
+-- Copy the data
+INSERT INTO sample_cna_event_BACKUP
+SELECT * FROM sample_cna_event;
+
+-- SWITCH THE TABLES
+EXCHANGE TABLES sample_cna_event_BACKUP AND sample_cna_event;
+
+
+-- Adds primary key genetic_alteration table for Clickhouse-only
+DROP TABLE IF EXISTS genetic_alteration_BACKUP;
+CREATE TABLE genetic_alteration_BACKUP
+(
+    `genetic_profile_id` Int64,
+    `genetic_entity_id` Int64,
+    `values` String
+)
+    ENGINE = SharedMergeTree('/clickhouse/tables/{uuid}/{shard}', '{replica}')
+        PRIMARY KEY (genetic_profile_id, genetic_entity_id)
+        ORDER BY (genetic_profile_id, genetic_entity_id)
+        SETTINGS index_granularity = 8192;
+
+-- Copy the data
+INSERT INTO genetic_alteration_BACKUP
+SELECT * FROM genetic_alteration;
+
+-- SWITCH THE TABLES
+EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
+
+
+
 
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;

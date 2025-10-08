@@ -51,7 +51,6 @@ DROP TABLE IF EXISTS `data_access_tokens`;
 DROP TABLE IF EXISTS `reference_genome_gene`;
 DROP TABLE IF EXISTS `clinical_event_data`;
 DROP TABLE IF EXISTS `clinical_event`;
-DROP TABLE IF EXISTS `cosmic_mutation`;
 DROP TABLE IF EXISTS `copy_number_seg_file`;
 DROP TABLE IF EXISTS `copy_number_seg`;
 DROP TABLE IF EXISTS `sample_cna_event`;
@@ -633,24 +632,6 @@ CREATE TABLE `copy_number_seg_file` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `cosmic_mutation` (
-  `COSMIC_MUTATION_ID` varchar(30) NOT NULL,
-  `CHR` varchar(5),
-  `START_POSITION` bigint(20),
-  `REFERENCE_ALLELE` varchar(255),
-  `TUMOR_SEQ_ALLELE` varchar(255),
-  `STRAND` varchar(2),
-  `CODON_CHANGE` varchar(255),
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  `PROTEIN_CHANGE` varchar(255) NOT NULL,
-  `COUNT` int(11) NOT NULL,
-  `KEYWORD` varchar(50) DEFAULT NULL,
-  KEY (`KEYWORD`),
-  PRIMARY KEY (`COSMIC_MUTATION_ID`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
--- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
   `CLINICAL_EVENT_ID` BIGINT NOT NULL auto_increment,
   `PATIENT_ID` int(11) NOT NULL,
@@ -762,4 +743,4 @@ CREATE TABLE `resource_study` (
 
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
 INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`)
-  VALUES ('2.14.2', NULL, '1.0.2');
+  VALUES ('2.14.3', NULL, '1.0.2');

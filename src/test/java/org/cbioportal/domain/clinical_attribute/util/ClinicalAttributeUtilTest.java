@@ -1,12 +1,12 @@
-package org.cbioportal.domain.clinical_data.util;
+package org.cbioportal.domain.clinical_attribute.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
-import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.junit.Test;
 
 public class ClinicalAttributeUtilTest {
@@ -146,17 +146,11 @@ public class ClinicalAttributeUtilTest {
   // Helper method to create ClinicalAttribute for testing
   private ClinicalAttribute createClinicalAttribute(
       String attributeId, boolean isPatientAttribute) {
-    ClinicalAttribute attribute = new ClinicalAttribute();
-    attribute.setAttrId(attributeId);
-    attribute.setPatientAttribute(isPatientAttribute);
-    return attribute;
+    return new ClinicalAttribute(attributeId, null, isPatientAttribute, null);
   }
 
   // Helper method to create ClinicalAttribute with null patientAttribute
   private ClinicalAttribute createClinicalAttributeWithNullPatientAttribute(String attributeId) {
-    ClinicalAttribute attribute = new ClinicalAttribute();
-    attribute.setAttrId(attributeId);
-    attribute.setPatientAttribute(null);
-    return attribute;
+    return new ClinicalAttribute(attributeId, null, null, null);
   }
 }

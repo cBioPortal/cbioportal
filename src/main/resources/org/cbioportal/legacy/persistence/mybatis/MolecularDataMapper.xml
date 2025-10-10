@@ -68,11 +68,43 @@
         </where>
     </select>
 
+    <sql id="getTruncatedGeneticAlterationValues">
+        arrayStringConcat(
+            arrayMap(
+                x -> multiIf (
+                    -- Special Case 1: Non-numeric values
+                    -- Leave non-numeric values as is, otherwise they will be converted to zero.
+                    isNull(accurateCastOrNull(x, 'Float64')), 
+                    x,
+                    -- Special Case 2: Very small numbers
+                    -- Convert very small numbers to scientific notation first and then truncate,
+                    -- otherwise they will be converted to zero.
+                    abs(toFloat64OrZero(x)) &lt; 0.0001,
+                    concat(
+                        toString(
+                            -- round the base to 4 significant digits
+                            round(toFloat64OrZero(x) / pow(10, floor(log10(abs(toFloat64OrZero(x))))), 3)
+                        ),
+                        'e',
+                        toString(
+                            -- calculate the exponent
+                            floor(log10(abs(toFloat64OrZero(x))))
+                        )
+                    ),
+                    -- All other cases: Truncate to 4 significant digits.
+                    toString(round(toFloat64OrZero(x), 4))
+                ),
+                splitByChar(',', genetic_alteration.`values`)
+            ),
+            ','
+        ) AS "values"
+    </sql>
+    
     <!-- Any changes to this routine should be kept in sync with getGeneMolecularAlterationsIter below -->
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
-        gene.entrez_gene_id AS "entrezGeneId",
-        genetic_alteration.`values` AS "values"
+            gene.entrez_gene_id AS "entrezGeneId",
+            <include refid="getTruncatedGeneticAlterationValues" />
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
@@ -93,8 +125,8 @@
     -->
     <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
-        gene.entrez_gene_id AS "entrezGeneId",
-        genetic_alteration.`values` AS "values"
+            gene.entrez_gene_id AS "entrezGeneId",
+            <include refid="getTruncatedGeneticAlterationValues" />
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
@@ -110,8 +142,8 @@
     <!-- This routine is an abbreviated copy of getGeneMolecularAlterationsIter above. The two should be kept in sync. -->
     <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
-        gene.entrez_gene_id AS "entrezGeneId",
-        genetic_alteration.`values` AS "values"
+            gene.entrez_gene_id AS "entrezGeneId",
+            <include refid="getTruncatedGeneticAlterationValues" />
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
@@ -122,9 +154,9 @@
 
     <select id="getGeneMolecularAlterationsInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
-        gene.entrez_gene_id AS "entrezGeneId",
-        genetic_alteration.`values` AS "values",
-        genetic_profile.stable_id AS "molecularProfileId"
+            gene.entrez_gene_id AS "entrezGeneId",
+            <include refid="getTruncatedGeneticAlterationValues" />,
+            genetic_profile.stable_id AS "molecularProfileId"
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
@@ -144,7 +176,7 @@
         NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-        genetic_alteration.`values` AS "values"
+            <include refid="getTruncatedGeneticAlterationValues" />
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
@@ -167,7 +199,7 @@
             NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-            genetic_alteration.`values` AS "values"
+            <include refid="getTruncatedGeneticAlterationValues" />
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
@@ -194,7 +226,7 @@
             NULL AS "values"
         </if>
         <if test="projection != 'ID'">
-            genetic_alteration.`values` AS "values"
+            <include refid="getTruncatedGeneticAlterationValues" />
         </if>
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id

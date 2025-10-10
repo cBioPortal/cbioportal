@@ -68,7 +68,7 @@ public class ResourceDataServiceImpl implements ResourceDataService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return resourceDataRepository.getAllResourceDataForStudy(
         studyId, resourceId, projection, pageSize, pageNumber, sortBy, direction);
@@ -85,7 +85,7 @@ public class ResourceDataServiceImpl implements ResourceDataService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     List<ResourceData> results = new ArrayList<ResourceData>();
 

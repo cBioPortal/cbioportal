@@ -41,6 +41,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -237,6 +238,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
           cs = cacheMapUtil.getCancerStudyMap().get(p.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
+      }
+      case CancerStudyMetadata csm -> {
+        extractedCancerStudy = cacheMapUtil.getCancerStudyMap().get(csm.cancerStudyIdentifier());
       }
 
       default ->

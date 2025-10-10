@@ -28,7 +28,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     List<Gistic> gisticList =
         significantCopyNumberRegionRepository.getSignificantCopyNumberRegions(
@@ -55,7 +55,7 @@ public class SignificantCopyNumberRegionServiceImpl implements SignificantCopyNu
   public BaseMeta getMetaSignificantCopyNumberRegions(String studyId)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return significantCopyNumberRegionRepository.getMetaSignificantCopyNumberRegions(studyId);
   }

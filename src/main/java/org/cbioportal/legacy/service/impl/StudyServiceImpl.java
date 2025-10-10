@@ -125,6 +125,15 @@ public class StudyServiceImpl implements StudyService {
     return studyRepository.getTagsForMultipleStudies(studyIds);
   }
 
+  @Override
+  public void studyExists(String studyId) throws StudyNotFoundException {
+    List<CancerStudy> studies = studyRepository.fetchStudies(List.of(studyId), "ID");
+
+    if (studies.isEmpty()) {
+      throw new StudyNotFoundException(studyId);
+    }
+  }
+
   private List<CancerStudy> findPrimarySiteMatchingStudies(String keyword) {
 
     List<CancerStudy> matchingStudies = new ArrayList<>();

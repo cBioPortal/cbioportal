@@ -112,7 +112,7 @@
         </if>
         <include refid="from"/>
         <include refid="where"/>
-        GROUP BY cancer_study.cancer_study_id
+        GROUP BY cancer_study.cancer_study_id, cancer_study.cancer_study_identifier
         <if test="sortBy != null and projection != 'ID' and keyword == null">
             ORDER BY "${sortBy}" ${direction}
         </if>

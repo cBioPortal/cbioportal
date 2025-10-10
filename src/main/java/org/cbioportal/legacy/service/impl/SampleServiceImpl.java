@@ -62,7 +62,7 @@ public class SampleServiceImpl implements SampleService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
     List<Sample> samples =
         sampleRepository.getAllSamplesInStudy(
             studyId, projection, pageSize, pageNumber, sortBy, direction);
@@ -74,7 +74,7 @@ public class SampleServiceImpl implements SampleService {
   @Override
   public BaseMeta getMetaSamplesInStudy(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return sampleRepository.getMetaSamplesInStudy(studyId);
   }
@@ -96,7 +96,7 @@ public class SampleServiceImpl implements SampleService {
   public Sample getSampleInStudy(String studyId, String sampleId)
       throws SampleNotFoundException, StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
     Sample sample = sampleRepository.getSampleInStudy(studyId, sampleId);
 
     if (sample == null) {

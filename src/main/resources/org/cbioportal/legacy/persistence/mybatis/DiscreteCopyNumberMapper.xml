@@ -24,8 +24,8 @@
     </sql>
 
     <sql id="from">
-        FROM cna_event
-        INNER JOIN sample_cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
+        FROM sample_cna_event sample_cna_event
+        INNER JOIN cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
         INNER JOIN genetic_profile ON sample_cna_event.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN sample ON sample_cna_event.sample_id = sample.internal_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
@@ -38,7 +38,10 @@
 
     <sql id="where">
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            sample_cna_event.genetic_profile_id = (
+                SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileId}
+            )
+
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 AND sample.stable_id IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
@@ -56,7 +59,10 @@
 
     <sql id="whereBySampleListId">
         <where>
-            genetic_profile.stable_id = #{molecularProfileId}
+            sample_cna_event.genetic_profile_id = (
+                SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileId}
+            )
+            
             AND sample_cna_event.sample_id IN
             (
                 SELECT sample_list_list.sample_id FROM sample_list_list
@@ -78,7 +84,9 @@
         <where>
             <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
                 <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
-                genetic_profile.stable_id = #{molecularProfileIds[0]} AND
+                sample_cna_event.genetic_profile_id = (
+                    SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileIds[0]}
+                ) AND
                 sample.stable_id IN (
                     #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                 )
@@ -235,8 +243,8 @@
             ANY_VALUE(gene.hugo_gene_symbol) AS "hugoGeneSymbol",
             cna_event.alteration AS "alteration",
             COUNT(DISTINCT(sample_cna_event.sample_id)) AS "numberOfAlteredCases"
-        FROM cna_event
-            INNER JOIN sample_cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
+        FROM sample_cna_event
+            INNER JOIN cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
             INNER JOIN genetic_profile ON sample_cna_event.genetic_profile_id = genetic_profile.genetic_profile_id
             INNER JOIN sample ON sample_cna_event.sample_id = sample.internal_id
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id

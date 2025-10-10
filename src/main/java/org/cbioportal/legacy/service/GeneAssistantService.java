@@ -1,5 +1,5 @@
 package org.cbioportal.legacy.service;
 
-public interface AssistantService {
+public interface GeneAssistantService {
   String generateResponse(String prompt);
 }

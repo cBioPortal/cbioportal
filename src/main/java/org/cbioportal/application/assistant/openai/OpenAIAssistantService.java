@@ -1,20 +1,38 @@
-package com.example.assistant.openai;
+package org.cbioportal.application.assistant.openai;
 
-import com.example.assistant.AssistantService;
-import com.openai.springboot.OpenAIClient;
+import com.openai.client.OpenAIClient;
+import com.openai.models.responses.Response;
+import com.openai.models.responses.ResponseCreateParams;
+import com.openai.models.responses.ResponseOutputItem;
+import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-@Service("gpt")
-public class OpenAIAssistantService implements AssistantService {
+@Service
+@ConditionalOnProperty(name = "assistant", havingValue = "gpt")
+public class OpenAIAssistantService {
 
-  private final OpenAIClient client;
+  @Value("${assistant.openai.model}")
+  private String model;
 
-  public OpenAIAssistantService(OpenAIClient client) {
-    this.client = client;
+  private final OpenAIClient openAIClient;
+
+  public OpenAIAssistantService(OpenAIClient openAIClient) {
+    this.openAIClient = openAIClient;
   }
 
-  @Override
-  public String generateResponse(String prompt) {
-    return client.chatCompletion(prompt);
+  public String ask(String message) {
+    Response response =
+        openAIClient
+            .responses()
+            .create(ResponseCreateParams.builder().model(model).input(message).build());
+    System.out.println(response);
+    String text =
+        response.output().stream()
+            .map(ResponseOutputItem::toString)
+            .collect(Collectors.joining("\n"));
+
+    return text;
   }
 }

@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.cbioportal.application.assistant.GeneAssistantService;
 import org.cbioportal.legacy.model.GeneAssistantResponse;
-import org.cbioportal.legacy.service.GeneAssistantService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Validated
 @RestController()
-@ConditionalOnExpression("{'gpt','grok','gemini', 'custom'}.contains('${assistant}')")
+@ConditionalOnProperty(name = "spring.ai.enabled", havingValue = "true")
 public class GeneAssistantController {
 
   private final GeneAssistantService geneAssistantService;

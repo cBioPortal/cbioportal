@@ -32,7 +32,7 @@
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>2.14.2</db.version>
     <derived_table.version>1.0.2</derived_table.version>
-
+    <gene_table.version>hgnc_v2024.10.1</gene_table.version> 
     <!-- Version properties for dependencies that should have same version. -->
     <!-- The rest can be set in the dependencyManagement section -->
     <spring.social.version>1.1.6.RELEASE</spring.social.version>

@@ -32,6 +32,9 @@ public class InfoController {
   @Value("${derived_table.version}")
   private String derivedTableVersion;
 
+  @Value("${gene_table.version}")
+  private String geneTableVersion;
+  
   @Value("${git.branch:not set}")
   private String gitBranch;
 
@@ -76,6 +79,7 @@ public class InfoController {
     info.setPortalVersion(portalVersion);
     info.setDbVersion(dbVersion);
     info.setDerivedTableVersion(derivedTableVersion);
+    info.setGeneTableVersion(geneTableVersion);
     info.setGitBranch(gitBranch);
     info.setGitCommitId(gitCommitId);
     info.setGitCommitIdDescribe(gitCommitIdDescribe);

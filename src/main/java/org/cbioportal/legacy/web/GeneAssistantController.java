@@ -35,6 +35,7 @@ public class GeneAssistantController {
   @PostMapping(value = "/api/assistant", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<GeneAssistantResponse> fetchGeneAssistantResponse(
       @RequestBody String message) {
+
     String response = geneAssistantService.generateResponse(message);
     GeneAssistantResponse geneAssistantResponse = new GeneAssistantResponse();
     geneAssistantResponse.setAiResponse(response);

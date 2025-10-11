@@ -1,18 +1,27 @@
 package org.cbioportal.application.assistant;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import org.springframework.ai.azure.openai.AzureOpenAiChatModel;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 @Service
 @ConditionalOnProperty(name = "spring.ai.model.chat", havingValue = "azure-openai")
 public class OpenAIGeneAssistantService implements GeneAssistantService {
 
-  private final AzureOpenAiChatModel chatModel;
+  private static final String OQL_CONTEXT_FILE = "oql-context.st";
 
-  // @Value("classpath:/prompts/system-message.st")
-  // private Resource systemResource;
+  private final AzureOpenAiChatModel chatModel;
 
   @Autowired
   public OpenAIGeneAssistantService(AzureOpenAiChatModel chatModel) {
@@ -21,9 +30,18 @@ public class OpenAIGeneAssistantService implements GeneAssistantService {
 
   @Override
   public String generateResponse(String message) {
-    // SystemPromptTemplate systemPromptTemplate = new SystemPromptTemplate(systemResource);
-    // Message systemMessage = systemPromptTemplate.createMessage();
-    // Prompt prompt = new Prompt(List.of(userMessage, systemMessage));
-    return this.chatModel.call(message);
+    try {
+      Resource oqlContextResource = new ClassPathResource(OQL_CONTEXT_FILE);
+      String oqlContext =
+          new String(oqlContextResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+      Message systemMessage = new SystemMessage(oqlContext);
+      Message userMessage = new UserMessage(message);
+
+      Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
+      return this.chatModel.call(prompt).toString();
+
+    } catch (IOException e) {
+      throw new UncheckedIOException("Failed to read oql context prompt resource", e);
+    }
   }
 }

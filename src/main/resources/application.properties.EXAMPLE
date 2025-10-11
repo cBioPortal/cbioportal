@@ -4,6 +4,13 @@ app.name=cbioportal
 # Spring Boot Properties 2.7.14
 spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 
+# Spring AI Properties 1.0.3, see https://docs.spring.io/spring-ai/reference/api/chatmodel.html for other configurable models
+spring.ai.enabled=false
+#spring.ai.azure.openai.api-key=
+#spring.ai.azure.openai.endpoint=
+#spring.ai.azure.openai.chat.options.deployment-name=
+#spring.ai.model.chat=
+
 #Clickhouse Enabled
 # Set to True to enable Clickhouse (Warning Experimental Features)
 #clickhouse_mode=false

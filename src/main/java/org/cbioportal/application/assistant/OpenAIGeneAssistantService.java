@@ -8,6 +8,7 @@ import org.springframework.ai.azure.openai.AzureOpenAiChatModel;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -38,7 +39,8 @@ public class OpenAIGeneAssistantService implements GeneAssistantService {
       Message userMessage = new UserMessage(message);
 
       Prompt prompt = new Prompt(List.of(systemMessage, userMessage));
-      return this.chatModel.call(prompt).toString();
+      ChatResponse response = this.chatModel.call(prompt);
+      return response.getResult().getOutput().getText().toString();
 
     } catch (IOException e) {
       throw new UncheckedIOException("Failed to read oql context prompt resource", e);

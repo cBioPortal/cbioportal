@@ -36,7 +36,7 @@ public class ClickhouseMutationMapperTest {
 
 
         var result = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(allMolecularProfileIds,allSampleIds,
-            entrezGeneIds, false, "ID", null, null);
+            entrezGeneIds, false, "ID", "",null, null);
 
         assertEquals(2, result.size());
         result.forEach(mutation -> {
@@ -82,9 +82,9 @@ public class ClickhouseMutationMapperTest {
 
         //Calling meta,detailed and summary projection
         List<Mutation> resultID = clickhouseMutationMapper.getMutationsInMultipleMolecularProfilesId(allMolecularProfileIds,allSampleIds,
-            entrezGeneIds, false, "ID", null, null);
+            entrezGeneIds, false, "ID", "",null, null);
 
-        List<Mutation> resultDetailed = clickhouseMutationMapper.getSummaryMutationsInMultipleMolecularProfiles(allMolecularProfileIds,allSampleIds,
+        List<Mutation> resultDetailed = clickhouseMutationMapper.getDetailedMutationsInMultipleMolecularProfiles(allMolecularProfileIds,allSampleIds,
             entrezGeneIds, false, "DETAILED", null, null, null, null);
 
         List<Mutation> resultSummary = clickhouseMutationMapper.getSummaryMutationsInMultipleMolecularProfiles(allMolecularProfileIds,allSampleIds,

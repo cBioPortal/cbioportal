@@ -48,6 +48,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
                     entrezGeneIds,
                     false,
                     mutationSearchCriteria.projection().name(),
+                    "",
                     limit,
                     offset);
             case SUMMARY->

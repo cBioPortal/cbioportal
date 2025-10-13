@@ -17,6 +17,8 @@ public interface MutationRepository {
     
     /**
      *  Retrieves a list of mutations that match the specified filters and search criteria. 
+     *  The util(molecularProfileCaseIdentifierUtil) filters and groups sampleId and
+     *  molecularProfileIds to sanitize users input,avoiding round trip
      *  
      * @param molecularProfileIds List of molecularProfileIds
      * @param sampleIds List of sampleIds
@@ -35,7 +37,8 @@ public interface MutationRepository {
      * Retrieves aggregated metadata about mutations that match the specified filters.
      *
      *  <p>This method is typically used to determine dataset size, counts information without
-     *  fetching full mutation details.
+     *  fetching full mutation details.The util(molecularProfileCaseIdentifierUtil) filters 
+     *  and groups sampleId and molecularProfileIds to sanitize users input,avoiding round trip
      *  
      * @param molecularProfileIds List of molecularProfileIds
      * @param sampleIds List of sampleIds

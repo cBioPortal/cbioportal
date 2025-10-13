@@ -76,6 +76,9 @@
                     -- Leave non-numeric values as is, otherwise they will be converted to zero.
                     isNull(accurateCastOrNull(x, 'Float64')), 
                     x,
+                    -- Special Case 1b: Zero values
+                        toFloat64OrZero(x) = 0,
+                        '0',
                     -- Special Case 2: Very small numbers
                     -- Convert very small numbers to scientific notation first and then truncate,
                     -- otherwise they will be converted to zero.

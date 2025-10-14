@@ -4,16 +4,15 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.SampleListMapper">
 
     <sql id="select">
-        <!-- ROB: TODO : there is no GROUP BY clause in this file, so why were these problems? -->
-        ANY_VALUE(sample_list.list_id) AS "${prefix}listId",
-        ANY_VALUE(sample_list.stable_id) AS "${prefix}stableId"
+        sample_list.list_id AS "${prefix}listId",
+        sample_list.stable_id AS "${prefix}stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            ANY_VALUE(sample_list.cancer_study_id) AS "${prefix}cancerStudyId",
-            ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier",
-            ANY_VALUE(sample_list.category) AS "${prefix}category",
-            ANY_VALUE(sample_list.name) AS "${prefix}name",
-            ANY_VALUE(sample_list.description) AS "${prefix}description"
+            sample_list.cancer_study_id AS "${prefix}cancerStudyId",
+            cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier",
+            sample_list.category AS "${prefix}category",
+            sample_list.name AS "${prefix}name",
+            sample_list.description AS "${prefix}description"
         </if>
         <if test="projection == 'DETAILED'">
             ,

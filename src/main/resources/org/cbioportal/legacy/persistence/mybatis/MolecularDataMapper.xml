@@ -76,7 +76,12 @@
                     -- Leave non-numeric values as is, otherwise they will be converted to zero.
                     isNull(accurateCastOrNull(x, 'Float64')), 
                     x,
-                    -- Special Case 2: Very small numbers
+                    -- Special Case 2: Zero values
+                    -- We need to handle zero values separately otherwise they will break the very small number logic
+                    -- due to the fact that log10(0) is equal to -Infinity
+                    toFloat64OrZero(x) = 0,
+                    '0',
+                    -- Special Case 3: Very small numbers
                     -- Convert very small numbers to scientific notation first and then truncate,
                     -- otherwise they will be converted to zero.
                     abs(toFloat64OrZero(x)) &lt; 0.0001,

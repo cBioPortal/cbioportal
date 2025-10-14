@@ -16,9 +16,16 @@
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.StudyMapper.select">
-                <property name="prefix" value="${prefix}cancerStudy."/>
-            </include>
+            cancer_study.type_of_cancer_id AS "${prefix}cancerStudy.typeOfCancerId",
+            cancer_study.name AS "${prefix}cancerStudy.name",
+            cancer_study.description AS "${prefix}cancerStudy.description",
+            cancer_study.public AS "${prefix}cancerStudy.publicStudy",
+            cancer_study.pmid AS "${prefix}cancerStudy.pmid",
+            cancer_study.citation AS "${prefix}cancerStudy.citation",
+            cancer_study.groups AS "${prefix}cancerStudy.groups",
+            cancer_study.status AS "${prefix}cancerStudy.status",
+            cancer_study.import_date AS "${prefix}cancerStudy.importDate",
+            reference_genome.name AS "${prefix}cancerStudy.referenceGenome"
         </if>
     </sql>
 

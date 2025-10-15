@@ -14,7 +14,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @EnableMethodSecurity(prePostEnabled = true)
 // We are allowing users to enable method_authorization if optional_oauth2 is selected
 @ConditionalOnExpression(
-    "{'oauth2','saml', 'saml_plus_basic'}.contains('${authenticate}') or ('optional_oauth2' eq '${authenticate}' and 'true' eq '${security.method_authorization_enabled}')")
+    "{'oauth2','saml', 'saml_plus_basic'}.contains('${authenticate}') or ('optional_oauth2' eq"
+        + " '${authenticate}' and 'true' eq '${security.method_authorization_enabled}')")
 public class MethodSecurityConfig {
 
   @Bean

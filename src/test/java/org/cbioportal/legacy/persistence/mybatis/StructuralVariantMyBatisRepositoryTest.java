@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StructuralVariantFilterQuery;
@@ -36,24 +37,30 @@ import org.cbioportal.legacy.model.StructuralVariantGeneSubQuery;
 import org.cbioportal.legacy.model.StructuralVariantQuery;
 import org.cbioportal.legacy.model.StructuralVariantSpecialValue;
 import org.cbioportal.legacy.model.util.Select;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      StructuralVariantMyBatisRepository.class,
-      StructuralVariantMapper.class,
-      MolecularProfileCaseIdentifierUtil.class,
-      TestConfig.class
-    })
+@Import({
+  MyBatisLegacyConfig.class,
+  StructuralVariantMyBatisRepository.class,
+  MolecularProfileCaseIdentifierUtil.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class StructuralVariantMyBatisRepositoryTest {
 
   //    struct var events in testSql.sql

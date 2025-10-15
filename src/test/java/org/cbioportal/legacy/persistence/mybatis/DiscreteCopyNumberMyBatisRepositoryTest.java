@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
@@ -12,22 +13,29 @@ import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.ReferenceGenomeGene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.model.util.Select;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      DiscreteCopyNumberMyBatisRepository.class,
-      ReferenceGenomeGeneMyBatisRepository.class,
-      TestConfig.class
-    })
+@Import({
+  MyBatisLegacyConfig.class,
+  DiscreteCopyNumberMyBatisRepository.class,
+  ReferenceGenomeGeneMyBatisRepository.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class DiscreteCopyNumberMyBatisRepositoryTest {
 
   //    mutation, cna and struct var events in testSql.sql

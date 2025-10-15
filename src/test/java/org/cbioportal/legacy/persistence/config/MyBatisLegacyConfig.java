@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.config;
 
 import java.io.IOException;
 import javax.sql.DataSource;
+import org.cbioportal.legacy.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -31,6 +32,8 @@ public class MyBatisLegacyConfig {
       throws IOException {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
+    // mapper that mediate string to enum conversions
+    sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
     sessionFactory.addMapperLocations(
         context.getResources("classpath:org/cbioportal/persistence/**/*.xml"));
     return sessionFactory;

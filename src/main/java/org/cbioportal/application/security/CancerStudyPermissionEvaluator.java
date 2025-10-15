@@ -33,9 +33,15 @@
 package org.cbioportal.application.security;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
+import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -135,7 +141,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
       return false;
     }
-    CancerStudy cancerStudy = getRelevantCancerStudyFromTarget(targetDomainObject);
+    CancerStudy cancerStudy = extractCancerStudy(targetDomainObject);
     if (log.isDebugEnabled()) {
       if (cancerStudy == null) {
         log.debug("hasPermission(), stable cancer study is null.");
@@ -185,118 +191,218 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
       return false;
     }
-    if (TARGET_TYPE_CANCER_STUDY_ID.equals(targetType)) {
-      return hasAccessToCancerStudy(authentication, (String) targetId, permission);
-    } else if (TARGET_TYPE_MOLECULAR_PROFILE_ID.equals(targetType)
-        || TARGET_TYPE_GENETIC_PROFILE_ID.equals(targetType)) {
-      return hasAccessToMolecularProfile(authentication, (String) targetId, permission);
-    } else if (TARGET_TYPE_SAMPLE_LIST_ID.equals(targetType)) {
-      return hasAccessToSampleList(authentication, (String) targetId, permission);
-    } else if (TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS.equals(targetType)) {
-      return hasAccessToCancerStudies(authentication, (Collection<String>) targetId, permission);
-    } else if (TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS.equals(targetType)
-        || TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS.equals(targetType)) {
-      return hasAccessToMolecularProfiles(
-          authentication, (Collection<String>) targetId, permission);
-    } else if (TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS.equals(targetType)) {
-      return hasAccessToSampleLists(authentication, (Collection<String>) targetId, permission);
-    } else if (targetType.contains("Filter")) {
-      switch (targetId) {
-        case SampleFilter sampleFilter -> {
-          return hasAccessToCancerStudies(
-              authentication,
-              CancerStudyExtractorUtil.extractCancerStudyIdsFromSampleFilter(
-                  sampleFilter, this.cacheMapUtil),
-              permission);
-        }
-        case StudyViewFilter studyViewFilter -> {
-          return hasAccessToCancerStudies(
-              authentication, studyViewFilter.getUniqueStudyIds(), permission);
-        }
-        case ClinicalDataCountFilter clinicalDataCountFilter -> {
-          Set<String> studyIds = new HashSet<>();
-          if (clinicalDataCountFilter.getStudyViewFilter() != null) {
-            studyIds = clinicalDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
-          }
-          return hasAccessToCancerStudies(authentication, studyIds, permission);
-        }
-        case DataBinCountFilter dataBinCountFilter -> {
-          Set<String> studyIds = new HashSet<>();
-          if (dataBinCountFilter.getStudyViewFilter() != null) {
-            studyIds = dataBinCountFilter.getStudyViewFilter().getUniqueStudyIds();
-          }
-          return hasAccessToCancerStudies(authentication, studyIds, permission);
-        }
-        case GenomicDataCountFilter genomicDataCountFilter -> {
-          Set<String> studyIds = new HashSet<>();
-          if (genomicDataCountFilter.getStudyViewFilter() != null) {
-            studyIds = genomicDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
-          }
-          return hasAccessToCancerStudies(authentication, studyIds, permission);
-        }
-        case GenericAssayDataCountFilter genericAssayDataCountFilter -> {
-          Set<String> studyIds = new HashSet<>();
-          if (genericAssayDataCountFilter.getStudyViewFilter() != null) {
-            studyIds = genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds();
-          }
-          return hasAccessToCancerStudies(authentication, studyIds, permission);
-        }
 
-        case MolecularProfileCasesGroupAndAlterationTypeFilter
-                molecularProfileCasesGroupAndAlterationTypeFilter -> {
-          Set<String> molecularProfileIds =
-              molecularProfileCasesGroupAndAlterationTypeFilter
-                  .getMolecularProfileCasesGroupFilter()
-                  .stream()
-                  .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
-                  .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-                  .collect(Collectors.toSet());
-          return hasAccessToMolecularProfiles(authentication, molecularProfileIds, permission);
+    try {
+      Collection<CancerStudy> cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
+      for (CancerStudy cs : cancerStudies) {
+        if (cs == null || !hasAccessToCancerStudy(authentication, cs, (AccessLevel) permission)) {
+          return false;
         }
-
-        default -> log.debug("hasPermission(), unknown targetType '" + targetType + "'");
       }
-    } else {
-      if (log.isDebugEnabled()) {
-        log.debug("hasPermission(), unknown targetType '" + targetType + "'");
-      }
+      return true;
+    } catch (Exception e) {
+      return false;
     }
-    return false;
   }
 
-  private CancerStudy getRelevantCancerStudyFromTarget(Object targetDomainObject) {
-    if (targetDomainObject instanceof CancerStudy) {
-      return (CancerStudy) targetDomainObject;
-    } else if (targetDomainObject instanceof MolecularProfile) {
-      MolecularProfile molecularProfile = (MolecularProfile) targetDomainObject;
-      if (molecularProfile.getCancerStudy() != null) {
-        return molecularProfile.getCancerStudy();
+  /**
+   * Extracts the associated {@code CancerStudy} from a given domain object. Access is always
+   * resolved to the CancerStudy, regardless of the target type.
+   *
+   * @param target The domain object instance. Expected to be one of {@code CancerStudy}, {@code
+   *     MolecularProfile}, {@code SampleList}, or {@code Patient}.
+   * @return The associated {@code CancerStudy} object, or {@code null} if the study cannot be found
+   *     or the target type is not supported.
+   */
+  private CancerStudy extractCancerStudy(Object target) {
+    CancerStudy extractedCancerStudy = null;
+    switch (target) {
+      case CancerStudy cs -> extractedCancerStudy = cs;
+      case MolecularProfile mp -> {
+        var cs = mp.getCancerStudy();
+        if (mp.getCancerStudy() == null) {
+          cs = cacheMapUtil.getCancerStudyMap().get(mp.getCancerStudyIdentifier());
+        }
+        extractedCancerStudy = cs;
       }
-      // cancer study was not included so get it from cache
-      return cacheMapUtil.getCancerStudyMap().get(molecularProfile.getCancerStudyIdentifier());
-    } else if (targetDomainObject instanceof SampleList) {
-      SampleList sampleList = (SampleList) targetDomainObject;
-      if (sampleList.getCancerStudy() != null) {
-        return sampleList.getCancerStudy();
+      case SampleList sl -> {
+        var cs = sl.getCancerStudy();
+        if (cs == null) {
+          cs = cacheMapUtil.getCancerStudyMap().get(sl.getCancerStudyIdentifier());
+        }
+        extractedCancerStudy = cs;
       }
-      // cancer study was not included so get it from cache
-      return cacheMapUtil.getCancerStudyMap().get(sampleList.getCancerStudyIdentifier());
-    } else if (targetDomainObject instanceof Patient) {
-      Patient patient = (Patient) targetDomainObject;
-      if (patient.getCancerStudy() != null) {
-        return patient.getCancerStudy();
+      case Patient p -> {
+        var cs = p.getCancerStudy();
+        if (cs == null) {
+          cs = cacheMapUtil.getCancerStudyMap().get(p.getCancerStudyIdentifier());
+        }
+        extractedCancerStudy = cs;
       }
-      // cancer study was not included so get it from cache
-      return cacheMapUtil.getCancerStudyMap().get(patient.getCancerStudyIdentifier());
+      case CancerStudyMetadata csm -> {
+        extractedCancerStudy = cacheMapUtil.getCancerStudyMap().get(csm.cancerStudyIdentifier());
+      }
+
+      default ->
+          log.debug("hasPermission(), unknown targetType '" + target.getClass().getName() + "'");
     }
-    // unable to handle targetDomainObject type
-    if (log.isDebugEnabled()) {
-      log.debug(
-          "hasPermission(), targetDomainObject class is '"
-              + targetDomainObject.getClass().getName()
-              + "'");
+    return extractedCancerStudy;
+  }
+
+  /**
+   * Converts a target ID/collection/filter into a set of unique {@code CancerStudy} objects.
+   *
+   * @param target The target object, which can be a single ID, a collection of IDs, or a filter
+   *     object.
+   * @param targetType The string indicating the type of the target (e.g., 'MolecularProfileId',
+   *     'Collection<SampleListId>').
+   * @return A {@code Set} of associated {@code CancerStudy} objects. Returns an empty set if the
+   *     target is null or unknown.
+   * @throws ClassCastException if a collection target cannot be cast to {@code Collection<String>}.
+   */
+  private Set<CancerStudy> extractCancerStudiesFromTarget(Object target, String targetType) {
+    if (target == null) {
+      return new HashSet<>();
     }
-    return null;
+
+    // Handle Filter Types
+    if (targetType.contains("Filter")) {
+      Set<String> studyIds = extractStudyIdsFromFilter(target);
+      return extractCancerStudiesFromIds(studyIds, TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS);
+    }
+
+    // Handle Collections
+    if (target instanceof Collection<?> collection) {
+      Collection<String> ids = (Collection<String>) collection;
+      return extractCancerStudiesFromIds(ids, targetType);
+    }
+
+    if (target instanceof String id) {
+      CancerStudy study = extractCancerStudyById(id, targetType);
+      return study != null ? Set.of(study) : new HashSet<>();
+    }
+
+    log.debug(
+        "hasPermission(targetId, targetType), unknown type '" + target.getClass().getName() + "'");
+    return new HashSet<>();
+  }
+
+  /**
+   * Resolves a single ID string of a specific type to its associated {@code CancerStudy}.
+   *
+   * @param id The string identifier.
+   * @param targetType The type of the ID (e.g., {@code TARGET_TYPE_MOLECULAR_PROFILE_ID}).
+   * @return The associated {@code CancerStudy}, or {@code null} if not found or type is unknown.
+   */
+  private CancerStudy extractCancerStudyById(String id, String targetType) {
+    return switch (targetType) {
+      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyMap().get(id);
+      case TARGET_TYPE_MOLECULAR_PROFILE_ID, TARGET_TYPE_GENETIC_PROFILE_ID -> {
+        var mp = cacheMapUtil.getMolecularProfileMap().get(id);
+        yield extractCancerStudy(mp);
+      }
+      case TARGET_TYPE_SAMPLE_LIST_ID -> {
+        var sampleList = cacheMapUtil.getSampleListMap().get(id);
+        yield extractCancerStudy(sampleList);
+      }
+      default -> {
+        log.debug("hasPermission(), unknown targetType '" + targetType + "'");
+        yield null;
+      }
+    };
+  }
+
+  /**
+   * Converts a collection of identifiers (of a specific type) into a set of unique {@code
+   * CancerStudy} objects.
+   *
+   * @param ids The collection of ID strings.
+   * @param targetType The type of the collection (e.g., {@code
+   *     TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS}).
+   * @return A {@code Set<CancerStudy>} containing all unique, non-null studies linked to the
+   *     provided IDs.
+   */
+  private Set<CancerStudy> extractCancerStudiesFromIds(Collection<String> ids, String targetType) {
+    return ids.stream()
+        .map(id -> extractCancerStudyById(id, getSingleTargetType(targetType)))
+        .filter(Objects::nonNull)
+        .collect(Collectors.toSet());
+  }
+
+  /**
+   * Converts a collection-based target type string into its single-item equivalent. This is used
+   * when iterating over a collection of IDs to determine the type of each individual ID.
+   *
+   * @param collectionTargetType The collection type string (e.g., {@code
+   *     TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS}).
+   * @return The corresponding single-item type string (e.g., {@code TARGET_TYPE_CANCER_STUDY_ID}).
+   */
+  private String getSingleTargetType(String collectionTargetType) {
+    return switch (collectionTargetType) {
+      case TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS -> TARGET_TYPE_CANCER_STUDY_ID;
+      case TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS -> TARGET_TYPE_MOLECULAR_PROFILE_ID;
+      case TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS -> TARGET_TYPE_GENETIC_PROFILE_ID;
+      case TARGET_TYPE_COLLECTION_OF_SAMPLE_LIST_IDS -> TARGET_TYPE_SAMPLE_LIST_ID;
+      default -> collectionTargetType;
+    };
+  }
+
+  /**
+   * Extracts a set of {@code CancerStudy} identifiers from various application-specific filter
+   * objects.
+   *
+   * @param filter An object instance of a known filter type (e.g., {@code SampleFilter}, {@code
+   *     StudyViewFilter}).
+   * @return A {@code Set<String>} of unique cancer study identifiers referenced by the filter.
+   *     Returns an empty set for unknown filter types or filters that yield no studies.
+   * @throws IllegalStateException if a molecular profile ID is encountered but the corresponding
+   *     MolecularProfile object cannot be found.
+   */
+  private Set<String> extractStudyIdsFromFilter(Object filter) {
+    return switch (filter) {
+      case SampleFilter sampleFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromSampleFilter(
+                  sampleFilter, this.cacheMapUtil)
+              .stream()
+              .collect(Collectors.toSet());
+      case StudyViewFilter studyViewFilter -> studyViewFilter.getUniqueStudyIds();
+      case ClinicalDataCountFilter clinicalDataCountFilter ->
+          clinicalDataCountFilter.getStudyViewFilter() != null
+              ? clinicalDataCountFilter.getStudyViewFilter().getUniqueStudyIds()
+              : new HashSet<>();
+      case DataBinCountFilter dataBinCountFilter ->
+          dataBinCountFilter.getStudyViewFilter() != null
+              ? dataBinCountFilter.getStudyViewFilter().getUniqueStudyIds()
+              : new HashSet<>();
+      case GenomicDataCountFilter genomicDataCountFilter ->
+          genomicDataCountFilter.getStudyViewFilter() != null
+              ? genomicDataCountFilter.getStudyViewFilter().getUniqueStudyIds()
+              : new HashSet<>();
+      case GenericAssayDataCountFilter genericAssayDataCountFilter ->
+          genericAssayDataCountFilter.getStudyViewFilter() != null
+              ? genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds()
+              : new HashSet<>();
+      case MolecularProfileCasesGroupAndAlterationTypeFilter mpgFilter -> {
+        Collection<MolecularProfile> molecularProfiles =
+            mpgFilter.getMolecularProfileCasesGroupFilter().stream()
+                .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
+                .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+                .map(id -> cacheMapUtil.getMolecularProfileMap().get(id))
+                .collect(Collectors.toList());
+
+        if (molecularProfiles.contains(null)) {
+          throw new IllegalStateException("MolecularProfile not found ");
+        }
+
+        yield molecularProfiles.stream()
+            .map(m -> m.getCancerStudyIdentifier())
+            .collect(Collectors.toSet());
+      }
+      default -> {
+        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
+        yield new HashSet<>();
+      }
+    };
   }
 
   /**
@@ -355,7 +461,8 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2"))) {
       if (log.isDebugEnabled()) {
         log.debug(
-            "hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return true");
+            "hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return"
+                + " true");
       }
       return true;
     }
@@ -391,74 +498,6 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
     }
     return toReturn;
-  }
-
-  private boolean hasAccessToCancerStudy(
-      Authentication authentication, String cancerStudyId, Object permission) {
-    // everybody has access the 'all' cancer study
-    // we have to check this right here (instead of checking later)
-    // because the 'all' cancer study does not exist in the database
-    if (cancerStudyId.equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
-      return true;
-    }
-    CancerStudy cancerStudy = cacheMapUtil.getCancerStudyMap().get(cancerStudyId);
-    if (cancerStudy == null) {
-      return false;
-    }
-    return hasPermission(authentication, cancerStudy, permission);
-  }
-
-  private boolean hasAccessToMolecularProfile(
-      Authentication authentication, String molecularProfileId, Object permission) {
-    MolecularProfile molecularProfile =
-        cacheMapUtil.getMolecularProfileMap().get(molecularProfileId);
-    if (molecularProfile == null) {
-      return false;
-    }
-    return hasPermission(authentication, molecularProfile, permission);
-  }
-
-  private boolean hasAccessToSampleList(
-      Authentication authentication, String sampleListId, Object permission) {
-    SampleList sampleList = cacheMapUtil.getSampleListMap().get(sampleListId);
-    if (sampleList == null) {
-      return false;
-    }
-    return hasPermission(authentication, sampleList, permission);
-  }
-
-  private boolean hasAccessToCancerStudies(
-      Authentication authentication, Collection<String> cancerStudyIds, Object permission) {
-    for (String cancerStudyId : cancerStudyIds) {
-      if (!hasPermission(authentication, cancerStudyId, TARGET_TYPE_CANCER_STUDY_ID, permission)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean hasAccessToMolecularProfiles(
-      Authentication authentication, Collection<String> molecularProfileIds, Object permission) {
-    for (String molecularProfileId : molecularProfileIds) {
-      MolecularProfile molecularProfile =
-          cacheMapUtil.getMolecularProfileMap().get(molecularProfileId);
-      if (molecularProfile == null
-          || !hasPermission(authentication, molecularProfile, permission)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean hasAccessToSampleLists(
-      Authentication authentication, Collection<String> sampleListIds, Object permission) {
-    for (String sampleListId : sampleListIds) {
-      SampleList sampleList = cacheMapUtil.getSampleListMap().get(sampleListId);
-      if (sampleList == null || !hasPermission(authentication, sampleList, permission)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private Set<String> getGrantedAuthorities(Authentication authentication) {

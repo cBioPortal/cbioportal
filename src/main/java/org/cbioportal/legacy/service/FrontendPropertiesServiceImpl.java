@@ -158,6 +158,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     generic_assay_display_text("generic_assay_display_text", null),
     app_version("app.version", null),
     frontendSentryEndpoint("sentryjs.frontend_project_endpoint", null),
+    spring_ai_enabled("spring.ai.enabled", null),
 
     // These properties require additional processing.
     // Names refer to the property that requires processing.

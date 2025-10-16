@@ -30,7 +30,7 @@
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
     <frontend.version>v6.4.0</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.14.3</db.version>
+    <db.version>2.14.4</db.version>
     <derived_table.version>1.0.2</derived_table.version>
 
     <!-- Version properties for dependencies that should have same version. -->

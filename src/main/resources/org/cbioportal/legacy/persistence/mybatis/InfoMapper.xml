@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.legacy.persistence.mybatis.InfoMapper">
+
+    <resultMap id="InfoDbResult" type="org.cbioportal.legacy.model.InfoDb">
+        <result column="DB_SCHEMA_VERSION" property="dbSchemaVersion"/>
+        <result column="GENESET_VERSION" property="genesetVersion"/>
+        <result column="DERIVED_TABLE_SCHEMA_VERSION" property="derivedTableSchemaVersion"/>
+        <result column="GENE_TABLE_VERSION" property="geneTableVersion"/>
+    </resultMap>
+
+    <select id="getInfo" resultMap="InfoDbResult">
+        SELECT DB_SCHEMA_VERSION, GENESET_VERSION, DERIVED_TABLE_SCHEMA_VERSION, GENE_TABLE_VERSION
+        FROM info
+        LIMIT 1
+    </select>
+
+</mapper>
+
+

@@ -4,30 +4,34 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.SampleListMapper">
 
     <sql id="select">
-        <!-- ROB: TODO : there is no GROUP BY clause in this file, so why were these problems? -->
-        ANY_VALUE(sample_list.list_id) AS "${prefix}listId",
-        ANY_VALUE(sample_list.stable_id) AS "${prefix}stableId"
+        sample_list.list_id AS "listId",
+        sample_list.stable_id AS "stableId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            ANY_VALUE(sample_list.cancer_study_id) AS "${prefix}cancerStudyId",
-            ANY_VALUE(cancer_study.cancer_study_identifier) AS "${prefix}cancerStudyIdentifier",
-            ANY_VALUE(sample_list.category) AS "${prefix}category",
-            ANY_VALUE(sample_list.name) AS "${prefix}name",
-            ANY_VALUE(sample_list.description) AS "${prefix}description"
+            sample_list.cancer_study_id AS "cancerStudyId",
+            cancer_study.cancer_study_identifier AS "cancerStudyIdentifier",
+            sample_list.category AS "category",
+            sample_list.name AS "name",
+            sample_list.description AS "description"
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.StudyMapper.select">
-                <property name="prefix" value="${prefix}cancerStudy."/>
-            </include>
+            cancer_study.type_of_cancer_id AS "cancerStudy.typeOfCancerId",
+            cancer_study.name AS "cancerStudy.name",
+            cancer_study.description AS "cancerStudy.description",
+            cancer_study.public AS "cancerStudy.publicStudy",
+            cancer_study.pmid AS "cancerStudy.pmid",
+            cancer_study.citation AS "cancerStudy.citation",
+            cancer_study.groups AS "cancerStudy.groups",
+            cancer_study.status AS "cancerStudy.status",
+            cancer_study.import_date AS "cancerStudy.importDate",
+            reference_genome.name AS "cancerStudy.referenceGenome"
         </if>
     </sql>
 
     <select id="getAllSampleLists" resultType="org.cbioportal.legacy.model.SampleList">
         SELECT
-        <include refid="select">
-            <property name="prefix" value=""/>
-        </include>
+        <include refid="select"/>
         FROM sample_list
         INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
@@ -63,9 +67,7 @@
 
     <select id="getSampleList" resultType="org.cbioportal.legacy.model.SampleList">
         SELECT
-        <include refid="select">
-            <property name="prefix" value=""/>
-        </include>
+        <include refid="select"/>
         FROM sample_list
         INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
@@ -74,9 +76,7 @@
 
     <select id="getSampleLists" resultType="org.cbioportal.legacy.model.SampleList">
         SELECT
-        <include refid="select">
-            <property name="prefix" value=""/>
-        </include>
+        <include refid="select"/>
         FROM sample_list
         INNER JOIN cancer_study ON sample_list.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id

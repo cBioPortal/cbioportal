@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import static org.junit.Assert.assertArrayEquals;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,10 +51,10 @@ public class MolecularProfileMyBatisRepositoryTest {
 
     List<MolecularProfile> result =
         molecularProfileMyBatisRepository.getAllMolecularProfiles(
-            "SUMMARY", null, null, null, null);
+            "SUMMARY", null, null, "stableId", "ASC");
 
     Assert.assertEquals(12, result.size());
-    MolecularProfile molecularProfile = result.get(0);
+    MolecularProfile molecularProfile = result.get(2);
     Assert.assertEquals((Integer) 2, molecularProfile.getMolecularProfileId());
     Assert.assertEquals("study_tcga_pub_gistic", molecularProfile.getStableId());
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
@@ -76,10 +77,10 @@ public class MolecularProfileMyBatisRepositoryTest {
 
     List<MolecularProfile> result =
         molecularProfileMyBatisRepository.getAllMolecularProfiles(
-            "DETAILED", null, null, null, null);
+            "DETAILED", null, null, "stableId", "ASC");
 
     Assert.assertEquals(12, result.size());
-    MolecularProfile molecularProfile = result.get(0);
+    MolecularProfile molecularProfile = result.get(2);
     Assert.assertEquals((Integer) 2, molecularProfile.getMolecularProfileId());
     Assert.assertEquals("study_tcga_pub_gistic", molecularProfile.getStableId());
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
@@ -100,9 +101,9 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -188,9 +189,9 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -227,7 +228,7 @@ public class MolecularProfileMyBatisRepositoryTest {
 
     List<MolecularProfile> result =
         molecularProfileMyBatisRepository.getAllMolecularProfilesInStudy(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "stableId", "ASC");
 
     Assert.assertEquals(10, result.size());
     MolecularProfile molecularProfile = result.get(0);
@@ -263,6 +264,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     List<MolecularProfile> result =
         molecularProfileMyBatisRepository.getMolecularProfilesInStudies(
             Arrays.asList("study_tcga_pub", "acc_tcga"), "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(12, result.size());
     MolecularProfile molecularProfile = result.get(0);
@@ -289,5 +291,9 @@ public class MolecularProfileMyBatisRepositoryTest {
             Arrays.asList("study_tcga_pub", "acc_tcga"));
 
     Assert.assertEquals((Integer) 12, result.getTotalCount());
+  }
+
+  private List<MolecularProfile> sortedResult(List<MolecularProfile> result) {
+    return result.stream().sorted(Comparator.comparing(MolecularProfile::getStableId)).toList();
   }
 }

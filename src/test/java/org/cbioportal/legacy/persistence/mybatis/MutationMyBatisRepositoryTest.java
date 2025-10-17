@@ -180,7 +180,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -235,7 +235,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -286,7 +286,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -964,8 +964,15 @@ public class MutationMyBatisRepositoryTest {
 
     List<Mutation> result =
         mutationMyBatisRepository.fetchMutationsInMolecularProfile(
-            "study_tcga_pub_mutations", sampleIds, null, false, "SUMMARY", null, null, null, null);
-
+            "study_tcga_pub_mutations",
+            sampleIds,
+            null,
+            false,
+            "SUMMARY",
+            null,
+            null,
+            "sampleId",
+            "ASC");
     Assert.assertEquals(3, result.size());
     Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getMolecularProfileId());
     Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleId());

@@ -33,6 +33,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gene;
@@ -115,6 +116,7 @@ public class GenesetMyBatisRepositoryTest {
   public void getGenesByGenesetId() {
     // String genesetId
     List<Gene> genes = genesetMyBatisRepository.getGenesByGenesetId("HINATA_NFKB_MATRIX");
+    genes = sortedGenesResult(genes);
     Assert.assertEquals(2, genes.size());
     Gene gene = genes.get(0);
     Assert.assertEquals(369, gene.getEntrezGeneId().intValue());
@@ -122,10 +124,15 @@ public class GenesetMyBatisRepositoryTest {
     Assert.assertEquals(472, gene.getEntrezGeneId().intValue());
 
     genes = genesetMyBatisRepository.getGenesByGenesetId("MORF_ATRX");
+    genes = sortedGenesResult(genes);
     Assert.assertEquals(3, genes.size());
     gene = genes.get(0);
     Assert.assertEquals(1, 207, gene.getEntrezGeneId().intValue());
     gene = genes.get(2);
     Assert.assertEquals(10000, gene.getEntrezGeneId().intValue());
+  }
+
+  private List<Gene> sortedGenesResult(List<Gene> result) {
+    return result.stream().sorted(Comparator.comparing(Gene::getHugoGeneSymbol)).toList();
   }
 }

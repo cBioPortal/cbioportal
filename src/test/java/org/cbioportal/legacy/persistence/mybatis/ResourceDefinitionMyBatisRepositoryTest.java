@@ -61,7 +61,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
 
     List<ResourceDefinition> result =
         resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
-            List.of("study_tcga_pub"), "SUMMARY", null, null, null, null);
+            List.of("study_tcga_pub"), "SUMMARY", null, null, "resourceId", "ASC");
 
     Assert.assertEquals(2, result.size());
     ResourceDefinition resourceDefinition = result.get(0);
@@ -78,7 +78,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
 
     List<ResourceDefinition> result =
         resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
-            List.of("study_tcga_pub"), "DETAILED", null, null, null, null);
+            List.of("study_tcga_pub"), "DETAILED", null, null, "resourceId", "ASC");
 
     Assert.assertEquals(2, result.size());
     ResourceDefinition resourceDefinition = result.get(0);

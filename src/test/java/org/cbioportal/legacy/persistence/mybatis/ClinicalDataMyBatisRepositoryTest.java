@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -618,6 +619,7 @@ public class ClinicalDataMyBatisRepositoryTest {
             Arrays.asList("OTHER_SAMPLE_ID", "DAYS_TO_COLLECTION"),
             "SAMPLE",
             "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     ClinicalDataCount clinicalDataCount1 = result.get(0);
@@ -693,5 +695,9 @@ public class ClinicalDataMyBatisRepositoryTest {
     List<ClinicalData> result =
         clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     Assert.assertEquals(0, result.size());
+  }
+
+  private List<ClinicalDataCount> sortedResult(List<ClinicalDataCount> result) {
+    return result.stream().sorted(Comparator.comparing(ClinicalDataCount::getAttributeId)).toList();
   }
 }

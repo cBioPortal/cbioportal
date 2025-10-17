@@ -128,6 +128,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
             "study_tcga_pub_gistic", "study_tcga_pub_all", entrezGeneIds, alterations, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -246,14 +247,15 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.fetchDiscreteCopyNumbersInMolecularProfile(
             "study_tcga_pub_gistic", sampleIds, entrezGeneIds, alterations, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals("study_tcga_pub_gistic", result.get(0).getMolecularProfileId());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getSampleId());
     Assert.assertEquals("study_tcga_pub_gistic", result.get(1).getMolecularProfileId());
-    Assert.assertEquals("TCGA-A1-A0SD-01", result.get(1).getSampleId());
+    Assert.assertEquals("TCGA-A1-A0SB-01", result.get(1).getSampleId());
     Assert.assertEquals("study_tcga_pub_gistic", result.get(2).getMolecularProfileId());
-    Assert.assertEquals("TCGA-A1-A0SB-01", result.get(2).getSampleId());
+    Assert.assertEquals("TCGA-A1-A0SD-01", result.get(2).getSampleId());
   }
 
   @Test
@@ -284,6 +286,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     List<CopyNumberCountByGene> result =
         discreteCopyNumberMyBatisRepository.getSampleCountByGeneAndAlterationAndSampleIds(
             "study_tcga_pub_gistic", null, Arrays.asList(207, 208), Arrays.asList(-2, 2));
+    result = sortedCountResult(result);
 
     Assert.assertEquals(2, result.size());
     CopyNumberCountByGene copyNumberSampleCountByGene1 = result.get(0);
@@ -311,6 +314,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMultipleMolecularProfiles(
             molecularProfileIds, sampleIds, null, alterationTypes, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     DiscreteCopyNumberData cna1 = result.get(0);
@@ -729,5 +733,17 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
         .allMatch(r -> r.getMolecularProfileId().equals("study_tcga_pub_gistic")));
     List<String> expectedSampleIds = Arrays.asList("TCGA-A1-A0SB-01");
     assert (result.stream().allMatch(r -> expectedSampleIds.contains(r.getSampleId())));
+  }
+
+  private List<DiscreteCopyNumberData> sortedResult(List<DiscreteCopyNumberData> result) {
+    return result.stream()
+        .sorted(Comparator.comparing(c -> c.getSampleId() + "_" + c.getAlteration()))
+        .toList();
+  }
+
+  private List<CopyNumberCountByGene> sortedCountResult(List<CopyNumberCountByGene> result) {
+    return result.stream()
+        .sorted(Comparator.comparing(CopyNumberCountByGene::getEntrezGeneId))
+        .toList();
   }
 }

@@ -26,6 +26,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -436,7 +437,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     List<StructuralVariant> result =
         structuralVariantMyBatisRepository.fetchStructuralVariants(
             molecularProfileIds, sampleIds, entrezGeneIds, noStructVars);
-
+    result = sortedResult(result);
     Assert.assertEquals(2, result.size());
     StructuralVariant structuralVariantFirstResult = result.get(0);
     Assert.assertEquals("acc_tcga_sv", structuralVariantFirstResult.getMolecularProfileId());
@@ -1011,5 +1012,9 @@ public class StructuralVariantMyBatisRepositoryTest {
             molecularProfileIds, sampleIds, Arrays.asList(structVarFilterQueryNullGene2));
 
     Assert.assertEquals(1, result.size());
+  }
+
+  private List<StructuralVariant> sortedResult(List<StructuralVariant> result) {
+    return result.stream().sorted(Comparator.comparing(StructuralVariant::getStudyId)).toList();
   }
 }

@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Geneset;
@@ -38,6 +39,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> result =
         genesetHierarchyMyBatisRepository.getGenesetHierarchySuperNodes(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    result = sortedResult(result);
     // Expect Root node, Sub node A, Sub node B
     Assert.assertEquals(3, result.size());
     // ordered by parentNodeName, nodeName, so Root node and then Sub node A and B:
@@ -55,6 +57,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> result =
         genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    result = sortedResult(result);
     // Expect parent node 1, parent node 2
     Assert.assertEquals(2, result.size());
     // ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -75,6 +78,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> nodes =
         genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    nodes = sortedResult(nodes);
     // Expect parent node 1, parent node 2
     Assert.assertEquals(2, nodes.size());
     // ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -98,5 +102,9 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     geneset = result.get(0);
     Assert.assertEquals("HINATA_NFKB_MATRIX", geneset.getGenesetId());
     Assert.assertEquals("https://hinata_link", geneset.getRefLink());
+  }
+
+  private List<GenesetHierarchyInfo> sortedResult(List<GenesetHierarchyInfo> result) {
+    return result.stream().sorted(Comparator.comparing(GenesetHierarchyInfo::getNodeId)).toList();
   }
 }

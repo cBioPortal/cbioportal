@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.MutSig;
@@ -34,6 +35,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     List<MutSig> result =
         significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes(
             "study_tcga_pub", "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     MutSig mutSig = result.get(0);
@@ -46,6 +48,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     List<MutSig> result =
         significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes(
             "study_tcga_pub", "SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     MutSig mutSig = result.get(0);
@@ -66,6 +69,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
     List<MutSig> result =
         significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes(
             "study_tcga_pub", "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     MutSig mutSig = result.get(0);
@@ -110,5 +114,9 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
             "study_tcga_pub");
 
     Assert.assertEquals((Integer) 2, result.getTotalCount());
+  }
+
+  private List<MutSig> sortedResult(List<MutSig> result) {
+    return result.stream().sorted(Comparator.comparing(MutSig::getEntrezGeneId)).toList();
   }
 }

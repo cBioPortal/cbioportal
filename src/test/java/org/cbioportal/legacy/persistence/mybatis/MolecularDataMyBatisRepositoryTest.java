@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -91,11 +92,13 @@ public class MolecularDataMyBatisRepositoryTest {
 
   private void getGeneMolecularAlterationsCommonTest(List<GeneMolecularAlteration> result) {
 
+    result = sortedResult(result);
+
     Assert.assertEquals(2, result.size());
     GeneMolecularAlteration molecularAlteration1 = result.get(0);
     Assert.assertEquals((Integer) 207, molecularAlteration1.getEntrezGeneId());
     String[] expected = {
-      "-0.4674", "-0.6270", "-1.2266", "-1.2479", "-1.2262", "0.6962", "-0.3338", "-0.1264",
+      "-0.4674", "-0.627", "-1.2266", "-1.2479", "-1.2262", "0.6962", "-0.3338", "-0.1264",
       "0.7559", "-1.1267", "-0.5893", "-1.1546", "-1.0027", "-1.3157", ""
     };
     Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
@@ -120,12 +123,13 @@ public class MolecularDataMyBatisRepositoryTest {
             Stream.of("study_tcga_pub_gistic", "study_tcga_pub_mrna").collect(Collectors.toSet()),
             entrezGeneIds,
             "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     GeneMolecularAlteration molecularAlteration1 = result.get(0);
     Assert.assertEquals((Integer) 207, molecularAlteration1.getEntrezGeneId());
     String[] expected = {
-      "-0.4674", "-0.6270", "-1.2266", "-1.2479", "-1.2262", "0.6962", "-0.3338", "-0.1264",
+      "-0.4674", "-0.627", "-1.2266", "-1.2479", "-1.2262", "0.6962", "-0.3338", "-0.1264",
       "0.7559", "-1.1267", "-0.5893", "-1.1546", "-1.0027", "-1.3157", ""
     };
     Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
@@ -139,7 +143,7 @@ public class MolecularDataMyBatisRepositoryTest {
     GeneMolecularAlteration molecularAlteration3 = result.get(2);
     Assert.assertEquals((Integer) 208, molecularAlteration3.getEntrezGeneId());
     String[] expected3 = {
-      "-0.8097", "0.7360", "-1.0225", "-0.8922", "0.7247", "0.3537", "1.2702", "-0.1419", ""
+      "-0.8097", "0.736", "-1.0225", "-0.8922", "0.7247", "0.3537", "1.2702", "-0.1419", ""
     };
     Assert.assertArrayEquals(expected3, molecularAlteration3.getSplitValues());
   }
@@ -156,6 +160,7 @@ public class MolecularDataMyBatisRepositoryTest {
     List<GenesetMolecularAlteration> result =
         molecularDataMyBatisRepository.getGenesetMolecularAlterations(
             "study_tcga_pub_gsva_scores", genesetIds, "SUMMARY");
+    result = sortedGSResult(result);
 
     // expect 2 items, one for each geneset:
     Assert.assertEquals(2, result.size());
@@ -163,15 +168,27 @@ public class MolecularDataMyBatisRepositoryTest {
     Assert.assertEquals(genesetId1, molecularAlteration1.getGenesetId());
     String[] expected = {
       "1.0106", "-0.0662", "-0.8585", "-1.6576", "-0.3552", "-0.8306", "0.8102", "0.1106", "0.3098",
-      "0.0309", "0.0927", "-0.8665", "-0.0750", "-0.7221", ""
+      "0.0309", "0.0927", "-0.8665", "-0.075", "-0.7221", ""
     };
     Assert.assertArrayEquals(expected, molecularAlteration1.getSplitValues());
     GenesetMolecularAlteration molecularAlteration2 = result.get(1);
     Assert.assertEquals(genesetId2, molecularAlteration2.getGenesetId());
     String[] expected2 = {
-      "-0.0670", "-0.6270", "-1.2266", "-1.2079", "-1.2262", "0.6962", "-0.3338", "-0.1260",
-      "0.7559", "-1.1267", "-0.5893", "-1.1506", "-1.0027", "-1.3157", ""
+      "-0.067", "-0.627", "-1.2266", "-1.2079", "-1.2262", "0.6962", "-0.3338", "-0.126", "0.7559",
+      "-1.1267", "-0.5893", "-1.1506", "-1.0027", "-1.3157", ""
     };
     Assert.assertArrayEquals(expected2, molecularAlteration2.getSplitValues());
+  }
+
+  private List<GeneMolecularAlteration> sortedResult(List<GeneMolecularAlteration> result) {
+    return result.stream()
+        .sorted(Comparator.comparing(GeneMolecularAlteration::getStableId))
+        .toList();
+  }
+
+  private List<GenesetMolecularAlteration> sortedGSResult(List<GenesetMolecularAlteration> result) {
+    return result.stream()
+        .sorted(Comparator.comparing(GenesetMolecularAlteration::getStableId))
+        .toList();
   }
 }

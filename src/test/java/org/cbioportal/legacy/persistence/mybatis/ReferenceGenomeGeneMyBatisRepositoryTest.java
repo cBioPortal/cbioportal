@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gene;
@@ -39,6 +40,7 @@ public class ReferenceGenomeGeneMyBatisRepositoryTest {
     List<ReferenceGenomeGene> result =
         refGeneMyBatisRepository.getAllGenesByGenomeName(
             ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+    result = sortedResult(result);
     ReferenceGenomeGene refGene = result.get(0);
     Gene gene = geneMyBatisRepository.getGeneByEntrezGeneId(refGene.getEntrezGeneId());
     Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
@@ -73,11 +75,19 @@ public class ReferenceGenomeGeneMyBatisRepositoryTest {
     List<ReferenceGenomeGene> result =
         refGeneMyBatisRepository.getGenesByGenomeName(
             geneIds, ReferenceGenome.HOMO_SAPIENS_DEFAULT_GENOME_NAME);
+    result = sortedResult(result);
+
     Assert.assertEquals(2, result.size());
     ReferenceGenomeGene refGene = result.get(0);
     Gene gene = geneMyBatisRepository.getGeneByEntrezGeneId(refGene.getEntrezGeneId());
     Assert.assertEquals((Integer) 207, gene.getEntrezGeneId());
     Assert.assertEquals("AKT1", gene.getHugoGeneSymbol());
     Assert.assertEquals("14q32.33", refGene.getCytoband());
+  }
+
+  private List<ReferenceGenomeGene> sortedResult(List<ReferenceGenomeGene> result) {
+    return result.stream()
+        .sorted(Comparator.comparing(ReferenceGenomeGene::getHugoGeneSymbol))
+        .toList();
   }
 }

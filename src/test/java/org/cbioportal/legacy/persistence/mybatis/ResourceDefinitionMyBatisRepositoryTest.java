@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.ResourceDefinition;
@@ -45,6 +46,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
     List<ResourceDefinition> result =
         resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
             List.of("study_tcga_pub"), "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     ResourceDefinition resourceDefinition = result.get(0);
@@ -62,6 +64,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
     List<ResourceDefinition> result =
         resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
             List.of("study_tcga_pub"), "SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     ResourceDefinition resourceDefinition = result.get(0);
@@ -79,6 +82,7 @@ public class ResourceDefinitionMyBatisRepositoryTest {
     List<ResourceDefinition> result =
         resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
             List.of("study_tcga_pub"), "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     ResourceDefinition resourceDefinition = result.get(0);
@@ -88,5 +92,9 @@ public class ResourceDefinitionMyBatisRepositoryTest {
     Assert.assertEquals(ResourceType.SAMPLE, resourceDefinition.getResourceType());
     Assert.assertEquals("1", resourceDefinition.getPriority());
     Assert.assertEquals(true, resourceDefinition.getOpenByDefault());
+  }
+
+  private List<ResourceDefinition> sortedResult(List<ResourceDefinition> result) {
+    return result.stream().sorted(Comparator.comparing(ResourceDefinition::getResourceId)).toList();
   }
 }

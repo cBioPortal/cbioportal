@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.GenePanel;
@@ -36,6 +37,7 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanel> result =
         genePanelMyBatisRepository.getAllGenePanels("ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     GenePanel genePanel = result.get(0);
@@ -48,6 +50,7 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanel> result =
         genePanelMyBatisRepository.getAllGenePanels("SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     GenePanel genePanel = result.get(0);
@@ -140,11 +143,14 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanelToGene> result =
         genePanelMyBatisRepository.getGenesOfPanels(Arrays.asList("TESTPANEL1"));
-
     Assert.assertEquals(3, result.size());
     GenePanelToGene genePanelToGene = result.get(0);
     Assert.assertEquals("TESTPANEL1", genePanelToGene.getGenePanelId());
     Assert.assertEquals((Integer) 207, genePanelToGene.getEntrezGeneId());
     Assert.assertEquals("AKT1", genePanelToGene.getHugoGeneSymbol());
+  }
+
+  private List<GenePanel> sortedResult(List<GenePanel> result) {
+    return result.stream().sorted(Comparator.comparing(GenePanel::getStableId)).toList();
   }
 }

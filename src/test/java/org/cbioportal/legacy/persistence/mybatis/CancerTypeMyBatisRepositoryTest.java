@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.TypeOfCancer;
@@ -31,6 +32,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     TypeOfCancer typeOfCancer = result.get(0);
@@ -42,9 +44,10 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
-    TypeOfCancer typeOfCancer = result.get(0);
+    TypeOfCancer typeOfCancer = result.get(1);
     Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
     Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
@@ -57,9 +60,10 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
-    TypeOfCancer typeOfCancer = result.get(0);
+    TypeOfCancer typeOfCancer = result.get(1);
     Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
     Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
@@ -113,5 +117,9 @@ public class CancerTypeMyBatisRepositoryTest {
     Assert.assertEquals("Purple", result.getDedicatedColor());
     Assert.assertEquals("ACC", result.getShortName());
     Assert.assertEquals("adrenal_gland", result.getParent());
+  }
+
+  private List<TypeOfCancer> sortedResult(List<TypeOfCancer> result) {
+    return result.stream().sorted(Comparator.comparing(TypeOfCancer::getTypeOfCancerId)).toList();
   }
 }

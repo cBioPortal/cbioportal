@@ -45,7 +45,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
 
     List<MutSig> result =
         significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "entrezGeneId", "ASC");
 
     Assert.assertEquals(2, result.size());
     MutSig mutSig = result.get(0);
@@ -65,7 +65,7 @@ public class SignificantlyMutatedGeneMyBatisRepositoryTest {
 
     List<MutSig> result =
         significantlyMutatedGeneMyBatisRepository.getSignificantlyMutatedGenes(
-            "study_tcga_pub", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "DETAILED", null, null, "entrezGeneId", "ASC");
 
     Assert.assertEquals(2, result.size());
     MutSig mutSig = result.get(0);

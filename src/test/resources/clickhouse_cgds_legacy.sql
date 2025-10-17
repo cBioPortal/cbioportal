@@ -405,8 +405,8 @@ CREATE TABLE mut_sig (
   cancer_study_id Int32,
   entrez_gene_id Int32,
   rank Int32,
-  numbasescovered Int32,
-  nummutations Int32,
+  NumBasesCovered Int32,
+  NumMutations Int32,
   p_value Float32,
   q_value Float32
 ) ENGINE = MergeTree()

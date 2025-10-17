@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
@@ -51,7 +52,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesInStudy(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "internalId", "ASC");
 
     Assert.assertEquals(15, result.size());
     Sample sample = result.get(0);
@@ -68,7 +69,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesInStudy(
-            "study_tcga_pub", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "DETAILED", null, null, "internalId", "ASC");
 
     Assert.assertEquals(15, result.size());
     Sample sample = result.get(0);
@@ -177,7 +178,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "ID", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "ID", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -191,7 +192,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "SUMMARY", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -208,7 +209,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "DETAILED", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -276,6 +277,7 @@ public class SampleMyBatisRepositoryTest {
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientsInStudy(
             "study_tcga_pub", Arrays.asList("TCGA-A1-A0SB", "TCGA-A1-A0SE"), "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     Sample sample = result.get(0);
@@ -298,6 +300,7 @@ public class SampleMyBatisRepositoryTest {
     sampleIds.add("TCGA-A1-A0SE-01");
 
     List<Sample> result = sampleMyBatisRepository.fetchSamples(studyIds, sampleIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -313,6 +316,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.fetchSamplesBySampleListIds(sampleListIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(14, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -354,6 +358,7 @@ public class SampleMyBatisRepositoryTest {
   public void getSamplesByInternalIds() throws Exception {
 
     List<Sample> result = sampleMyBatisRepository.getSamplesByInternalIds(Arrays.asList(1, 2));
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -420,5 +425,9 @@ public class SampleMyBatisRepositoryTest {
     Integer expected = 3;
 
     Assert.assertEquals(expected, actual.getTotalCount());
+  }
+
+  private List<Sample> sortedResult(List<Sample> result) {
+    return result.stream().sorted(Comparator.comparing(Sample::getInternalId)).toList();
   }
 }

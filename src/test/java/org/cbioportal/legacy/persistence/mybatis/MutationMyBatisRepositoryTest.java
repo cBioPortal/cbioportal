@@ -964,8 +964,15 @@ public class MutationMyBatisRepositoryTest {
 
     List<Mutation> result =
         mutationMyBatisRepository.fetchMutationsInMolecularProfile(
-            "study_tcga_pub_mutations", sampleIds, null, false, "SUMMARY", null, null, null, null);
-
+            "study_tcga_pub_mutations",
+            sampleIds,
+            null,
+            false,
+            "SUMMARY",
+            null,
+            null,
+            "sampleId",
+            "ASC");
     Assert.assertEquals(3, result.size());
     Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getMolecularProfileId());
     Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleId());

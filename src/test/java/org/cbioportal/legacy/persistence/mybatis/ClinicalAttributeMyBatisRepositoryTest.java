@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
@@ -47,10 +48,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
 
     List<ClinicalAttribute> result =
         clinicalAttributeMyBatisRepository.getAllClinicalAttributes(
-            "SUMMARY", null, null, null, null);
+            "SUMMARY", null, null, "attr_id", "ASC");
 
     Assert.assertEquals(28, result.size());
-    ClinicalAttribute clinicalAttribute = result.get(0);
+    ClinicalAttribute clinicalAttribute = result.get(24);
     Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
     Assert.assertEquals("study_tcga_pub", clinicalAttribute.getCancerStudyIdentifier());
     Assert.assertEquals((Integer) 1, clinicalAttribute.getCancerStudyId());
@@ -193,9 +194,10 @@ public class ClinicalAttributeMyBatisRepositoryTest {
     List<ClinicalAttribute> result =
         clinicalAttributeMyBatisRepository.fetchClinicalAttributes(
             Arrays.asList("acc_tcga", "study_tcga_pub"), "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(28, result.size());
-    ClinicalAttribute clinicalAttribute = result.get(0);
+    ClinicalAttribute clinicalAttribute = result.get(25);
     Assert.assertEquals("RETROSPECTIVE_COLLECTION", clinicalAttribute.getAttrId());
     Assert.assertEquals("acc_tcga", clinicalAttribute.getCancerStudyIdentifier());
     Assert.assertEquals((Integer) 2, clinicalAttribute.getCancerStudyId());
@@ -258,5 +260,9 @@ public class ClinicalAttributeMyBatisRepositoryTest {
         result.stream().filter(r -> r.getAttrId().equals("OTHER_SAMPLE_ID")).findAny();
     Assert.assertTrue(clinicalAttributeCountOptional.isPresent());
     Assert.assertEquals((Integer) 1, clinicalAttributeCountOptional.get().getCount());
+  }
+
+  private List<ClinicalAttribute> sortedResult(List<ClinicalAttribute> result) {
+    return result.stream().sorted(Comparator.comparing(ClinicalAttribute::getAttrId)).toList();
   }
 }

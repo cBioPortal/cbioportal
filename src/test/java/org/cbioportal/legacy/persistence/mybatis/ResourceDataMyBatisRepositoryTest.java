@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.ResourceData;
@@ -33,6 +34,7 @@ public class ResourceDataMyBatisRepositoryTest {
     List<ResourceData> result =
         resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
             "study_tcga_pub", null, null, "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(7, result.size());
     ResourceData resourceData = result.get(0);
@@ -49,6 +51,7 @@ public class ResourceDataMyBatisRepositoryTest {
     List<ResourceData> result =
         resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
             "study_tcga_pub", null, null, "SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(7, result.size());
     ResourceData resourceData = result.get(0);
@@ -67,6 +70,7 @@ public class ResourceDataMyBatisRepositoryTest {
     List<ResourceData> result =
         resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
             "study_tcga_pub", null, null, "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(7, result.size());
     ResourceData resourceData = result.get(0);
@@ -119,6 +123,7 @@ public class ResourceDataMyBatisRepositoryTest {
     List<ResourceData> result =
         resourceDataMyBatisRepository.getAllResourceDataOfPatientInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB", null, "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(1, result.size());
     ResourceData resourceData = result.get(0);
@@ -143,6 +148,7 @@ public class ResourceDataMyBatisRepositoryTest {
     List<ResourceData> result =
         resourceDataMyBatisRepository.getAllResourceDataForStudy(
             "acc_tcga", null, "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(1, result.size());
     ResourceData resourceData = result.get(0);
@@ -158,5 +164,9 @@ public class ResourceDataMyBatisRepositoryTest {
     Assert.assertEquals(true, resourceDefinition.getOpenByDefault());
     Assert.assertEquals("1", resourceDefinition.getPriority());
     Assert.assertEquals("acc_tcga", resourceDefinition.getCancerStudyIdentifier());
+  }
+
+  private List<ResourceData> sortedResult(List<ResourceData> result) {
+    return result.stream().sorted(Comparator.comparing(ResourceData::getResourceId)).toList();
   }
 }

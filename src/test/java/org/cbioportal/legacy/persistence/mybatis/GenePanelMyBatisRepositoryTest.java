@@ -47,7 +47,7 @@ public class GenePanelMyBatisRepositoryTest {
   public void getAllGenePanelsSummaryProjection() throws Exception {
 
     List<GenePanel> result =
-        genePanelMyBatisRepository.getAllGenePanels("SUMMARY", null, null, null, null);
+        genePanelMyBatisRepository.getAllGenePanels("SUMMARY", null, null, "stableId", "ASC");
 
     Assert.assertEquals(2, result.size());
     GenePanel genePanel = result.get(0);
@@ -140,7 +140,6 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanelToGene> result =
         genePanelMyBatisRepository.getGenesOfPanels(Arrays.asList("TESTPANEL1"));
-
     Assert.assertEquals(3, result.size());
     GenePanelToGene genePanelToGene = result.get(0);
     Assert.assertEquals("TESTPANEL1", genePanelToGene.getGenePanelId());

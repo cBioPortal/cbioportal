@@ -427,8 +427,8 @@ values (3,7,1, 'Putative_Driver', 'Pathogenic', 'Class 2', 'Highly Actionable');
 insert into alteration_driver_annotation (alteration_event_id,genetic_profile_id,sample_id, driver_filter, driver_filter_annotation, driver_tiers_filter, driver_tiers_filter_annotation)
 values (5,7,2, 'Putative_Driver', 'Pathogenic', 'Class 3', 'Highly Actionable');
 
-insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,207,1,998421,17,0.00000315,0.00233);
-insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,208,2,3200341,351,0.000000012,0.00000000000212);
+insert into mut_sig (cancer_study_id,entrez_gene_id,rank,NumBasesCovered,NumMutations,p_value,q_value) values (1,207,1,998421,17,0.00000315,0.00233);
+insert into mut_sig (cancer_study_id,entrez_gene_id,rank,NumBasesCovered,NumMutations,p_value,q_value) values (1,208,2,3200341,351,0.000000012,0.00000000000212);
 
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-0.4674,-0.6270,-1.2266,-1.2479,-1.2262,0.6962,-0.3338,-0.1264,0.7559,-1.1267,-0.5893,-1.1546,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,2,'1.4146,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1146,0.3498,0.0349,0.4927,-0.8665,-0.4754,-0.7221,');

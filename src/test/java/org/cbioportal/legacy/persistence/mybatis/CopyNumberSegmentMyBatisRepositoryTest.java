@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CopyNumberSeg;
@@ -34,15 +35,19 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     List<CopyNumberSeg> result0 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB-01", null, "SUMMARY", null, null, null, null);
+    result0 = sortedResult(result0);
     List<CopyNumberSeg> result1 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB-01", "1", "SUMMARY", null, null, null, null);
+    result1 = sortedResult(result1);
     List<CopyNumberSeg> result2 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB-01", "2", "SUMMARY", null, null, null, null);
+    result2 = sortedResult(result2);
     List<CopyNumberSeg> result3 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB-01", "3", "SUMMARY", null, null, null, null);
+    result3 = sortedResult(result3);
 
     Assert.assertEquals(2, result0.size());
     CopyNumberSeg copyNumberSeg = result0.get(0);
@@ -84,15 +89,19 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     List<Integer> result0 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, null);
+    result0.sort(null);
     List<Integer> result1 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "1");
+    result1.sort(null);
     List<Integer> result2 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "2");
+    result2.sort(null);
     List<Integer> result3 =
         copyNumberSegmentMyBatisRepository.fetchSamplesWithCopyNumberSegments(
             studies, samples, "3");
+    result3.sort(null);
 
     Assert.assertEquals(2, result0.size());
     Assert.assertEquals((Integer) 1, result0.get(1));
@@ -114,6 +123,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     List<CopyNumberSeg> result =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsInSampleInStudy(
             "study_tcga_pub", "TCGA-A1-A0SB-01", null, "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     CopyNumberSeg copyNumberSeg = result.get(0);
@@ -186,15 +196,19 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     List<CopyNumberSeg> result0 =
         copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
             studyIds, sampleIds, null, "SUMMARY");
+    result0 = sortedResult(result0);
     List<CopyNumberSeg> result1 =
         copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
             studyIds, sampleIds, "1", "SUMMARY");
+    result1 = sortedResult(result1);
     List<CopyNumberSeg> result2 =
         copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
             studyIds, sampleIds, "2", "SUMMARY");
+    result2 = sortedResult(result2);
     List<CopyNumberSeg> result3 =
         copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
             studyIds, sampleIds, "3", "SUMMARY");
+    result3 = sortedResult(result3);
 
     Assert.assertEquals(3, result0.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result0.get(0).getSampleStableId());
@@ -242,12 +256,15 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     List<CopyNumberSeg> result0 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsBySampleListId(
             "study_tcga_pub", "study_tcga_pub_methylation_hm27", null, "SUMMARY");
+    result0 = sortedResult(result0);
     List<CopyNumberSeg> result1 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsBySampleListId(
             "study_tcga_pub", "study_tcga_pub_methylation_hm27", "1", "SUMMARY");
+    result1 = sortedResult(result1);
     List<CopyNumberSeg> result2 =
         copyNumberSegmentMyBatisRepository.getCopyNumberSegmentsBySampleListId(
             "study_tcga_pub", "study_tcga_pub_methylation_hm27", "2", "SUMMARY");
+    result2 = sortedResult(result2);
 
     Assert.assertEquals(1, result0.size());
     CopyNumberSeg copyNumberSeg = result0.get(0);
@@ -265,5 +282,9 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     Assert.assertEquals(0, result1.size());
 
     Assert.assertEquals(1, result2.size());
+  }
+
+  private List<CopyNumberSeg> sortedResult(List<CopyNumberSeg> result) {
+    return result.stream().sorted(Comparator.comparing(CopyNumberSeg::getSampleStableId)).toList();
   }
 }

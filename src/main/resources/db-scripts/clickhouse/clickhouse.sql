@@ -378,13 +378,6 @@ FROM clinical_event ce
          INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
-
-
-
-
-
-
-
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
     sample_unique_id String,
@@ -493,6 +486,12 @@ FROM
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
 
+-- START: PRIMARY KEY ADDITIONS
+-- THE FOLLOWING SCRIPTS EXIST TO ADD PRIMARY KEYS TO LEGACY TABLES THAT ARE MISSING THEM.  YOU 
+-- CANNOT CHANGE THE PRIMARY KEY ON A TABLE IN CLICKHOUSE, SO WE NEED TO CREATE A NEW TABLE WITH THE
+-- PRIMARY KEY AND THEN COPY THE DATA OVER.
+
+
 --Adds primary key to the sample_cna_event table for Clickhouse-only
 DROP TABLE IF EXISTS sample_cna_event_BACKUP;
 CREATE TABLE sample_cna_event_BACKUP
@@ -515,6 +514,52 @@ SELECT * FROM sample_cna_event;
 -- SWITCH THE TABLES
 EXCHANGE TABLES sample_cna_event_BACKUP AND sample_cna_event;
 
+DROP TABLE IF EXISTS mutation_BACKUP;
+CREATE TABLE mutation_BACKUP
+(
+    `mutation_event_id` Int64 COMMENT 'References mutation_event.mutation_event_id.',
+    `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
+    `sample_id` Int64 COMMENT 'References sample.internal_id.',
+    `entrez_gene_id` Int64 COMMENT 'References gene.entrez_gene_id.',
+    `center` Nullable(String) COMMENT 'Center where sequencing was performed.',
+    `sequencer` Nullable(String) COMMENT 'Sequencing platform used.',
+    `mutation_status` Nullable(String) COMMENT 'Mutation status: Germline, Somatic, or LOH.',
+    `validation_status` Nullable(String) COMMENT 'Validation status.',
+    `tumor_seq_allele1` Nullable(String) COMMENT 'Tumor allele 1 sequence.',
+    `tumor_seq_allele2` Nullable(String) COMMENT 'Tumor allele 2 sequence.',
+    `matched_norm_sample_barcode` Nullable(String) COMMENT 'Matched normal sample barcode.',
+    `match_norm_seq_allele1` Nullable(String) COMMENT 'Matched normal allele 1 sequence.',
+    `match_norm_seq_allele2` Nullable(String) COMMENT 'Matched normal allele 2 sequence.',
+    `tumor_validation_allele1` Nullable(String) COMMENT 'Tumor validation allele 1 sequence.',
+    `tumor_validation_allele2` Nullable(String) COMMENT 'Tumor validation allele 2 sequence.',
+    `match_norm_validation_allele1` Nullable(String) COMMENT 'Matched normal validation allele 1.',
+    `match_norm_validation_allele2` Nullable(String) COMMENT 'Matched normal validation allele 2.',
+    `verification_status` Nullable(String) COMMENT 'Verification status.',
+    `sequencing_phase` Nullable(String) COMMENT 'Sequencing phase.',
+    `sequence_source` Nullable(String) COMMENT 'Source of sequencing data.',
+    `validation_method` Nullable(String) COMMENT 'Validation method used.',
+    `score` Nullable(String) COMMENT 'Score or quality metric.',
+    `bam_file` Nullable(String) COMMENT 'Associated BAM file.',
+    `tumor_alt_count` Nullable(Int64) COMMENT 'Tumor alternate allele count.',
+    `tumor_ref_count` Nullable(Int64) COMMENT 'Tumor reference allele count.',
+    `normal_alt_count` Nullable(Int64) COMMENT 'Normal alternate allele count.',
+    `normal_ref_count` Nullable(Int64) COMMENT 'Normal reference allele count.',
+    `amino_acid_change` Nullable(String) COMMENT 'Amino acid change from mutation.',
+    `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotations.'
+)
+    ENGINE = SharedMergeTree('/clickhouse/tables/{uuid}/{shard}', '{replica}')
+PRIMARY KEY (genetic_profile_id,entrez_gene_id)
+ORDER BY (genetic_profile_id,entrez_gene_id)
+SETTINGS index_granularity = 8192
+COMMENT 'Mutation observations in specific samples and profiles. References mutation_event, gene, genetic_profile, and sample.'         
+
+-- copy data into new table
+INSERT INTO mutation_BACKUP
+SELECT * FROM mutation;
+
+-- switch the tables
+EXCHANGE TABLES mutation_BACKUP AND mutation;         
+         
 
 -- Adds primary key genetic_alteration table for Clickhouse-only
 DROP TABLE IF EXISTS genetic_alteration_BACKUP;
@@ -536,7 +581,7 @@ SELECT * FROM genetic_alteration;
 -- SWITCH THE TABLES
 EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
 
-
+--END: PRIMARY KEY ADDITIONS
 
 
 OPTIMIZE TABLE sample_to_gene_panel_derived;

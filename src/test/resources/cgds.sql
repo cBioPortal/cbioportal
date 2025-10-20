@@ -691,7 +691,8 @@ CREATE TABLE `allele_specific_copy_number` (
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24),
-  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24)
+  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24),
+  `GENE_TABLE_VERSION` varchar(24)
 );
 
 -- --------------------------------------------------------
@@ -737,4 +738,4 @@ CREATE TABLE `resource_study` (
 
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
 INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`)
-  VALUES ('2.14.4', NULL, '1.0.0');
+  VALUES ('2.14.5', NULL, '1.0.0');

@@ -1083,3 +1083,7 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.3";
 -- increase varchar size to accomodate larger event type names
 ALTER TABLE `clinical_event` MODIFY COLUMN `EVENT_TYPE` varchar(50) NOT NULL;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.4";
+
+##version: 2.14.5
+ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.5";

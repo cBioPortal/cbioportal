@@ -14,6 +14,7 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -274,6 +275,7 @@ public class ClinicalEventMyBatisRepositoryTest {
   }
 
   @Test
+  @Ignore("getTimelineEvents already removed from the legacy mapper")
   public void getTimelineEvents() {
     List<String> studyList = new ArrayList<>();
     studyList.add("study_tcga_pub");
@@ -301,6 +303,7 @@ public class ClinicalEventMyBatisRepositoryTest {
   }
 
   @Test
+  @Ignore("getClinicalEventsMeta already removed from the legacy mapper")
   public void getClinicalEventsMeta() {
     List<String> studyList = new ArrayList<>();
     studyList.add("study_tcga_pub");

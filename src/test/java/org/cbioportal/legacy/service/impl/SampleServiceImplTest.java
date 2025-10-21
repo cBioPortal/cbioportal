@@ -103,7 +103,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getAllSamplesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     sampleService.getAllSamplesInStudy(
         STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
   }
@@ -121,7 +121,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getMetaSamplesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     sampleService.getMetaSamplesInStudy(STUDY_ID);
   }
 
@@ -135,7 +135,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getSampleInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     sampleService.getSampleInStudy(STUDY_ID, SAMPLE_ID1);
   }
 

@@ -95,6 +95,46 @@
         </where>
     </sql>
 
+    <sql id="selectResource">
+        DISPLAY_NAME AS displayName,
+        rd.DESCRIPTION AS description,
+        rd.RESOURCE_TYPE AS resourceType,
+        rd.PRIORITY AS priority,
+        rd.OPEN_BY_DEFAULT AS openByDefault,
+        CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
+        rd.CUSTOM_METADATA AS customMetaData
+    </sql>
+
+    <sql id="selectSampleResourceCounts">
+        <include refid="selectResource"/>,
+        rs.RESOURCE_ID AS resourceId,
+        COUNT(DISTINCT rs.INTERNAL_ID) AS sampleCount,
+        COUNT(DISTINCT p.INTERNAL_ID) AS patientCount
+    </sql>
+
+    <sql id="fromResourceSample">
+        FROM resource_sample AS rs
+             INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rs.RESOURCE_ID
+             INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
+             INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
+             INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+    </sql>
+
+    <sql id="selectPatientResourceCounts">
+        <include refid="selectResource"/>,
+        rp.RESOURCE_ID AS resourceId,
+        COUNT(DISTINCT s.INTERNAL_ID) AS sampleCount,
+        COUNT(DISTINCT rp.INTERNAL_ID) AS patientCount
+    </sql>
+
+    <sql id="fromResourcePatient">
+        FROM cancer_study cs
+             INNER JOIN patient p ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+             LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
+             INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
+             INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
+    </sql>
+
     <select id="getStudies" resultType="org.cbioportal.legacy.model.CancerStudy">
         SELECT
         <include refid="select">
@@ -176,6 +216,48 @@
                 </foreach>
             </if>
         </where>
+    </select>
+
+    <select id="getResourceCountsForAllStudies" resultType="org.cbioportal.legacy.model.ResourceCount">
+        SELECT
+        <include refid="selectSampleResourceCounts"/>
+        <include refid="fromResourceSample"/>
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        UNION ALL
+        SELECT
+        <include refid="selectPatientResourceCounts"/>
+        <include refid="fromResourcePatient"/>
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        ORDER BY resourceId
+    </select>
+
+    <select id="getResourceCounts" resultType="org.cbioportal.legacy.model.ResourceCount">
+        SELECT
+        <include refid="selectSampleResourceCounts"/>
+        <include refid="fromResourceSample"/>
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cs.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        UNION ALL
+        SELECT
+        <include refid="selectPatientResourceCounts"/>
+        <include refid="fromResourcePatient"/>
+        <where>
+            <if test="studyIds != null and !studyIds.isEmpty()">
+                cs.CANCER_STUDY_IDENTIFIER IN
+                <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        ORDER BY resourceId
     </select>
 
 </mapper>

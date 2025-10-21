@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS clinical_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
 DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
+DROP TABLE IF EXISTS mutation_derived;
 
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
@@ -486,6 +487,117 @@ FROM
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
 
+
+DROP TABLE IF EXISTS mutation_derived;
+CREATE TABLE mutation_derived
+(
+    molecularProfileId String COMMENT 'Stable ID of the genetic profile',
+    sampleId String COMMENT 'Stable ID of the sample',
+    sampleInternalId Int64,
+    patientId String COMMENT 'Stable ID of the patient',
+    entrezGeneId Int64 COMMENT 'Entrez Gene ID from mutation table (NOT NULL)',
+    studyId String COMMENT 'Cancer study identifier',
+    center Nullable(String) COMMENT 'Sequencing center',
+    mutationStatus Nullable(String) COMMENT 'Mutation status (e.g., Somatic, Germline)',
+    validationStatus Nullable(String) COMMENT 'Validation status',
+    tumorAltCount Nullable(Int64) COMMENT 'Tumor alternate allele count',
+    tumorRefCount Nullable(Int64) COMMENT 'Tumor reference allele count',
+    normalAltCount Nullable(Int64) COMMENT 'Normal alternate allele count',
+    normalRefCount Nullable(Int64) COMMENT 'Normal reference allele count',
+    aminoAcidChange Nullable(String) COMMENT 'Amino acid change',
+    chr Nullable(String) COMMENT 'Chromosome',
+    startPosition Nullable(Int64) COMMENT 'Start position',
+    endPosition Nullable(Int64) COMMENT 'End position',
+    referenceAllele Nullable(String) COMMENT 'Reference allele',
+    tumorSeqAllele Nullable(String) COMMENT 'Tumor sequence allele',
+    proteinChange Nullable(String) COMMENT 'Protein change',
+    mutationType Nullable(String) COMMENT 'Type of mutation',
+    ncbiBuild Nullable(String) COMMENT 'NCBI build version',
+    variantType Nullable(String) COMMENT 'Variant type',
+    refseqMrnaId Nullable(String) COMMENT 'RefSeq mRNA ID',
+    proteinPosStart Nullable(Int64) COMMENT 'Protein position start',
+    proteinPosEnd Nullable(Int64) COMMENT 'Protein position end',
+    keyword Nullable(String) COMMENT 'Keyword',
+    annotationJSON Nullable(String) COMMENT 'Annotation JSON',
+    driverFilter Nullable(String) COMMENT 'Driver filter',
+    driverFilterAnnotation Nullable(String) COMMENT 'Driver filter annotation',
+    driverTiersFilter Nullable(String) COMMENT 'Driver tiers filter',
+    driverTiersFilterAnnotation Nullable(String) COMMENT 'Driver tiers filter annotation',
+    `GENE.entrezGeneId` Nullable(Int64) COMMENT 'Gene entrez ID',
+    `GENE.hugoGeneSymbol` Nullable(String) COMMENT 'HUGO gene symbol',
+    `GENE.type` Nullable(String) COMMENT 'Gene type',
+    `alleleSpecificCopyNumber.ascnIntegerCopyNumber` Nullable(Int64) COMMENT 'ASCN integer copy number',
+    `alleleSpecificCopyNumber.ascnMethod` Nullable(String) COMMENT 'ASCN method',
+    `alleleSpecificCopyNumber.ccfExpectedCopiesUpper` Nullable(Float64) COMMENT 'CCF expected copies upper bound',
+    `alleleSpecificCopyNumber.ccfExpectedCopies` Nullable(Float64) COMMENT 'CCF expected copies',
+    `alleleSpecificCopyNumber.clonal` Nullable(String) COMMENT 'Clonality annotation',
+    `alleleSpecificCopyNumber.minorCopyNumber` Nullable(Int64) COMMENT 'Minor copy number',
+    `alleleSpecificCopyNumber.expectedAltCopies` Nullable(Int64) COMMENT 'Expected alternate copies',
+    `alleleSpecificCopyNumber.totalCopyNumber` Nullable(Int64) COMMENT 'Total copy number'
+)
+    ENGINE = SharedMergeTree('/clickhouse/tables/{uuid}/{shard}', '{replica}')
+      ORDER BY (molecularProfileId, sampleId, entrezGeneId)
+      SETTINGS index_granularity = 1000
+      COMMENT 'Mutation query results with detailed annotations including driver status and allele-specific copy numbers'
+
+INSERT INTO mutation_derived
+SELECT
+    genetic_profile.stable_id AS molecularProfileId,
+    sample.stable_id AS sampleId,
+    sample.internal_id As sampleInternalId,
+    patient.stable_id AS patientId,
+    mutation.entrez_gene_id AS entrezGeneId,
+    cancer_study.cancer_study_identifier AS studyId,
+    mutation.center AS center,
+    mutation.mutation_status AS mutationStatus,
+    mutation.validation_status AS validationStatus,
+    mutation.tumor_alt_count AS tumorAltCount,
+    mutation.tumor_ref_count AS tumorRefCount,
+    mutation.normal_alt_count AS normalAltCount,
+    mutation.normal_ref_count AS normalRefCount,
+    mutation.amino_acid_change AS aminoAcidChange,
+    mutation_event.chr AS chr,
+    mutation_event.start_position AS startPosition,
+    mutation_event.end_position AS endPosition,
+    mutation_event.reference_allele AS referenceAllele,
+    mutation_event.tumor_seq_allele AS tumorSeqAllele,
+    mutation_event.protein_change AS proteinChange,
+    mutation_event.mutation_type AS mutationType,
+    mutation_event.ncbi_build AS ncbiBuild,
+    mutation_event.variant_type AS variantType,
+    mutation_event.refseq_mrna_id AS refseqMrnaId,
+    mutation_event.protein_pos_start AS proteinPosStart,
+    mutation_event.protein_pos_end AS proteinPosEnd,
+    mutation_event.keyword AS keyword,
+    mutation.annotation_json AS annotationJSON,
+    alteration_driver_annotation.driver_filter AS driverFilter,
+    alteration_driver_annotation.driver_filter_annotation AS driverFilterAnnotation,
+    alteration_driver_annotation.driver_tiers_filter AS driverTiersFilter,
+    alteration_driver_annotation.driver_tiers_filter_annotation AS driverTiersFilterAnnotation,
+    gene.entrez_gene_id AS `GENE.entrezGeneId`,
+    gene.hugo_gene_symbol AS `GENE.hugoGeneSymbol`,
+    gene.type AS `GENE.type`,
+    allele_specific_copy_number.ascn_integer_copy_number AS `alleleSpecificCopyNumber.ascnIntegerCopyNumber`,
+    allele_specific_copy_number.ascn_method AS `alleleSpecificCopyNumber.ascnMethod`,
+    allele_specific_copy_number.ccf_expected_copies_upper AS `alleleSpecificCopyNumber.ccfExpectedCopiesUpper`,
+    allele_specific_copy_number.ccf_expected_copies AS `alleleSpecificCopyNumber.ccfExpectedCopies`,
+    allele_specific_copy_number.clonal AS `alleleSpecificCopyNumber.clonal`,
+    allele_specific_copy_number.minor_copy_number AS `alleleSpecificCopyNumber.minorCopyNumber`,
+    allele_specific_copy_number.expected_alt_copies AS `alleleSpecificCopyNumber.expectedAltCopies`,
+    allele_specific_copy_number.total_copy_number AS `alleleSpecificCopyNumber.totalCopyNumber`
+FROM mutation
+         INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
+         INNER JOIN sample ON mutation.sample_id = sample.internal_id
+         INNER JOIN patient ON sample.patient_id = patient.internal_id
+         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+         LEFT JOIN alteration_driver_annotation ON (mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id) AND (mutation.sample_id = alteration_driver_annotation.sample_id) AND (mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id)
+         INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+         INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+         LEFT JOIN allele_specific_copy_number ON (mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id) AND (mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id) AND (mutation.sample_id = allele_specific_copy_number.sample_id)
+
+
+
+
 -- START: PRIMARY KEY ADDITIONS
 -- THE FOLLOWING SCRIPTS EXIST TO ADD PRIMARY KEYS TO LEGACY TABLES THAT ARE MISSING THEM.  YOU 
 -- CANNOT CHANGE THE PRIMARY KEY ON A TABLE IN CLICKHOUSE, SO WE NEED TO CREATE A NEW TABLE WITH THE
@@ -552,7 +664,7 @@ PRIMARY KEY (genetic_profile_id,entrez_gene_id)
 ORDER BY (genetic_profile_id,entrez_gene_id)
 SETTINGS index_granularity = 8192
 COMMENT 'Mutation observations in specific samples and profiles. References mutation_event, gene, genetic_profile, and sample.'         
-
+    
 -- copy data into new table
 INSERT INTO mutation_BACKUP
 SELECT * FROM mutation;

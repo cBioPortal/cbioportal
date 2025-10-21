@@ -1,6 +1,6 @@
 # AI Integrations
 
-cBioPortal is integrating artificial intelligence capabilities to make cancer genomics data more accessible and easier to explore. These AI-powered tools help users query and analyze the portal's extensive cancer datasets using natural language.
+cBioPortal is exploring the use of generative AI and large language models (LLMs) to make cancer genomics data more accessible and easier to explore. These AI-powered tools help users query and analyze the portal's extensive cancer datasets using natural language.
 
 ## Chat Interface
 
@@ -10,7 +10,7 @@ We've developed an AI-powered chat interface that allows users to ask questions 
 
 ### What is the Chat Interface?
 
-The cBioPortal chat interface uses AI to help you explore cancer genomics data through conversational queries. Instead of navigating through multiple pages or writing complex queries, you can simply ask questions about studies, patients, samples, and treatments in natural language.
+The cBioPortal chat interface uses Claude, an LLM developed by Anthropic, to help you explore cancer genomics data through conversational queries. The system translates natural language questions into database queries that are executed directly against cBioPortal's ClickHouse database. Instead of navigating through multiple pages or writing complex queries, you can simply ask questions about studies, patients, samples, and treatments in natural language.
 
 ### Key Features
 
@@ -37,6 +37,7 @@ Here are some example questions you can ask the chat interface:
 - **Be specific**: Include study names or specific data types when possible
 - **Ask follow-up questions**: The chat interface maintains context, so you can ask related questions in sequence
 - **Explore different angles**: Try rephrasing questions or asking for different perspectives on the data
+- **Learn about the database structure**: You can ask the LLM to explain the database schema and available fields - this can help you formulate more effective questions
 
 ### Getting Started
 
@@ -47,7 +48,10 @@ Here are some example questions you can ask the chat interface:
 
 ### Feedback and Support
 
-The AI chat interface is actively being developed and improved. If you encounter any issues or have suggestions for improvement, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
+The AI chat interface is actively being developed and improved. Your feedback helps us make it better:
+
+- **Use the thumbs up/down buttons**: Each chat response has thumbs up and thumbs down buttons. Please use them to rate the quality and accuracy of the responses - this feedback directly helps us improve the AI's answers.
+- **Report issues or suggestions**: If you encounter any issues or have suggestions for improvement, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
 
 ---
 

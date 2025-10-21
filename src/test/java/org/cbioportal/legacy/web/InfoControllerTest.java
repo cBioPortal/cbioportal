@@ -73,4 +73,26 @@ public class InfoControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.geneTableVersion").value("gene_table_from_db"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.genesetVersion").value("geneset_from_db"));
   }
+
+  @Test
+  @WithMockUser
+  public void getInfo_schemaMismatchFallback() throws Exception {
+    // Mock InfoService to return null (schema mismatch scenario)
+    when(infoService.getInfoFromDb()).thenReturn(null);
+
+    mockMvc
+        .perform(MockMvcRequestBuilders.get("/api/info").accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        // Should fall back to property values when DB is unavailable
+        .andExpect(MockMvcResultMatchers.jsonPath("$.portalVersion").value("test_portal_version"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.dbVersion").value("test_db_version"))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.derivedTableVersion")
+                .value("test_derived_table_version"))
+        // DB fields should not be present when schema mismatch
+        .andExpect(MockMvcResultMatchers.jsonPath("$.geneTableVersion").doesNotExist())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.genesetVersion").doesNotExist());
+  }
 }

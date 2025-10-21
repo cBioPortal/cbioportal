@@ -5,11 +5,10 @@ import org.cbioportal.domain.mutation.util.MutationUtil;
 
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.MutationQueryOptions;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,7 +43,7 @@ public class FetchAllMutationsInProfileUseCase {
      * If {@code molecularProfileIds} are directly available in the filter, those are used.
      * Otherwise, molecular profile IDs and sample IDs are extracted from the filter’s sample–molecular identifiers.
      * 
-     *<p>The {@link MutationSearchCriteria} controls how much data is returned and in what form:
+     *<p>The {@link MutationQueryOptions} controls how much data is returned and in what form:
      *  <ul>
      *     <li> projection – level of detail for each mutation (ID, SUMMARY, or DETAILED)</li>
      *     <li> pageSize  – define pagination for the results</li>
@@ -53,20 +52,20 @@ public class FetchAllMutationsInProfileUseCase {
      *   </ul>
      *   
      * @param mutationMultipleStudyFilter filter containing profile, sample, and gene identifiers
-     * @param mutationSearchCriteria criteria for controlling projection, pagination, and sorting of results
+     * @param mutationQueryOptions criteria for controlling projection, pagination, and sorting of results
      * @return list of {@link Mutation} objects matching the given filter and search criteria
      *                               
-     * @see MutationSearchCriteria
+     * @see MutationQueryOptions
      * @see MutationMultipleStudyFilter
      */
     public List<Mutation> execute(MutationMultipleStudyFilter mutationMultipleStudyFilter,
-                                  MutationSearchCriteria mutationSearchCriteria) {
+                                  MutationQueryOptions mutationQueryOptions) {
         if(mutationMultipleStudyFilter.getMolecularProfileIds() != null){
             return mutationRepository.getMutationsInMultipleMolecularProfiles(
                 mutationMultipleStudyFilter.getMolecularProfileIds(),
                 null,
                 mutationMultipleStudyFilter.getEntrezGeneIds(),
-                mutationSearchCriteria);
+                mutationQueryOptions);
         }
         
         List<String> molecularProfileIds=
@@ -77,6 +76,6 @@ public class FetchAllMutationsInProfileUseCase {
             molecularProfileIds,
             sampleIds,
             mutationMultipleStudyFilter.getEntrezGeneIds(),
-            mutationSearchCriteria); 
+            mutationQueryOptions); 
     }
 }

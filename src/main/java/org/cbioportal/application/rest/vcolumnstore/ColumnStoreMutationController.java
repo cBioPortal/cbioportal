@@ -7,11 +7,11 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
-import org.cbioportal.domain.mutation.usecase.GetMutationUseCases;
+import org.cbioportal.domain.mutation.usecase.MutationUseCases;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
-import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.MutationQueryOptions;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
@@ -53,16 +53,16 @@ import java.util.List;
 @RequestMapping("/api/column-store")
 @Profile("clickhouse")
 public class ColumnStoreMutationController {
-    private final GetMutationUseCases getMutationUseCases;
+    private final MutationUseCases mutationUseCases;
 
     /**
      * Constructs a new {@link ColumnStoreMutationController} with the specified use case.
      *
-     * @param getMutationUseCases the use case responsible for retrieving Mutation metadata or Mutation
+     * @param mutationUseCases the use case responsible for retrieving Mutation metadata or Mutation
      *   
      */
-    public ColumnStoreMutationController(GetMutationUseCases getMutationUseCases) {
-        this.getMutationUseCases = getMutationUseCases;
+    public ColumnStoreMutationController(MutationUseCases mutationUseCases) {
+        this.mutationUseCases = mutationUseCases;
     }
 
 
@@ -124,20 +124,20 @@ public class ColumnStoreMutationController {
 
         if (projection == ProjectionType.META) {
             HttpHeaders responseHeaders = new HttpHeaders();
-            MutationMeta mutationMeta = getMutationUseCases.fetchMetaMutationsUseCase().execute(interceptedMutationMultipleStudyFilter);
+            MutationMeta mutationMeta = mutationUseCases.fetchMetaMutationsUseCase().execute(interceptedMutationMultipleStudyFilter);
             responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
             responseHeaders.add(
                 HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
             return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
         }
-        MutationSearchCriteria mutationSearchCriteria = new MutationSearchCriteria(projection,pageSize,
+        MutationQueryOptions mutationQueryOptions = new MutationQueryOptions(projection,pageSize,
             pageNumber,
             sortBy == null ? null : sortBy.getOriginalValue(),
             direction);
-        List<MutationDTO> mutations= MutationMapper.INSTANCE.toDTOs(getMutationUseCases.fetchAllMutationsInProfileUseCase()
+        List<MutationDTO> mutations= MutationMapper.INSTANCE.toDTOs(mutationUseCases.fetchAllMutationsInProfileUseCase()
             .execute(
             interceptedMutationMultipleStudyFilter,
-            mutationSearchCriteria));
+                mutationQueryOptions));
         return ResponseEntity.ok(mutations);
     }
 }

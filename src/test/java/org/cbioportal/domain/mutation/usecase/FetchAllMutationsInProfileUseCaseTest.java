@@ -3,9 +3,8 @@ package org.cbioportal.domain.mutation.usecase;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
-import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.MutationQueryOptions;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -45,8 +44,8 @@ public class FetchAllMutationsInProfileUseCaseTest {
     @Test
     public void testExecuteWithGetMolecularProfileIdsNotNull() {
         MutationMultipleStudyFilter mutationMultipleStudyFilter;
-        MutationSearchCriteria mutationSearchCriteria;
-        mutationSearchCriteria = new MutationSearchCriteria(
+        MutationQueryOptions mutationQueryOptions;
+        mutationQueryOptions = new MutationQueryOptions(
             ProjectionType.META,
             null,
             null,
@@ -62,13 +61,13 @@ public class FetchAllMutationsInProfileUseCaseTest {
 
         List<Mutation> result = fetchAllMutationsInProfileUseCase.execute(
             mutationMultipleStudyFilter,
-            mutationSearchCriteria
+            mutationQueryOptions
         );
         verify(mutationRepository).getMutationsInMultipleMolecularProfiles(
             eq(mutationMultipleStudyFilter.getMolecularProfileIds()),
             isNull(),
             eq(mutationMultipleStudyFilter.getEntrezGeneIds()),
-            eq(mutationSearchCriteria)
+            eq(mutationQueryOptions)
         );
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -77,13 +76,13 @@ public class FetchAllMutationsInProfileUseCaseTest {
     @Test
     public void testExecuteWithGetMolecularProfileIdsNull() {
         MutationMultipleStudyFilter mutationMultipleStudyFilter;
-        MutationSearchCriteria mutationSearchCriteria;
+        MutationQueryOptions mutationQueryOptions;
         var listOfSampleMolecularIdentifiers = getSampleMolecularIdentifiers();
         mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
         mutationMultipleStudyFilter.setSampleMolecularIdentifiers(listOfSampleMolecularIdentifiers);
         mutationMultipleStudyFilter.setEntrezGeneIds(List.of(672));
         
-        mutationSearchCriteria = new MutationSearchCriteria(
+        mutationQueryOptions = new MutationQueryOptions(
             ProjectionType.META,
             null,
             null,
@@ -96,13 +95,13 @@ public class FetchAllMutationsInProfileUseCaseTest {
 
         List<Mutation> result = fetchAllMutationsInProfileUseCase.execute(
             mutationMultipleStudyFilter,
-            mutationSearchCriteria
+            mutationQueryOptions
         );
         verify(mutationRepository).getMutationsInMultipleMolecularProfiles(
             eq(List.of("study_tcga_pub_mutations", "study_tcga_pub_mutations")),
             eq(List.of("TCGA-A1-A0SH-01", "TCGA-A1-A0SO-01")),
             eq(mutationMultipleStudyFilter.getEntrezGeneIds()),
-            eq(mutationSearchCriteria)
+            eq(mutationQueryOptions)
         );
         assertNotNull(result);
         assertTrue(result.isEmpty());

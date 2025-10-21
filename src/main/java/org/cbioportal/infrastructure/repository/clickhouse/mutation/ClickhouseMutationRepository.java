@@ -5,7 +5,7 @@ import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
-import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.MutationQueryOptions;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -18,9 +18,9 @@ public class ClickhouseMutationRepository implements MutationRepository {
     private final MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil;
     
 
-    public ClickhouseMutationRepository(ClickhouseMutationMapper clickhouseMutationMapper) {
+    public ClickhouseMutationRepository(ClickhouseMutationMapper clickhouseMutationMapper, MolecularProfileCaseIdentifierUtil molecularProfileCaseIdentifierUtil ) {
         this.mapper = clickhouseMutationMapper;
-        this.molecularProfileCaseIdentifierUtil = new MolecularProfileCaseIdentifierUtil();
+        this.molecularProfileCaseIdentifierUtil = molecularProfileCaseIdentifierUtil;
     }
 
     @Override
@@ -28,10 +28,10 @@ public class ClickhouseMutationRepository implements MutationRepository {
         List<String> molecularProfileIds,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
-        MutationSearchCriteria mutationSearchCriteria){
+        MutationQueryOptions mutationQueryOptions){
         
-        Integer limit= mutationSearchCriteria.pageSize();
-        Integer offset= PaginationCalculator.offset(mutationSearchCriteria.pageSize(),mutationSearchCriteria.pageNumber());
+        Integer limit= mutationQueryOptions.pageSize();
+        Integer offset= PaginationCalculator.offset(mutationQueryOptions.pageSize(), mutationQueryOptions.pageNumber());
 
         Map<String, Set<String>> groupedCases=  molecularProfileCaseIdentifierUtil
             .getGroupedCasesByMolecularProfileId(molecularProfileIds,sampleIds);
@@ -39,7 +39,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
         List<String> allMolecularProfileIds= new ArrayList<>(groupedCases.keySet());
         List<String> allSampleIds =  groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
             
-        var projection=mutationSearchCriteria.projection();
+        var projection= mutationQueryOptions.projection();
         return  switch (projection){
             case ID-> 
                 mapper.getMutationsInMultipleMolecularProfilesId(
@@ -47,7 +47,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
                     allSampleIds,
                     entrezGeneIds,
                     false,
-                    mutationSearchCriteria.projection().name(),
+                    mutationQueryOptions.projection().name(),
                     "",
                     limit,
                     offset);
@@ -57,11 +57,11 @@ public class ClickhouseMutationRepository implements MutationRepository {
                     allSampleIds,
                     entrezGeneIds,
                     false,
-                    mutationSearchCriteria.projection().name(),
+                    mutationQueryOptions.projection().name(),
                     limit,
                     offset,
-                    mutationSearchCriteria.sortBy(),
-                    mutationSearchCriteria.direction().name()
+                    mutationQueryOptions.sortBy(),
+                    mutationQueryOptions.direction().name()
                 );
             case DETAILED->
                mapper.getDetailedMutationsInMultipleMolecularProfiles(
@@ -69,11 +69,11 @@ public class ClickhouseMutationRepository implements MutationRepository {
                    allSampleIds,
                    entrezGeneIds,
                    false,
-                   mutationSearchCriteria.projection().name(),
+                   mutationQueryOptions.projection().name(),
                    limit,
                    offset,
-                   mutationSearchCriteria.sortBy(),
-                   mutationSearchCriteria.direction().name()
+                   mutationQueryOptions.sortBy(),
+                   mutationQueryOptions.direction().name()
                );
             default -> new ArrayList<>();
         };

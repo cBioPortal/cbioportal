@@ -3,7 +3,7 @@ package org.cbioportal.domain.mutation.repository;
 
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
-import org.cbioportal.shared.MutationSearchCriteria;
+import org.cbioportal.shared.MutationQueryOptions;
 
 import java.util.List;
 
@@ -23,15 +23,15 @@ public interface MutationRepository {
      * @param molecularProfileIds List of molecularProfileIds
      * @param sampleIds List of sampleIds
      * @param entrezGeneIds  List of entrezGeneIds
-     * @param mutationSearchCriteria A criteria to control the appearance of the dataset 
+     * @param mutationQueryOptions A criteria to control the appearance of the dataset 
      * @return a list of {@link Mutation} objects that match the given criteria 
-     * @see MutationSearchCriteria
+     * @see MutationQueryOptions
      */
     List<Mutation> getMutationsInMultipleMolecularProfiles(
         List<String> molecularProfileIds,
         List<String> sampleIds,
         List<Integer> entrezGeneIds,
-        MutationSearchCriteria mutationSearchCriteria);
+        MutationQueryOptions mutationQueryOptions);
 
     /**
      * Retrieves aggregated metadata about mutations that match the specified filters.

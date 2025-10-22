@@ -49,7 +49,10 @@ jobs:
               sed 's|session.service.url=.*|session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/|' | \
               sed 's|feature.study.export=.*|feature.study.export=true|' | \
               sed 's|#\?session.endpoint.publisher-api-key=.*|session.endpoint.publisher-api-key=TEST|' \
-              > application.properties
+              > application.properties && \
+          DB_VERSION=$(mvn -q -DforceStdout -Dexpression=db.version -f $PORTAL_SOURCE_DIR/pom.xml help:evaluate) && \
+          echo "db.version=${DB_VERSION}" > maven.properties && \
+          echo "Wrote maven.properties with db.version=${DB_VERSION}"
       - name: 'Dump Properties'
         working-directory: ./cbioportal-docker-compose
         run: cat config/application.properties

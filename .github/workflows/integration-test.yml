@@ -50,9 +50,9 @@ jobs:
               sed 's|feature.study.export=.*|feature.study.export=true|' | \
               sed 's|#\?session.endpoint.publisher-api-key=.*|session.endpoint.publisher-api-key=TEST|' \
               > application.properties && \
-          DB_VERSION=$(mvn -q -DforceStdout -Dexpression=db.version -f $PORTAL_SOURCE_DIR/pom.xml help:evaluate) && \
-          echo "db.version=${DB_VERSION}" > maven.properties && \
-          echo "Wrote maven.properties with db.version=${DB_VERSION}"
+          DB_VERSION=$(mvn -q -DforceStdout -Dexpression=db.version -f $PORTAL_SOURCE_DIR/pom.xml help:evaluate || true) && \
+          if [ -n "$DB_VERSION" ]; then echo "db.version=${DB_VERSION}" > maven.properties; else : > maven.properties; fi && \
+          echo "maven.properties => $(cat maven.properties | tr -d '\n' || echo '(empty)')"
       - name: 'Dump Properties'
         working-directory: ./cbioportal-docker-compose
         run: cat config/application.properties

@@ -128,15 +128,15 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     result3.sort(null);
 
     Assert.assertEquals(2, result0.size());
-    Assert.assertEquals((Integer) 1, result0.get(1));
-    Assert.assertEquals((Integer) 15, result0.get(0));
+    Assert.assertEquals((Integer) 1, result0.get(0));
+    Assert.assertEquals((Integer) 15, result0.get(1));
 
     Assert.assertEquals(1, result1.size());
     Assert.assertEquals((Integer) 1, result1.get(0));
 
     Assert.assertEquals(2, result2.size());
-    Assert.assertEquals((Integer) 1, result2.get(1));
-    Assert.assertEquals((Integer) 15, result2.get(0));
+    Assert.assertEquals((Integer) 1, result2.get(0));
+    Assert.assertEquals((Integer) 15, result2.get(1));
 
     Assert.assertEquals(0, result3.size());
   }

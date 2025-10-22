@@ -81,9 +81,9 @@ public class SampleListMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -222,9 +222,9 @@ public class SampleListMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());

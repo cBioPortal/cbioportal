@@ -45,9 +45,9 @@ public class DataAccessTokenMyBatisRepositoryTest {
   @Test
   public void getDataAccessToken() {
     DataAccessToken dataAccessToken =
-        dataAccessTokenMyBatisRepository.getDataAccessToken("6c9a641e-9719-fake-data-f17e089b37e8");
-    Assert.assertEquals("6c9a641e-9719-fake-data-f17e089b37e8", dataAccessToken.getToken());
-    Assert.assertEquals("mockemail2@email.com", dataAccessToken.getUsername());
+        dataAccessTokenMyBatisRepository.getDataAccessToken("1337rand-ki1n-4bna-974c-s4sk3n4rut0l");
+    Assert.assertEquals("1337rand-ki1n-4bna-974c-s4sk3n4rut0l", dataAccessToken.getToken());
+    Assert.assertEquals("mockemail3@email.com", dataAccessToken.getUsername());
   }
 
   @Test

@@ -180,9 +180,9 @@
         SELECT
             gene1.entrez_gene_id AS gene1EntrezGeneId,
             <!-- TODO: check this-->
-            gene1.hugo_gene_symbol AS gene1HugoGeneSymbol,
+            ANY_VALUE(gene1.hugo_gene_symbol) AS gene1HugoGeneSymbol,
             gene2.entrez_gene_id AS gene2EntrezGeneId,
-            gene2.hugo_gene_symbol AS gene2HugoGeneSymbol,
+            ANY_VALUE(gene2.hugo_gene_symbol) AS gene2HugoGeneSymbol,
             COUNT(*) AS totalCount,
             COUNT(DISTINCT(patient.internal_id)) AS numberOfAlteredCases
         FROM

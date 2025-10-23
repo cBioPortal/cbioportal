@@ -4,16 +4,16 @@ import static org.cbioportal.legacy.persistence.util.CustomRedisCache.DELIMITER;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.cbioportal.shared.RedisCondition;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConditionalOnExpression(
-    "#{environment['persistence.cache_type'] == 'redis' or environment['persistence.cache_type_clickhouse'] == 'redis'}")
+@Conditional(RedisCondition.class)
 public class RedisCacheUtils implements CacheUtils {
 
   @Autowired private CacheManager cacheManager;

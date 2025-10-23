@@ -167,6 +167,17 @@ public class ResourceDataMyBatisRepositoryTest {
   }
 
   private List<ResourceData> sortedResult(List<ResourceData> result) {
-    return result.stream().sorted(Comparator.comparing(ResourceData::getResourceId)).toList();
+    return result.stream()
+        .sorted(
+            Comparator.comparing(
+                rd ->
+                    rd.getResourceId()
+                        + "_"
+                        + rd.getStudyId()
+                        + "_"
+                        + rd.getPatientId()
+                        + "_"
+                        + rd.getSampleId()))
+        .toList();
   }
 }

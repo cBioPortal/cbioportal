@@ -9,17 +9,17 @@ import org.cbioportal.legacy.persistence.util.CustomKeyGenerator;
 import org.cbioportal.legacy.persistence.util.CustomRedisCache;
 import org.cbioportal.legacy.service.CacheStatisticsService;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
+import org.cbioportal.shared.RedisCondition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 @Service
-@ConditionalOnExpression(
-    "#{environment['persistence.cache_type'] == 'redis' or environment['persistence.cache_type_clickhouse'] == 'redis'}")
+@Conditional(RedisCondition.class)
 public class RedisCacheStatisticsServiceImpl implements CacheStatisticsService {
 
   @Autowired public CacheManager cacheManager;

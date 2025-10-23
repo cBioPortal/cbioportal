@@ -264,14 +264,7 @@
             </if>
             <if test=" sortBy != null">
                 <!-- Put 'NULL samples' last: -->
-                <choose>
-                    <when test="_databaseId == 'mysql'">
-                        ORDER BY ISNULL(sort_by), sort_by ${direction}
-                    </when>
-                    <when test="_databaseId == 'h2'">
-                        ORDER BY sort_by ${direction} NULLS LAST
-                    </when>
-                </choose>
+                ORDER BY sort_by ${direction} NULLS LAST
             </if>
 
             <if test="_parameter.containsKey('limit') and limit != null and limit != 0">
@@ -309,14 +302,7 @@
                     ORDER BY patient.stable_id ${direction}
                 </when>
                 <when test="sortByAttribute">
-                    <choose>
-                        <when test="_databaseId == 'mysql'">
-                            ORDER BY ISNULL(sortData.sortAttrValue), sortData.sortAttrValue ${direction}
-                        </when>
-                        <when test="_databaseId == 'h2'">
-                            ORDER BY sortData.sortAttrValue ${direction} NULLS LAST
-                        </when>
-                    </choose>
+                    ORDER BY sortData.sortAttrValue ${direction} NULLS LAST
                 </when>
                 <otherwise></otherwise>
             </choose>
@@ -348,7 +334,7 @@
             <when test="sortIsPatientAttr">
                 SELECT sample.internal_id sampleInternalId, sample.stable_id sampleId, patient.stable_id patientId, clinical_patient.attr_id sortAttrId,
                 <choose>
-                    <when test="sortAttrIsNumber">CONVERT(clinical_patient.attr_value, DECIMAL) sortAttrValue
+                    <when test="sortAttrIsNumber">toFloat64(clinical_patient.attr_value) sortAttrValue
                     </when>
                     <otherwise>
                         clinical_patient.attr_value sortAttrValue
@@ -363,7 +349,7 @@
                 SELECT sample.internal_id sampleInternalId, sample.stable_id sampleId, patient.stable_id patientId, clinical_sample.attr_id sortAttrId,
                 <choose>
                     <when test="sortAttrIsNumber">
-                        CONVERT(clinical_sample.attr_value, DECIMAL) sortAttrValue
+                        toFloat64(clinical_sample.attr_value) sortAttrValue
                     </when>
                     <otherwise>
                         clinical_sample.attr_value sortAttrValue

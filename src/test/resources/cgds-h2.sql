@@ -45,7 +45,6 @@
 DROP TABLE IF EXISTS `info`;
 DROP TABLE IF EXISTS `clinical_event_data`;
 DROP TABLE IF EXISTS `clinical_event`;
-DROP TABLE IF EXISTS `cosmic_mutation`;
 DROP TABLE IF EXISTS `copy_number_seg_file`;
 DROP TABLE IF EXISTS `copy_number_seg`;
 DROP TABLE IF EXISTS `sample_cna_event`;
@@ -629,30 +628,12 @@ CREATE TABLE `copy_number_seg_file` (
 );
 
 -- --------------------------------------------------------
-CREATE TABLE `cosmic_mutation` (
-  `COSMIC_MUTATION_ID` varchar(30) NOT NULL,
-  `CHR` varchar(5),
-  `START_POSITION` bigint(20),
-  `REFERENCE_ALLELE` varchar(255),
-  `TUMOR_SEQ_ALLELE` varchar(255),
-  `STRAND` varchar(2),
-  `CODON_CHANGE` varchar(255),
-  `ENTREZ_GENE_ID` int(11) NOT NULL,
-  `PROTEIN_CHANGE` varchar(255) NOT NULL,
-  `COUNT` int(11) NOT NULL,
-  `KEYWORD` varchar(50) DEFAULT NULL,
-  KEY (`KEYWORD`),
-  PRIMARY KEY (`COSMIC_MUTATION_ID`),
-  FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-);
-
--- --------------------------------------------------------
 CREATE TABLE `clinical_event` (
   `CLINICAL_EVENT_ID` BIGINT NOT NULL auto_increment,
   `PATIENT_ID`  int(11) NOT NULL,
   `START_DATE` int NOT NULL,
   `STOP_DATE` int,
-  `EVENT_TYPE` varchar(20) NOT NULL,
+  `EVENT_TYPE` varchar(50) NOT NULL,
   PRIMARY KEY (`CLINICAL_EVENT_ID`),
   KEY (`PATIENT_ID`, `EVENT_TYPE`),
   FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
@@ -710,7 +691,8 @@ CREATE TABLE `allele_specific_copy_number` (
 CREATE TABLE `info` (
   `DB_SCHEMA_VERSION` varchar(24),
   `GENESET_VERSION` varchar(24),
-  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24)
+  `DERIVED_TABLE_SCHEMA_VERSION` varchar(24),
+  `GENE_TABLE_VERSION` varchar(24)
 );
 
 -- --------------------------------------------------------
@@ -755,5 +737,5 @@ CREATE TABLE `resource_study` (
 );
 
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
-INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`)
-  VALUES ('2.14.2', NULL, '1.0.0');
+INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`, `GENE_TABLE_VERSION`)
+  VALUES ('2.14.5', NULL, '1.0.0', NULL);

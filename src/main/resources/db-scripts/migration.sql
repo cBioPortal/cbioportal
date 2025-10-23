@@ -1074,3 +1074,16 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.1";
 ALTER TABLE `resource_definition` ADD COLUMN `CUSTOM_METADATA` JSON;
 UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`="1.0.2";
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.2";
+
+##version: 2.14.3
+DROP TABLE IF EXISTS `cosmic_mutation`;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.3";
+
+##version: 2.14.4
+-- increase varchar size to accomodate larger event type names
+ALTER TABLE `clinical_event` MODIFY COLUMN `EVENT_TYPE` varchar(50) NOT NULL;
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.4";
+
+##version: 2.14.5
+ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.5";

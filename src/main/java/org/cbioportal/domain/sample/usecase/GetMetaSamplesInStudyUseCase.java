@@ -20,7 +20,7 @@ public class GetMetaSamplesInStudyUseCase {
   }
 
   public BaseMeta execute(String studyId) throws StudyNotFoundException {
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return sampleRepository.getMetaSamplesInStudy(studyId);
   }

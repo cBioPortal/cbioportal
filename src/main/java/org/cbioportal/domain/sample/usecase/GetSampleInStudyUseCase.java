@@ -21,7 +21,7 @@ public class GetSampleInStudyUseCase {
 
   public Sample execute(String studyId, String sampleId)
       throws SampleNotFoundException, StudyNotFoundException {
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
     Sample sample = sampleRepository.getSampleInStudy(studyId, sampleId);
 
     if (sample == null) {

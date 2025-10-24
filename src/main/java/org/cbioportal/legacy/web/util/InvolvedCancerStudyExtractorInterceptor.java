@@ -43,7 +43,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -166,12 +165,17 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       return true; // no attribute extraction needed because all user supplied filter objects are in
       // POST requests
     }
+    // Skip interceptor for column-store endpoints - they handle their own request body parsing
+    // and permission checking via @PreAuthorize annotations
+    String servletPath = request.getServletPath();
+    if (servletPath != null && servletPath.contains("/column-store")) {
+      return true;
+    }
     // TODO when reimplemeting different dispatcherservlets with different context roots
     // reset this to  'String requestPathInfo = request.getPathInfo();'
     String requestPathInfo =
         request.getPathInfo() == null ? request.getServletPath() : request.getPathInfo();
     requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
-    requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
     if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
       return extractAttributesFromPatientFilter(request);
     } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

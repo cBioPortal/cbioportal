@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -62,17 +62,17 @@ public class ColumnStoreClinicalDataEnrichmentController {
    *   <li>Categorical attributes: Chi-squared test
    * </ul>
    *
-   * <p>The GroupFilter is intercepted and validated by security infrastructure before reaching this
-   * method. Access control is enforced based on cancer study permissions.
+   * <p>Access control is enforced via {@code @PreAuthorize} which validates user permissions
+   * against the cancer studies referenced in the group filter. Study IDs are automatically
+   * extracted by {@link org.cbioportal.application.security.CancerStudyPermissionEvaluator}.
    *
-   * @param interceptedGroupFilter filter containing multiple groups of sample identifiers,
-   *     intercepted and validated by security infrastructure
+   * @param groupFilter filter containing multiple groups of sample identifiers
    * @return list of clinical data enrichments with p-values and test statistics, sorted by
    *     significance
    */
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(
       value = "/clinical-data-enrichments/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -86,16 +86,14 @@ public class ColumnStoreClinicalDataEnrichmentController {
               array =
                   @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichmentDTO.class))))
   public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
+      @Parameter(required = true, description = "Group filter with sample identifiers")
           @Valid
-          @RequestAttribute(required = false, value = "interceptedGroupFilter")
-          GroupFilter interceptedGroupFilter) {
+          @RequestBody(required = false)
+          GroupFilter groupFilter) {
+
     return new ResponseEntity<>(
         ClinicalDataEnrichmentMapper.INSTANCE.toDTOs(
-            fetchClinicalDataEnrichmentsUseCase.execute(interceptedGroupFilter)),
+            fetchClinicalDataEnrichmentsUseCase.execute(groupFilter)),
         HttpStatus.OK);
   }
 }

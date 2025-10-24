@@ -107,16 +107,12 @@
 
     <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS "totalCount"
+        COUNT(DISTINCT sample.internal_id) AS "totalCount"
         <include refid="from"/>
-        WHERE sample.internal_id IN
-        (
-            SELECT sample_list_list.sample_id FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
-            WHERE sample_list.stable_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
-            AND sample_list_list.sample_id = sample.internal_id
-        )
+        INNER JOIN sample_list_list ON sample.internal_id = sample_list_list.sample_id
+        INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        WHERE sample_list.stable_id IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
     </select>
 
     <select id="getSample" resultType="org.cbioportal.legacy.model.Sample">

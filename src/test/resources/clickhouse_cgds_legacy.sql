@@ -56,8 +56,8 @@ CREATE TABLE type_of_cancer (
   type_of_cancer_id String,
   name String,
   dedicated_color String,
-  short_name String,
-  parent String
+  short_name Nullable(String),
+  parent Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY type_of_cancer_id;
 
@@ -66,9 +66,9 @@ CREATE TABLE reference_genome (
   species String,
   name String,
   build_name String,
-  genome_size Int64,
+  genome_size Nullable(Int64),
   url String,
-  release_date DateTime
+  release_date Nullable(DateTime)
 ) ENGINE = MergeTree()
 ORDER BY reference_genome_id;
 
@@ -79,11 +79,11 @@ CREATE TABLE cancer_study (
   name String,
   description String,
   public UInt8,
-  pmid String,
-  citation String,
-  groups String,
-  status Int32,
-  import_date DateTime,
+  pmid Nullable(String),
+  citation Nullable(String),
+  groups Nullable(String),
+  status Nullable(Int32),
+  import_date Nullable(DateTime),
   reference_genome_id Int32
 ) ENGINE = MergeTree()
 ORDER BY cancer_study_id;
@@ -128,7 +128,7 @@ CREATE TABLE sample_list (
   category String,
   cancer_study_id Int32,
   name String,
-  description String
+  description Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY list_id;
 
@@ -141,7 +141,7 @@ ORDER BY (list_id, sample_id);
 CREATE TABLE genetic_entity (
   id Int32,
   entity_type String,
-  stable_id String
+  stable_id Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY id;
 
@@ -149,7 +149,7 @@ CREATE TABLE gene (
   entrez_gene_id Int32,
   hugo_gene_symbol String,
   genetic_entity_id Int32,
-  type String
+  type Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY entrez_gene_id;
 
@@ -164,7 +164,7 @@ CREATE TABLE geneset (
   genetic_entity_id Int32,
   external_id String,
   name String,
-  description String,
+  description Nullable(String),
   ref_link String
 ) ENGINE = MergeTree()
 ORDER BY id;
@@ -177,16 +177,16 @@ ORDER BY (geneset_id, entrez_gene_id);
 
 CREATE TABLE geneset_hierarchy_node (
   node_id Int64,
-  node_name String,
-  parent_id Int64
+  node_name Nullable(String),
+  parent_id Nullable(Int64)
 ) ENGINE = MergeTree()
 ORDER BY node_id;
 
 CREATE TABLE geneset_hierarchy_leaf (
   node_id Int64,
-  geneset_id Int32
+  geneset_id Nullable(Int32)
 ) ENGINE = MergeTree()
-ORDER BY (node_id, geneset_id);
+ORDER BY (node_id);
 
 CREATE TABLE generic_entity_properties (
   id Int32,
@@ -201,14 +201,14 @@ CREATE TABLE genetic_profile (
   stable_id String,
   cancer_study_id Int32,
   genetic_alteration_type String,
-  generic_assay_type String,
+  generic_assay_type Nullable(String),
   datatype String,
   name String,
   description String,
   show_profile_in_analysis_tab UInt8,
   pivot_threshold Float32,
   sort_order String,
-  patient_level UInt8
+  patient_level Nullable(UInt8)
 ) ENGINE = MergeTree()
 ORDER BY genetic_profile_id;
 
@@ -234,8 +234,8 @@ ORDER BY genetic_profile_id;
 
 CREATE TABLE gene_panel (
   internal_id Int32,
-  stable_id String,
-  description String
+  stable_id Nullable(String),
+  description Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY internal_id;
 
@@ -248,7 +248,7 @@ ORDER BY (internal_id, gene_id);
 CREATE TABLE sample_profile (
   sample_id Int32,
   genetic_profile_id Int32,
-  panel_id Int32
+  panel_id Nullable(Int32)
 ) ENGINE = MergeTree()
 ORDER BY (sample_id, genetic_profile_id);
 
@@ -256,43 +256,43 @@ CREATE TABLE structural_variant (
   internal_id Int32,
   genetic_profile_id Int32,
   sample_id Int32,
-  site1_entrez_gene_id Int32,
-  site1_ensembl_transcript_id String,
-  site1_chromosome String,
-  site1_region String,
-  site1_region_number Int32,
-  site1_contig String,
-  site1_position Int32,
-  site1_description String,
-  site2_entrez_gene_id Int32,
-  site2_ensembl_transcript_id String,
-  site2_chromosome String,
-  site2_region String,
-  site2_region_number Int32,
-  site2_contig String,
-  site2_position Int32,
-  site2_description String,
-  site2_effect_on_frame String,
-  ncbi_build String,
-  dna_support String,
-  rna_support String,
-  normal_read_count Int32,
-  tumor_read_count Int32,
-  normal_variant_count Int32,
-  tumor_variant_count Int32,
-  normal_paired_end_read_count Int32,
-  tumor_paired_end_read_count Int32,
-  normal_split_read_count Int32,
-  tumor_split_read_count Int32,
-  annotation String,
-  breakpoint_type String,
-  connection_type String,
-  event_info String,
-  class String,
-  length Int32,
-  comments String,
+  site1_entrez_gene_id Nullable(Int32),
+  site1_ensembl_transcript_id Nullable(String),
+  site1_chromosome Nullable(String),
+  site1_region Nullable(String),
+  site1_region_number Nullable(Int32),
+  site1_contig Nullable(String),
+  site1_position Nullable(Int32),
+  site1_description Nullable(String),
+  site2_entrez_gene_id Nullable(Int32),
+  site2_ensembl_transcript_id Nullable(String),
+  site2_chromosome Nullable(String),
+  site2_region Nullable(String),
+  site2_region_number Nullable(Int32),
+  site2_contig Nullable(String),
+  site2_position Nullable(Int32),
+  site2_description Nullable(String),
+  site2_effect_on_frame Nullable(String),
+  ncbi_build Nullable(String),
+  dna_support Nullable(String),
+  rna_support Nullable(String),
+  normal_read_count Nullable(Int32),
+  tumor_read_count Nullable(Int32),
+  normal_variant_count Nullable(Int32),
+  tumor_variant_count Nullable(Int32),
+  normal_paired_end_read_count Nullable(Int32),
+  tumor_paired_end_read_count Nullable(Int32),
+  normal_split_read_count Nullable(Int32),
+  tumor_split_read_count Nullable(Int32),
+  annotation Nullable(String),
+  breakpoint_type Nullable(String),
+  connection_type Nullable(String),
+  event_info Nullable(String),
+  class Nullable(String),
+  length Nullable(Int32),
+  comments Nullable(String),
   sv_status String,
-  annotation_json String
+  annotation_json Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY internal_id;
 
@@ -302,35 +302,35 @@ CREATE TABLE alteration_driver_annotation (
   alteration_event_id Int32,
   genetic_profile_id Int32,
   sample_id Int32,
-  driver_filter String,
-  driver_filter_annotation String,
-  driver_tiers_filter String,
-  driver_tiers_filter_annotation String
+  driver_filter Nullable(String),
+  driver_filter_annotation Nullable(String),
+  driver_tiers_filter Nullable(String),
+  driver_tiers_filter_annotation Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY (alteration_event_id, genetic_profile_id, sample_id);
 
 CREATE TABLE mutation_event (
   mutation_event_id Int32,
   entrez_gene_id Int32,
-  chr String,
-  start_position Int64,
-  end_position Int64,
-  reference_allele String,
-  tumor_seq_allele String,
+  chr Nullable(String),
+  start_position Nullable(Int64),
+  end_position Nullable(Int64),
+  reference_allele Nullable(String),
+  tumor_seq_allele Nullable(String),
   protein_change String,
   mutation_type String,
-  ncbi_build String,
-  strand String,
-  variant_type String,
-  db_snp_rs String,
-  db_snp_val_status String,
-  refseq_mrna_id String,
-  codon_change String,
-  uniprot_accession String,
-  protein_pos_start Int32,
-  protein_pos_end Int32,
-  canonical_transcript UInt8,
-  keyword String
+  ncbi_build Nullable(String),
+  strand Nullable(String),
+  variant_type Nullable(String),
+  db_snp_rs Nullable(String),
+  db_snp_val_status Nullable(String),
+  refseq_mrna_id Nullable(String),
+  codon_change Nullable(String),
+  uniprot_accession Nullable(String),
+  protein_pos_start Nullable(Int32),
+  protein_pos_end Nullable(Int32),
+  canonical_transcript Nullable(UInt8),
+  keyword Nullable(String) DEFAULT NULL
 ) ENGINE = MergeTree()
 ORDER BY mutation_event_id;
 
@@ -369,37 +369,37 @@ ORDER BY (mutation_event_id, genetic_profile_id, sample_id);
 
 CREATE TABLE mutation_count_by_keyword (
   genetic_profile_id Int32,
-  keyword String,
+  keyword Nullable(String),
   entrez_gene_id Int32,
   keyword_count Int32,
   gene_count Int32
 ) ENGINE = MergeTree()
-ORDER BY (genetic_profile_id, keyword);
+ORDER BY (genetic_profile_id);
 
 CREATE TABLE clinical_patient (
   internal_id Int32,
-  attr_id String,
-  attr_value String
+  attr_id Nullable(String),
+  attr_value Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (internal_id, attr_id);
+ORDER BY (internal_id);
 
 CREATE TABLE clinical_sample (
   internal_id Int32,
-  attr_id String,
-  attr_value String
+  attr_id Nullable(String),
+  attr_value Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (internal_id, attr_id);
+ORDER BY (internal_id);
 
 CREATE TABLE clinical_attribute_meta (
   attr_id String,
-  display_name String,
-  description String,
-  datatype String,
-  patient_attribute UInt8,
-  priority String,
-  cancer_study_id Int32
+  display_name Nullable(String),
+  description Nullable(String),
+  datatype Nullable(String),
+  patient_attribute Nullable(UInt8),
+  priority Nullable(String),
+  cancer_study_id Nullable(Int32)
 ) ENGINE = MergeTree()
-ORDER BY (attr_id, cancer_study_id);
+ORDER BY (attr_id);
 
 CREATE TABLE mut_sig (
   cancer_study_id Int32,
@@ -426,13 +426,13 @@ ORDER BY gistic_roi_id;
 
 CREATE TABLE gistic_to_gene (
   gistic_roi_id Int64,
-  entrez_gene_id Int32
+  entrez_gene_id Nullable(Int32)
 ) ENGINE = MergeTree()
-ORDER BY (gistic_roi_id, entrez_gene_id);
+ORDER BY (gistic_roi_id);
 
 CREATE TABLE cna_event (
   cna_event_id Int32,
-  entrez_gene_id Int32,
+  entrez_gene_id Nullable(Int32),
   alteration Int32
 ) ENGINE = MergeTree()
 ORDER BY cna_event_id;
@@ -453,7 +453,7 @@ CREATE TABLE copy_number_seg (
   start Int32,
   end Int32,
   num_probes Int32,
-  segment_mean Float64
+  segment_mean Nullable(Float64)
 ) ENGINE = MergeTree()
 ORDER BY seg_id;
 
@@ -468,16 +468,16 @@ ORDER BY seg_file_id;
 
 CREATE TABLE cosmic_mutation (
   cosmic_mutation_id String,
-  chr String,
-  start_position Int64,
-  reference_allele String,
-  tumor_seq_allele String,
-  strand String,
-  codon_change String,
+  chr Nullable(String),
+  start_position Nullable(Int64),
+  reference_allele Nullable(String),
+  tumor_seq_allele Nullable(String),
+  strand Nullable(String),
+  codon_change Nullable(String),
   entrez_gene_id Int32,
   protein_change String,
   count Int32,
-  keyword String
+  keyword Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY cosmic_mutation_id;
 
@@ -519,14 +519,14 @@ CREATE TABLE allele_specific_copy_number (
   mutation_event_id Int32,
   genetic_profile_id Int32,
   sample_id Int32,
-  ascn_integer_copy_number Int32,
+  ascn_integer_copy_number Nullable(Int32),
   ascn_method String,
-  ccf_expected_copies_upper Float32,
-  ccf_expected_copies Float32,
-  clonal String,
-  minor_copy_number Int32,
-  expected_alt_copies Int32,
-  total_copy_number Int32
+  ccf_expected_copies_upper Nullable(Float32),
+  ccf_expected_copies Nullable(Float32),
+  clonal Nullable(String),
+  minor_copy_number Nullable(Int32),
+  expected_alt_copies Nullable(Int32),
+  total_copy_number Nullable(Int32)
 ) ENGINE = MergeTree()
 ORDER BY (mutation_event_id, genetic_profile_id, sample_id);
 

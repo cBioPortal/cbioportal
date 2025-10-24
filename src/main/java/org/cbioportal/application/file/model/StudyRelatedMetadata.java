@@ -16,4 +16,5 @@ public interface StudyRelatedMetadata {
     metadata.put("cancer_study_identifier", getCancerStudyIdentifier());
     return metadata;
   }
+
 }

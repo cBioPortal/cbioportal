@@ -2,22 +2,32 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {GenePanelMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, GenePanelMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class GenePanelMyBatisRepositoryTest {
 
   @Autowired private GenePanelMyBatisRepository genePanelMyBatisRepository;
@@ -27,6 +37,7 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanel> result =
         genePanelMyBatisRepository.getAllGenePanels("ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     GenePanel genePanel = result.get(0);
@@ -39,6 +50,7 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanel> result =
         genePanelMyBatisRepository.getAllGenePanels("SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     GenePanel genePanel = result.get(0);
@@ -131,11 +143,14 @@ public class GenePanelMyBatisRepositoryTest {
 
     List<GenePanelToGene> result =
         genePanelMyBatisRepository.getGenesOfPanels(Arrays.asList("TESTPANEL1"));
-
     Assert.assertEquals(3, result.size());
     GenePanelToGene genePanelToGene = result.get(0);
     Assert.assertEquals("TESTPANEL1", genePanelToGene.getGenePanelId());
     Assert.assertEquals((Integer) 207, genePanelToGene.getEntrezGeneId());
     Assert.assertEquals("AKT1", genePanelToGene.getHugoGeneSymbol());
+  }
+
+  private List<GenePanel> sortedResult(List<GenePanel> result) {
+    return result.stream().sorted(Comparator.comparing(GenePanel::getStableId)).toList();
   }
 }

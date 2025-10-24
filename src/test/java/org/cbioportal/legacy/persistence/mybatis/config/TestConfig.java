@@ -17,6 +17,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @TestConfiguration
 @MapperScan("org.cbioportal.legacy.persistence.mybatis")
+@Deprecated
 public class TestConfig {
 
   @Bean

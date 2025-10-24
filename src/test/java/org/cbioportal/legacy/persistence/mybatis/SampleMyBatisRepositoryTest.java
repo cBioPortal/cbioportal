@@ -5,20 +5,29 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {SampleMyBatisRepository.class, TestConfig.class})
+@RunWith(SpringRunner.class)
+@Import({MyBatisLegacyConfig.class, SampleMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class SampleMyBatisRepositoryTest {
 
   @Autowired private SampleMyBatisRepository sampleMyBatisRepository;
@@ -79,9 +88,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -152,9 +161,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -219,9 +228,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());

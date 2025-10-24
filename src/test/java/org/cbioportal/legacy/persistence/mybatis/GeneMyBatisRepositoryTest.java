@@ -33,19 +33,29 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {GeneMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, GeneMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class GeneMyBatisRepositoryTest {
 
   @Autowired private GeneMyBatisRepository geneMyBatisRepository;
@@ -54,6 +64,7 @@ public class GeneMyBatisRepositoryTest {
   public void getAllGenesIdProjection() throws Exception {
 
     List<Gene> result = geneMyBatisRepository.getAllGenes(null, null, "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(23, result.size());
     Gene gene = result.get(0);
@@ -66,6 +77,7 @@ public class GeneMyBatisRepositoryTest {
 
     List<Gene> result =
         geneMyBatisRepository.getAllGenes(null, null, "SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(23, result.size());
     Gene gene = result.get(0);
@@ -79,6 +91,7 @@ public class GeneMyBatisRepositoryTest {
 
     List<Gene> result =
         geneMyBatisRepository.getAllGenes(null, null, "DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(23, result.size());
     Gene gene = result.get(0);
@@ -169,6 +182,7 @@ public class GeneMyBatisRepositoryTest {
   public void getAliasesOfGeneByEntrezGeneId() throws Exception {
 
     List<String> result = geneMyBatisRepository.getAliasesOfGeneByEntrezGeneId(207);
+    result.sort(null);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("AKT alias", result.get(0));
@@ -187,6 +201,7 @@ public class GeneMyBatisRepositoryTest {
   public void getAliasesOfGeneByHugoGeneSymbol() throws Exception {
 
     List<String> result = geneMyBatisRepository.getAliasesOfGeneByHugoGeneSymbol("AKT1");
+    result.sort(null);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("AKT alias", result.get(0));
@@ -201,6 +216,7 @@ public class GeneMyBatisRepositoryTest {
     entrezGeneIds.add(208);
 
     List<Gene> result = geneMyBatisRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Gene gene = result.get(0);
@@ -218,6 +234,7 @@ public class GeneMyBatisRepositoryTest {
 
     List<Gene> result =
         geneMyBatisRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Gene gene = result.get(0);
@@ -248,5 +265,9 @@ public class GeneMyBatisRepositoryTest {
     BaseMeta result = geneMyBatisRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
 
     Assert.assertEquals((Integer) 2, result.getTotalCount());
+  }
+
+  private List<Gene> sortedResult(List<Gene> result) {
+    return result.stream().sorted(Comparator.comparing(Gene::getHugoGeneSymbol)).toList();
   }
 }

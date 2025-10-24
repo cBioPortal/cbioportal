@@ -3,9 +3,11 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.AlleleSpecificCopyNumber;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.GeneFilterQuery;
@@ -14,23 +16,30 @@ import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.model.util.Select;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      MutationMyBatisRepository.class,
-      MolecularProfileCaseIdentifierUtil.class,
-      TestConfig.class
-    })
+@Import({
+  MyBatisLegacyConfig.class,
+  MutationMyBatisRepository.class,
+  MolecularProfileCaseIdentifierUtil.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class MutationMyBatisRepositoryTest {
 
   //    mutation, cna and struct var events in testSql.sql
@@ -172,7 +181,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -227,7 +236,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -278,7 +287,7 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("genome.wustl.edu", mutation.getCenter());
     Assert.assertEquals((Long) 41244748L, mutation.getEndPosition());
     Assert.assertEquals("BRCA1 truncating", mutation.getKeyword());
-    Assert.assertEquals("Germline", mutation.getMutationStatus());
+    Assert.assertEquals("GERMLINE", mutation.getMutationStatus());
     Assert.assertEquals("Nonsense_Mutation", mutation.getMutationType());
     Assert.assertEquals("37", mutation.getNcbiBuild());
     Assert.assertEquals((Integer) (-1), mutation.getNormalAltCount());
@@ -957,7 +966,7 @@ public class MutationMyBatisRepositoryTest {
     List<Mutation> result =
         mutationMyBatisRepository.fetchMutationsInMolecularProfile(
             "study_tcga_pub_mutations", sampleIds, null, false, "SUMMARY", null, null, null, null);
-
+    result = sortedResult(result);
     Assert.assertEquals(3, result.size());
     Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getMolecularProfileId());
     Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleId());
@@ -1006,5 +1015,9 @@ public class MutationMyBatisRepositoryTest {
     Assert.assertEquals("AKT1", result.getHugoGeneSymbol());
     Assert.assertEquals("mutations", result.getProfileType());
     Assert.assertEquals(2, result.getCounts().size());
+  }
+
+  private List<Mutation> sortedResult(List<Mutation> result) {
+    return result.stream().sorted(Comparator.comparing(Mutation::getSampleId)).toList();
   }
 }

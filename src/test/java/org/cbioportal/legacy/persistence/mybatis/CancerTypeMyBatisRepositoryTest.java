@@ -1,18 +1,28 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {CancerTypeMyBatisRepository.class, TestConfig.class})
+@RunWith(SpringRunner.class)
+@Import({MyBatisLegacyConfig.class, CancerTypeMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class CancerTypeMyBatisRepositoryTest {
 
   @Autowired private CancerTypeMyBatisRepository cancerTypeMyBatisRepository;
@@ -22,6 +32,7 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     TypeOfCancer typeOfCancer = result.get(0);
@@ -33,9 +44,10 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("SUMMARY", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
-    TypeOfCancer typeOfCancer = result.get(0);
+    TypeOfCancer typeOfCancer = result.get(1);
     Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
     Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
@@ -48,9 +60,10 @@ public class CancerTypeMyBatisRepositoryTest {
 
     List<TypeOfCancer> result =
         cancerTypeMyBatisRepository.getAllCancerTypes("DETAILED", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
-    TypeOfCancer typeOfCancer = result.get(0);
+    TypeOfCancer typeOfCancer = result.get(1);
     Assert.assertEquals("brca", typeOfCancer.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma", typeOfCancer.getName());
     Assert.assertEquals("HotPink", typeOfCancer.getDedicatedColor());
@@ -104,5 +117,9 @@ public class CancerTypeMyBatisRepositoryTest {
     Assert.assertEquals("Purple", result.getDedicatedColor());
     Assert.assertEquals("ACC", result.getShortName());
     Assert.assertEquals("adrenal_gland", result.getParent());
+  }
+
+  private List<TypeOfCancer> sortedResult(List<TypeOfCancer> result) {
+    return result.stream().sorted(Comparator.comparing(TypeOfCancer::getTypeOfCancerId)).toList();
   }
 }

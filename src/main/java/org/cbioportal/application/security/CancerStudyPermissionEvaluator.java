@@ -44,11 +44,15 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,11 +170,15 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    * @param authentication
    * @param targetId Serialized String cancer study id, String molecular profile id, String genetic
    *     profile id, String sample list id, Collection<String> of cancer study ids,
-   *     Collection<String> of molecular profile ids, Collection<String> of genetic profile ids, or
-   *     Collection<String> of sample list ids
+   *     Collection<String> of molecular profile ids, Collection<String> of genetic profile ids,
+   *     Collection<String> of sample list ids, or various Filter objects (SampleFilter,
+   *     StudyViewFilter, GroupFilter, ClinicalDataMultiStudyFilter, ClinicalDataCountFilter,
+   *     DataBinCountFilter, GenomicDataCountFilter, GenericAssayDataCountFilter,
+   *     MolecularProfileCasesGroupAndAlterationTypeFilter)
    * @param targetType String 'CancerStudyId', 'MolecularProfileId', 'GeneticProfileId',
    *     'SampleListId', 'Collection<CancerStudyId>', 'Collection<MolecularProfileId>',
-   *     'Collection<GeneticProfileId>', or 'Collection<SampleListId>'
+   *     'Collection<GeneticProfileId>', 'Collection<SampleListId>', or any Filter type name ending
+   *     with 'Filter'
    * @param permission
    */
   @Override
@@ -252,6 +260,21 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                   .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                   .collect(Collectors.toSet());
           return hasAccessToMolecularProfiles(authentication, molecularProfileIds, permission);
+        }
+        case GroupFilter groupFilter -> {
+          Set<String> studyIds =
+              groupFilter.getGroups().stream()
+                  .flatMap(group -> group.getSampleIdentifiers().stream())
+                  .map(SampleIdentifier::getStudyId)
+                  .collect(Collectors.toSet());
+          return hasAccessToCancerStudies(authentication, studyIds, permission);
+        }
+        case ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter -> {
+          Set<String> studyIds =
+              clinicalDataMultiStudyFilter.getIdentifiers().stream()
+                  .map(ClinicalDataIdentifier::getStudyId)
+                  .collect(Collectors.toSet());
+          return hasAccessToCancerStudies(authentication, studyIds, permission);
         }
 
         default -> log.debug("hasPermission(), unknown targetType '" + targetType + "'");

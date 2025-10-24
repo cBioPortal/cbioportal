@@ -1,6 +1,7 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
 import java.util.List;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
 import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
 import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil.CategorizedClinicalAttributeIds;
@@ -8,7 +9,6 @@ import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.springframework.context.annotation.Profile;
@@ -70,7 +70,7 @@ public class GetClinicalDataCountsUseCase {
 
     List<ClinicalAttribute> filteredClinicalAttributes =
         clinicalAttributes.stream()
-            .filter(attr -> filteredAttributes.contains(attr.getAttrId()))
+            .filter(attr -> filteredAttributes.contains(attr.attrId()))
             .toList();
 
     CategorizedClinicalAttributeIds categorizedAttributeIds =
@@ -97,7 +97,7 @@ public class GetClinicalDataCountsUseCase {
     if (result.size() != filteredAttributes.size()) {
       var attributes =
           getClinicalAttributesForStudiesUseCase.execute(involvedCancerStudies).stream()
-              .filter(attribute -> filteredAttributes.contains(attribute.getAttrId()))
+              .filter(attribute -> filteredAttributes.contains(attribute.attrId()))
               .toList();
 
       Integer filteredSampleCount = getFilteredSamplesCountUseCase.execute(studyViewFilterContext);
@@ -105,7 +105,11 @@ public class GetClinicalDataCountsUseCase {
 
       result =
           StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(
-              result, attributes, filteredSampleCount, filteredPatientCount);
+              result,
+              org.cbioportal.legacy.service.util.ClinicalAttributeUtil
+                  .convertToLegacyClinicalAttributeList(attributes),
+              filteredSampleCount,
+              filteredPatientCount);
     }
 
     return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);

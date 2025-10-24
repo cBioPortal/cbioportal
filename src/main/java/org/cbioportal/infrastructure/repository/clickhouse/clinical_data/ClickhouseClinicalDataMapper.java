@@ -6,8 +6,21 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 
 /**
- * Mapper interface for retrieving clinical data from ClickHouse. This interface provides methods to
- * fetch clinical data counts and clinical data for samples and patients.
+ * MyBatis mapper interface for executing clinical data queries against ClickHouse.
+ *
+ * <p>This mapper provides SQL query execution methods optimized for ClickHouse's column store
+ * architecture. All SQL queries are defined in the corresponding XML mapper file. This interface
+ * supports various query patterns:
+ *
+ * <ul>
+ *   <li>Study view filtered queries for UI-driven data retrieval
+ *   <li>Direct unique ID queries for enrichment analysis
+ *   <li>Multiple projection types (ID, SUMMARY, DETAILED) for different data needs
+ *   <li>Count aggregation queries for categorical data analysis
+ * </ul>
+ *
+ * @see org.cbioportal.domain.clinical_data.ClinicalData
+ * @see org.cbioportal.legacy.model.ClinicalDataCountItem
  */
 public interface ClickhouseClinicalDataMapper {
 
@@ -15,14 +28,38 @@ public interface ClickhouseClinicalDataMapper {
    * Retrieves clinical data counts based on the study view filter context, attribute IDs, and
    * filtered attribute values.
    *
+   * <p>Executes a GROUP BY query that aggregates clinical data counts for each attribute value
+   * within the filtered sample/patient set. Used by study view UI components.
+   *
    * @param studyViewFilterContext the context of the study view filter
    * @param sampleAttributeIds the list of sample attribute IDs to filter by
    * @param patientAttributeIds the list of patient attribute IDs to filter by
    * @param conflictingAttributeIds the list of both sample and patient attribute IDs to filter by
    * @return a list of clinical data count items
    */
-  List<ClinicalDataCountItem> getClinicalDataCounts(
+  List<ClinicalDataCountItem> getClinicalDataCountsByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
+
+  /**
+   * Retrieves clinical data counts for enrichment analysis using direct unique IDs.
+   *
+   * <p>Optimized for enrichment analysis by accepting pre-computed unique identifiers, avoiding
+   * additional sample/patient ID resolution queries. Executes a GROUP BY query that aggregates
+   * counts for each attribute value within each group.
+   *
+   * @param sampleUniqueIds list of sample unique identifiers in format "studyId_sampleId"
+   * @param patientUniqueIds list of patient unique identifiers in format "studyId_patientId"
+   * @param sampleAttributeIds list of sample-level clinical attribute IDs
+   * @param patientAttributeIds list of patient-level clinical attribute IDs
+   * @param conflictingAttributeIds list of conflicting attribute IDs
+   * @return list of clinical data count items with category frequencies
+   */
+  List<ClinicalDataCountItem> getClinicalDataCountsForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds);
@@ -34,7 +71,7 @@ public interface ClickhouseClinicalDataMapper {
    * @param attributeIds the list of attribute IDs to filter by
    * @return a list of sample clinical data
    */
-  List<ClinicalData> getSampleClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getSampleClinicalDataByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   /**
@@ -44,7 +81,7 @@ public interface ClickhouseClinicalDataMapper {
    * @param attributeIds the list of attribute IDs to filter by
    * @return a list of patient clinical data
    */
-  List<ClinicalData> getPatientClinicalDataFromStudyViewFilter(
+  List<ClinicalData> getPatientClinicalDataByStudyViewFilter(
       StudyViewFilterContext studyViewFilterContext, List<String> attributeIds);
 
   /**
@@ -74,6 +111,26 @@ public interface ClickhouseClinicalDataMapper {
    */
   List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+
+  /**
+   * Retrieves clinical data with SUMMARY projection for enrichment analysis.
+   *
+   * <p>Optimized version that fetches all three types of attributes (sample, patient, and
+   * conflicting) in a single query using UNION ALL.
+   *
+   * @param sampleUniqueIds list of sample unique identifiers in format "studyId_sampleId"
+   * @param patientUniqueIds list of patient unique identifiers in format "studyId_patientId"
+   * @param sampleAttributeIds list of sample-level clinical attribute IDs
+   * @param patientAttributeIds list of patient-level clinical attribute IDs
+   * @param conflictingAttributeIds list of conflicting attribute IDs
+   * @return list of clinical data records with basic field set including values
+   */
+  List<ClinicalData> fetchClinicalDataSummaryForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
 
   /**
    * Retrieves clinical data with DETAILED projection (complete data set).

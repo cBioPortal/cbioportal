@@ -2,7 +2,7 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.List;
 import java.util.SequencedMap;
-import org.cbioportal.application.file.export.services.GeneticProfileService;
+import org.cbioportal.application.file.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.cbioportal.application.file.utils.FileWriterFactory;

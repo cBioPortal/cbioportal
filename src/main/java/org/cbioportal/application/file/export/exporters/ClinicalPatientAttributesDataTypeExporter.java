@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
 import org.cbioportal.application.file.model.ClinicalAttributeValue;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;

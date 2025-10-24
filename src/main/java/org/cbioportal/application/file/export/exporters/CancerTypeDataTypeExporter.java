@@ -3,7 +3,7 @@ package org.cbioportal.application.file.export.exporters;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.model.CancerType;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.Table;

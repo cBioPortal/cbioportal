@@ -1,7 +1,7 @@
 package org.cbioportal.application.file.export.exporters;
 
-import org.cbioportal.application.file.export.services.GeneticProfileDataService;
-import org.cbioportal.application.file.export.services.GeneticProfileService;
+import org.cbioportal.application.file.services.GeneticProfileDataService;
+import org.cbioportal.application.file.services.GeneticProfileService;
 
 public class MethylationContinuousDatatypeExporter extends GeneSampleWideTableDatatypeExporter {
   public MethylationContinuousDatatypeExporter(

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 import org.cbioportal.application.file.export.exporters.ClinicalTimelineDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalEvent;
 import org.cbioportal.application.file.model.ClinicalEventData;
 import org.cbioportal.application.file.utils.CloseableIterator;

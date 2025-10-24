@@ -2,8 +2,8 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.Optional;
 import java.util.Set;
-import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
-import org.cbioportal.application.file.export.services.CnaSegmentService;
+import org.cbioportal.application.file.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.services.CnaSegmentService;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
 import org.cbioportal.application.file.model.CnaSegMetadata;
 import org.cbioportal.application.file.model.CnaSegment;

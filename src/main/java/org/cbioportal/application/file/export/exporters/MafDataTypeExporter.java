@@ -2,8 +2,8 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.Optional;
 import java.util.Set;
-import org.cbioportal.application.file.export.services.GeneticProfileService;
-import org.cbioportal.application.file.export.services.MafRecordService;
+import org.cbioportal.application.file.services.GeneticProfileService;
+import org.cbioportal.application.file.services.MafRecordService;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.model.MafRecord;
 import org.cbioportal.application.file.model.Table;

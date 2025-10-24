@@ -3,7 +3,7 @@ package org.cbioportal.application.file.export.exporters;
 import java.util.List;
 import java.util.Optional;
 import java.util.SequencedMap;
-import org.cbioportal.application.file.export.services.CaseListMetadataService;
+import org.cbioportal.application.file.services.CaseListMetadataService;
 import org.cbioportal.application.file.model.CaseListMetadata;
 import org.cbioportal.application.file.utils.FileWriterFactory;
 

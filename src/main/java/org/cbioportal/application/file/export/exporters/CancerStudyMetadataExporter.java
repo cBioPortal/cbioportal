@@ -2,7 +2,7 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.Optional;
 import java.util.SequencedMap;
-import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
 
 /** Exports metadata for a cancer study */

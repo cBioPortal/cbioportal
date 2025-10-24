@@ -8,7 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.cbioportal.application.file.export.services.GenePanelMatrixService;
+import org.cbioportal.application.file.services.GenePanelMatrixService;
 import org.cbioportal.application.file.model.GenePanelMatrixItem;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.model.Table;

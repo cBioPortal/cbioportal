@@ -1,7 +1,7 @@
 package org.cbioportal.application.file.export.exporters;
 
-import org.cbioportal.application.file.export.services.GeneticProfileService;
-import org.cbioportal.application.file.export.services.MafRecordService;
+import org.cbioportal.application.file.services.GeneticProfileService;
+import org.cbioportal.application.file.services.MafRecordService;
 
 public class MutationUncalledDatatypeExporter extends MafDataTypeExporter {
   public MutationUncalledDatatypeExporter(

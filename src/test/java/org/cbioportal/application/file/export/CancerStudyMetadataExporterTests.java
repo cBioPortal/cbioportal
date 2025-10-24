@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.cbioportal.application.file.export.exporters.CancerStudyMetadataExporter;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
+import org.cbioportal.application.file.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
 import org.junit.Test;
 

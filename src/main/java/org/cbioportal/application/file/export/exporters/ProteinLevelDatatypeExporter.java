@@ -2,8 +2,8 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.LinkedHashMap;
 import java.util.function.Function;
-import org.cbioportal.application.file.export.services.GeneticProfileDataService;
-import org.cbioportal.application.file.export.services.GeneticProfileService;
+import org.cbioportal.application.file.services.GeneticProfileDataService;
+import org.cbioportal.application.file.services.GeneticProfileService;
 import org.cbioportal.application.file.model.GeneticProfileData;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.slf4j.Logger;

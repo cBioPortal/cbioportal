@@ -15,7 +15,7 @@ import java.util.SequencedMap;
 import java.util.Set;
 import java.util.function.Function;
 import org.cbioportal.application.file.export.ExportException;
-import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.ClinicalEvent;
 import org.cbioportal.application.file.model.ClinicalEventData;

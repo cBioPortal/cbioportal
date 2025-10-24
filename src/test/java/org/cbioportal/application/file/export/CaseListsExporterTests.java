@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import org.cbioportal.application.file.export.exporters.CaseListsExporter;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.CaseListMetadataService;
+import org.cbioportal.application.file.services.CaseListMetadataService;
 import org.cbioportal.application.file.model.CaseListMetadata;
 import org.junit.Test;
 

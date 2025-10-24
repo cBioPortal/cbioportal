@@ -9,7 +9,7 @@ import java.util.Set;
 import org.cbioportal.application.file.export.exporters.ClinicalPatientAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ClinicalSampleAttributesDataTypeExporter;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.ClinicalAttributeDataService;
+import org.cbioportal.application.file.services.ClinicalAttributeDataService;
 import org.cbioportal.application.file.model.ClinicalAttribute;
 import org.cbioportal.application.file.model.ClinicalAttributeValue;
 import org.cbioportal.application.file.utils.CloseableIterator;

@@ -2,8 +2,8 @@ package org.cbioportal.application.file.export;
 
 import java.io.BufferedOutputStream;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
-import org.cbioportal.application.file.export.services.VirtualStudyExportDecoratorService;
-import org.cbioportal.application.file.export.services.ZipOutputStreamWriterService;
+import org.cbioportal.application.file.services.VirtualStudyExportDecoratorService;
+import org.cbioportal.application.file.services.ZipOutputStreamWriterService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

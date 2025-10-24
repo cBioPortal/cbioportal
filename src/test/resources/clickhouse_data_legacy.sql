@@ -4,8 +4,8 @@ insert into type_of_cancer (type_of_cancer_id,name,dedicated_color,short_name,pa
 insert into `reference_genome` values (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01 00:00:00');
 insert into `reference_genome` values (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01 00:00:00');
 
-insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17+00:00',1);
-insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2013-10-12 11:11:15+00:00',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(1,'study_tcga_pub','brca','Breast Invasive Carcinoma (TCGA, Nature 2012)','<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci.nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.',1,'23000897,26451490','TCGA, Nature 2012, ...','SU2C-PI3K;PUBLIC;GDAC',0,'2011-12-18 13:17:17',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public,pmid,citation,groups,status,import_date,reference_genome_id) values(2,'acc_tcga','acc','Adrenocortical Carcinoma (TCGA, Provisional)','TCGA Adrenocortical Carcinoma; raw data at the <A HREF="https://tcga-data.nci.nih.gov/">NCI</A>.',1,'23000897','TCGA, Nature 2012','SU2C-PI3K;PUBLIC;GDAC',0,'2013-10-12',1);
 
 insert into cancer_study_tags (cancer_study_id,tags) values(1,'{"Analyst": {"Name": "Jack", "Email": "jack@something.com"}, "Load id": 35}');
 insert into cancer_study_tags (cancer_study_id,tags) values(2,'{"Load id": 36}');
@@ -511,14 +511,14 @@ insert into users (email, name, enabled) values ('mockemail2@email.com', 'MOCK U
 insert into users (email, name, enabled) values ('mockemail3@email.com', 'MOCK USER 3', 1);
 insert into users (email, name, enabled) values ('mockemail4@email.com', 'MOCK USER 4', 1);
 
-insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-4b09-974c-f17e089b37e8', 'mockemail@email.com', '2018-11-12 11:11:15+00:00', '2018-10-12 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-fake-data-f17e089b37e8', 'mockemail2@email.com', '2018-5-14 11:11:15+00:00', '2018-4-14 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('12345678-119e-4bC9-9a4c-f123kl9b37e8', 'mockemail3@email.com', '2017-1-12 11:11:15+00:00', '2016-12-12 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail3@email.com', '2017-10-9 11:11:15+00:00', '2017-9-9 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('1337rand-ki1n-4bna-974c-s4sk3n4rut0l', 'mockemail3@email.com', '2018-8-25 11:11:15+00:00', '2018-7-25 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('12445678-119e-4bC9-9a4c-f124kl9b47e8', 'mockemail4@email.com', '2017-1-12 11:11:15+00:00', '2016-12-12 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('6cokl41e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail4@email.com', '2017-10-9 11:11:15+00:00', '2017-9-9 11:11:15+00:00');
-insert into data_access_tokens (token, username, expiration, creation) values ('1447rand-ki1n-4bna-974c-s4sk4n4rut0l', 'mockemail4@email.com', '2018-8-25 11:11:15+00:00', '2018-7-25 11:11:15+00:00');
+insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-4b09-974c-f17e089b37e8', 'mockemail@email.com', '2018-11-12 11:11:15', '2018-10-12 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-fake-data-f17e089b37e8', 'mockemail2@email.com', '2018-05-14 11:11:15', '2018-04-14 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('12345678-119e-4bC9-9a4c-f123kl9b37e8', 'mockemail3@email.com', '2017-01-12 11:11:15', '2016-12-12 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('6c9a641e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail3@email.com', '2017-10-09 11:11:15', '2017-09-09 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('1337rand-ki1n-4bna-974c-s4sk3n4rut0l', 'mockemail3@email.com', '2018-08-25 11:11:15', '2018-07-25 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('12445678-119e-4bC9-9a4c-f124kl9b47e8', 'mockemail4@email.com', '2017-01-12 11:11:15', '2016-12-12 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('6cokl41e-9719-4b09-974c-4rb1tr4ry5tr', 'mockemail4@email.com', '2017-10-09 11:11:15', '2017-09-09 11:11:15');
+insert into data_access_tokens (token, username, expiration, creation) values ('1447rand-ki1n-4bna-974c-s4sk4n4rut0l', 'mockemail4@email.com', '2018-08-25 11:11:15', '2018-07-25 11:11:15');
 
 -- treatment test data
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (1,19,'NAME','Tanespimycin');

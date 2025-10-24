@@ -10,18 +10,18 @@
         cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'DETAILED'">
             ,
-            cancer_study.cancer_study_id         AS "cancerStudy.cancerStudyId",
-            cancer_study.cancer_study_identifier AS "cancerStudy.cancerStudyIdentifier",
-            cancer_study.type_of_cancer_id       AS "cancerStudy.typeOfCancerId",
-            cancer_study.name                   AS "cancerStudy.name",
-            cancer_study.description             AS "cancerStudy.description",
-            cancer_study.public                  AS "cancerStudy.publicStudy",
-            cancer_study.pmid                    AS "cancerStudy.pmid",
-            cancer_study.citation                AS "cancerStudy.citation",
-            cancer_study.groups                  AS "cancerStudy.groups",
-            cancer_study.status                  AS "cancerStudy.status",
-            cancer_study.import_date             AS "cancerStudy.importDate",
-            reference_genome.name                AS "cancerStudy.referenceGenome"
+            cancer_study.cancer_study_id         AS "${prefix}cancerStudy.cancerStudyId",
+            cancer_study.cancer_study_identifier AS "${prefix}cancerStudy.cancerStudyIdentifier",
+            cancer_study.type_of_cancer_id       AS "${prefix}cancerStudy.typeOfCancerId",
+            cancer_study.name                    AS "${prefix}cancerStudy.name",
+            cancer_study.description             AS "${prefix}cancerStudy.description",
+            cancer_study.public                  AS "${prefix}cancerStudy.publicStudy",
+            cancer_study.pmid                    AS "${prefix}cancerStudy.pmid",
+            cancer_study.citation                AS "${prefix}cancerStudy.citation",
+            cancer_study.groups                  AS "${prefix}cancerStudy.groups",
+            cancer_study.status                  AS "${prefix}cancerStudy.status",
+            cancer_study.import_date             AS "${prefix}cancerStudy.importDate",
+            reference_genome.name                AS "${prefix}cancerStudy.referenceGenome"
         </if>
     </sql>
 

@@ -174,7 +174,8 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     patient_unique_id         String,
     off_panel                 Boolean DEFAULT FALSE
 ) ENGINE = MergeTree
-      ORDER BY (variant_type, entrez_gene_id, hugo_gene_symbol, genetic_profile_stable_id, sample_unique_id);
+      ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id)
+     
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations

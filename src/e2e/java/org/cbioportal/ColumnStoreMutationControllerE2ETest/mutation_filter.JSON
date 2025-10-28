@@ -1,7 +1,0 @@
- {
-   "sampleMolecularIdentifiers": [
-     {"sampleId": "P01_Pri", "molecularProfileId": "lgg_ucsf_2014_mutations"},
-     {"sampleId": "P05_Rec", "molecularProfileId": "lgg_ucsf_2014_mutations"}
-   ],
-   "entrezGeneIds": [287,2]
- }

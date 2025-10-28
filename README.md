@@ -119,7 +119,7 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 |--------------|-----------------------------------------------------------|------------------|-----------------------------|
 | **Unit**     | Test isolated logic (e.g. services, utils)                | ✅ Yes           | JUnit, Mockito              |
 | **Integration** | Test Spring components (e.g. JPA, Repositories) using real databases | 🚫 No            | Spring Boot, Failsafe       |
-| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Spring Boot, TestRestTemplate, MockMvc |
+| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Mocha, Chai, Axios |
 
 ---
 
@@ -178,7 +178,7 @@ For more information on writing JavaScript E2E tests, see `src/e2e/js/CLAUDE.md`
 
 ## 🔧 Configuration via Environment Variables
 
-All integration and E2E tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
+All integration tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
 
 ### ✅ Supported Environment Variables
 
@@ -188,10 +188,10 @@ All integration and E2E tests are **configured via environment variables** for t
 | `TEST_DB_MYSQL_USERNAME`        | MySQL username                       | Integration         |
 | `TEST_DB_MYSQL_PASSWORD`        | MySQL password (🔒 required)         | Integration         |
 | `TEST_DB_MYSQL_DRIVER`          | Optional, defaults to MySQL driver   | Integration         |
-| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration & E2E |
+| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration   |
+| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration   |
+| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration   |
+| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration |
 
 > If a variable is marked as required and not set, tests will fail with a helpful error.
 
@@ -237,7 +237,6 @@ These base classes:
 |------------------|-----------------------|---------------------------------|
 | *(default)*      | Unit tests only       | `mvn test`                      |
 | `integration-test` | Integration tests     | `mvn verify -Pintegration-test` |
-| `e2e-test`       | E2E tests              | `mvn verify -Pe2e-test`         |
 
 ---
 

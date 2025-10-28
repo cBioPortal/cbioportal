@@ -44,7 +44,7 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 RUN mkdir -p /cbioportal
 
 #Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v 1.0.11/core- 1.0.11.jar -P core/ ; cd core ; jar -xf core- 1.0.11.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
+RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.11/core-1.0.11.jar -P core/ ; cd core ; jar -xf core-1.0.11.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
 
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts

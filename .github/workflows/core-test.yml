@@ -86,3 +86,4 @@ jobs:
         working-directory: ./cbioportal
         run: |
           mvn verify -Pe2e-test
+

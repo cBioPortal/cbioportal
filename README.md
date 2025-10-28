@@ -162,11 +162,18 @@ cd src/e2e/js
 # Install dependencies (first time only)
 npm install
 
-# Run all tests against default server (http://localhost:8080)
-npm test
+# Run npm test all tests against default server (http://localhost:8080)
+
 
 # Run tests against a custom server URL
 CBIOPORTAL_URL=http://localhost:8082 npm test
+
+# Run a specific test suite
+npm test 'test/ColumnStoreStudyController/*.spec.ts'
+
+# Run with custom URL and specific pattern
+CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreMutationController/*.spec.ts'
+```
 
 
 #### Test Structure

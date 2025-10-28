@@ -4,8 +4,7 @@
   "description": "E2E tests for cBioPortal API using Mocha and TypeScript",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --require ts-node/register 'test/**/*.spec.ts'",
-    "test:watch": "mocha --require ts-node/register --watch --watch-files 'test/**/*.ts' 'test/**/*.spec.ts'",
+    "test": "./run-tests.sh",
     "build": "tsc",
     "clean": "rm -rf dist"
   },

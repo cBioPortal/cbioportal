@@ -40,4 +40,5 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Run the tests with all arguments passed through
-exec mocha --require ts-node/register "$@"
+# Disable Node.js warnings about module type
+exec node --no-warnings=MODULE_TYPELESS_PACKAGE_JSON node_modules/.bin/mocha --require ts-node/register "$@" 

@@ -113,7 +113,106 @@ export interface CancerStudyMetadataDTO {
   /** Count of structural variants */
   structuralVariantCount: number;
   /** Cancer type details */
-  cancerType: CancerType;
+  typeOfCancer: CancerType;
   /** Whether user has read permission */
   readPermission: boolean;
+}
+
+/**
+ * Gene - Gene information
+ * Source: Derived from API response at /api/column-store/mutations/fetch
+ */
+export interface Gene {
+  /** Entrez Gene ID */
+  entrezGeneId: number;
+  /** Hugo Gene Symbol */
+  hugoGeneSymbol: string;
+  /** Gene type (e.g., "protein-coding") */
+  type: string;
+}
+
+/**
+ * AlleleSpecificCopyNumber - Allele-specific copy number data
+ * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Note: This field can be null even in DETAILED projection
+ */
+export interface AlleleSpecificCopyNumber {
+  /** Allele-specific copy number data (structure TBD based on actual data) */
+  [key: string]: any;
+}
+
+/**
+ * MutationDTO - Mutation data transfer object
+ * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Different projection types (ID, SUMMARY, DETAILED) expose different fields
+ */
+export interface MutationDTO {
+  /** Unique sample key */
+  uniqueSampleKey: string;
+  /** Unique patient key */
+  uniquePatientKey: string;
+  /** Molecular profile identifier */
+  molecularProfileId: string;
+  /** Sample identifier */
+  sampleId: string;
+  /** Patient identifier */
+  patientId: string;
+  /** Entrez Gene ID */
+  entrezGeneId: number;
+  /** Study identifier */
+  studyId: string;
+  /** Sequencing center */
+  center?: string;
+  /** Mutation status */
+  mutationStatus?: string;
+  /** Validation status */
+  validationStatus?: string;
+  /** Tumor alternate allele count */
+  tumorAltCount?: number;
+  /** Tumor reference allele count */
+  tumorRefCount?: number;
+  /** Normal alternate allele count */
+  normalAltCount?: number;
+  /** Normal reference allele count */
+  normalRefCount?: number;
+  /** Chromosome */
+  chr?: string;
+  /** Start position on chromosome */
+  startPosition?: number;
+  /** End position on chromosome */
+  endPosition?: number;
+  /** Reference allele sequence */
+  referenceAllele?: string;
+  /** Variant allele sequence */
+  variantAllele?: string;
+  /** Protein change notation */
+  proteinChange?: string;
+  /** Mutation type (e.g., "Missense_Mutation") */
+  mutationType?: string;
+  /** NCBI genome build (e.g., "GRCh37") */
+  ncbiBuild?: string;
+  /** Variant type (e.g., "SNP") */
+  variantType?: string;
+  /** RefSeq mRNA identifier */
+  refseqMrnaId?: string;
+  /** Protein position start */
+  proteinPosStart?: number;
+  /** Protein position end */
+  proteinPosEnd?: number;
+  /** Mutation keyword */
+  keyword?: string;
+  /** Gene details (only present in DETAILED projection) */
+  gene?: Gene;
+  /** Allele-specific copy number (only in DETAILED projection, can be null) */
+  alleleSpecificCopyNumber?: AlleleSpecificCopyNumber | null;
+}
+
+/**
+ * Projection types for API requests
+ */
+export enum ProjectionType {
+  ID = 'ID',
+  SUMMARY = 'SUMMARY',
+  DETAILED = 'DETAILED',
+  META = 'META'
 }

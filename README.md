@@ -128,7 +128,6 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 ```
 src/test/java/             → Unit tests (default)
 src/integration/java/      → Integration tests (DB, Spring context)
-src/e2e/java/              → E2E tests (REST API over HTTP)
 src/e2e/js/                → JavaScript/TypeScript E2E tests (Mocha)
 ```
 
@@ -136,7 +135,7 @@ src/e2e/js/                → JavaScript/TypeScript E2E tests (Mocha)
 
 ### 🟨 JavaScript/TypeScript E2E Tests
 
-In addition to the Java E2E tests, there are also **JavaScript/TypeScript E2E tests** using **Mocha** and **Chai** located in `src/e2e/js/`.
+API tests use **Mocha** and **Chai** and are located in `src/e2e/js/`.
 
 #### Prerequisites
 

@@ -144,7 +144,7 @@ These tests require:
 - A **running cBioPortal instance** connected to the **`cgds_public_2025_06_24`** database
 - The portal should be accessible at `http://localhost:8080` (or set `CBIOPORTAL_URL` environment variable)
 
-#### Running JavaScript E2E Tests
+#### Running JavaScript E2E Tests (test api requests)
 
 ```bash
 # Navigate to the JS test directory
@@ -159,9 +159,6 @@ npm test
 # Run tests against a custom server URL
 CBIOPORTAL_URL=http://localhost:8082 npm test
 
-# Run tests in watch mode for development
-npm run test:watch
-```
 
 #### Test Structure
 

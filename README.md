@@ -133,9 +133,18 @@ src/e2e/js/                → JavaScript/TypeScript E2E tests (Mocha)
 
 ---
 
-### 🟨 JavaScript/TypeScript E2E Tests
+### 🟨 API Tests (e2e)
+
+API tests issue real HTTP requests to an instance of the cBioPortal web app running against
+a real database based on the public portal data set.  They allow us to:
+
+1. Test business logic embedded in MyBatis mappers, which cannot be tested except against a database.
+2. Test scenarios that are very difficult to reproduce with mock data, for example studies with specific data type combinations.
 
 API tests use **Mocha** and **Chai** and are located in `src/e2e/js/`.
+
+Note: please distinguish between these tests and the soon-to-be defunct api-test job which compares clickhouse api responses
+to legacy responses. 
 
 #### Prerequisites
 

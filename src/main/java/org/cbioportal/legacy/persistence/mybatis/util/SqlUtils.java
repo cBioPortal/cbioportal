@@ -14,7 +14,7 @@ public class SqlUtils {
    * @param entityIds List of patient or sample identifiers (corresponding to studyIds by index)
    * @return Array of combined unique keys in format "studyId:entityId"
    */
-  public static String[] combineStudyAndPatientIds(List<String> studyIds, List<String> entityIds) {
+  public static String[] combineStudyAndEntityIds(List<String> studyIds, List<String> entityIds) {
     if (studyIds == null || entityIds == null || studyIds.size() != entityIds.size()) {
       throw new IllegalArgumentException(
           "studyIds and entityIds must be non-null and have the same size");

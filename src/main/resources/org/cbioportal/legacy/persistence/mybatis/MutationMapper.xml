@@ -123,7 +123,7 @@
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
-                    <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(sampleIds, molecularProfileIds)" />
+                    <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(sampleIds, molecularProfileIds)" />
                     CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
                         #{sampleProfileKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                     )

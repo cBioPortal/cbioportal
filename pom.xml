@@ -111,6 +111,7 @@
 
     <skipIntegrationTests>true</skipIntegrationTests>
     <skipE2ETests>True</skipE2ETests>
+    <spring-ai.version>1.0.3</spring-ai.version>
   </properties>
 
   <!-- Maven Central Requirements -->
@@ -417,6 +418,10 @@
       <groupId>com.zaxxer</groupId>
       <artifactId>HikariCP</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-anthropic</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -443,6 +448,13 @@
         <groupId>org.apache.velocity</groupId>
         <artifactId>velocity-engine-core</artifactId>
         <version>${velocity.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.ai</groupId>
+        <artifactId>spring-ai-bom</artifactId>
+        <version>${spring-ai.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

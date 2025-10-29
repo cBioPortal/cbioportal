@@ -1,4 +1,4 @@
--- version 1.0.2 of derived table schema and data definition
+-- version 1.0.3 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -375,9 +375,10 @@ SELECT
     ifNull(ce.stop_date, 0) AS stop_date,
     ce.event_type AS event_type,
     cs.cancer_study_identifier
-FROM clinical_event ce
-         LEFT JOIN clinical_event_data ced ON ce.clinical_event_id = ced.clinical_event_id
-         INNER JOIN patient p ON ce.patient_id = p.internal_id
+
+FROM clinical_event_data ced
+    RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+    INNER JOIN patient p ON ce.patient_id = p.internal_id
          INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived

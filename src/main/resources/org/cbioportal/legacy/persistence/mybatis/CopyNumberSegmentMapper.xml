@@ -35,19 +35,16 @@
     </sql>
 
     <select id="getSamplesWithCopyNumberSegments" resultType="Integer">
-        SELECT sample.internal_id
+        SELECT 
+            DISTINCT sample.internal_id
         FROM sample
         INNER JOIN patient ON sample.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN copy_number_seg ON copy_number_seg.sample_id = sample.internal_id
         <include refid="where"/>
-        AND EXISTS (
-            SELECT * from copy_number_seg  INNER JOIN sample ON sample.internal_id = copy_number_seg.sample_id
-            <if test="chromosome != null and !chromosome.isEmpty()">
-                <where>
-                    copy_number_seg.chr = #{chromosome}
-                </where>
-            </if>
-        )
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.chr = #{chromosome}
+        </if>
     </select>
 
 
@@ -84,16 +81,14 @@
         SELECT
         <include refid="select"/>
         <include refid="from"/>
-        WHERE cancer_study.cancer_study_identifier = #{studyId}
+        INNER JOIN sample_list_list ON copy_number_seg.sample_id = sample_list_list.sample_id
+        INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        WHERE 
+            cancer_study.cancer_study_identifier = #{studyId}
+        AND
+            sample_list.stable_id = #{sampleListId}
         <if test="chromosome != null and !chromosome.isEmpty()">
             AND copy_number_seg.chr = #{chromosome}
         </if>
-        AND copy_number_seg.sample_id IN
-        (
-            SELECT sample_list_list.sample_id FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
-            WHERE sample_list.stable_id = #{sampleListId}
-            AND sample_list_list.sample_id = copy_number_seg.sample_id
-        )
     </select>
 </mapper>

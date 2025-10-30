@@ -33,21 +33,31 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {GenesetMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, GenesetMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class GenesetMyBatisRepositoryTest {
 
   @Autowired private GenesetMyBatisRepository genesetMyBatisRepository;
@@ -106,6 +116,7 @@ public class GenesetMyBatisRepositoryTest {
   public void getGenesByGenesetId() {
     // String genesetId
     List<Gene> genes = genesetMyBatisRepository.getGenesByGenesetId("HINATA_NFKB_MATRIX");
+    genes = sortedGenesResult(genes);
     Assert.assertEquals(2, genes.size());
     Gene gene = genes.get(0);
     Assert.assertEquals(369, gene.getEntrezGeneId().intValue());
@@ -113,10 +124,15 @@ public class GenesetMyBatisRepositoryTest {
     Assert.assertEquals(472, gene.getEntrezGeneId().intValue());
 
     genes = genesetMyBatisRepository.getGenesByGenesetId("MORF_ATRX");
+    genes = sortedGenesResult(genes);
     Assert.assertEquals(3, genes.size());
     gene = genes.get(0);
     Assert.assertEquals(1, 207, gene.getEntrezGeneId().intValue());
     gene = genes.get(2);
     Assert.assertEquals(10000, gene.getEntrezGeneId().intValue());
+  }
+
+  private List<Gene> sortedGenesResult(List<Gene> result) {
+    return result.stream().sorted(Comparator.comparing(Gene::getHugoGeneSymbol)).toList();
   }
 }

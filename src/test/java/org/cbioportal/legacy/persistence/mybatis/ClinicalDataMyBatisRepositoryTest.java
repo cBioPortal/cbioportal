@@ -2,33 +2,41 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      ClinicalDataMyBatisRepository.class,
-      PatientMyBatisRepository.class,
-      ClinicalAttributeMyBatisRepository.class,
-      ClinicalAttributeMapper.class,
-      PaginationCalculator.class,
-      TestConfig.class
-    })
+@RunWith(SpringRunner.class)
+@Import({
+  MyBatisLegacyConfig.class,
+  ClinicalDataMyBatisRepository.class,
+  PatientMyBatisRepository.class,
+  ClinicalAttributeMyBatisRepository.class,
+  PaginationCalculator.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class ClinicalDataMyBatisRepositoryTest {
 
   private static int noPaging = 0;
@@ -611,6 +619,7 @@ public class ClinicalDataMyBatisRepositoryTest {
             Arrays.asList("OTHER_SAMPLE_ID", "DAYS_TO_COLLECTION"),
             "SAMPLE",
             "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     ClinicalDataCount clinicalDataCount1 = result.get(0);
@@ -686,5 +695,9 @@ public class ClinicalDataMyBatisRepositoryTest {
     List<ClinicalData> result =
         clinicalDataMyBatisRepository.getPatientClinicalDataBySampleInternalIds(sampleInternalIds);
     Assert.assertEquals(0, result.size());
+  }
+
+  private List<ClinicalDataCount> sortedResult(List<ClinicalDataCount> result) {
+    return result.stream().sorted(Comparator.comparing(ClinicalDataCount::getAttributeId)).toList();
   }
 }

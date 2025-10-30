@@ -129,16 +129,9 @@
 
     <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
-        <choose>
-            <when test="_databaseId == 'mysql'">
-                ANY_VALUE(clinical_event.clinical_event_id) AS clinicalEventId,
-            </when>
-            <when test="_databaseId == 'h2'">
-                clinical_event.clinical_event_id AS clinicalEventId,
-            </when>
-        </choose>
-        clinical_event.event_type AS eventType,
-        patient.stable_id AS patientId
+            ANY_VALUE(clinical_event.clinical_event_id) AS clinicalEventId,
+            clinical_event.event_type AS eventType,
+            patient.stable_id AS patientId
         <include refid="from"/>
         <where>
             <if test="patientIds == null and studyIds != null">
@@ -177,6 +170,112 @@
             </if>
         </where>
         GROUP BY clinical_event.event_type, patient.stable_id
+    </select>
+
+    <select id="getTimelineEvents" resultType="org.cbioportal.legacy.model.ClinicalEvent">
+        SELECT
+            ANY_VALUE(patient.stable_id) AS patientId,
+            cancer_study.cancer_study_identifier AS studyId,
+            MIN(clinical_event.start_date) AS startDate,
+            GREATEST(MAX(clinical_event.start_date), COALESCE(MAX(clinical_event.stop_date),0)) AS stopDate
+        FROM clinical_event
+            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        <where>
+            <if test="patientIds == null and studyIds != null">
+                cancer_study.cancer_study_identifier IN
+                <if test="studyIds.isEmpty()">(NULL)</if>
+                <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
+            </if>
+            <if test="patientIds != null">
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                    <bind name="patientArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(patientIds)" />
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    patient.stable_id IN (
+                        #{patientArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                </if>
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
+                    <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
+                    CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                        #{patientUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                </if>
+            </if>
+            <if test="!clinicalEvents.isEmpty()">
+                AND
+                <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
+                    <if test="element.attributes == null || element.attributes.isEmpty()">
+                        clinical_event.event_type = #{element.eventType}
+                    </if>
+                    <if test="element.attributes != null and !element.attributes.isEmpty()">
+                        (CONCAT(clinical_event.event_type, '_', clinical_event_data.key, '_', clinical_event_data.value)) IN
+                        <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
+                            CONCAT(#{element.eventType}, '_', #{attribute.key}, '_', #{attribute.value})
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        clinical_event.patient_id, cancer_study.cancer_study_identifier;
+    </select>
+
+    <resultMap id="clinicalEventsResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <result property="eventType" column="eventType"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData">
+            <result property="key" column="key"/>
+            <result property="value" column="value"/>
+        </collection>
+    </resultMap>
+    
+    <select id="getClinicalEventsMeta" resultMap="clinicalEventsResultMap">
+        SELECT
+            LOWER(clinical_event.event_type) AS eventType,
+            LOWER(clinical_event_data.key) AS "key",
+            LOWER(clinical_event_data.value) AS value
+        FROM clinical_event
+            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        <where>
+            <if test="patientIds == null and studyIds != null">
+                cancer_study.cancer_study_identifier IN
+                <if test="studyIds.isEmpty()">(NULL)</if>
+                <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
+            </if>
+            <if test="patientIds != null">
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                    <bind name="patientArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(patientIds)" />
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    patient.stable_id IN (
+                    #{patientArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                </if>
+                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
+                    <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
+                    CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                    #{patientUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                </if>
+            </if>
+            <if test="!clinicalEvents.isEmpty()">
+                AND
+                <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
+                    <if test="element.attributes == null || element.attributes.isEmpty()">
+                        clinical_event.event_type = #{element.eventType}
+                    </if>
+                    <if test="element.attributes != null and !element.attributes.isEmpty()">
+                        (CONCAT(clinical_event.event_type, '_', clinical_event_data.key)) IN
+                        <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
+                            CONCAT(#{element.eventType}, '_', #{attribute.key})
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY clinical_event.event_type , clinical_event_data.key, clinical_event_data.value;
     </select>
 
 </mapper>

@@ -84,7 +84,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getAllPatientsInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     patientService.getAllPatientsInStudy(
         STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
   }
@@ -102,7 +102,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getMetaPatientsInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     patientService.getMetaPatientsInStudy(STUDY_ID);
   }
 
@@ -116,7 +116,7 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getPatientInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     patientService.getPatientInStudy(STUDY_ID, PATIENT_ID_1);
   }
 

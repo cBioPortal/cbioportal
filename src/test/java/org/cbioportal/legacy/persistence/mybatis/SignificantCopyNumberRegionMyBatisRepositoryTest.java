@@ -2,20 +2,30 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {SignificantCopyNumberRegionMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, SignificantCopyNumberRegionMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class SignificantCopyNumberRegionMyBatisRepositoryTest {
 
   @Autowired
@@ -27,6 +37,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     List<Gistic> result =
         significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
             "study_tcga_pub", "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Gistic gistic = result.get(0);
@@ -41,7 +52,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
 
     List<Gistic> result =
         significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "gisticRoiId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Gistic gistic = result.get(0);
@@ -60,7 +71,7 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
 
     List<Gistic> result =
         significantCopyNumberRegionMyBatisRepository.getSignificantCopyNumberRegions(
-            "study_tcga_pub", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "DETAILED", null, null, "gisticRoiId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Gistic gistic = result.get(0);
@@ -114,16 +125,25 @@ public class SignificantCopyNumberRegionMyBatisRepositoryTest {
     gisticRoiIds.add(2L);
     List<GisticToGene> result =
         significantCopyNumberRegionMyBatisRepository.getGenesOfRegions(gisticRoiIds);
+    result = sortedG2GResult(result);
 
     Assert.assertEquals(3, result.size());
     GisticToGene gisticToGene1 = result.get(0);
     Assert.assertEquals((Integer) 207, gisticToGene1.getEntrezGeneId());
     Assert.assertEquals("AKT1", gisticToGene1.getHugoGeneSymbol());
     GisticToGene gisticToGene2 = result.get(1);
-    Assert.assertEquals((Integer) 208, gisticToGene2.getEntrezGeneId());
-    Assert.assertEquals("AKT2", gisticToGene2.getHugoGeneSymbol());
+    Assert.assertEquals((Integer) 207, gisticToGene2.getEntrezGeneId());
+    Assert.assertEquals("AKT1", gisticToGene2.getHugoGeneSymbol());
     GisticToGene gisticToGene3 = result.get(2);
-    Assert.assertEquals((Integer) 207, gisticToGene3.getEntrezGeneId());
-    Assert.assertEquals("AKT1", gisticToGene3.getHugoGeneSymbol());
+    Assert.assertEquals((Integer) 208, gisticToGene3.getEntrezGeneId());
+    Assert.assertEquals("AKT2", gisticToGene3.getHugoGeneSymbol());
+  }
+
+  private List<Gistic> sortedResult(List<Gistic> result) {
+    return result.stream().sorted(Comparator.comparing(Gistic::getGisticRoiId)).toList();
+  }
+
+  private List<GisticToGene> sortedG2GResult(List<GisticToGene> result) {
+    return result.stream().sorted(Comparator.comparing(GisticToGene::getEntrezGeneId)).toList();
   }
 }

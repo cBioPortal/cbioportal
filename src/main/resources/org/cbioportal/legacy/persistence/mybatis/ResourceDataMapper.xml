@@ -6,10 +6,10 @@
     <sql id="selectSampleResource">
         sample.stable_id AS "${prefix}sampleId",
         patient.stable_id AS "${prefix}patientId",
-        resource_patient.resource_id AS "${prefix}resourceId",
+        resource_sample.resource_id AS "${prefix}resourceId",
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_patient.url AS "${prefix}url"
+            , resource_sample.url AS "${prefix}url"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -49,8 +49,8 @@
     </sql>
 
     <sql id="fromSample">
-        FROM resource_patient
-        INNER JOIN sample ON resource_patient.internal_id = sample.internal_id
+        FROM resource_sample
+        INNER JOIN sample ON resource_sample.internal_id = sample.internal_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
@@ -76,7 +76,7 @@
                  sample.stable_id = #{sampleId}
             </if>
             <if test="resourceId != null">
-                AND resource_patient.resource_id = #{resourceId}
+                AND resource_sample.resource_id = #{resourceId}
             </if>
         </where>
     </sql>
@@ -112,7 +112,7 @@
         </include>
         <include refid="fromSample"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_patient.resource_id = resource_definition.resource_id
+            INNER JOIN resource_definition ON resource_sample.resource_id = resource_definition.resource_id
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereSample"/>
@@ -120,7 +120,7 @@
             ORDER BY "${sortBy}" ${direction}
         </if>
         <if test="projection == 'ID'">
-            ORDER BY resource_patient.resource_id ASC
+            ORDER BY resource_sample.resource_id ASC
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

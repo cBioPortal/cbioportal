@@ -75,7 +75,7 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getClinicalAttributeStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     clinicalAttributeService.getClinicalAttribute(STUDY_ID, CLINICAL_ATTRIBUTE_ID_1);
   }
 
@@ -116,7 +116,7 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getAllClinicalAttributesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     clinicalAttributeService.getAllClinicalAttributesInStudy(
         STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
   }
@@ -135,7 +135,7 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getMetaClinicalAttributesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     clinicalAttributeService.getMetaClinicalAttributesInStudy(STUDY_ID);
   }
 

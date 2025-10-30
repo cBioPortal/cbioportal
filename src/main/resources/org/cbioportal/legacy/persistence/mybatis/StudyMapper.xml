@@ -154,6 +154,7 @@
         </if>
         <include refid="from"/>
         WHERE cancer_study.cancer_study_identifier = #{studyId}
+        GROUP BY cancer_study.cancer_study_id
     </select>
 
     <select id="getTags" resultType="org.cbioportal.legacy.model.CancerStudyTags">

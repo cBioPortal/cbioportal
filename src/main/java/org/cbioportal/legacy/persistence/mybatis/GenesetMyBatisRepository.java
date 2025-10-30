@@ -22,7 +22,7 @@ public class GenesetMyBatisRepository implements GenesetRepository {
         projection,
         pageSize,
         PaginationCalculator.offset(pageSize, pageNumber),
-        "EXTERNAL_ID",
+        "external_id",
         "ASC");
   }
 

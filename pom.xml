@@ -422,6 +422,10 @@
       <groupId>org.springframework.ai</groupId>
       <artifactId>spring-ai-starter-model-anthropic</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-mcp-server</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -872,6 +876,75 @@
         <skipIntegrationTests>true</skipIntegrationTests>
         <skipE2ETests>false</skipE2ETests>
       </properties>
+    </profile>
+    <!-- MCP Server Build Profile -->
+    <profile>
+      <id>mcp</id>
+      <properties>
+        <skipTests>true</skipTests>
+        <skipIntegrationTests>true</skipIntegrationTests>
+        <skipE2ETests>true</skipE2ETests>
+      </properties>
+      <build>
+        <finalName>cbioportal-mcp-server</finalName>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+              <mainClass>org.cbioportal.infrastructure.ai.McpServerApplication</mainClass>
+              <classifier>exec</classifier>
+              <excludes>
+                <!-- Exclude web-related dependencies to reduce JAR size -->
+                <exclude>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-thymeleaf</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.security</groupId>
+                  <artifactId>spring-security-web</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.security</groupId>
+                  <artifactId>spring-security-config</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-oauth2-client</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.security</groupId>
+                  <artifactId>spring-security-saml2-service-provider</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.session</groupId>
+                  <artifactId>spring-session-data-redis</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-data-redis</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-data-mongodb</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.mybatis.spring.boot</groupId>
+                  <artifactId>mybatis-spring-boot-starter</artifactId>
+                </exclude>
+                <exclude>
+                  <groupId>org.springdoc</groupId>
+                  <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                </exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <!-- Maven Central -->
     <profile>

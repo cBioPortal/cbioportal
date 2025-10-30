@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
@@ -203,7 +204,7 @@ public class DatabaseSchemaTools {
         // Check if this is the start of our target table (case-insensitive)
         if (trimmed
             .toUpperCase()
-            .matches("CREATE\\s+TABLE\\s+`?" + tableName.toUpperCase() + "`?.*")) {
+            .matches("CREATE\\s+TABLE\\s+`?" + Pattern.quote(tableName.toUpperCase()) + "`?.*")) {
           inTargetTable = true;
           currentTable.append(line).append("\n");
           parenthesesDepth = countChar(line, '(') - countChar(line, ')');

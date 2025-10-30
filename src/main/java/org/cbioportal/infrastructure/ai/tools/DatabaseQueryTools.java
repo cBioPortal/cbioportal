@@ -14,8 +14,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Spring AI Tool for querying cBioPortal database. This tool can be called by AI assistants to
- * retrieve cancer genomics data.
+ * Spring AI Tool for querying cBioPortal ClickHouse database. Provides direct, fast access to
+ * cancer genomics data.
  */
 @Component
 public class DatabaseQueryTools {

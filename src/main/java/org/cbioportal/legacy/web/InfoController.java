@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.legacy.model.Info;
+import org.cbioportal.legacy.model.InfoDb;
+import org.cbioportal.legacy.service.InfoService;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Tag(name = PublicApiTags.INFO, description = " ")
 public class InfoController {
+
+  @Autowired private InfoService infoService;
 
   @Value("${portal.version}")
   private String portalVersion;
@@ -72,10 +77,27 @@ public class InfoController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = Info.class)))
   public ResponseEntity<Info> getInfo() {
+    // Start from DB values
+    InfoDb infoDb = infoService.getInfoFromDb();
     Info info = new Info();
+    if (infoDb != null) {
+      if (infoDb.getDbSchemaVersion() != null) {
+        info.setDbVersion(infoDb.getDbSchemaVersion());
+      }
+      if (infoDb.getDerivedTableSchemaVersion() != null) {
+        info.setDerivedTableVersion(infoDb.getDerivedTableSchemaVersion());
+      }
+      if (infoDb.getGenesetVersion() != null) {
+        info.setGenesetVersion(infoDb.getGenesetVersion());
+      }
+      if (infoDb.getGeneTableVersion() != null) {
+        info.setGeneTableVersion(infoDb.getGeneTableVersion());
+      }
+    }
+    // Property overrides
     info.setPortalVersion(portalVersion);
-    info.setDbVersion(dbVersion);
-    info.setDerivedTableVersion(derivedTableVersion);
+    if (dbVersion != null) info.setDbVersion(dbVersion);
+    if (derivedTableVersion != null) info.setDerivedTableVersion(derivedTableVersion);
     info.setGitBranch(gitBranch);
     info.setGitCommitId(gitCommitId);
     info.setGitCommitIdDescribe(gitCommitIdDescribe);

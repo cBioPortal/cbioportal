@@ -7,6 +7,8 @@ public class Info implements Serializable {
   @NotNull private String portalVersion;
   @NotNull private String dbVersion;
   @NotNull private String derivedTableVersion;
+  @NotNull private String genesetVersion;
+  @NotNull private String geneTableVersion;
   @NotNull private String gitBranch;
   @NotNull private String gitCommitId;
   @NotNull private String gitCommitIdAbbrev;
@@ -120,5 +122,21 @@ public class Info implements Serializable {
 
   public void setDerivedTableVersion(String derivedTableVersion) {
     this.derivedTableVersion = derivedTableVersion;
+  }
+
+  public String getGenesetVersion() {
+    return genesetVersion;
+  }
+
+  public void setGenesetVersion(String genesetVersion) {
+    this.genesetVersion = genesetVersion;
+  }
+
+  public String getGeneTableVersion() {
+    return geneTableVersion;
+  }
+
+  public void setGeneTableVersion(String geneTableVersion) {
+    this.geneTableVersion = geneTableVersion;
   }
 }

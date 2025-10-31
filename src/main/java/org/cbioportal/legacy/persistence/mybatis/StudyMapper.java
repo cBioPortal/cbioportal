@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
+import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
 public interface StudyMapper {
@@ -23,4 +24,8 @@ public interface StudyMapper {
   CancerStudyTags getTags(String studyId);
 
   List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
+
+  List<ResourceCount> getResourceCountsForAllStudies();
+
+  List<ResourceCount> getResourceCounts(List<String> studyIds);
 }

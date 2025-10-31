@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence;
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
+import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.cache.annotation.Cacheable;
 
@@ -48,4 +49,14 @@ public interface StudyRepository {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  List<ResourceCount> getResourceCountsForAllStudies();
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  List<ResourceCount> getResourceCounts(List<String> studyIds);
 }

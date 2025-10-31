@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
+import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
@@ -67,5 +68,15 @@ public class StudyMyBatisRepository implements StudyRepository {
       return new ArrayList<>();
     }
     return studyMapper.getTagsForMultipleStudies(studyIds);
+  }
+
+  @Override
+  public List<ResourceCount> getResourceCountsForAllStudies() {
+    return studyMapper.getResourceCountsForAllStudies();
+  }
+
+  @Override
+  public List<ResourceCount> getResourceCounts(List<String> studyIds) {
+    return studyMapper.getResourceCounts(studyIds);
   }
 }

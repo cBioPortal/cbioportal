@@ -49,7 +49,9 @@ public class VariantCountMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 22, variantCount1.getNumberOfSamplesWithMutationInGene());
 
     variantCountOptional =
-        result.stream().filter(r -> r.getKeyword().equals("AKT1 truncating")).findAny();
+        result.stream()
+            .filter(r -> r.getKeyword() != null && r.getKeyword().equals("AKT1 truncating"))
+            .findAny();
     Assert.assertTrue(variantCountOptional.isPresent());
     VariantCount variantCount2 = variantCountOptional.get();
 

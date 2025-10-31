@@ -1,3 +1,19 @@
+## Oct 31, 2025
+*   **Added data** consisting of 9,749 samples from 13 studies:
+    * [Mixed Tumors - MiMSI Cohort (MSK, Nat Commun 2025)](https://www.cbioportal.org/study/summary?id=pancan_mimsi_msk_2024) *5033 samples*
+    * [Cancer Cell Line Encyclopedia (Broad, Nat Rev Cancer 2025)](https://www.cbioportal.org/study/summary?id=ccle_broad_2025) *1970 samples*
+    * [Colorectal Cancer- ChangKang Project (SYSUCC, Nat Commun 2022)](https://www.cbioportal.org/study/summary?id=crc_sysucc_2022) *1015 samples*
+	* [Cancer Cell Line Encyclopedia (Genentech, Nat biotech 2014)](https://www.cbioportal.org/study/summary?id=ccle_genentech_2014) *675 samples*
+    * [Bladder Urothelial Carcinoma SWOG S1314 Trial (MSK, JCO Precis Oncol 2024)](https://www.cbioportal.org/study/summary?id=blca_msk_2024) *184 samples*
+    * [Pediatric solid tumor PDXs (UTHSA, Nat Commun 2023)](https://www.cbioportal.org/study/summary?id=pancan_pdx_uthsa_2023) *136 samples*
+    * [Solitary Fibrous Tumors (SYSUCC, Nat Commun 2023)](https://www.cbioportal.org/study/summary?id=sft_sysucc_2023) *131 samples*
+    * [Melanoma (MSK, Cell 2017) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_riaz_nivolumab_2017) *107 samples*
+    * [Lung Adenocarcinoma (CAS, Cell 2020)](https://www.cbioportal.org/study/summary?id=luad_cas_2020) *103 samples*
+    * [Hereditary SDHB-Mutant Pheochromocytomas and Paragangliomas (A5 Consortium, Nature 2025)](https://www.cbioportal.org/study/summary?id=hnsc_a5consortium_2025) *94 samples*
+    * [Triple Negative Breast Cancer (DLDCCC, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=brca_dldccc_2022) *75 samples*
+    * [Colorectal Adenocarcinoma (DFCI/Orion, BioRxiv 2024)](https://www.cbioportal.org/study/summary?id=crc_orion_2024) *74 samples*
+    * [Schwannoma (Children's Tumor Foundation, Acta Neuropathologica 2020)](https://www.cbioportal.org/study/summary?id=schw_ctf_synodos_2025) *52 samples*
+
 ## May 06, 2025
 *   **Added data** consisting of 4,571 samples from 10 studies:
     * [Pancreatic Adenocarcinoma (MSK, Nat Med 2024)](https://www.cbioportal.org/study/summary?id=pdac_msk_2024) *2336 samples*

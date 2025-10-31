@@ -97,43 +97,43 @@
     </sql>
 
     <sql id="selectResource">
-        DISPLAY_NAME AS displayName,
-        rd.DESCRIPTION AS description,
-        rd.RESOURCE_TYPE AS resourceType,
-        rd.PRIORITY AS priority,
-        rd.OPEN_BY_DEFAULT AS openByDefault,
-        CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
-        rd.CUSTOM_METADATA AS customMetaData
+        display_name AS displayName,
+        rd.description AS description,
+        rd.resource_type AS resourceType,
+        rd.priority AS priority,
+        rd.open_by_default AS openByDefault,
+        cancer_study_identifier as cancerStudyIdentifier,
+        rd.custom_metadata AS customMetaData
     </sql>
 
     <sql id="selectSampleResourceCounts">
         <include refid="selectResource"/>,
-        rs.RESOURCE_ID AS resourceId,
-        COUNT(DISTINCT rs.INTERNAL_ID) AS sampleCount,
-        COUNT(DISTINCT p.INTERNAL_ID) AS patientCount
+        rs.resource_id AS resourceId,
+        COUNT(DISTINCT rs.internal_id) AS sampleCount,
+        COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
 
     <sql id="fromResourceSample">
         FROM resource_sample AS rs
-             INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rs.RESOURCE_ID
-             INNER JOIN sample s ON s.INTERNAL_ID = rs.INTERNAL_ID
-             INNER JOIN patient p ON p.INTERNAL_ID = s.PATIENT_ID
-             INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+             INNER JOIN resource_definition rd ON rd.resource_id = rs.resource_id
+             INNER JOIN sample s ON s.internal_id = rs.internal_id
+             INNER JOIN patient p ON p.internal_id = s.patient_id
+             INNER JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
     </sql>
 
     <sql id="selectPatientResourceCounts">
         <include refid="selectResource"/>,
-        rp.RESOURCE_ID AS resourceId,
-        COUNT(DISTINCT s.INTERNAL_ID) AS sampleCount,
-        COUNT(DISTINCT rp.INTERNAL_ID) AS patientCount
+        rp.resource_id AS resourceId,
+        COUNT(DISTINCT s.internal_id) AS sampleCount,
+        COUNT(DISTINCT rp.internal_id) AS patientCount
     </sql>
 
     <sql id="fromResourcePatient">
         FROM cancer_study cs
-             INNER JOIN patient p ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-             LEFT JOIN sample s ON p.INTERNAL_ID = s.PATIENT_ID
-             INNER JOIN resource_patient rp ON rp.INTERNAL_ID = s.PATIENT_ID
-             INNER JOIN resource_definition rd ON rd.RESOURCE_ID = rp.RESOURCE_ID
+             INNER JOIN patient p ON cs.cancer_study_id = p.cancer_study_id
+             LEFT JOIN sample s ON p.internal_id = s.patient_id
+             INNER JOIN resource_patient rp ON rp.internal_id = s.patient_id
+             INNER JOIN resource_definition rd ON rd.resource_id = rp.resource_id
     </sql>
 
     <select id="getStudies" resultType="org.cbioportal.legacy.model.CancerStudy">
@@ -240,7 +240,7 @@
         <include refid="fromResourceSample"/>
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cs.CANCER_STUDY_IDENTIFIER IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -253,7 +253,7 @@
         <include refid="fromResourcePatient"/>
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cs.CANCER_STUDY_IDENTIFIER IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">
                     #{item}
                 </foreach>

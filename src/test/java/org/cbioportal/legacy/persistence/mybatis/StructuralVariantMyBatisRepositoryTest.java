@@ -64,7 +64,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class StructuralVariantMyBatisRepositoryTest {
 
-  //    struct var events in testSql.sql
+  //    struct var events in clickhouse_data_legacy.sql
   //        SAMPLE_ID,        ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, GENETIC
   // PRODFILE, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
   //        1     27436-238   EML4-ALK    7   study_tcga_pub_sv   SV          Fusion

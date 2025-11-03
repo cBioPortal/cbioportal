@@ -185,7 +185,7 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            <!--TODO: FIX-->
+            <!--We are not going to fix this because this has been reimplemented for the new clickhouse mappers -->
             <!--COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount-->
             1 AS allSampleCount
         </if>

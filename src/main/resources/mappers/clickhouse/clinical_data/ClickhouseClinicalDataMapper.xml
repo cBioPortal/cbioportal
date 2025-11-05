@@ -156,6 +156,34 @@
         </if>
     </select>
 
+    <update id="createSessionScopedFilteredSamplesTable">
+        CREATE TEMPORARY TABLE temp_filtered_samples_session AS (
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+        )
+    </update>
+
+    <update id="createSessionScopedFilteredPatientsTable">
+        CREATE TEMPORARY TABLE temp_filtered_patients_session AS (
+            SELECT patient_unique_id
+            FROM sample_derived
+            <where>
+                sample_unique_id IN (temp_filtered_samples_session)
+            </where>
+        )
+    </update>
+
+    <sql id="getFilteredSampleCountFromSessionScopedTable">
+        SELECT 
+            count(distinct sample_unique_id) as count
+        FROM temp_filtered_samples_session
+    </sql>
+
+    <sql id="getFilteredPatientCountFromSessionScopedTable">
+        SELECT
+            count(distinct patient_unique_id) as count
+        FROM temp_filtered_patients_session
+    </sql>
+    
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
         <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
@@ -191,9 +219,9 @@
         (
         WITH clinical_data_query AS (
         SELECT
-        attribute_name AS attributeId,
-        attribute_value AS value,
-        cast(count(*) AS INTEGER) as count
+            attribute_name AS attributeId,
+            attribute_value AS value,
+            cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived cdd
         <if test="'${isConflicting}' == 'true'">
             <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
@@ -208,10 +236,10 @@
             AND
             <choose>
                 <when test="'${type}' == 'sample'">
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    sample_unique_id IN (temp_filtered_samples_session)
                 </when>
                 <otherwise>
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                    patient_unique_id IN (temp_filtered_patients_session)
                 </otherwise>
             </choose>
             AND attribute_name IN
@@ -232,10 +260,10 @@
                 <!-- Use sample count for:
                     1. Pure sample attributes (type='sample')
                     2. Conflicting attributes (already mapped to sample-level via JOIN) -->
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
+                <include refid="getFilteredSampleCountFromSessionScopedTable"/>
             </when>
             <otherwise>
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>
+                <include refid="getFilteredPatientCountFromSessionScopedTable"/>
             </otherwise>
         </choose>
         ) - clinical_data_sum.sum) AS count

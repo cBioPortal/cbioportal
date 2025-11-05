@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
@@ -12,8 +13,33 @@ import org.cbioportal.legacy.model.ClinicalDataCountItem;
 public interface ClickhouseClinicalDataMapper {
 
   /**
+   * We need to create a temporary (session scoped) filtered sample table to optimize the queries
+   * relying on the sample ids filtered by study view filter context. This is especially helpful
+   * when the underlying query needs the filtered samples repeatedly within multiple subqueries
+   *
+   * @param studyViewFilterContext the context of the study view filter
+   */
+  void createSessionScopedFilteredSamplesTable(
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+
+  /**
+   * We need to create a temporary (session scoped) filtered patients table to optimize the queries
+   * relying on the patient ids filtered by study view filter context. This is especially helpful
+   * when the underlying query needs the filtered patients repeatedly within multiple subqueries
+   *
+   * @param studyViewFilterContext the context of the study view filter
+   */
+  void createSessionScopedFilteredPatientsTable(
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+
+  /**
    * Retrieves clinical data counts based on the study view filter context, attribute IDs, and
    * filtered attribute values.
+   *
+   * <p>IMPORTANT NOTE: Calling this method on its own will most likely cause a SQL error due to the
+   * underlying design. createSessionScopedFilteredSamplesTable and
+   * createSessionScopedFilteredPatientsTable methods need to be called every time before calling
+   * this method to ensure that the temporary (in-memory) tables are present.
    *
    * @param studyViewFilterContext the context of the study view filter
    * @param sampleAttributeIds the list of sample attribute IDs to filter by

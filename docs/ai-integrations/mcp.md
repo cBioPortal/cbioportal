@@ -10,9 +10,9 @@ For details on how MCP powers the cBioPortal chat interface, see the [Chat Inter
 
 ## Available MCP Servers
 
-### Official cBioPortal MCP Servers
+### cBioPortal MCP Servers in Development
 
-These MCP servers are maintained by the cBioPortal team.
+These MCP servers are maintained by the cBioPortal team and are currently prototypes in active development.
 
 #### cbioportal-mcp
 

@@ -156,6 +156,17 @@
         </if>
     </select>
 
+    <!-- Setup statement executed before getClinicalDataCounts in the same session -->
+    <!-- Use this for creating temporary tables, setting session variables, etc. -->
+    <update id="setupClinicalDataCountsSession">
+        -- Add your setup SQL here
+        -- Example: CREATE TEMPORARY TABLE IF NOT EXISTS tmp_clinical_data AS
+        -- SELECT * FROM clinical_data_derived WHERE ...
+
+        -- For now, this is a placeholder. Replace with your actual setup logic.
+        SELECT 1
+    </update>
+
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
         <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">

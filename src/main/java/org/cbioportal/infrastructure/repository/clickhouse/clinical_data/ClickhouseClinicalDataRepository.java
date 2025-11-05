@@ -1,13 +1,18 @@
 package org.cbioportal.infrastructure.repository.clickhouse.clinical_data;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.ibatis.session.SqlSession;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
+import org.mybatis.spring.SqlSessionTemplate;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -16,9 +21,13 @@ import org.springframework.stereotype.Repository;
 public class ClickhouseClinicalDataRepository implements ClinicalDataRepository {
 
   private final ClickhouseClinicalDataMapper mapper;
+  private final SqlSessionTemplate sqlSessionTemplate;
 
-  public ClickhouseClinicalDataRepository(ClickhouseClinicalDataMapper mapper) {
+  public ClickhouseClinicalDataRepository(
+      ClickhouseClinicalDataMapper mapper,
+      @Qualifier("sqlColumnarSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
     this.mapper = mapper;
+    this.sqlSessionTemplate = sqlSessionTemplate;
   }
 
   @Override
@@ -41,8 +50,27 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
-    return mapper.getClinicalDataCounts(
-        studyViewFilterContext, sampleAttributeIds, patientAttributeIds, conflictingAttributeIds);
+
+    // Execute both queries in the same session to support temp tables or session-level setup
+    return sqlSessionTemplate.execute(
+        (SqlSession session) -> {
+          // Create parameters map
+          Map<String, Object> params = new HashMap<>();
+          params.put("studyViewFilterContext", studyViewFilterContext);
+          params.put("sampleAttributeIds", sampleAttributeIds);
+          params.put("patientAttributeIds", patientAttributeIds);
+          params.put("conflictingAttributeIds", conflictingAttributeIds);
+
+          // Step 1: Execute setup statement (e.g., create temp table, set session variables)
+          session.update(
+              "org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper.setupClinicalDataCountsSession",
+              params);
+
+          // Step 2: Execute the main query that uses the temp table/session setup
+          return session.selectList(
+              "org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper.getClinicalDataCounts",
+              params);
+        });
   }
 
   @Override

@@ -2,8 +2,10 @@ package org.cbioportal.infrastructure.config;
 
 import java.io.IOException;
 import javax.sql.DataSource;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.legacy.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -30,5 +32,12 @@ public class ClickhouseMyBatisConfig {
 
     sessionFactory.setTypeHandlers(new SampleTypeTypeHandler());
     return sessionFactory;
+  }
+
+  @Bean("sqlColumnarSessionTemplate")
+  public SqlSessionTemplate sqlColumnarSessionTemplate(
+      @Qualifier("sqlColumnarSessionFactory") SqlSessionFactoryBean sqlSessionFactoryBean)
+      throws Exception {
+    return new SqlSessionTemplate(sqlSessionFactoryBean.getObject());
   }
 }

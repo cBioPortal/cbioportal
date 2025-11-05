@@ -12,6 +12,28 @@ import org.cbioportal.legacy.model.ClinicalDataCountItem;
 public interface ClickhouseClinicalDataMapper {
 
   /**
+   * Sets up the session for getClinicalDataCounts query execution.
+   *
+   * <p>This method is used internally to prepare the database session before executing
+   * getClinicalDataCounts. It can be used for creating temporary tables, setting session
+   * variables, or performing other setup operations that need to be in the same session as the
+   * main query.
+   *
+   * <p>Note: This method is typically not called directly by application code. Instead, use the
+   * repository method which manages the session lifecycle.
+   *
+   * @param studyViewFilterContext the context of the study view filter
+   * @param sampleAttributeIds the list of sample attribute IDs to filter by
+   * @param patientAttributeIds the list of patient attribute IDs to filter by
+   * @param conflictingAttributeIds the list of both sample and patient attribute IDs to filter by
+   */
+  void setupClinicalDataCountsSession(
+      StudyViewFilterContext studyViewFilterContext,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds);
+
+  /**
    * Retrieves clinical data counts based on the study view filter context, attribute IDs, and
    * filtered attribute values.
    *

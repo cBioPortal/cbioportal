@@ -94,14 +94,14 @@
     <sql id="treatments">
         SELECT
             patient_unique_id,
-            value AS treatment,
+            UPPER(TRIM(value)) AS treatment,
             argMin(start_date, start_date) AS treatment_time_taken
         FROM clinical_event_derived
         <where>
             lower(event_type) = 'treatment'
             AND key = 'AGENT'
         </where>
-        GROUP BY patient_unique_id, value
+        GROUP BY patient_unique_id, UPPER(TRIM(value))
     </sql>
     
     <!-- Count (Pre/Post) Sample Acquisition Events for every Treatment per Patient -->

@@ -35,7 +35,7 @@
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, sampleIds)" />
+                    <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                     CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER, ':', sample.STABLE_ID) IN (
                         #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                     )

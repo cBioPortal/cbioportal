@@ -12,7 +12,7 @@
     </resultMap>
     <select id="getPatientTreatments" resultMap="PatientTreatment">
         SELECT
-        value AS treatment,
+        UPPER(TRIM(any(value))) AS treatment,  -- display in uppercase
         count(DISTINCT patient_unique_id) AS count
         FROM clinical_event_derived
         <where>
@@ -21,7 +21,7 @@
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
         </where>
-        GROUP BY value
+        GROUP BY UPPER(TRIM(value))
     </select>
 
     <select id="getPatientTreatmentCounts" resultType="int">

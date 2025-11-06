@@ -34,7 +34,9 @@ public class DatabaseSchemaTools {
           "Get the schema definition (CREATE TABLE statement) for a specific database table. "
               + "Use this tool when you need to understand the structure, columns, data types, or relationships "
               + "of a table before writing a query. "
-              + "Tables are available in the ClickHouse database. Many tables also exist in MySQL with the same structure.")
+              + "IMPORTANT: This shows the original MySQL schema definition. "
+              + "In ClickHouse, column names are stored in LOWERCASE. "
+              + "When querying, always use lowercase column names (e.g., 'cancer_study_id' not 'CANCER_STUDY_ID').")
   public String getTableSchema(
       @ToolParam(
               description =
@@ -65,7 +67,12 @@ public class DatabaseSchemaTools {
             tableName);
       }
 
-      return String.format("Schema for table '%s' (ClickHouse database):\n\n%s", tableName, schema);
+      return String.format(
+          "Schema for table '%s' (ClickHouse database):\n\n%s\n\n"
+              + "⚠️  IMPORTANT: In ClickHouse, all column names are stored in LOWERCASE.\n"
+              + "When writing queries, use lowercase column names (e.g., 'cancer_study_id' not 'CANCER_STUDY_ID').\n"
+              + "The schema above shows the original MySQL definition with uppercase, but queries must use lowercase.",
+          tableName, schema);
 
     } catch (Exception e) {
       logger.error("Error retrieving schema for table: {}", tableName, e);

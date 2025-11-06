@@ -37,11 +37,21 @@ public class DatabaseQueryTools {
               + "Use this to retrieve cancer genomics data including studies, patients, samples, mutations, and clinical information. "
               + "Only SELECT queries are allowed for security. "
               + "The database contains base tables and optimized derived tables (*_derived). "
+              + "CRITICAL - ClickHouse Syntax Requirements: "
+              + "1. Column names are CASE-SENSITIVE and stored in LOWERCASE (use 'cancer_study_id' NOT 'CANCER_STUDY_ID'). "
+              + "2. Table names are lowercase (use 'cancer_study' NOT 'CANCER_STUDY'). "
+              + "3. Always use lowercase in WHERE, JOIN, and SELECT clauses. "
+              + "4. If unsure about column names, use 'SELECT * FROM table LIMIT 1' first to see actual column names. "
               + "Returns formatted query results with clear explanations.")
   public String queryDatabase(
       @ToolParam(
               description =
-                  "SQL SELECT query to execute. Example: 'SELECT * FROM cancer_study LIMIT 10'")
+                  "SQL SELECT query to execute using ClickHouse syntax. "
+                      + "IMPORTANT: Use lowercase for ALL column and table names! "
+                      + "Examples: "
+                      + "'SELECT * FROM cancer_study LIMIT 10' (discover columns), "
+                      + "'SELECT cancer_study_id, name, type_of_cancer_id FROM cancer_study LIMIT 5' (specific columns), "
+                      + "'SELECT p.stable_id, s.stable_id FROM patient p JOIN sample s ON p.internal_id = s.patient_id LIMIT 5' (with JOIN)")
           String query,
       @ToolParam(
               description = "Maximum number of rows to return (optional, default: 100, max: 1000)",
@@ -96,12 +106,17 @@ public class DatabaseQueryTools {
         if (errorMsg.contains("Table") && errorMsg.contains("doesn't exist")) {
           return "Error: The specified table doesn't exist. "
               + "Use the listTables tool to see available tables, "
-              + "or check the table name spelling.";
-        } else if (errorMsg.contains("Unknown column")) {
+              + "or check the table name spelling (remember: use lowercase).";
+        } else if (errorMsg.contains("Unknown column") || errorMsg.contains("Unknown identifier")) {
           return "Error: Unknown column in the query. "
-              + "Use the getTableSchema tool to see available columns for the table.";
-        } else if (errorMsg.contains("syntax")) {
-          return "Error: SQL syntax error. Please check the query structure. "
+              + "ClickHouse column names are CASE-SENSITIVE and stored in lowercase! "
+              + "Use 'SELECT * FROM table LIMIT 1' to see actual column names, "
+              + "or use the getTableSchema tool. "
+              + "Example: use 'cancer_study_id' instead of 'CANCER_STUDY_ID'.";
+        } else if (errorMsg.contains("syntax") || errorMsg.contains("bad SQL grammar")) {
+          return "Error: SQL syntax error. "
+              + "Common issue: ClickHouse requires lowercase column names! "
+              + "Use 'SELECT * FROM table LIMIT 1' first to see the correct column names. "
               + "Error details: "
               + errorMsg;
         }
@@ -109,7 +124,8 @@ public class DatabaseQueryTools {
 
       return "Error executing query: "
           + errorMsg
-          + "\nTip: Use getTableSchema to verify table structure before querying.";
+          + "\n\nClickHouse Reminder: Column names are case-sensitive and stored in lowercase. "
+          + "Try 'SELECT *' first to see actual column names.";
     }
   }
 

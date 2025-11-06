@@ -110,3 +110,5 @@ security.properties
 *.crt
 *.key
 *~
+# MCP server configuration with credentials
+src/main/resources/application-mcp.properties

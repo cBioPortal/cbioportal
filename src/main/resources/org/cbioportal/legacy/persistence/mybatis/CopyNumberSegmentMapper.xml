@@ -56,12 +56,14 @@
         <if test="chromosome != null and !chromosome.isEmpty()">
             AND copy_number_seg.chr = #{chromosome}
         </if>
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY copy_number_seg.chr ASC
-        </if>
+        <choose>    
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY copy_number_seg.seg_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

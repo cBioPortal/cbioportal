@@ -14,8 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -47,10 +46,12 @@ public class SqlSessionAspectTest {
 
     @Bean
     public DataSource dataSource() {
-      return new EmbeddedDatabaseBuilder()
-          .setType(EmbeddedDatabaseType.H2)
-          .setName("testdb")
-          .build();
+      DriverManagerDataSource dataSource = new DriverManagerDataSource();
+      dataSource.setDriverClassName("com.clickhouse.jdbc.ClickHouseDriver");
+      dataSource.setUrl("jdbc:ch://localhost:8443/test");
+      dataSource.setUsername("default");
+      dataSource.setPassword("");
+      return dataSource;
     }
 
     @Bean

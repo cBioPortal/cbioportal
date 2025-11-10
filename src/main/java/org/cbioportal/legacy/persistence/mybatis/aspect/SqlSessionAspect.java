@@ -9,6 +9,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.cbioportal.legacy.persistence.mybatis.annotation.UseSameSqlSession;
 import org.mybatis.spring.SqlSessionHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -24,15 +26,25 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Component
 public class SqlSessionAspect {
 
+    private static final Logger log = LoggerFactory.getLogger(SqlSessionAspect.class);
+
     @Autowired
     private ApplicationContext applicationContext;
 
     @Around("@annotation(org.cbioportal.legacy.persistence.mybatis.annotation.UseSameSqlSession)")
     public Object manageSqlSession(ProceedingJoinPoint joinPoint) throws Throwable {
+        log.info("SqlSessionAspect triggered for method: {}", joinPoint.getSignature().toShortString());
+
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         UseSameSqlSession annotation = signature.getMethod().getAnnotation(UseSameSqlSession.class);
 
+        if (annotation == null) {
+            log.error("Annotation is null for method: {}", signature.getMethod().getName());
+            return joinPoint.proceed();
+        }
+
         String sessionFactoryBeanName = annotation.value();
+        log.info("Looking for SqlSessionFactory bean: {}", sessionFactoryBeanName);
         SqlSessionFactory sessionFactory = applicationContext.getBean(sessionFactoryBeanName, SqlSessionFactory.class);
 
         // Check if a SqlSession is already bound to the current thread

@@ -6,6 +6,7 @@ import org.cbioportal.legacy.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
@@ -17,7 +18,7 @@ import org.springframework.web.servlet.handler.WebRequestHandlerInterceptorAdapt
 // TODO Consider creating separate DispatcherServlets as in the original web.xml
 // See: https://stackoverflow.com/a/30686733/11651683
 @Configuration
-// @EnableAspectJAutoProxy // TODO no idea what this does; is this logging aspect still useful?
+@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class WebAppConfig implements WebMvcConfigurer {
 
   private static final String SINGLE_PAGE_APP_ROOT = "forward:/";

@@ -15,6 +15,7 @@ import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
+import org.cbioportal.legacy.persistence.mybatis.annotation.UseSameSqlSession;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +30,7 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
   }
 
   @Override
+  @UseSameSqlSession
   public List<AlterationCountByGene> getMutatedGenes(
       StudyViewFilterContext studyViewFilterContext) {
     return mapper.getMutatedGenes(

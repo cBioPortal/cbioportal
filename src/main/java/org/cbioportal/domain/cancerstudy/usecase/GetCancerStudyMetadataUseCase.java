@@ -82,7 +82,7 @@ public class GetCancerStudyMetadataUseCase {
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
     return switch (projectionType) {
       case DETAILED -> studyRepository.getCancerStudiesMetadata(sortAndSearchCriteria);
-      case SUMMARY -> studyRepository.getCancerStudiesMetadataSummary(sortAndSearchCriteria);
+      case SUMMARY, META -> studyRepository.getCancerStudiesMetadataSummary(sortAndSearchCriteria);
       default -> Collections.emptyList();
     };
   }

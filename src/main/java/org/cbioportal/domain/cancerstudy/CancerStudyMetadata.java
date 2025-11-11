@@ -44,6 +44,7 @@ public record CancerStudyMetadata(
       String groups,
       Integer status,
       Date importDate,
+      Integer allSampleCount,
       String referenceGenome,
       TypeOfCancer typeOfCancer) {
     this(
@@ -58,7 +59,7 @@ public record CancerStudyMetadata(
         groups,
         status,
         importDate,
-        null,
+        allSampleCount,
         null,
         null,
         null,

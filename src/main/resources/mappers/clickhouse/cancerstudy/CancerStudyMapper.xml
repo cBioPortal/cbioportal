@@ -108,9 +108,22 @@
         <if test="sortAndSearchCriteria.isSortable()">
             ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
         </if>
+        <!--  Currently don't support Pagenation at the db layer
+         <if test="sortAndSearchCriteria.isPaginated()">
+            LIMIT #{sortAndSearchCriteria.pageSize} OFFSET #{sortAndSearchCriteria.offset}
+        </if>
+        -->
     </select>
 
     <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">
+        WITH sample_counts as (
+            SELECT
+                sample_list.cancer_study_id,
+                countIf(stable_id LIKE '%_all') as allSampleCount
+            FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+            GROUP BY sample_list.cancer_study_id
+        )
         SELECT
         cs.cancer_study_id AS cancerStudyId,
         cs.cancer_study_identifier AS cancerStudyIdentifier,
@@ -124,6 +137,7 @@
         cs.status AS status,
         cs.import_date AS importDate,
         reference_genome.name AS referenceGenome,
+        allSampleCount,
         type_of_cancer.name AS type_of_cancer_name,
         type_of_cancer.dedicated_color AS type_of_cancer_dedicated_color,
         type_of_cancer.short_name AS type_of_cancer_short_name,
@@ -132,6 +146,7 @@
         FROM cancer_study AS cs
         INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
         INNER JOIN type_of_cancer ON cs.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+        INNER JOIN sample_counts ON sample_counts.cancer_study_id = cs.cancer_study_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
                 cancer_study.cancer_study_identifier IN
@@ -146,6 +161,14 @@
                 </foreach>
             </if>
         </where>
+        <if test="sortAndSearchCriteria.isSortable()">
+            ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
+        </if>
+        <!--  Currently don't support Pagenation at the db layer
+         <if test="sortAndSearchCriteria.isPaginated()">
+            LIMIT #{sortAndSearchCriteria.pageSize} OFFSET #{sortAndSearchCriteria.offset}
+        </if>
+        -->
     </select>
 
     <resultMap id="CancerStudyMetadataResultMap" 
@@ -194,6 +217,7 @@
             <arg column="groups" javaType="String" />
             <arg column="status" javaType="int" />
             <arg column="importDate" javaType="java.util.Date" />
+            <arg column="allSampleCount" javaType="int" />
             <arg column="referenceGenome" javaType="String" />
             <arg javaType="org.cbioportal.domain.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>

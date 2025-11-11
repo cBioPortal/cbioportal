@@ -2,13 +2,15 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
-import java.util.Collections;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
+import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
@@ -90,15 +92,33 @@ public class ColumnStoreStudyController {
       @Parameter(description = "Name of the property that the result list is sorted by")
           @RequestParam(required = false)
           StudySortBy sortBy,
+      @Parameter(description = "Page size of the result list")
+          @Max(PagingConstants.MAX_PAGE_SIZE)
+          @Min(PagingConstants.MIN_PAGE_SIZE)
+          @RequestParam(required = false)
+          Integer pageSize,
+      @Parameter(description = "Page number of the result list")
+          @Min(PagingConstants.MIN_PAGE_NUMBER)
+          @RequestParam(required = false)
+          Integer pageNumber,
       @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
           Direction direction) {
 
     var sortAndSearchCriteria =
         new SortAndSearchCriteria(
-            keyword, (sortBy != null ? sortBy.getOriginalValue() : ""), direction.toString());
+            keyword,
+            (sortBy != null ? sortBy.getOriginalValue() : ""),
+            direction.toString(),
+            pageSize,
+            pageNumber);
 
     var studies = getCancerStudyMetadataUseCase.execute(projection, sortAndSearchCriteria);
 
+    // Pagination should be handled at the DB layer, but currently our query is not
+    // setup to handle this with authorization
+    if (pageSize != null) {
+      studies = studies.stream().limit(pageSize).toList();
+    }
     var headers = new HttpHeaders();
     if (projection == ProjectionType.META) {
       headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(studies.size()));
@@ -107,7 +127,7 @@ public class ColumnStoreStudyController {
 
     List<CancerStudyMetadataDTO> responseBody =
         (projection == ProjectionType.META)
-            ? Collections.emptyList()
+            ? List.of()
             : CancerStudyMetadataMapper.INSTANCE.toDtos(studies);
 
     return ResponseEntity.ok().headers(headers).body(responseBody);
@@ -142,7 +162,11 @@ public class ColumnStoreStudyController {
 
     var sortAndSearchCriteria =
         new SortAndSearchCriteria(
-            keyword, (sortBy != null ? sortBy.getOriginalValue() : ""), direction.toString());
+            keyword,
+            (sortBy != null ? sortBy.getOriginalValue() : ""),
+            direction.toString(),
+            null,
+            null);
 
     var studies = getCancerStudyMetadataUseCase.execute(ProjectionType.META, sortAndSearchCriteria);
 

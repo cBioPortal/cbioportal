@@ -84,8 +84,16 @@
         INNER JOIN sample_counts ON sample_counts.cancer_study_id = cs.cancer_study_id
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.cancer_study_identifier IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <if test="sortAndSearchCriteria.isSearchable()">
+                <foreach item="item" collection="sortAndSearchCriteria.searchTerm.split(' ')" open="(" separator=") AND (" close=")">
+                    cs.name like CONCAT('%', #{item}, '%') OR
+                    cs.cancer_study_identifier like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.name like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.type_of_cancer_id like CONCAT('%', #{item}, '%')
+                </foreach>
             </if>
         </where>
         GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
@@ -129,11 +137,15 @@
                 cancer_study.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
+            <if test="sortAndSearchCriteria.isSearchable()">
+                <foreach item="item" collection="sortAndSearchCriteria.searchTerm.split(' ')" open="(" separator=") AND (" close=")">
+                    cs.name like CONCAT('%', #{item}, '%') OR
+                    cs.cancer_study_identifier like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.name like CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.type_of_cancer_id like CONCAT('%', #{item}, '%')
+                </foreach>
+            </if>
         </where>
-        GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
-        cs.description, cs.public, cs.pmid, cs.citation, cs.groups, cs.status, cs.import_date,
-        reference_genome.name, type_of_cancer.name, type_of_cancer.dedicated_color,
-        type_of_cancer.short_name, type_of_cancer.parent
     </select>
 
     <resultMap id="CancerStudyMetadataResultMap" 

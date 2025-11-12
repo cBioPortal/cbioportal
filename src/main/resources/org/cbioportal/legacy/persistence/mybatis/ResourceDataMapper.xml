@@ -116,12 +116,14 @@
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereSample"/>
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY resource_sample.resource_id ASC
-        </if>
+        <choose>    
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY resource_sample.resource_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -138,12 +140,14 @@
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="wherePatient"/>
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY resource_patient.resource_id ASC
-        </if>
+        <choose>
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY resource_patient.resource_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -160,12 +164,14 @@
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereStudy"/>
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY resource_patient.resource_id ASC
-        </if>
+        <choose>
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY resource_study.resource_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

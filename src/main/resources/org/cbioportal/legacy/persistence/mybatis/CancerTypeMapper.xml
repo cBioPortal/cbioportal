@@ -20,12 +20,14 @@
             <property name="prefix" value=""/>
         </include>
         FROM type_of_cancer
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID'">
-            ORDER BY type_of_cancer.type_of_cancer_id ASC
-        </if>
+        <choose>
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY type_of_cancer.type_of_cancer_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

@@ -13,22 +13,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
 
-    private static final int TOTAL_STUDIES = 492;
+  private static final int TOTAL_STUDIES = 492;
 
-    private ClickhouseCancerStudyRepository repository;
+  private ClickhouseCancerStudyRepository repository;
 
-    @Autowired
-    private ClickhouseCancerStudyMapper mapper;
+  @Autowired private ClickhouseCancerStudyMapper mapper;
 
-    @BeforeEach
-    void setup() {
-        repository = new ClickhouseCancerStudyRepository(mapper);
+  @BeforeEach
+  void setup() {
+    repository = new ClickhouseCancerStudyRepository(mapper);
+  }
 
-    }
-
-    @Test
-    void testGetCancerStudiesMetadata() {
-        var studies = repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", ""));
-        assertEquals(TOTAL_STUDIES, studies.size());
-    }
+  @Test
+  void testGetCancerStudiesMetadata() {
+    var studies =
+        repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", "", null, null));
+    assertEquals(TOTAL_STUDIES, studies.size());
+  }
 }

@@ -74,6 +74,12 @@ public class FetchClinicalDataUseCase {
       ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter,
       ClinicalDataType clinicalDataType,
       ProjectionType projectionType) {
+    List<String> studyIds =
+        clinicalDataMultiStudyFilter.getIdentifiers().stream()
+            .map(ClinicalDataIdentifier::getStudyId)
+            .distinct()
+            .toList();
+
     // Transform filter identifiers into unique IDs for repository layer
     List<String> uniqueIds = new ArrayList<>();
     for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
@@ -84,13 +90,14 @@ public class FetchClinicalDataUseCase {
     // Route to appropriate repository method based on projection type
     return switch (projectionType) {
       case ID ->
-          clinicalDataRepository.fetchClinicalDataId(uniqueIds, attributeIds, clinicalDataType);
+          clinicalDataRepository.fetchClinicalDataId(
+              uniqueIds, attributeIds, studyIds, clinicalDataType);
       case SUMMARY ->
           clinicalDataRepository.fetchClinicalDataSummary(
-              uniqueIds, attributeIds, clinicalDataType);
+              uniqueIds, attributeIds, studyIds, clinicalDataType);
       case DETAILED ->
           clinicalDataRepository.fetchClinicalDataDetailed(
-              uniqueIds, attributeIds, clinicalDataType);
+              uniqueIds, attributeIds, studyIds, clinicalDataType);
       default -> Collections.emptyList();
     };
   }

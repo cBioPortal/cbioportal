@@ -26,7 +26,7 @@
             </if>
             <if test="keyword != null">
                 <foreach item="item" collection="keyword.split(' ')" open="(" separator=") AND (" close=")">
-                    gene.hugo_gene_symbol like CONCAT('%', #{item}, '%')
+                    gene.hugo_gene_symbol ilike CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>

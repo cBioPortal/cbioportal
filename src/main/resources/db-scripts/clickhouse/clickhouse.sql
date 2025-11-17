@@ -364,7 +364,7 @@ CREATE TABLE clinical_event_derived
     cancer_study_identifier LowCardinality(String)
 )
 ENGINE = MergeTree
-    ORDER BY (event_type, patient_unique_id, cancer_study_identifier);
+    ORDER BY (cancer_study_identifier, event_type, patient_unique_id);
 
 INSERT INTO clinical_event_derived
 SELECT

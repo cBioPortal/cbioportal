@@ -23,18 +23,24 @@ You can always find the ID of the virtual study from the URL of the page that op
 
 ## Publish Virtual Study
 
-To publish a virtual study, you need to supply the publisher API key in the `X-PUBLISHER-API-KEY` header.
+Publishing requires the publisher API key in the `X-PUBLISHER-API-KEY` header and can now happen in two different ways:
 
-Here is a curl command to publish a virtual study:
+1. **Create in the UI, then publish by hash ID.** This is the original workflow where you first create a virtual study through the interface (the ID in the study URL is a MongoDB hash), and then publish that specific study.
+2. **Create and publish with a custom ID.** This RFC96 addition lets you publish a public virtual study in a single request by providing its definition (constraints/filters) and the desired ID. The ID must be unique and is typically a human-readable string so permissions can be managed up front.
+
+### Publish an existing virtual study
+
+After creating the study in the UI and copying its ID (hash), publish it via:
+
 ```shell
 curl \
   -X POST \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>'
 ```
-The published virtual study will appear under the `Public Virtual Studies` section (next to the `My Virtual Studies` section) on the landing page for all users of cBioPortal.
 
-While publishing, you can specify the PubMed ID (`pmid`) and `typeOfCancerId` of the virtual study using the following command:
+You can set optional metadata while publishing:
+
 ```shell
 curl \
   -X POST \
@@ -42,9 +48,28 @@ curl \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>?pmid=<pmid>&typeOfCancerId=<code>'
 ```
 
-The type of cancer code should match the known types of cancers in the cBioPortal database.
-If the type of cancer is specified, the published virtual study will appear under the respective cancer section on the landing page.
-Specifying the `pmid` enables a link to the PubMed page of the study.
+The `typeOfCancerId` must match an existing cancer type so it shows up in that category on the landing page; `pmid` links the public study to PubMed.
+
+### Create and publish with a custom ID
+
+To publish a new public virtual study in one go, call the same endpoint but supply:
+
+- `/<custom_id>` path segment with the ID you want to assign
+- `Content-Type: application/json`
+- A request body containing the virtual study definition (filters/constraints)
+
+Example:
+
+```shell
+curl \
+  -X POST \
+  -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
+  -H 'Content-Type: application/json' \
+  -v 'http://<cbioportal_host>/api/public_virtual_studies/<custom_id>' \
+  --data-raw @virtual_study_definition.json
+```
+
+The JSON payload should follow the format returned by the `/api/session/virtual_study` endpoint (fields such as `name`, `description`, `studyViewFilter`, and `studies`). If the ID already exists you will receive a `409 Conflict`. When the request succeeds, the virtual study is immediately available to all users under the `Public Virtual Studies` section, optionally enriched with `pmid` and `typeOfCancerId` query parameters the same way as above.
 
 ## Un-publish Virtual Study
 

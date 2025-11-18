@@ -37,7 +37,7 @@ Here are some example questions you can ask the chat interface:
 
 ## Getting Started
 
-1. Visit [chat.cbioportal.org](https://chat.cbioportal.org/)
+1. Reach out to cbioportal@googlegroups.com to get access to the chat interface
 2. Type your question in the chat input
 3. Review the AI-generated response
 4. Ask follow-up questions to dive deeper into the data
@@ -64,7 +64,7 @@ The cBioPortal chat interface is built on the following technical stack:
 
 When you ask a question in the chat interface:
 
-1. Your natural language question is sent to Claude
+1. Your natural language question is sent to Claude (Provided via Amazon Bedrock)
 2. Claude uses MCP servers to understand the database schema and formulate appropriate queries
 3. The MCP server translates Claude's intent into ClickHouse SQL queries
 4. Query results are returned to Claude, which formats them into a natural language response

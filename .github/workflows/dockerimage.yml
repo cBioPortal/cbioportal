@@ -28,6 +28,7 @@ jobs:
           # The latest tag will also be generated on tag event with a valid semver tag
           tags: |
             type=ref,event=branch
+            type=ref,event=tag
             type=semver,pattern={{version}}
 
       - name: Login to DockerHub
@@ -75,6 +76,7 @@ jobs:
               suffix=-web-shenandoah
             tags: |
               type=ref,event=branch
+              type=ref,event=tag
               type=semver,pattern={{version}}
 
         - name: Login to DockerHub

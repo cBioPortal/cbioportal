@@ -1,12 +1,12 @@
 # Chat Interface
 
-We've developed an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. Please reach out if you'd like to test it on cbioportal@googlegroups.com.
+We're implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. Please reach out if you'd like to test it on cbioportal@googlegroups.com.
 
 > **Note:** This is a prototype and work in progress. Features and functionality are actively being developed and improved.
 
 ## What is the Chat Interface?
 
-The cBioPortal chat interface uses Claude, an LLM developed by Anthropic, to help you explore cancer genomics data through conversational queries. The system translates natural language questions into database queries that are executed directly against cBioPortal's ClickHouse database. Instead of navigating through multiple pages or writing complex queries, you can simply ask questions about studies, patients, samples, and treatments in natural language.
+The cBioPortal chat interface uses Claude, an LLM developed by Anthropic, to help you explore cancer genomics data through conversational queries. We are exploring various approaches, including natural language to database queries, and website navigation. Instead of navigating through multiple pages or writing complex queries, you can simply ask questions about studies, patients, samples, and treatments in natural language.
 
 ## Key Features
 

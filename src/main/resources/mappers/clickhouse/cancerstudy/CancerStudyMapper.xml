@@ -154,21 +154,21 @@
             </if>
             <if test="sortAndSearchCriteria.isSearchable()">
                 <foreach item="item" collection="sortAndSearchCriteria.searchTerm.split(' ')" open="(" separator=") AND (" close=")">
-                    cs.name like CONCAT('%', #{item}, '%') OR
-                    cs.cancer_study_identifier like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.name like CONCAT('%', #{item}, '%') OR
-                    type_of_cancer.type_of_cancer_id like CONCAT('%', #{item}, '%')
+                    cs.name ilike CONCAT('%', #{item}, '%') OR
+                    cs.cancer_study_identifier ilike CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.name ilike CONCAT('%', #{item}, '%') OR
+                    type_of_cancer.type_of_cancer_id ilike CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
-        <if test="sortAndSearchCriteria.isSortable()">
-            ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
-        </if>
-        <!--  Currently don't support Pagenation at the db layer
-         <if test="sortAndSearchCriteria.isPaginated()">
-            LIMIT #{sortAndSearchCriteria.pageSize} OFFSET #{sortAndSearchCriteria.offset}
-        </if>
-        -->
+        <choose>
+            <when test="sortAndSearchCriteria.isSortable()">
+                ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
+            </when>
+            <when test="sortAndSearchCriteria.isSearchable()">
+                ORDER BY cancer_study.name ASC
+            </when>
+        </choose>
     </select>
 
     <resultMap id="CancerStudyMetadataResultMap" 

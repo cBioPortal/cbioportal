@@ -126,6 +126,54 @@ public class GeneMyBatisRepositoryTest {
   }
 
   @Test
+  public void getAllGenesWithKeywordSearch() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("AKT", null, "SUMMARY", null, null, null, null);
+
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+  }
+
+  @Test
+  public void getAllGenesWithKeywordSearchCaseInsensitive() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("akt", null, "SUMMARY", null, null, null, null);
+
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+  }
+
+  @Test
+  public void getAllGenesWithKeywordSearchAlphabeticalOrder() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("A", null, "SUMMARY", null, null, null, null);
+
+    // Verify results are returned in alphabetical order by hugo gene symbol
+    Assert.assertTrue(result.size() > 0);
+    for (int i = 0; i < result.size() - 1; i++) {
+      String current = result.get(i).getHugoGeneSymbol();
+      String next = result.get(i + 1).getHugoGeneSymbol();
+      Assert.assertTrue(
+          "Expected " + current + " to come before " + next + " alphabetically",
+          current.compareTo(next) <= 0);
+    }
+    // Verify specific ordering of genes starting with 'A'
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+    Assert.assertEquals("ALK", result.get(3).getHugoGeneSymbol());
+    Assert.assertEquals("ARAF", result.get(4).getHugoGeneSymbol());
+    Assert.assertEquals("ATM", result.get(5).getHugoGeneSymbol());
+  }
+
+  @Test
   public void getMetaGenes() throws Exception {
 
     BaseMeta result = geneMyBatisRepository.getMetaGenes(null, null);

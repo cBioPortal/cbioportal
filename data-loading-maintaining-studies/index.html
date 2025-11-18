@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.816295782578">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.816800736447">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.816295782578" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.816800736447" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.816295782578" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.816800736447" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.816295782578" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.816800736447" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -270,6 +270,8 @@
 <li><doc-anchor-trigger to="#requirements">Requirements</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#importing-a-study-without-validation">Importing a study without validation</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#deleting-a-study">Deleting a study</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#deleting-patients">Deleting patients</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#deleting-samples">Deleting samples</doc-anchor-trigger></li>
 </ul>
 <doc-anchor-target id="requirements">
     <h2>
@@ -334,6 +336,36 @@ For more details on incremental data loading, see <a href="../incremental-data-l
 <pre class="language-none"><code v-pre class="language-none">./cbioportalImporter.py -c remove-study -id study1_id,study2_id,study3_id</code></pre>
 </doc-codeblock></div>
 <p>Where <code v-pre>study1_id</code>, <code v-pre>study2_id</code> and <code v-pre>study3_id</code> are the Cancer Study IDs of the studies you would like to remove.</p>
+<doc-anchor-target id="deleting-patients">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deleting-patients">#</doc-anchor-trigger>
+        <span>Deleting patients</span>
+    </h2>
+</doc-anchor-target>
+<p>To remove patients (and their associated samples and data) from one or more studies, run:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">./cbioportalImporter.py remove-patients --study_ids &lt;study_ids&gt; --patient_ids &lt;patient_ids&gt;</code></pre>
+</doc-codeblock></div>
+<p>Where <code v-pre>study_ids</code> is a comma-separated list of Cancer Study IDs to search and <code v-pre>patient_ids</code> is a comma-separated list of patient identifiers to delete.</p>
+<p>For example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">./cbioportalImporter.py remove-patients --study_ids study1_id --patient_ids patientA,patientB</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="deleting-samples">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#deleting-samples">#</doc-anchor-trigger>
+        <span>Deleting samples</span>
+    </h2>
+</doc-anchor-target>
+<p>To remove specific samples from one or more studies, run:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">./cbioportalImporter.py remove-samples --study_ids &lt;study_ids&gt; --sample_ids &lt;sample_ids&gt;</code></pre>
+</doc-codeblock></div>
+<p>Where <code v-pre>study_ids</code> is a comma-separated list of Cancer Study IDs to search and <code v-pre>sample_ids</code> is a comma-separated list of sample identifiers to delete.</p>
+<p>For example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">./cbioportalImporter.py remove-samples --study_ids study1_id,study2_id --sample_ids sampleX,sampleY</code></pre>
+</doc-codeblock></div>
 
                                 
                                 <!-- Required only on API pages -->

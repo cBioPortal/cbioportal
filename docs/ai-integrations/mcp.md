@@ -6,13 +6,13 @@ This document provides technical information about the Model Context Protocol (M
 
 The Model Context Protocol (MCP) is a standard protocol that enables AI assistants to interact with external data sources and tools. MCP servers act as bridges between AI models (like Claude) and databases, APIs, or other services, allowing the AI to access and query data in a structured way.
 
-For details on how MCP powers the cBioPortal chat interface, see the [Chat Interface documentation](chat-interface.md#how-the-chat-interface-works).
+For details on how MCP powers the cBioPortal chat interface, see the [Chat Interface documentation](chat-interface.md).
 
 ## Available MCP Servers
 
 ### cBioPortal MCP Servers in Development
 
-These MCP servers are maintained by the cBioPortal team and are currently prototypes in active development.
+These MCP servers are early prototypes developed by the cBioPortal team and are in active development.
 
 #### cbioportal-mcp
 

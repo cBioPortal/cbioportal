@@ -66,7 +66,7 @@ To remove patients (and their associated samples and data) from one or more stud
 ```
 ./cbioportalImporter.py remove-patients --study_ids <study_ids> --patient_ids <patient_ids>
 ```
-Where `study_ids` is the comma-separated list of Cancer Study IDs to search and `patient_ids` is the comma-separated list of patient identifiers to delete.
+Where `study_ids` is a comma-separated list of Cancer Study IDs to search and `patient_ids` is a comma-separated list of patient identifiers to delete.
 
 For example:
 ```
@@ -78,7 +78,7 @@ To remove specific samples from one or more studies, run:
 ```
 ./cbioportalImporter.py remove-samples --study_ids <study_ids> --sample_ids <sample_ids>
 ```
-Where `study_ids` is the comma-separated list of Cancer Study IDs to search and `sample_ids` is the comma-separated list of sample identifiers to delete.
+Where `study_ids` is a comma-separated list of Cancer Study IDs to search and `sample_ids` is a comma-separated list of sample identifiers to delete.
 
 For example:
 ```

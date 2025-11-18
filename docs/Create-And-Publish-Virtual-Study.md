@@ -2,6 +2,8 @@
 
 A [Virtual Study](./user-guide/faq.md#what-is-a-virtual-study) defines a subset or a combination of samples from one or more studies in the system.
 
+A [Virtual Study](./user-guide/faq.md#what-is-a-virtual-study) is a custom study made up of samples from one or more existing studies. By default, a virtual study appears only under **My Virtual Studies** for its author. When it is published to the `/api/public_virtual_studies` endpoint, it becomes a **public virtual study** that is visible to all users on the landing page and can be used as a shared, reusable cohort. Publishing works for both static virtual studies (saved cohorts) and dynamic virtual studies whose contents are recomputed from filters on each load.
+
 *Note*: To publish or un-publish a virtual study, your cBioPortal instance must be configured with  `session.endpoint.publisher-api-key` in the `application.properties`.
 
 ## Create Virtual Study

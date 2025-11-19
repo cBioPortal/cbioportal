@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 
 import java.util.List;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
@@ -62,5 +63,10 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
     return cancerStudyMapper.getFilteredStudyIds(studyViewFilterContext);
+  }
+
+  @Override
+  public List<ResourceCount> getResourceCountsForAllStudies() {
+    return cancerStudyMapper.getResourceCountsForAllStudies();
   }
 }

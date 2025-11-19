@@ -2,6 +2,7 @@ package org.cbioportal.domain.cancerstudy;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public record CancerStudyMetadata(
     Integer cancerStudyId,
@@ -29,8 +30,66 @@ public record CancerStudyMetadata(
     String referenceGenome,
     Integer treatmentCount,
     Integer structuralVariantCount,
-    TypeOfCancer typeOfCancer)
+    TypeOfCancer typeOfCancer,
+    List<ResourceCount> resourceCounts)
     implements Serializable {
+
+  public CancerStudyMetadata(
+      Integer cancerStudyId,
+      String cancerStudyIdentifier,
+      String typeOfCancerId,
+      String name,
+      String description,
+      Boolean publicStudy,
+      String pmid,
+      String citation,
+      String groups,
+      Integer status,
+      Date importDate,
+      Integer allSampleCount,
+      Integer sequencedSampleCount,
+      Integer cnaSampleCount,
+      Integer mrnaRnaSeqSampleCount,
+      Integer mrnaRnaSeqV2SampleCount,
+      Integer mrnaMicroarraySampleCount,
+      Integer miRnaSampleCount,
+      Integer methylationHm27SampleCount,
+      Integer rppaSampleCount,
+      Integer massSpectrometrySampleCount,
+      Integer completeSampleCount,
+      String referenceGenome,
+      Integer treatmentCount,
+      Integer structuralVariantCount,
+      TypeOfCancer typeOfCancer) {
+    this(
+        cancerStudyId,
+        cancerStudyIdentifier,
+        typeOfCancerId,
+        name,
+        description,
+        publicStudy,
+        pmid,
+        citation,
+        groups,
+        status,
+        importDate,
+        allSampleCount,
+        sequencedSampleCount,
+        cnaSampleCount,
+        mrnaRnaSeqSampleCount,
+        mrnaRnaSeqV2SampleCount,
+        mrnaMicroarraySampleCount,
+        miRnaSampleCount,
+        methylationHm27SampleCount,
+        rppaSampleCount,
+        massSpectrometrySampleCount,
+        completeSampleCount,
+        referenceGenome,
+        treatmentCount,
+        structuralVariantCount,
+        typeOfCancer,
+        null);
+  }
 
   public CancerStudyMetadata(
       Integer cancerStudyId,
@@ -73,7 +132,8 @@ public record CancerStudyMetadata(
         referenceGenome,
         null,
         null,
-        typeOfCancer);
+        typeOfCancer,
+        null);
   }
 
   public CancerStudyMetadata(
@@ -115,6 +175,39 @@ public record CancerStudyMetadata(
         referenceGenome,
         null,
         null,
+        null,
         null);
+  }
+
+  public CancerStudyMetadata(
+      CancerStudyMetadata cancerStudyMetadata, List<ResourceCount> resourceCounts) {
+    this(
+        cancerStudyMetadata.cancerStudyId,
+        cancerStudyMetadata.cancerStudyIdentifier,
+        cancerStudyMetadata.typeOfCancerId,
+        cancerStudyMetadata.name,
+        cancerStudyMetadata.description,
+        cancerStudyMetadata.publicStudy,
+        cancerStudyMetadata.pmid,
+        cancerStudyMetadata.citation,
+        cancerStudyMetadata.groups,
+        cancerStudyMetadata.status,
+        cancerStudyMetadata.importDate,
+        cancerStudyMetadata.allSampleCount,
+        cancerStudyMetadata.sequencedSampleCount,
+        cancerStudyMetadata.cnaSampleCount,
+        cancerStudyMetadata.mrnaRnaSeqSampleCount,
+        cancerStudyMetadata.mrnaRnaSeqV2SampleCount,
+        cancerStudyMetadata.mrnaMicroarraySampleCount,
+        cancerStudyMetadata.miRnaSampleCount,
+        cancerStudyMetadata.methylationHm27SampleCount,
+        cancerStudyMetadata.rppaSampleCount,
+        cancerStudyMetadata.massSpectrometrySampleCount,
+        cancerStudyMetadata.completeSampleCount,
+        cancerStudyMetadata.referenceGenome,
+        cancerStudyMetadata.treatmentCount,
+        cancerStudyMetadata.structuralVariantCount,
+        cancerStudyMetadata.typeOfCancer,
+        resourceCounts);
   }
 }

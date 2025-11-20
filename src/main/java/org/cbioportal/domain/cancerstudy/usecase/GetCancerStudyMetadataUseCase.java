@@ -93,6 +93,10 @@ public class GetCancerStudyMetadataUseCase {
           default -> Collections.emptyList();
         };
 
+    if (projectionType == ProjectionType.META || projectionType == ProjectionType.ID) {
+      return cancerStudyMetaData;
+    }
+
     Map<String, List<ResourceCount>> resourceCountsMap =
         resourceCounts.stream().collect(Collectors.groupingBy(rc -> rc.cancerStudyIdentifier()));
 

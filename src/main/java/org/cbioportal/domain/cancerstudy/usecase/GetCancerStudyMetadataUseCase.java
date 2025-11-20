@@ -94,8 +94,7 @@ public class GetCancerStudyMetadataUseCase {
         };
 
     Map<String, List<ResourceCount>> resourceCountsMap =
-        resourceCounts.stream()
-            .collect(Collectors.groupingBy(rc -> rc.resourceDefinition().cancerStudyIdentifier()));
+        resourceCounts.stream().collect(Collectors.groupingBy(rc -> rc.cancerStudyIdentifier()));
 
     return cancerStudyMetaData.stream()
         .map(

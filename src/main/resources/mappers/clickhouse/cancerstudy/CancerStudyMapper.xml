@@ -233,27 +233,6 @@
         </constructor>
     </resultMap>
 
-    <resultMap id="ResourceCountResultMap" type="org.cbioportal.domain.cancerstudy.ResourceCount">
-        <constructor>
-            <arg javaType="org.cbioportal.domain.cancerstudy.ResourceDefinition" resultMap="ResourceDefinitionResultMap"/>
-            <arg column="sampleCount" javaType="int" />
-            <arg column="patientCount" javaType="int" />
-        </constructor>
-    </resultMap>
-
-    <resultMap id="ResourceDefinitionResultMap" type="org.cbioportal.domain.cancerstudy.ResourceDefinition">
-        <constructor>
-            <idArg column="resourceId" javaType="String" />
-            <arg column="displayName" javaType="String" />
-            <arg column="description" javaType="String" />
-            <arg column="resourceType" javaType="String" />
-            <arg column="priority" javaType="String" />
-            <arg column="openByDefault" javaType="Boolean" />
-            <arg column="cancerStudyIdentifier" javaType="String" />
-            <arg column="customMetaData" javaType="String" />
-        </constructor>
-    </resultMap>
-
     <select id="getFilteredStudyIds" resultType="string">
         SELECT
         DISTINCT cancer_study_identifier
@@ -274,8 +253,8 @@
     </sql>
 
     <sql id="selectSampleResourceCounts">
-        <include refid="selectResource"/>,
         rs.resource_id AS resourceId,
+        <include refid="selectResource"/>,
         COUNT(DISTINCT rs.internal_id) AS sampleCount,
         COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
@@ -289,8 +268,8 @@
     </sql>
 
     <sql id="selectPatientResourceCounts">
-        <include refid="selectResource"/>,
         rp.resource_id AS resourceId,
+        <include refid="selectResource"/>,
         COUNT(DISTINCT s.internal_id) AS sampleCount,
         COUNT(DISTINCT rp.internal_id) AS patientCount
     </sql>
@@ -303,7 +282,7 @@
              INNER JOIN resource_definition rd ON rd.resource_id = rp.resource_id
     </sql>
 
-    <select id="getResourceCountsForAllStudies" resultMap="ResourceCountResultMap">
+    <select id="getResourceCountsForAllStudies" resultType="org.cbioportal.domain.cancerstudy.ResourceCount">
         SELECT
         <include refid="selectSampleResourceCounts"/>
         <include refid="fromResourceSample"/>

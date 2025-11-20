@@ -2,6 +2,7 @@ package org.cbioportal.domain.cancerstudy.repository;
 
 import java.util.List;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
 
@@ -66,4 +67,6 @@ public interface CancerStudyRepository {
       SortAndSearchCriteria sortAndSearchCriteria);
 
   List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext);
+
+  List<ResourceCount> getResourceCountsForAllStudies();
 }

@@ -112,7 +112,7 @@ public class GetCancerStudyMetadataUseCase {
 
   public List<ResourceCount> getResourceCountsForAllStudies(ProjectionType projectionType) {
     return switch (projectionType) {
-      case DETAILED, SUMMARY, META -> studyRepository.getResourceCountsForAllStudies();
+      case DETAILED, SUMMARY -> studyRepository.getResourceCountsForAllStudies();
       default -> Collections.emptyList();
     };
   }

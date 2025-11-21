@@ -10,6 +10,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Profile("clickhouse")
@@ -36,11 +37,14 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
   }
 
   @Override
+  @Transactional
   public List<ClinicalDataCountItem> getClinicalDataCounts(
       StudyViewFilterContext studyViewFilterContext,
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
+    mapper.createSessionScopedFilteredSamplesTable(studyViewFilterContext);
+    mapper.createSessionScopedFilteredPatientsTable(studyViewFilterContext);
     return mapper.getClinicalDataCounts(
         studyViewFilterContext, sampleAttributeIds, patientAttributeIds, conflictingAttributeIds);
   }

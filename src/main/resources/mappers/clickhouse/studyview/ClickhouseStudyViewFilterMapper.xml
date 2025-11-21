@@ -433,39 +433,7 @@
         </foreach>
 
         (
-        WITH attribute_type_conflict AS (
-            SELECT COUNT(DISTINCT type) as type_count
-            FROM clinical_data_derived
-            WHERE attribute_name = #{clinicalDataFilter.attributeId}
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-        ),
-        study_with_attribute AS (
-            SELECT DISTINCT cancer_study_identifier
-            FROM clinical_data_derived
-            WHERE attribute_name = #{clinicalDataFilter.attributeId}
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-        ),
-        study_without_attribute AS (
-            SELECT DISTINCT cancer_study_identifier
-            FROM sample_derived
-            WHERE cancer_study_identifier NOT IN (SELECT cancer_study_identifier FROM study_with_attribute)
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-        ),
+        WITH <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.studyAttributeFilterCTEs"/>,
         study_attribute_levels AS (
             SELECT DISTINCT cancer_study_identifier
             FROM clinical_data_derived
@@ -505,9 +473,7 @@
             UNION ALL
 
             -- Also include samples from studies without the attribute (they are also NA)
-            SELECT DISTINCT sd.${unique_id}
-            FROM sample_derived sd
-            INNER JOIN study_without_attribute swa ON sd.cancer_study_identifier = swa.cancer_study_identifier
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.samplesFromStudiesWithoutAttributeAsNA"/>
             )
         </if>
 
@@ -544,27 +510,7 @@
         </if>
     </sql>
 
-    <sql id="categoricalClinicalDataCountFilter">
-        <!-- check if 'NA' is selected -->
-        <bind name="userSelectsNA" value="false" />
-        <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
-            <if test="dataFilterValue.value == 'NA'">
-                <bind name="userSelectsNA" value="true" />
-            </if>
-        </foreach>
-
-        (
-        WITH attribute_type_conflict AS (
-            SELECT COUNT(DISTINCT type) as type_count
-            FROM clinical_data_derived
-            WHERE attribute_name = #{clinicalDataFilter.attributeId}
-                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    AND cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
-                </if>
-        ),
+    <sql id="studyAttributeFilterCTEs">
         study_with_attribute AS (
             SELECT DISTINCT cancer_study_identifier
             FROM clinical_data_derived
@@ -586,7 +532,26 @@
                         #{studyId}
                     </foreach>
                 </if>
-        ),
+        )
+    </sql>
+
+    <sql id="samplesFromStudiesWithoutAttributeAsNA">
+        SELECT DISTINCT sd.${unique_id}
+        FROM sample_derived sd
+        INNER JOIN study_without_attribute swa ON sd.cancer_study_identifier = swa.cancer_study_identifier
+    </sql>
+
+    <sql id="categoricalClinicalDataCountFilter">
+        <!-- check if 'NA' is selected -->
+        <bind name="userSelectsNA" value="false" />
+        <foreach item="dataFilterValue" collection="clinicalDataFilter.values">
+            <if test="dataFilterValue.value == 'NA'">
+                <bind name="userSelectsNA" value="true" />
+            </if>
+        </foreach>
+
+        (
+        WITH <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.studyAttributeFilterCTEs"/>,
         study_attribute_levels AS (
             SELECT DISTINCT cancer_study_identifier
             FROM clinical_data_derived
@@ -634,9 +599,7 @@
             UNION ALL
 
             -- When NA is selected: also include samples from studies without the attribute
-            SELECT sd.${unique_id}
-            FROM sample_derived sd
-            INNER JOIN study_without_attribute swa ON sd.cancer_study_identifier = swa.cancer_study_identifier
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.samplesFromStudiesWithoutAttributeAsNA"/>
         </if>
         )
     </sql>

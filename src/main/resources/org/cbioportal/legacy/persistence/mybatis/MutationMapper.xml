@@ -56,7 +56,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY molecularProfileId ASC, sampleId ASC, entrezGeneId ASC
+                ORDER BY molecularProfileId ASC, sampleId ASC, entrezGeneId ASC, proteinChange ASC
             </otherwise>
         </choose>
         

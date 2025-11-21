@@ -62,7 +62,13 @@ public class FetchClinicalDataMetaUseCase {
       uniqueIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
     }
     List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
+    List<String> studyIds =
+        clinicalDataMultiStudyFilter.getIdentifiers().stream()
+            .map(ClinicalDataIdentifier::getStudyId)
+            .distinct()
+            .toList();
 
-    return clinicalDataRepository.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType);
+    return clinicalDataRepository.fetchClinicalDataMeta(
+        uniqueIds, attributeIds, studyIds, clinicalDataType);
   }
 }

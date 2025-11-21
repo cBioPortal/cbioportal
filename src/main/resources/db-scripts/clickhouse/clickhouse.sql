@@ -316,7 +316,7 @@ CREATE TABLE IF NOT EXISTS clinical_data_derived
     type LowCardinality(String)
 )
     ENGINE=MergeTree
-        ORDER BY (type, attribute_name, sample_unique_id);
+        ORDER BY (cancer_study_identifier, type, attribute_name, sample_unique_id);
 
 -- Insert sample attribute data
 INSERT INTO TABLE clinical_data_derived

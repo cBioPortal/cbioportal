@@ -1,4 +1,4 @@
--- version 1.0.3 of derived table schema and data definition
+-- version 1.0.4 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -173,9 +173,8 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     sv_event_info             String,
     patient_unique_id         String,
     off_panel                 Boolean DEFAULT FALSE
-    ) ENGINE = MergeTree
-    ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
-
+) ENGINE = MergeTree
+      ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
@@ -208,8 +207,9 @@ FROM mutation
          INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
          INNER JOIN sample ON mutation.sample_id = sample.internal_id
          INNER JOIN patient on sample.patient_id = patient.internal_id
-         LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
-UNION ALL
+         LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id;
+
+INSERT INTO genomic_event_derived
 -- Insert CNA Genes
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
@@ -240,8 +240,9 @@ FROM cna_event ce
          INNER JOIN sample ON sce.sample_id = sample.internal_id
          INNER JOIN patient on sample.patient_id = patient.internal_id
          INNER JOIN gene ON ce.entrez_gene_id = gene.entrez_gene_id
-         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id  AND rgg.reference_genome_id = cs.reference_genome_id
-UNION ALL
+         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id  AND rgg.reference_genome_id = cs.reference_genome_id;
+
+INSERT INTO genomic_event_derived
 -- Insert Structural Variants Site1
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
@@ -270,8 +271,9 @@ FROM structural_variant sv
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
          INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
-         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
-UNION ALL
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id;
+
+INSERT INTO genomic_event_derived
 -- Insert Structural Variants Site2
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
@@ -375,11 +377,10 @@ SELECT
     ifNull(ce.stop_date, 0) AS stop_date,
     ce.event_type AS event_type,
     cs.cancer_study_identifier
-
 FROM clinical_event_data ced
-    RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
-    INNER JOIN patient p ON ce.patient_id = p.internal_id
-    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+         RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+         INNER JOIN patient p ON ce.patient_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
@@ -487,7 +488,6 @@ FROM
              ARRAY JOIN value, sample_id) AS subquery
         JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
-
 
 
 DROP TABLE IF EXISTS mutation_derived;

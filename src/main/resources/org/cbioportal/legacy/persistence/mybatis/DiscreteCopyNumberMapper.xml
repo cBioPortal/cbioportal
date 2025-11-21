@@ -239,7 +239,6 @@
     <select id="getSampleCountByGeneAndAlterationAndSampleIds" resultType="org.cbioportal.legacy.model.CopyNumberCountByGene">
         SELECT
             cna_event.entrez_gene_id AS "entrezGeneId",
-            <!-- TODO: check this-->
             ANY_VALUE(gene.hugo_gene_symbol) AS "hugoGeneSymbol",
             cna_event.alteration AS "alteration",
             COUNT(DISTINCT(sample_cna_event.sample_id)) AS "numberOfAlteredCases"

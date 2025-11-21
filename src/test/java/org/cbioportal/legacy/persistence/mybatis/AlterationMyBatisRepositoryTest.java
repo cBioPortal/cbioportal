@@ -38,7 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class AlterationMyBatisRepositoryTest {
 
-  //    mutation and cna events in testSql.sql
+  //    mutation and cna events in clickhouse_data_legacy.sql
   //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE,
   // MUTATIONio_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
   //        1	    207	    AKT1	2	CNA         -2	                Putative_Driver	    Tier 1
@@ -64,7 +64,7 @@ public class AlterationMyBatisRepositoryTest {
   //        13	672	    BRCA1	6	MUTATION    Splice_Site	        Putative_Driver	    Tier 1
   // TCGA-A1-A0SP    germline
 
-  //    structural_variant table in testSql.sql
+  //    structural_variant table in clickhouse_data_legacy.sql
   //        SAMPLE_ID,    ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE,
   // DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
   //        1     27436-238   EML4-ALK    7   SV          Fusion              <noi>
@@ -335,7 +335,8 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
 
-    // For testSql.sql there are no more samples per patient for the investigated genes.
+    // For clickhouse_data_legacy.sql there are no more samples per patient for the investigated
+    // genes.
     // Therefore, patient level counts are the same as the sample level counts.
     Assert.assertEquals(2, result.size());
     AlterationCountByGene result207 =
@@ -388,7 +389,8 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getPatientCnaGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
 
-    // For testSql.sql there are no more samples per patient for the investigated genes.
+    // For clickhouse_data_legacy.sql there are no more samples per patient for the investigated
+    // genes.
     // Therefore, patient level counts are the same as the sample level counts.
     Assert.assertEquals(3, result.size());
     AlterationCountByGene result207up =
@@ -552,7 +554,8 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
 
-    // For testSql.sql there are no more samples per patient for the investigated genes.
+    // For clickhouse_data_legacy.sql there are no more samples per patient for the investigated
+    // genes.
     // Therefore, patient level counts are the same as the sample level counts.
     Assert.assertEquals(3, result.size());
     AlterationCountByGene result672 =
@@ -577,7 +580,7 @@ public class AlterationMyBatisRepositoryTest {
     List<AlterationCountByGene> result =
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
-    // all but one mutations in testSql.sql are Germline mutations
+    // all but one mutations in clickhouse_data_legacy.sql are Germline mutations
     Assert.assertEquals(3, result.size());
     AlterationCountByGene result672 =
         result.stream().filter(r -> r.getEntrezGeneId() == 672).findFirst().get();
@@ -601,7 +604,7 @@ public class AlterationMyBatisRepositoryTest {
     List<AlterationCountByGene> result =
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
-    // all but one mutations in testSql.sql are Germline mutations
+    // all but one mutations in clickhouse_data_legacy.sql are Germline mutations
     Assert.assertEquals(0, result.size());
   }
 
@@ -613,7 +616,7 @@ public class AlterationMyBatisRepositoryTest {
     List<AlterationCountByGene> result =
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             patientIdToProfileId, entrezGeneIds, alterationFilter);
-    // all but one mutations in testSql.sql are Germline mutations
+    // all but one mutations in clickhouse_data_legacy.sql are Germline mutations
     Assert.assertEquals(1, result.size());
   }
 
@@ -999,7 +1002,7 @@ public class AlterationMyBatisRepositoryTest {
     List<AlterationCountByGene> result =
         alterationMyBatisRepository.getSampleAlterationGeneCounts(
             svSampleIdToProfileId, svEntrezGeneIds, alterationFilter);
-    // two structural variants in testSql.sql are germline mutations
+    // two structural variants in clickhouse_data_legacy.sql are germline mutations
 
     AlterationCountByGene result57670 =
         result.stream().filter(r -> r.getEntrezGeneId() == 57670).findFirst().get();
@@ -1097,7 +1100,7 @@ public class AlterationMyBatisRepositoryTest {
     List<AlterationCountByGene> result =
         alterationMyBatisRepository.getPatientAlterationGeneCounts(
             svPatientIdToProfileId, svEntrezGeneIds, alterationFilter);
-    // two structural variants in testSql.sql are germline mutations
+    // two structural variants in clickhouse_data_legacy.sql are germline mutations
     Assert.assertEquals(3, result.size());
 
     AlterationCountByGene result57670 =

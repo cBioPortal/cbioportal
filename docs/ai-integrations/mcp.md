@@ -31,6 +31,17 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
 
+#### cbioportal-navigator
+
+An MCP server that enables AI agents to navigate and interact with the cBioPortal web interface.
+
+**Repository**: [https://github.com/fuzhaoyuan/cbioportal-navigator](https://github.com/fuzhaoyuan/cbioportal-navigator)
+
+**Key Features**:
+- Provides tools for navigating the cBioPortal website
+- Enables AI agents to interact with the web interface programmatically
+- Supports automated exploration of cBioPortal's web-based features
+
 ### Community MCP Integrations
 
 These integrations are maintained by the community and third-party developers.

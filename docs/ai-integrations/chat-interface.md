@@ -91,14 +91,4 @@ Each agent has specialized components depending on its function:
 **cBioNavigator:**
 - **Web Interface Tools**: Uses MCP tools to interact with the cBioPortal website
 
-### How It Works (cBioDBAgent)
-
-When you ask a question to cBioDBAgent:
-
-1. Your natural language question is sent to Claude
-2. Claude uses MCP servers to understand the database schema and formulate appropriate queries
-3. The MCP server translates Claude's intent into ClickHouse SQL queries
-4. Query results are returned to Claude, which formats them into a natural language response
-5. You receive the answer along with relevant data
-
 For more information about the MCP servers and how to build your own integrations, see the [Model Context Protocol documentation](mcp.md).

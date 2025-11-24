@@ -6,6 +6,8 @@ This script can also be used to delete studies.
 - [Requirements](#requirements)
 - [Importing a study without validation](#importing-a-study-without-validation)
 - [Deleting a study](#deleting-a-study)
+- [Deleting patients](#deleting-patients)
+- [Deleting samples](#deleting-samples)
 
 ## Requirements
 This script requires `$PORTAL_HOME` to point to the folder containing your
@@ -58,3 +60,27 @@ You can also remove multiple studies at once by passing the Cancer Study Ids sep
 ./cbioportalImporter.py -c remove-study -id study1_id,study2_id,study3_id
 ```
 Where `study1_id`, `study2_id` and `study3_id` are the Cancer Study IDs of the studies you would like to remove.
+
+## Deleting patients
+To remove patients (and their associated samples and data) from one or more studies, run:
+```
+./cbioportalImporter.py remove-patients --study_ids <study_ids> --patient_ids <patient_ids>
+```
+Where `study_ids` is a comma-separated list of Cancer Study IDs to search and `patient_ids` is a comma-separated list of patient identifiers to delete.
+
+For example:
+```
+./cbioportalImporter.py remove-patients --study_ids study1_id --patient_ids patientA,patientB
+```
+
+## Deleting samples
+To remove specific samples from one or more studies, run:
+```
+./cbioportalImporter.py remove-samples --study_ids <study_ids> --sample_ids <sample_ids>
+```
+Where `study_ids` is a comma-separated list of Cancer Study IDs to search and `sample_ids` is a comma-separated list of sample identifiers to delete.
+
+For example:
+```
+./cbioportalImporter.py remove-samples --study_ids study1_id,study2_id --sample_ids sampleX,sampleY
+```

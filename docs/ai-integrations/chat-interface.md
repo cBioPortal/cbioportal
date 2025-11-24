@@ -14,7 +14,11 @@ The cBioPortal chat interface is an experimental platform with multiple AI agent
 
 We are actively exploring various approaches to make cBioPortal more accessible through natural language interactions. These agents are early prototypes and their capabilities will evolve as we continue development.
 
-## Key Features
+## Agent-Specific Features
+
+### cBioDBAgent
+
+Queries the cBioPortal database directly to answer questions about data:
 
 - **Natural Language Queries**: Ask questions in plain English without needing to know the technical details of the database structure
 - **Study Information**: Get quick answers about the number of studies, patients, and samples in cBioPortal
@@ -22,24 +26,35 @@ We are actively exploring various approaches to make cBioPortal more accessible 
 - **Treatment Data**: Explore treatment information across different studies
 - **Data Exploration**: Discover insights from the extensive cancer genomics datasets available in cBioPortal
 
-## Example Queries
-
-Here are some example questions you can ask the chat interface:
-
-### General Portal Information
+**Example Queries:**
 - "How many studies are in cBioPortal?"
-
-### Study-Specific Queries
 - "How many patients and samples are in the MSK-CHORD Study?"
 - "How many primary samples are in the MSK-CHORD Study?"
 - "What treatment did most patients receive in the MSK-CHORD Study?"
 
+### cBioDocsAgent
+
+Helps you understand how to use and deploy cBioPortal by referencing documentation:
+
+- Search and retrieve information from cBioPortal documentation
+- Get guidance on deployment, configuration, and usage
+- Find answers to technical questions about cBioPortal
+
+### cBioNavigator
+
+Assists with navigating the cBioPortal web interface:
+
+- Help understanding how to use different features in the web interface
+- Guidance on navigating through studies and visualizations
+- Support for exploring cBioPortal's web-based tools
+
 ## Tips for Using the Chat Interface
 
+- **Choose the right agent**: Select the agent that best matches your need - data queries (cBioDBAgent), documentation (cBioDocsAgent), or web navigation (cBioNavigator)
 - **Be specific**: Include study names or specific data types when possible
 - **Ask follow-up questions**: The chat interface maintains context, so you can ask related questions in sequence
 - **Explore different angles**: Try rephrasing questions or asking for different perspectives on the data
-- **Learn about the database structure**: You can ask the LLM to explain the database schema and available fields - this can help you formulate more effective questions
+- **Learn about the database structure** (cBioDBAgent): You can ask the LLM to explain the database schema and available fields - this can help you formulate more effective questions
 
 ## Getting Started
 
@@ -59,18 +74,28 @@ The AI chat interface is actively being developed and improved. Your feedback he
 
 ### Architecture
 
-The cBioPortal chat interface is built on the following technical stack:
+All agents share a common technical foundation:
 
 - **User Interface**: Built with [LibreChat](https://github.com/danny-avila/LibreChat), an open-source chat interface
-- **AI Model**: Uses [Claude](https://www.anthropic.com/claude), Anthropic's large language model
+- **AI Model**: Uses [Claude](https://www.anthropic.com/claude) (provided via Amazon Bedrock), Anthropic's large language model
+
+Each agent has specialized components depending on its function:
+
+**cBioDBAgent:**
 - **MCP Layer**: Model Context Protocol (MCP) servers provide the connection between Claude and cBioPortal data
 - **Database**: Queries are executed against cBioPortal's [ClickHouse](https://clickhouse.com/) database
 
-### How It Works
+**cBioDocsAgent:**
+- **Documentation Access**: References cBioPortal documentation to answer questions
 
-When you ask a question in the chat interface:
+**cBioNavigator:**
+- **Web Interface Tools**: Uses MCP tools to interact with the cBioPortal website
 
-1. Your natural language question is sent to Claude (Provided via Amazon Bedrock)
+### How It Works (cBioDBAgent)
+
+When you ask a question to cBioDBAgent:
+
+1. Your natural language question is sent to Claude
 2. Claude uses MCP servers to understand the database schema and formulate appropriate queries
 3. The MCP server translates Claude's intent into ClickHouse SQL queries
 4. Query results are returned to Claude, which formats them into a natural language response

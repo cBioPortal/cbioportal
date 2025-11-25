@@ -11,6 +11,9 @@ import org.springframework.test.context.DynamicPropertySource;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class AbstractE2ETest {
 
+    protected AbstractE2ETest() {
+    }
+
     public static final String CLICKHOUSE_URL = "jdbc:ch:https://mecgt250i0.us-east-1.aws.clickhouse.cloud:8443/cgds_public_2025_06_24?zeroDateTimeBehavior=convertToNull";
     public static final String CLICKHOUSE_USERNAME = "app_user";
     public static final String CLICKHOUSE_DRIVER = "com.clickhouse.jdbc.ClickHouseDriver";

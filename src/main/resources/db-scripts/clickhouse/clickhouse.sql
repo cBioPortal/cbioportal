@@ -167,7 +167,9 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     mutation_type             LowCardinality(String),
     mutation_status           LowCardinality(String),
     driver_filter             LowCardinality(String),
+    driver_filter_annotation  String,
     driver_tiers_filter       LowCardinality(String),
+    driver_tiers_filter_annotation String,
     cna_alteration            Nullable(Int8),
     cna_cytoband              String,
     sv_event_info             String,
@@ -175,7 +177,6 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     off_panel                 Boolean DEFAULT FALSE
     ) ENGINE = MergeTree
     ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
-
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
@@ -189,8 +190,10 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        me.protein_change                                         AS mutation_variant,
        me.mutation_type                                          AS mutation_type,
        mutation.mutation_status                                  AS mutation_status,
-       'NA'                                                      AS driver_filter,
-       'NA'                                                      AS drivet_tiers_filter,
+       ada.driver_filter                                         AS driver_filter,
+       ada.driver_filter_annotation                              AS driver_filter_annotation,
+       ada.driver_tiers_filter                                   AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                        AS driver_tiers_filter_annotation,
        NULL                                                      AS cna_alteration,
        ''                                                        AS cna_cytoband,
        ''                                                        AS sv_event_info,
@@ -208,7 +211,8 @@ FROM mutation
          INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
          INNER JOIN sample ON mutation.sample_id = sample.internal_id
          INNER JOIN patient on sample.patient_id = patient.internal_id
-         LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id;
+         LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+         LEFT JOIN alteration_driver_annotation ada ON (mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id) AND (mutation.sample_id = alteration_driver_annotation.sample_id) AND (mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id)
 
 INSERT INTO genomic_event_derived
 -- Insert CNA Genes
@@ -222,8 +226,10 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        'NA'                                                      AS mutation_variant,
        'NA'                                                      AS mutation_type,
        'NA'                                                      AS mutation_status,
-       'NA'                                                      AS driver_filter,
-       'NA'                                                      AS drivet_tiers_filter,
+       ada.driver_filter                                         AS driver_filter,
+       ada.driver_filter_annotation                              AS driver_filter_annotation,
+       ada.driver_tiers_filter                                   AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                        AS driver_tiers_filter_annotation,
        ce.alteration                                             AS cna_alteration,
        rgg.cytoband                                              AS cna_cytoband,
        ''                                                        AS sv_event_info,
@@ -241,7 +247,9 @@ FROM cna_event ce
          INNER JOIN sample ON sce.sample_id = sample.internal_id
          INNER JOIN patient on sample.patient_id = patient.internal_id
          INNER JOIN gene ON ce.entrez_gene_id = gene.entrez_gene_id
-         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id AND rgg.reference_genome_id = cs.reference_genome_id;
+         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id AND rgg.reference_genome_id = cs.reference_genome_id
+         LEFT JOIN alteration_driver_annotation ada ON (sce.genetic_profile_id = ada.genetic_profile_id) AND (sce.sample_id = ada.sample_id) AND (sce.cna_event_id = ada.alteration_event_id);
+
 
 INSERT INTO genomic_event_derived
 -- Insert Structural Variants Site1
@@ -255,8 +263,10 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        'NA'                                                 AS mutation_variant,
        'NA'                                                 AS mutation_type,
        'NA'                                                 AS mutation_status,
-       'NA'                                                 AS driver_filter,
-       'NA'                                                 AS drivet_tiers_filter,
+       ada.driver_filter                                    AS driver_filter,
+       ada.driver_filter_annotation                         AS driver_filter_annotation,
+       ada.driver_tiers_filter                              AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                   AS driver_tiers_filter_annotation,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
@@ -273,6 +283,9 @@ FROM structural_variant sv
          INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
          LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id;
+         LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
+
+
 
 INSERT INTO genomic_event_derived
 -- Insert Structural Variants Site2
@@ -286,8 +299,10 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        'NA'                                                 AS mutation_variant,
        'NA'                                                 AS mutation_type,
        'NA'                                                 AS mutation_status,
-       'NA'                                                 AS driver_filter,
-       'NA'                                                 AS drivet_tiers_filter,
+       ada.driver_filter                                    AS driver_filter,
+       ada.driver_filter_annotation                         AS driver_filter_annotation,
+       ada.driver_tiers_filter                              AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                   AS driver_tiers_filter_annotation,
        NULL                                                 AS cna_alteration,
        ''                                                   AS cna_cytoband,
        event_info                                           AS sv_event_info,
@@ -304,9 +319,10 @@ FROM structural_variant sv
          INNER JOIN gene ON sv.site2_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
          LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+         LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
 WHERE
         sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
-   OR sv.site1_entrez_gene_id IS NULL;
+            OR sv.site1_entrez_gene_id IS NULL;
 
 CREATE TABLE IF NOT EXISTS clinical_data_derived
 (

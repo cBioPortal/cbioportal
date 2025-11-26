@@ -15,20 +15,20 @@
     <link rel="icon" href="/images/cbioportal_icon.png"/>
     <title>cBioPortal for Cancer Genomics</title>
     
-    <script>
+    <script th:inline="javascript">
         
-        var postData = [(${postData})];
+        var postData = JSON.parse(/*[[${postData}]]*/ 'null');
 
         window.frontendConfig = {
-            configurationServiceUrl:    "//" + '[(${baseUrl})]' +  "/config_service",
-            appVersion:                 '[(${appVersion})]',
-            apiRoot:                    '//'+ '[(${baseUrl})]/', 
-            baseUrl:                    '[(${baseUrl})]',
-            basePath:                   '[(${contextPath})]',  
+            configurationServiceUrl:    "//" + '/*[[${baseUrl}]]*/' +  "/config_service",
+            appVersion:                 '/*[[${appVersion}]]*/',
+            apiRoot:                    '//' + '/*[[${baseUrl}]]*/' + '/', 
+            baseUrl:                    '/*[[${baseUrl}]]*/',
+            basePath:                   '/*[[${contextPath}]]*/'  
         };
-        //
+        
         <!-- write configuration to page so we do not have to load it via service-->
-        window.rawServerConfig = [(${propertiesJson})];
+        window.rawServerConfig = JSON.parse(/*[[${propertiesJson}]]*/ '{}');
 
         if (/localdev=true/.test(window.location.href)) {
             localStorage.setItem("localdev", "true");
@@ -46,12 +46,12 @@
         } else if (window.netlify) {
             window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.app','/'].join('');
             localStorage.setItem("e2etest", "true");
-        } else if ('[(${frontendUrl})]') {
-            window.frontendConfig.frontendUrl = '[(${frontendUrl})]';
+        } else if (/*[[${frontendUrl}]]*/ '') {
+            window.frontendConfig.frontendUrl = /*[[${frontendUrl}]]*/ '';
         }
 
         if(!window.frontendConfig.frontendUrl) {
-            window.frontendConfig.frontendUrl = '//' + '[(${baseUrl})]/';
+            window.frontendConfig.frontendUrl = '//' + /*[[${baseUrl}]]*/ '' + '/';
         }
 
     </script>

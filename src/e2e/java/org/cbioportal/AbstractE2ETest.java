@@ -23,7 +23,7 @@ public abstract class AbstractE2ETest {
     public static final String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
 
     @DynamicPropertySource
-    static void registerProperties(DynamicPropertyRegistry registry) {
+    public static void registerProperties(DynamicPropertyRegistry registry) {
         // Authentication
         registry.add("authenticate", () -> "false");
         registry.add("dat.method", () -> "none");

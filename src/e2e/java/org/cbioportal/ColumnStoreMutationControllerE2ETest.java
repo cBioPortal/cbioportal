@@ -27,9 +27,6 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
     @LocalServerPort
     private int port;
 
-    private static final com.fasterxml.jackson.databind.ObjectMapper OBJECT_MAPPER = new com.fasterxml.jackson.databind.ObjectMapper();
-
-
     private MutationDTO[] callFetchMutationEndPoint(String testDataJson, ProjectionType projectionType)throws Exception{
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -46,21 +43,16 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         
-        return OBJECT_MAPPER.readValue(response.getBody(), MutationDTO[].class);
+        return E2ETestUtils.OBJECT_MAPPER.readValue(response.getBody(), MutationDTO[].class);
 
     }
 
-    private String loadTestData(String filename) throws Exception {
-        return new String(java.nio.file.Files.readAllBytes(
-            java.nio.file.Paths.get("src/e2e/java/org/cbioportal/ColumnStoreMutationControllerE2ETest/" + filename)));
-    }
-    
     @Test
     void testFetchMutationEndPointWithDataJson_IdProjection() throws Exception {
         // The json has two molecularProfileId and a sampleId and entrezGeneIds to restrict search  
         // Two profiles meet this criteria 
 
-        String testDataJson = loadTestData("mutation_filter.json");
+        String testDataJson = E2ETestUtils.loadTestData("mutation_filter.json");
         MutationDTO[] mutationResultID = callFetchMutationEndPoint(testDataJson, ProjectionType.ID);
        
         assertNotNull(mutationResultID, "Response should have mutation DTO");
@@ -80,7 +72,7 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
         // The json has two molecularProfileId and a sampleId and entrezGeneIds to restrict search  
         // Two profiles meet this criteria 
 
-        String testDataJson = loadTestData("mutation_filter.json");
+        String testDataJson = E2ETestUtils.loadTestData("mutation_filter.json");
         MutationDTO[] mutationResultSummary = callFetchMutationEndPoint(testDataJson,ProjectionType.SUMMARY);
 
         assertNotNull(mutationResultSummary, "Response should have mutation DTO");
@@ -108,7 +100,7 @@ public class ColumnStoreMutationControllerE2ETest extends AbstractE2ETest{
         // The json has two molecularProfileId and a sampleId and entrezGeneIds to restrict search  
         // Two profiles meet this criteria 
 
-        String testDataJson = loadTestData("mutation_filter.json");
+        String testDataJson = E2ETestUtils.loadTestData("mutation_filter.json");
         MutationDTO[] mutationResultDetailed = callFetchMutationEndPoint(testDataJson,ProjectionType.DETAILED);
 
         assertNotNull(mutationResultDetailed, "Response should have mutation DTO");

@@ -1,0 +1,8 @@
+server.port=8090
+
+# Spring AI Properties 1.0.3, see https://docs.spring.io/spring-ai/reference/api/chatmodel.html for other configurable models
+spring.ai.enabled=true
+spring.ai.azure.openai.api-key=
+spring.ai.azure.openai.endpoint=
+spring.ai.azure.openai.chat.options.deployment-name=
+spring.ai.model.chat=

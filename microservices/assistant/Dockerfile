@@ -1,4 +1,19 @@
-FROM openjdk:21-jdk-slim
-ARG JAR_FILE=target/gene-assistant-1.0.0-SNAPSHOT.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+FROM maven:3-eclipse-temurin-17 as build
+
+WORKDIR /assistant
+
+COPY pom.xml .
+
+RUN mvn dependency:go-offline --fail-never
+
+COPY src ./src
+
+RUN mvn install package -DskipTests
+
+FROM eclipse-temurin:17-jre-jammy
+
+WORKDIR /assistant
+
+COPY --from=build /assistant/target/assistant.jar .
+
+ENTRYPOINT ["java","-jar","assistant.jar"]

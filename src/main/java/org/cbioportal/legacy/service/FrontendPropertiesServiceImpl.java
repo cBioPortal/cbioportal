@@ -152,7 +152,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     skin_geneset_hierarchy_default_gsva_score("skin.geneset_hierarchy.default_gsva_score", null),
     app_version("app.version", null),
     frontendSentryEndpoint("sentryjs.frontend_project_endpoint", null),
-    spring_ai_enabled("spring.ai.enabled", null),
+    assistant_enabled("assistant.enabled", null),
 
     // These properties require additional processing.
     // Names refer to the property that requires processing.

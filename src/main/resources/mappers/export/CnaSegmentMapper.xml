@@ -5,45 +5,43 @@
     <select id="getCnaSegments" resultType="org.cbioportal.application.file.model.CnaSegment"
             resultSetType="FORWARD_ONLY">
         SELECT
-            cns.SEG_ID,
-            s.STABLE_ID AS sampleId,
-            cns.chr as chr,
-            cns.start as start,
-            cns.end as end,
-            cns.num_probes as numProbes,
-            cns.segment_mean as segmentMean
+            cns.seg_id,
+            s.stable_id AS sampleId,
+            cns.chr AS chr,
+            cns.start AS start,
+            cns.end AS end,
+            cns.num_probes AS numProbes,
+            cns.segment_mean AS segmentMean
         FROM copy_number_seg cns
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cns.CANCER_STUDY_ID
-        JOIN sample s ON s.INTERNAL_ID = cns.SAMPLE_ID
+        JOIN cancer_study cs ON cs.cancer_study_id = cns.cancer_study_id
+        JOIN sample s ON s.internal_id = cns.sample_id
         <if test="sampleIds != null">
             JOIN (
                 SELECT *
                 FROM (VALUES
                 <foreach item="sid" collection="sampleIds" separator=",">
-                    ROW(#{sid})
+                    (#{sid})
                 </foreach>
                 ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
         </if>
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cs.cancer_study_identifier = #{studyId}
     </select>
     <select id="hasCnaSegments" resultType="java.lang.Boolean">
-        SELECT EXISTS (
-            SELECT 1
-            FROM copy_number_seg cns
-            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = cns.CANCER_STUDY_ID
+        SELECT count() > 0
+        FROM copy_number_seg cns
+        JOIN cancer_study cs ON cs.cancer_study_id = cns.cancer_study_id
             <if test="sampleIds != null">
-                JOIN sample s ON s.INTERNAL_ID = cns.SAMPLE_ID
+                JOIN sample s ON s.internal_id = cns.sample_id
                 JOIN (
-                    SELECT *
-                    FROM (VALUES
+                SELECT *
+                FROM (VALUES
                     <foreach item="sid" collection="sampleIds" separator=",">
-                        ROW(#{sid})
+                        (#{sid})
                     </foreach>
-                    ) AS temp(sample_id)
-                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+                ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
             </if>
-            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
-        )
+        WHERE cs.cancer_study_identifier = #{studyId}
     </select>
 </mapper>

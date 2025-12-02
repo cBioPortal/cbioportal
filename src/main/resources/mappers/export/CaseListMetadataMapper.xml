@@ -3,39 +3,39 @@
 
 <mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.CaseListMetadataMapper">
     <resultMap id="CaseListMetadataResultMap" type="org.cbioportal.application.file.model.CaseListMetadata">
-        <id column="LIST_ID"/>
-        <result property="cancerStudyIdentifier" column="cancerStudyIdentifier"/>
-        <result property="stableId" column="stableId"/>
+        <id column="list_id"/>
+        <result property="cancerStudyIdentifier" column="cancer_study_identifier"/>
+        <result property="stableId" column="stable_id"/>
         <result property="name" column="name"/>
         <result property="description" column="description"/>
         <collection property="sampleIds" ofType="String" javaType="java.util.TreeSet">
-            <result column="sampleId"/>
+            <result column="sample_id"/>
         </collection>
     </resultMap>
     <select
             id="getCaseListsMetadata"
             resultMap="CaseListMetadataResultMap">
         SELECT
-            sl.LIST_ID,
-            cs.CANCER_STUDY_IDENTIFIER as cancerStudyIdentifier,
-            sl.STABLE_ID as stableId,
-            sl.NAME as name,
-            sl.DESCRIPTION as description,
-            s.STABLE_ID as sampleId
+            sl.list_id AS list_id,
+            cs.cancer_study_identifier AS cancer_study_identifier,
+            sl.stable_id AS stable_id,
+            sl.name AS name,
+            sl.description AS description,
+            s.stable_id AS sample_id
         FROM sample_list sl
-        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = sl.CANCER_STUDY_ID
-        JOIN sample_list_list sll ON sll.LIST_ID = sl.LIST_ID
-        JOIN sample s ON s.INTERNAL_ID = sll.SAMPLE_ID
+        JOIN cancer_study cs ON cs.cancer_study_id = sl.cancer_study_id
+        JOIN sample_list_list sll ON sll.list_id = sl.list_id
+        JOIN sample s ON s.internal_id = sll.sample_id
         <if test="sampleIds != null">
             JOIN (
                 SELECT *
                 FROM (VALUES
                 <foreach item="sid" collection="sampleIds" separator=",">
-                    ROW(#{sid})
+                    (#{sid})
                 </foreach>
                 ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
         </if>
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE cs.cancer_study_identifier = #{studyId}
     </select>
 </mapper>

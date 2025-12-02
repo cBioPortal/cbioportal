@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.GenePanelMatrixMapper">
+    <select id="hasGenePanelMatrix" resultType="java.lang.Boolean">
+        SELECT count() > 0
+        FROM sample_profile sp
+        JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
+        JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+        <if test="sampleIds != null">
+            JOIN sample s ON s.internal_id = sp.sample_id
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        WHERE cs.cancer_study_identifier = #{studyId} AND sp.panel_id IS NOT NULL
+    </select>
+    <select id="getGenePanelMatrix" resultType="org.cbioportal.application.file.model.GenePanelMatrixItem"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            sp.sample_id AS rowKey,
+            s.stable_id AS sampleStableId,
+            gp.stable_id AS geneticProfileStableId,
+            gpan.stable_id AS genePanelStableId
+        FROM sample_profile sp
+        JOIN sample s ON s.internal_id = sp.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        JOIN gene_panel gpan ON gpan.internal_id = sp.panel_id
+        JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
+        JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        ORDER BY sp.sample_id
+    </select>
+    <select id="getDistinctGeneProfileIdsWithGenePanelMatrix" resultType="java.lang.String">
+        SELECT
+            DISTINCT gp.stable_id
+        FROM sample_profile sp
+        <if test="sampleIds != null">
+            JOIN sample s ON s.internal_id = sp.sample_id
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
+        JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId} AND sp.panel_id IS NOT NULL
+        ORDER BY gp.stable_id
+    </select>
+</mapper>

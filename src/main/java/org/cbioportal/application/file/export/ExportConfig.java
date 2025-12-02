@@ -84,6 +84,8 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
 import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -218,31 +220,49 @@ public class ExportConfig implements WebMvcConfigurer {
     return new VirtualStudyExportDecoratorService(virtualStudyService, exportService);
   }
 
+  @Bean("exportMapperLocations")
+  @Profile("clickhouse")
+  public Resource[] clickhouseExportMapperLocations(ApplicationContext applicationContext)
+      throws IOException {
+    return applicationContext.getResources("classpath:mappers/clickhouse_export/*.xml");
+  }
+
+  @Bean("exportMapperLocations")
+  @Profile("default")
+  public Resource[] mysqlExportMapperLocations(ApplicationContext applicationContext)
+      throws IOException {
+    return applicationContext.getResources("classpath:mappers/mysql_export/*.xml");
+  }
+
   @Bean("exportSqlSessionFactory")
   public SqlSessionFactoryBean exportSqlSessionFactory(
-      @Qualifier("exportDataSource") DataSource dataSource, ApplicationContext applicationContext)
-      throws IOException {
+      @Qualifier("exportDataSource") DataSource dataSource, Resource[] exportMapperLocations) {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
-    sessionFactory.setMapperLocations(
-        applicationContext.getResources("classpath:mappers/export/*.xml"));
+    sessionFactory.setMapperLocations(exportMapperLocations);
     return sessionFactory;
   }
 
-  @Bean
-  public DataSource exportDataSource(DataSourceProperties mysqlDataSourceProperties) {
-    HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(mysqlDataSourceProperties.getUrl());
-    hikariConfig.setUsername(mysqlDataSourceProperties.getUsername());
-    hikariConfig.setPassword(mysqlDataSourceProperties.getPassword());
+  @Bean("exportDataSource")
+  @Profile("clickhouse")
+  public DataSource clickhouseExportDataSource(
+      @Qualifier("clickhouseDatSourceProperties")
+          DataSourceProperties clickhouseDatSourceProperties) {
+    // TODO How to use cursor fetch with ClickHouse to minimize memory usage during export?
+    return createDataSource(clickhouseDatSourceProperties, null);
+  }
+
+  @Bean("exportDataSource")
+  @Profile("default")
+  public DataSource mysqlExportDataSource(
+      @Qualifier("mysqlDataSourceProperties") DataSourceProperties mysqlDataSourceProperties) {
 
     // Set MySQL streaming properties
     Properties dsProperties = new Properties();
     dsProperties.setProperty("useCursorFetch", "true");
     dsProperties.setProperty("defaultFetchSize", "1000");
-    hikariConfig.setDataSourceProperties(dsProperties);
 
-    return new HikariDataSource(hikariConfig);
+    return createDataSource(mysqlDataSourceProperties, dsProperties);
   }
 
   @Value("${feature.study.export.timeout_ms:600000}") // 10 minutes timeout by default
@@ -251,6 +271,23 @@ public class ExportConfig implements WebMvcConfigurer {
   @Override
   public void configureAsyncSupport(AsyncSupportConfigurer configurer) {
     configurer.setDefaultTimeout(timeoutMs);
+  }
+
+  private DataSource createDataSource(
+      DataSourceProperties dataSourceProperties, Properties dataSourcePropertiesOverrides) {
+    HikariConfig hikariConfig = new HikariConfig();
+    hikariConfig.setJdbcUrl(dataSourceProperties.getUrl());
+    hikariConfig.setUsername(dataSourceProperties.getUsername());
+    hikariConfig.setPassword(dataSourceProperties.getPassword());
+
+    if (dataSourceProperties.getDriverClassName() != null) {
+      hikariConfig.setDriverClassName(dataSourceProperties.getDriverClassName());
+    }
+    if (dataSourcePropertiesOverrides != null) {
+      hikariConfig.setDataSourceProperties(dataSourcePropertiesOverrides);
+    }
+
+    return new HikariDataSource(hikariConfig);
   }
 
   @Bean

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileMapper">
+    <select
+            id="getGeneticProfiles"
+            resultType="org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata">
+        SELECT
+            cs.cancer_study_identifier AS cancerStudyIdentifier,
+            gp.stable_id AS stableId,
+            gp.name AS profileName,
+            gp.description AS profileDescription,
+            gp.genetic_alteration_type AS geneticAlterationType,
+            gp.datatype AS datatype,
+            gp.generic_assay_type AS genericAssayType,
+            gp.show_profile_in_analysis_tab AS showProfileInAnalysisTab,
+            gp.pivot_threshold AS pivotThreshold,
+            gp.sort_order AS sortOrder,
+            gp.patient_level AS patientLevel
+        FROM genetic_profile gp
+        JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId} AND gp.genetic_alteration_type = #{geneticAlterationType} AND gp.datatype = #{datatype}
+        <if test="sampleIds != null">
+            AND EXISTS (
+                SELECT 1
+                FROM sample_profile sp
+                JOIN sample s ON sp.sample_id = s.internal_id
+                WHERE s.stable_id IN
+                <foreach item="sid" collection="sampleIds" open="(" separator="," close=")">
+                    #{sid}
+                </foreach>
+                AND sp.genetic_profile_id = gp.genetic_profile_id
+            )
+        </if>
+    </select>
+</mapper>

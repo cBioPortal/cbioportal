@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.CancerStudyMetadataMapper">
+    <select id="getCancerStudyMetadata" resultType="org.cbioportal.application.file.model.CancerStudyMetadata">
+        SELECT
+        cs.type_of_cancer_id AS typeOfCancer,
+        cs.cancer_study_identifier AS cancerStudyIdentifier,
+        cs.name AS name,
+        cs.description AS description,
+        cs.citation AS citation,
+        cs.pmid AS pmid,
+        cs.`groups` AS `groups`,
+        rg.name AS referenceGenome
+        FROM cancer_study cs
+        JOIN reference_genome rg ON rg.reference_genome_id = cs.reference_genome_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+    <select id="getCancerTypeHierarchy" resultType="org.cbioportal.application.file.model.CancerType">
+        WITH RECURSIVE cancer_type_hierarchy AS (
+        -- Anchor member: get the initial cancer type from the study
+        SELECT
+            ct.type_of_cancer_id AS typeOfCancerId,
+            ct.name AS name,
+            ct.dedicated_color AS dedicatedColor,
+            ct.short_name AS shortName,
+            ct.parent AS parent
+        FROM cancer_study cs
+        JOIN type_of_cancer ct ON ct.type_of_cancer_id = cs.type_of_cancer_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+
+        UNION ALL
+
+        -- Recursive member: follow the parent chain
+        SELECT
+            parent_ct.type_of_cancer_id AS typeOfCancerId,
+            parent_ct.name AS name,
+            parent_ct.dedicated_color AS dedicatedColor,
+            parent_ct.short_name AS shortName,
+            parent_ct.parent AS parent
+        FROM type_of_cancer parent_ct
+        JOIN cancer_type_hierarchy cth ON cth.parent = parent_ct.type_of_cancer_id
+        )
+
+        SELECT * FROM cancer_type_hierarchy
+    </select>
+</mapper>

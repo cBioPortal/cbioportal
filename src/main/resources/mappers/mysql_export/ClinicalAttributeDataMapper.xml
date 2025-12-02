@@ -144,15 +144,14 @@
                     ) AS temp(sample_id)
                 ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
             </if>
-            JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
-            WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
+        JOIN cancer_study cs ON cs.CANCER_STUDY_ID = p.CANCER_STUDY_ID
+        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId}
         )
-        (
+        SELECT *
+        FROM (
             SELECT PATIENT_INTERNAL_ID AS rowKey, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
             FROM ids_only
-        )
-        UNION ALL
-        (
+            UNION ALL
             SELECT
                 ids_only.PATIENT_INTERNAL_ID AS rowKey,
                 cpa.ATTR_ID AS attributeId,
@@ -162,7 +161,7 @@
             WHERE cpa.ATTR_ID NOT IN (
                 <include refid="excludedClinicalPatientAttributes"/> 
             )
-        )
+        ) AS ordered_union
         ORDER BY rowKey
     </select>
     <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">

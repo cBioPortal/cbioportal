@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.MafRecordMapper">
+    <select
+            id="getMafRecords"
+            resultType="org.cbioportal.application.file.model.MafRecord"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            g.entrez_gene_id AS entrezGeneId,
+            m.center AS center,
+            g.hugo_gene_symbol AS hugoSymbol,
+            me.ncbi_build AS ncbiBuild,
+            me.chr AS chromosome,
+            me.start_position AS startPosition,
+            me.end_position AS endPosition,
+            me.strand AS strand,
+            me.mutation_type AS variantClassification,
+            me.variant_type AS variantType,
+            me.reference_allele AS referenceAllele,
+            m.tumor_seq_allele1 AS tumorSeqAllele1,
+            m.tumor_seq_allele2 AS tumorSeqAllele2,
+            me.db_snp_rs AS dbSnpRs,
+            me.db_snp_val_status AS dbSnpValStatus,
+            CASE
+                WHEN trim(me.protein_change) IN ('', 'MUTATED') THEN NULL
+                ELSE concat('p.', me.protein_change)
+            END AS hgvspShort,
+            s.stable_id AS tumorSampleBarcode,
+            m.matched_norm_sample_barcode AS matchedNormSampleBarcode,
+            m.match_norm_seq_allele1 AS matchNormSeqAllele1,
+            m.match_norm_seq_allele2 AS matchNormSeqAllele2,
+            m.tumor_validation_allele1 AS tumorValidationAllele1,
+            m.tumor_validation_allele2 AS tumorValidationAllele2,
+            m.match_norm_validation_allele1 AS matchNormValidationAllele1,
+            m.match_norm_validation_allele2 AS matchNormValidationAllele2,
+            m.verification_status AS verificationStatus,
+            m.validation_status AS validationStatus,
+            m.mutation_status AS mutationStatus,
+            m.sequencing_phase AS sequencingPhase,
+            m.sequence_source AS sequenceSource,
+            m.validation_method AS validationMethod,
+            m.score AS score,
+            m.bam_file AS bamFile,
+            m.sequencer AS sequencer,
+            m.tumor_alt_count AS tAltCount,
+            m.tumor_ref_count AS tRefCount,
+            m.normal_alt_count AS nAltCount,
+            m.normal_ref_count AS nRefCount
+        FROM mutation m
+        JOIN genetic_profile gp ON gp.genetic_profile_id = m.genetic_profile_id
+        JOIN sample s ON s.internal_id = m.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        JOIN gene g ON g.entrez_gene_id = m.entrez_gene_id
+        JOIN mutation_event me ON me.mutation_event_id = m.mutation_event_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
+    </select>
+</mapper>

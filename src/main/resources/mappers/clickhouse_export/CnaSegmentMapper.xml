@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.CnaSegmentMapper">
+    <select id="getCnaSegments" resultType="org.cbioportal.application.file.model.CnaSegment"
+            resultSetType="FORWARD_ONLY">
+        SELECT
+            cns.seg_id,
+            s.stable_id AS sampleId,
+            cns.chr AS chr,
+            cns.start AS start,
+            cns.end AS end,
+            cns.num_probes AS numProbes,
+            cns.segment_mean AS segmentMean
+        FROM copy_number_seg cns
+        JOIN cancer_study cs ON cs.cancer_study_id = cns.cancer_study_id
+        JOIN sample s ON s.internal_id = cns.sample_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+    <select id="hasCnaSegments" resultType="java.lang.Boolean">
+        SELECT count() > 0
+        FROM copy_number_seg cns
+        JOIN cancer_study cs ON cs.cancer_study_id = cns.cancer_study_id
+            <if test="sampleIds != null">
+                JOIN sample s ON s.internal_id = cns.sample_id
+                JOIN (
+                SELECT *
+                FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        (#{sid})
+                    </foreach>
+                ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            </if>
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+</mapper>

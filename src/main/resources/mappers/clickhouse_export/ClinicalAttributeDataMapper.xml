@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.ClinicalAttributeDataMapper">
+    <sql id="excludedClinicalSampleAttributes">
+        'MUTATION_COUNT', 'FRACTION_GENOME_ALTERED'
+    </sql> 
+    <select id="getClinicalSampleAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
+        SELECT
+            cam.attr_id AS attributeId,
+            cam.display_name AS displayName,
+            cam.description AS description,
+            cam.datatype AS datatype,
+            cam.priority AS priority
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs ON cs.cancer_study_id = cam.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId} AND cam.patient_attribute = 0 AND cam.attr_id NOT IN (
+        <include refid="excludedClinicalSampleAttributes"/>
+        )
+    </select>
+    <!-- Clinical sample attributes data has to be present for molecular data types even if it does not have any attributes associated -->
+    <!-- That's why it's more relaxed than clinical patient attributes check -->
+    <select id="hasClinicalSampleAttributes" resultType="java.lang.Boolean">
+        SELECT count() > 0
+        FROM sample s
+        JOIN patient p ON p.internal_id = s.patient_id
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        <if test="sampleIds != null">
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+    <select id="getClinicalSampleAttributeValues"
+            resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
+            resultSetType="FORWARD_ONLY">
+        WITH ids_only AS (
+            SELECT
+                s.internal_id AS sample_internal_id,
+                s.stable_id AS sampleId,
+                p.stable_id AS patientId
+            FROM sample s
+            <if test="sampleIds != null">
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        (#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            </if>
+        JOIN patient p ON p.internal_id = s.patient_id
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        )
+        SELECT *
+        FROM (
+            SELECT sample_internal_id AS rowKey, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            FROM ids_only
+            UNION ALL
+            SELECT sample_internal_id AS rowKey, 'SAMPLE_ID' AS attributeId, sampleId AS attributeValue
+            FROM ids_only
+            UNION ALL
+            SELECT
+                ids_only.sample_internal_id AS rowKey,
+                csa.attr_id AS attributeId,
+                csa.attr_value AS attributeValue
+            FROM ids_only
+            JOIN clinical_sample csa ON csa.internal_id = ids_only.sample_internal_id
+            WHERE csa.attr_id NOT IN (
+                <include refid="excludedClinicalSampleAttributes"/>
+            )
+        )
+        ORDER BY rowKey
+    </select>
+    <sql id="excludedClinicalPatientAttributes">
+        'SAMPLE_COUNT'
+    </sql>
+    <select id="getClinicalPatientAttributes" resultType="org.cbioportal.application.file.model.ClinicalAttribute">
+        SELECT
+            cam.attr_id AS attributeId,
+            cam.display_name AS displayName,
+            cam.description AS description,
+            cam.datatype AS datatype,
+            cam.priority AS priority
+        FROM clinical_attribute_meta cam
+        JOIN cancer_study cs ON cs.cancer_study_id = cam.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId} AND cam.patient_attribute = 1 AND cam.attr_id NOT IN (
+            <include refid="excludedClinicalPatientAttributes"/>
+        )
+    </select>
+    <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
+        SELECT count() > 0
+        FROM patient p
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        JOIN clinical_patient cpa ON cpa.internal_id = p.internal_id
+            <if test="sampleIds != null">
+                JOIN sample s ON s.patient_id = p.internal_id
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        (#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            </if>
+        WHERE cs.cancer_study_identifier = #{studyId} AND cpa.attr_id NOT IN (
+                <include refid="excludedClinicalPatientAttributes"/>
+            )
+    </select>
+    <select id="getClinicalPatientAttributeValues"
+            resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
+            resultSetType="FORWARD_ONLY">
+        WITH ids_only AS (
+            SELECT DISTINCT
+                p.internal_id AS patient_internal_id,
+                p.stable_id AS patientId
+            FROM patient p
+            <if test="sampleIds != null">
+                JOIN sample s ON s.patient_id = p.internal_id
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        (#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            </if>
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        )
+        SELECT *
+        FROM (
+            SELECT patient_internal_id AS rowKey, 'PATIENT_ID' AS attributeId, patientId AS attributeValue
+            FROM ids_only
+            UNION ALL
+            SELECT
+                ids_only.patient_internal_id AS rowKey,
+                cpa.attr_id AS attributeId,
+                cpa.attr_value AS attributeValue
+            FROM ids_only
+            JOIN clinical_patient cpa ON cpa.internal_id = ids_only.patient_internal_id
+            WHERE cpa.attr_id NOT IN (
+                <include refid="excludedClinicalPatientAttributes"/> 
+            )
+        )
+        ORDER BY rowKey
+    </select>
+    <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">
+        SELECT count() > 0
+        FROM clinical_event ce
+        JOIN patient p ON p.internal_id = ce.patient_id
+            <if test="sampleIds != null">
+                JOIN sample s ON s.patient_id = p.internal_id
+                JOIN (
+                    SELECT *
+                    FROM (VALUES
+                    <foreach item="sid" collection="sampleIds" separator=",">
+                        (#{sid})
+                    </foreach>
+                    ) AS temp(sample_id)
+                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            </if>
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+    <select id="getDistinctClinicalEventKeys" resultType="java.lang.String">
+        SELECT DISTINCT
+            ced.`key`
+        FROM clinical_event ce
+        JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
+        JOIN patient p ON p.internal_id = ce.patient_id
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        <if test="eventType != null">
+            AND ce.event_type = #{eventType}
+        </if>
+        ORDER BY ced.`key`
+    </select>
+    <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
+            resultSetType="FORWARD_ONLY">
+        SELECT DISTINCT
+            ced.clinical_event_id AS clinicalEventId,
+            ced.`key` AS `key`,
+            ced.value AS value
+        FROM clinical_event ce
+        JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
+        JOIN patient p ON p.internal_id = ce.patient_id
+        <if test="sampleIds != null">
+            JOIN sample s ON s.patient_id = p.internal_id
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        <if test="eventType != null">
+            AND ce.event_type = #{eventType}
+        </if>
+        ORDER BY ced.clinical_event_id
+    </select>
+    <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
+            resultSetType="FORWARD_ONLY">
+        SELECT DISTINCT
+            ce.clinical_event_id AS clinicalEventId,
+            p.stable_id AS patientId,
+            ce.start_date AS startDate,
+            ce.stop_date AS stopDate,
+            ce.event_type AS eventType
+        FROM clinical_event ce
+        JOIN patient p ON p.internal_id = ce.patient_id
+        <if test="sampleIds != null">
+            JOIN sample s ON s.patient_id = p.internal_id
+            JOIN (
+                SELECT *
+                FROM (VALUES
+                <foreach item="sid" collection="sampleIds" separator=",">
+                    (#{sid})
+                </foreach>
+                ) AS temp(sample_id)
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+        </if>
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+        <if test="eventType != null">
+            AND ce.event_type = #{eventType}
+        </if>
+        ORDER BY ce.clinical_event_id
+    </select>
+    <select id="getDistinctEventTypes" resultType="java.lang.String">
+        SELECT DISTINCT
+            ce.event_type
+        FROM clinical_event ce
+        JOIN patient p ON p.internal_id = ce.patient_id
+        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+    </select>
+</mapper>

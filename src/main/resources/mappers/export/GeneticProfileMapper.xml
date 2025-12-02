@@ -6,30 +6,30 @@
             id="getGeneticProfiles"
             resultType="org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata">
         SELECT
-            cs.CANCER_STUDY_IDENTIFIER AS cancerStudyIdentifier,
-            gp.STABLE_ID AS stableId,
-            gp.NAME AS profileName,
-            gp.DESCRIPTION AS profileDescription,
-            gp.GENETIC_ALTERATION_TYPE AS geneticAlterationType,
-            gp.DATATYPE AS datatype,
-            gp.GENERIC_ASSAY_TYPE AS genericAssayType,
-            gp.SHOW_PROFILE_IN_ANALYSIS_TAB AS showProfileInAnalysisTab,
-            gp.PIVOT_THRESHOLD AS pivotThreshold,
-            gp.SORT_ORDER AS sortOrder,
-            gp.PATIENT_LEVEL AS patientLevel
+            cs.cancer_study_identifier AS cancerStudyIdentifier,
+            gp.stable_id AS stableId,
+            gp.name AS profileName,
+            gp.description AS profileDescription,
+            gp.genetic_alteration_type AS geneticAlterationType,
+            gp.datatype AS datatype,
+            gp.generic_assay_type AS genericAssayType,
+            gp.show_profile_in_analysis_tab AS showProfileInAnalysisTab,
+            gp.pivot_threshold AS pivotThreshold,
+            gp.sort_order AS sortOrder,
+            gp.patient_level AS patientLevel
         FROM genetic_profile gp
-        JOIN cancer_study cs ON gp.CANCER_STUDY_ID = cs.CANCER_STUDY_ID
-        WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND gp.GENETIC_ALTERATION_TYPE = #{geneticAlterationType} AND gp.DATATYPE = #{datatype}
+        JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId} AND gp.genetic_alteration_type = #{geneticAlterationType} AND gp.datatype = #{datatype}
         <if test="sampleIds != null">
             AND EXISTS (
                 SELECT 1
                 FROM sample_profile sp
-                JOIN sample s ON sp.SAMPLE_ID = s.INTERNAL_ID
-                WHERE s.STABLE_ID IN
+                JOIN sample s ON sp.sample_id = s.internal_id
+                WHERE s.stable_id IN
                 <foreach item="sid" collection="sampleIds" open="(" separator="," close=")">
                     #{sid}
                 </foreach>
-                AND sp.GENETIC_PROFILE_ID = gp.GENETIC_PROFILE_ID
+                AND sp.genetic_profile_id = gp.genetic_profile_id
             )
         </if>
     </select>

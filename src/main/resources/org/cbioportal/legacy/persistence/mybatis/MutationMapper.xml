@@ -343,7 +343,6 @@
     <select id="getSampleCountByEntrezGeneIdsAndSampleIds" resultType="org.cbioportal.legacy.model.MutationCountByGene">
         SELECT
         entrezGeneId AS "entrezGeneId",
-        <!-- TODO: check this-->
         ANY_VALUE(GENE.hugoGeneSymbol) AS "hugoGeneSymbol",
         COUNT(*) AS "totalCount",
         COUNT(DISTINCT(sampleId)) AS "numberOfAlteredCases"
@@ -371,7 +370,6 @@
 
     <select id="getMutationCountsByType" resultMap="genomicDataCountItem">
         SELECT
-            <!-- TODO: check this-->
             ANY_VALUE(GENE.hugoGeneSymbol) as hugoGeneSymbol,
             #{profileType} as profileType,
             REPLACE(mutationType, '_', ' ') AS label,

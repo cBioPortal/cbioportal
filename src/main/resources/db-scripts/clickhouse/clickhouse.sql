@@ -282,7 +282,7 @@ FROM structural_variant sv
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
          INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
          INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
-         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id;
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
          LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
 
 

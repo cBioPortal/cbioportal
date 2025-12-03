@@ -27,10 +27,11 @@ Queries the cBioPortal database directly to answer questions about data:
 - **Data Exploration**: Discover insights from the extensive cancer genomics datasets available in cBioPortal
 
 **Example Queries:**
-- "How many studies are in cBioPortal?"
-- "How many patients and samples are in the MSK-CHORD Study?"
-- "How many primary samples are in the MSK-CHORD Study?"
-- "What treatment did most patients receive in the MSK-CHORD Study?"
+- General Stats
+   - [How many studies are in cBioPortal?](https://chat.cbioportal.org/c/new?q=How%20many%20studies%20are%20there%20in%20cBioPortal?&submit=true&spec=cBioDBAgent)
+- Study-Specific Questions
+    - [How many patients and samples are in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=How%20many%20patients%20and%20samples%20are%20in%20the%20MSK%20CHORD%20Study?&submit=true&spec=cBioDBAgent)
+    - [What treatment did most patients receive in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=What%20treatment%20did%20most%20patients%20recieve%20in%20the%20MSK%20CHORD%20study?&submit=true&spec=cBioDBAgent)
 
 ### cBioDocsAgent
 

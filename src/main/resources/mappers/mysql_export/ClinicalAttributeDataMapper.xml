@@ -17,6 +17,7 @@
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=false AND cam.ATTR_ID NOT IN (
         <include refid="excludedClinicalSampleAttributes"/>
         )
+        ORDER BY cam.ATTR_ID
     </select>
     <!-- Clinical sample attributes data has to be present for molecular data types even if it does not have any attributes associated -->
     <!-- That's why it's more relaxed than clinical patient attributes check -->
@@ -101,6 +102,7 @@
         WHERE cs.CANCER_STUDY_IDENTIFIER = #{studyId} AND cam.PATIENT_ATTRIBUTE=true AND cam.ATTR_ID NOT IN (
             <include refid="excludedClinicalPatientAttributes"/>
         )
+        ORDER BY cam.ATTR_ID
     </select>
     <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
         SELECT EXISTS (

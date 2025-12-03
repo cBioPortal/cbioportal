@@ -17,6 +17,7 @@
         WHERE cs.cancer_study_identifier = #{studyId} AND cam.patient_attribute = 0 AND cam.attr_id NOT IN (
         <include refid="excludedClinicalSampleAttributes"/>
         )
+        ORDER BY cam.attr_id
     </select>
     <!-- Clinical sample attributes data has to be present for molecular data types even if it does not have any attributes associated -->
     <!-- That's why it's more relaxed than clinical patient attributes check -->
@@ -95,6 +96,7 @@
         WHERE cs.cancer_study_identifier = #{studyId} AND cam.patient_attribute = 1 AND cam.attr_id NOT IN (
             <include refid="excludedClinicalPatientAttributes"/>
         )
+        ORDER BY cam.attr_id
     </select>
     <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
         SELECT count() > 0

@@ -76,5 +76,6 @@
         JOIN genetic_alteration ga ON ga.genetic_profile_id = gp.genetic_profile_id
         JOIN generic_entity_properties gep ON gep.genetic_entity_id = ga.genetic_entity_id
         WHERE gp.stable_id = #{molecularProfileStableId}
+        ORDER BY gep.name
     </select>
 </mapper>

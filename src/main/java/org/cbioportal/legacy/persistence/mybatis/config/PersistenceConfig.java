@@ -8,7 +8,6 @@ import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +39,7 @@ public class PersistenceConfig {
   @Bean("sqlSessionFactory")
   @Profile("clickhouse")
   public SqlSessionFactoryBean sqlSessionFactorySpecifyDataSource(
-      @Qualifier("mysqlDataSource") DataSource dataSource, ApplicationContext applicationContext)
-      throws IOException {
+      DataSource dataSource, ApplicationContext applicationContext) throws IOException {
     return sqlSessionFactory(dataSource, applicationContext);
   }
 
@@ -66,8 +64,7 @@ public class PersistenceConfig {
 
   @Bean
   @Profile("clickhouse")
-  public DataSourceTransactionManager transactionManager(
-      @Qualifier("mysqlDataSource") DataSource dataSource) {
+  public DataSourceTransactionManager transactionManager(DataSource dataSource) {
     return new DataSourceTransactionManager(dataSource);
   }
 }

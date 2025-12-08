@@ -5,7 +5,6 @@ import javax.sql.DataSource;
 import org.cbioportal.legacy.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,9 +19,7 @@ public class ClickhouseMyBatisConfig {
 
   @Bean("sqlColumnarSessionFactory")
   public SqlSessionFactoryBean sqlColumnarSessionFactory(
-      @Qualifier("clickhouseDataSource") DataSource dataSource,
-      ApplicationContext applicationContext)
-      throws IOException {
+      DataSource dataSource, ApplicationContext applicationContext) throws IOException {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
     sessionFactory.addMapperLocations(

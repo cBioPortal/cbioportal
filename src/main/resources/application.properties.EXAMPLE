@@ -9,6 +9,9 @@ spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 #clickhouse_mode=false
 
 # database
+# Note: Legacy spring.datasource.clickhouse.* properties are still supported for backward
+# compatibility but will be automatically migrated to spring.datasource.* properties.
+# It is recommended to use the standard spring.datasource.* properties.
 #spring.datasource.url=jdbc:ch://localhost:8443/cbioportal
 #spring.datasource.username=dummy
 #spring.datasource.password=dummy

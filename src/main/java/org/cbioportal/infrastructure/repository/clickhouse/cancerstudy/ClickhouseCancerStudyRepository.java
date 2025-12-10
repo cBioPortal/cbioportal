@@ -6,7 +6,6 @@ import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Repository;
  * delegates database queries to {@link ClickhouseCancerStudyMapper}.
  */
 @Repository
-@Profile("clickhouse")
 public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
 
   private final ClickhouseCancerStudyMapper cancerStudyMapper;

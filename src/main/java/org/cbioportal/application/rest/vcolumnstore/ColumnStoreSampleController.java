@@ -29,7 +29,6 @@ import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.sort.SampleSortBy;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/column-store")
 @Validated
-@Profile("clickhouse")
 public class ColumnStoreSampleController {
   public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
   private static final String SAMPLE_DEFAULT_PAGE_SIZE = "10000000";

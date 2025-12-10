@@ -173,9 +173,8 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     sv_event_info             String,
     patient_unique_id         String,
     off_panel                 Boolean DEFAULT FALSE
-    ) ENGINE = MergeTree
-    ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
-
+) ENGINE = MergeTree
+      ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
 
 INSERT INTO genomic_event_derived
 -- Insert Mutations
@@ -378,7 +377,6 @@ SELECT
     ifNull(ce.stop_date, 0) AS stop_date,
     ce.event_type AS event_type,
     cs.cancer_study_identifier
-
 FROM clinical_event_data ced
     RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
     INNER JOIN patient p ON ce.patient_id = p.internal_id

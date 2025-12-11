@@ -51,7 +51,7 @@ public class IndexPageController {
     String baseUrl = requestUtils.getBaseUrl(request);
     Map<String, Object> properties = new HashMap<>();
 
-    Map<String, String> originalProperties = frontendPropertiesService.getFrontendProperties();
+    Map<String, String> originalProperties = frontendPropertiesService.getFrontendProperties(authentication);
 
     for (Map.Entry<String, String> entry : originalProperties.entrySet()) {
       String value = entry.getValue();

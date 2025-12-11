@@ -406,4 +406,65 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     // Total expected results = 5
     Assert.assertEquals(5, result.size());
   }
+
+  @Test
+  public void fetchMolecularDataCountsInMultipleMolecularProfiles() {
+    // Setup test data - similar to getMolecularDataInMultipleMolecularProfiles test
+    List<GeneMolecularAlteration> molecularAlterations = new ArrayList<>();
+    GeneMolecularAlteration alteration1 = new GeneMolecularAlteration();
+    alteration1.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alteration1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alteration1.setValues("0.4181,0.4181");
+    molecularAlterations.add(alteration1);
+
+    GeneMolecularAlteration alteration2 = new GeneMolecularAlteration();
+    alteration2.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alteration2.setEntrezGeneId(ENTREZ_GENE_ID_2);
+    alteration2.setValues("0.5332,0.5332");
+    molecularAlterations.add(alteration2);
+
+    GeneMolecularAlteration alteration3 = new GeneMolecularAlteration();
+    alteration3.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
+    alteration3.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alteration3.setValues("-0.4737");
+    molecularAlterations.add(alteration3);
+
+    when(molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
+            any(), any(), any()))
+        .thenReturn(molecularAlterations);
+
+    when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(any()))
+        .thenReturn(createSampleIdMap());
+
+    List<Sample> samples = createSamples();
+    when(sampleService.getSamplesByInternalIds(any())).thenReturn(samples);
+
+    // Execute
+    List<org.cbioportal.legacy.model.MolecularDataCountItem> result =
+        molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B),
+            null,
+            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2));
+
+    // Verify
+    Assert.assertEquals(2, result.size());
+    
+    // Profile A should have 4 data points (2 samples * 2 genes)
+    org.cbioportal.legacy.model.MolecularDataCountItem profileACount =
+        result.stream()
+            .filter(item -> item.getMolecularProfileId().equals(MOLECULAR_PROFILE_ID_A))
+            .findFirst()
+            .orElse(null);
+    Assert.assertNotNull(profileACount);
+    Assert.assertEquals(Integer.valueOf(4), profileACount.getCount());
+
+    // Profile B should have 1 data point (1 sample * 1 gene)
+    org.cbioportal.legacy.model.MolecularDataCountItem profileBCount =
+        result.stream()
+            .filter(item -> item.getMolecularProfileId().equals(MOLECULAR_PROFILE_ID_B))
+            .findFirst()
+            .orElse(null);
+    Assert.assertNotNull(profileBCount);
+    Assert.assertEquals(Integer.valueOf(1), profileBCount.getCount());
+  }
 }

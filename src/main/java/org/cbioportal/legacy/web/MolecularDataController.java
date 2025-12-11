@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.legacy.model.GeneMolecularData;
+import org.cbioportal.legacy.model.MolecularDataCountItem;
 import org.cbioportal.legacy.model.NumericGeneMolecularData;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
@@ -238,6 +239,67 @@ public class MolecularDataController {
       molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
       sampleIds.add(sampleMolecularIdentifier.getSampleId());
     }
+  }
+
+  @PreAuthorize(
+      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/molecular-data/counts",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Fetch molecular data counts for multiple molecular profiles")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(
+                      schema = @Schema(implementation = MolecularDataCountItem.class))))
+  public ResponseEntity<List<MolecularDataCountItem>>
+      fetchMolecularDataCountsInMultipleMolecularProfiles(
+          @Parameter(
+                  hidden = true) // prevent reference to this attribute in the swagger-ui interface
+              @RequestAttribute(required = false, value = "involvedCancerStudies")
+              Collection<String> involvedCancerStudies,
+          @Parameter(
+                  hidden =
+                      true) // prevent reference to this attribute in the swagger-ui interface. this
+              // attribute is needed for the @PreAuthorize tag above.
+              @Valid
+              @RequestAttribute(
+                  required = false,
+                  value = "interceptedMolecularDataMultipleStudyFilter")
+              MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
+          @Parameter(
+                  required = true,
+                  description =
+                      "List of Molecular Profile ID and Sample ID pairs or List of Molecular"
+                          + " Profile IDs and Entrez Gene IDs")
+              @Valid
+              @RequestBody(required = false)
+              MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter) {
+
+    List<MolecularDataCountItem> result;
+    if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+      result =
+          molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
+              interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(),
+              null,
+              interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
+    } else {
+
+      List<String> molecularProfileIds = new ArrayList<>();
+      List<String> sampleIds = new ArrayList<>();
+      extractMolecularProfileAndSampleIds(
+          interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+      result =
+          molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
+              molecularProfileIds, sampleIds, interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
+    }
+
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   private List<NumericGeneMolecularData> filterNonNumberMolecularData(

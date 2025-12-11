@@ -379,15 +379,13 @@ jobs:
         - run:
             name: Run API Tests
             environment:
-              API_TEST_HOST: http://localhost:8080
-              BACKEND_ROOT: /tmp/repos/cbioportal
+              CBIOPORTAL_URL: http://localhost:8080
             command: |
-              cd cbioportal-frontend
+              cd cbioportal
               nvm install 15.2.1
               nvm use 15.2.1
-              npm install -g yarn@1.22.5
-              yarn --ignore-engines
-              yarn run apitests
+              npm install
+              npm run test:watch
 
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
@@ -539,12 +537,11 @@ workflows:
             requires:
               - build_frontend
               - build_web_and_data_image
-#        - run_api_tests:
-#            context:
-#              - api-tests
-#            requires:
-#              - build_web_image
-#              - pull_cbioportal_frontend_codebase
+        - run_api_tests:
+            context:
+              - api-tests
+            requires:
+              - build_web_image
         - run_security_tests:
             context:
               - docker-scout

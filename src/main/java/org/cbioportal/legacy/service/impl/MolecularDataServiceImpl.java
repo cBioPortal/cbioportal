@@ -10,6 +10,7 @@ import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GeneMolecularData;
+import org.cbioportal.legacy.model.MolecularDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.legacy.model.MolecularProfileSamples;
@@ -225,18 +226,16 @@ public class MolecularDataServiceImpl implements MolecularDataService {
       samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
     }
 
-    // query each entrezGeneId separately so they can be cached
+    // Query all requested entrez gene ids in a single call instead of per-gene queries.
+    // Doing so reduces query overhead and avoids N+1 query patterns, which are a
+    // significant performance problem when using high-latency backends such as ClickHouse.
+    if (entrezGeneIds == null || entrezGeneIds.isEmpty()) {
+      return molecularDataList;
+    }
+
     List<GeneMolecularAlteration> molecularAlterations =
-        entrezGeneIds.stream()
-            .flatMap(
-                gene ->
-                    molecularDataRepository
-                        .getGeneMolecularAlterationsInMultipleMolecularProfiles(
-                            distinctMolecularProfileIds,
-                            Collections.singletonList(gene),
-                            projection)
-                        .stream())
-            .collect(Collectors.toList());
+      molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
+        distinctMolecularProfileIds, entrezGeneIds, projection);
     Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap =
         molecularAlterations.stream()
             .collect(groupingBy(GeneMolecularAlteration::getMolecularProfileId));
@@ -314,6 +313,36 @@ public class MolecularDataServiceImpl implements MolecularDataService {
                 molecularProfileIds, sampleIds, entrezGeneIds, "ID")
             .size());
     return baseMeta;
+  }
+
+  @Override
+  @PreAuthorize(
+      "hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  public List<MolecularDataCountItem> fetchMolecularDataCountsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds) {
+
+    // Fetch molecular data with minimal projection to reduce data transfer
+    List<GeneMolecularData> molecularData =
+        getMolecularDataInMultipleMolecularProfiles(
+            molecularProfileIds, sampleIds, entrezGeneIds, "ID");
+
+    // Group by molecular profile ID and count
+    Map<String, Long> countsByProfile =
+        molecularData.stream()
+            .collect(
+                Collectors.groupingBy(
+                    GeneMolecularData::getMolecularProfileId, Collectors.counting()));
+
+    // Convert to list of MolecularDataCountItem
+    List<MolecularDataCountItem> result = new ArrayList<>();
+    for (String profileId : molecularProfileIds) {
+      MolecularDataCountItem item = new MolecularDataCountItem();
+      item.setMolecularProfileId(profileId);
+      item.setCount(countsByProfile.getOrDefault(profileId, 0L).intValue());
+      result.add(item);
+    }
+
+    return result;
   }
 
   private void validateMolecularProfile(String molecularProfileId)

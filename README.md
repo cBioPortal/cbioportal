@@ -119,7 +119,7 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 |--------------|-----------------------------------------------------------|------------------|-----------------------------|
 | **Unit**     | Test isolated logic (e.g. services, utils)                | ✅ Yes           | JUnit, Mockito              |
 | **Integration** | Test Spring components (e.g. JPA, Repositories) using real databases | 🚫 No            | Spring Boot, Failsafe       |
-| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Spring Boot, TestRestTemplate, MockMvc |
+| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Mocha, Chai, Axios |
 
 ---
 
@@ -128,14 +128,70 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 ```
 src/test/java/             → Unit tests (default)
 src/integration/java/      → Integration tests (DB, Spring context)
-src/e2e/java/              → E2E tests (REST API over HTTP)
+src/e2e/js/                → JavaScript/TypeScript E2E tests (Mocha)
 ```
+
+---
+
+### 🟨 API Tests (e2e)
+
+API tests issue real HTTP requests to an instance of the cBioPortal web app running against
+a real database based on the public portal data set.  They allow us to:
+
+1. Test business logic embedded in MyBatis mappers, which cannot be tested except against a database.
+2. Test scenarios that are very difficult to reproduce with mock data, for example studies with specific data type combinations.
+
+API tests use **Mocha** and **Chai** and are located in `src/e2e/js/`.
+
+Note: please distinguish between these tests and the soon-to-be defunct api-test job which compares clickhouse api responses
+to legacy responses. 
+
+#### Prerequisites
+
+These tests require:
+- **Node.js** (v18 or higher recommended)
+- A **running cBioPortal instance** connected to the **`cgds_public_2025_06_24`** database
+- The portal should be accessible at `http://localhost:8080` (or set `CBIOPORTAL_URL` environment variable)
+
+#### Running JavaScript E2E Tests (test api requests)
+
+```bash
+# Navigate to the JS test directory
+cd src/e2e/js
+
+# Install dependencies (first time only)
+npm install
+
+# Run npm test all tests against default server (http://localhost:8080)
+
+
+# Run tests against a custom server URL
+CBIOPORTAL_URL=http://localhost:8082 npm test
+
+# Run a specific test suite
+npm test 'test/ColumnStoreStudyController/*.spec.ts'
+
+# Run with custom URL and specific pattern
+CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreMutationController/*.spec.ts'
+```
+
+
+#### Test Structure
+
+The JavaScript E2E tests follow these conventions:
+- Each test suite lives in its own directory: `test/[TestName]/`
+- Test files are named `[TestName].spec.ts`
+- Test data JSON files are co-located with their spec files
+- All tests use Lodash for data processing with inline logic and comprehensive comments
+- TypeScript types are derived from the official cBioPortal Swagger API documentation
+
+For more information on writing JavaScript E2E tests, see `src/e2e/js/CLAUDE.md`.
 
 ---
 
 ## 🔧 Configuration via Environment Variables
 
-All integration and E2E tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
+All integration tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
 
 ### ✅ Supported Environment Variables
 
@@ -145,10 +201,10 @@ All integration and E2E tests are **configured via environment variables** for t
 | `TEST_DB_MYSQL_USERNAME`        | MySQL username                       | Integration         |
 | `TEST_DB_MYSQL_PASSWORD`        | MySQL password (🔒 required)         | Integration         |
 | `TEST_DB_MYSQL_DRIVER`          | Optional, defaults to MySQL driver   | Integration         |
-| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration & E2E |
+| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration   |
+| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration   |
+| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration   |
+| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration |
 
 > If a variable is marked as required and not set, tests will fail with a helpful error.
 
@@ -174,28 +230,6 @@ export TEST_DB_CLICKHOUSE_PASSWORD=...
 mvn verify -Pintegration-test
 ```
 
----
-
-#### ✅ Run E2E Tests
-
-```bash
-# Set required env vars
-export TEST_DB_MYSQL_PASSWORD=...
-export TEST_DB_CLICKHOUSE_PASSWORD=...
-
-mvn verify -Pe2e-test
-```
-
----
-
-#### 🔍 Test Class Inheritance
-
-All E2E tests should extend:
-
-```java
-public abstract class AbstractE2ETest { ... }
-```
-
 All integration tests (if needed) may use:
 
 ```java
@@ -216,7 +250,6 @@ These base classes:
 |------------------|-----------------------|---------------------------------|
 | *(default)*      | Unit tests only       | `mvn test`                      |
 | `integration-test` | Integration tests     | `mvn verify -Pintegration-test` |
-| `e2e-test`       | E2E tests              | `mvn verify -Pe2e-test`         |
 
 ---
 

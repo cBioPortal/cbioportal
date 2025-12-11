@@ -41,7 +41,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
             Collections.emptyList(),
@@ -71,7 +71,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
     var clinicalDataCounts =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(),
             List.of("center"),
@@ -100,7 +100,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
     var clinicalDataCounts =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(),
             List.of("dead"),
@@ -132,7 +132,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
     var combinedClinicalDataCounts =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
             List.of("center"),
@@ -147,7 +147,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(),
             List.of("age"),
@@ -171,7 +171,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB, STUDY_ACC_TCGA));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(),
             List.of("age"),
@@ -223,7 +223,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setClinicalDataFilters(List.of(filter));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
             Collections.emptyList(),
@@ -254,7 +254,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setClinicalDataFilters(List.of(filter));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
             Collections.emptyList(),
@@ -289,7 +289,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setClinicalDataFilters(List.of(filter));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"),
             Collections.emptyList(),
@@ -433,7 +433,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA, STUDY_GENIE_PUB));
 
     var clinicalDataCountItems =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(), // no sample attributes
             Collections.emptyList(), // no patient attributes
@@ -468,7 +468,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA, STUDY_GENIE_PUB));
 
     var combinedClinicalDataCounts =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of("mutation_count"), // sample attribute
             List.of("center"), // patient attribute
@@ -501,7 +501,7 @@ public class ClickhouseClinicalDataMapperTest {
     studyViewFilter.setClinicalDataFilters(List.of(filter));
 
     var filteredClinicalDataCounts =
-        mapper.getClinicalDataCounts(
+        mapper.getClinicalDataCountsByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             Collections.emptyList(),
             Collections.emptyList(),
@@ -531,13 +531,13 @@ public class ClickhouseClinicalDataMapperTest {
   }
 
   @Test
-  public void getPatientClinicalDataFromStudyViewFilter() {
+  public void getPatientClinicalDataByStudyViewFilter() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
     List<String> attributeIds = List.of("age");
 
     List<ClinicalData> data =
-        mapper.getPatientClinicalDataFromStudyViewFilter(
+        mapper.getPatientClinicalDataByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             attributeIds);
 
@@ -545,13 +545,13 @@ public class ClickhouseClinicalDataMapperTest {
   }
 
   @Test
-  public void getSampleClinicalDataFromStudyViewFilter() {
+  public void getSampleClinicalDataByStudyViewFilter() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
     List<String> attributeIds = List.of("mutation_count");
 
     List<ClinicalData> data =
-        mapper.getSampleClinicalDataFromStudyViewFilter(
+        mapper.getSampleClinicalDataByStudyViewFilter(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             attributeIds);
 

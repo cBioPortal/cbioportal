@@ -525,13 +525,13 @@ workflows:
               - pull_cbioportal_test_codebase
         - push_web_image:
             context:
-              - api-tests
+              - dockerhub-auth
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_and_data_image:
             context:
-              - api-tests
+              - dockerhub-auth
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase

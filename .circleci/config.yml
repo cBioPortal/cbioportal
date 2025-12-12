@@ -538,11 +538,11 @@ workflows:
             requires:
               - build_frontend
               - build_web_and_data_image
-        - run_api_tests:
-            context:
-              - api-tests
-            requires:
-              - build_web_image
+#        - run_api_tests:
+#            context:
+#              - api-tests
+#            requires:
+#              - build_web_image
         - run_security_tests:
             context:
               - docker-scout

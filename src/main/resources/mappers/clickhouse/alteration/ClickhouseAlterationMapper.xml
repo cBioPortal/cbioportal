@@ -73,6 +73,8 @@
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
             />
+            <include refid="whereCustomAnnotations" />
+            <include refid="whereMutationStatus" />
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
     </select>

@@ -75,6 +75,7 @@
             />
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before

@@ -103,7 +103,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalDataRepository.getAllClinicalDataInStudy(
         studyId,
@@ -120,7 +120,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
   public BaseMeta getMetaAllClinicalData(
       String studyId, String attributeId, String clinicalDataType) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalDataRepository.getMetaAllClinicalData(studyId, attributeId, clinicalDataType);
   }
@@ -134,7 +134,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
       String projection)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalDataRepository.fetchAllClinicalDataInStudy(
         studyId, ids, attributeIds, clinicalDataType, projection);
@@ -145,7 +145,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
       String studyId, List<String> ids, List<String> attributeIds, String clinicalDataType)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalDataRepository.fetchMetaClinicalDataInStudy(
         studyId, ids, attributeIds, clinicalDataType);

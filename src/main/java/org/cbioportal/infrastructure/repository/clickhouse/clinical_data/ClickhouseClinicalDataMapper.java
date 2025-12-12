@@ -59,7 +59,10 @@ public interface ClickhouseClinicalDataMapper {
    * @return list of clinical data records with minimal field set
    */
   List<ClinicalData> fetchClinicalDataId(
-      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      String clinicalDataType);
 
   /**
    * Retrieves clinical data with SUMMARY projection (basic data with values).
@@ -73,7 +76,10 @@ public interface ClickhouseClinicalDataMapper {
    * @return list of clinical data records with basic field set including values
    */
   List<ClinicalData> fetchClinicalDataSummary(
-      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      String clinicalDataType);
 
   /**
    * Retrieves clinical data with DETAILED projection (complete data set).
@@ -88,7 +94,10 @@ public interface ClickhouseClinicalDataMapper {
    * @return list of clinical data records with complete field set including attribute metadata
    */
   List<ClinicalData> fetchClinicalDataDetailed(
-      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      String clinicalDataType);
 
   /**
    * Retrieves the count of clinical data records matching the specified criteria.
@@ -103,5 +112,8 @@ public interface ClickhouseClinicalDataMapper {
    * @return total number of clinical data records matching the criteria
    */
   Integer fetchClinicalDataMeta(
-      List<String> uniqueIds, List<String> attributeIds, String clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      String clinicalDataType);
 }

@@ -21,7 +21,7 @@ public class ResourceDefinitionServiceImpl implements ResourceDefinitionService 
   public ResourceDefinition getResourceDefinition(String studyId, String resourceId)
       throws ResourceDefinitionNotFoundException, StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     ResourceDefinition resourceDefinition =
         resourceDefinitionRepository.getResourceDefinition(studyId, resourceId);
@@ -43,7 +43,7 @@ public class ResourceDefinitionServiceImpl implements ResourceDefinitionService 
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return resourceDefinitionRepository.fetchResourceDefinitions(
         Collections.singletonList(studyId), projection, pageSize, pageNumber, sortBy, direction);

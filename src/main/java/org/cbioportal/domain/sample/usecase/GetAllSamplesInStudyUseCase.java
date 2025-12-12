@@ -28,7 +28,7 @@ public class GetAllSamplesInStudyUseCase {
       String sortBy,
       String direction)
       throws StudyNotFoundException {
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return sampleRepository.getAllSamplesInStudy(
         studyId, projection, pageSize, pageNumber, sortBy, direction);

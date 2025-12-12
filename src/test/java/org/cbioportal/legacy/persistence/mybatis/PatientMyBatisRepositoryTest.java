@@ -3,21 +3,31 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {PatientMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, PatientMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class PatientMyBatisRepositoryTest {
 
   @Autowired private PatientMyBatisRepository patientMyBatisRepository;
@@ -27,6 +37,7 @@ public class PatientMyBatisRepositoryTest {
 
     List<Patient> result =
         patientMyBatisRepository.getAllPatients(null, "ID", null, null, null, null);
+    result = sortedResult(result);
 
     Assert.assertEquals(18, result.size());
     Patient patient = result.get(0);
@@ -73,7 +84,7 @@ public class PatientMyBatisRepositoryTest {
 
     List<Patient> result =
         patientMyBatisRepository.getAllPatientsInStudy(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "internalId", "ASC");
 
     Assert.assertEquals(14, result.size());
     Patient patient = result.get(0);
@@ -89,7 +100,7 @@ public class PatientMyBatisRepositoryTest {
 
     List<Patient> result =
         patientMyBatisRepository.getAllPatientsInStudy(
-            "study_tcga_pub", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "DETAILED", null, null, "internalId", "ASC");
 
     Assert.assertEquals(14, result.size());
     Patient patient = result.get(0);
@@ -103,9 +114,9 @@ public class PatientMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -172,9 +183,9 @@ public class PatientMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -227,5 +238,9 @@ public class PatientMyBatisRepositoryTest {
     List<String> stableIds = result.stream().map(r -> r.getStableId()).collect(Collectors.toList());
     Assert.assertTrue(stableIds.contains("TCGA-A1-A0SD"));
     Assert.assertTrue(stableIds.contains("TCGA-A1-A0SB"));
+  }
+
+  private List<Patient> sortedResult(List<Patient> result) {
+    return result.stream().sorted(Comparator.comparing(Patient::getInternalId)).toList();
   }
 }

@@ -16,14 +16,14 @@ import org.springframework.core.io.ResourceLoader;
 @MapperScan(value = "org.cbioportal.legacy.persistence.mybatis")
 public class MyBatisLegacyConfig {
   @Bean
-  @ConfigurationProperties("spring.datasource.clickhouse")
-  public DataSourceProperties clickhouseDatSourceProperties() {
+  @ConfigurationProperties("spring.datasource")
+  public DataSourceProperties dataSourceProperties() {
     return new DataSourceProperties();
   }
 
   @Bean
   public DataSource dataSource() {
-    return clickhouseDatSourceProperties().initializeDataSourceBuilder().build();
+    return dataSourceProperties().initializeDataSourceBuilder().build();
   }
 
   @Bean

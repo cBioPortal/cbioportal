@@ -20,12 +20,10 @@ import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DataBinner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Deprecated(forRemoval = true)
 @Component
-@Profile("clickhouse")
 public class ClinicalDataBinner {
   private final StudyViewService studyViewService;
   private final DataBinner dataBinner;

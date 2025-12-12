@@ -39,10 +39,10 @@ public abstract class AbstractLegacyTestcontainers {
       clickhouseContainer.start();
       TestPropertyValues values =
           TestPropertyValues.of(
-              "spring.datasource.clickhouse.url=" + clickhouseContainer.getJdbcUrl(),
-              "spring.datasource.clickhouse.password=" + clickhouseContainer.getPassword(),
-              "spring.datasource.clickhouse.username=" + clickhouseContainer.getUsername(),
-              "spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver");
+              "spring.datasource.url=" + clickhouseContainer.getJdbcUrl(),
+              "spring.datasource.password=" + clickhouseContainer.getPassword(),
+              "spring.datasource.username=" + clickhouseContainer.getUsername(),
+              "spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver");
       values.applyTo(configurableApplicationContext);
     }
   }

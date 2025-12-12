@@ -1,10 +1,8 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A record representing a collection of use cases related to generic assay data operations. This
  * record encapsulates instances of various use case classes, providing a centralized way to access

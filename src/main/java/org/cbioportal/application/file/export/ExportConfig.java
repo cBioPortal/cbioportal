@@ -230,13 +230,13 @@ public class ExportConfig implements WebMvcConfigurer {
   }
 
   @Bean
-  public DataSource exportDataSource(DataSourceProperties mysqlDataSourceProperties) {
+  public DataSource exportDataSource(DataSourceProperties dataSourceProperties) {
     HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(mysqlDataSourceProperties.getUrl());
-    hikariConfig.setUsername(mysqlDataSourceProperties.getUsername());
-    hikariConfig.setPassword(mysqlDataSourceProperties.getPassword());
+    hikariConfig.setJdbcUrl(dataSourceProperties.getUrl());
+    hikariConfig.setUsername(dataSourceProperties.getUsername());
+    hikariConfig.setPassword(dataSourceProperties.getPassword());
 
-    // Set MySQL streaming properties
+    // Set streaming properties for data export
     Properties dsProperties = new Properties();
     dsProperties.setProperty("useCursorFetch", "true");
     dsProperties.setProperty("defaultFetchSize", "1000");

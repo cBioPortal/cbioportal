@@ -5,11 +5,9 @@ import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.domain.mutation.util.MutationUtil;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 
 /**
  * Use case for retrieving aggregated mutation metadata.

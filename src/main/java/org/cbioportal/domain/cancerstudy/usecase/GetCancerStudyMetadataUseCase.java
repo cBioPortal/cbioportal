@@ -9,6 +9,7 @@ import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,9 @@ public class GetCancerStudyMetadataUseCase {
    */
   @PostFilter(
       "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<CancerStudyMetadata> execute(
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
     List<ResourceCount> resourceCounts = getResourceCountsForAllStudies(projectionType);

@@ -99,7 +99,7 @@
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
     <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <tomcat.version>10.1.44</tomcat.version>
+    <tomcat.version>10.1.45</tomcat.version>
     <velocity.version>2.4</velocity.version>
 
     <!-- No sure what these are for -->

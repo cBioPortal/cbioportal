@@ -8,6 +8,19 @@ If you would like to know how to setup a private instance of the portal and/or g
 
 If you are interested in coordinating the development of new features, please contact <cbioportal@cbioportal.org> or reach out on <https://slack.cbioportal.org>.
 
+## Branching and Release Strategy
+
+cBioPortal is currently preparing for **v7**. The branching and release strategy has been updated as follows:
+
+- **`master` branch** is now the **pre-release branch for v7**. Pull requests targeting v7 should be opened against `master`.
+- **v7** introduces a **ClickHouse-only database**. This new database setup **is not compatible** with earlier portal settings, the traditional MySQL mode, or existing study importer tools.
+- To support existing deployments of v6, we have created a **`maintenance-v6` branch**:
+    - Only **important security fixes** will be merged into `maintenance-v6`.
+    - **No new bug fixes or feature development** will be done on v6.
+    - Users still running v6 should continue to track `maintenance-v6` for necessary security updates.
+
+See more details at [Versioning-and-Upgrades.md](docs/Versioning-and-Upgrades.md)
+
 ## 📘 Documentation
 
 See [https://docs.cbioportal.org](https://docs.cbioportal.org)
@@ -24,9 +37,10 @@ cBioPortal consists of several components, please read the [Architecture docs](h
 
 This section provides a summary. For Quick Start instructions, or for more additional information, please see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/)
 
-#### What MySQL database to use
+#### What database to use
 
-We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on <https://cbioportal.org> that one can connect to directly. Please reach out on slack to get the credentials.
+- **v7 (master)**: Uses **ClickHouse** as the sole database backend. cBioPortal production are using [ClickHouse Cloud](https://clickhouse.com/cloud)
+- **v6 (maintenance-v6)**: Continues to use the legacy MySQL database backend. We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on <https://cbioportal.org> that one can connect to directly. Please reach out on slack to get the credentials.
 
 #### Deploy your development image inside Docker Compose
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.cbioportal.legacy.model.ClinicalAttribute;
+import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 
 public abstract class ClinicalAttributeUtil {
   private ClinicalAttributeUtil() {}
@@ -22,7 +22,7 @@ public abstract class ClinicalAttributeUtil {
 
     // Group attributes by attribute ID
     Map<String, List<ClinicalAttribute>> clinicalAttributesById =
-        clinicalAttributes.stream().collect(Collectors.groupingBy(ClinicalAttribute::getAttrId));
+        clinicalAttributes.stream().collect(Collectors.groupingBy(ClinicalAttribute::attrId));
 
     Set<String> sampleAttributeIds = new HashSet<>();
     Set<String> patientAttributeIds = new HashSet<>();
@@ -37,7 +37,7 @@ public abstract class ClinicalAttributeUtil {
       boolean isPatientAttribute = false;
 
       for (ClinicalAttribute attribute : attributes) {
-        if (Boolean.TRUE.equals(attribute.getPatientAttribute())) {
+        if (Boolean.TRUE.equals(attribute.patientAttribute())) {
           isPatientAttribute = true;
         } else {
           isSampleAttribute = true;

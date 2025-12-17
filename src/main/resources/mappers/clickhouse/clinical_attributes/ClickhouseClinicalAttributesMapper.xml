@@ -4,30 +4,74 @@
 <mapper
         namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_attributes.ClickhouseClinicalAttributesMapper">
 
-    <select id="getClinicalAttributesForStudies" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
+    <select id="getClinicalAttributesForStudies" resultMap="clinicalAttributeIdResultMap">
         SELECT
-        attr_id as attrId,
-        datatype as dataType,
-        patient_attribute as patientAttribute,
-        cs.cancer_study_identifier cancerStudyIdentifier
-        FROM clinical_attribute_meta cammo
-        JOIN cancer_study cs on cs.cancer_study_id = cammo.cancer_study_id
+        cam.attr_id as attrId,
+        cam.datatype as datatype,
+        cam.patient_attribute as patientAttribute,
+        cs.cancer_study_identifier as cancerStudyIdentifier
+        FROM clinical_attribute_meta cam
+            JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
         <where>
-            cancerStudyIdentifier IN
+            cs.cancer_study_identifier IN
             <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
         </where>
-
     </select>
 
-    <select id="getClinicalAttributes" resultType="org.cbioportal.legacy.model.ClinicalAttribute">
+    <select id="getClinicalAttributesForStudiesDetailed" resultMap="clinicalAttributeDetailedResultMap">
         SELECT
-            attr_id as attrId,
-            datatype as dataType,
-            patient_attribute as patientAttribute,
-            cs.cancer_study_identifier cancerStudyIdentifier
+        cam.attr_id as attrId,
+        cam.display_name as displayName,
+        cam.description as description,
+        cam.datatype as datatype,
+        cam.patient_attribute as patientAttribute,
+        cam.priority as priority,
+        cam.cancer_study_id as cancerStudyId,
+        cs.cancer_study_identifier as cancerStudyIdentifier
         FROM clinical_attribute_meta cam
-                 JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
+            JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
+        <where>
+            cs.cancer_study_identifier IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </where>
     </select>
+
+    <select id="getClinicalAttributes" resultMap="clinicalAttributeIdResultMap">
+        SELECT
+            cam.attr_id as attrId,
+            cam.datatype as datatype,
+            cam.patient_attribute as patientAttribute,
+            cs.cancer_study_identifier as cancerStudyIdentifier
+        FROM clinical_attribute_meta cam
+            JOIN cancer_study cs on cs.cancer_study_id = cam.cancer_study_id
+    </select>
+
+    <!-- Result map for domain ClinicalAttribute record - ID projection -->
+    <resultMap id="clinicalAttributeIdResultMap" type="org.cbioportal.domain.clinical_attributes.ClinicalAttribute">
+        <constructor>
+            <arg name="attrId" column="attrId" javaType="String" />
+            <arg name="datatype" column="datatype" javaType="String" />
+            <arg name="patientAttribute" column="patientAttribute" javaType="Boolean" />
+            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
+        </constructor>
+    </resultMap>
+
+    <!-- Result map for domain ClinicalAttribute record - DETAILED projection -->
+    <resultMap id="clinicalAttributeDetailedResultMap" type="org.cbioportal.domain.clinical_attributes.ClinicalAttribute">
+        <constructor>
+            <arg name="attrId" column="attrId" javaType="String" />
+            <arg name="displayName" column="displayName" javaType="String" />
+            <arg name="description" column="description" javaType="String" />
+            <arg name="datatype" column="datatype" javaType="String" />
+            <arg name="patientAttribute" column="patientAttribute" javaType="Boolean" />
+            <arg name="priority" column="priority" javaType="String" />
+            <arg name="cancerStudyId" column="cancerStudyId" javaType="Integer" />
+            <arg name="cancerStudyIdentifier" column="cancerStudyIdentifier" javaType="String" />
+        </constructor>
+    </resultMap>
+
 </mapper>

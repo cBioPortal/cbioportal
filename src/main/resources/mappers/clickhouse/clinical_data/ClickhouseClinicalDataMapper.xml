@@ -3,7 +3,7 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper">
 
-    <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
+    <select id="getSampleClinicalDataByStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
         internal_id as internalId,
         replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
@@ -24,7 +24,7 @@
         AND type = 'sample'
     </select>
 
-    <select id="getPatientClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
+    <select id="getPatientClinicalDataByStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
         internal_id as internalId,
         replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
@@ -77,6 +77,90 @@
         FROM clinical_data_derived cd
         <include refid="fetchClinicalDataWhereClause" />
     </select>
+
+    <select id="fetchClinicalDataSummaryForEnrichments" resultMap="clinicalDataSummaryResultMap">
+        <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
+            <include refid="fetchClinicalDataSummaryQuery">
+                <property name="type" value="sample"/>
+                <property name="attributeIds" value="sampleAttributeIds"/>
+                <property name="uniqueIds" value="sampleUniqueIds"/>
+                <property name="isConflicting" value="false"/>
+            </include>
+        </if>
+
+        <if test="patientAttributeIds != null and !patientAttributeIds.isEmpty()">
+            <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">UNION ALL</if>
+            <include refid="fetchClinicalDataSummaryQuery">
+                <property name="type" value="patient"/>
+                <property name="attributeIds" value="patientAttributeIds"/>
+                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="isConflicting" value="false"/>
+            </include>
+        </if>
+
+        <if test="conflictingAttributeIds != null and !conflictingAttributeIds.isEmpty()">
+            <if test="(sampleAttributeIds != null and !sampleAttributeIds.isEmpty()) or (patientAttributeIds != null and !patientAttributeIds.isEmpty())">
+                UNION ALL
+            </if>
+            <include refid="fetchClinicalDataSummaryQuery">
+                <property name="type" value="patient"/>
+                <property name="attributeIds" value="conflictingAttributeIds"/>
+                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="isConflicting" value="true"/>
+            </include>
+        </if>
+    </select>
+
+    <sql id="fetchClinicalDataSummaryQuery">
+        SELECT
+            cd.internal_id as internalId,
+            <choose>
+                <when test="'${type}' == 'sample' or '${isConflicting}' == 'true'">
+                    replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
+                </when>
+                <otherwise>
+                    NULL as sampleId,
+                </otherwise>
+            </choose>
+            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
+            cd.cancer_study_identifier as studyId,
+            cd.attribute_name as attrId,
+            cd.attribute_value as attrValue
+        FROM clinical_data_derived cd
+        <if test="'${isConflicting}' == 'true'">
+            <!-- For conflicting attributes, join patient data with sample table to get sample IDs -->
+            INNER JOIN sample_derived sd ON cd.patient_unique_id = sd.patient_unique_id
+        </if>
+        WHERE cd.type = '${type}'
+        <if test="${uniqueIds} != null and !${uniqueIds}.isEmpty()">
+            AND
+            <choose>
+                <when test="'${type}' == 'sample' or '${isConflicting}' == 'true'">
+                    <choose>
+                        <when test="'${isConflicting}' == 'true'">
+                            sd.sample_unique_id
+                        </when>
+                        <otherwise>
+                            cd.sample_unique_id
+                        </otherwise>
+                    </choose>
+                </when>
+                <otherwise>
+                    cd.patient_unique_id
+                </otherwise>
+            </choose>
+            IN
+            <foreach item="uniqueId" collection="${uniqueIds}" open="(" separator="," close=")">
+                #{uniqueId}
+            </foreach>
+        </if>
+        <if test="${attributeIds} != null and !${attributeIds}.isEmpty()">
+            AND cd.attribute_name IN
+            <foreach item="attributeId" collection="${attributeIds}" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+        </if>
+    </sql>
 
     <select id="fetchClinicalDataDetailed" resultMap="clinicalDataDetailedResultMap">
         SELECT
@@ -157,9 +241,9 @@
     </select>
 
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
-    <select id="getClinicalDataCounts" resultMap="ClinicalDataCountItemResultMap">
+    <select id="getClinicalDataCountsByStudyViewFilter" resultMap="ClinicalDataCountItemResultMap">
         <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
-            <include refid="getClinicalDataCountsQuery">
+            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
                 <property name="type" value="sample"/>
                 <property name="attributeIds" value="sampleAttributeIds"/>
                 <property name="isConflicting" value="false"/>
@@ -168,7 +252,7 @@
 
         <if test="patientAttributeIds != null and !patientAttributeIds.isEmpty()">
             <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">UNION ALL</if>
-            <include refid="getClinicalDataCountsQuery">
+            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
                 <property name="type" value="patient"/>
                 <property name="attributeIds" value="patientAttributeIds"/>
                 <property name="isConflicting" value="false"/>
@@ -179,7 +263,7 @@
             <if test="(sampleAttributeIds != null and !sampleAttributeIds.isEmpty()) or (patientAttributeIds != null and !patientAttributeIds.isEmpty())">
                 UNION ALL
             </if>
-            <include refid="getClinicalDataCountsQuery">
+            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
                 <property name="type" value="patient"/>
                 <property name="attributeIds" value="conflictingAttributeIds"/>
                 <property name="isConflicting" value="true"/>
@@ -187,7 +271,7 @@
         </if>
     </select>
 
-    <sql id="getClinicalDataCountsQuery">
+    <sql id="getClinicalDataCountsQueryByStudyViewFilter">
         (
         WITH clinical_data_query AS (
         SELECT
@@ -244,6 +328,95 @@
             count > 0
         </where>
         )
+    </sql>
+
+    <select id="getClinicalDataCountsForEnrichments" resultMap="ClinicalDataCountItemResultMap">
+        <!-- Pre-calculate list sizes to avoid MyBatis reflection issues -->
+        <bind name="sampleUniqueIdsSize" value="sampleUniqueIds == null ? 0 : sampleUniqueIds.size()" />
+        <bind name="patientUniqueIdsSize" value="patientUniqueIds == null ? 0 : patientUniqueIds.size()" />
+
+        <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
+            <include refid="getClinicalDataCountsQueryForEnrichments">
+                <property name="type" value="sample"/>
+                <property name="attributeIds" value="sampleAttributeIds"/>
+                <property name="uniqueIds" value="sampleUniqueIds"/>
+                <property name="isConflicting" value="false"/>
+            </include>
+        </if>
+
+        <if test="patientAttributeIds != null and !patientAttributeIds.isEmpty()">
+            <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">UNION ALL</if>
+            <include refid="getClinicalDataCountsQueryForEnrichments">
+                <property name="type" value="patient"/>
+                <property name="attributeIds" value="patientAttributeIds"/>
+                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="isConflicting" value="false"/>
+            </include>
+        </if>
+
+        <if test="conflictingAttributeIds != null and !conflictingAttributeIds.isEmpty()">
+            <if test="(sampleAttributeIds != null and !sampleAttributeIds.isEmpty()) or (patientAttributeIds != null and !patientAttributeIds.isEmpty())">
+                UNION ALL
+            </if>
+            <include refid="getClinicalDataCountsQueryForEnrichments">
+                <property name="type" value="patient"/>
+                <property name="attributeIds" value="conflictingAttributeIds"/>
+                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="isConflicting" value="true"/>
+            </include>
+        </if>
+    </select>
+
+    <sql id="getClinicalDataCountsQueryForEnrichments">
+        SELECT
+            attribute_name AS attributeId,
+            lowerUTF8(attribute_value) AS value,
+            cast(count(*) AS INTEGER) as count
+        FROM clinical_data_derived cdd
+            <if test="'${isConflicting}' == 'true'">
+                <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
+                LEFT JOIN sample_derived sd ON cdd.patient_unique_id = sd.patient_unique_id
+            </if>
+        WHERE
+            <!-- Filter NA values -->
+            NOT (
+                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.isAttributeValueNA">
+                    <property name="attribute_value" value="attribute_value"/>
+                </include>
+            )
+            <!-- Filter by unique IDs based on data type -->
+            <if test="${uniqueIds} != null and !${uniqueIds}.isEmpty()">
+                AND
+                <choose>
+                    <when test="'${type}' == 'sample' or '${isConflicting}' == 'true'">
+                        <!-- For sample attributes or conflicting attributes (mapped to sample level) -->
+                        <choose>
+                            <when test="'${isConflicting}' == 'true'">
+                                sd.sample_unique_id
+                            </when>
+                            <otherwise>
+                                cdd.sample_unique_id
+                            </otherwise>
+                        </choose>
+                    </when>
+                    <otherwise>
+                        <!-- For patient attributes -->
+                        cdd.patient_unique_id
+                    </otherwise>
+                </choose>
+                IN
+                <foreach item="uniqueId" collection="${uniqueIds}" open="(" separator="," close=")">
+                    #{uniqueId}
+                </foreach>
+            </if>
+            <!-- Filter by attribute IDs -->
+            AND attribute_name IN
+            <foreach item="attributeId" collection="${attributeIds}" open="(" separator="," close=")">
+                #{attributeId}
+            </foreach>
+            <!-- Filter by data type -->
+            AND cdd.type = '${type}'
+        GROUP BY attribute_name, value
     </sql>
 
     <resultMap id="ClinicalDataCountItemResultMap" type="org.cbioportal.legacy.model.ClinicalDataCountItem">

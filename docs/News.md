@@ -1,3 +1,7 @@
+## November 7, 2025
+*   **New Feature:** The Data type filter on the [home page](https://www.cbioportal.org/) now has options to filter studies by imaging data.
+![image](https://github.com/user-attachments/assets/6b751179-8224-46d8-9b61-5230a0a91185)
+
 ## Oct 31, 2025
 *   **Added data** consisting of 9,749 samples from 13 studies:
     * [Mixed Tumors - MiMSI Cohort (MSK, Nat Commun 2024)](https://www.cbioportal.org/study/summary?id=pancan_mimsi_msk_2024) *5033 samples*

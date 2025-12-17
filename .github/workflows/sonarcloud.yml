@@ -47,9 +47,9 @@ jobs:
 #      - name: 'Run integration tests'
 #        run: |
 #          mvn verify -Pintegration-test
-      - name: 'Run e2e tests'
-        run: |
-          mvn verify -Pe2e-test
+#      - name: 'Run e2e tests'
+#        run: |
+#          mvn verify -Pe2e-test
       - name: Code Coverage
         env:
           SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763

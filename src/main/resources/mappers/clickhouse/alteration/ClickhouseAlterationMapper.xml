@@ -29,6 +29,7 @@
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
@@ -55,6 +56,7 @@
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <select

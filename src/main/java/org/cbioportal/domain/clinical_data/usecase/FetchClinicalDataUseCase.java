@@ -9,7 +9,6 @@ import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
  * @see FetchClinicalDataMetaUseCase
  */
 @Service
-@Profile("clickhouse")
 public class FetchClinicalDataUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;

@@ -4,11 +4,9 @@ import java.util.List;
 import org.cbioportal.domain.patient.repository.PatientRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.CaseListDataCount;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhousePatientRepository implements PatientRepository {
 
   private final ClickhousePatientMapper mapper;

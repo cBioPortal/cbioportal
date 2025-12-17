@@ -5,11 +5,9 @@ import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetSampleInStudyUseCase {
   private final StudyService studyService;
   private final SampleRepository sampleRepository;

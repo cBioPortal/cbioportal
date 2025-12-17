@@ -4,11 +4,9 @@ import java.util.List;
 import org.cbioportal.domain.clinical_event.repository.ClinicalEventRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving counts of different clinical event types. This class interacts with the
  * {@link ClinicalEventRepository} to fetch the required data.

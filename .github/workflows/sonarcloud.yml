@@ -3,15 +3,13 @@ on:
   push:
     branches:
       - master
-  pull_request_target:
+      - maintenance-v6
+  pull_request:
     types: [opened, synchronize, reopened]
 jobs:
   build:
     name: sonarcloud
     runs-on: ubuntu-latest
-    env:
-      TEST_DB_CLICKHOUSE_PASSWORD: ${{ secrets.TEST_DB_CLICKHOUSE_PASSWORD }}
-      TEST_DB_MYSQL_PASSWORD: ${{ secrets.TEST_DB_MYSQL_PASSWORD }}
     steps:
       - uses: actions/checkout@v2
         with:

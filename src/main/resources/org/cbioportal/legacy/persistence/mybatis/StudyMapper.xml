@@ -160,8 +160,8 @@
             ORDER BY cancer_study.cancer_study_identifier ASC
         </if>
         <if test="keyword != null">
-            ORDER BY CASE WHEN cancer_study.name LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
-            CASE WHEN cancer_study.name LIKE '%tcga%' THEN 0 ELSE 1 END, cancer_study.name
+            ORDER BY CASE WHEN ANY_VALUE(cancer_study.name) LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END,
+            CASE WHEN ANY_VALUE(cancer_study.name) LIKE '%tcga%' THEN 0 ELSE 1 END, ANY_VALUE(cancer_study.name)
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

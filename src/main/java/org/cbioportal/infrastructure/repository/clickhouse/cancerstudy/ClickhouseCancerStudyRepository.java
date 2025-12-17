@@ -6,6 +6,7 @@ import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -35,6 +36,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
    * @return a list of {@link CancerStudyMetadata} containing detailed metadata for each study
    */
   @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<CancerStudyMetadata> getCancerStudiesMetadata(
       SortAndSearchCriteria sortAndSearchCriteria) {
     return cancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
@@ -49,6 +53,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
    * @return a list of {@link CancerStudyMetadata} containing summarized metadata for each study
    */
   @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<CancerStudyMetadata> getCancerStudiesMetadataSummary(
       SortAndSearchCriteria sortAndSearchCriteria) {
     return cancerStudyMapper.getCancerStudiesMetadataSummary(sortAndSearchCriteria, List.of());
@@ -59,11 +66,17 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
    * @return
    */
   @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
     return cancerStudyMapper.getFilteredStudyIds(studyViewFilterContext);
   }
 
   @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<ResourceCount> getResourceCountsForAllStudies() {
     return cancerStudyMapper.getResourceCountsForAllStudies();
   }

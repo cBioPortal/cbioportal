@@ -1,5 +1,7 @@
 package org.cbioportal.domain.cancerstudy;
 
+import java.io.Serializable;
+
 public record ResourceCount(
     String resourceId,
     String displayName,
@@ -10,4 +12,5 @@ public record ResourceCount(
     String cancerStudyIdentifier,
     String customMetaData,
     Integer sampleCount,
-    Integer patientCount) {}
+    Integer patientCount)
+    implements Serializable {}

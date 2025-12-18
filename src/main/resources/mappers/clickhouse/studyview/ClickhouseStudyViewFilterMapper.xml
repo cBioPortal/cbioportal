@@ -190,8 +190,15 @@
                     ced.cancer_study_identifier AS cancer_study_identifier
                 FROM clinical_event_derived ced
                 <where>
-                    key = 'SAMPLE_ID'
-                    AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                    <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                        cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                        AND
+                    </if>
+                    (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                    AND key = 'SAMPLE_ID'
                 </where>
                 GROUP BY patient_unique_id, ced.value, cancer_study_identifier
             ) ced
@@ -202,8 +209,16 @@
                     value AS treatment,
                     argMin(start_date, start_date) AS treatment_time_taken
                 FROM clinical_event_derived
-                WHERE lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                WHERE
+                    <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                        cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                        AND
+                    </if>
+                    lower(event_type) = 'treatment'
+                    AND key = 'AGENT'
                 GROUP BY patient_unique_id, value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
@@ -232,7 +247,14 @@
             SELECT patient_unique_id
             FROM clinical_event_derived
                 <where>
-                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" close=")">
+                    <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                        cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                        AND
+                    </if>
+                    <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="((" separator=") OR (" close="))">
                         event_type = #{dataFilterValue.value}
                     </foreach>
                 </where>
@@ -250,9 +272,19 @@
             SELECT patient_unique_id
             FROM clinical_event_derived
                 <where>
-                    <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
-                         separator=") OR ("
-                         close=")">    lower(event_type) = 'treatment'
+                    <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                        cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                        AND
+                    </if>
+                    <foreach 
+                        item="patientTreatmentFilter"
+                        collection="andedPatientTreatmentFilters.getFilters()"
+                        open="((" separator=") OR (" close="))"
+                    >
+                        lower(event_type) = 'treatment'
                         AND key = 'AGENT'
                         AND value = #{patientTreatmentFilter.treatment}
                     </foreach>

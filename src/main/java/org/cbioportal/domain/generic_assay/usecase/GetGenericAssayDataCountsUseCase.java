@@ -5,11 +5,9 @@ import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A use case class responsible for retrieving counts of generic assay data based on the provided
  * filters. This class acts as an intermediary between the application logic and the data

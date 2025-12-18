@@ -3,11 +3,9 @@ package org.cbioportal.domain.treatment.usecase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.domain.treatment.repository.TreatmentRepository;
 import org.cbioportal.legacy.model.PatientTreatmentReport;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetPatientTreatmentReportUseCase {
   private final TreatmentRepository treatmentRepository;
 

@@ -26,9 +26,11 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.model.StructuralVariantFilterQuery;
@@ -36,27 +38,33 @@ import org.cbioportal.legacy.model.StructuralVariantGeneSubQuery;
 import org.cbioportal.legacy.model.StructuralVariantQuery;
 import org.cbioportal.legacy.model.StructuralVariantSpecialValue;
 import org.cbioportal.legacy.model.util.Select;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      StructuralVariantMyBatisRepository.class,
-      StructuralVariantMapper.class,
-      MolecularProfileCaseIdentifierUtil.class,
-      TestConfig.class
-    })
+@Import({
+  MyBatisLegacyConfig.class,
+  StructuralVariantMyBatisRepository.class,
+  MolecularProfileCaseIdentifierUtil.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class StructuralVariantMyBatisRepositoryTest {
 
-  //    struct var events in testSql.sql
+  //    struct var events in clickhouse_data_legacy.sql
   //        SAMPLE_ID,        ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, GENETIC
   // PRODFILE, TYPE, MUTATION_TYPE, DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
   //        1     27436-238   EML4-ALK    7   study_tcga_pub_sv   SV          Fusion
@@ -429,6 +437,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     List<StructuralVariant> result =
         structuralVariantMyBatisRepository.fetchStructuralVariants(
             molecularProfileIds, sampleIds, entrezGeneIds, noStructVars);
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     StructuralVariant structuralVariantFirstResult = result.get(0);
@@ -1004,5 +1013,9 @@ public class StructuralVariantMyBatisRepositoryTest {
             molecularProfileIds, sampleIds, Arrays.asList(structVarFilterQueryNullGene2));
 
     Assert.assertEquals(1, result.size());
+  }
+
+  private List<StructuralVariant> sortedResult(List<StructuralVariant> result) {
+    return result.stream().sorted(Comparator.comparing(StructuralVariant::getStudyId)).toList();
   }
 }

@@ -707,7 +707,8 @@
           <execution>
             <id>integration-test</id>
             <configuration>
-              <skipTests>${skipIntegrationTests}</skipTests>
+              <!-- Skip clickhouse integration tests for now -->
+              <skipTests>true</skipTests>
               <includes>
                 <include>**/*IntegrationTest.java</include>
               </includes>

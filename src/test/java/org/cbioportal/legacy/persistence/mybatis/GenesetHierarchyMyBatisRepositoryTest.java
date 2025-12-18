@@ -1,19 +1,29 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Geneset;
 import org.cbioportal.legacy.model.GenesetHierarchyInfo;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {GenesetHierarchyMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, GenesetHierarchyMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class GenesetHierarchyMyBatisRepositoryTest {
 
   @Autowired private GenesetHierarchyMyBatisRepository genesetHierarchyMyBatisRepository;
@@ -29,6 +39,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> result =
         genesetHierarchyMyBatisRepository.getGenesetHierarchySuperNodes(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    result = sortedResult(result);
     // Expect Root node, Sub node A, Sub node B
     Assert.assertEquals(3, result.size());
     // ordered by parentNodeName, nodeName, so Root node and then Sub node A and B:
@@ -46,6 +57,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> result =
         genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    result = sortedResult(result);
     // Expect parent node 1, parent node 2
     Assert.assertEquals(2, result.size());
     // ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -66,6 +78,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     List<GenesetHierarchyInfo> nodes =
         genesetHierarchyMyBatisRepository.getGenesetHierarchyParents(
             Arrays.asList("MORF_ATRX", "HINATA_NFKB_MATRIX"));
+    nodes = sortedResult(nodes);
     // Expect parent node 1, parent node 2
     Assert.assertEquals(2, nodes.size());
     // ordered by parentNodeName, nodeName, so parent node 1 and then 2:
@@ -89,5 +102,9 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     geneset = result.get(0);
     Assert.assertEquals("HINATA_NFKB_MATRIX", geneset.getGenesetId());
     Assert.assertEquals("https://hinata_link", geneset.getRefLink());
+  }
+
+  private List<GenesetHierarchyInfo> sortedResult(List<GenesetHierarchyInfo> result) {
+    return result.stream().sorted(Comparator.comparing(GenesetHierarchyInfo::getNodeId)).toList();
   }
 }

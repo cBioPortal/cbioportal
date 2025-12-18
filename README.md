@@ -267,18 +267,6 @@ These base classes:
 
 ---
 
-## 🌳 Branch Information
-
-| | main branch | upcoming release branch | later release candidate branch |
-| --- | --- | --- | --- |
-| Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  -- |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
-| Description | All bug fixes and features not requiring database migrations go here. This code is either already in production or will be released this week | Next release that requires database migrations. Thorough manual product review often takes place for this branch before release | Later releases with features that require database migrations. This is useful to allow merging in new features without affecting the upcoming release. Could be seen as a development branch, but note that only high quality pull requests are merged. That is the feature should be pretty much ready for release after merge. |
-| Live instance | <https://www.cbioportal.org> / <https://master.cbioportal.org> | -- | <https://rc.cbioportal.org> |
-| Live instance version | <https://www.cbioportal.org/api/info> / <https://master.cbioportal.org/api/info> | -- | <https://rc.cbioportal.org/api/info> |
-| Docker Image | cbioportal/cbioportal:master | --| cbioportal/cbioportal:rc |
-| Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | -- | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
-| Status | [![master build status](https://github.com/cbioportal/cbioportal/workflows/Core%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/core-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Integration%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/integration-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Docker%20Image%20CI/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/dockerimage.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Python%20validator/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/validate-data.yml?query=branch%3Amaster) [![CircleCI](https://circleci.com/gh/cBioPortal/cbioportal/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/cBioPortal/cbioportal?branch=master&filter=all) | -- | -- |
-
 ## 🚀 Releases
 
 Release Notes on GitHub:

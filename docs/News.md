@@ -1,5 +1,5 @@
 ## November 15, 2025
-* **Data Improvement**: We updated the default transcripts for each gene to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). We also added subversions for each transcript.
+* **Data Improvement**: The default transcripts for each gene were updated to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). Also Ensembl's subversions are now included for each transcript.
 
     | Gene | Old transcript | New transcript |
     |------|---------------|----------------|

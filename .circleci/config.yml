@@ -92,7 +92,7 @@ jobs:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
-              FRONTEND_REPO_BRANCH: rc-7.0-clickhouse-only
+              FRONTEND_REPO_BRANCH: master
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
         - persist_to_workspace:
@@ -265,7 +265,6 @@ jobs:
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
               APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
-              DOCKER_COMPOSE_REF: 'rc-7.0-clickhouse-only'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1

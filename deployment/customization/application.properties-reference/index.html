@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.819320509050">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.819389382373">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,12 +36,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.9.0.819320509050" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.819389382373" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.819320509050" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.819389382373" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.819320509050" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.819320509050" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.819389382373" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.819389382373" defer></script>
     <link href="../../../resources/css/katex.css?v=3.9.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.9.0" defer></script>
 
@@ -1144,7 +1144,7 @@ enable_cross_study_expression = true|false</code></pre>
 </doc-anchor-target>
 <p>For private instances that want to replicate the<code v-pre>public-portal</code> they first must set up their studies
 they want available for download in a similar format to what is described in the Example section below.
-The studies are located on the <code v-pre>public-portal</code> at  <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/</code>.
+The studies are located on the <code v-pre>public-portal</code> at  <code v-pre>https://datahub.assets.cbioportal.org/</code>.
 Then there is a <code v-pre>study_list.json</code> defined that list the studies that can be downloaded.
 The studies to be downloaded need to be compressed with the extension <code v-pre>tar.gz</code></p>
 <doc-anchor-target id="example">
@@ -1154,13 +1154,13 @@ The studies to be downloaded need to be compressed with the extension <code v-pr
     </h3>
 </doc-anchor-target>
 <ul>
-<li>We have set <code v-pre>study_download_url</code> property to <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/</code></li>
-<li><code v-pre>study_list.json</code> resides <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/study_list.json</code>
+<li>We have set <code v-pre>study_download_url</code> property to <code v-pre>https://datahub.assets.cbioportal.org/</code></li>
+<li><code v-pre>study_list.json</code> resides <code v-pre>https://datahub.assets.cbioportal.org/study_list.json</code>
 <ul>
 <li><code v-pre>[ &quot;acbc_mskcc_2015&quot;, &quot;acc_2019&quot;]</code> Example of contents</li>
 </ul>
 </li>
-<li><code v-pre>acbc_mskcc_2015.tar.gz</code> resides <code v-pre>https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz</code></li>
+<li><code v-pre>acbc_mskcc_2015.tar.gz</code> resides <code v-pre>https://datahub.assets.cbioportal.org/acbc_mskcc_2015.tar.gz</code></li>
 </ul>
 <doc-anchor-target id="prioritized-studies-on-study-selector-view">
     <h1>

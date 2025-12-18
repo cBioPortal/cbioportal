@@ -8,7 +8,7 @@ If you would like to know how to setup a private instance of the portal and/or g
 
 If you are interested in coordinating the development of new features, please contact <cbioportal@cbioportal.org> or reach out on <https://slack.cbioportal.org>.
 
-## Branching and Release Strategy
+## 🌳 Branching and Release Strategy
 
 cBioPortal is currently preparing for **v7**. The branching and release strategy has been updated as follows:
 

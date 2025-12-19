@@ -27,7 +27,7 @@ Upgrading from v6 to v7 requires:
 
 ### Recommendations
 
-- **New deployments**: Use **v6** until the first stabilized v7 is released
+- **New deployments**: Use **v6** until the first stabilized v7 release
 - **Existing v6 deployments**: Stay on v6 short-term and plan migration to v7 when ready
 - Detailed migration tools and guides will be provided as v7 stabilizes
 

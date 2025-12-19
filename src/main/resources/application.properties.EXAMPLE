@@ -133,7 +133,13 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 # always_show_study_group=
 
 ## enable expression data in multi-study queries (oncoprint and plots tab)
-# true | false | (studies)=>{ return true } 
+## This property controls whether expression and protein data can be displayed for multi-study queries.
+## Set to true/false, or provide a JavaScript function for fine-grained control.
+## See documentation: docs/deployment/customization/application.properties-Reference.md#cross-study-expression-and-protein-data
+# Examples:
+# enable_cross_study_expression=true  # Enable for all studies
+# enable_cross_study_expression=false  # Disable for all studies
+# enable_cross_study_expression=(studies)=>studies.every(s=>s.studyId.includes('tcga'))  # Only allow TCGA studies
 enable_cross_study_expression=(studies)=>studies.filter(s=>/pan_can_atlas/.test(s.studyId) === false).length === 0
 
 ## Combined Study View Comparison Limits

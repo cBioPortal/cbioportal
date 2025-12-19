@@ -701,27 +701,78 @@ skin.geneset_hierarchy.collapse_by_default = true
 
 ## Cross study expression and protein data
 
+### Background
 
-By default we hide expression data for multi-study queries as they are 
-usually not normalized across studies. For the public cBioPortal for instance, only TCGA Pancan Atlas studies expression data has been normalized.  
+By default, expression data is hidden for multi-study queries because expression data is usually not normalized across studies, making direct comparisons potentially misleading. For example, on the public cBioPortal instance, only TCGA Pan-Cancer Atlas studies have been normalized together and can be safely compared.
 
-If you know the expression data in your instance is comparable, or is comparable for a subset of
-studies, you can configure a rule as follows. 
+If you know the expression data in your instance has been normalized across all studies, or you want to enable cross-study expression queries for a specific subset of studies, you can configure this behavior using the `enable_cross_study_expression` property.
 
-The value of this property can be boolean (true|false) or a javascript function
-which executes at runtime and is passed the list of study objects being queried
-by the user and evaluates whether expression data can be safely displayed.
+### Properties
 
-```
-// a function that accepts the users's selected studies and
-// returns whether or not to allow expression data from the involved studies to be mixed
-enable_cross_study_expression = (selectedStudies)=>{ [your logic] return true|false }
-```
+* `enable_cross_study_expression`: Controls whether expression and protein data can be displayed in multi-study queries (such as OncoPrint and Plots tabs). This property accepts three types of values:
+
+#### Option 1: Boolean Value (Simple Configuration)
+
+Set to `true` to enable cross-study expression for all studies, or `false` to disable it for all studies.
 
 ```
-// boolean
-enable_cross_study_expression = true|false
+# Enable cross-study expression for all studies
+enable_cross_study_expression=true
 ```
+
+```
+# Disable cross-study expression for all studies
+enable_cross_study_expression=false
+```
+
+#### Option 2: JavaScript Function (Advanced Configuration)
+
+Provide a JavaScript function that accepts the user's selected studies and returns `true` or `false` based on custom logic. This allows fine-grained control over which combinations of studies can show expression data together.
+
+The function receives an array of study objects as a parameter. Each study object contains properties including:
+- `studyId`: The unique identifier of the study (e.g., "brca_tcga_pan_can_atlas_2018")
+- `name`: The display name of the study
+- `description`: The study description
+- Other study metadata fields
+
+**Basic syntax:**
+```
+enable_cross_study_expression=(studies)=>{ /* your logic */ return true|false }
+```
+
+**Example 1: Only allow TCGA Pan-Cancer Atlas studies**
+```
+# Only enable cross-study expression when ALL selected studies are Pan-Cancer Atlas studies
+enable_cross_study_expression=(studies)=>studies.filter(s=>/pan_can_atlas/.test(s.studyId) === false).length === 0
+```
+
+**Example 2: Allow specific study groups**
+```
+# Enable cross-study expression only for studies from specific projects
+enable_cross_study_expression=(studies)=>studies.every(s=>s.studyId.includes('tcga') || s.studyId.includes('genie'))
+```
+
+**Example 3: Require a minimum of studies**
+```
+# Only allow cross-study expression when comparing 2 or more studies
+enable_cross_study_expression=(studies)=>studies.length >= 2
+```
+
+### Behavior
+
+**When `enable_cross_study_expression` is disabled or returns `false`:**
+- Expression and protein data tabs/features will be hidden or disabled in multi-study queries
+- Users will not be able to view gene expression comparisons across the selected studies
+- Other data types (mutations, copy number alterations, etc.) remain available
+
+**When `enable_cross_study_expression` is enabled or returns `true`:**
+- Expression and protein data will be available in multi-study queries
+- Users can view and compare gene expression across the selected studies in OncoPrint and Plots tabs
+- The feature assumes the expression data has been properly normalized for cross-study comparison
+
+### Default Behavior
+
+If not specified, the property defaults to disabled (equivalent to `false`), meaning expression data will not be shown for multi-study queries.
 
 ## Combined Study View Summary Limits
 ### Background

@@ -2,6 +2,35 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+> **Important**: For information about version support and choosing the right version, see the [Versioning and Upgrade Guide](Versioning-and-Upgrades.md).
+
+## v6 -> v7
+
+**v7 introduces breaking changes** that require a complete re-deployment. See the [Versioning and Upgrade Guide](Versioning-and-Upgrades.md) for detailed information about version compatibility.
+
+### Key Changes in v7
+
+- **Database**: v7 uses **ClickHouse as the sole database backend** and **does not support MySQL**
+- **Configuration**: v7 is **not compatible** with v6 portal configuration files
+- **Data Loading**: v7 requires using v7-compatible study importer tools
+
+### Migration Requirements
+
+Upgrading from v6 to v7 requires:
+
+1. **Re-deploying the portal** with v7 configuration
+2. **Switching to ClickHouse** database
+3. **Re-importing all studies** using v7-compatible tooling
+4. **Updating deployment configuration** files
+
+> **Note**: v6 is maintained in the `maintenance-v6` branch with security fixes only. See the [Versioning and Upgrade Guide](Versioning-and-Upgrades.md) for details on the v6 maintenance policy.
+
+### Recommendations
+
+- **New deployments**: Use **v6** until the first stabilized v7 is released
+- **Existing v6 deployments**: Stay on v6 short-term and plan migration to v7 when ready
+- Detailed migration tools and guides will be provided as v7 stabilizes
+
 ## v6.3 -> v6.4
 - The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading.
 

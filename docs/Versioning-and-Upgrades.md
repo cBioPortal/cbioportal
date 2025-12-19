@@ -44,8 +44,12 @@ Users who cannot migrate immediately to v7 should remain on the latest v6 mainte
 
 ## Migration Notes
 
-Detailed migration guides will be provided as v7 stabilizes. At a minimum, migration involves:
+For detailed migration instructions between versions, see the [Migration Guide](Migration-Guide.md).
+
+At a minimum, migrating from v6 to v7 involves:
 
 - Switching to ClickHouse
 - Updating deployment configuration
 - Re-importing studies using v7 tooling
+
+Detailed migration tools and guides will be provided as v7 stabilizes.

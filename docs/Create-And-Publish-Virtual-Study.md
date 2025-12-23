@@ -68,7 +68,7 @@ curl \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -H 'Content-Type: application/json' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<custom_id>' \
-  --data-raw @virtual_study_definition.json
+  --data @virtual_study_definition.json
 ```
 
 See the [Virtual Study JSON Schema](./Virtual-Study-Data-Schema.md) for the full payload shape you can post to create and publish a study with a custom ID. If the ID already exists you will receive a `409 Conflict`. When the request succeeds, the virtual study is immediately available to all users under the `Public Virtual Studies` section, optionally enriched with `pmid` and `typeOfCancerId` query parameters the same way as above.

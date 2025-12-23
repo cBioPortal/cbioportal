@@ -86,3 +86,14 @@ curl \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>'
 ```
+
+## Permanently remove a virtual study (hard delete)
+
+If you want to remove a virtual study permanently, add the `softDelete=false` query parameter.
+This will delete the virtual study forever, and it will no longer be available on any of sections.
+```shell
+curl \
+  -X DELETE \
+  -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
+  -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>?softDelete=false'
+```

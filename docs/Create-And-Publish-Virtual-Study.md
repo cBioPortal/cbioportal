@@ -91,6 +91,7 @@ curl \
 
 If you want to remove a virtual study permanently, add the `softDelete=false` query parameter.
 This will delete the virtual study forever, and it will no longer be available on any of sections.
+⚠️  **Note** that a soft delete does not deallocate the ID. If you are deleting a virtual study with a custom ID and want that ID to be available again, use hard delete instead.
 ```shell
 curl \
   -X DELETE \

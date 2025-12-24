@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -424,6 +425,13 @@ public class ColumnarStoreStudyViewController {
       throws StudyNotFoundException {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
+
+    // If genomicDataFilters is null or empty, return an empty result list
+    // This prevents IndexOutOfBoundsException in the MyBatis mapper
+    if (genomicDataFilters == null || genomicDataFilters.isEmpty()) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
+
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -499,6 +507,13 @@ public class ColumnarStoreStudyViewController {
           GenomicDataCountFilter genomicDataCountFilter) {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
+
+    // If genomicDataFilters is null or empty, return an empty result list
+    // This prevents IndexOutOfBoundsException in the MyBatis mapper
+    if (genomicDataFilters == null || genomicDataFilters.isEmpty()) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
+
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected

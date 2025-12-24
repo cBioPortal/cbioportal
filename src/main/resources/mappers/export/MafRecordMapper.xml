@@ -7,62 +7,61 @@
             resultType="org.cbioportal.application.file.model.MafRecord"
             resultSetType="FORWARD_ONLY">
         SELECT
-            g.ENTREZ_GENE_ID AS entrezGeneId,
-            m.CENTER AS center,
-            g.HUGO_GENE_SYMBOL AS hugoSymbol,
-            me.NCBI_BUILD AS ncbiBuild,
-            me.CHR AS chromosome,
-            me.START_POSITION AS startPosition,
-            me.END_POSITION AS endPosition,
-            me.STRAND AS strand,
-            me.MUTATION_TYPE AS variantClassification,
-            me.VARIANT_TYPE AS variantType,
-            me.REFERENCE_ALLELE AS referenceAllele,
-            m.TUMOR_SEQ_ALLELE1 AS tumorSeqAllele1,
-            m.TUMOR_SEQ_ALLELE2 AS tumorSeqAllele2,
-            me.DB_SNP_RS AS dbSnpRs,
-            me.DB_SNP_VAL_STATUS AS dbSnpValStatus,
+            g.entrez_gene_id AS entrezGeneId,
+            m.center AS center,
+            g.hugo_gene_symbol AS hugoSymbol,
+            me.ncbi_build AS ncbiBuild,
+            me.chr AS chromosome,
+            me.start_position AS startPosition,
+            me.end_position AS endPosition,
+            me.strand AS strand,
+            me.mutation_type AS variantClassification,
+            me.variant_type AS variantType,
+            me.reference_allele AS referenceAllele,
+            m.tumor_seq_allele1 AS tumorSeqAllele1,
+            m.tumor_seq_allele2 AS tumorSeqAllele2,
+            me.db_snp_rs AS dbSnpRs,
+            me.db_snp_val_status AS dbSnpValStatus,
             CASE
-                WHEN TRIM(me.PROTEIN_CHANGE) IN ('', 'MUTATED') THEN NULL
-                ELSE CONCAT('p.', me.PROTEIN_CHANGE)
+                WHEN trim(me.protein_change) IN ('', 'MUTATED') THEN NULL
+                ELSE concat('p.', me.protein_change)
             END AS hgvspShort,
-            CONCAT('p.', me.PROTEIN_CHANGE) AS hgvspShort, -- if not MUTATED
-            s.STABLE_ID AS tumorSampleBarcode,
-            m.MATCHED_NORM_SAMPLE_BARCODE AS matchedNormSampleBarcode,
-            m.MATCH_NORM_SEQ_ALLELE1 AS matchNormSeqAllele1,
-            m.MATCH_NORM_SEQ_ALLELE2 AS matchNormSeqAllele2,
-            m.TUMOR_VALIDATION_ALLELE1 AS tumorValidationAllele1,
-            m.TUMOR_VALIDATION_ALLELE2 AS tumorValidationAllele2,
-            m.MATCH_NORM_VALIDATION_ALLELE1 AS matchNormValidationAllele1,
-            m.MATCH_NORM_VALIDATION_ALLELE2 AS matchNormValidationAllele2,
-            m.VERIFICATION_STATUS AS verificationStatus,
-            m.VALIDATION_STATUS AS validationStatus,
-            m.MUTATION_STATUS AS mutationStatus,
-            m.SEQUENCING_PHASE AS sequencingPhase,
-            m.SEQUENCE_SOURCE AS sequenceSource,
-            m.VALIDATION_METHOD AS validationMethod,
-            m.SCORE AS score,
-            m.BAM_FILE AS bamFile,
-            m.SEQUENCER AS sequencer,
-            m.TUMOR_ALT_COUNT AS tAltCount,
-            m.TUMOR_REF_COUNT AS tRefCount,
-            m.NORMAL_ALT_COUNT AS nAltCount,
-            m.NORMAL_REF_COUNT AS nRefCount
+            s.stable_id AS tumorSampleBarcode,
+            m.matched_norm_sample_barcode AS matchedNormSampleBarcode,
+            m.match_norm_seq_allele1 AS matchNormSeqAllele1,
+            m.match_norm_seq_allele2 AS matchNormSeqAllele2,
+            m.tumor_validation_allele1 AS tumorValidationAllele1,
+            m.tumor_validation_allele2 AS tumorValidationAllele2,
+            m.match_norm_validation_allele1 AS matchNormValidationAllele1,
+            m.match_norm_validation_allele2 AS matchNormValidationAllele2,
+            m.verification_status AS verificationStatus,
+            m.validation_status AS validationStatus,
+            m.mutation_status AS mutationStatus,
+            m.sequencing_phase AS sequencingPhase,
+            m.sequence_source AS sequenceSource,
+            m.validation_method AS validationMethod,
+            m.score AS score,
+            m.bam_file AS bamFile,
+            m.sequencer AS sequencer,
+            m.tumor_alt_count AS tAltCount,
+            m.tumor_ref_count AS tRefCount,
+            m.normal_alt_count AS nAltCount,
+            m.normal_ref_count AS nRefCount
         FROM mutation m
-        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = m.GENETIC_PROFILE_ID
-        JOIN sample s ON s.INTERNAL_ID = m.SAMPLE_ID
+        JOIN genetic_profile gp ON gp.genetic_profile_id = m.genetic_profile_id
+        JOIN sample s ON s.internal_id = m.sample_id
         <if test="sampleIds != null">
             JOIN (
                 SELECT *
                 FROM (VALUES
                 <foreach item="sid" collection="sampleIds" separator=",">
-                    ROW(#{sid})
+                    (#{sid})
                 </foreach>
                 ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
+            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
         </if>
-        JOIN gene g ON g.ENTREZ_GENE_ID = m.ENTREZ_GENE_ID
-        JOIN mutation_event me ON me.MUTATION_EVENT_ID = m.MUTATION_EVENT_ID
-        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+        JOIN gene g ON g.entrez_gene_id = m.entrez_gene_id
+        JOIN mutation_event me ON me.mutation_event_id = m.mutation_event_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
     </select>
 </mapper>

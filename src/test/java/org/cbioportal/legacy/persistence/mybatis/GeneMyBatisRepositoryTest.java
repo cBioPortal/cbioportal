@@ -33,19 +33,29 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {GeneMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, GeneMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class GeneMyBatisRepositoryTest {
 
   @Autowired private GeneMyBatisRepository geneMyBatisRepository;
@@ -65,7 +75,8 @@ public class GeneMyBatisRepositoryTest {
   public void getAllGenesSummaryProjection() throws Exception {
 
     List<Gene> result =
-        geneMyBatisRepository.getAllGenes(null, null, "SUMMARY", null, null, null, null);
+        geneMyBatisRepository.getAllGenes(
+            null, null, "SUMMARY", null, null, "hugoGeneSymbol", "ASC");
 
     Assert.assertEquals(23, result.size());
     Gene gene = result.get(0);
@@ -78,7 +89,8 @@ public class GeneMyBatisRepositoryTest {
   public void getAllGenesDetailedProjection() throws Exception {
 
     List<Gene> result =
-        geneMyBatisRepository.getAllGenes(null, null, "DETAILED", null, null, null, null);
+        geneMyBatisRepository.getAllGenes(
+            null, null, "DETAILED", null, null, "hugoGeneSymbol", "ASC");
 
     Assert.assertEquals(23, result.size());
     Gene gene = result.get(0);
@@ -111,6 +123,54 @@ public class GeneMyBatisRepositoryTest {
     Assert.assertEquals("ATM", result.get(5).getHugoGeneSymbol());
     Assert.assertEquals("BRAF", result.get(6).getHugoGeneSymbol());
     Assert.assertEquals("SAMD11", result.get(21).getHugoGeneSymbol());
+  }
+
+  @Test
+  public void getAllGenesWithKeywordSearch() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("AKT", null, "SUMMARY", null, null, null, null);
+
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+  }
+
+  @Test
+  public void getAllGenesWithKeywordSearchCaseInsensitive() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("akt", null, "SUMMARY", null, null, null, null);
+
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+  }
+
+  @Test
+  public void getAllGenesWithKeywordSearchAlphabeticalOrder() throws Exception {
+
+    List<Gene> result =
+        geneMyBatisRepository.getAllGenes("A", null, "SUMMARY", null, null, null, null);
+
+    // Verify results are returned in alphabetical order by hugo gene symbol
+    Assert.assertTrue(result.size() > 0);
+    for (int i = 0; i < result.size() - 1; i++) {
+      String current = result.get(i).getHugoGeneSymbol();
+      String next = result.get(i + 1).getHugoGeneSymbol();
+      Assert.assertTrue(
+          "Expected " + current + " to come before " + next + " alphabetically",
+          current.compareTo(next) <= 0);
+    }
+    // Verify specific ordering of genes starting with 'A'
+    Assert.assertEquals("AKT1", result.get(0).getHugoGeneSymbol());
+    Assert.assertEquals("AKT2", result.get(1).getHugoGeneSymbol());
+    Assert.assertEquals("AKT3", result.get(2).getHugoGeneSymbol());
+    Assert.assertEquals("ALK", result.get(3).getHugoGeneSymbol());
+    Assert.assertEquals("ARAF", result.get(4).getHugoGeneSymbol());
+    Assert.assertEquals("ATM", result.get(5).getHugoGeneSymbol());
   }
 
   @Test
@@ -169,6 +229,7 @@ public class GeneMyBatisRepositoryTest {
   public void getAliasesOfGeneByEntrezGeneId() throws Exception {
 
     List<String> result = geneMyBatisRepository.getAliasesOfGeneByEntrezGeneId(207);
+    result.sort(null);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("AKT alias", result.get(0));
@@ -187,6 +248,7 @@ public class GeneMyBatisRepositoryTest {
   public void getAliasesOfGeneByHugoGeneSymbol() throws Exception {
 
     List<String> result = geneMyBatisRepository.getAliasesOfGeneByHugoGeneSymbol("AKT1");
+    result.sort(null);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("AKT alias", result.get(0));
@@ -201,6 +263,7 @@ public class GeneMyBatisRepositoryTest {
     entrezGeneIds.add(208);
 
     List<Gene> result = geneMyBatisRepository.fetchGenesByEntrezGeneIds(entrezGeneIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Gene gene = result.get(0);
@@ -218,6 +281,7 @@ public class GeneMyBatisRepositoryTest {
 
     List<Gene> result =
         geneMyBatisRepository.fetchGenesByHugoGeneSymbols(hugoGeneSymbols, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Gene gene = result.get(0);
@@ -248,5 +312,9 @@ public class GeneMyBatisRepositoryTest {
     BaseMeta result = geneMyBatisRepository.fetchMetaGenesByHugoGeneSymbols(hugoGeneSymbols);
 
     Assert.assertEquals((Integer) 2, result.getTotalCount());
+  }
+
+  private List<Gene> sortedResult(List<Gene> result) {
+    return result.stream().sorted(Comparator.comparing(Gene::getHugoGeneSymbol)).toList();
   }
 }

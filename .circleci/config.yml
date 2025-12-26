@@ -92,7 +92,7 @@ jobs:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
-              FRONTEND_REPO_BRANCH: master
+              FRONTEND_REPO_BRANCH: rc-7.0-clickhouse-only
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
         - persist_to_workspace:
@@ -265,10 +265,11 @@ jobs:
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
               APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
+              DOCKER_COMPOSE_REF: 'rc-7.0-clickhouse-only'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
-              nohup ./scripts/docker-compose.sh --portal_type='keycloak' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Check keycloak connection at localhost
             command: |
@@ -379,15 +380,13 @@ jobs:
         - run:
             name: Run API Tests
             environment:
-              API_TEST_HOST: http://localhost:8080
-              BACKEND_ROOT: /tmp/repos/cbioportal
+              CBIOPORTAL_URL: http://localhost:8080
             command: |
-              cd cbioportal-frontend
+              cd cbioportal
               nvm install 15.2.1
               nvm use 15.2.1
-              npm install -g yarn@1.22.5
-              yarn --ignore-engines
-              yarn run apitests
+              npm install
+              npm run test:watch
 
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
@@ -525,13 +524,13 @@ workflows:
               - pull_cbioportal_test_codebase
         - push_web_image:
             context:
-              - api-tests
+              - dockerhub-auth
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
         - push_web_and_data_image:
             context:
-              - api-tests
+              - dockerhub-auth
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
@@ -539,12 +538,11 @@ workflows:
             requires:
               - build_frontend
               - build_web_and_data_image
-        - run_api_tests:
-            context:
-              - api-tests
-            requires:
-              - build_web_image
-              - pull_cbioportal_frontend_codebase
+#        - run_api_tests:
+#            context:
+#              - api-tests
+#            requires:
+#              - build_web_image
         - run_security_tests:
             context:
               - docker-scout

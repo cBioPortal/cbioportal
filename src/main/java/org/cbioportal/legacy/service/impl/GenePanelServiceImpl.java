@@ -139,14 +139,12 @@ public class GenePanelServiceImpl implements GenePanelService {
     Set<String> uniqueMolecularProfileIds =
         molecularProfiles.stream().map(MolecularProfile::getStableId).collect(toSet());
 
+    List<GenePanelData> allGenePanelData =
+        genePanelRepository.fetchGenePanelDataByMolecularProfileIds(uniqueMolecularProfileIds);
+
     Map<String, List<GenePanelData>> molecularProfileIdToGenePanelDataMap =
-        uniqueMolecularProfileIds.stream()
-            // query database with each profile id so data cached in a modular way for each profile
-            .collect(
-                Collectors.toMap(
-                    Function.identity(),
-                    profileId ->
-                        genePanelRepository.fetchGenePanelDataByMolecularProfileId(profileId)));
+        allGenePanelData.stream()
+            .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId));
 
     Map<String, MolecularProfile> molecularProfileIdMap =
         molecularProfiles.stream()

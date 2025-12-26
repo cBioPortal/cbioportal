@@ -3,22 +3,32 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {SampleMyBatisRepository.class, TestConfig.class})
+@RunWith(SpringRunner.class)
+@Import({MyBatisLegacyConfig.class, SampleMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class SampleMyBatisRepositoryTest {
 
   @Autowired private SampleMyBatisRepository sampleMyBatisRepository;
@@ -42,7 +52,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesInStudy(
-            "study_tcga_pub", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "SUMMARY", null, null, "internalId", "ASC");
 
     Assert.assertEquals(15, result.size());
     Sample sample = result.get(0);
@@ -59,7 +69,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesInStudy(
-            "study_tcga_pub", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "DETAILED", null, null, "internalId", "ASC");
 
     Assert.assertEquals(15, result.size());
     Sample sample = result.get(0);
@@ -79,9 +89,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -152,9 +162,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -168,7 +178,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "ID", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "ID", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -182,7 +192,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "SUMMARY", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "SUMMARY", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -199,7 +209,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientInStudy(
-            "study_tcga_pub", "TCGA-A1-A0SB", "DETAILED", null, null, null, null);
+            "study_tcga_pub", "TCGA-A1-A0SB", "DETAILED", null, null, "internalId", "ASC");
 
     Assert.assertEquals(2, result.size());
     Sample sample = result.get(0);
@@ -219,9 +229,9 @@ public class SampleMyBatisRepositoryTest {
     Assert.assertEquals("brca", cancerStudy.getTypeOfCancerId());
     Assert.assertEquals("Breast Invasive Carcinoma (TCGA, Nature 2012)", cancerStudy.getName());
     Assert.assertEquals(
-        "<a href=\\\"http://cancergenome.nih.gov/\\\">The Cancer Genome Atlas (TCGA)</a> Breast"
-            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\\\"http://tcga-data.nci."
-            + "nih.gov/tcga/\\\">Raw data via the TCGA Data Portal</a>.",
+        "<a href=\"http://cancergenome.nih.gov/\">The Cancer Genome Atlas (TCGA)</a> Breast"
+            + " Invasive Carcinoma project. 825 cases.<br><i>Nature 2012.</i> <a href=\"http://tcga-data.nci."
+            + "nih.gov/tcga/\">Raw data via the TCGA Data Portal</a>.",
         cancerStudy.getDescription());
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
@@ -267,6 +277,7 @@ public class SampleMyBatisRepositoryTest {
     List<Sample> result =
         sampleMyBatisRepository.getAllSamplesOfPatientsInStudy(
             "study_tcga_pub", Arrays.asList("TCGA-A1-A0SB", "TCGA-A1-A0SE"), "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
     Sample sample = result.get(0);
@@ -289,6 +300,7 @@ public class SampleMyBatisRepositoryTest {
     sampleIds.add("TCGA-A1-A0SE-01");
 
     List<Sample> result = sampleMyBatisRepository.fetchSamples(studyIds, sampleIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -304,6 +316,7 @@ public class SampleMyBatisRepositoryTest {
 
     List<Sample> result =
         sampleMyBatisRepository.fetchSamplesBySampleListIds(sampleListIds, "SUMMARY");
+    result = sortedResult(result);
 
     Assert.assertEquals(14, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -345,6 +358,7 @@ public class SampleMyBatisRepositoryTest {
   public void getSamplesByInternalIds() throws Exception {
 
     List<Sample> result = sampleMyBatisRepository.getSamplesByInternalIds(Arrays.asList(1, 2));
+    result = sortedResult(result);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
@@ -411,5 +425,9 @@ public class SampleMyBatisRepositoryTest {
     Integer expected = 3;
 
     Assert.assertEquals(expected, actual.getTotalCount());
+  }
+
+  private List<Sample> sortedResult(List<Sample> result) {
+    return result.stream().sorted(Comparator.comparing(Sample::getInternalId)).toList();
   }
 }

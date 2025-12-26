@@ -2,11 +2,9 @@ package org.cbioportal.domain.patient.usecase;
 
 import org.cbioportal.domain.patient.repository.PatientRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving the count of filtered patients. This class interacts with the {@link
  * PatientRepository} to fetch the number of patients that match the given filter criteria specified

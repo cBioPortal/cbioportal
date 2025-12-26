@@ -777,15 +777,15 @@ The DataSets tab has the ability to create a ``download`` button that allows use
 ### Behavior
 For private instances that want to replicate the``public-portal`` they first must set up their studies 
 they want available for download in a similar format to what is described in the Example section below.
-The studies are located on the ``public-portal`` at  `https://cbioportal-datahub.s3.amazonaws.com/`. 
+The studies are located on the ``public-portal`` at  `https://datahub.assets.cbioportal.org/`. 
 Then there is a ``study_list.json`` defined that list the studies that can be downloaded.
 The studies to be downloaded need to be compressed with the extension ``tar.gz``
 
 ### Example
-* We have set ``study_download_url`` property to `https://cbioportal-datahub.s3.amazonaws.com/`
-* ``study_list.json`` resides ``https://cbioportal-datahub.s3.amazonaws.com/study_list.json``
+* We have set ``study_download_url`` property to `https://datahub.assets.cbioportal.org/`
+* ``study_list.json`` resides ``https://datahub.assets.cbioportal.org/study_list.json``
   * ``[ "acbc_mskcc_2015", "acc_2019"]`` Example of contents
-* ``acbc_mskcc_2015.tar.gz`` resides `https://cbioportal-datahub.s3.amazonaws.com/acbc_mskcc_2015.tar.gz`
+* ``acbc_mskcc_2015.tar.gz`` resides `https://datahub.assets.cbioportal.org/acbc_mskcc_2015.tar.gz`
 
 # Prioritized studies on study selector view 
 By default, the studies loaded into a local cBioPortal instance are organized based on their cancer type (i.e. Breast >> Other).

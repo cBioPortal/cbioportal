@@ -6,7 +6,6 @@ import org.cbioportal.domain.mutation.util.MutationUtil;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.shared.MutationQueryOptions;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,7 +25,6 @@ import org.springframework.stereotype.Service;
  * @see MutationRepository
  */
 @Service
-@Profile("clickhouse")
 public class FetchAllMutationsInProfileUseCase {
   private final MutationRepository mutationRepository;
 

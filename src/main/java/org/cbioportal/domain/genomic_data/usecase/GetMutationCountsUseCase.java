@@ -4,11 +4,9 @@ import java.util.Map;
 import org.cbioportal.domain.genomic_data.repository.GenomicDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A use case class responsible for retrieving mutation counts based on the provided study view
  * filter context and genomic data filter. This class acts as an intermediary between the

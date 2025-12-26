@@ -121,7 +121,7 @@ public class PublicVirtualStudiesController {
       updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
       virtualStudyData.setUsers(Set.of(ALL_USERS));
       try {
-        studyService.getStudy(id);
+        studyService.studyExists(id);
         throw new DuplicateVirtualStudyException(
             "The study with id="
                 + id

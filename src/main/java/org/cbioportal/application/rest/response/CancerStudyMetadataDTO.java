@@ -1,6 +1,8 @@
 package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
+import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.TypeOfCancer;
 
 @Schema(name = "CancerStudyMetadata", description = "Represents a cancer study")
@@ -29,5 +31,6 @@ public record CancerStudyMetadataDTO(
     String referenceGenome,
     Integer treatmentCount,
     Integer structuralVariantCount,
-    TypeOfCancer typeOfCancer,
-    Boolean readPermission) {}
+    TypeOfCancer cancerType,
+    Boolean readPermission,
+    List<ResourceCount> resourceCounts) {}

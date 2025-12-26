@@ -81,7 +81,7 @@ jobs:
       - name: 'Run integration tests separately'
         working-directory: ./cbioportal
         run: |
-          mvn verify -Pintegration-test
+          mvn verify -Pintegration-test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
       - name: 'Run e2e tests separately'
         working-directory: ./cbioportal
         run: |

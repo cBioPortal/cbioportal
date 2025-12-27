@@ -133,11 +133,16 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
       // Build sample unique ID order
       List<String> sampleUniqueIdOrder = new ArrayList<>(sampleIds.length);
       for (String internalIdStr : sampleIds) {
-        int internalId = Integer.parseInt(internalIdStr);
-        Sample s = internalIdToSample.get(internalId);
-        if (s != null) {
-          sampleUniqueIdOrder.add(s.getCancerStudyIdentifier() + "_" + s.getStableId());
-        } else {
+        try {
+          int internalId = Integer.parseInt(internalIdStr);
+          Sample s = internalIdToSample.get(internalId);
+          if (s != null) {
+            sampleUniqueIdOrder.add(s.getCancerStudyIdentifier() + "_" + s.getStableId());
+          } else {
+            sampleUniqueIdOrder.add(null);
+          }
+        } catch (NumberFormatException e) {
+          // Skip invalid internalIdStr, add null to maintain order
           sampleUniqueIdOrder.add(null);
         }
       }

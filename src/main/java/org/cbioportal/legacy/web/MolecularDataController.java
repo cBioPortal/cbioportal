@@ -282,21 +282,27 @@ public class MolecularDataController {
               MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter) {
 
     List<MolecularDataCountItem> result;
-    if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+    MolecularDataMultipleStudyFilter filterToUse = interceptedMolecularDataMultipleStudyFilter != null
+        ? interceptedMolecularDataMultipleStudyFilter
+        : molecularDataMultipleStudyFilter;
+
+    if (filterToUse != null && filterToUse.getMolecularProfileIds() != null) {
       result =
           molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
-              interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(),
+              filterToUse.getMolecularProfileIds(),
               null,
-              interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
-    } else {
-
+              filterToUse.getEntrezGeneIds());
+    } else if (filterToUse != null) {
       List<String> molecularProfileIds = new ArrayList<>();
       List<String> sampleIds = new ArrayList<>();
       extractMolecularProfileAndSampleIds(
-          interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+          filterToUse, molecularProfileIds, sampleIds);
       result =
           molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
-              molecularProfileIds, sampleIds, interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
+              molecularProfileIds, sampleIds, filterToUse.getEntrezGeneIds());
+    } else {
+      // Both filters are null, return empty result or handle as needed
+      result = new ArrayList<>();
     }
 
     return new ResponseEntity<>(result, HttpStatus.OK);

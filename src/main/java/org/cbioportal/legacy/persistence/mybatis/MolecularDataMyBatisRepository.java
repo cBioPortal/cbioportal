@@ -120,6 +120,9 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
             .forEach(allInternalIds::add));
 
     // Fetch samples and build unique ID map
+    if (sampleService == null) {
+        throw new IllegalStateException("SampleService is required in ClickHouse mode but is not available.");
+    }
     List<Sample> samples = sampleService.getSamplesByInternalIds(allInternalIds);
     Map<Integer, Sample> internalIdToSample = samples.stream()
         .collect(Collectors.toMap(Sample::getInternalId, Function.identity()));

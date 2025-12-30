@@ -6,6 +6,7 @@
             id="getStructuralVariants"
             resultType="org.cbioportal.application.file.model.StructuralVariant"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT
             s.stable_id AS sampleId,
             sv.site1_entrez_gene_id AS site1EntrezGeneId,
@@ -49,18 +50,11 @@
         FROM structural_variant sv
         JOIN genetic_profile gp ON gp.genetic_profile_id = sv.genetic_profile_id
         JOIN sample s ON s.internal_id = sv.sample_id
-        <if test="sampleIds != null">
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
-        </if>
         LEFT JOIN gene g1 ON g1.entrez_gene_id = sv.site1_entrez_gene_id
         LEFT JOIN gene g2 ON g2.entrez_gene_id = sv.site2_entrez_gene_id
         WHERE gp.stable_id = #{molecularProfileStableId}
+        <if test="sampleIds != null">
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </if>
     </select>
 </mapper>

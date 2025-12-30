@@ -15,6 +15,7 @@
     <select
             id="getCaseListsMetadata"
             resultMap="CaseListMetadataResultMap">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT
             sl.list_id AS list_id,
             cs.cancer_study_identifier AS cancer_study_identifier,
@@ -26,16 +27,9 @@
         JOIN cancer_study cs ON cs.cancer_study_id = sl.cancer_study_id
         JOIN sample_list_list sll ON sll.list_id = sl.list_id
         JOIN sample s ON s.internal_id = sll.sample_id
-        <if test="sampleIds != null">
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
-        </if>
         WHERE cs.cancer_study_identifier = #{studyId}
+        <if test="sampleIds != null">
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </if>
     </select>
 </mapper>

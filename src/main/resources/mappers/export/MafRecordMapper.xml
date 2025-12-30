@@ -6,6 +6,7 @@
             id="getMafRecords"
             resultType="org.cbioportal.application.file.model.MafRecord"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT
             g.entrez_gene_id AS entrezGeneId,
             m.center AS center,
@@ -50,18 +51,11 @@
         FROM mutation m
         JOIN genetic_profile gp ON gp.genetic_profile_id = m.genetic_profile_id
         JOIN sample s ON s.internal_id = m.sample_id
-        <if test="sampleIds != null">
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
-        </if>
         JOIN gene g ON g.entrez_gene_id = m.entrez_gene_id
         JOIN mutation_event me ON me.mutation_event_id = m.mutation_event_id
         WHERE gp.stable_id = #{molecularProfileStableId}
+        <if test="sampleIds != null">
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </if>
     </select>
 </mapper>

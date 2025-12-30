@@ -22,44 +22,32 @@
     <!-- Clinical sample attributes data has to be present for molecular data types even if it does not have any attributes associated -->
     <!-- That's why it's more relaxed than clinical patient attributes check -->
     <select id="hasClinicalSampleAttributes" resultType="java.lang.Boolean">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT count() > 0
         FROM sample s
         JOIN patient p ON p.internal_id = s.patient_id
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
-        <if test="sampleIds != null">
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
-        </if>
         WHERE cs.cancer_study_identifier = #{studyId}
+        <if test="sampleIds != null">
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </if>
     </select>
     <select id="getClinicalSampleAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         WITH ids_only AS (
             SELECT
                 s.internal_id AS sample_internal_id,
                 s.stable_id AS sampleId,
                 p.stable_id AS patientId
             FROM sample s
+            JOIN patient p ON p.internal_id = s.patient_id
+            JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+            WHERE cs.cancer_study_identifier = #{studyId}
             <if test="sampleIds != null">
-                JOIN (
-                    SELECT *
-                    FROM (VALUES
-                    <foreach item="sid" collection="sampleIds" separator=",">
-                        (#{sid})
-                    </foreach>
-                    ) AS temp(sample_id)
-                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+                AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
             </if>
-        JOIN patient p ON p.internal_id = s.patient_id
-        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
-        WHERE cs.cancer_study_identifier = #{studyId}
         )
         SELECT *
         FROM (
@@ -99,20 +87,14 @@
         ORDER BY cam.attr_id
     </select>
     <select id="hasClinicalPatientAttributes" resultType="java.lang.Boolean">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT count() > 0
         FROM patient p
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         JOIN clinical_patient cpa ON cpa.internal_id = p.internal_id
             <if test="sampleIds != null">
                 JOIN sample s ON s.patient_id = p.internal_id
-                JOIN (
-                    SELECT *
-                    FROM (VALUES
-                    <foreach item="sid" collection="sampleIds" separator=",">
-                        (#{sid})
-                    </foreach>
-                    ) AS temp(sample_id)
-                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+                AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
             </if>
         WHERE cs.cancer_study_identifier = #{studyId} AND cpa.attr_id NOT IN (
                 <include refid="excludedClinicalPatientAttributes"/>
@@ -121,6 +103,7 @@
     <select id="getClinicalPatientAttributeValues"
             resultType="org.cbioportal.application.file.model.ClinicalAttributeValue"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         WITH ids_only AS (
             SELECT DISTINCT
                 p.internal_id AS patient_internal_id,
@@ -128,17 +111,10 @@
             FROM patient p
             <if test="sampleIds != null">
                 JOIN sample s ON s.patient_id = p.internal_id
-                JOIN (
-                    SELECT *
-                    FROM (VALUES
-                    <foreach item="sid" collection="sampleIds" separator=",">
-                        (#{sid})
-                    </foreach>
-                    ) AS temp(sample_id)
-                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+                AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
             </if>
-        JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
-        WHERE cs.cancer_study_identifier = #{studyId}
+            JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+            WHERE cs.cancer_study_identifier = #{studyId}
         )
         SELECT *
         FROM (
@@ -158,19 +134,13 @@
         ORDER BY rowKey
     </select>
     <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT count() > 0
         FROM clinical_event ce
         JOIN patient p ON p.internal_id = ce.patient_id
             <if test="sampleIds != null">
                 JOIN sample s ON s.patient_id = p.internal_id
-                JOIN (
-                    SELECT *
-                    FROM (VALUES
-                    <foreach item="sid" collection="sampleIds" separator=",">
-                        (#{sid})
-                    </foreach>
-                    ) AS temp(sample_id)
-                ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+                AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
             </if>
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
@@ -190,6 +160,7 @@
     </select>
     <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT DISTINCT
             ced.clinical_event_id AS clinicalEventId,
             ced.`key` AS `key`,
@@ -199,14 +170,7 @@
         JOIN patient p ON p.internal_id = ce.patient_id
         <if test="sampleIds != null">
             JOIN sample s ON s.patient_id = p.internal_id
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
         </if>
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
@@ -217,6 +181,7 @@
     </select>
     <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT DISTINCT
             ce.clinical_event_id AS clinicalEventId,
             p.stable_id AS patientId,
@@ -227,14 +192,7 @@
         JOIN patient p ON p.internal_id = ce.patient_id
         <if test="sampleIds != null">
             JOIN sample s ON s.patient_id = p.internal_id
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    (#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.stable_id
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
         </if>
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}

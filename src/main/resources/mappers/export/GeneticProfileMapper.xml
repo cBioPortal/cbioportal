@@ -5,6 +5,7 @@
     <select
             id="getGeneticProfiles"
             resultType="org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT
             cs.cancer_study_identifier AS cancerStudyIdentifier,
             gp.stable_id AS stableId,
@@ -21,15 +22,11 @@
         JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId} AND gp.genetic_alteration_type = #{geneticAlterationType} AND gp.datatype = #{datatype}
         <if test="sampleIds != null">
-            AND EXISTS (
-                SELECT 1
+            AND gp.genetic_profile_id IN (
+                SELECT sp.genetic_profile_id
                 FROM sample_profile sp
                 JOIN sample s ON sp.sample_id = s.internal_id
-                WHERE s.stable_id IN
-                <foreach item="sid" collection="sampleIds" open="(" separator="," close=")">
-                    #{sid}
-                </foreach>
-                AND sp.genetic_profile_id = gp.genetic_profile_id
+                WHERE s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
             )
         </if>
     </select>

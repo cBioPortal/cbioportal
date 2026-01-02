@@ -129,6 +129,12 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 ## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
 # skin.hide_download_controls=false
 
+## UptimeRobot Status Page Integration
+## Automatically displays service status banners for ongoing events from UptimeRobot
+## Both properties are required to enable the integration
+# uptime_robot_status_page_url=https://status.cbioportal.org
+# uptime_robot_api_key=YOUR_API_KEY_HERE
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
 

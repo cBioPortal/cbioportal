@@ -18,3 +18,6 @@ services:
      - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh
      # Mount maven.properties alongside application.properties in /cbioportal-webapp
      - ./config/maven.properties:/cbioportal-webapp/maven.properties:ro
+  cbioportal-database:
+    healthcheck:
+      test: [ "CMD-SHELL", "mysqladmin ping -s -h localhost -P3306 -u $$MYSQL_USER -p$$MYSQL_PASSWORD" ]

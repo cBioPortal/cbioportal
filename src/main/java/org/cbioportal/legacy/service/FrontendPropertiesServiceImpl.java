@@ -108,6 +108,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     skin_right_nav_show_testimonials("skin.right_nav.show_testimonials", null),
     skin_right_nav_show_whats_new("skin.right_nav.show_whats_new", null),
     skin_right_nav_show_twitter("skin.right_nav.show_twitter", null),
+    skin_right_nav_show_bluesky("skin.right_nav.show_bluesky", null),
     skin_right_nav_whats_new_blurb("skin.right_nav.whats_new_blurb", null),
     skin_show_about_tab("skin.show_about_tab", null),
     skin_show_data_tab("skin.show_data_tab", null),

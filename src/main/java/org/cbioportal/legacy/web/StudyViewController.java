@@ -2,6 +2,7 @@ package org.cbioportal.legacy.web;
 
 import static java.util.stream.Collectors.toSet;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -137,6 +138,7 @@ public class StudyViewController {
     return instance;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -209,6 +211,7 @@ public class StudyViewController {
     return result;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -260,10 +263,12 @@ public class StudyViewController {
     return clinicalDataBinUtil.fetchClinicalDataBinCounts(
         dataBinMethod,
         interceptedClinicalDataBinCountFilter,
-        // we don't need to remove filter again since we already did it in the previous step
+        // we don't need to remove filter again since we already did it in the previous
+        // step
         false);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -315,6 +320,7 @@ public class StudyViewController {
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>',T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -373,6 +379,7 @@ public class StudyViewController {
     return alterationCountByGenes;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -491,6 +498,7 @@ public class StudyViewController {
     return new ArrayList<>();
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -594,6 +602,7 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -663,6 +672,7 @@ public class StudyViewController {
     return Double.parseDouble(c.getAttrValue());
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -772,7 +782,7 @@ public class StudyViewController {
       for (ClinicalData d : clinicalDataList) {
         if (d.getSampleId() == null) {
           // null sample id means its a patient data,
-          //  we need to distribute the value to samples
+          // we need to distribute the value to samples
           List<Sample> samplesForPatient =
               patientToSamples.get(d.getPatientId()).get(d.getStudyId());
           if (samplesForPatient != null) {
@@ -787,7 +797,7 @@ public class StudyViewController {
             }
           } else {
             // patient has no samples - this shouldn't happen and could affect the integrity
-            //  of the data analysis
+            // of the data analysis
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
           }
         } else {
@@ -953,6 +963,7 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1014,8 +1025,9 @@ public class StudyViewController {
 
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
-    // first get samples that are filtered by all current filters - this will give us
-    //  the by-row sample counts
+    // first get samples that are filtered by all current filters - this will give
+    // us
+    // the by-row sample counts
     studyViewFilterUtil.extractStudyAndSampleIds(
         studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
     List<Sample> filteredSamples =
@@ -1024,7 +1036,7 @@ public class StudyViewController {
     List<String> studyIdsWithoutNumericalFilter = new ArrayList<>();
     List<String> sampleIdsWithoutNumericalFilter = new ArrayList<>();
     // next, get samples that are filtered without the numerical filter - this will
-    //  give us the violin plot data
+    // give us the violin plot data
     if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
       // Remove numerical clinical data filter, if there is one
       interceptedStudyViewFilter.getClinicalDataFilters().stream()
@@ -1091,7 +1103,7 @@ public class StudyViewController {
       for (ClinicalData d : clinicalDataList) {
         if (d.getSampleId() == null) {
           // null sample id means its a patient data,
-          //  we need to distribute the value to samples
+          // we need to distribute the value to samples
           List<Sample> samplesForPatient =
               patientToSamples.get(d.getPatientId()).get(d.getStudyId());
           if (samplesForPatient != null) {
@@ -1107,7 +1119,7 @@ public class StudyViewController {
             }
           } else {
             // patient has no samples - this shouldn't happen and could affect the integrity
-            //  of the data analysis
+            // of the data analysis
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
           }
         } else {
@@ -1138,6 +1150,7 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1216,6 +1229,7 @@ public class StudyViewController {
         .toList();
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1252,6 +1266,7 @@ public class StudyViewController {
         HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1282,9 +1297,11 @@ public class StudyViewController {
     List<GenomicDataFilter> genomicDataFilters =
         interceptedGenomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
     if (genomicDataFilters.size() == 1) {
       studyViewFilterUtil.removeSelfFromGenomicDataFilter(
@@ -1318,6 +1335,7 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1352,9 +1370,11 @@ public class StudyViewController {
     List<GenericAssayDataFilter> gaFilters =
         interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
     StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
     if (gaFilters.size() == 1) {
       studyViewFilterUtil.removeSelfFromGenericAssayFilter(
@@ -1383,6 +1403,7 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1481,7 +1502,8 @@ public class StudyViewController {
             searchTerm,
             direction.name());
 
-    // Because of pagination, the total number of sample matches can be larger than the items in the
+    // Because of pagination, the total number of sample matches can be larger than
+    // the items in the
     // requested page.
     SampleClinicalDataCollection aggregatedClinicalDataByUniqueSampleKey =
         sampleClinicalData.getLeft();
@@ -1521,6 +1543,7 @@ public class StudyViewController {
         sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, sortDirection);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1571,6 +1594,7 @@ public class StudyViewController {
     return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -1603,9 +1627,11 @@ public class StudyViewController {
     List<GenomicDataFilter> genomicDataFilters =
         interceptedGenomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
     if (genomicDataFilters.size() == 1 && projection == Projection.SUMMARY) {
       studyViewFilterUtil.removeSelfFromMutationDataFilter(

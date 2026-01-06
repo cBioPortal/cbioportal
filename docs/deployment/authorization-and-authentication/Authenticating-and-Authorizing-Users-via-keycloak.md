@@ -37,7 +37,7 @@ Keycloak supports both OpenID-Connect and SAML authentication. When you use SAML
 ## Configure Keycloak to authenticate your cbioportal instance
 1. Log in to your Keycloak Identity Provider, e.g. <http://localhost:8080/auth>, as an admin user. :warning: when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.
 2. Click on the Navigation **Manage realms** on the left and create a new realm with the **Create realm** button.
-![](/images/previews/add-realm.png)
+![](/images/previews/create-realm.png)
  Then type '_cbioportal_' in the name field and click the **Create** button.
 3. To create a SAML client, go to the **Clients** item in the left menu. On this page, click the **Create** button. This will bring you to the **Add Client** page.
     * Select _saml_ in the **Client Protocol** drop down box.
@@ -48,7 +48,9 @@ the URLs with and without port (e.g. if tomcat is running on port `80` and you w
     * Enter `http://localhost:8081/login/saml2/sso/cbio-saml-idp` in the **Master SAML Processing URL** textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the **Save** button; this will take you to the client page below.
     * click **Create**.
 
-![](/images/previews/edit-client.png)
+![](/images/previews/create-client.png)
+
+![](/images/previews/create-client-login-settings.png)
 
 4. Scroll down to **SAML capabilities** Choose _email_ as your **Name ID Format**.
 
@@ -56,6 +58,8 @@ the URLs with and without port (e.g. if tomcat is running on port `80` and you w
 7. Set  **Front Channel Logout** in the Logout settings at the end of the page to _OFF_. 
 8. Go to Advanced and under **Fine Grain SAML Endpoint Configuration** set **Logout Service POST Binding URL** to `http://localhost:8081/j_spring_security_logout`.
 9. Leave everything else as it is and click **Save**.
+
+![](/images/previews/Saml-capabilities.png)
 
 ### Map SAML Assertion Attributes
 To specify attributes included in the SAML assertion, click on the **client-scopes** tab, and select cbioportal-dedicated. Under the **Mappers** Tab ad mappers using the **Add mapper** Button.
@@ -66,7 +70,13 @@ Make sure you add at least:
 - By configuration
     - a _User Property_-type attribute with the name _username_. Use _username_ for the attributes **Property**, **Name**. Use the selectable _urn:oid:1.2.840.113549.1.9.1_ as **SAML Attribute Name**.
 
+![](/images/previews/client-scopes.png)
+
 ![](/images/previews/add-mappers.png)
+
+![](/images/previews/add-username-mapper.png)
+
+![](/images/previews/mapper-rename-saml-attribute-name.png)
 
 Edit the email attribute to use the word _email_ as the **SAML Attribute Name**.
 ![](/images/previews/edit-email-attribute.png)
@@ -100,7 +110,7 @@ curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms
 1. Next, navigate to the **Realm settings** tab.
 2. Select _SAML Metadata IDPSSODescriptor_ as the Format Option and click the **Download** button.
 ⚠️ This GUI option has been removed from the newer versions of Keycloak. But there is a link to show the content in the browser.
-![](/images/previews/download-IDPSSODescriptor-file.png)
+![](/images/previews/Export-idp-metadata-option.png)
 
 After you've downloaded the XML file with one of the above ways, move it to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 ** Note:** It may occur that the XML-file is not properly formatted. Please use a XML-formatting tool to repair the file in this case.
@@ -174,7 +184,7 @@ option brings you to the user list page. On the right side of the
 empty user list, you should see an **Add User** button. Click that to
 start creating your new user.
 
-![](/images/previews/add-user.png)
+![](/images/previews/create-user.png)
 
 ### Optional: integrate company-wide authentication services
 
@@ -237,7 +247,7 @@ the link of the same name in the left sidebar.  Click the **Add
 Role** button. Enter a name (e.g.  `brca_tcga_pub`) and description
 for the role and hit the **Save** button.
 
-![](/images/previews/add-role-for-study.png)
+![](/images/previews/create-role.png)
 
 **Note:** if `filter_groups_by_appname` is set to `false` as specified above, the `Role Name` has to match with an id of the study you would give access to by assigning this role. Otherwise, if `filter_groups_by_appname` is set to `true` (**DEFAULT**), you have to add the application name (`app.name`) followed by the colon as a prefix to the study id. e.g. `cbioportal:brca_tcga_pub`
 
@@ -267,7 +277,7 @@ _cbioportal_ client in the dropdown under **Client Roles**, and use
 the **Available Roles** selection and its **Add selected** button to
 assign client roles to this user.
 
-![](/images/previews/assign-role-to-user.png)
+![](/images/previews/assign-user-role.png)
 
 To automatically assign roles to all users when Keycloak first sees
 them, the **Roles** pane accessed from the left sidebar has a
@@ -296,7 +306,7 @@ The step below were verified to work with Keycloak version 26.4.2.
 
 1. Create a client with name `cbioportal_api`. Set _Client Protocol_ to `openid-connect`.
 
-![](/images/previews/oauth2_client_1.png)
+![](/images/previews/create-api-client.png)
 
 2. On the configuration page of `cbioportal_api` client apply the following settings:
 
@@ -318,12 +328,14 @@ The step below were verified to work with Keycloak version 26.4.2.
 | Direct Access Grants | OFF      |    |
 | Service Accounts roles | ON     |     |
 
+![](/images/previews/create-api-client-step2.png)
+
 #### Login settings:
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
 | Valid Redirect URIs | _url_/api/data-access-token/oauth2  |  _url_ refers to base url of cBioPortal instance |
 
-![](/images/previews/oauth2_client_3.png)
+![](/images/previews/create-api-client-step3.png)
 
 #### Credentials tab
 
@@ -333,17 +345,19 @@ Select `Client Id and Secret`. Take notice of the value of _Secret_ the secret f
 | ------------- |:-------------:| -----:|
 | Client Authenticator     | Client Id and Secret |   (default value) |
 
-![](/images/previews/oauth2_client_6.png)
+![](/images/previews/api-client-credentials.png)
 
 #### Client Scopes tab
 
 Keep only scopes `roles` and `offline_access` (remove all others).
 
-![](/images/previews/oauth2_client_2.png)
+![](/images/previews/api-client-client-scopes-tab.png)
 
 #### Mapper tab
 Select cbioportal-api-dedicated and Create a new _Audience_ mapper with name `cbioportal_api_audience`. This value will be used by the cBioPortal backend during validation of access tokens.
 Create the Mapper with **configure new mapper**.
+
+![](/images/previews/api-client-mappers-tab.png)
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|
@@ -353,9 +367,9 @@ Create the Mapper with **configure new mapper**.
 | Add to ID token      | OFF        |  (default value)  |
 | Add to access token  | ON      |   (default value)  |
 
-![](/images/previews/oauth2_client_4.png)
+![](/images/previews/api-create-audience-mapper.png)
 Since newer Keycloak versions dont send the subject in the Access token also add the predefined SUB Mapper to the client.
-![]()
+![](/images/previews/api-client-add-sub-mapper)
 
 #### Scope tab
 
@@ -365,7 +379,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 | ------------- |:-------------:| -----:|
 | Full Scope Allowed       | ON | (default value) |
 
-![](/images/previews/oauth2_client_5.png)
+![](/images/previews/api-mapper-scope.png)
 
 3. Add these parameters to `security.properties` of the cbioportal backend as specified in [Data Access Token Settings](/deployment/customization/security.properties-reference/#data-access-token-settings)
 
@@ -399,7 +413,7 @@ By default user-roles are extracted from path `resource_access::cbioportal::role
 
 To check the the roles path, go into the `Client Scopes` tab inside KeyCloak. Enter the `Evaluate` section and select a test user. In the section below, select the `Generated Access Token` tab to examine the JWT structure. 
 
-![](/images/previews/oauth2_client_7.png)
+![](/images/previews/api-client-evaluate-scope.png)
 
 A sample JWT might look like this:
 ```

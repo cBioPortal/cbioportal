@@ -6,61 +6,55 @@
             id="getStructuralVariants"
             resultType="org.cbioportal.application.file.model.StructuralVariant"
             resultSetType="FORWARD_ONLY">
+        <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT
-            s.STABLE_ID AS sampleId,
-            sv.SITE1_ENTREZ_GENE_ID AS site1EntrezGeneId,
-            g1.HUGO_GENE_SYMBOL AS site1HugoSymbol,
-            sv.SITE1_ENSEMBL_TRANSCRIPT_ID AS site1EnsemblTranscriptId,
-            sv.SITE1_CHROMOSOME AS site1Chromosome,
-            sv.SITE1_REGION AS site1Region,
-            sv.SITE1_REGION_NUMBER AS site1RegionNumber,
-            sv.SITE1_CONTIG AS site1Contig,
-            sv.SITE1_POSITION AS site1Position,
-            sv.SITE1_DESCRIPTION AS site1Description,
-            sv.SITE2_ENTREZ_GENE_ID AS site2EntrezGeneId,
-            g2.HUGO_GENE_SYMBOL AS site2HugoSymbol,
-            sv.SITE2_ENSEMBL_TRANSCRIPT_ID AS site2EnsemblTranscriptId,
-            sv.SITE2_CHROMOSOME AS site2Chromosome,
-            sv.SITE2_REGION AS site2Region,
-            sv.SITE2_REGION_NUMBER AS site2RegionNumber,
-            sv.SITE2_CONTIG AS site2Contig,
-            sv.SITE2_POSITION AS site2Position,
-            sv.SITE2_DESCRIPTION AS site2Description,
-            sv.SITE2_EFFECT_ON_FRAME AS site2EffectOnFrame,
-            sv.NCBI_BUILD AS ncbiBuild,
-            sv.DNA_SUPPORT AS dnaSupport,
-            sv.RNA_SUPPORT AS rnaSupport,
-            sv.NORMAL_READ_COUNT AS normalReadCount,
-            sv.TUMOR_READ_COUNT AS tumorReadCount,
-            sv.NORMAL_VARIANT_COUNT AS normalVariantCount,
-            sv.TUMOR_VARIANT_COUNT AS tumorVariantCount,
-            sv.NORMAL_PAIRED_END_READ_COUNT AS normalPairedEndReadCount,
-            sv.TUMOR_PAIRED_END_READ_COUNT AS tumorPairedEndReadCount,
-            sv.NORMAL_SPLIT_READ_COUNT AS normalSplitReadCount,
-            sv.TUMOR_SPLIT_READ_COUNT AS tumorSplitReadCount,
-            sv.ANNOTATION AS annotation,
-            sv.BREAKPOINT_TYPE AS breakpointType,
-            sv.CONNECTION_TYPE AS connectionType,
-            sv.EVENT_INFO AS eventInfo,
-            sv.CLASS AS structuralVariantClass,
-            sv.LENGTH AS length,
-            sv.COMMENTS AS comments,
-            sv.SV_STATUS AS svStatus
+            s.stable_id AS sampleId,
+            sv.site1_entrez_gene_id AS site1EntrezGeneId,
+            g1.hugo_gene_symbol AS site1HugoSymbol,
+            sv.site1_ensembl_transcript_id AS site1EnsemblTranscriptId,
+            sv.site1_chromosome AS site1Chromosome,
+            sv.site1_region AS site1Region,
+            sv.site1_region_number AS site1RegionNumber,
+            sv.site1_contig AS site1Contig,
+            sv.site1_position AS site1Position,
+            sv.site1_description AS site1Description,
+            sv.site2_entrez_gene_id AS site2EntrezGeneId,
+            g2.hugo_gene_symbol AS site2HugoSymbol,
+            sv.site2_ensembl_transcript_id AS site2EnsemblTranscriptId,
+            sv.site2_chromosome AS site2Chromosome,
+            sv.site2_region AS site2Region,
+            sv.site2_region_number AS site2RegionNumber,
+            sv.site2_contig AS site2Contig,
+            sv.site2_position AS site2Position,
+            sv.site2_description AS site2Description,
+            sv.site2_effect_on_frame AS site2EffectOnFrame,
+            sv.ncbi_build AS ncbiBuild,
+            sv.dna_support AS dnaSupport,
+            sv.rna_support AS rnaSupport,
+            sv.normal_read_count AS normalReadCount,
+            sv.tumor_read_count AS tumorReadCount,
+            sv.normal_variant_count AS normalVariantCount,
+            sv.tumor_variant_count AS tumorVariantCount,
+            sv.normal_paired_end_read_count AS normalPairedEndReadCount,
+            sv.tumor_paired_end_read_count AS tumorPairedEndReadCount,
+            sv.normal_split_read_count AS normalSplitReadCount,
+            sv.tumor_split_read_count AS tumorSplitReadCount,
+            sv.annotation AS annotation,
+            sv.breakpoint_type AS breakpointType,
+            sv.connection_type AS connectionType,
+            sv.event_info AS eventInfo,
+            sv.class AS structuralVariantClass,
+            sv.length AS length,
+            sv.comments AS comments,
+            sv.sv_status AS svStatus
         FROM structural_variant sv
         JOIN genetic_profile gp ON gp.genetic_profile_id = sv.genetic_profile_id
         JOIN sample s ON s.internal_id = sv.sample_id
-        <if test="sampleIds != null">
-            JOIN (
-                SELECT *
-                FROM (VALUES
-                <foreach item="sid" collection="sampleIds" separator=",">
-                    ROW(#{sid})
-                </foreach>
-                ) AS temp(sample_id)
-            ) AS sample_ids_subquery ON sample_ids_subquery.sample_id = s.STABLE_ID
-        </if>
         LEFT JOIN gene g1 ON g1.entrez_gene_id = sv.site1_entrez_gene_id
         LEFT JOIN gene g2 ON g2.entrez_gene_id = sv.site2_entrez_gene_id
         WHERE gp.stable_id = #{molecularProfileStableId}
+        <if test="sampleIds != null">
+            AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </if>
     </select>
 </mapper>

@@ -83,22 +83,21 @@ pom_derived_table_version=${found_delimited_substrings[0]}
 cgds_db_sql_version_line=$(grep -A1 'INSERT INTO `info`' ${DIR}/../src/main/resources/db-scripts/cgds.sql | tail -n 1)
 find_delimited_substrings "$cgds_db_sql_version_line" "'" "'"
 cgds_db_sql_version=${found_delimited_substrings[0]}
-cgds_db_derived_table_version=${found_delimited_substrings[1]}
 
 migration_db_version_line=$(grep 'UPDATE `info` SET `DB_SCHEMA_VERSION`' ${DIR}/../src/main/resources/db-scripts/migration.sql | tail -n 1 )
 find_delimited_substrings "$migration_db_version_line" '"' '"'
 migration_db_version=${found_delimited_substrings[0]}
 
-migration_derived_table_version_line=$(grep 'UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`' ${DIR}/../src/main/resources/db-scripts/migration.sql | tail -n 1 )
-find_delimited_substrings "$migration_derived_table_version_line" '"' '"'
-migration_derived_table_version=${found_delimited_substrings[0]}
+# Extract derived table version from first line of clickhouse.sql
+clickhouse_derived_table_version_line=$(head -n 1 ${DIR}/../src/main/resources/db-scripts/clickhouse/clickhouse.sql)
+# Extract version number from comment like: -- version 1.0.6 of derived table schema and data definition
+clickhouse_derived_table_version=$(echo "$clickhouse_derived_table_version_line" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
 
 echo "pom.xml db version is $pom_db_version"
 echo "src/main/resources/db-scripts/cgds.sql db version is $cgds_db_sql_version"
-echo src/main/resources/db-scripts/migration.sql db version is $migration_db_version
+echo "src/main/resources/db-scripts/migration.sql db version is $migration_db_version"
 echo "pom.xml derived_table version is $pom_derived_table_version"
-echo "src/main/resources/db-scripts/cgds.sql derived_table_version is $cgds_db_derived_table_version"
-echo src/main/resources/db-scripts/migration.sql derived_table version is $migration_derived_table_version
+echo "src/main/resources/db-scripts/clickhouse/clickhouse.sql derived_table version is $clickhouse_derived_table_version"
 
 if [ "$pom_db_version" == "$cgds_db_sql_version" ] &&
         [ "$cgds_db_sql_version" == "$migration_db_version" ] ; then
@@ -106,8 +105,8 @@ if [ "$pom_db_version" == "$cgds_db_sql_version" ] &&
 else
     db_versions_all_match="no"
 fi
-if [ "$pom_derived_table_version" == "$cgds_db_derived_table_version" ] &&
-        [ "$cgds_db_derived_table_version" == "$migration_derived_table_version" ] ; then
+
+if [ "$pom_derived_table_version" == "$clickhouse_derived_table_version" ] ; then
     derived_table_versions_all_match="yes"
 else
     derived_table_versions_all_match="no"

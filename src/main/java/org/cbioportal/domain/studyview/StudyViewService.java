@@ -304,10 +304,13 @@ public class StudyViewService {
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(
-      StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+      StudyViewFilter studyViewFilter,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds) {
     return genomicDataUseCases
         .getMutationCountsByTypeUseCase()
-        .execute(buildStudyViewFilterContext(studyViewFilter), genomicDataFilters);
+        .execute(
+            buildStudyViewFilterContext(studyViewFilter), genomicDataFilters, includeSampleIds);
   }
 
   @Cacheable(

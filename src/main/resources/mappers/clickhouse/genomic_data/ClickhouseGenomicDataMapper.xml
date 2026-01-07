@@ -127,26 +127,92 @@
 
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
     <select id="getMutationCountsByType" resultMap="GenomicDataCountItemResultMap">
-        SELECT
-            hugo_gene_symbol as hugoGeneSymbol,
-            'mutations' as profileType,
-            replace(mutation_type, '_', ' ') as label,
-            mutation_type as value,
-            count(*) as count,
-            count(distinct(sample_unique_id)) as uniqueCount,
-            arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
-            FROM genomic_event_derived
-        <where>
+        WITH
+            <if test="includeSampleIds">
+                all_samples AS (
+                SELECT sample_unique_id
+                FROM sample_derived
+                WHERE cancer_study_identifier IN
+                <foreach collection="studyViewFilterContext.studyIds" item="studyId" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+                ),
+            </if>
+            mutated_samples AS (
+                SELECT
+                sample_unique_id,
+                hugo_gene_symbol,
+                mutation_type
+                FROM genomic_event_derived
+                <where>
+                    <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    AND variant_type = 'mutation'
+                    <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                        hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                    </foreach>
+                </where>
+            )
+        <if test="includeSampleIds">
+            ,
+            profiled_samples as (
+            SELECT DISTINCT sgp.sample_unique_id
+            FROM sample_to_gene_panel_derived sgp
+            JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+            WHERE
             <include
-                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-            AND variant_type = 'mutation'
-            <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
-                hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-            </foreach>
-        </where>
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            AND gpg.gene = #{genomicDataFilters[0].hugoGeneSymbol}
+            AND sgp.alteration_type = 'MUTATION_EXTENDED'
+            )
+        </if>
+               
+        SELECT
+            hugo_gene_symbol AS hugoGeneSymbol,
+            'mutations' AS profileType,
+            replace(mutation_type, '_', ' ') AS label,
+            mutation_type AS value,
+            COUNT(*) AS count,
+            COUNT(DISTINCT sample_unique_id) AS uniqueCount
+            <if test="includeSampleIds">
+                ,
+                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+            </if>
+        FROM
+            mutated_samples
         GROUP BY
-        mutation_type,
-        hugo_gene_symbol
+            hugo_gene_symbol,
+            mutation_type
+
+        <if test="includeSampleIds">
+            UNION ALL
+
+            SELECT
+                #{genomicDataFilters[0].hugoGeneSymbol} as hugoGeneSymbol,
+                'Not Mutated' AS profileType,
+                'Not Mutated' AS label,
+                'NOT_MUTATED' AS value,
+                COUNT(*) AS count,
+                COUNT(DISTINCT sample_unique_id) AS uniqueCount,
+                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+            FROM profiled_samples
+            where sample_unique_id NOT in (SELECT sample_unique_id from mutated_samples)
+
+            UNION ALL
+
+            SELECT
+                #{genomicDataFilters[0].hugoGeneSymbol} AS hugoGeneSymbol,
+                'Not Profiled' AS profileType,
+                'Not Profiled' AS label,
+                'NOT_PROFILED' AS value,
+                COUNT(*) AS count,
+                COUNT(DISTINCT sample_unique_id) AS uniqueCount,
+                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+            FROM all_samples
+            WHERE
+            sample_unique_id NOT IN (  SELECT sample_unique_id FROM profiled_samples
+            )
+        </if>
     </select>
 
     <resultMap id="GenomicDataCountItemResultMap" type="org.cbioportal.legacy.model.GenomicDataCountItem">

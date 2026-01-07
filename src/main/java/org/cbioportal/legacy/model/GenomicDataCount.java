@@ -28,13 +28,14 @@ public class GenomicDataCount implements Serializable {
     this.uniqueCount = uniqueCount;
   }
 
-    public GenomicDataCount(String label, String value, Integer count, Integer uniqueCount, List<String> sampleIds) {
-        this.label = label;
-        this.value = value;
-        this.count = count;
-        this.uniqueCount = uniqueCount;
-        this.sampleIds = sampleIds;
-    }
+  public GenomicDataCount(
+      String label, String value, Integer count, Integer uniqueCount, List<String> sampleIds) {
+    this.label = label;
+    this.value = value;
+    this.count = count;
+    this.uniqueCount = uniqueCount;
+    this.sampleIds = sampleIds;
+  }
 
   public String getLabel() {
     return label;
@@ -59,18 +60,18 @@ public class GenomicDataCount implements Serializable {
   public void setCount(Integer count) {
     this.count = count;
   }
-  
+
   public List<String> getSampleIds() {
-      return sampleIds;
-  }
-  
-  public void setSampleIds(String sampleIdsStr) {
-      if (sampleIdsStr != null && !sampleIdsStr.isEmpty()) {
-          this.sampleIds = Arrays.asList(sampleIdsStr.split(","));
-      }
+    return sampleIds;
   }
 
-    public Integer getUniqueCount() {
+  public void setSampleIds(String sampleIdsStr) {
+    if (sampleIdsStr != null && !sampleIdsStr.isEmpty()) {
+      this.sampleIds = Arrays.asList(sampleIdsStr.split(","));
+    }
+  }
+
+  public Integer getUniqueCount() {
     return uniqueCount;
   }
 
@@ -87,5 +88,10 @@ public class GenomicDataCount implements Serializable {
         && Objects.equals(value, that.value)
         && Objects.equals(count, that.count)
         && Objects.equals(uniqueCount, that.uniqueCount);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(label, value, count, uniqueCount);
   }
 }

@@ -88,4 +88,9 @@ public class GenomicDataCount implements Serializable {
         && Objects.equals(count, that.count)
         && Objects.equals(uniqueCount, that.uniqueCount);
   }
+  
+  @Override
+  public int hashCode() {
+      return Objects.hash(label, value, count, uniqueCount);
+  }
 }

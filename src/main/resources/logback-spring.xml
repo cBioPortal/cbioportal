@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--
+        Logback configuration for MCP Server
+        CRITICAL: MCP protocol uses STDOUT for JSON messages
+        All application logs MUST go to STDERR or file, NEVER to STDOUT
+    -->
+
+    <!-- Disable logback status messages -->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener" />
+
+    <!-- Console appender that outputs to STDERR (not STDOUT) -->
+    <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <encoder>
+            <pattern>%date %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger - output to STDERR only -->
+    <root level="WARN">
+        <appender-ref ref="STDERR" />
+    </root>
+
+    <!-- Application-specific loggers -->
+    <logger name="org.cbioportal.infrastructure.ai" level="INFO" additivity="false">
+        <appender-ref ref="STDERR" />
+    </logger>
+
+    <logger name="org.springframework" level="WARN" additivity="false">
+        <appender-ref ref="STDERR" />
+    </logger>
+
+    <logger name="org.springframework.boot" level="WARN" additivity="false">
+        <appender-ref ref="STDERR" />
+    </logger>
+</configuration>

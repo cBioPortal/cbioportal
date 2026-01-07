@@ -27,14 +27,14 @@ public class GenomicDataCount implements Serializable {
     this.count = count;
     this.uniqueCount = uniqueCount;
   }
-
-    public GenomicDataCount(String label, String value, Integer count, Integer uniqueCount, List<String> sampleIds) {
-        this.label = label;
-        this.value = value;
-        this.count = count;
-        this.uniqueCount = uniqueCount;
-        this.sampleIds = sampleIds;
-    }
+  
+  public GenomicDataCount(String label, String value, Integer count, Integer uniqueCount, List<String> sampleIds) {
+      this.label = label;
+      this.value = value;
+      this.count = count;
+      this.uniqueCount = uniqueCount;
+      this.sampleIds = sampleIds;
+  }
 
   public String getLabel() {
     return label;
@@ -60,19 +60,15 @@ public class GenomicDataCount implements Serializable {
     this.count = count;
   }
   
-  public List<String> getSampleIds() {
-      return sampleIds;
-  }
+  public List<String> getSampleIds() {return sampleIds;}
   
   public void setSampleIds(String sampleIdsStr) {
       if (sampleIdsStr != null && !sampleIdsStr.isEmpty()) {
           this.sampleIds = Arrays.asList(sampleIdsStr.split(","));
       }
   }
-
-    public Integer getUniqueCount() {
-    return uniqueCount;
-  }
+  
+  public Integer getUniqueCount() {return uniqueCount;}
 
   public void setUniqueCount(Integer uniqueCount) {
     this.uniqueCount = uniqueCount;

@@ -133,7 +133,8 @@
             replace(mutation_type, '_', ' ') as label,
             mutation_type as value,
             count(*) as count,
-            count(distinct(sample_unique_id)) as uniqueCount
+            count(distinct(sample_unique_id)) as uniqueCount,
+            arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
             FROM genomic_event_derived
         <where>
             <include
@@ -156,6 +157,7 @@
             <result property="label" column="label"/>
             <result property="count" column="count"/>
             <result property="uniqueCount" column="uniqueCount"/>
+            <result property="sampleIds" column="sampleIdsStr"/>
         </collection>
     </resultMap>
 

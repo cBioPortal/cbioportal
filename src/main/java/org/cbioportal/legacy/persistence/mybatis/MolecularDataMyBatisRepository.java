@@ -9,12 +9,21 @@ import org.cbioportal.legacy.model.GenesetMolecularAlteration;
 import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import org.cbioportal.legacy.model.Sample;
+import org.cbioportal.legacy.service.SampleService;
 
 @Repository
 public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 
   @Autowired private MolecularDataMapper molecularDataMapper;
+  
+  @Autowired(required = false)
+  private SampleService sampleService;
+  
+  @Value("${clickhouse_mode:false}")
+  private boolean clickhouseMode;
 
   @Override
   public MolecularProfileSamples getCommaSeparatedSampleIdsOfMolecularProfile(
@@ -71,8 +80,116 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
   public List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(
       Set<String> molecularProfileIds, List<Integer> entrezGeneIds, String projection) {
 
+    if (clickhouseMode) {
+      return getGeneMolecularAlterationsInMultipleMolecularProfilesClickHouse(
+          molecularProfileIds, entrezGeneIds, projection);
+    }
+    
     return molecularDataMapper.getGeneMolecularAlterationsInMultipleMolecularProfiles(
         molecularProfileIds, entrezGeneIds, projection);
+  }
+  
+  /**
+   * ClickHouse-optimized implementation that queries genetic_alteration_derived table
+   * and aggregates per-sample rows into CSV format expected by the service layer.
+   */
+  private List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfilesClickHouse(
+      Set<String> molecularProfileIds, List<Integer> entrezGeneIds, String projection) {
+    
+    List<GeneMolecularAlteration> rawRows = 
+        molecularDataMapper.getGeneMolecularAlterationsInMultipleMolecularProfilesClickHouse(
+            molecularProfileIds, entrezGeneIds);
+
+    if (rawRows.isEmpty()) {
+      return Collections.emptyList();
+    }
+    
+    // Group by profile
+    Map<String, List<GeneMolecularAlteration>> rowsByProfile = rawRows.stream()
+        .collect(Collectors.groupingBy(GeneMolecularAlteration::getMolecularProfileId));
+
+    // Get sample order for each profile
+    Map<String, MolecularProfileSamples> profileSamplesMap =
+        commaSeparatedSampleIdsOfMolecularProfilesMap(molecularProfileIds);
+
+    // Collect all internal IDs for sample lookup
+    List<Integer> allInternalIds = new ArrayList<>();
+    profileSamplesMap.values().forEach(s -> 
+        Arrays.stream(s.getSplitSampleIds())
+            .mapToInt(Integer::parseInt)
+            .forEach(allInternalIds::add));
+
+    // Fetch samples and build unique ID map
+    if (sampleService == null) {
+        throw new IllegalStateException("SampleService is required in ClickHouse mode but is not available.");
+    }
+    List<Sample> samples = sampleService.getSamplesByInternalIds(allInternalIds);
+    Map<Integer, Sample> internalIdToSample = samples.stream()
+        .collect(Collectors.toMap(Sample::getInternalId, Function.identity()));
+
+    List<GeneMolecularAlteration> results = new ArrayList<>();
+    
+    for (String profileId : profileSamplesMap.keySet()) {
+      MolecularProfileSamples mps = profileSamplesMap.get(profileId);
+      String[] sampleIds = mps.getSplitSampleIds();
+      
+      // Build sample unique ID order
+      List<String> sampleUniqueIdOrder = new ArrayList<>(sampleIds.length);
+      for (String internalIdStr : sampleIds) {
+        try {
+          int internalId = Integer.parseInt(internalIdStr);
+          Sample s = internalIdToSample.get(internalId);
+          if (s != null) {
+            sampleUniqueIdOrder.add(s.getCancerStudyIdentifier() + "_" + s.getStableId());
+          } else {
+            sampleUniqueIdOrder.add(null);
+          }
+        } catch (NumberFormatException e) {
+          // Skip invalid internalIdStr, add null to maintain order
+          sampleUniqueIdOrder.add(null);
+        }
+      }
+
+      List<GeneMolecularAlteration> profileRows = rowsByProfile.get(profileId);
+      if (profileRows == null) continue;
+
+      // Group rows by gene
+      Map<Integer, List<GeneMolecularAlteration>> geneRows = profileRows.stream()
+          .collect(Collectors.groupingBy(GeneMolecularAlteration::getEntrezGeneId));
+
+      for (Map.Entry<Integer, List<GeneMolecularAlteration>> entry : geneRows.entrySet()) {
+        Integer geneId = entry.getKey();
+        List<GeneMolecularAlteration> geneAlterations = entry.getValue();
+        
+        // Build map of sampleUniqueId -> value
+        Map<String, String> sampleValueMap = new HashMap<>();
+        for (GeneMolecularAlteration alt : geneAlterations) {
+          // Values field contains sampleUniqueId|value for ClickHouse rows
+          String[] parts = alt.getValues().split("\\|", 2);
+          if (parts.length == 2) {
+            sampleValueMap.put(parts[0], parts[1]);
+          }
+        }
+        
+        // Build CSV values string in sample order
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sampleUniqueIdOrder.size(); i++) {
+          if (i > 0) sb.append(',');
+          String sampleUniqueId = sampleUniqueIdOrder.get(i);
+          if (sampleUniqueId != null && sampleValueMap.containsKey(sampleUniqueId)) {
+            sb.append(sampleValueMap.get(sampleUniqueId));
+          }
+        }
+        
+        GeneMolecularAlteration alteration = new GeneMolecularAlteration();
+        alteration.setEntrezGeneId(geneId);
+        alteration.setMolecularProfileId(profileId);
+        alteration.setValues(sb.toString());
+        results.add(alteration);
+      }
+    }
+
+    return results;
   }
 
   @Override

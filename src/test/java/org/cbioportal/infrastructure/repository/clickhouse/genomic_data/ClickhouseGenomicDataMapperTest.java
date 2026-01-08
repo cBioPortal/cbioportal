@@ -119,7 +119,7 @@ public class ClickhouseGenomicDataMapperTest {
     List<GenomicDataCountItem> actualMutationCountsByType =
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of(genomicDataFilterMutation));
+            List.of(genomicDataFilterMutation), false);
     List<GenomicDataCountItem> expectedMutationCountsByType =
         List.of(
             new GenomicDataCountItem(

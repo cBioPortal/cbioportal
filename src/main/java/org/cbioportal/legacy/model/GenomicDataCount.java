@@ -1,6 +1,8 @@
 package org.cbioportal.legacy.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class GenomicDataCount implements Serializable {
@@ -9,6 +11,7 @@ public class GenomicDataCount implements Serializable {
   private String value;
   private Integer count;
   private Integer uniqueCount;
+  private List<String> sampleIds;
 
   public GenomicDataCount() {}
 
@@ -23,6 +26,14 @@ public class GenomicDataCount implements Serializable {
     this.value = value;
     this.count = count;
     this.uniqueCount = uniqueCount;
+  }
+  
+  public GenomicDataCount(String label, String value, Integer count, Integer uniqueCount, List<String> sampleIds) {
+      this.label = label;
+      this.value = value;
+      this.count = count;
+      this.uniqueCount = uniqueCount;
+      this.sampleIds = sampleIds;
   }
 
   public String getLabel() {
@@ -48,10 +59,16 @@ public class GenomicDataCount implements Serializable {
   public void setCount(Integer count) {
     this.count = count;
   }
-
-  public Integer getUniqueCount() {
-    return uniqueCount;
+  
+  public List<String> getSampleIds() {return sampleIds;}
+  
+  public void setSampleIds(String sampleIdsStr) {
+      if (sampleIdsStr != null && !sampleIdsStr.isEmpty()) {
+          this.sampleIds = Arrays.asList(sampleIdsStr.split(","));
+      }
   }
+  
+  public Integer getUniqueCount() {return uniqueCount;}
 
   public void setUniqueCount(Integer uniqueCount) {
     this.uniqueCount = uniqueCount;
@@ -67,9 +84,9 @@ public class GenomicDataCount implements Serializable {
         && Objects.equals(count, that.count)
         && Objects.equals(uniqueCount, that.uniqueCount);
   }
-
+  
   @Override
   public int hashCode() {
-    return Objects.hash(label, value, count, uniqueCount);
+      return Objects.hash(label, value, count, uniqueCount);
   }
 }

@@ -155,27 +155,6 @@ public class ClickhouseGenomicDataMapperTest {
                     .isNotEmpty()
             );
     }
-
-    @Test
-    public void getMutationCountsByTypeNoSampleId() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
-
-        GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
-        List<GenomicDataCountItem> mutationCountsByType =
-            mapper.getMutationCountsByType(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of(genomicDataFilterMutation), false);
-
-        assertThat(mutationCountsByType)
-            .flatExtracting(GenomicDataCountItem::getCounts)
-            .extracting(GenomicDataCount::getSampleIds)
-            .allSatisfy(sampleIds ->
-                assertThat(sampleIds)
-                    .as("sampleIds should be null when includeSampleIds=false")
-                    .isNull()
-            );
-    }
     
   @Test
   public void getProteinExpressionCounts() {

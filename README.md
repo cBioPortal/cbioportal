@@ -1,4 +1,4 @@
-# cBioPortal
+# cBioPortal (v6)
 
 [![Endpoint Badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FcBioPortal%2Fcbioportal-test%2Frefs%2Fheads%2Fmain%2Fsecurity-status.json)](https://docs.cbioportal.org/development/security/)
 

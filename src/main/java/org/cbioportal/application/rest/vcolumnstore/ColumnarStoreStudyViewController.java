@@ -46,6 +46,7 @@ import org.cbioportal.legacy.service.util.ClinicalDataUtil;
 import org.cbioportal.legacy.service.util.CustomDataSession;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.columnar.util.NewStudyViewFilterUtil;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
@@ -73,6 +74,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@InternalApi
 @RestController
 @RequestMapping("/api/column-store")
 public class ColumnarStoreStudyViewController {

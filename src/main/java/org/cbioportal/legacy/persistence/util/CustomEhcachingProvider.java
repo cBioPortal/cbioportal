@@ -67,6 +67,12 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
   @Value("${ehcache.static_repository_cache_one.max_mega_bytes_heap:30}")
   private Integer staticRepositoryCacheOneMaxMegaBytes;
 
+  @Value("${ehcache.general_repository_cache.max_entries:100000}")
+  private Long generalRepositoryCacheMaxEntries;
+
+  @Value("${ehcache.static_repository_cache_one.max_entries:3000}")
+  private Long staticRepositoryCacheOneMaxEntries;
+
   @Value("${ehcache.persistence_path:/tmp/}")
   private String persistencePath;
 
@@ -97,13 +103,19 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
             ResourcePoolsBuilder.newResourcePoolsBuilder();
 
         // Set up heap resources as long as not disk-only
+        // Use entry count instead of memory-based sizing to avoid Java 17+ module system issues
         if (!cacheType.equalsIgnoreCase(CacheEnabledConfig.EHCACHE_DISK)) {
+          LOG.info("EhCache: Configuring heap-based caching with entry counts:");
+          LOG.info(
+              "EhCache:   GeneralRepositoryCache max entries: {}",
+              generalRepositoryCacheMaxEntries);
+          LOG.info(
+              "EhCache:   StaticRepositoryCacheOne max entries: {}",
+              staticRepositoryCacheOneMaxEntries);
           generalRepositoryCacheResourcePoolsBuilder =
-              generalRepositoryCacheResourcePoolsBuilder.heap(
-                  generalRepositoryCacheMaxMegaBytes, MemoryUnit.MB);
+              generalRepositoryCacheResourcePoolsBuilder.heap(generalRepositoryCacheMaxEntries);
           staticRepositoryCacheOneResourcePoolsBuilder =
-              staticRepositoryCacheOneResourcePoolsBuilder.heap(
-                  staticRepositoryCacheOneMaxMegaBytes, MemoryUnit.MB);
+              staticRepositoryCacheOneResourcePoolsBuilder.heap(staticRepositoryCacheOneMaxEntries);
         }
         // Set up disk resources as long as not heap-only
         // will default to using /tmp -- let Ehcache throw exception if persistence path is invalid
@@ -124,8 +136,6 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
                     Object.class,
                     Object.class,
                     generalRepositoryCacheResourcePoolsBuilder)
-                .withSizeOfMaxObjectGraph(Long.MAX_VALUE)
-                .withSizeOfMaxObjectSize(Long.MAX_VALUE, MemoryUnit.B)
                 .build();
         CacheConfiguration<Object, Object> staticRepositoryCacheOneConfiguration =
             xmlConfiguration
@@ -134,8 +144,6 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
                     Object.class,
                     Object.class,
                     staticRepositoryCacheOneResourcePoolsBuilder)
-                .withSizeOfMaxObjectGraph(Long.MAX_VALUE)
-                .withSizeOfMaxObjectSize(Long.MAX_VALUE, MemoryUnit.B)
                 .build();
 
         // places caches in a map which will be used to create cache manager
@@ -156,22 +164,23 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
         }
 
         toReturn = this.getCacheManager(this.getDefaultURI(), configuration);
+        LOG.info("EhCache: CacheManager created successfully with cache type: {}", cacheType);
       } else {
         LOG.info("Caching is disabled");
         // we can not really disable caching,
         // we can not make a cache of 0 objects,
-        // and we can not make a heap of memory size 0, so make a tiny heap
+        // so make a tiny heap with 1 entry
         CacheConfiguration<Object, Object> generalRepositoryCacheConfiguration =
             CacheConfigurationBuilder.newCacheConfigurationBuilder(
                     Object.class,
                     Object.class,
-                    ResourcePoolsBuilder.newResourcePoolsBuilder().heap(1, MemoryUnit.B))
+                    ResourcePoolsBuilder.newResourcePoolsBuilder().heap(1))
                 .build();
         CacheConfiguration<Object, Object> staticRepositoryCacheOneConfiguration =
             CacheConfigurationBuilder.newCacheConfigurationBuilder(
                     Object.class,
                     Object.class,
-                    ResourcePoolsBuilder.newResourcePoolsBuilder().heap(1, MemoryUnit.B))
+                    ResourcePoolsBuilder.newResourcePoolsBuilder().heap(1))
                 .build();
 
         Map<String, CacheConfiguration<?, ?>> caches = new HashMap<>();

@@ -32,42 +32,33 @@ public class CacheEnabledConfig {
 
   @PostConstruct
   public void init() {
-    this.enabled = enableCache(cacheType);
-    LOG.info("Cache is enabled: " + this.enabled);
-    this.enabledClickhouse = enableCache(cacheTypeClickhouse);
-    LOG.info("Cache is enabled for clickhouse: " + this.enabledClickhouse);
+    // Hardcoded to always enable ehcache-heap caching
+    this.enabled = true;
+    this.enabledClickhouse = true;
+    this.cacheType = EHCACHE_HEAP;
+    this.cacheTypeClickhouse = EHCACHE_HEAP;
+    LOG.info("Cache is HARDCODED to enabled (ehcache-heap): true");
+    LOG.info("Cache is HARDCODED to enabled for clickhouse (ehcache-heap): true");
   }
 
   public static boolean enableCache(String cacheType) {
-    for (String validCacheType : validCacheTypes) {
-      if (validCacheType.equalsIgnoreCase(cacheType)) {
-        return true;
-      }
-    }
-    return false;
+    // Always return true - caching is hardcoded to be enabled
+    return true;
   }
 
   public String getEnabled() {
-    if (enabled) {
-      return "true";
-    } else {
-      return "false";
-    }
+    return "true";
   }
 
   public boolean isEnabled() {
-    return enabled;
+    return true;
   }
 
   public String getEnabledClickhouse() {
-    if (enabledClickhouse) {
-      return "true";
-    } else {
-      return "false";
-    }
+    return "true";
   }
 
   public boolean isEnabledClickhouse() {
-    return enabledClickhouse;
+    return true;
   }
 }

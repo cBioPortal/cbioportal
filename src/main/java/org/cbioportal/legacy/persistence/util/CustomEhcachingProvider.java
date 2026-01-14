@@ -58,8 +58,8 @@ public class CustomEhcachingProvider extends EhcacheCachingProvider {
   @Value("${ehcache.xml_configuration:/ehcache.xml}")
   private String xmlConfigurationFile;
 
-  @Value("${persistence.cache_type:no-cache}")
-  private String cacheType;
+  // Hardcoded to ehcache-heap - ignores configuration
+  private String cacheType = "ehcache-heap";
 
   @Value("${ehcache.general_repository_cache.max_mega_bytes_heap:1024}")
   private Integer generalRepositoryCacheMaxMegaBytes;

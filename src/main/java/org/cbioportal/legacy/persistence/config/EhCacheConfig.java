@@ -2,7 +2,6 @@ package org.cbioportal.legacy.persistence.config;
 
 import org.cbioportal.legacy.persistence.util.CustomEhcachingProvider;
 import org.cbioportal.legacy.persistence.util.CustomKeyGenerator;
-import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
@@ -16,9 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableCaching
-@ConditionalOnProperty(
-    name = "persistence.cache_type",
-    havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
+// Hardcoded to always enable EhCache - no conditional property check
 public class EhCacheConfig extends CachingConfigurerSupport {
 
   private static final Logger LOG = LoggerFactory.getLogger(EhCacheConfig.class);

@@ -118,7 +118,6 @@ public class ColumnarStoreStudyViewController {
         SampleMapper.INSTANCE.toDtos(studyViewService.getFilteredSamples(studyViewFilter)));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/mutated-genes/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -131,7 +130,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getMutatedGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/molecular-profile-sample-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -153,7 +151,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getMolecularProfileSampleCounts(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/cna-genes/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -166,7 +163,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getCnaGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/structuralvariant-genes/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -189,7 +185,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getStructuralVariantGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/clinical-data-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -212,7 +207,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(result);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/sample-lists-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -229,7 +223,6 @@ public class ColumnarStoreStudyViewController {
     return studyViewService.getCaseListDataCounts(studyViewFilter);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/clinical-data-bin-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -245,7 +238,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/clinical-data-density-plot/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -314,7 +306,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(
@@ -367,7 +358,8 @@ public class ColumnarStoreStudyViewController {
     // this new modified filter is used to fetch sample and patient clinical data.
     // this is required to get the complete violin plot data.
     // filteredSamples reflects only the original unmodified study view filter.
-    // we will need to fetch samples again to get the samples corresponding to this modified filter,
+    // we will need to fetch samples again to get the samples corresponding to this
+    // modified filter,
     // otherwise patient to sample mapping may be incomplete.
     if (studyViewFilter.getClinicalDataFilters() != null) {
       studyViewFilter.getClinicalDataFilters().stream()
@@ -404,7 +396,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/genomic-data-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -426,9 +417,11 @@ public class ColumnarStoreStudyViewController {
       throws StudyNotFoundException {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
     if (genomicDataFilters.size() == 1) {
       NewStudyViewFilterUtil.removeSelfFromGenomicDataFilter(
@@ -437,7 +430,8 @@ public class ColumnarStoreStudyViewController {
           studyViewFilter);
     }
 
-    // This endpoint is CNA specific. The name choice of "genomic data" does not imply it support
+    // This endpoint is CNA specific. The name choice of "genomic data" does not
+    // imply it support
     // other genomic data types
     List<GenomicDataCountItem> result =
         studyViewService.getCNACountsByGeneSpecific(studyViewFilter, genomicDataFilters);
@@ -445,7 +439,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/generic-assay-data-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -469,9 +462,11 @@ public class ColumnarStoreStudyViewController {
     List<GenericAssayDataFilter> gaFilters =
         genericAssayDataCountFilter.getGenericAssayDataFilters();
     StudyViewFilter studyViewFilter = genericAssayDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
 
     if (gaFilters.size() == 1) {
@@ -483,7 +478,6 @@ public class ColumnarStoreStudyViewController {
         studyViewService.getGenericAssayDataCounts(studyViewFilter, gaFilters));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/mutation-data-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -501,9 +495,11 @@ public class ColumnarStoreStudyViewController {
           GenomicDataCountFilter genomicDataCountFilter) {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
-    // when there is only one filter, it means study view is doing a single chart filter operation
+    // when there is only one filter, it means study view is doing a single chart
+    // filter operation
     // remove filter from studyViewFilter to return all data counts
-    // the reason we do this is to make sure after chart get filtered, user can still see unselected
+    // the reason we do this is to make sure after chart get filtered, user can
+    // still see unselected
     // portion of the chart
     if (genomicDataFilters.size() == 1 && projection == Projection.SUMMARY) {
       NewStudyViewFilterUtil.removeSelfFromMutationDataFilter(
@@ -522,7 +518,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(result);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/clinical-event-type-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -590,7 +585,6 @@ public class ColumnarStoreStudyViewController {
         studyViewService.getSampleTreatmentReport(studyViewFilter, projection));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/custom-data-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -640,7 +634,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/custom-data-bin-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -665,7 +658,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(customDataBins);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/genomic-data-bin-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -685,7 +677,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(genomicDataBins);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PostMapping(
       value = "/generic-assay-data-bin-counts/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,

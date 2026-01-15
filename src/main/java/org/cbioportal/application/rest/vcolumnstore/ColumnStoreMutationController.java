@@ -71,8 +71,9 @@ public class ColumnStoreMutationController {
   @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @PostMapping(
+  @RequestMapping(
       value = "/mutations/fetch",
+      method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(

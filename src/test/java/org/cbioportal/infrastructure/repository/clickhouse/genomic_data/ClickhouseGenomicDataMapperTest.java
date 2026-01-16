@@ -119,7 +119,8 @@ public class ClickhouseGenomicDataMapperTest {
     List<GenomicDataCountItem> actualMutationCountsByType =
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of(genomicDataFilterMutation), false);
+            List.of(genomicDataFilterMutation),
+            false);
     List<GenomicDataCountItem> expectedMutationCountsByType =
         List.of(
             new GenomicDataCountItem(
@@ -134,28 +135,29 @@ public class ClickhouseGenomicDataMapperTest {
         .isEqualTo(expectedMutationCountsByType);
   }
 
-    @Test
-    public void getMutationCountsByTypeAddSampleId() {
-        StudyViewFilter studyViewFilter = new StudyViewFilter();
-        studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+  @Test
+  public void getMutationCountsByTypeAddSampleId() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-        GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
-        List<GenomicDataCountItem> mutationCountsByType =
-            mapper.getMutationCountsByType(
-                StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-                List.of(genomicDataFilterMutation), true);
+    GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
+    List<GenomicDataCountItem> mutationCountsByType =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            true);
 
-        assertThat(mutationCountsByType)
-            .flatExtracting(GenomicDataCountItem::getCounts)
-            .extracting(GenomicDataCount::getSampleIds)
-            .allSatisfy(sampleIds ->
+    assertThat(mutationCountsByType)
+        .flatExtracting(GenomicDataCountItem::getCounts)
+        .extracting(GenomicDataCount::getSampleIds)
+        .allSatisfy(
+            sampleIds ->
                 assertThat(sampleIds)
                     .as("sampleIds should be populated when includeSampleIds=true")
                     .isNotNull()
-                    .isNotEmpty()
-            );
-    }
-    
+                    .isNotEmpty());
+  }
+
   @Test
   public void getProteinExpressionCounts() {
     // Testing combined study missing samples when one lacks a relevant genomic profile

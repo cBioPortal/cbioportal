@@ -496,10 +496,8 @@ public class ColumnarStoreStudyViewController {
       @Parameter(required = true, description = "Genomic data count filter")
           @Valid
           @RequestBody(required = false)
-          GenomicDataCountFilter genomicDataCountFilter, 
-      @Parameter()
-          @RequestParam(defaultValue = "false")
-            boolean includeSampleIds) {
+          GenomicDataCountFilter genomicDataCountFilter,
+      @Parameter() @RequestParam(defaultValue = "false") boolean includeSampleIds) {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
     // when there is only one filter, it means study view is doing a single chart filter operation

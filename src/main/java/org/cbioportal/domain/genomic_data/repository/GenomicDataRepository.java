@@ -79,5 +79,7 @@ public interface GenomicDataRepository {
    *     type.
    */
   List<GenomicDataCountItem> getMutationCountsByType(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters, boolean includeSampleIds);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds);
 }

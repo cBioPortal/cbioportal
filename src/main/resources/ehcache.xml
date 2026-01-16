@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.ehcache.org/v3'
+    xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.7.xsd">
+
+  <!-- Cache template for repository caches -->
+  <cache-template name="RepositoryCacheTemplate">
+    <expiry>
+      <none/>
+    </expiry>
+  </cache-template>
+
+</config>

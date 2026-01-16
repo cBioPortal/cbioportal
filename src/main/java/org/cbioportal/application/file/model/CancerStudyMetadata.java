@@ -1,5 +1,6 @@
 package org.cbioportal.application.file.model;
 
+import jakarta.validation.constraints.Pattern;
 import java.util.SequencedMap;
 
 /** Represents metadata for a cancer study. */
@@ -13,8 +14,12 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
 
   /**
    * A string used to uniquely identify this cancer study within the database, e.g.,
-   * "brca_joneslab_2013".
+   * "brca_joneslab_2013". Can only contain alphanumeric characters, underscores, and hyphens.
    */
+  @Pattern(
+      regexp = "^[a-zA-Z0-9_-]+$",
+      message =
+          "Cancer study identifier can only contain alphanumeric characters, underscores, and hyphens")
   private String cancerStudyIdentifier;
 
   /** The name of the cancer study, e.g., "Breast Cancer (Jones Lab 2013)". */

@@ -14,14 +14,10 @@ public interface CancerStudyMetadataMapper {
   @Mapping(target = "importDate", source = "importDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
   @Mapping(target = "studyId", source = "cancerStudyIdentifier")
   @Mapping(target = "cancerTypeId", source = "typeOfCancerId")
+  @Mapping(target = "cancerType", source = "typeOfCancer")
   // TODO: ReadPermission needs to be implemented
   @Mapping(target = "readPermission", source = "publicStudy")
   CancerStudyMetadataDTO toDto(CancerStudyMetadata cancerStudyMetadata);
 
-  @Mapping(target = "importDate", source = "importDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
-  @Mapping(target = "studyId", source = "cancerStudyIdentifier")
-  @Mapping(target = "cancerTypeId", source = "typeOfCancerId")
-  // TODO: ReadPermission needs to be implemented
-  @Mapping(target = "readPermission", source = "publicStudy")
   List<CancerStudyMetadataDTO> toDtos(List<CancerStudyMetadata> cancerStudyMetadataList);
 }

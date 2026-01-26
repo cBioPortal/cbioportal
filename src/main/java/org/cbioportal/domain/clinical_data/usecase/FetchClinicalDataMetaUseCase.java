@@ -6,7 +6,6 @@ import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service;
  * @see FetchClinicalDataUseCase
  */
 @Service
-@Profile("clickhouse")
 public class FetchClinicalDataMetaUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;
@@ -62,7 +60,13 @@ public class FetchClinicalDataMetaUseCase {
       uniqueIds.add(identifier.getStudyId() + '_' + identifier.getEntityId());
     }
     List<String> attributeIds = clinicalDataMultiStudyFilter.getAttributeIds();
+    List<String> studyIds =
+        clinicalDataMultiStudyFilter.getIdentifiers().stream()
+            .map(ClinicalDataIdentifier::getStudyId)
+            .distinct()
+            .toList();
 
-    return clinicalDataRepository.fetchClinicalDataMeta(uniqueIds, attributeIds, clinicalDataType);
+    return clinicalDataRepository.fetchClinicalDataMeta(
+        uniqueIds, attributeIds, studyIds, clinicalDataType);
   }
 }

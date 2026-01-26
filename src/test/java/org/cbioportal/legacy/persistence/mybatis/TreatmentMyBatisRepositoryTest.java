@@ -5,23 +5,31 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.ClinicalEventKeyCode;
 import org.cbioportal.legacy.model.ClinicalEventSample;
 import org.cbioportal.legacy.model.Treatment;
-import org.cbioportal.legacy.persistence.TreatmentRepository;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {TreatmentMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, TreatmentMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class TreatmentMyBatisRepositoryTest {
 
-  @Autowired TreatmentRepository treatmentRepository;
+  @Autowired TreatmentMyBatisRepository treatmentRepository;
 
   @Test
   public void getTreatmentsByPatientId() {

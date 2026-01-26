@@ -38,7 +38,6 @@ import org.cbioportal.legacy.web.util.DataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 // BasicDataBinner is a generalized class derived from ClinicalDataBinner
@@ -48,7 +47,6 @@ import org.springframework.stereotype.Component;
 // after we switched clinical data counts to use this, then We can remove ClinicalDataBinner
 @Deprecated(forRemoval = true)
 @Component
-@Profile("clickhouse")
 public class BasicDataBinner {
   private final StudyViewService studyViewService;
   private final DataBinner dataBinner;

@@ -1,10 +1,8 @@
 package org.cbioportal.domain.genomic_data.usecase;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A record representing a collection of use cases related to genomic data operations. This record
  * encapsulates instances of various genomic data use cases, providing a centralized way to access

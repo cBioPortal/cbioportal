@@ -19,7 +19,8 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequest
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
 @ConditionalOnExpression("{'oauth2','saml','optional_oauth2'}.contains('${authenticate}')")
@@ -37,7 +38,10 @@ public class LoginPageController {
   @Value("${security.force_redirect_on_one_idp:true}")
   private boolean forceRedirectOnOneIdentityProvider;
 
-  @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      value = "/login",
+      produces = MediaType.APPLICATION_JSON_VALUE,
+      method = RequestMethod.POST)
   public String showLoginPagePost(
       HttpServletRequest request, Authentication authentication, Model model) {
     populateModel(request, model, new HashMap<>());

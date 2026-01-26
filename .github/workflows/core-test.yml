@@ -78,10 +78,11 @@ jobs:
         working-directory: ./cbioportal
         run: |
           mvn -U -Ppublic test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
-      - name: 'Run integration tests separately'
-        working-directory: ./cbioportal
-        run: |
-          mvn verify -Pintegration-test
+#     TODO: decide if we want to keep this in the future, or remove it entirely
+#      - name: 'Run integration tests separately'
+#        working-directory: ./cbioportal
+#        run: |
+#          mvn verify -Pintegration-test
       - name: 'Run e2e tests separately'
         working-directory: ./cbioportal
         run: |

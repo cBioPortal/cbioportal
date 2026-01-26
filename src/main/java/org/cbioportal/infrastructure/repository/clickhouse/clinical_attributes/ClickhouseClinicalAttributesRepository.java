@@ -9,11 +9,9 @@ import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRe
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhouseClinicalAttributesRepository implements ClinicalAttributesRepository {
 
   private Map<DataSource, List<ClinicalAttribute>> clinicalAttributesMap =

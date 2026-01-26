@@ -58,7 +58,7 @@ public class PatientServiceImpl implements PatientService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return patientRepository.getAllPatientsInStudy(
         studyId, projection, pageSize, pageNumber, sortBy, direction);
@@ -67,7 +67,7 @@ public class PatientServiceImpl implements PatientService {
   @Override
   public BaseMeta getMetaPatientsInStudy(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return patientRepository.getMetaPatientsInStudy(studyId);
   }
@@ -76,7 +76,7 @@ public class PatientServiceImpl implements PatientService {
   public Patient getPatientInStudy(String studyId, String patientId)
       throws PatientNotFoundException, StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     Patient patient = patientRepository.getPatientInStudy(studyId, patientId);
 

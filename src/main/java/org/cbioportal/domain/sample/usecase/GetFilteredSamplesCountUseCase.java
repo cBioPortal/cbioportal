@@ -2,11 +2,9 @@ package org.cbioportal.domain.sample.usecase;
 
 import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving the count of filtered samples. This class interacts with the {@link
  * SampleRepository} to fetch the number of samples that match the given filter criteria specified

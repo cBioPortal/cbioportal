@@ -81,6 +81,8 @@ public class ClickhouseTreatmentMapperTest {
 
   @Test
   public void getTotalSampleTreatmentCounts() {
+    // sample treatment counts without sample treatment filters
+
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
@@ -126,6 +128,9 @@ public class ClickhouseTreatmentMapperTest {
             .getTimeTaken()
             .intValue());
 
+    // sample treatment counts with sample treatment filters
+
+    // PRE treatment test
     SampleTreatmentFilter filter = new SampleTreatmentFilter();
     filter.setTreatment("madeupanib");
     filter.setTime(TemporalRelation.Pre);
@@ -155,5 +160,34 @@ public class ClickhouseTreatmentMapperTest {
     assertEquals(0, totalSampleTreatmentCount);
     assertEquals(0, sampleTreatmentCounts.size());
     assertEquals(0, sampleTreatmentCountsWithSampleLists.size());
+
+    // POST treatment test
+    filter.setTime(TemporalRelation.Post);
+
+    totalSampleTreatmentCount =
+        mapper.getTotalSampleTreatmentCounts(
+            StudyViewFilterFactory.make(
+                studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+
+    sampleTreatmentCounts =
+        mapper.getSampleTreatmentCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            ProjectionType.SUMMARY.name());
+
+    sampleTreatmentCountsWithSampleLists =
+        mapper.getSampleTreatmentCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            ProjectionType.DETAILED.name());
+
+    assertEquals(1, totalSampleTreatmentCount);
+    assertEquals(1, sampleTreatmentCounts.size());
+    assertEquals(1, sampleTreatmentCountsWithSampleLists.size());
+    assertEquals("madeupanib", sampleTreatmentCounts.getFirst().treatment());
+    assertEquals(1, sampleTreatmentCounts.getFirst().postSampleCount());
+    assertEquals(0, sampleTreatmentCounts.getFirst().preSampleCount());
+    assertEquals(1, sampleTreatmentCountsWithSampleLists.getFirst().postSampleCount());
+    assertEquals(0, sampleTreatmentCountsWithSampleLists.getFirst().preSampleCount());
+    assertEquals(1, sampleTreatmentCountsWithSampleLists.getFirst().postSamples().size());
+    assertEquals(0, sampleTreatmentCountsWithSampleLists.getFirst().preSamples().size());
   }
 }

@@ -1085,5 +1085,7 @@ ALTER TABLE `clinical_event` MODIFY COLUMN `EVENT_TYPE` varchar(50) NOT NULL;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.4";
 
 ##version: 2.14.5
+-- reminder : always set both the current DB_SCHEMA_VERSION and the current DERIVED_TABLE_SCHEMA_VERSION at each update
 ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
+UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`="1.0.6";
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.5";

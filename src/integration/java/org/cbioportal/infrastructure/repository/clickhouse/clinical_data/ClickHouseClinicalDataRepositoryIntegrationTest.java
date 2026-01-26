@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.AbstractClickhouseIntegrationTest;
 import org.cbioportal.domain.clinical_data.ClinicalData;
@@ -26,6 +27,10 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   private ClickhouseClinicalDataMapper mapper;
 
   // Test data based on actual cBioPortal public dataset
+  private static final List<String> TEST_STUDY_IDS = Arrays.asList(
+      "acc_tcga_pan_can_atlas_2018"
+  );
+      
   private static final List<String> TEST_SAMPLE_UNIQUE_IDS = Arrays.asList(
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01",
@@ -59,6 +64,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<ClinicalData> result = repository.fetchClinicalDataId(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
@@ -79,6 +85,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<ClinicalData> result = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.PATIENT
     );
 
@@ -103,6 +110,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
             "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
         ),
         Arrays.asList("ANEUPLOIDY_SCORE", "SAMPLE_TYPE"),
+        TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
@@ -143,6 +151,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     Integer count = repository.fetchClinicalDataMeta(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
@@ -152,6 +161,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<ClinicalData> actualData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
     assertEquals(actualData.size(), count.intValue());
@@ -163,6 +173,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<ClinicalData> result = repository.fetchClinicalDataId(
         List.of(),
         COMMON_SAMPLE_ATTRIBUTES,
+        Collections.emptyList(),
         ClinicalDataType.SAMPLE
     );
 
@@ -176,6 +187,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     Integer count = repository.fetchClinicalDataMeta(
         List.of(),
         COMMON_SAMPLE_ATTRIBUTES,
+        Collections.emptyList(),
         ClinicalDataType.SAMPLE
     );
 
@@ -193,11 +205,11 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<String> testAttrs = List.of("SAMPLE_TYPE");
 
     List<ClinicalData> idResults = repository.fetchClinicalDataId(
-        testIds, testAttrs, ClinicalDataType.SAMPLE
+        testIds, testAttrs, TEST_STUDY_IDS, ClinicalDataType.SAMPLE
     );
 
     List<ClinicalData> summaryResults = repository.fetchClinicalDataSummary(
-        testIds, testAttrs, ClinicalDataType.SAMPLE
+        testIds, testAttrs, TEST_STUDY_IDS, ClinicalDataType.SAMPLE
     );
 
     // Then - should return same entities with different levels of detail
@@ -229,12 +241,14 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     List<ClinicalData> sampleData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
     List<ClinicalData> patientData = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
+        TEST_STUDY_IDS,
         ClinicalDataType.PATIENT
     );
 

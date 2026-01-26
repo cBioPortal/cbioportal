@@ -83,6 +83,7 @@ spring.security.saml2.relyingparty.registration.cbio-saml-idp.entity-id=cbioport
 spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].certificate-location=classpath:/local.crt
 spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].private-key-location=classpath:/local.key
 spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.binding=POST
+#spring.security.saml2.relyingparty.registration.cbio-saml-idp.singlelogout.response-url=http://localhost:8080/logout/saml2/slo
 # TODO add to docs (in minutes; default 1)
 spring.security.oauth2.allowed-clock-skew=
 ```

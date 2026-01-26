@@ -173,7 +173,7 @@ In Keycloak go to the cioportal client and in the Keys menu aktivate **Client si
     filter_groups_by_appname
 ```
 
-2. Then, add the security properties for SAML authentification as described in the SAML Configuration section of the [Security Properties](../customization/security.properties-reference/#saml-configuration).
+2. Then, add the security properties for SAML authentification as described in the SAML Configuration section of the [Security Properties](../customization/security.properties-Reference.md/#saml-configuration).
 
 ## Obtain user identities
 

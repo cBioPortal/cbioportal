@@ -8,20 +8,21 @@
             resultMap="CancerStudyMetadataResultMap">
         WITH sample_counts as (
             SELECT
-                sample_list.cancer_study_id,
-                countIf(stable_id LIKE '%_all') as allSampleCount,
-                countIf(stable_id LIKE '%_sequenced') as sequencedSampleCount,
-                countIf(stable_id LIKE '%_cna') as cnaSampleCount,
-                countIf(stable_id LIKE '%_rna_seq_v2_mrna') as mrnaRnaSeqV2SampleCount,
-                countIf(stable_id LIKE '%_microrna') as miRnaSampleCount,
-                countIf(stable_id LIKE '%_mrna' AND stable_id NOT LIKE '%_rna_seq_v2_mrna') as mrnaMicroarraySampleCount,
-                countIf(stable_id LIKE '%_methylation_hm27') as methylationHm27SampleCount,
-                countIf(stable_id LIKE '%_rppa') as rppaSampleCount,
-                countIf(stable_id LIKE '%_protein_quantification') as massSpectrometrySampleCount,
-                countIf(stable_id LIKE '%_3way_complete') as completeSampleCount,
-                countIf(stable_id LIKE '%_rna_seq_mrna') as mrnaRnaSeqSampleCount
+                sample_list.cancer_study_id AS cancer_study_id,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_all')) as allSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_sequenced')) as sequencedSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_cna')) as cnaSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_rna_seq_v2_mrna')) as mrnaRnaSeqV2SampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_microrna')) as miRnaSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_mrna') AND stable_id != concat(study.cancer_study_identifier, '_rna_seq_v2_mrna')) as mrnaMicroarraySampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_methylation_hm27')) as methylationHm27SampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_rppa')) as rppaSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_protein_quantification')) as massSpectrometrySampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_3way_complete')) as completeSampleCount,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_rna_seq_mrna')) as mrnaRnaSeqSampleCount
             FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+            INNER JOIN cancer_study study ON sample_list.cancer_study_id = study.cancer_study_id
             GROUP BY sample_list.cancer_study_id
         ),
         treatment AS (
@@ -118,10 +119,11 @@
     <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">
         WITH sample_counts as (
             SELECT
-                sample_list.cancer_study_id,
-                countIf(stable_id LIKE '%_all') as allSampleCount
+                sample_list.cancer_study_id AS cancer_study_id,
+                countIf(stable_id = concat(study.cancer_study_identifier, '_all')) as allSampleCount
             FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+            INNER JOIN cancer_study study ON sample_list.cancer_study_id = study.cancer_study_id
             GROUP BY sample_list.cancer_study_id
         )
         SELECT

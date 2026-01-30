@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  cbioportal:
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: docker/web-and-data/Dockerfile
+    container_name: cbioportal-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - cbioportal-database
+      - cbioportal-session
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://cbioportal-database:3306/cbioportal?useSSL=false&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=cbio_user
+      - SPRING_DATASOURCE_PASSWORD=somepassword
+      - SESSION_SERVICE_URL=http://cbioportal-session:5000/api/sessions/my_portal/
+      - AUTHENTICATE=false
+      - SHOW_CIVIC=true
+      - APP_NAME=my-portal
+      - DBCONNECTOR=dbcp
+    networks:
+      - cbio-net
+
+  cbioportal-database:
+    restart: unless-stopped
+    image: mysql:8.2.0
+    container_name: cbioportal-database
+    environment:
+      MYSQL_DATABASE: cbioportal
+      MYSQL_USER: cbio_user
+      MYSQL_PASSWORD: somepassword
+      MYSQL_ROOT_PASSWORD: somepassword
+    volumes:
+      - ../src/main/resources/db-scripts/cgds.sql:/docker-entrypoint-initdb.d/cgds.sql:ro
+      - ../src/test/resources/seed_mini.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+    ports:
+      - 3306:3306
+    networks:
+      - cbio-net
+
+  cbioportal-session:
+    restart: unless-stopped
+    image: cbioportal/session-service:0.5.0
+    container_name: cbioportal-session
+    environment:
+      SERVER_PORT: 5000
+      JAVA_OPTS: -Dspring.data.mongodb.uri=mongodb://cbioportal-session-database:27017/session-service
+    depends_on:
+      - cbioportal-session-database
+    ports:
+      - 5000:5000
+    networks:
+      - cbio-net
+
+  cbioportal-session-database:
+    restart: unless-stopped
+    image: mongo:3.4.24
+    container_name: cbioportal-session-database
+    environment:
+      MONGO_INITDB_DATABASE: session-service
+    networks:
+      - cbio-net
+
+networks:
+  cbio-net:

@@ -20,7 +20,7 @@ WORKDIR /cbioportal
 
 # RUN for subproject in */.; do cp version.sh "$subproject"; cd "$subproject"; mvn dependency:go-offline --fail-never; cd ..; done
 
-RUN mvn dependency:go-offline --fail-never
+# RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
 RUN mvn install package -DskipTests -q

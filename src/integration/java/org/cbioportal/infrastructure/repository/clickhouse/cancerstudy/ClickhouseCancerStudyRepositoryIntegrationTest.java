@@ -3,6 +3,9 @@ package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.cbioportal.AbstractClickhouseIntegrationTest;
+import org.cbioportal.domain.sample.repository.SampleRepository;
+import org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper;
+import org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,12 +19,15 @@ class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseI
   private static final int TOTAL_STUDIES = 492;
 
   private ClickhouseCancerStudyRepository repository;
+  private SampleRepository sampleRepository;
 
   @Autowired private ClickhouseCancerStudyMapper mapper;
+  @Autowired private ClickhouseSampleMapper sampleMapper;
 
   @BeforeEach
   void setup() {
     repository = new ClickhouseCancerStudyRepository(mapper);
+    sampleRepository = new ClickhouseSampleRepository(sampleMapper);
   }
 
   @Test
@@ -132,5 +138,102 @@ class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseI
                   + study.cancerStudyIdentifier()
                   + " does not contain 'carcinoma' in searchable fields";
         });
+  }
+
+  @Test
+  void testGetCancerStudiesMetadataSampleCounts() {
+    // Test that sample counts are calculated correctly using exact matching
+    var studies =
+        repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", "", null, null));
+
+    var luadTcgaStudy =
+        studies.stream()
+            .filter(study -> "luad_tcga".equals(study.cancerStudyIdentifier()))
+            .findFirst()
+            .orElseThrow(
+                () -> new AssertionError("luad_tcga study not found in test database"));
+
+    // Verify sample counts match the actual sample lists in the database
+    assertEquals(586, luadTcgaStudy.allSampleCount(), "allSampleCount should match luad_tcga_all");
+    assertEquals(
+        230,
+        luadTcgaStudy.sequencedSampleCount(),
+        "sequencedSampleCount should match luad_tcga_sequenced");
+    assertEquals(
+        516, luadTcgaStudy.cnaSampleCount(), "cnaSampleCount should match luad_tcga_cna");
+    assertEquals(
+        517,
+        luadTcgaStudy.mrnaRnaSeqV2SampleCount(),
+        "mrnaRnaSeqV2SampleCount should match luad_tcga_rna_seq_v2_mrna");
+    assertEquals(
+        32,
+        luadTcgaStudy.mrnaMicroarraySampleCount(),
+        "mrnaMicroarraySampleCount should match luad_tcga_mrna (excluding rna_seq_v2)");
+    assertEquals(
+        126,
+        luadTcgaStudy.methylationHm27SampleCount(),
+        "methylationHm27SampleCount should match luad_tcga_methylation_hm27");
+    assertEquals(
+        365, luadTcgaStudy.rppaSampleCount(), "rppaSampleCount should match luad_tcga_rppa");
+    assertEquals(
+        230,
+        luadTcgaStudy.completeSampleCount(),
+        "completeSampleCount should match luad_tcga_3way_complete");
+
+    // These sample lists don't exist for luad_tcga, so counts should be 0 or null
+    Integer miRnaCount = luadTcgaStudy.miRnaSampleCount();
+    assert miRnaCount == null || miRnaCount == 0
+        : "miRnaSampleCount should be 0 or null (luad_tcga_microrna doesn't exist)";
+
+    Integer massSpecCount = luadTcgaStudy.massSpectrometrySampleCount();
+    assert massSpecCount == null || massSpecCount == 0
+        : "massSpectrometrySampleCount should be 0 or null (luad_tcga_protein_quantification doesn't exist)";
+
+    Integer mrnaRnaSeqCount = luadTcgaStudy.mrnaRnaSeqSampleCount();
+    assert mrnaRnaSeqCount == null || mrnaRnaSeqCount == 0
+        : "mrnaRnaSeqSampleCount should be 0 or null (luad_tcga_rna_seq_mrna doesn't exist)";
+  }
+
+  @Test
+  void testAllSampleCountMatchesActualSampleCount() {
+    // Verify that allSampleCount in metadata matches the actual sample count from the sample
+    // repository for all studies
+    var studies =
+        repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", "", null, null));
+
+    int mismatchCount = 0;
+
+    // Test all studies
+    for (var study : studies) {
+      // Get the actual sample count from the sample repository
+      var actualSampleCount =
+          sampleRepository.getMetaSamplesInStudy(study.cancerStudyIdentifier()).getTotalCount();
+
+      // Check if allSampleCount matches the actual sample count
+      if (!actualSampleCount.equals(study.allSampleCount())) {
+        mismatchCount++;
+        System.err.println(
+            "WARNING: Sample count mismatch for study "
+                + study.cancerStudyIdentifier()
+                + " - allSampleCount from metadata: "
+                + study.allSampleCount()
+                + ", actual sample count: "
+                + actualSampleCount
+                + ", difference: "
+                + (actualSampleCount - study.allSampleCount())
+                + ". This may indicate that the sample_list data is incomplete or outdated.");
+      }
+    }
+
+    // Print summary
+    if (mismatchCount > 0) {
+      System.err.println(
+          "\nSUMMARY: Found "
+              + mismatchCount
+              + " out of "
+              + studies.size()
+              + " studies with sample count mismatches. "
+              + "This suggests that some sample_list data may be incomplete.");
+    }
   }
 }

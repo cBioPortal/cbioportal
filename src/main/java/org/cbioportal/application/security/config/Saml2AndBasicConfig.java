@@ -72,6 +72,7 @@ public class Saml2AndBasicConfig {
                 securityContext.securityContextRepository(
                     new HttpSessionSecurityContextRepository()))
         .saml2Login(withDefaults())
+        .saml2Metadata(withDefaults())
         .sessionManagement(
             sessionManagement -> sessionManagement.sessionFixation().migrateSession())
         // SAML logout configuration

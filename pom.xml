@@ -629,6 +629,12 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>3.11.0.3922</version>
+      </plugin>
+
       <!-- config for unit and integration tests -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -860,6 +866,11 @@
         <!-- skipITs is an official Maven param; do not rename-->
         <skipIntegrationTests>true</skipIntegrationTests>
         <skipE2ETests>false</skipE2ETests>
+      </properties>
+    </profile>
+    <profile>
+      <id>coverage</id>
+      <properties>
       </properties>
     </profile>
     <!-- Maven Central -->

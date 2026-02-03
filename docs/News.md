@@ -20,6 +20,11 @@
 *   **New Feature:** The Data type filter on the [home page](https://www.cbioportal.org/) now has options to filter studies by imaging data.
 ![image](https://github.com/user-attachments/assets/6b751179-8224-46d8-9b61-5230a0a91185)
 
+## October 10, 2025
+*   **New Feature:** Variant Allele Frequency (VAF) is now available as a data option in the Plots tab, allowing visualization of allele frequencies across samples. ([#5209](https://github.com/cBioPortal/cbioportal-frontend/pull/5209)) [Example: VHL Variant Allele Frequency in Primary vs Metastatic Renal Cell Carcinoma](https://bit.ly/4ah3RlD)
+
+    ![image](https://github.com/user-attachments/assets/ae34e946-7424-4800-b95d-1829982344d1)
+
 ## Oct 31, 2025
 *   **Added data** consisting of 9,749 samples from 13 studies:
     * [Mixed Tumors - MiMSI Cohort (MSK, Nat Commun 2024)](https://www.cbioportal.org/study/summary?id=pancan_mimsi_msk_2024) *5033 samples*

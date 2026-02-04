@@ -158,6 +158,34 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       "/treatments/patient-counts/fetch";
   public static final String TREATMENTS_SAMPLE_COUNT_FETCH_PATH = "/treatments/sample-counts/fetch";
 
+  /**
+   * Sends an HTTP 400 Bad Request response with a JSON error message.
+   *
+   * @param response the HttpServletResponse object
+   * @param message the error message to include in the response body
+   */
+  private void sendBadRequestResponse(HttpServletResponse response, String message) {
+    try {
+      response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+      response.setContentType("application/json");
+      response.setCharacterEncoding("UTF-8");
+
+      // Truncate message before Jackson source location info if present
+      String truncatedMessage = message;
+      int sourceIndex = message.indexOf(" at [Source:");
+      if (sourceIndex != -1) {
+        truncatedMessage = message.substring(0, sourceIndex);
+      }
+
+      String jsonError =
+          String.format("{\"message\":\"%s\"}", truncatedMessage.replace("\"", "\\\""));
+      response.getWriter().write(jsonError);
+      response.getWriter().flush();
+    } catch (Exception ex) {
+      LOG.error("Failed to send error response: {}", ex.getMessage());
+    }
+  }
+
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -172,45 +200,45 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
     // requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
     if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
-      return extractAttributesFromPatientFilter(request);
+      return extractAttributesFromPatientFilter(request, response);
     } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {
-      return extractAttributesFromSampleFilter(request);
+      return extractAttributesFromSampleFilter(request, response);
     } else if (requestPathInfo.equals(MOLECULAR_PROFILE_FETCH_PATH)) {
-      return extractAttributesFromMolecularProfileFilter(request);
+      return extractAttributesFromMolecularProfileFilter(request, response);
     } else if (requestPathInfo.equals(CLINICAL_ATTRIBUTE_COUNT_FETCH_PATH)) {
-      return extractAttributesFromClinicalAttributeCountFilter(request);
+      return extractAttributesFromClinicalAttributeCountFilter(request, response);
     } else if (requestPathInfo.equals(NAMESPACE_ATTRIBUTE_COUNT_FETCH_PATH)) {
-      return extractAttributesFromNamespaceAttributeCountFilter(request);
+      return extractAttributesFromNamespaceAttributeCountFilter(request, response);
     } else if (requestPathInfo.equals(CLINICAL_DATA_FETCH_PATH)) {
-      return extractAttributesFromClinicalDataMultiStudyFilter(request);
+      return extractAttributesFromClinicalDataMultiStudyFilter(request, response);
     } else if (requestPathInfo.equals(GENE_PANEL_DATA_FETCH_PATH)) {
-      return extractAttributesFromGenePanelDataMultipleStudyFilter(request);
+      return extractAttributesFromGenePanelDataMultipleStudyFilter(request, response);
     } else if (requestPathInfo.equals(MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
-      return extractAttributesFromMolecularDataMultipleStudyFilter(request);
+      return extractAttributesFromMolecularDataMultipleStudyFilter(request, response);
     } else if (requestPathInfo.equals(MUTATION_MULTIPLE_STUDY_FETCH_PATH)) {
-      return extractAttributesFromMutationMultipleStudyFilter(request);
+      return extractAttributesFromMutationMultipleStudyFilter(request, response);
     } else if (requestPathInfo.equals(COPY_NUMBER_SEG_FETCH_PATH)) {
-      return extractAttributesFromSampleIdentifiers(request);
+      return extractAttributesFromSampleIdentifiers(request, response);
     } else if (Arrays.asList(
             STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH, STUDY_VIEW_CUSTOM_DATA_BIN_COUNTS_PATH)
         .contains(requestPathInfo)) {
-      return extractAttributesFromClinicalDataBinCountFilter(request);
+      return extractAttributesFromClinicalDataBinCountFilter(request, response);
     } else if (requestPathInfo.equals(STUDY_VIEW_GENOMICL_DATA_BIN_COUNTS_PATH)) {
-      return extractAttributesFromGenomicDataBinCountFilter(request);
+      return extractAttributesFromGenomicDataBinCountFilter(request, response);
     } else if (Arrays.asList(
             STUDY_VIEW_GENOMICL_DATA_COUNTS_PATH, STUDY_VIEW_MUTATION_DATA_COUNTS_PATH)
         .contains(requestPathInfo)) {
-      return extractAttributesFromGenomicDataCountFilter(request);
+      return extractAttributesFromGenomicDataCountFilter(request, response);
     } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_BIN_COUNTS_PATH)) {
-      return extractAttributesFromGenericAssayDataBinCountFilter(request);
+      return extractAttributesFromGenericAssayDataBinCountFilter(request, response);
     } else if (requestPathInfo.equals(STUDY_VIEW_GENERIC_ASSAY_DATA_COUNTS_PATH)) {
-      return extractAttributesFromGenericAssayDataCountFilter(request);
+      return extractAttributesFromGenericAssayDataCountFilter(request, response);
     } else if (Arrays.asList(
             STUDY_VIEW_CLINICAL_DATA_COUNTS_PATH, STUDY_VIEW_CUSTOM_DATA_COUNTS_PATH)
         .contains(requestPathInfo)) {
-      return extractAttributesFromClinicalDataCountFilter(request);
+      return extractAttributesFromClinicalDataCountFilter(request, response);
     } else if (requestPathInfo.equals(STUDY_VIEW_NAMESPACE_DATA_COUNTS_PATH)) {
-      return extractAttributesFromNamespaceDataCountFilter(request);
+      return extractAttributesFromNamespaceDataCountFilter(request, response);
     } else if (Arrays.asList(
             STUDY_VIEW_CLINICAL_DATA_DENSITY_PATH,
             STUDY_VIEW_CLINICAL_DATA_VIOLIN_PATH,
@@ -229,31 +257,32 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
             TREATMENTS_PATIENT_COUNT_FETCH_PATH,
             TREATMENTS_SAMPLE_COUNT_FETCH_PATH)
         .contains(requestPathInfo)) {
-      return extractAttributesFromStudyViewFilter(request);
+      return extractAttributesFromStudyViewFilter(request, response);
     } else if (requestPathInfo.equals(CLINICAL_DATA_ENRICHMENT_FETCH_PATH)) {
-      return extractAttributesFromGroupFilter(request);
+      return extractAttributesFromGroupFilter(request, response);
     } else if (requestPathInfo.equals(MUTATION_ENRICHMENT_FETCH_PATH)
         || requestPathInfo.equals(COPY_NUMBER_ENRICHMENT_FETCH_PATH)
         || requestPathInfo.equals(EXPRESSION_ENRICHMENT_FETCH_PATH)
         || requestPathInfo.equals(GENERIC_ASSAY_ENRICHMENT_FETCH_PATH)
         || requestPathInfo.equals(GENERIC_ASSAY_CATEGORICAL_ENRICHMENT_FETCH_PATH)
         || requestPathInfo.equals(GENERIC_ASSAY_BINARY_ENRICHMENT_FETCH_PATH)) {
-      return extractAttributesFromMolecularProfileCasesGroups(request);
+      return extractAttributesFromMolecularProfileCasesGroups(request, response);
     } else if (requestPathInfo.equals(ALTERATION_ENRICHMENT_FETCH_PATH)) {
-      return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request);
+      return extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(request, response);
     } else if (requestPathInfo.equals(STRUCTURAL_VARIANT_FETCH_PATH)) {
-      return extractAttributesFromStructuralVariantFilter(request);
+      return extractAttributesFromStructuralVariantFilter(request, response);
     } else if (requestPathInfo.equals(GENERIC_ASSAY_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
-      return extractAttributesFromGenericAssayDataMultipleStudyFilter(request);
+      return extractAttributesFromGenericAssayDataMultipleStudyFilter(request, response);
     } else if (requestPathInfo.equals(SURVIVAL_DATA_FETCH_PATH)) {
-      return extractCancerStudyIdsFromSurvivalRequest(request);
+      return extractCancerStudyIdsFromSurvivalRequest(request, response);
     } else if (requestPathInfo.equals(CLINICAL_EVENT_META_FETCH_PATH)) {
-      return extractCancerStudyIdsFromClinicalEventAttributeRequest(request);
+      return extractCancerStudyIdsFromClinicalEventAttributeRequest(request, response);
     }
     return true;
   }
 
-  private boolean extractAttributesFromPatientFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromPatientFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       PatientFilter patientFilter =
           objectMapper.readValue(request.getInputStream(), PatientFilter.class);
@@ -268,6 +297,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of patientFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -287,7 +317,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromSampleFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromSampleFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       SampleFilter sampleFilter =
           objectMapper.readValue(request.getInputStream(), SampleFilter.class);
@@ -302,6 +333,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of sampleFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -321,7 +353,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromMolecularProfileFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromMolecularProfileFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       MolecularProfileFilter molecularProfileFilter =
           objectMapper.readValue(request.getInputStream(), MolecularProfileFilter.class);
@@ -336,6 +369,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of molecularProfileFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -355,7 +389,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromClinicalAttributeCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromClinicalAttributeCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       ClinicalAttributeCountFilter clinicalAttributeCountFilter =
           objectMapper.readValue(request.getInputStream(), ClinicalAttributeCountFilter.class);
@@ -372,6 +407,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of clinicalAttributeCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -392,7 +428,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromNamespaceAttributeCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromNamespaceAttributeCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       NamespaceAttributeCountFilter namespaceAttributeCountFilter =
           objectMapper.readValue(request.getInputStream(), NamespaceAttributeCountFilter.class);
@@ -409,7 +446,9 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error(
-          "exception thrown during extraction of clinicalAttributeCountFilter: {}", e.getMessage());
+          "exception thrown during extraction of namespaceAttributeCountFilter: {}",
+          e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -425,7 +464,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromClinicalDataMultiStudyFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromClinicalDataMultiStudyFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter =
           objectMapper.readValue(request.getInputStream(), ClinicalDataMultiStudyFilter.class);
@@ -442,6 +482,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of clinicalDataMultiStudyFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -460,7 +501,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   }
 
   private boolean extractAttributesFromGenePanelDataMultipleStudyFilter(
-      HttpServletRequest request) {
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter =
           objectMapper.readValue(request.getInputStream(), GenePanelDataMultipleStudyFilter.class);
@@ -481,6 +522,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of genePanelSampleMolecularIdentifiers: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -500,7 +542,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   }
 
   private boolean extractAttributesFromMolecularDataMultipleStudyFilter(
-      HttpServletRequest request) {
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter =
           objectMapper.readValue(request.getInputStream(), MolecularDataMultipleStudyFilter.class);
@@ -521,6 +563,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of molecularDataMultipleStudyFilter: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -540,7 +583,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   }
 
   private boolean extractAttributesFromGenericAssayDataMultipleStudyFilter(
-      HttpServletRequest request) {
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
           objectMapper.readValue(
@@ -563,6 +606,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of genericAssayDataMultipleStudyFilter: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -581,7 +625,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromMutationMultipleStudyFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromMutationMultipleStudyFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       MutationMultipleStudyFilter mutationMultipleStudyFilter =
           objectMapper.readValue(request.getInputStream(), MutationMultipleStudyFilter.class);
@@ -598,6 +643,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of mutationMultipleStudyFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -616,7 +662,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractAttributesFromSampleIdentifiers(HttpServletRequest request) {
+  private boolean extractAttributesFromSampleIdentifiers(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       List<SampleIdentifier> sampleIdentifiers =
           Arrays.asList(objectMapper.readValue(request.getInputStream(), SampleIdentifier[].class));
@@ -631,12 +678,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of sampleIdentifiers: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromClinicalDataBinCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromClinicalDataBinCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       ClinicalDataBinCountFilter clinicalDataBinCountFilter =
           objectMapper.readValue(request.getInputStream(), ClinicalDataBinCountFilter.class);
@@ -652,12 +701,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of clinicalDataBinCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromGenomicDataBinCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromGenomicDataBinCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenomicDataBinCountFilter genomicDataBinCountFilter =
           objectMapper.readValue(request.getInputStream(), GenomicDataBinCountFilter.class);
@@ -673,12 +724,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of genomicDataBinCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromGenomicDataCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromGenomicDataCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenomicDataCountFilter genomicDataCountFilter =
           objectMapper.readValue(request.getInputStream(), GenomicDataCountFilter.class);
@@ -693,12 +746,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of genomicDataCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromGenericAssayDataBinCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromGenericAssayDataBinCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenericAssayDataBinCountFilter genericAssayDataBinCountFilter =
           objectMapper.readValue(request.getInputStream(), GenericAssayDataBinCountFilter.class);
@@ -718,12 +773,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of genericAssayDataBinCountFilter: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromGenericAssayDataCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromGenericAssayDataCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GenericAssayDataCountFilter genericAssayDataCountFilter =
           objectMapper.readValue(request.getInputStream(), GenericAssayDataCountFilter.class);
@@ -740,12 +797,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of genericAssayDataCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromClinicalDataCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromClinicalDataCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       ClinicalDataCountFilter clinicalDataCountFilter =
           objectMapper.readValue(request.getInputStream(), ClinicalDataCountFilter.class);
@@ -761,12 +820,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of clinicalDataBinCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromNamespaceDataCountFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromNamespaceDataCountFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       NamespaceDataCountFilter namespaceDataCountFilter =
           objectMapper.readValue(request.getInputStream(), NamespaceDataCountFilter.class);
@@ -782,12 +843,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of namespaceDataCountFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromGroupFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromGroupFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       GroupFilter groupFilter = objectMapper.readValue(request.getInputStream(), GroupFilter.class);
       LOG.debug("extracted groupFilter: {}", groupFilter);
@@ -805,12 +868,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of groupFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromStudyViewFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromStudyViewFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       StudyViewFilter studyViewFilter =
           objectMapper.readValue(request.getInputStream(), StudyViewFilter.class);
@@ -835,12 +900,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of studyViewFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromMolecularProfileCasesGroups(HttpServletRequest request) {
+  private boolean extractAttributesFromMolecularProfileCasesGroups(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters =
           Arrays.asList(
@@ -863,13 +930,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of molecularProfileCasesGroupFilters: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
   private boolean extractAttributesFromMolecularProfileCasesGroupsAndAlterationTypes(
-      HttpServletRequest request) {
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       MolecularProfileCasesGroupAndAlterationTypeFilter
           molecularProfileCasesAndAlterationTypesGroupFilters =
@@ -902,12 +970,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of molecularProfileCasesGroupFilters: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
-  private boolean extractAttributesFromStructuralVariantFilter(HttpServletRequest request) {
+  private boolean extractAttributesFromStructuralVariantFilter(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       StructuralVariantFilter structuralVariantFilter =
           objectMapper.readValue(request.getInputStream(), StructuralVariantFilter.class);
@@ -928,6 +998,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } catch (Exception e) {
       LOG.error(
           "exception thrown during extraction of structuralVariantFilter: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
@@ -1081,7 +1152,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     return studyIdSet;
   }
 
-  private boolean extractCancerStudyIdsFromSurvivalRequest(HttpServletRequest request) {
+  private boolean extractCancerStudyIdsFromSurvivalRequest(
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       SurvivalRequest survivalRequest =
           objectMapper.readValue(request.getInputStream(), SurvivalRequest.class);
@@ -1098,13 +1170,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       }
     } catch (Exception e) {
       LOG.error("exception thrown during extraction of survivalRequest: {}", e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;
   }
 
   private boolean extractCancerStudyIdsFromClinicalEventAttributeRequest(
-      HttpServletRequest request) {
+      HttpServletRequest request, HttpServletResponse response) {
     try {
       ClinicalEventAttributeRequest clinicalEventAttributeRequest =
           objectMapper.readValue(request.getInputStream(), ClinicalEventAttributeRequest.class);
@@ -1125,6 +1198,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of clinicalEventAttributeRequest: {}",
           e.getMessage());
+      sendBadRequestResponse(response, "Invalid request body: " + e.getMessage());
       return false;
     }
     return true;

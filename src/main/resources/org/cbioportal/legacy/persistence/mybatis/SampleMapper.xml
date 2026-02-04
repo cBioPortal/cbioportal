@@ -4,65 +4,59 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.SampleMapper">
 
     <sql id="select">
-        sample.INTERNAL_ID AS "${prefix}internalId",
-        sample.STABLE_ID AS "${prefix}stableId",
-        patient.STABLE_ID AS "${prefix}patientStableId",
-        cancer_study.CANCER_STUDY_IDENTIFIER AS "${prefix}cancerStudyIdentifier"
+        sample.internal_id AS "${prefix}internalId",
+        sample.stable_id AS "${prefix}stableId",
+        patient.stable_id AS "${prefix}patientStableId",
+        cancer_study.cancer_study_identifier AS "${prefix}cancerStudyIdentifier"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            sample.SAMPLE_TYPE AS "${prefix}sampleType",
-            sample.PATIENT_ID AS "${prefix}patientId"
+            sample.sample_type AS "${prefix}sampleType",
+            sample.patient_id AS "${prefix}patientId"
         </if>
         <if test="projection == 'DETAILED'">
             ,
             <include refid="org.cbioportal.legacy.persistence.mybatis.PatientMapper.select">
-                <property name="prefix" value="${prefix}patient."/>
+                <property name="prefix" value="${prefix}PATIENT."/>
             </include>
         </if>
     </sql>
 
     <sql id="from">
         FROM sample
-        INNER JOIN patient ON sample.PATIENT_ID = patient.INTERNAL_ID
-        INNER JOIN cancer_study ON patient.CANCER_STUDY_ID = cancer_study.CANCER_STUDY_ID
-        INNER JOIN reference_genome ON cancer_study.REFERENCE_GENOME_ID = reference_genome.REFERENCE_GENOME_ID
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
     </sql>
 
     <sql id="where">
         <where>
             <if test="sampleIds == null and studyIds != null">
-                cancer_study.CANCER_STUDY_IDENTIFIER IN
-                <if test="studyIds.isEmpty()">
-                    (NULL)
-                </if>
-                <if test="!studyIds.isEmpty()">
-                    <foreach item="item" collection="studyIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
-                </if>
+                cancer_study.cancer_study_identifier IN
+                <if test="studyIds.isEmpty()">(NULL)</if>
+                <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-                    sample.STABLE_ID IN
-                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">
-                        #{item}
-                    </foreach>
+                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
+                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                    sample.stable_id IN (
+                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    (cancer_study.CANCER_STUDY_IDENTIFIER, sample.STABLE_ID) IN
-                    <foreach index="i" collection="sampleIds" open="(" separator="," close=")">
-                        (#{studyIds[${i}]}, #{sampleIds[${i}]})
-                    </foreach>
+                    <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
+                    CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
+                        #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
                 </if>
             </if>
             <if test="patientId != null">
-                AND patient.STABLE_ID = #{patientId}
+                AND patient.stable_id = #{patientId}
             </if>
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample.STABLE_ID like CONCAT('%', #{item}, '%')
+                    sample.stable_id like CONCAT('%', #{item}, '%')
                 </foreach>
             </if>
         </where>
@@ -75,15 +69,20 @@
         </include>
         <include refid="from"/>
         <include refid="where"/>
-        <if test="sortBy != null and projection != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="projection == 'ID' and keyword == null">
-            ORDER BY sample.STABLE_ID ASC
-        </if>
-        <if test="keyword != null">
-            ORDER BY CASE WHEN sample.STABLE_ID LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.STABLE_ID
-        </if>
+        <choose>
+            <when test="keyword != null">
+                ORDER BY CASE WHEN sample.stable_id LIKE CONCAT(#{keyword}, '%') THEN 0 ELSE 1 END, sample.stable_id
+            </when>
+            <when test="sortBy == 'cancerStudyId'">
+                ORDER BY cancer_study.cancer_study_identifier ASC
+            </when>
+            <when test="sortBy != null and projection != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <otherwise>
+                ORDER BY sample.stable_id ASC
+            </otherwise>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -95,15 +94,12 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
-        WHERE sample.INTERNAL_ID IN
+        WHERE sample.internal_id IN
         (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID IN
-            <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
+            SELECT sample_list_list.sample_id FROM sample_list_list
+            INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+            WHERE sample_list.stable_id IN
+                <foreach item="item" collection="sampleListIds" open="(" separator="," close=")">#{item}</foreach>
         )
     </select>
 
@@ -116,18 +112,12 @@
 
     <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
-        COUNT(*) AS "totalCount"
+        COUNT(DISTINCT sample.internal_id) AS "totalCount"
         <include refid="from"/>
-        WHERE sample.INTERNAL_ID IN
-        (
-            SELECT sample_list_list.SAMPLE_ID FROM sample_list_list
-            INNER JOIN sample_list ON sample_list_list.LIST_ID = sample_list.LIST_ID
-            WHERE sample_list.STABLE_ID IN
-            <foreach item="item" collection="list" open="(" separator="," close=")">
-                #{item}
-            </foreach>
-            AND sample_list_list.SAMPLE_ID = sample.INTERNAL_ID
-        )
+        INNER JOIN sample_list_list ON sample.internal_id = sample_list_list.sample_id
+        INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+        WHERE sample_list.stable_id IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
     </select>
 
     <select id="getSample" resultType="org.cbioportal.legacy.model.Sample">
@@ -136,8 +126,8 @@
             <property name="prefix" value=""/>
         </include>
         <include refid="from"/>
-        WHERE sample.STABLE_ID = #{sampleId}
-        AND cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        WHERE sample.stable_id = #{sampleId}
+        AND cancer_study.cancer_study_identifier = #{studyId}
     </select>
 
     <select id="getSampleByInternalId" resultType="org.cbioportal.legacy.model.Sample">
@@ -146,7 +136,7 @@
             <property name="prefix" value=""/>
         </include>
         FROM sample
-        WHERE sample.INTERNAL_ID = #{internalId}
+        WHERE sample.internal_id = #{internalId}
     </select>
 
     <select id="getSamplesByInternalIds" resultType="org.cbioportal.legacy.model.Sample">
@@ -157,14 +147,12 @@
         <include refid="from"/>
         <where>
             <if test="internalIds != null and !internalIds.isEmpty()">
-                sample.INTERNAL_ID IN
-                <foreach item="item" collection="internalIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
+                sample.internal_id IN
+                    <foreach item="item" collection="internalIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
     </select>
-    
+
     <select id="getSamplesOfPatients" resultType="org.cbioportal.legacy.model.Sample">
         SELECT
         <include refid="select">
@@ -172,12 +160,10 @@
         </include>
         <include refid="from"/>
         WHERE
-        cancer_study.CANCER_STUDY_IDENTIFIER = #{studyId}
+        cancer_study.cancer_study_identifier = #{studyId}
         <if test="patientIds != null and !patientIds.isEmpty()">
-            AND patient.STABLE_ID IN
-            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            AND patient.stable_id IN
+                <foreach item="item" collection="patientIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
     </select>
 
@@ -189,17 +175,17 @@
         <include refid="from"/>
         WHERE
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-            cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
-            patient.STABLE_ID IN
-            <foreach item="item" collection="patientIds" open="(" separator="," close=")">
-                #{item}
-            </foreach>
+            <bind name="patientArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(patientIds)" />
+            cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+            patient.stable_id IN (
+                #{patientArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+            )
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            (cancer_study.CANCER_STUDY_IDENTIFIER, patient.STABLE_ID) IN
-            <foreach index="i" collection="patientIds" open="(" separator="," close=")">
-                (#{studyIds[${i}]}, #{patientIds[${i}]})
-            </foreach>
+            <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
+            CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                #{patientUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+            )
         </if>
     </select>
 </mapper>

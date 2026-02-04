@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
@@ -245,7 +246,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getAllClinicalDataInStudyNotFound() throws Exception {
 
-    when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     clinicalDataService.getAllClinicalDataInStudy(
         STUDY_ID,
         CLINICAL_ATTRIBUTE_ID_1,
@@ -277,7 +278,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getMetaAllClinicalDataStudyNotFound() throws Exception {
 
-    when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     clinicalDataService.getMetaAllClinicalData(
         STUDY_ID, CLINICAL_ATTRIBUTE_ID_1, CLINICAL_DATA_TYPE);
   }

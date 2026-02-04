@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.cancerstudy;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
 
@@ -48,4 +49,6 @@ public interface ClickhouseCancerStudyMapper {
 
   List<String> getFilteredStudyIds(
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
+
+  List<ResourceCount> getResourceCountsForAllStudies();
 }

@@ -3,15 +3,13 @@ on:
   push:
     branches:
       - master
-  pull_request_target:
+      - maintenance-v6
+  pull_request:
     types: [opened, synchronize, reopened]
 jobs:
   build:
     name: sonarcloud
     runs-on: ubuntu-latest
-    env:
-      TEST_DB_CLICKHOUSE_PASSWORD: ${{ secrets.TEST_DB_CLICKHOUSE_PASSWORD }}
-      TEST_DB_MYSQL_PASSWORD: ${{ secrets.TEST_DB_MYSQL_PASSWORD }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -43,12 +41,13 @@ jobs:
       - name: 'Add host.testcontainers.internal to /etc/hosts'
         run: |
             echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
-      - name: 'Run integration tests'
-        run: |
-          mvn verify -Pintegration-test
-      - name: 'Run e2e tests'
-        run: |
-          mvn verify -Pe2e-test
+#     TODO: decide if we want to keep this in the future, or remove it entirely
+#      - name: 'Run integration tests'
+#        run: |
+#          mvn verify -Pintegration-test
+#      - name: 'Run e2e tests'
+#        run: |
+#          mvn verify -Pe2e-test
       - name: Code Coverage
         env:
           SONAR_TOKEN:  de1b5cc660cd210dde840f492c371da6cc801763

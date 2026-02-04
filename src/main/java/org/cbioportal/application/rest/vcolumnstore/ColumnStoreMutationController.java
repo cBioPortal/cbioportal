@@ -15,7 +15,6 @@ import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 import org.cbioportal.shared.MutationQueryOptions;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/column-store")
-@Profile("clickhouse")
 public class ColumnStoreMutationController {
   private final MutationUseCases mutationUseCases;
 
@@ -73,8 +71,9 @@ public class ColumnStoreMutationController {
   @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @PostMapping(
+  @RequestMapping(
       value = "/mutations/fetch",
+      method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(

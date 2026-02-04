@@ -1,3 +1,30 @@
+## November 15, 2025
+* **Data Improvement**: The default transcripts for each gene were updated to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). Also Ensembl's subversions are now included for each transcript.
+
+    | Gene | Old transcript | New transcript |
+    |------|---------------|----------------|
+    | **ATXN7** | ENST00000295900 | ENST00000398590.3 |
+    | **CCNQ (FAM58A)** | ENST00000576892 | ENST00000406277.2 |
+    | **CDKN2A** | ENST00000304494 | ENST00000579755.1 |
+    | **CRLF2** | ENST00000381566 | ENST00000400841.2 |
+    | **GAB1** | ENST00000262994 | ENST00000262995.4 |
+    | **KBTBD4** | ENST00000395288 | ENST00000430070.2 |
+    | **MUTYH** | ENST00000372115 | ENST00000450313.1 |
+    | **NADK** | ENST00000341426 | ENST00000378625.1 |
+    | **PAX8** | ENST00000263334 | ENST00000429538.3 |
+    | **PGBD5** | ENST00000525115 | ENST00000391860.1 |
+    | **RBM10** | ENST00000329236 | ENST00000377604.3 |
+
+
+## November 7, 2025
+*   **New Feature:** The Data type filter on the [home page](https://www.cbioportal.org/) now has options to filter studies by imaging data.
+![image](https://github.com/user-attachments/assets/6b751179-8224-46d8-9b61-5230a0a91185)
+
+## October 10, 2025
+*   **New Feature:** Variant Allele Frequency (VAF) is now available as a data option in the Plots tab, allowing visualization of allele frequencies across samples. [Example: VHL Variant Allele Frequency in Primary vs Metastatic Renal Cell Carcinoma](https://bit.ly/4ah3RlD)
+
+    ![image](https://github.com/user-attachments/assets/ae34e946-7424-4800-b95d-1829982344d1)
+
 ## Oct 31, 2025
 *   **Added data** consisting of 9,749 samples from 13 studies:
     * [Mixed Tumors - MiMSI Cohort (MSK, Nat Commun 2024)](https://www.cbioportal.org/study/summary?id=pancan_mimsi_msk_2024) *5033 samples*

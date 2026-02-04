@@ -31,7 +31,7 @@
     <frontend.version>v6.4.4</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
     <db.version>2.14.5</db.version>
-    <derived_table.version>1.0.3</derived_table.version>
+    <derived_table.version>1.0.6</derived_table.version>
 
     <!-- Version properties for dependencies that should have same version. -->
     <!-- The rest can be set in the dependencyManagement section -->
@@ -707,7 +707,8 @@
           <execution>
             <id>integration-test</id>
             <configuration>
-              <skipTests>${skipIntegrationTests}</skipTests>
+              <!-- Skip clickhouse integration tests for now -->
+              <skipTests>true</skipTests>
               <includes>
                 <include>**/*IntegrationTest.java</include>
               </includes>

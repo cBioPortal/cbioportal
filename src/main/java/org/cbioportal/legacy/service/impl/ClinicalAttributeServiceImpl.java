@@ -50,7 +50,7 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
   public ClinicalAttribute getClinicalAttribute(String studyId, String clinicalAttributeId)
       throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     ClinicalAttribute clinicalAttribute =
         clinicalAttributeRepository.getClinicalAttribute(studyId, clinicalAttributeId);
@@ -72,7 +72,7 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalAttributeRepository.getAllClinicalAttributesInStudy(
         studyId, projection, pageSize, pageNumber, sortBy, direction);
@@ -81,7 +81,7 @@ public class ClinicalAttributeServiceImpl implements ClinicalAttributeService {
   @Override
   public BaseMeta getMetaClinicalAttributesInStudy(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return clinicalAttributeRepository.getMetaClinicalAttributesInStudy(studyId);
   }

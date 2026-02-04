@@ -1,3 +1,15 @@
+<style>
+/* Fix Issue #10511: Reduce news list spacing */
+.news-content ul li {
+    margin-bottom: 2px !important;
+    line-height: 1.4 !important;
+}
+.news-content h3 {
+    margin-top: 15px !important;
+    margin-bottom: 5px !important;
+}
+</style>
+
 # November 9, 2015
 * __New features__:
     * Links to MyCancerGenome.org for mutations

@@ -173,11 +173,13 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     }
 
     try {
+      // Null-safe handling for message (Exception.getMessage() can return null)
+      String safeMessage = message == null ? "Unknown error" : message;
+
       // Truncate message before Jackson source location info if present
-      String cleanMessage = message;
-      int sourceIndex = message.indexOf(" at [Source:");
+      int sourceIndex = safeMessage.indexOf(" at [Source:");
       if (sourceIndex != -1) {
-        cleanMessage = message.substring(0, sourceIndex);
+        safeMessage = safeMessage.substring(0, sourceIndex);
       }
 
       response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -185,7 +187,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       response.setCharacterEncoding("UTF-8");
 
       // Use ObjectMapper for proper JSON escaping (matches GlobalExceptionHandler pattern)
-      ErrorResponse errorResponse = new ErrorResponse("Invalid request body: " + cleanMessage);
+      ErrorResponse errorResponse = new ErrorResponse("Invalid request body: " + safeMessage);
       response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
       response.getWriter().flush();
     } catch (IOException ex) {

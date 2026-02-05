@@ -145,4 +145,22 @@ public class InvolvedCancerStudyExtractorInterceptorTest {
     verify(response, never()).setStatus(anyInt());
     verify(response, never()).getWriter();
   }
+
+  @Test
+  public void testNullExceptionMessageHandledGracefully() throws Exception {
+    // Test that null message from Exception.getMessage() doesn't cause NPE
+    when(request.getMethod()).thenReturn("POST");
+    when(request.getPathInfo()).thenReturn("/api/patients/fetch");
+    // Throwing an exception that returns null for getMessage()
+    when(request.getInputStream()).thenThrow(new NullPointerException());
+
+    boolean result = interceptor.preHandle(request, response, null);
+
+    assertFalse("preHandle should return false for exception", result);
+    verify(response).setStatus(HttpServletResponse.SC_BAD_REQUEST);
+    String responseBody = responseWriter.toString();
+    assertTrue(
+        "Response should contain fallback message for null exception message",
+        responseBody.contains("Unknown error") || responseBody.contains("Invalid request body"));
+  }
 }

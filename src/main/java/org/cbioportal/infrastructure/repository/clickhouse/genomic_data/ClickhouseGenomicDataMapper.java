@@ -67,5 +67,7 @@ public interface ClickhouseGenomicDataMapper {
    * @return a list of mutation counts by type
    */
   List<GenomicDataCountItem> getMutationCountsByType(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds);
 }

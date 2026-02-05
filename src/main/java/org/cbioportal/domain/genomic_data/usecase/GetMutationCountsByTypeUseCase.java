@@ -34,7 +34,10 @@ public class GetMutationCountsByTypeUseCase {
    * @return a list of {@link GenomicDataCountItem} representing the mutation counts by type
    */
   public List<GenomicDataCountItem> execute(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
-    return repository.getMutationCountsByType(studyViewFilterContext, genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds) {
+    return repository.getMutationCountsByType(
+        studyViewFilterContext, genomicDataFilters, includeSampleIds);
   }
 }

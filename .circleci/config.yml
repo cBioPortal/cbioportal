@@ -1,6 +1,6 @@
 defaults: &defaults
     docker:
-        - image: circleci/node:15.2.1-browsers
+        - image: cimg/node:22.18.0-browsers
 
 version: 2.1
 

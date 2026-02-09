@@ -140,13 +140,13 @@ public class MutationControllerTest {
   @WithMockUser
   public void getMutationsInMolecularProfileBySampleListIdDefaultProjection() throws Exception {
 
-    List<Mutation> mutationList = createExampleMutations();
+    List<Mutation> mutationList = createExampleMutationsForGene1();
 
     Mockito.when(
             mutationService.getMutationsInMolecularProfileBySampleListId(
                 Mockito.any(),
                 Mockito.any(),
-                Mockito.eq(Arrays.asList(1)),
+                Mockito.eq(Arrays.asList(TEST_ENTREZ_GENE_ID_1)),
                 Mockito.anyBoolean(),
                 Mockito.any(),
                 Mockito.any(),
@@ -160,7 +160,7 @@ public class MutationControllerTest {
             MockMvcRequestBuilders.get(
                     "/api/molecular-profiles/test_molecular_profile_id/mutations")
                 .param("sampleListId", TEST_SAMPLE_LIST_ID)
-                .param("entrezGeneId", "1")
+                .param("entrezGeneId", String.valueOf(TEST_ENTREZ_GENE_ID_1))
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -309,7 +309,10 @@ public class MutationControllerTest {
             MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd")
                 .value(TEST_MUTATION_PROTEIN_POS_END_2))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist());
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[0].namespaceColumns.columnName.fieldName")
+                .value("fieldValue"));
   }
 
   @Test
@@ -322,7 +325,7 @@ public class MutationControllerTest {
             mutationService.getMutationsInMolecularProfileBySampleListId(
                 Mockito.any(),
                 Mockito.any(),
-                Mockito.any(),
+                Mockito.eq(Arrays.asList(TEST_ENTREZ_GENE_ID_1)),
                 Mockito.anyBoolean(),
                 Mockito.any(),
                 Mockito.any(),
@@ -336,12 +339,13 @@ public class MutationControllerTest {
             MockMvcRequestBuilders.get(
                     "/api/molecular-profiles/test_molecular_profile_id/mutations")
                 .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("entrezGeneId", String.valueOf(TEST_ENTREZ_GENE_ID_1))
                 .param("projection", "DETAILED")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
@@ -424,7 +428,90 @@ public class MutationControllerTest {
                 .value(TEST_EXPECTED_ALT_COPIES_1))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.totalCopyNumber")
-                .value(TEST_TOTAL_COPY_NUMBER_1));
+                .value(TEST_TOTAL_COPY_NUMBER_1))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].mutationStatus").value(TEST_MUTATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].validationStatus").value(TEST_VALIDATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorRefCount").value(TEST_TUMOR_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalAltCount").value(TEST_NORMAL_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalRefCount").value(TEST_NORMAL_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].startPosition").value((int) TEST_START_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].endPosition").value((int) TEST_END_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].referenceAllele").value(TEST_REFERENCE_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation")
+                .value(TEST_DRIVER_FILTER_ANNOTATION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter")
+                .value(TEST_DRIVER_TIERS_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation")
+                .value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId")
+                .value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosStart")
+                .value(TEST_MUTATION_PROTEIN_POS_START_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd")
+                .value(TEST_MUTATION_PROTEIN_POS_END_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol")
+                .value(TEST_HUGO_GENE_SYMBOL_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnIntegerCopyNumber")
+                .value(TEST_ASCN_INTEGER_COPY_NUMBER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnMethod")
+                .value(TEST_ASCN_METHOD_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopiesUpper")
+                .value(TEST_CCF_EXPECTED_COPIES_UPPER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopies")
+                .value(TEST_CCF_EXPECTED_COPIES_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.clonal")
+                .value(TEST_CLONAL_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.minorCopyNumber")
+                .value(TEST_MINOR_COPY_NUMBER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.expectedAltCopies")
+                .value(TEST_EXPECTED_ALT_COPIES_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.totalCopyNumber")
+                .value(TEST_TOTAL_COPY_NUMBER_2));
   }
 
   @Test
@@ -445,6 +532,7 @@ public class MutationControllerTest {
             MockMvcRequestBuilders.get(
                     "/api/molecular-profiles/test_molecular_profile_id/mutations")
                 .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("entrezGeneId", String.valueOf(TEST_ENTREZ_GENE_ID_1))
                 .param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"))
@@ -491,7 +579,7 @@ public class MutationControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
@@ -545,7 +633,61 @@ public class MutationControllerTest {
             MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd")
                 .value(TEST_MUTATION_PROTEIN_POS_END_1))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist());
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].mutationStatus").value(TEST_MUTATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].validationStatus").value(TEST_VALIDATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorRefCount").value(TEST_TUMOR_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalAltCount").value(TEST_NORMAL_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalRefCount").value(TEST_NORMAL_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].startPosition").value((int) TEST_START_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].endPosition").value((int) TEST_END_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].referenceAllele").value(TEST_REFERENCE_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation")
+                .value(TEST_DRIVER_FILTER_ANNOTATION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter")
+                .value(TEST_DRIVER_TIERS_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation")
+                .value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId")
+                .value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosStart")
+                .value(TEST_MUTATION_PROTEIN_POS_START_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd")
+                .value(TEST_MUTATION_PROTEIN_POS_END_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
   }
 
   @Test
@@ -584,7 +726,7 @@ public class MutationControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
@@ -638,7 +780,61 @@ public class MutationControllerTest {
             MockMvcResultMatchers.jsonPath("$[0].proteinPosEnd")
                 .value(TEST_MUTATION_PROTEIN_POS_END_1))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].keyword").value(TEST_KEYWORD_1))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist());
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].mutationStatus").value(TEST_MUTATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].validationStatus").value(TEST_VALIDATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorRefCount").value(TEST_TUMOR_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalAltCount").value(TEST_NORMAL_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalRefCount").value(TEST_NORMAL_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].startPosition").value((int) TEST_START_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].endPosition").value((int) TEST_END_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].referenceAllele").value(TEST_REFERENCE_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation")
+                .value(TEST_DRIVER_FILTER_ANNOTATION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter")
+                .value(TEST_DRIVER_TIERS_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation")
+                .value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId")
+                .value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosStart")
+                .value(TEST_MUTATION_PROTEIN_POS_START_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd")
+                .value(TEST_MUTATION_PROTEIN_POS_END_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
   }
 
   @Test
@@ -678,7 +874,7 @@ public class MutationControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
                 .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
@@ -761,7 +957,90 @@ public class MutationControllerTest {
                 .value(TEST_EXPECTED_ALT_COPIES_1))
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].alleleSpecificCopyNumber.totalCopyNumber")
-                .value(TEST_TOTAL_COPY_NUMBER_1));
+                .value(TEST_TOTAL_COPY_NUMBER_1))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].center").value(TEST_CENTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].mutationStatus").value(TEST_MUTATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].validationStatus").value(TEST_VALIDATION_STATUS_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorAltCount").value(TEST_TUMOR_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].tumorRefCount").value(TEST_TUMOR_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalAltCount").value(TEST_NORMAL_ALT_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].normalRefCount").value(TEST_NORMAL_REF_COUNT_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].aminoAcidChange").value(TEST_AMINO_ACID_CHANGE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].startPosition").value((int) TEST_START_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].endPosition").value((int) TEST_END_POSITION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].referenceAllele").value(TEST_REFERENCE_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].variantAllele").value(TEST_TUMOR_SEQ_ALLELE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinChange").value(TEST_PROTEIN_CHANGE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].mutationType").value(TEST_MUTATION_TYPE_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].driverFilter").value(TEST_DRIVER_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverFilterAnnotation")
+                .value(TEST_DRIVER_FILTER_ANNOTATION_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilter")
+                .value(TEST_DRIVER_TIERS_FILTER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].driverTiersFilterAnnotation")
+                .value(TEST_DRIVER_TIERS_FILTER_ANNOTATION_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].ncbiBuild").value(TEST_NCBI_BUILD_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].variantType").value(TEST_VARIANT_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].refseqMrnaId")
+                .value(TEST_MUTATION_REFSEQ_MRNA_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosStart")
+                .value(TEST_MUTATION_PROTEIN_POS_START_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd")
+                .value(TEST_MUTATION_PROTEIN_POS_END_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].keyword").value(TEST_KEYWORD_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].gene.entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].gene.hugoGeneSymbol")
+                .value(TEST_HUGO_GENE_SYMBOL_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene.type").value(TEST_TYPE_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnIntegerCopyNumber")
+                .value(TEST_ASCN_INTEGER_COPY_NUMBER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ascnMethod")
+                .value(TEST_ASCN_METHOD_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopiesUpper")
+                .value(TEST_CCF_EXPECTED_COPIES_UPPER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.ccfExpectedCopies")
+                .value(TEST_CCF_EXPECTED_COPIES_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.clonal")
+                .value(TEST_CLONAL_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.minorCopyNumber")
+                .value(TEST_MINOR_COPY_NUMBER_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.expectedAltCopies")
+                .value(TEST_EXPECTED_ALT_COPIES_2))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].alleleSpecificCopyNumber.totalCopyNumber")
+                .value(TEST_TOTAL_COPY_NUMBER_2));
   }
 
   @Test
@@ -863,6 +1142,14 @@ public class MutationControllerTest {
   private List<Mutation> createExampleMutations() {
 
     List<Mutation> mutationList = new ArrayList<>();
+    mutationList.addAll(createExampleMutationsForGene1());
+    mutationList.addAll(createExampleMutationsForGene2());
+    return mutationList;
+  }
+
+  private List<Mutation> createExampleMutationsForGene1() {
+
+    List<Mutation> mutationList = new ArrayList<>();
     Mutation mutation1 = new Mutation();
     mutation1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
     mutation1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
@@ -893,27 +1180,6 @@ public class MutationControllerTest {
     mutation1.setKeyword(TEST_KEYWORD_1);
     mutation1.setAnnotationJSON(NAME_SPACE_COLUMNS);
     mutationList.add(mutation1);
-    return mutationList;
-  }
-
-  private List<Mutation> createExampleMutationsWithGeneAndAlleleSpecificCopyNumber() {
-
-    List<Mutation> mutationList = createExampleMutations();
-    Gene gene1 = new Gene();
-    gene1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
-    gene1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
-    gene1.setType(TEST_TYPE_1);
-    AlleleSpecificCopyNumber alleleSpecificCopyNumber1 = new AlleleSpecificCopyNumber();
-    alleleSpecificCopyNumber1.setAscnIntegerCopyNumber(3);
-    alleleSpecificCopyNumber1.setAscnMethod("FACETS");
-    alleleSpecificCopyNumber1.setCcfExpectedCopiesUpper(1.25f);
-    alleleSpecificCopyNumber1.setCcfExpectedCopies(1.75f);
-    alleleSpecificCopyNumber1.setClonal("CLONAL");
-    alleleSpecificCopyNumber1.setMinorCopyNumber(2);
-    alleleSpecificCopyNumber1.setExpectedAltCopies(1);
-    alleleSpecificCopyNumber1.setTotalCopyNumber(4);
-    mutationList.get(0).setGene(gene1);
-    mutationList.get(0).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber1);
     return mutationList;
   }
 
@@ -948,7 +1214,44 @@ public class MutationControllerTest {
     mutation2.setProteinPosStart(TEST_MUTATION_PROTEIN_POS_START_2);
     mutation2.setProteinPosEnd(TEST_MUTATION_PROTEIN_POS_END_2);
     mutation2.setKeyword(TEST_KEYWORD_2);
+    mutation2.setAnnotationJSON(NAME_SPACE_COLUMNS);
     mutationList.add(mutation2);
+    return mutationList;
+  }
+
+  private List<Mutation> createExampleMutationsWithGeneAndAlleleSpecificCopyNumber() {
+
+    List<Mutation> mutationList = createExampleMutations();
+    Gene gene1 = new Gene();
+    gene1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+    gene1.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_1);
+    gene1.setType(TEST_TYPE_1);
+    AlleleSpecificCopyNumber alleleSpecificCopyNumber1 = new AlleleSpecificCopyNumber();
+    alleleSpecificCopyNumber1.setAscnIntegerCopyNumber(3);
+    alleleSpecificCopyNumber1.setAscnMethod("FACETS");
+    alleleSpecificCopyNumber1.setCcfExpectedCopiesUpper(1.25f);
+    alleleSpecificCopyNumber1.setCcfExpectedCopies(1.75f);
+    alleleSpecificCopyNumber1.setClonal("CLONAL");
+    alleleSpecificCopyNumber1.setMinorCopyNumber(2);
+    alleleSpecificCopyNumber1.setExpectedAltCopies(1);
+    alleleSpecificCopyNumber1.setTotalCopyNumber(4);
+    mutationList.get(0).setGene(gene1);
+    mutationList.get(0).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber1);
+    Gene gene2 = new Gene();
+    gene2.setEntrezGeneId(TEST_ENTREZ_GENE_ID_2);
+    gene2.setHugoGeneSymbol(TEST_HUGO_GENE_SYMBOL_2);
+    gene2.setType(TEST_TYPE_2);
+    AlleleSpecificCopyNumber alleleSpecificCopyNumber2 = new AlleleSpecificCopyNumber();
+    alleleSpecificCopyNumber2.setAscnIntegerCopyNumber(2);
+    alleleSpecificCopyNumber2.setAscnMethod("ASCN_METHOD2");
+    alleleSpecificCopyNumber2.setCcfExpectedCopiesUpper(1.5f);
+    alleleSpecificCopyNumber2.setCcfExpectedCopies(1.95f);
+    alleleSpecificCopyNumber2.setClonal("SUBCLONAL");
+    alleleSpecificCopyNumber2.setMinorCopyNumber(1);
+    alleleSpecificCopyNumber2.setExpectedAltCopies(1);
+    alleleSpecificCopyNumber2.setTotalCopyNumber(2);
+    mutationList.get(1).setGene(gene2);
+    mutationList.get(1).setAlleleSpecificCopyNumber(alleleSpecificCopyNumber2);
     return mutationList;
   }
 }

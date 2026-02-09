@@ -1,4 +1,4 @@
--- version 1.0.6 of derived table schema and data definition
+-- version 1.0.7 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number

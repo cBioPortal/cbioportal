@@ -228,6 +228,14 @@ bitly.access.token=
 # google_analytics_profile_id=
 # google_tag_manager_id=
 
+# Datadog RUM (Real User Monitoring)
+# datadog_rum_application_id=
+# datadog_rum_client_token=
+# datadog_rum_site=
+# datadog_rum_env=
+# datadog_rum_session_sample_rate=
+# datadog_rum_session_replay_sample_rate=
+
 # genomespace linking
 genomespace=true
 

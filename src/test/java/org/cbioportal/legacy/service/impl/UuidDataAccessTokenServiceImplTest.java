@@ -63,20 +63,22 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@TestPropertySource(properties = {
-    "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
-    "dat.uuid.max_number_per_user = 1",
-    "dat.ttl_seconds = 2"
-}, inheritLocations = false)
+@TestPropertySource(
+    properties = {
+      "dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s=",
+      "dat.uuid.max_number_per_user = 1",
+      "dat.ttl_seconds = 2"
+    },
+    inheritLocations = false)
 @ContextConfiguration(classes = UuidDataAccessTokenServiceImplTestConfiguration.class)
 @RunWith(SpringRunner.class)
 public class UuidDataAccessTokenServiceImplTest {
 
   @Autowired
-  private UuidDataAccessTokenServiceImplTestConfiguration uuidDataAccessTokenServiceImplTestConfiguration;
+  private UuidDataAccessTokenServiceImplTestConfiguration
+      uuidDataAccessTokenServiceImplTestConfiguration;
 
-  @Autowired
-  private DataAccessTokenRepository dataAccessTokenRepository;
+  @Autowired private DataAccessTokenRepository dataAccessTokenRepository;
 
   @Autowired
   @Qualifier("uuidDataAccessTokenServiceImpl")
@@ -96,11 +98,14 @@ public class UuidDataAccessTokenServiceImplTest {
     // Testing for service with limit 1 token
     uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
     uuidDataAccessTokenServiceImplTestConfiguration.resetDeletedDataAccessToken();
-    DataAccessToken newDataAccessToken = uuidDataAccessTokenServiceImpl.createDataAccessToken(
-        UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN);
+    DataAccessToken newDataAccessToken =
+        uuidDataAccessTokenServiceImpl.createDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN);
     Date expectedExpirationDate = getExpectedExpirationDate();
-    String deletedDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
-    DataAccessToken createdDataAccessToken = uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();
+    String deletedDataAccessToken =
+        uuidDataAccessTokenServiceImplTestConfiguration.getDeletedDataAccessToken();
+    DataAccessToken createdDataAccessToken =
+        uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken();
     if (createdDataAccessTokenWithWrongInformation(
         createdDataAccessToken,
         UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME_WITH_ONE_TOKEN,
@@ -116,7 +121,8 @@ public class UuidDataAccessTokenServiceImplTest {
               + expectedExpirationDate.toString()
               + ")");
     }
-    if (deletedDataAccessToken != uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID) {
+    if (deletedDataAccessToken
+        != uuidDataAccessTokenServiceImplTestConfiguration.OLDEST_TOKEN_UUID) {
       Assert.fail(
           "Expired token: "
               + deletedDataAccessToken
@@ -141,8 +147,9 @@ public class UuidDataAccessTokenServiceImplTest {
       createdDataAccessTokenWithWrongInformation = true;
     }
     if (Math.abs(
-        createdDataAccessToken.getExpiration().getTime() - expectedExpirationDate
-            .getTime()) > UuidDataAccessTokenServiceImplTestConfiguration.MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN) {
+            createdDataAccessToken.getExpiration().getTime() - expectedExpirationDate.getTime())
+        > UuidDataAccessTokenServiceImplTestConfiguration
+            .MAXIMUM_TIME_DIFFERENCE_BETWEEN_CREATED_AND_EXPECTED_TOKEN) {
       createdDataAccessTokenWithWrongInformation = true;
     }
     return createdDataAccessTokenWithWrongInformation;
@@ -154,8 +161,9 @@ public class UuidDataAccessTokenServiceImplTest {
    */
   @Test
   public void validateNonexistantTokenTest() {
-    Boolean nonexistantTokenIsValid = uuidDataAccessTokenServiceImpl.isValid(
-        UuidDataAccessTokenServiceImplTestConfiguration.NONEXISTENT_TOKEN_STRING);
+    Boolean nonexistantTokenIsValid =
+        uuidDataAccessTokenServiceImpl.isValid(
+            UuidDataAccessTokenServiceImplTestConfiguration.NONEXISTENT_TOKEN_STRING);
     if (nonexistantTokenIsValid) {
       Assert.fail("Validation of nonexistant token returned true, expected false.");
     }
@@ -167,8 +175,9 @@ public class UuidDataAccessTokenServiceImplTest {
    */
   @Test
   public void validateFailedToGetToken() {
-    Boolean failedToGetTokenIsValid = uuidDataAccessTokenServiceImpl.isValid(
-        UuidDataAccessTokenServiceImplTestConfiguration.FAIL_TO_GET_TOKEN_STRING);
+    Boolean failedToGetTokenIsValid =
+        uuidDataAccessTokenServiceImpl.isValid(
+            UuidDataAccessTokenServiceImplTestConfiguration.FAIL_TO_GET_TOKEN_STRING);
     if (failedToGetTokenIsValid) {
       Assert.fail("Validation of token that we failed to look up returned true, expected false.");
     }
@@ -182,8 +191,9 @@ public class UuidDataAccessTokenServiceImplTest {
    */
   @Test
   public void validateExpiredTokenTest() {
-    Boolean expiredTokenIsValid = uuidDataAccessTokenServiceImpl.isValid(
-        UuidDataAccessTokenServiceImplTestConfiguration.EXPIRED_TOKEN_STRING);
+    Boolean expiredTokenIsValid =
+        uuidDataAccessTokenServiceImpl.isValid(
+            UuidDataAccessTokenServiceImplTestConfiguration.EXPIRED_TOKEN_STRING);
     if (expiredTokenIsValid) {
       Assert.fail("Validation of expired token returned true, expected false");
     }
@@ -197,8 +207,9 @@ public class UuidDataAccessTokenServiceImplTest {
    */
   @Test
   public void validateValidTokenTest() {
-    Boolean validTokenIsValid = uuidDataAccessTokenServiceImpl.isValid(
-        UuidDataAccessTokenServiceImplTestConfiguration.VALID_TOKEN_STRING);
+    Boolean validTokenIsValid =
+        uuidDataAccessTokenServiceImpl.isValid(
+            UuidDataAccessTokenServiceImplTestConfiguration.VALID_TOKEN_STRING);
     if (!validTokenIsValid) {
       Assert.fail("Validation of valid token returned false, expected true.");
     }
@@ -206,7 +217,8 @@ public class UuidDataAccessTokenServiceImplTest {
 
   @Test
   public void testGetDataAccessTokenWhenNoTokensExist() {
-    DataAccessToken token = uuidDataAccessTokenServiceImpl.getDataAccessToken("USER_WITH_NO_TOKENS");
+    DataAccessToken token =
+        uuidDataAccessTokenServiceImpl.getDataAccessToken("USER_WITH_NO_TOKENS");
     Assert.assertNotNull(token);
     Assert.assertEquals("USER_WITH_NO_TOKENS", token.getUsername());
   }

@@ -54,8 +54,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "dat.method", havingValue = "uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
-  @Autowired
-  private DataAccessTokenRepository dataAccessTokenRepository;
+  @Autowired private DataAccessTokenRepository dataAccessTokenRepository;
 
   @Value("${dat.ttl_seconds:-1}")
   private int datTtlSeconds;
@@ -85,7 +84,8 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     calendar.add(Calendar.SECOND, datTtlSeconds);
     Date expirationDate = calendar.getTime();
 
-    DataAccessToken dataAccessToken = new DataAccessToken(uuid, username, expirationDate, creationDate);
+    DataAccessToken dataAccessToken =
+        new DataAccessToken(uuid, username, expirationDate, creationDate);
     dataAccessTokenRepository.addDataAccessToken(dataAccessToken);
     return dataAccessToken;
   }
@@ -93,14 +93,16 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   // get all user tokens/uuids sorted from oldest to newest
   @Override
   public List<DataAccessToken> getAllDataAccessTokens(String username) {
-    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens =
+        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     return allDataAccessTokens;
   }
 
   // get newest data access token for a given username
   @Override
   public DataAccessToken getDataAccessToken(String username) {
-    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens =
+        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     if (allDataAccessTokens.isEmpty()) {
       return createDataAccessToken(username);
     }
@@ -162,13 +164,15 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   }
 
   private int getNumberOfTokensForUsername(String username) {
-    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens =
+        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     return allDataAccessTokens.size();
   }
 
   // revokes oldest token in token management system for a user
   private void revokeOldestDataAccessTokenForUsername(String username) {
-    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens =
+        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     DataAccessToken oldestDataAccessToken = allDataAccessTokens.get(0);
     dataAccessTokenRepository.removeDataAccessToken(oldestDataAccessToken.getToken());
   }

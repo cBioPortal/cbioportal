@@ -184,6 +184,21 @@ public class ClickhouseSampleMapperTest {
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     assertEquals(17, filteredSamples9.size());
+
+    // NA subtype filter: attribute exists at sample-level in acc_tcga but patient-level in
+    // study_genie_pub (cross-study attribute level conflict scenario)
+    // acc_tcga (sample-level subtype): sample tcga-a1-a0sb-01 has subtype='' (empty) -> 1 NA
+    // study_genie_pub (patient-level subtype):
+    //   - patient 316 has subtype='NA', patient 318 has subtype='' (empty) -> 2 NA samples
+    //   - patients 301-312, 319-324 have no subtype data -> 21 NA samples
+    // Total: 1 + 2 + 21 = 24 samples
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("subtype", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples10 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(24, filteredSamples10.size());
   }
 
   @Test

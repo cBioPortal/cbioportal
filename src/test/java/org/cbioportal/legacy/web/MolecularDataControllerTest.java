@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.GeneMolecularData;
+import org.cbioportal.legacy.model.MolecularDataCountItem;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
@@ -261,5 +262,49 @@ public class MolecularDataControllerTest {
     molecularDataFilter.setEntrezGeneIds(entrezGeneIds);
     molecularDataFilter.setSampleIds(sampleIds);
     return molecularDataFilter;
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchMolecularDataCounts() throws Exception {
+    List<MolecularDataCountItem> countItems = new ArrayList<>();
+    MolecularDataCountItem item1 = new MolecularDataCountItem();
+    item1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
+    item1.setCount(4);
+    countItems.add(item1);
+
+    MolecularDataCountItem item2 = new MolecularDataCountItem();
+    item2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
+    item2.setCount(2);
+    countItems.add(item2);
+
+    MolecularDataMultipleStudyFilter filter = new MolecularDataMultipleStudyFilter();
+    filter.setMolecularProfileIds(
+        Arrays.asList(TEST_MOLECULAR_PROFILE_STABLE_ID_1, TEST_MOLECULAR_PROFILE_STABLE_ID_2));
+    filter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
+
+    Mockito.when(
+            molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
+                filter.getMolecularProfileIds(), filter.getSampleIds(), filter.getEntrezGeneIds()))
+        .thenReturn(countItems);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/molecular-data/counts")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(4))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(2));
   }
 }

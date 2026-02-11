@@ -306,4 +306,165 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(1, filteredData.size());
     Assert.assertEquals("sample1", filteredData.get(0).getSampleId());
   }
+
+  @Test
+  public void getMolecularDataInMultipleMolecularProfiles() throws Exception {
+
+    // Setup sample lists for two molecular profiles
+    MolecularProfileSamples mpsA = new MolecularProfileSamples();
+    mpsA.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    mpsA.setCommaSeparatedSampleIds("1,2,");
+
+    MolecularProfileSamples mpsB = new MolecularProfileSamples();
+    mpsB.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
+    mpsB.setCommaSeparatedSampleIds("3,");
+
+    when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(
+            new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B))))
+        .thenReturn(java.util.Map.of(MOLECULAR_PROFILE_ID_A, mpsA, MOLECULAR_PROFILE_ID_B, mpsB));
+
+    // Configure molecular profiles
+    MolecularProfile mpA = new MolecularProfile();
+    mpA.setStableId(MOLECULAR_PROFILE_ID_A);
+    mpA.setCancerStudyIdentifier(STUDY_ID);
+    MolecularProfile mpB = new MolecularProfile();
+    mpB.setStableId(MOLECULAR_PROFILE_ID_B);
+    mpB.setCancerStudyIdentifier(STUDY_ID);
+    when(molecularProfileService.getMolecularProfiles(
+            new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B)), "SUMMARY"))
+        .thenReturn(Arrays.asList(mpA, mpB));
+
+    // Prepare sample list across profiles
+    List<Sample> samples = new ArrayList<>();
+    Sample s1 = new Sample();
+    s1.setInternalId(1);
+    s1.setStableId(SAMPLE_ID1);
+    s1.setPatientStableId(PATIENT_ID_1);
+    s1.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s1);
+
+    Sample s2 = new Sample();
+    s2.setInternalId(2);
+    s2.setStableId(SAMPLE_ID2);
+    s2.setPatientStableId(PATIENT_ID_2);
+    s2.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s2);
+
+    Sample s3 = new Sample();
+    s3.setInternalId(3);
+    s3.setStableId(SAMPLE_ID3);
+    s3.setPatientStableId(PATIENT_ID_3);
+    s3.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s3);
+
+    when(sampleService.getSamplesByInternalIds(Arrays.asList(1, 2, 3))).thenReturn(samples);
+
+    // Mock molecular alterations for both genes and both profiles
+    GeneMolecularAlteration alterationA1 = new GeneMolecularAlteration();
+    alterationA1.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alterationA1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alterationA1.setValues("1,0");
+
+    GeneMolecularAlteration alterationA2 = new GeneMolecularAlteration();
+    alterationA2.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alterationA2.setEntrezGeneId(ENTREZ_GENE_ID_2);
+    alterationA2.setValues("0,1");
+
+    GeneMolecularAlteration alterationB1 = new GeneMolecularAlteration();
+    alterationB1.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
+    alterationB1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alterationB1.setValues("1");
+
+    List<GeneMolecularAlteration> molecularAlterationList =
+        Arrays.asList(alterationA1, alterationA2, alterationB1);
+
+    when(molecularDataRepository
+            .getGeneMolecularAlterationsInMultipleMolecularProfiles(
+                new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B)),
+                Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2),
+                PROJECTION))
+        .thenReturn(molecularAlterationList);
+
+    // Call the method under test
+    List<GeneMolecularData> result =
+        molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B),
+            null,
+            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2),
+            PROJECTION);
+
+    // Verify repository was called once
+    verify(molecularDataRepository, times(1))
+        .getGeneMolecularAlterationsInMultipleMolecularProfiles(
+            new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B)),
+            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2),
+            PROJECTION);
+
+    // There are two samples for profile A and one sample for profile B, and three molecular alteration entries:
+    // - profile A has two genes -> 2 samples * 2 genes = 4
+    // - profile B has 1 gene -> 1 sample * 1 gene = 1
+    // Total expected results = 5
+    Assert.assertEquals(5, result.size());
+  }
+
+  @Test
+  public void fetchMolecularDataCountsInMultipleMolecularProfiles() {
+    // Setup test data - similar to getMolecularDataInMultipleMolecularProfiles test
+    List<GeneMolecularAlteration> molecularAlterations = new ArrayList<>();
+    GeneMolecularAlteration alteration1 = new GeneMolecularAlteration();
+    alteration1.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alteration1.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alteration1.setValues("0.4181,0.4181");
+    molecularAlterations.add(alteration1);
+
+    GeneMolecularAlteration alteration2 = new GeneMolecularAlteration();
+    alteration2.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    alteration2.setEntrezGeneId(ENTREZ_GENE_ID_2);
+    alteration2.setValues("0.5332,0.5332");
+    molecularAlterations.add(alteration2);
+
+    GeneMolecularAlteration alteration3 = new GeneMolecularAlteration();
+    alteration3.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
+    alteration3.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    alteration3.setValues("-0.4737");
+    molecularAlterations.add(alteration3);
+
+    when(molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
+            any(), any(), any()))
+        .thenReturn(molecularAlterations);
+
+    when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(any()))
+        .thenReturn(createSampleIdMap());
+
+    List<Sample> samples = createSamples();
+    when(sampleService.getSamplesByInternalIds(any())).thenReturn(samples);
+
+    // Execute
+    List<org.cbioportal.legacy.model.MolecularDataCountItem> result =
+        molecularDataService.fetchMolecularDataCountsInMultipleMolecularProfiles(
+            Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B),
+            null,
+            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2));
+
+    // Verify
+    Assert.assertEquals(2, result.size());
+    
+    // Profile A should have 4 data points (2 samples * 2 genes)
+    org.cbioportal.legacy.model.MolecularDataCountItem profileACount =
+        result.stream()
+            .filter(item -> item.getMolecularProfileId().equals(MOLECULAR_PROFILE_ID_A))
+            .findFirst()
+            .orElse(null);
+    Assert.assertNotNull(profileACount);
+    Assert.assertEquals(Integer.valueOf(4), profileACount.getCount());
+
+    // Profile B should have 1 data point (1 sample * 1 gene)
+    org.cbioportal.legacy.model.MolecularDataCountItem profileBCount =
+        result.stream()
+            .filter(item -> item.getMolecularProfileId().equals(MOLECULAR_PROFILE_ID_B))
+            .findFirst()
+            .orElse(null);
+    Assert.assertNotNull(profileBCount);
+    Assert.assertEquals(Integer.valueOf(1), profileBCount.getCount());
+  }
 }

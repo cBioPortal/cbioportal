@@ -138,7 +138,9 @@ public class ClickhouseGenomicDataMapperTest {
   @Test
   public void getMutationCountsByTypeAddSampleId() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
-    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+    ArrayList<String> studyIds = new ArrayList<>();
+    studyIds.add(STUDY_TCGA_PUB);
+    studyViewFilter.setStudyIds(studyIds);
 
     GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
     List<GenomicDataCountItem> mutationCountsByType =
@@ -156,6 +158,24 @@ public class ClickhouseGenomicDataMapperTest {
                     .as("sampleIds should be populated when includeSampleIds=true")
                     .isNotNull()
                     .isNotEmpty());
+
+    // In the case of multiple studies the query should return the sampleIds for both studies for
+    // that particular gene
+    studyViewFilter.getStudyIds().add(STUDY_ACC_TCGA);
+    List<GenomicDataCountItem> mutationCountsByType2 =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            true);
+    List<String> allSampleIds =
+        mutationCountsByType2.stream()
+            .flatMap(item -> item.getCounts().stream())
+            .flatMap(count -> count.getSampleIds().stream())
+            .toList();
+
+    assertThat(allSampleIds).anySatisfy(id -> assertThat(id).startsWith(STUDY_TCGA_PUB + "_"));
+
+    assertThat(allSampleIds).anySatisfy(id -> assertThat(id).startsWith(STUDY_ACC_TCGA + "_"));
   }
 
   @Test

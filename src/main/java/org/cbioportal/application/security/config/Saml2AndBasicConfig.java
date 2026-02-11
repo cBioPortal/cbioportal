@@ -71,7 +71,7 @@ public class Saml2AndBasicConfig {
             securityContext ->
                 securityContext.securityContextRepository(
                     new HttpSessionSecurityContextRepository()))
-        .saml2Login(withDefaults())
+        .saml2Login(saml -> saml.successHandler(new SamlAuthenticationSuccessHandler()))
         .saml2Metadata(withDefaults())
         .sessionManagement(
             sessionManagement -> sessionManagement.sessionFixation().migrateSession())

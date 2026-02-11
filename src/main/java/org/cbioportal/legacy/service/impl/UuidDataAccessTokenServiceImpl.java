@@ -54,7 +54,8 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "dat.method", havingValue = "uuid")
 public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
-  @Autowired private DataAccessTokenRepository dataAccessTokenRepository;
+  @Autowired
+  private DataAccessTokenRepository dataAccessTokenRepository;
 
   @Value("${dat.ttl_seconds:-1}")
   private int datTtlSeconds;
@@ -64,7 +65,8 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
   private static final Logger log = LoggerFactory.getLogger(UuidDataAccessTokenServiceImpl.class);
 
-  // create a data access token (randomly generated UUID) and insert corresponding record into table
+  // create a data access token (randomly generated UUID) and insert corresponding
+  // record into table
   // with parts:
   // username
   // uuid
@@ -83,8 +85,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     calendar.add(Calendar.SECOND, datTtlSeconds);
     Date expirationDate = calendar.getTime();
 
-    DataAccessToken dataAccessToken =
-        new DataAccessToken(uuid, username, expirationDate, creationDate);
+    DataAccessToken dataAccessToken = new DataAccessToken(uuid, username, expirationDate, creationDate);
     dataAccessTokenRepository.addDataAccessToken(dataAccessToken);
     return dataAccessToken;
   }
@@ -92,16 +93,17 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   // get all user tokens/uuids sorted from oldest to newest
   @Override
   public List<DataAccessToken> getAllDataAccessTokens(String username) {
-    List<DataAccessToken> allDataAccessTokens =
-        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     return allDataAccessTokens;
   }
 
   // get newest data access token for a given username
   @Override
   public DataAccessToken getDataAccessToken(String username) {
-    List<DataAccessToken> allDataAccessTokens =
-        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    if (allDataAccessTokens.isEmpty()) {
+      return createDataAccessToken(username);
+    }
     DataAccessToken newestDataAccessToken = allDataAccessTokens.get(allDataAccessTokens.size() - 1);
     return newestDataAccessToken;
   }
@@ -160,15 +162,13 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   }
 
   private int getNumberOfTokensForUsername(String username) {
-    List<DataAccessToken> allDataAccessTokens =
-        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     return allDataAccessTokens.size();
   }
 
   // revokes oldest token in token management system for a user
   private void revokeOldestDataAccessTokenForUsername(String username) {
-    List<DataAccessToken> allDataAccessTokens =
-        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    List<DataAccessToken> allDataAccessTokens = dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
     DataAccessToken oldestDataAccessToken = allDataAccessTokens.get(0);
     dataAccessTokenRepository.removeDataAccessToken(oldestDataAccessToken.getToken());
   }
@@ -184,9 +184,11 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     // when DaoAuthenticationProvider does authentication on user returned by
     // PortalUserDetailsService
-    // which has password "unused", this password won't match, and then there is a BadCredentials
+    // which has password "unused", this password won't match, and then there is a
+    // BadCredentials
     // exception thrown
-    // this is a good way to catch that the wrong authetication provider is being used
+    // this is a good way to catch that the wrong authetication provider is being
+    // used
     return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
   }
 }

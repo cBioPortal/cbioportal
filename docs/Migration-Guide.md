@@ -2,6 +2,12 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+## v6 -> v7
+- **Database Transition**: v7 replaces MySQL with **ClickHouse** as the sole database backend. MySQL is no longer supported for v7 deployments.
+- **Study Re-import Required**: Existing MySQL data cannot be directly migrated. All studies must be **re-imported** using v7-compatible importer tools.
+- **Configuration**: v7 introduces significant configuration changes. Please review the [Versioning and Upgrade Guide](./Versioning-and-Upgrades.md) for detailed instructions.
+- **Maintenance**: v6 is now in maintenance mode (security fixes only) on the `maintenance-v6` branch.
+
 ## v6.3 -> v6.4
 - The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading.
 

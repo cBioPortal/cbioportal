@@ -10,14 +10,14 @@ If you are interested in coordinating the development of new features, please co
 
 ## 🌳 Branching and Release Strategy
 
-cBioPortal is currently preparing for **v7**. The branching and release strategy has been updated as follows:
+cBioPortal has officially released **v7**. The branching and release strategy is as follows:
 
-- **`master` branch** is now the **pre-release branch for v7**. Pull requests targeting v7 should be opened against `master`.
-- **v7** introduces a **ClickHouse-only database**. This new database setup **is not compatible** with earlier portal settings, the traditional MySQL mode, or existing study importer tools.
-- To support existing deployments of v6, we have created a **`maintenance-v6` branch**:
+- **`master` branch** is the **primary development branch for v7**. All new feature development and bug fixes should target `master`.
+- **v7** uses **ClickHouse as the sole database backend**. This setup **is not compatible** with earlier portal settings, the traditional MySQL mode, or existing study importer tools.
+- To support existing deployments of v6, we maintain a **`maintenance-v6` branch**:
     - Only **important security fixes** will be merged into `maintenance-v6`.
     - **No new bug fixes or feature development** will be done on v6.
-    - Users still running v6 should continue to track `maintenance-v6` for necessary security updates.
+    - Users still running v6 should track `maintenance-v6` for security updates.
 
 See more details at [Versioning-and-Upgrades.md](docs/Versioning-and-Upgrades.md)
 

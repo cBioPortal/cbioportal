@@ -87,8 +87,10 @@ public class UuidDataAccessTokenServiceImplTest {
   @Value("${dat.ttl_seconds}")
   private int datTtlSeconds;
 
-  /* Test for creating a token when autoexpire is on
-   * tests that new token is created/MaxNumberTokensExcceededException is not thrown
+  /*
+   * Test for creating a token when autoexpire is on
+   * tests that new token is created/MaxNumberTokensExcceededException is not
+   * thrown
    * deletedToken should be the oldest token
    */
   @Test
@@ -153,7 +155,8 @@ public class UuidDataAccessTokenServiceImplTest {
     return createdDataAccessTokenWithWrongInformation;
   }
 
-  /* Tests validation of a token which is not in the repository
+  /*
+   * Tests validation of a token which is not in the repository
    * Should return false
    */
   @Test
@@ -166,7 +169,8 @@ public class UuidDataAccessTokenServiceImplTest {
     }
   }
 
-  /* Tests validation of a token when there is a failure retrieving the token
+  /*
+   * Tests validation of a token when there is a failure retrieving the token
    * Should return false
    */
   @Test
@@ -179,8 +183,10 @@ public class UuidDataAccessTokenServiceImplTest {
     }
   }
 
-  /* Tests validation of a token which has expired
-   * Mock is configured to test a token with expiration date 100000 seconds before current time
+  /*
+   * Tests validation of a token which has expired
+   * Mock is configured to test a token with expiration date 100000 seconds before
+   * current time
    * Should return false
    */
   @Test
@@ -193,8 +199,10 @@ public class UuidDataAccessTokenServiceImplTest {
     }
   }
 
-  /* Tests validation of a valid token
-   * Mock is configured to test a token with expiration date 100000 seconds after current time
+  /*
+   * Tests validation of a valid token
+   * Mock is configured to test a token with expiration date 100000 seconds after
+   * current time
    * Should return true
    */
   @Test
@@ -205,5 +213,13 @@ public class UuidDataAccessTokenServiceImplTest {
     if (!validTokenIsValid) {
       Assert.fail("Validation of valid token returned false, expected true.");
     }
+  }
+
+  @Test
+  public void testGetDataAccessTokenWhenNoTokensExist() {
+    DataAccessToken token =
+        uuidDataAccessTokenServiceImpl.getDataAccessToken("USER_WITH_NO_TOKENS");
+    Assert.assertNotNull(token);
+    Assert.assertEquals("USER_WITH_NO_TOKENS", token.getUsername());
   }
 }

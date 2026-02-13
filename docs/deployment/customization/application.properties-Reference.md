@@ -809,3 +809,16 @@ Custom Buttons can be defined which will conditionally appear in all group compa
 ```
 download_custom_buttons_json=classpath:custom_buttons/download_custom_button_avm.json
 ```
+
+## UptimeRobot Integration
+
+Display automatic service status banners when incidents or maintenance are detected from UptimeRobot.
+
+```properties
+uptime_robot_status_page_url=https://status.cbioportal.org
+uptime_robot_api_key=RlrzpsmAn
+```
+
+Both properties are required to enable the integration. When configured, the portal will automatically fetch and display active events as banners at the top of the page.
+
+See [UptimeRobot Integration](../integration-with-other-webservices/UptimeRobot-Integration.md) for setup instructions.

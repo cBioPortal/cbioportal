@@ -1,4 +1,4 @@
--- version 1.0.6 of derived table schema and data definition
+-- version 1.0.7 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -707,6 +707,40 @@ SELECT * FROM genetic_alteration;
 
 -- SWITCH THE TABLES
 EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
+
+-- Adds primary key to the clinical_event table for Clickhouse-only
+DROP TABLE IF EXISTS clinical_event_BACKUP;
+CREATE TABLE clinical_event_BACKUP
+(
+    `clinical_event_id` Int64,
+    `patient_id` Nullable(Int64),
+    `patient_stable_id` String,
+    `start_date` Nullable(Int64),
+    `stop_date` Nullable(Int64),
+    `event_type` LowCardinality(String),
+    `cancer_study_identifier` LowCardinality(String)
+)
+    ENGINE = MergeTree()
+PRIMARY KEY (cancer_study_identifier, event_type, clinical_event_id)
+ORDER BY (cancer_study_identifier, event_type, clinical_event_id)
+SETTINGS index_granularity = 8192;
+
+-- Copy the data
+INSERT INTO clinical_event_BACKUP
+SELECT
+    ce.clinical_event_id,
+    ce.patient_id,
+    p.stable_id AS patient_stable_id,
+    ce.start_date,
+    ce.stop_date,
+    ce.event_type,
+    cs.cancer_study_identifier
+FROM clinical_event ce
+    INNER JOIN patient p ON ce.patient_id = p.internal_id
+    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+
+-- SWITCH THE TABLES
+EXCHANGE TABLES clinical_event_BACKUP AND clinical_event;
 
 --END: PRIMARY KEY ADDITIONS
 

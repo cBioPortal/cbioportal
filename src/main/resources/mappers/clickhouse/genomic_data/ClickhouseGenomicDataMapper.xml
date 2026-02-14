@@ -148,9 +148,14 @@
                     <include
                         refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
                     AND variant_type = 'mutation'
-                    <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
-                        hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-                    </foreach>
+                    <if test="includeSampleIds">
+                        AND hugo_gene_symbol = #{hugoGeneSymbol}
+                    </if>
+                    <if test="!includeSampleIds">
+                        <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
+                            hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                        </foreach>
+                    </if>
                 </where>
             )
         <if test="includeSampleIds">
@@ -188,7 +193,7 @@
             UNION ALL
 
             SELECT
-                #{genomicDataFilters[0].hugoGeneSymbol} as hugoGeneSymbol,
+                #{hugoGeneSymbol} as hugoGeneSymbol,
                 'Not Mutated' AS profileType,
                 'Not Mutated' AS label,
                 'NOT_MUTATED' AS value,
@@ -201,7 +206,7 @@
             UNION ALL
 
             SELECT
-                #{genomicDataFilters[0].hugoGeneSymbol} AS hugoGeneSymbol,
+                #{hugoGeneSymbol} AS hugoGeneSymbol,
                 'Not Profiled' AS profileType,
                 'Not Profiled' AS label,
                 'NOT_PROFILED' AS value,

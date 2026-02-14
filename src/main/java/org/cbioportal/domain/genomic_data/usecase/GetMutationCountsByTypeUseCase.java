@@ -38,7 +38,19 @@ public class GetMutationCountsByTypeUseCase {
       StudyViewFilterContext studyViewFilterContext,
       List<GenomicDataFilter> genomicDataFilters,
       boolean includeSampleIds) {
+    String hugoGeneSymbol = null;
+    // This is to enforce data accuracy and to avoid sending a list of genomicDataFilters when
+    // including sample id == true
+    if (includeSampleIds) {
+      if (genomicDataFilters == null || genomicDataFilters.size() != 1) {
+        throw new IllegalArgumentException(
+            "Only one gene allowed in GenomicDataFilter list when includeSampleIds is true");
+      }
+
+      hugoGeneSymbol = genomicDataFilters.getFirst().getHugoGeneSymbol();
+    }
+
     return repository.getMutationCountsByType(
-        studyViewFilterContext, genomicDataFilters, includeSampleIds);
+        studyViewFilterContext, genomicDataFilters, includeSampleIds, hugoGeneSymbol);
   }
 }

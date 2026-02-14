@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClickhouseGenomicDataMapperTest {
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
   private static final String STUDY_ACC_TCGA = "acc_tcga";
+  private static final String HUGO_GENE_SYMBOL = "AKT1";
 
   @Autowired private ClickhouseGenomicDataMapper mapper;
 
@@ -120,7 +121,8 @@ public class ClickhouseGenomicDataMapperTest {
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of(genomicDataFilterMutation),
-            false);
+            false,
+            HUGO_GENE_SYMBOL);
     List<GenomicDataCountItem> expectedMutationCountsByType =
         List.of(
             new GenomicDataCountItem(
@@ -147,7 +149,8 @@ public class ClickhouseGenomicDataMapperTest {
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of(genomicDataFilterMutation),
-            true);
+            true,
+            HUGO_GENE_SYMBOL);
 
     assertThat(mutationCountsByType)
         .flatExtracting(GenomicDataCountItem::getCounts)
@@ -166,7 +169,8 @@ public class ClickhouseGenomicDataMapperTest {
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of(genomicDataFilterMutation),
-            true);
+            true,
+            HUGO_GENE_SYMBOL);
     List<String> allSampleIds =
         mutationCountsByType2.stream()
             .flatMap(item -> item.getCounts().stream())
@@ -188,7 +192,8 @@ public class ClickhouseGenomicDataMapperTest {
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of(genomicDataFilterMutation),
-            false);
+            false,
+            HUGO_GENE_SYMBOL);
 
     assertThat(mutationCountsByType)
         .flatExtracting(GenomicDataCountItem::getCounts)

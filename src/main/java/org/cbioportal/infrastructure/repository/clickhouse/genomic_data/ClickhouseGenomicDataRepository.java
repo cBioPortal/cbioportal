@@ -49,8 +49,9 @@ public class ClickhouseGenomicDataRepository implements GenomicDataRepository {
   public List<GenomicDataCountItem> getMutationCountsByType(
       StudyViewFilterContext studyViewFilterContext,
       List<GenomicDataFilter> genomicDataFilters,
-      boolean includeSampleIds) {
+      boolean includeSampleIds,
+      String hugoGeneSymbol) {
     return mapper.getMutationCountsByType(
-        studyViewFilterContext, genomicDataFilters, includeSampleIds);
+        studyViewFilterContext, genomicDataFilters, includeSampleIds, hugoGeneSymbol);
   }
 }

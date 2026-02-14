@@ -81,7 +81,7 @@ import org.cbioportal.legacy.web.util.ScientificSmallDataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,7 +112,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
       ScientificSmallDataBinner.class,
       LogScaleDataBinner.class,
       ClinicalDataFetcher.class,
-      ClinicalDataBinUtil.class,
+
       DataBinHelper.class,
       IdPopulator.class,
       TestConfig.class
@@ -326,8 +326,7 @@ public class StudyViewControllerTest {
 
   @Test
   @WithMockUser
-  // TODO: Update Test currently out of scope of StudyViewController (need to make a new unit test
-  // to test ClinicalDataBinUtil)
+
   public void fetchClinicalDataBinCounts() throws Exception {
     List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     SampleIdentifier sampleIdentifier = new SampleIdentifier();

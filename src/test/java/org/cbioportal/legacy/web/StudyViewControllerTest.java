@@ -855,6 +855,8 @@ public class StudyViewControllerTest {
             anyList(), anyList(), anyList(), anyString(), anyString()))
         .thenReturn(clinicalData);
 
+    when(patientService.getPatientsOfSamples(anyList(), anyList())).thenReturn(Arrays.asList());
+
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
 

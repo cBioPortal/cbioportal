@@ -167,7 +167,7 @@
             WHERE
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-            AND gpg.gene = #{genomicDataFilters[0].hugoGeneSymbol}
+            AND gpg.gene = #{hugoGeneSymbol}
             AND sgp.alteration_type = 'MUTATION_EXTENDED'
             )
         </if>

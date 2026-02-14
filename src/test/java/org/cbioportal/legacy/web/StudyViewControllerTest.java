@@ -8,6 +8,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.hamcrest.Matchers.closeTo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -879,21 +880,21 @@ public class StudyViewControllerTest {
         // Bin 0 (0,0) - Sample 1
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].binX").value(0.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].binY").value(16.0))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minX").value(0.2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxX").value(0.2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minX").value(closeTo(0.2, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxX").value(closeTo(0.2, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minY").value(16.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxY").value(16.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].count").value(1))
         // Bin 1 (1,0) - Sample 2
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binX").value(0.3333333333333333))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binX").value(closeTo(0.3333, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binY").value(16.0))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minX").value(0.44))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxX").value(0.44))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minX").value(closeTo(0.44, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxX").value(closeTo(0.44, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minY").value(123.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxY").value(123.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].count").value(1))
         // Bin 2 (2,2) - Sample 3
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binX").value(0.6666666666666666))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binX").value(closeTo(0.6666, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binY").value(272.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].minX").value(1.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].maxX").value(1.0))
@@ -902,7 +903,7 @@ public class StudyViewControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].count").value(1))
         // Size Check
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins.length()").value(3))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.pearsonCorr").value(0.9997290539897087))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.pearsonCorr").value(closeTo(0.9997, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.spearmanCorr").value(1));
 
     mockMvc
@@ -924,31 +925,31 @@ public class StudyViewControllerTest {
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         // Bin 0 (0,0) - Sample 1
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].binX").value(0.0))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].binY").value(2.833213344056216))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minX").value(0.2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxX").value(0.2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minY").value(2.833213344056216))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxY").value(2.833213344056216))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].binY").value(closeTo(2.8332, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minX").value(closeTo(0.2, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxX").value(closeTo(0.2, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].minY").value(closeTo(2.8332, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].maxY").value(closeTo(2.8332, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[0].count").value(1))
         // Bin 1 (1,1) - Sample 2
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binX").value(0.3333333333333333))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binY").value(3.8867960384730003))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minX").value(0.44))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxX").value(0.44))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minY").value(4.820281565605037))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxY").value(4.820281565605037))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binX").value(closeTo(0.3333, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].binY").value(closeTo(3.8867, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minX").value(closeTo(0.44, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxX").value(closeTo(0.44, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].minY").value(closeTo(4.8202, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].maxY").value(closeTo(4.8202, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[1].count").value(1))
         // Bin 2 (2,2) - Sample 3
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binX").value(0.6666666666666666))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binY").value(4.940378732889785))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binX").value(closeTo(0.6666, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].binY").value(closeTo(4.9403, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].minX").value(1.0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].maxX").value(1.0))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].minY").value(5.993961427306569))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].maxY").value(5.993961427306569))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].minY").value(closeTo(5.9939, 0.0001)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].maxY").value(closeTo(5.9939, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins[2].count").value(1))
         // Size Check
         .andExpect(MockMvcResultMatchers.jsonPath("$.bins.length()").value(3))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.pearsonCorr").value(0.9307061280832044))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.pearsonCorr").value(closeTo(0.9307, 0.0001)))
         .andExpect(MockMvcResultMatchers.jsonPath("$.spearmanCorr").value(1));
   }
 

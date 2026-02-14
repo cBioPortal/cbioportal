@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClickhouseGenomicDataMapperTest {
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
   private static final String STUDY_ACC_TCGA = "acc_tcga";
+  private static final String HUGO_GENE_SYMBOL = "AKT1";
 
   @Autowired private ClickhouseGenomicDataMapper mapper;
 
@@ -119,7 +120,9 @@ public class ClickhouseGenomicDataMapperTest {
     List<GenomicDataCountItem> actualMutationCountsByType =
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of(genomicDataFilterMutation));
+            List.of(genomicDataFilterMutation),
+            false,
+            HUGO_GENE_SYMBOL);
     List<GenomicDataCountItem> expectedMutationCountsByType =
         List.of(
             new GenomicDataCountItem(
@@ -132,6 +135,70 @@ public class ClickhouseGenomicDataMapperTest {
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
         .isEqualTo(expectedMutationCountsByType);
+  }
+
+  @Test
+  public void getMutationCountsByTypeAddSampleId() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    ArrayList<String> studyIds = new ArrayList<>();
+    studyIds.add(STUDY_TCGA_PUB);
+    studyViewFilter.setStudyIds(studyIds);
+
+    GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
+    List<GenomicDataCountItem> mutationCountsByType =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            true,
+            HUGO_GENE_SYMBOL);
+
+    assertThat(mutationCountsByType)
+        .flatExtracting(GenomicDataCountItem::getCounts)
+        .extracting(GenomicDataCount::getSampleIds)
+        .allSatisfy(
+            sampleIds ->
+                assertThat(sampleIds)
+                    .as("sampleIds should be populated when includeSampleIds=true")
+                    .isNotNull()
+                    .isNotEmpty());
+
+    // In the case of multiple studies the query should return the sampleIds for both studies for
+    // that particular gene
+    studyViewFilter.getStudyIds().add(STUDY_ACC_TCGA);
+    List<GenomicDataCountItem> mutationCountsByType2 =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            true,
+            HUGO_GENE_SYMBOL);
+    List<String> allSampleIds =
+        mutationCountsByType2.stream()
+            .flatMap(item -> item.getCounts().stream())
+            .flatMap(count -> count.getSampleIds().stream())
+            .toList();
+
+    assertThat(allSampleIds).anySatisfy(id -> assertThat(id).startsWith(STUDY_TCGA_PUB + "_"));
+
+    assertThat(allSampleIds).anySatisfy(id -> assertThat(id).startsWith(STUDY_ACC_TCGA + "_"));
+  }
+
+  @Test
+  public void getMutationCountsByTypeNoSampleId() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+    GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
+    List<GenomicDataCountItem> mutationCountsByType =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            false,
+            HUGO_GENE_SYMBOL);
+
+    assertThat(mutationCountsByType)
+        .flatExtracting(GenomicDataCountItem::getCounts)
+        .extracting(GenomicDataCount::getSampleIds)
+        .containsOnlyNulls();
   }
 
   @Test

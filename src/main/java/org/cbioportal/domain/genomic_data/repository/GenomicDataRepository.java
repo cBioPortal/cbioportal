@@ -75,9 +75,14 @@ public interface GenomicDataRepository {
    *     {@code null}.
    * @param genomicDataFilters a list of filters to apply to the genomic data. Must not be {@code
    *     null}.
+   * @param includeSampleIds flag to include sample ids
+   * @param hugoGeneSymbol a string representing the first gene from genomicDataFilters list
    * @return a list of {@link GenomicDataCountItem} objects representing the mutation counts by
    *     type.
    */
   List<GenomicDataCountItem> getMutationCountsByType(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds,
+      String hugoGeneSymbol);
 }

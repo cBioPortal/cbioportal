@@ -58,6 +58,7 @@ import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -97,6 +98,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
   private final String FILTER_GROUPS_BY_APP_NAME;
 
   private final String PUBLIC_CANCER_STUDIES_GROUP;
+
+  @Value("${download_group:}")
+  private String DOWNLOAD_GROUP;
 
   //    @Value("${always_show_study_group:}")
   //    private void setPublicCancerStudiesGroup(String property) {
@@ -427,6 +431,31 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
     String stableStudyID = cancerStudy.getCancerStudyIdentifier();
+
+    if (AccessLevel.DOWNLOAD == permission) {
+      String downloadGroups = cancerStudy.getDownloadGroups();
+      if (downloadGroups != null && !downloadGroups.isEmpty()) {
+        Set<String> groups =
+            Arrays.stream(downloadGroups.split(";"))
+                .filter(g -> !g.isEmpty())
+                .collect(Collectors.toSet());
+        return !Collections.disjoint(groups, grantedAuthorities);
+      } else {
+        // Fallback to global setting:
+        // 1. User must have READ access
+        // 2. If global download_group is set, user must have it
+        if (!hasAccessToCancerStudy(authentication, cancerStudy, AccessLevel.READ)) {
+          return false;
+        }
+        if (DOWNLOAD_GROUP != null
+            && !DOWNLOAD_GROUP.isEmpty()
+            && !grantedAuthorities.contains(DOWNLOAD_GROUP)) {
+          return false;
+        }
+        return true;
+      }
+    }
+
     if (log.isDebugEnabled()) {
       log.debug("hasAccessToCancerStudy(), cancer study stable id: " + stableStudyID);
       log.debug("hasAccessToCancerStudy(), user: " + authentication.getPrincipal().toString());

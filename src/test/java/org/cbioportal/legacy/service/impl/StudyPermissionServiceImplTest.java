@@ -21,9 +21,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadPermissionServiceImplTest {
+public class StudyPermissionServiceImplTest {
 
-  @InjectMocks private ReadPermissionServiceImpl readPermissionService;
+  @InjectMocks private StudyPermissionServiceImpl studyPermissionService;
 
   @Mock private CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
 
@@ -39,30 +39,38 @@ public class ReadPermissionServiceImplTest {
     cancerStudies.add(cancerStudy2);
     authentication = mock(Authentication.class);
     when(cancerStudyPermissionEvaluator.hasPermission(any(), any(), eq(AccessLevel.READ)))
-        .thenReturn(false, true);
+        .thenReturn(false, true); // First study false, second true for READ
+    when(cancerStudyPermissionEvaluator.hasPermission(any(), any(), eq(AccessLevel.DOWNLOAD)))
+        .thenReturn(true, false); // First study true, second false for DOWNLOAD
   }
 
   @Test
-  public void setReadPermissionSuccess() {
-    readPermissionService.setReadPermission(cancerStudies, authentication);
+  public void setPermissionsSuccess() {
+    studyPermissionService.setPermissions(cancerStudies, authentication);
     Assert.assertFalse(cancerStudies.get(0).getReadPermission());
     Assert.assertTrue(cancerStudies.get(1).getReadPermission());
+    Assert.assertTrue(cancerStudies.get(0).getDownloadPermission());
+    Assert.assertFalse(cancerStudies.get(1).getDownloadPermission());
   }
 
   @Test
-  public void setReadPermissionUnAuthenticatedPortal() {
-    ReflectionTestUtils.setField(readPermissionService, "cancerStudyPermissionEvaluator", null);
-    readPermissionService.setReadPermission(cancerStudies, authentication);
+  public void setPermissionsUnAuthenticatedPortal() {
+    ReflectionTestUtils.setField(studyPermissionService, "cancerStudyPermissionEvaluator", null);
+    studyPermissionService.setPermissions(cancerStudies, authentication);
     Assert.assertTrue(cancerStudies.get(0).getReadPermission());
     Assert.assertTrue(cancerStudies.get(1).getReadPermission());
+    Assert.assertTrue(cancerStudies.get(0).getDownloadPermission());
+    Assert.assertTrue(cancerStudies.get(1).getDownloadPermission());
     ReflectionTestUtils.setField(
-        readPermissionService, "cancerStudyPermissionEvaluator", cancerStudyPermissionEvaluator);
+        studyPermissionService, "cancerStudyPermissionEvaluator", cancerStudyPermissionEvaluator);
   }
 
   @Test
-  public void setReadPermissionNoAuthObject() {
-    readPermissionService.setReadPermission(cancerStudies, null);
+  public void setPermissionsNoAuthObject() {
+    studyPermissionService.setPermissions(cancerStudies, null);
     Assert.assertTrue(cancerStudies.get(0).getReadPermission());
     Assert.assertTrue(cancerStudies.get(1).getReadPermission());
+    Assert.assertTrue(cancerStudies.get(0).getDownloadPermission());
+    Assert.assertTrue(cancerStudies.get(1).getDownloadPermission());
   }
 }

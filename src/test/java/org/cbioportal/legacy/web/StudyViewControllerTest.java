@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import static org.hamcrest.Matchers.closeTo;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.hamcrest.Matchers.closeTo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -43,6 +43,7 @@ import org.cbioportal.legacy.service.AlterationCountService;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.service.ClinicalDataService;
 import org.cbioportal.legacy.service.ClinicalEventService;
+import org.cbioportal.legacy.service.CustomDataService;
 import org.cbioportal.legacy.service.DiscreteCopyNumberService;
 import org.cbioportal.legacy.service.GenePanelService;
 import org.cbioportal.legacy.service.GeneService;
@@ -74,15 +75,13 @@ import org.cbioportal.legacy.web.util.ClinicalDataFetcher;
 import org.cbioportal.legacy.web.util.DataBinHelper;
 import org.cbioportal.legacy.web.util.DataBinner;
 import org.cbioportal.legacy.web.util.DiscreteDataBinner;
+import org.cbioportal.legacy.web.util.IdPopulator;
 import org.cbioportal.legacy.web.util.LinearDataBinner;
 import org.cbioportal.legacy.web.util.LogScaleDataBinner;
-import org.cbioportal.legacy.service.CustomDataService;
-import org.cbioportal.legacy.web.util.IdPopulator;
 import org.cbioportal.legacy.web.util.ScientificSmallDataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +112,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
       ScientificSmallDataBinner.class,
       LogScaleDataBinner.class,
       ClinicalDataFetcher.class,
-
       DataBinHelper.class,
       IdPopulator.class,
       TestConfig.class
@@ -327,7 +325,6 @@ public class StudyViewControllerTest {
 
   @Test
   @WithMockUser
-
   public void fetchClinicalDataBinCounts() throws Exception {
     List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
     SampleIdentifier sampleIdentifier = new SampleIdentifier();
@@ -380,8 +377,6 @@ public class StudyViewControllerTest {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(Collections.singletonList(TEST_STUDY_ID));
     clinicalDataBinCountFilter.setStudyViewFilter(studyViewFilter);
-
-
 
     mockMvc
         .perform(

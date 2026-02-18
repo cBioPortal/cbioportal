@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class CancerStudy implements ReadPermission, Serializable {
+public class CancerStudy implements StudyPermission, Serializable {
 
   private Integer cancerStudyId;
   @NotNull private String cancerStudyIdentifier;
@@ -16,6 +16,7 @@ public class CancerStudy implements ReadPermission, Serializable {
   private String pmid;
   private String citation;
   private String groups;
+  private String downloadGroups;
   private Integer status;
   private Date importDate;
   private TypeOfCancer typeOfCancer;
@@ -106,6 +107,14 @@ public class CancerStudy implements ReadPermission, Serializable {
 
   public void setGroups(String groups) {
     this.groups = groups;
+  }
+
+  public String getDownloadGroups() {
+    return downloadGroups;
+  }
+
+  public void setDownloadGroups(String downloadGroups) {
+    this.downloadGroups = downloadGroups;
   }
 
   public Integer getStatus() {
@@ -236,6 +245,18 @@ public class CancerStudy implements ReadPermission, Serializable {
   @Override
   public Boolean getReadPermission() {
     return readPermission;
+  }
+
+  private Boolean downloadPermission = true;
+
+  @Override
+  public void setDownloadPermission(Boolean permission) {
+    this.downloadPermission = permission;
+  }
+
+  @Override
+  public Boolean getDownloadPermission() {
+    return downloadPermission;
   }
 
   public Integer getTreatmentCount() {

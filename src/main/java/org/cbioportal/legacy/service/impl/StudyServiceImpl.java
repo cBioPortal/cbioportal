@@ -13,7 +13,7 @@ import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.service.CancerTypeService;
-import org.cbioportal.legacy.service.ReadPermissionService;
+import org.cbioportal.legacy.service.StudyPermissionService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
@@ -31,7 +31,7 @@ public class StudyServiceImpl implements StudyService {
 
   @Autowired private CancerTypeService cancerTypeService;
 
-  @Autowired private ReadPermissionService readPermissionService;
+  @Autowired private StudyPermissionService studyPermissionService;
 
   @Override
   @PostFilter("hasPermission(filterObject,#accessLevel)")
@@ -92,7 +92,7 @@ public class StudyServiceImpl implements StudyService {
 
     // When using prop. 'skin.home_page.show_unauthorized_studies' this endpoint
     // returns the full list of studies, some of which can be accessed by the user.
-    readPermissionService.setReadPermission(returnedStudyObjects, authentication);
+    studyPermissionService.setPermissions(returnedStudyObjects, authentication);
 
     return returnedStudyObjects;
   }

@@ -69,7 +69,7 @@ public class ReferenceGenomeGeneController {
       responseCode = "200",
       description = "OK",
       content = @Content(schema = @Schema(implementation = ReferenceGenomeGene.class)))
-  @ApiResponse(responseCode = "404", description = "Gene not found")
+  @ApiResponse(responseCode = "404", description = "Reference genome or gene not found")
   public ResponseEntity<ReferenceGenomeGene> getReferenceGenomeGene(
       @Parameter(required = true, description = "Name of Reference Genome hg19") @PathVariable
           String genomeName,

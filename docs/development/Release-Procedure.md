@@ -36,6 +36,10 @@ For releases with database migrations, we increase the MINOR number in MAJOR.MIN
 1. Make sure no auto deployment is running for frontend from netlify
 2. Merge frontend release-x.y.z branch to frontend master
 3. Follow same procedure as for [a PATCH release](Release-Procedure.md#cbioportal-community-release-of-code-already-in-production), but instead of having a separate PR to update the frontend (step 2) one can add it to the already existing backend branch release-x.y.z and open the PR from there to backend's master. This is merely for convenience to avoid having to create another branch just to update the frontend version.
+4. **Update Frozen ClickHouse Test Database**: If the release involves changes to the ClickHouse schema or test data (i.e., changes to `clickhouse_cgds.sql` or `clickhouse_data.sql`), you must update the frozen ClickHouse database used for remote testing.
+    - Connect to the ClickHouse Cloud instance.
+    - Drop existing tables/data.
+    - Re-run `clickhouse_cgds.sql` and `clickhouse_data.sql`.
 
 ## A note on versioning
 

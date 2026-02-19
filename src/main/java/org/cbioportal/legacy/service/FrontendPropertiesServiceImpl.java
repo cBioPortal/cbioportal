@@ -30,7 +30,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
   // Format: <name of property known in frontend>("<name of property in properties
   // file>", "<default
   // value>")
-  // There are some properties that require processing before being exposed to the frontend.
+  // There are some properties that require processing before being exposed to the
+  // frontend.
   public enum FrontendProperty {
     dat_method("dat.method", null),
     oncoprint_custom_driver_annotation_binary_menu_label(
@@ -266,6 +267,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return String.valueOf(!propertyValue.isEmpty());
       case "frontendUrl":
         return getFrontendUrl(propertyValue);
+      case "skin_hide_download_controls":
+        return getSkinHideDownloadControlsValue(propertyValue);
       // For others, just return the value in the properties file.
       default:
         return propertyValue;
@@ -358,7 +361,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
       return null;
     }
 
-    // strip off classpath prefix and always check all locations (ClassLoader and file system)
+    // strip off classpath prefix and always check all locations (ClassLoader and
+    // file system)
     String filePath =
         propertiesFileName.startsWith("classpath:")
             ? propertiesFileName.substring("classpath:".length())
@@ -407,5 +411,14 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
       }
     }
     return rv;
+  }
+
+  private String getSkinHideDownloadControlsValue(String value) {
+    if ("true".equalsIgnoreCase(value)) {
+      return "hide";
+    } else if ("false".equalsIgnoreCase(value)) {
+      return "show";
+    }
+    return value;
   }
 }

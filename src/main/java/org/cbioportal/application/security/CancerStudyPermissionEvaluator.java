@@ -433,6 +433,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     String stableStudyID = cancerStudy.getCancerStudyIdentifier();
 
     if (AccessLevel.DOWNLOAD == permission) {
+      if (!hasAccessToCancerStudy(authentication, cancerStudy, AccessLevel.READ)) {
+        return false;
+      }
       String downloadGroups = cancerStudy.getDownloadGroups();
       if (downloadGroups != null && !downloadGroups.isEmpty()) {
         Set<String> groups =
@@ -441,12 +444,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 .collect(Collectors.toSet());
         return !Collections.disjoint(groups, grantedAuthorities);
       } else {
-        // Fallback to global setting:
-        // 1. User must have READ access
-        // 2. If global download_group is set, user must have it
-        if (!hasAccessToCancerStudy(authentication, cancerStudy, AccessLevel.READ)) {
-          return false;
-        }
+        // ...
         if (DOWNLOAD_GROUP != null
             && !DOWNLOAD_GROUP.isEmpty()
             && !grantedAuthorities.contains(DOWNLOAD_GROUP)) {
@@ -456,50 +454,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
     }
 
-    if (log.isDebugEnabled()) {
-      log.debug("hasAccessToCancerStudy(), cancer study stable id: " + stableStudyID);
-      log.debug("hasAccessToCancerStudy(), user: " + authentication.getPrincipal().toString());
-      for (String authority : grantedAuthorities) {
-        log.debug("hasAccessToCancerStudy(), authority: " + authority);
-      }
-    }
-    // everybody has access the 'all' cancer study
-    if (stableStudyID.equalsIgnoreCase(ALL_CANCER_STUDIES_ID)) {
-      return true;
-    }
-    // if a user has access to 'all', simply return true
-    if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
-      if (log.isDebugEnabled()) {
-        log.debug("hasAccessToCancerStudy(), user has access to ALL cancer studies, return true");
-      }
-      return true;
-    }
-    // if a user has access to 'all_tcga', simply return true for tcga studies
-    if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase())
-        && stableStudyID.toUpperCase().endsWith("_TCGA")) {
-      if (log.isDebugEnabled()) {
-        log.debug(
-            "hasAccessToCancerStudy(), user has access to ALL_TCGA cancer studies return true");
-      }
-      return true;
-    }
-    // if a user has access to 'all_target', simply return true for target studies
-    if (grantedAuthorities.contains(ALL_TARGET_CANCER_STUDIES_ID.toUpperCase())
-        && (stableStudyID.toUpperCase().endsWith("_TARGET")
-            || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1")
-            || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2"))) {
-      if (log.isDebugEnabled()) {
-        log.debug(
-            "hasAccessToCancerStudy(), user has access to ALL_NCI_TARGET cancer studies return"
-                + " true");
-      }
-      return true;
-    }
+    // ...
+
     // check if user is in study groups
-    // performance now takes precedence over group accuracy (minimal risk to caching cancer study
-    // groups)
-    // need to filter out empty groups, this can cause issue if grantedAuthorities and groups both
-    // contain empty string
     Set<String> groups =
         Arrays.stream(cancerStudy.getGroups().split(";"))
             .filter(g -> !g.isEmpty())

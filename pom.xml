@@ -571,6 +571,7 @@
           <generateGitPropertiesFilename>
             ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
           <commitIdGenerationMode>full</commitIdGenerationMode>
+          <skip>true</skip>
         </configuration>
       </plugin>
       <plugin>

@@ -102,3 +102,4 @@ public class CancerStudyPermissionEvaluatorTest {
     boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
     assertTrue("TCGA Superuser should have DOWNLOAD access to TCGA study", allowed);
   }
+}

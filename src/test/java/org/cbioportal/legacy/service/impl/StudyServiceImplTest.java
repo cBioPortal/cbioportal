@@ -10,7 +10,6 @@ import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.service.CancerTypeService;
-import org.cbioportal.legacy.service.ReadPermissionService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.junit.Assert;
@@ -24,8 +23,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class StudyServiceImplTest extends BaseServiceImplTest {
 
   @InjectMocks private StudyServiceImpl studyService;
-
-  @Mock private ReadPermissionService readPermissionService;
 
   @Mock private StudyRepository studyRepository;
   @Mock private CancerTypeService cancerTypeService;

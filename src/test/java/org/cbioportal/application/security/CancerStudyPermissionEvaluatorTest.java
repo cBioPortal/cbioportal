@@ -25,7 +25,7 @@ public class CancerStudyPermissionEvaluatorTest {
   @Before
   public void setUp() {
     // Basic setup with no special properties
-    evaluator = new CancerStudyPermissionEvaluator(null, "false", null, null);
+    evaluator = new CancerStudyPermissionEvaluator(null, "false", null, null, null);
     when(authentication.getPrincipal()).thenReturn("user");
   }
 

@@ -99,7 +99,6 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
   private final String PUBLIC_CANCER_STUDIES_GROUP;
 
-  @Value("${download_group:}")
   private String DOWNLOAD_GROUP;
 
   //    @Value("${always_show_study_group:}")
@@ -118,10 +117,12 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       final String appName,
       final String doFilterGroupsByAppName,
       final String alwaysShowCancerStudyGroup,
+      final String downloadGroup,
       final CacheMapUtil cacheMapUtil) {
     this.APP_NAME = appName;
     this.FILTER_GROUPS_BY_APP_NAME = doFilterGroupsByAppName;
     this.PUBLIC_CANCER_STUDIES_GROUP = alwaysShowCancerStudyGroup;
+    this.DOWNLOAD_GROUP = downloadGroup;
     this.cacheMapUtil = cacheMapUtil;
   }
 

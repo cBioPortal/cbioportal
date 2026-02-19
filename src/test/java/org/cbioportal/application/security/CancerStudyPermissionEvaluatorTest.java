@@ -65,4 +65,40 @@ public class CancerStudyPermissionEvaluatorTest {
     boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
     assertTrue("Should allow DOWNLOAD if user has READ and matching download group", allowed);
   }
-}
+
+  @Test
+  public void testSuperuserCanDownloadEvenWithDownloadGroups() {
+    CancerStudy study = new CancerStudy();
+    study.setCancerStudyIdentifier("study1");
+    study.setGroups("PUBLIC");
+    study.setDownloadGroups("RESTRICTED_DOWNLOAD");
+
+    // User is SUPERUSER (ALL_CANCER_STUDIES) but does NOT have RESTRICTED_DOWNLOAD
+    when(authentication.getAuthorities())
+        .thenReturn(
+            (java.util.Collection)
+                java.util.Arrays.asList(
+                    new SimpleGrantedAuthority("all"))); // "all" is ALL_CANCER_STUDIES_ID
+
+    // Logic: Superuser check happens BEFORE downloadGroups check
+    boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
+    assertTrue("Superuser should have DOWNLOAD access regardless of downloadGroups", allowed);
+  }
+
+  @Test
+  public void testTBFSuperuserCanDownloadTCGA() {
+    CancerStudy study = new CancerStudy();
+    study.setCancerStudyIdentifier("coad_tcga"); // Ends with _tcga
+    study.setGroups("PUBLIC");
+    study.setDownloadGroups("RESTRICTED");
+
+    // User has ALL_TCGA_CANCER_STUDIES
+    when(authentication.getAuthorities())
+        .thenReturn(
+            (java.util.Collection)
+                java.util.Arrays.asList(
+                    new SimpleGrantedAuthority("all_tcga")));
+
+    boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
+    assertTrue("TCGA Superuser should have DOWNLOAD access to TCGA study", allowed);
+  }

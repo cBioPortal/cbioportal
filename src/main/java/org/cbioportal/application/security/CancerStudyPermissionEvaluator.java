@@ -437,6 +437,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       if (!hasAccessToCancerStudy(authentication, cancerStudy, AccessLevel.READ)) {
         return false;
       }
+
+      if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
+        return true;
+      }
+      if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase())
+          && (stableStudyID.endsWith("_tcga")
+              || stableStudyID.endsWith("_tcga_pub")
+              || stableStudyID.endsWith("_tcga_pan_can_atlas_2018")
+              || stableStudyID.contains("tcga"))) {
+        return true;
+      }
+      if (grantedAuthorities.contains(ALL_TARGET_CANCER_STUDIES_ID.toUpperCase())
+          && stableStudyID.contains("target")) {
+        return true;
+      }
+
       String downloadGroups = cancerStudy.getDownloadGroups();
       if (downloadGroups != null && !downloadGroups.isEmpty()) {
         Set<String> groups =
@@ -444,29 +460,14 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 .filter(g -> !g.isEmpty())
                 .collect(Collectors.toSet());
         return !Collections.disjoint(groups, grantedAuthorities);
-      } else {
-        if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
-          return true;
-        }
-        if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase())
-            && (stableStudyID.endsWith("_tcga")
-                || stableStudyID.endsWith("_tcga_pub")
-                || stableStudyID.endsWith("_tcga_pan_can_atlas_2018")
-                || stableStudyID.contains("tcga"))) {
-          return true;
-        }
-        if (grantedAuthorities.contains(ALL_TARGET_CANCER_STUDIES_ID.toUpperCase())
-            && stableStudyID.contains("target")) {
-          return true;
-        }
-
-        if (DOWNLOAD_GROUP != null
-            && !DOWNLOAD_GROUP.isEmpty()
-            && !grantedAuthorities.contains(DOWNLOAD_GROUP)) {
-          return false;
-        }
-        return true;
       }
+
+      if (DOWNLOAD_GROUP != null
+          && !DOWNLOAD_GROUP.isEmpty()
+          && !grantedAuthorities.contains(DOWNLOAD_GROUP)) {
+        return false;
+      }
+      return true;
     }
 
     if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {

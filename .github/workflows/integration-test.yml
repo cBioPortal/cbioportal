@@ -1,5 +1,5 @@
 name: Integration tests
-on: [push, pull_request_target]
+on: [push, pull_request]
 jobs:
   build:
     name: Integration tests
@@ -34,7 +34,7 @@ jobs:
           echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
           mvn --settings settings.xml -DskipTests clean install
       - name: 'Checkout cbioportal-docker-compose repo'
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
         with:
           repository: cbioportal/cbioportal-docker-compose
           path: ./cbioportal-docker-compose

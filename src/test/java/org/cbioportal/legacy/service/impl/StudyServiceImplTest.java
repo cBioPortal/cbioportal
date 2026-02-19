@@ -26,6 +26,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
 
   @Mock private StudyRepository studyRepository;
   @Mock private CancerTypeService cancerTypeService;
+  @Mock private org.cbioportal.legacy.service.StudyPermissionService studyPermissionService;
 
   @Test
   public void getAllStudies() throws Exception {

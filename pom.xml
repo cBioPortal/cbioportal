@@ -30,7 +30,7 @@
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
     <frontend.version>v6.4.4</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.14.5</db.version>
+    <db.version>2.14.6</db.version>
     <derived_table.version>1.0.7</derived_table.version>
 
     <!-- Version properties for dependencies that should have same version. -->
@@ -111,6 +111,7 @@
 
     <skipIntegrationTests>true</skipIntegrationTests>
     <skipE2ETests>True</skipE2ETests>
+    <git.info.skip>true</git.info.skip>
   </properties>
 
   <!-- Maven Central Requirements -->
@@ -571,7 +572,7 @@
           <generateGitPropertiesFilename>
             ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
           <commitIdGenerationMode>full</commitIdGenerationMode>
-          <skip>true</skip>
+          <skip>${git.info.skip}</skip>
         </configuration>
       </plugin>
       <plugin>

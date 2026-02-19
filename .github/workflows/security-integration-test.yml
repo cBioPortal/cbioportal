@@ -25,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: 'Download Chrome'
-        uses: browser-actions/setup-chrome@latest
+        uses: browser-actions/setup-chrome@v1
       - name: 'Copy Application.Properties'
         working-directory: ./cbioportal
         run: |

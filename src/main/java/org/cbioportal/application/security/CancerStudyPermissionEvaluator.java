@@ -485,15 +485,18 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     }
 
     // check if user is in study groups
-    Set<String> groups =
-        Arrays.stream(cancerStudy.getGroups().split(";"))
-            .filter(g -> !g.isEmpty())
-            .collect(Collectors.toSet());
-    if (!Collections.disjoint(groups, grantedAuthorities)) {
-      if (log.isDebugEnabled()) {
-        log.debug("hasAccessToCancerStudy(), user has access by groups return true");
+    String studyGroups = cancerStudy.getGroups();
+    if (studyGroups != null && !studyGroups.isEmpty()) {
+      Set<String> groups =
+          Arrays.stream(studyGroups.split(";"))
+              .filter(g -> !g.isEmpty())
+              .collect(Collectors.toSet());
+      if (!Collections.disjoint(groups, grantedAuthorities)) {
+        if (log.isDebugEnabled()) {
+          log.debug("hasAccessToCancerStudy(), user has access by groups return true");
+        }
+        return true;
       }
-      return true;
     }
     // finally, check if the user has this study specifically listed in his 'groups' (a 'group' of
     // this study only)

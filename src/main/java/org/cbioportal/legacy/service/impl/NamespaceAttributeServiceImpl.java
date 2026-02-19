@@ -1,6 +1,9 @@
 package org.cbioportal.legacy.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.model.NamespaceAttributeCount;
 import org.cbioportal.legacy.persistence.NamespaceRepository;
@@ -24,13 +27,18 @@ public class NamespaceAttributeServiceImpl implements NamespaceAttributeService 
     List<NamespaceAttribute> outerNamespaceKeys =
         namespaceRepository.getNamespaceOuterKey(studyIds);
 
+    if (outerNamespaceKeys == null) {
+      return new ArrayList<>();
+    }
+
     return outerNamespaceKeys.stream()
         .flatMap(
-            outerNamespaceKey ->
-                namespaceRepository
-                    .getNamespaceInnerKey(outerNamespaceKey.getOuterKey(), studyIds)
-                    .stream())
-        .toList();
+            outerNamespaceKey -> {
+              List<NamespaceAttribute> innerKeys =
+                  namespaceRepository.getNamespaceInnerKey(outerNamespaceKey.getOuterKey(), studyIds);
+              return innerKeys != null ? innerKeys.stream() : Stream.empty();
+            })
+        .collect(Collectors.toList());
   }
 
   @Override

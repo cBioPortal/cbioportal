@@ -181,14 +181,18 @@ public class MolecularDataServiceImpl implements MolecularDataService {
     List<Integer> allInternalSampleIds = new ArrayList<>();
 
     for (String molecularProfileId : distinctMolecularProfileIds) {
-      List<Integer> internalSampleIds =
-          Arrays.stream(
-                  commaSeparatedSampleIdsOfMolecularProfilesMap
-                      .get(molecularProfileId)
-                      .getSplitSampleIds())
-              .mapToInt(Integer::parseInt)
-              .boxed()
-              .collect(Collectors.toList());
+      List<Integer> internalSampleIds = new ArrayList<>();
+      for (String idStr : commaSeparatedSampleIdsOfMolecularProfilesMap
+              .get(molecularProfileId)
+              .getSplitSampleIds()) {
+        if (idStr != null && !idStr.trim().isEmpty()) {
+          try {
+            internalSampleIds.add(Integer.parseInt(idStr));
+          } catch (NumberFormatException e) {
+            // Skip invalid sample IDs
+          }
+        }
+      }
       HashMap<Integer, Integer> molecularProfileSampleMap = new HashMap<Integer, Integer>();
       for (int lc = 0; lc < internalSampleIds.size(); lc++) {
         molecularProfileSampleMap.put(internalSampleIds.get(lc), lc);

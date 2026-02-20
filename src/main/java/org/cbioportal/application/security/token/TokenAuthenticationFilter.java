@@ -128,14 +128,14 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
       Authentication authResult)
       throws IOException, ServletException {
     super.successfulAuthentication(request, response, chain, authResult);
-    
+
     boolean mdcSet = false;
     if (authResult != null && authResult.getName() != null) {
       MDC.put("user", authResult.getName());
       MDC.put("auth_method", "token");
       mdcSet = true;
     }
-    
+
     try {
       chain.doFilter(request, response);
     } finally {

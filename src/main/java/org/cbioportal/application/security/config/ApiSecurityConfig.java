@@ -1,11 +1,14 @@
 package org.cbioportal.application.security.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.application.security.token.RestAuthenticationEntryPoint;
 import org.cbioportal.application.security.token.TokenAuthenticationFilter;
 import org.cbioportal.application.security.token.TokenAuthenticationSuccessHandler;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -17,17 +20,14 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.beans.factory.annotation.Value;
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.security.web.util.matcher.AndRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @ConditionalOnProperty(
@@ -36,13 +36,10 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
     isNot = true)
 public class ApiSecurityConfig {
 
-  // Add security filter chains that handle calls to the API endpoints.
-  // Different chains are added for the '/api' and legacy '/webservice.do' paths.
-  // Both are able to handle API tokens provided in the request.
-  // see: "Creating and Customizing Filter Chains" @
-  // https://spring.io/guides/topicals/spring-security-architecture
+  @Value("${api.access.token.required:false}")
+  private boolean accessTokenRequired;
 
-  private static final String[] PUBLIC_API_Matchers = {
+  static final String[] PUBLIC_API_Matchers = {
     "/api/swagger-resources/**",
     "/api/swagger-ui.html",
     "/api/health",
@@ -79,40 +76,6 @@ public class ApiSecurityConfig {
     return http.build();
   }
 
-  // ... (rest of class)
-
-class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
-  // ... (fields)
-
-  @Override
-  public void configure(HttpSecurity http) {
-    AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-    TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler =
-        new TokenAuthenticationSuccessHandler();
-    TokenAuthenticationFilter filter =
-        new TokenAuthenticationFilter(
-            "/**", authenticationManager, tokenService, accessTokenRequired);
-    
-    // Explicitly set the request matcher to exclude public paths if enforcement is enabled
-    if (accessTokenRequired) {
-      // Filter applies to /api/** BUT NOT the public paths
-      List<RequestMatcher> matchers = new ArrayList<>();
-      matchers.add(new AntPathRequestMatcher("/api/**"));
-      
-      List<RequestMatcher> publicMatchers = new ArrayList<>();
-      for (String pattern : ApiSecurityConfig.PUBLIC_API_Matchers) {
-        publicMatchers.add(new AntPathRequestMatcher(pattern));
-      }
-      matchers.add(new NegatedRequestMatcher(new OrRequestMatcher(publicMatchers)));
-      
-      filter.setRequiresAuthenticationRequestMatcher(new AndRequestMatcher(matchers));
-    }
-    
-    filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
-    http.addFilterAfter(filter, SecurityContextHolderFilter.class);
-  }
-}
-
   @Autowired
   public void buildAuthenticationManager(
       AuthenticationManagerBuilder authenticationManagerBuilder,
@@ -132,11 +95,10 @@ class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSe
 
 class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
 
-  private boolean accessTokenRequired;
-
+  private final boolean accessTokenRequired;
   private final DataAccessTokenService tokenService;
 
-  public ApiTokenFilterDsl(DataAccessTokenService tokenService, boolean accessTokenRequired) {
+  private ApiTokenFilterDsl(DataAccessTokenService tokenService, boolean accessTokenRequired) {
     this.tokenService = tokenService;
     this.accessTokenRequired = accessTokenRequired;
   }
@@ -149,6 +111,22 @@ class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSe
     TokenAuthenticationFilter filter =
         new TokenAuthenticationFilter(
             "/**", authenticationManager, tokenService, accessTokenRequired);
+
+    // Explicitly set the request matcher to exclude public paths if enforcement is enabled
+    if (accessTokenRequired) {
+      // Filter applies to /api/** BUT NOT the public paths
+      List<RequestMatcher> matchers = new ArrayList<>();
+      matchers.add(new AntPathRequestMatcher("/api/**"));
+
+      List<RequestMatcher> publicMatchers = new ArrayList<>();
+      for (String pattern : ApiSecurityConfig.PUBLIC_API_Matchers) {
+        publicMatchers.add(new AntPathRequestMatcher(pattern));
+      }
+      matchers.add(new NegatedRequestMatcher(new OrRequestMatcher(publicMatchers)));
+
+      filter.setRequiresAuthenticationRequestMatcher(new AndRequestMatcher(matchers));
+    }
+
     filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
     http.addFilterAfter(filter, SecurityContextHolderFilter.class);
   }

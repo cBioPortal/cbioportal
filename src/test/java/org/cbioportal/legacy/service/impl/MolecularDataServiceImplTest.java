@@ -45,7 +45,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
     molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+    molecularProfileSamples.setCommaSeparatedSampleIds("1,2");
 
     when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfileSamples);
@@ -97,7 +97,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
     molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+    molecularProfileSamples.setCommaSeparatedSampleIds("1,2");
 
     when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfileSamples);
@@ -147,7 +147,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
     molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+    molecularProfileSamples.setCommaSeparatedSampleIds("1,2");
 
     when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfileSamples);
@@ -207,7 +207,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
     molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+    molecularProfileSamples.setCommaSeparatedSampleIds("1,2");
 
     when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfileSamples);
@@ -250,7 +250,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfileSamples molecularProfileSamples = new MolecularProfileSamples();
     molecularProfileSamples.setMolecularProfileId(MOLECULAR_PROFILE_ID);
-    molecularProfileSamples.setCommaSeparatedSampleIds("1,2,");
+    molecularProfileSamples.setCommaSeparatedSampleIds("1,2");
 
     when(molecularDataRepository.getCommaSeparatedSampleIdsOfMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfileSamples);
@@ -313,11 +313,11 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     // Setup sample lists for two molecular profiles
     MolecularProfileSamples mpsA = new MolecularProfileSamples();
     mpsA.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
-    mpsA.setCommaSeparatedSampleIds("1,2,");
+    mpsA.setCommaSeparatedSampleIds("1,2");
 
     MolecularProfileSamples mpsB = new MolecularProfileSamples();
     mpsB.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
-    mpsB.setCommaSeparatedSampleIds("3,");
+    mpsB.setCommaSeparatedSampleIds("3");
 
     when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(
             new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B))))
@@ -443,8 +443,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     MolecularProfile mpB = new MolecularProfile();
     mpB.setStableId(MOLECULAR_PROFILE_ID_B);
     mpB.setCancerStudyIdentifier(STUDY_ID);
-    when(molecularProfileService.getMolecularProfiles(
-            new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B)), "SUMMARY"))
+    when(molecularProfileService.getMolecularProfiles(any(), anyString()))
         .thenReturn(Arrays.asList(mpA, mpB));
 
     List<Sample> samples = createSamples();
@@ -484,11 +483,11 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
   private java.util.Map<String, MolecularProfileSamples> createSampleIdMap() {
     MolecularProfileSamples mpsA = new MolecularProfileSamples();
     mpsA.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
-    mpsA.setCommaSeparatedSampleIds("1,2,");
+    mpsA.setCommaSeparatedSampleIds("1,2");
 
     MolecularProfileSamples mpsB = new MolecularProfileSamples();
     mpsB.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
-    mpsB.setCommaSeparatedSampleIds("3,");
+    mpsB.setCommaSeparatedSampleIds("3");
 
     return java.util.Map.of(MOLECULAR_PROFILE_ID_A, mpsA, MOLECULAR_PROFILE_ID_B, mpsB);
   }

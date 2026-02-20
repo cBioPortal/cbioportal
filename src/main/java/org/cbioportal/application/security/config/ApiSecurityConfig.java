@@ -1,10 +1,13 @@
 package org.cbioportal.application.security.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.cbioportal.application.security.token.RestAuthenticationEntryPoint;
 import org.cbioportal.application.security.token.TokenAuthenticationFilter;
 import org.cbioportal.application.security.token.TokenAuthenticationSuccessHandler;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -25,9 +28,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.beans.factory.annotation.Value;
-import java.util.ArrayList;
-import java.util.List;
 
 @Configuration
 @Conditional(ApiSecurityCondition.class)

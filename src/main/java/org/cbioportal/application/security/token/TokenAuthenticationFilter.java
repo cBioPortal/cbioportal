@@ -100,7 +100,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
   @Override
   public Authentication attemptAuthentication(
       HttpServletRequest request, HttpServletResponse response)
-      throws AuthenticationException, IOException, jakarta.servlet.ServletException {
+      throws AuthenticationException, IOException, ServletException {
 
     String token = extractHeaderToken(request);
 

@@ -43,8 +43,9 @@ public class ApiSecurityCondition implements Condition {
     String authenticate = context.getEnvironment().getProperty("authenticate", "false");
     String requireToken = context.getEnvironment().getProperty("dat.require_token", "false");
 
-    boolean isAuthenticationEnabled = !"false".equalsIgnoreCase(authenticate)
-        && !"optional_oauth2".equalsIgnoreCase(authenticate);
+    boolean isAuthenticationEnabled =
+        !"false".equalsIgnoreCase(authenticate)
+            && !"optional_oauth2".equalsIgnoreCase(authenticate);
     boolean isTokenRequired = "true".equalsIgnoreCase(requireToken);
 
     // API Security should be enabled if authentication is globally enabled OR if

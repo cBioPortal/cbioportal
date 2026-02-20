@@ -91,7 +91,8 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
         return true;
       }
       LOG.debug(
-          "attemptAuthentication(), authorization header is null, continue on to other security filters");
+          "attemptAuthentication(), authorization header is null, continue on to other security"
+              + " filters");
       return false;
     }
     return true;

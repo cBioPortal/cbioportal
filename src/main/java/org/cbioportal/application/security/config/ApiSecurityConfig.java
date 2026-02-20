@@ -43,11 +43,11 @@ public class ApiSecurityConfig {
   private boolean accessTokenRequired;
 
   public static final String[] PUBLIC_API_MATCHERS = {
-      "/api/swagger-resources/**",
-      "/api/swagger-ui.html",
-      "/api/health",
-      "/api/public_virtual_studies/**",
-      "/api/cache/**"
+    "/api/swagger-resources/**",
+    "/api/swagger-ui.html",
+    "/api/health",
+    "/api/public_virtual_studies/**",
+    "/api/cache/**"
   };
 
   @Bean
@@ -58,17 +58,19 @@ public class ApiSecurityConfig {
         // This filter chain only grabs requests to the '/api' path.
         .securityMatcher("/api/**", "/webservice.do")
         .authorizeHttpRequests(
-            authorize -> authorize
-                .requestMatchers(PUBLIC_API_MATCHERS)
-                .permitAll()
-                .anyRequest()
-                .authenticated())
+            authorize ->
+                authorize
+                    .requestMatchers(PUBLIC_API_MATCHERS)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .sessionManagement(
             sessionManagement -> sessionManagement.sessionFixation().migrateSession())
         .exceptionHandling(
-            eh -> eh.defaultAuthenticationEntryPointFor(
-                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                AntPathRequestMatcher.antMatcher("/api/**")));
+            eh ->
+                eh.defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    AntPathRequestMatcher.antMatcher("/api/**")));
     // When dat.method is not 'none' and a tokenService bean is present,
     // the apiTokenAuthenticationFilter is added to the filter chain.
     if (tokenService != null) {
@@ -107,9 +109,11 @@ class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSe
   @Override
   public void configure(HttpSecurity http) {
     AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-    TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler = new TokenAuthenticationSuccessHandler();
-    TokenAuthenticationFilter filter = new TokenAuthenticationFilter(
-        "/**", authenticationManager, tokenService, accessTokenRequired);
+    TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler =
+        new TokenAuthenticationSuccessHandler();
+    TokenAuthenticationFilter filter =
+        new TokenAuthenticationFilter(
+            "/**", authenticationManager, tokenService, accessTokenRequired);
     // Explicitly set the request matcher to exclude public paths if enforcement is
     // enabled
     if (accessTokenRequired) {

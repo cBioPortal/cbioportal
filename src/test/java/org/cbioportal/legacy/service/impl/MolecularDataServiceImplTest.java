@@ -436,8 +436,21 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(any()))
         .thenReturn(createSampleIdMap());
 
+    // Mock molecular profiles
+    MolecularProfile mpA = new MolecularProfile();
+    mpA.setStableId(MOLECULAR_PROFILE_ID_A);
+    mpA.setCancerStudyIdentifier(STUDY_ID);
+    MolecularProfile mpB = new MolecularProfile();
+    mpB.setStableId(MOLECULAR_PROFILE_ID_B);
+    mpB.setCancerStudyIdentifier(STUDY_ID);
+    when(molecularProfileService.getMolecularProfiles(
+            new java.util.TreeSet<>(Arrays.asList(MOLECULAR_PROFILE_ID_A, MOLECULAR_PROFILE_ID_B)), "SUMMARY"))
+        .thenReturn(Arrays.asList(mpA, mpB));
+
     List<Sample> samples = createSamples();
     when(sampleService.getSamplesByInternalIds(any())).thenReturn(samples);
+    when(sampleService.fetchSamples(Arrays.asList(STUDY_ID), null, "ID"))
+        .thenReturn(samples);
 
     // Execute
     List<org.cbioportal.legacy.model.MolecularDataCountItem> result =

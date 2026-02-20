@@ -114,10 +114,15 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
 
     // Collect all internal IDs for sample lookup
     List<Integer> allInternalIds = new ArrayList<>();
-    profileSamplesMap.values().forEach(s -> 
-        Arrays.stream(s.getSplitSampleIds())
-            .mapToInt(Integer::parseInt)
-            .forEach(allInternalIds::add));
+    profileSamplesMap.values().forEach(s -> {
+        for (String idStr : s.getSplitSampleIds()) {
+            try {
+                allInternalIds.add(Integer.parseInt(idStr));
+            } catch (NumberFormatException e) {
+                // Skip invalid sample IDs
+            }
+        }
+    });
 
     // Fetch samples and build unique ID map
     if (sampleService == null) {

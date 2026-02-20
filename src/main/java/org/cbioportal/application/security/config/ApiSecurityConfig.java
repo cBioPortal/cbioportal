@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -34,6 +35,9 @@ public class ApiSecurityConfig {
   // Both are able to handle API tokens provided in the request.
   // see: "Creating and Customizing Filter Chains" @
   // https://spring.io/guides/topicals/spring-security-architecture
+
+  @Value("${api.access.token.required:false}")
+  private boolean accessTokenRequired;
 
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -64,7 +68,7 @@ public class ApiSecurityConfig {
     // When dat.method is not 'none' and a tokenService bean is present,
     // the apiTokenAuthenticationFilter is added to the filter chain.
     if (tokenService != null) {
-      http.apply(ApiTokenFilterDsl.tokenFilterDsl(tokenService));
+      http.apply(ApiTokenFilterDsl.tokenFilterDsl(tokenService, accessTokenRequired));
     }
     return http.build();
   }
@@ -88,10 +92,14 @@ public class ApiSecurityConfig {
 
 class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
 
+  @Value("${api.access.token.required:false}")
+  private boolean accessTokenRequired;
+
   private final DataAccessTokenService tokenService;
 
-  public ApiTokenFilterDsl(DataAccessTokenService tokenService) {
+  public ApiTokenFilterDsl(DataAccessTokenService tokenService, boolean accessTokenRequired) {
     this.tokenService = tokenService;
+    this.accessTokenRequired = accessTokenRequired;
   }
 
   @Override
@@ -100,12 +108,14 @@ class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSe
     TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler =
         new TokenAuthenticationSuccessHandler();
     TokenAuthenticationFilter filter =
-        new TokenAuthenticationFilter("/**", authenticationManager, tokenService);
+        new TokenAuthenticationFilter(
+            "/**", authenticationManager, tokenService, accessTokenRequired);
     filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
     http.addFilterAfter(filter, SecurityContextHolderFilter.class);
   }
 
-  public static ApiTokenFilterDsl tokenFilterDsl(DataAccessTokenService tokenService) {
-    return new ApiTokenFilterDsl(tokenService);
+  public static ApiTokenFilterDsl tokenFilterDsl(
+      DataAccessTokenService tokenService, boolean accessTokenRequired) {
+    return new ApiTokenFilterDsl(tokenService, accessTokenRequired);
   }
 }

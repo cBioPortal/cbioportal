@@ -4,9 +4,22 @@
 
 The cBioPortal for Cancer Genomics provides visualization, analysis, and download of large-scale cancer genomics data sets. For a short intro on cBioPortal, see [these introductory slides](https://docs.google.com/presentation/d/1hm0G77UklZnpQfFvywBfW2ZIsy8deKi5r1RfJarOPLg/edit?usp=sharing).
 
-If you would like to know how to setup a private instance of the portal and/or get set up for developing, see the [documentation](https://docs.cbioportal.org). For details on contributing code changes via pull requests, see our [Contributing document](CONTRIBUTING.md).
+If you would like to know how to setup a private instance of the portal and/or get set up for developing, see the [documentation](https://docs.cbioportal.org). For details on contributing code changes via pull requests, see our [Contributing document](https://github.com/cBioPortal/cbioportal/blob/master/CONTRIBUTING.md).
 
 If you are interested in coordinating the development of new features, please contact <cbioportal@cbioportal.org> or reach out on <https://slack.cbioportal.org>.
+
+## 🌳 Branching and Release Strategy
+
+cBioPortal is currently preparing for **v7**. The branching and release strategy has been updated as follows:
+
+- **`master` branch** is now the **pre-release branch for v7**. Pull requests targeting v7 should be opened against `master`.
+- **v7** introduces a **ClickHouse-only database**. This new database setup **is not compatible** with earlier portal settings, the traditional MySQL mode, or existing study importer tools.
+- To support existing deployments of v6, we have created a **`maintenance-v6` branch**:
+    - Only **important security fixes** will be merged into `maintenance-v6`.
+    - **No new bug fixes or feature development** will be done on v6.
+    - Users still running v6 should continue to track `maintenance-v6` for necessary security updates.
+
+See more details at [Versioning-and-Upgrades.md](docs/Versioning-and-Upgrades.md)
 
 ## 📘 Documentation
 
@@ -24,9 +37,10 @@ cBioPortal consists of several components, please read the [Architecture docs](h
 
 This section provides a summary. For Quick Start instructions, or for more additional information, please see [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/)
 
-#### What MySQL database to use
+#### What database to use
 
-We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on <https://cbioportal.org> that one can connect to directly. Please reach out on slack to get the credentials.
+- **v7 (master)**: Uses **ClickHouse** as the sole database backend. cBioPortal production are using [ClickHouse Cloud](https://clickhouse.com/cloud)
+- **v6 (maintenance-v6)**: Continues to use the legacy MySQL database backend. We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on <https://cbioportal.org> that one can connect to directly. Please reach out on slack to get the credentials.
 
 #### Deploy your development image inside Docker Compose
 
@@ -119,7 +133,7 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 |--------------|-----------------------------------------------------------|------------------|-----------------------------|
 | **Unit**     | Test isolated logic (e.g. services, utils)                | ✅ Yes           | JUnit, Mockito              |
 | **Integration** | Test Spring components (e.g. JPA, Repositories) using real databases | 🚫 No            | Spring Boot, Failsafe       |
-| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Spring Boot, TestRestTemplate, MockMvc |
+| **E2E**       | Test full HTTP endpoints via real HTTP calls             | 🚫 No            | Mocha, Chai, Axios |
 
 ---
 
@@ -128,14 +142,70 @@ This project uses a layered testing strategy that separates **unit**, **integrat
 ```
 src/test/java/             → Unit tests (default)
 src/integration/java/      → Integration tests (DB, Spring context)
-src/e2e/java/              → E2E tests (REST API over HTTP)
+src/e2e/js/                → JavaScript/TypeScript E2E tests (Mocha)
 ```
+
+---
+
+### 🟨 API Tests (e2e)
+
+API tests issue real HTTP requests to an instance of the cBioPortal web app running against
+a real database based on the public portal data set.  They allow us to:
+
+1. Test business logic embedded in MyBatis mappers, which cannot be tested except against a database.
+2. Test scenarios that are very difficult to reproduce with mock data, for example studies with specific data type combinations.
+
+API tests use **Mocha** and **Chai** and are located in `src/e2e/js/`.
+
+Note: please distinguish between these tests and the soon-to-be defunct api-test job which compares clickhouse api responses
+to legacy responses. 
+
+#### Prerequisites
+
+These tests require:
+- **Node.js** (v18 or higher recommended)
+- A **running cBioPortal instance** connected to the **`cgds_public_2025_06_24`** database
+- The portal should be accessible at `http://localhost:8080` (or set `CBIOPORTAL_URL` environment variable)
+
+#### Running JavaScript E2E Tests (test api requests)
+
+```bash
+# Navigate to the JS test directory
+cd src/e2e/js
+
+# Install dependencies (first time only)
+npm install
+
+# Run npm test all tests against default server (http://localhost:8080)
+
+
+# Run tests against a custom server URL
+CBIOPORTAL_URL=http://localhost:8082 npm test
+
+# Run a specific test suite
+npm test 'test/ColumnStoreStudyController/*.spec.ts'
+
+# Run with custom URL and specific pattern
+CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreMutationController/*.spec.ts'
+```
+
+
+#### Test Structure
+
+The JavaScript E2E tests follow these conventions:
+- Each test suite lives in its own directory: `test/[TestName]/`
+- Test files are named `[TestName].spec.ts`
+- Test data JSON files are co-located with their spec files
+- All tests use Lodash for data processing with inline logic and comprehensive comments
+- TypeScript types are derived from the official cBioPortal Swagger API documentation
+
+For more information on writing JavaScript E2E tests, see `src/e2e/js/CLAUDE.md`.
 
 ---
 
 ## 🔧 Configuration via Environment Variables
 
-All integration and E2E tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
+All integration tests are **configured via environment variables** for test DBs. This avoids hardcoding credentials and allows flexible use in local dev or CI.
 
 ### ✅ Supported Environment Variables
 
@@ -145,10 +215,10 @@ All integration and E2E tests are **configured via environment variables** for t
 | `TEST_DB_MYSQL_USERNAME`        | MySQL username                       | Integration         |
 | `TEST_DB_MYSQL_PASSWORD`        | MySQL password (🔒 required)         | Integration         |
 | `TEST_DB_MYSQL_DRIVER`          | Optional, defaults to MySQL driver   | Integration         |
-| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration & E2E   |
-| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration & E2E |
+| `TEST_DB_CLICKHOUSE_URL`        | JDBC URL for test ClickHouse         | Integration   |
+| `TEST_DB_CLICKHOUSE_USERNAME`   | ClickHouse username                  | Integration   |
+| `TEST_DB_CLICKHOUSE_PASSWORD`   | ClickHouse password (🔒 required)    | Integration   |
+| `TEST_DB_CLICKHOUSE_DRIVER`     | Optional, defaults to ClickHouse driver | Integration |
 
 > If a variable is marked as required and not set, tests will fail with a helpful error.
 
@@ -174,28 +244,6 @@ export TEST_DB_CLICKHOUSE_PASSWORD=...
 mvn verify -Pintegration-test
 ```
 
----
-
-#### ✅ Run E2E Tests
-
-```bash
-# Set required env vars
-export TEST_DB_MYSQL_PASSWORD=...
-export TEST_DB_CLICKHOUSE_PASSWORD=...
-
-mvn verify -Pe2e-test
-```
-
----
-
-#### 🔍 Test Class Inheritance
-
-All E2E tests should extend:
-
-```java
-public abstract class AbstractE2ETest { ... }
-```
-
 All integration tests (if needed) may use:
 
 ```java
@@ -216,21 +264,8 @@ These base classes:
 |------------------|-----------------------|---------------------------------|
 | *(default)*      | Unit tests only       | `mvn test`                      |
 | `integration-test` | Integration tests     | `mvn verify -Pintegration-test` |
-| `e2e-test`       | E2E tests              | `mvn verify -Pe2e-test`         |
 
 ---
-
-## 🌳 Branch Information
-
-| | main branch | upcoming release branch | later release candidate branch |
-| --- | --- | --- | --- |
-| Branch name | [`master`](https://github.com/cBioPortal/cbioportal/tree/master) |  -- |  [`rc`](https://github.com/cBioPortal/cbioportal/tree/rc) |
-| Description | All bug fixes and features not requiring database migrations go here. This code is either already in production or will be released this week | Next release that requires database migrations. Thorough manual product review often takes place for this branch before release | Later releases with features that require database migrations. This is useful to allow merging in new features without affecting the upcoming release. Could be seen as a development branch, but note that only high quality pull requests are merged. That is the feature should be pretty much ready for release after merge. |
-| Live instance | <https://www.cbioportal.org> / <https://master.cbioportal.org> | -- | <https://rc.cbioportal.org> |
-| Live instance version | <https://www.cbioportal.org/api/info> / <https://master.cbioportal.org/api/info> | -- | <https://rc.cbioportal.org/api/info> |
-| Docker Image | cbioportal/cbioportal:master | --| cbioportal/cbioportal:rc |
-| Kubernetes Config | [production](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_spring_boot.yaml) / [master](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_master.yaml) | -- | [rc](https://github.com/knowledgesystems/knowledgesystems-k8s-deployment/blob/master/cbioportal/cbioportal_backend_rc.yaml) |
-| Status | [![master build status](https://github.com/cbioportal/cbioportal/workflows/Core%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/core-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Integration%20tests/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/integration-test.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Docker%20Image%20CI/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/dockerimage.yml?query=branch%3Amaster) [![master build status](https://github.com/cbioportal/cbioportal/workflows/Python%20validator/badge.svg)](https://github.com/cBioPortal/cbioportal/actions/workflows/validate-data.yml?query=branch%3Amaster) [![CircleCI](https://circleci.com/gh/cBioPortal/cbioportal/tree/master.svg?style=svg)](https://app.circleci.com/pipelines/github/cBioPortal/cbioportal?branch=master&filter=all) | -- | -- |
 
 ## 🚀 Releases
 

@@ -7,11 +7,9 @@ import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetAllSamplesOfPatientInStudyUseCase {
   private final PatientService patientService;
   private final SampleRepository sampleRepository;

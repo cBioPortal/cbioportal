@@ -5,11 +5,9 @@ import org.cbioportal.domain.genomic_data.repository.GenomicDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * Use case for retrieving CNA counts by gene-specific data from the repository. This class
  * encapsulates the business logic for fetching CNA counts based on the provided study view filter

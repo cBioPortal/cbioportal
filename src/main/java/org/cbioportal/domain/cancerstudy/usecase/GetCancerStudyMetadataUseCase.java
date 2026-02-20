@@ -2,11 +2,14 @@ package org.cbioportal.domain.cancerstudy.usecase;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
+import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,7 +28,7 @@ import org.springframework.stereotype.Service;
  * private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
  *
  * public CancerStudyController(GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase) {
- *     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
+ *   this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
  * }
  *
  * // Retrieve detailed metadata for cancer studies
@@ -40,8 +43,7 @@ import org.springframework.stereotype.Service;
  * @see CancerStudyMetadata
  */
 @Service
-@Profile("clickhouse")
-public final class GetCancerStudyMetadataUseCase {
+public class GetCancerStudyMetadataUseCase {
 
   private final CancerStudyRepository studyRepository;
 
@@ -75,11 +77,40 @@ public final class GetCancerStudyMetadataUseCase {
    * @see ProjectionType
    * @see CancerStudyMetadata
    */
+  @PostFilter(
+      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public List<CancerStudyMetadata> execute(
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
+    List<ResourceCount> resourceCounts = getResourceCountsForAllStudies(projectionType);
+
+    List<CancerStudyMetadata> cancerStudyMetaData =
+        switch (projectionType) {
+          case DETAILED -> studyRepository.getCancerStudiesMetadata(sortAndSearchCriteria);
+          case SUMMARY, META ->
+              studyRepository.getCancerStudiesMetadataSummary(sortAndSearchCriteria);
+          default -> Collections.emptyList();
+        };
+
+    if (projectionType == ProjectionType.META || projectionType == ProjectionType.ID) {
+      return cancerStudyMetaData;
+    }
+
+    Map<String, List<ResourceCount>> resourceCountsMap =
+        resourceCounts.stream().collect(Collectors.groupingBy(rc -> rc.cancerStudyIdentifier()));
+
+    return cancerStudyMetaData.stream()
+        .map(
+            metadata ->
+                new CancerStudyMetadata(
+                    metadata,
+                    resourceCountsMap.getOrDefault(
+                        metadata.cancerStudyIdentifier(), Collections.emptyList())))
+        .toList();
+  }
+
+  public List<ResourceCount> getResourceCountsForAllStudies(ProjectionType projectionType) {
     return switch (projectionType) {
-      case DETAILED -> studyRepository.getCancerStudiesMetadata(sortAndSearchCriteria);
-      case SUMMARY -> studyRepository.getCancerStudiesMetadataSummary(sortAndSearchCriteria);
+      case DETAILED, SUMMARY -> studyRepository.getResourceCountsForAllStudies();
       default -> Collections.emptyList();
     };
   }

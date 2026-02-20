@@ -4,7 +4,6 @@ import java.util.List;
 import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
  * filtered attributes.
  */
 @Service
-@Profile("clickhouse")
 public class GetPatientClinicalDataUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;

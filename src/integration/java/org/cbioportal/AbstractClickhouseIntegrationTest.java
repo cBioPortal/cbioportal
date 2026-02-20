@@ -25,13 +25,13 @@ public abstract class AbstractClickhouseIntegrationTest {
     @DynamicPropertySource
     static void registerClickHouseProperties(DynamicPropertyRegistry registry) {
         // Clickhouse Test DB
-        registry.add("spring.datasource.clickhouse.url",
+        registry.add("spring.datasource.url",
                 () -> getEnvOrDefault("TEST_DB_CLICKHOUSE_URL", CLICKHOUSE_URL));
-        registry.add("spring.datasource.clickhouse.username",
+        registry.add("spring.datasource.username",
                 () -> getEnvOrDefault("TEST_DB_CLICKHOUSE_USERNAME", CLICKHOUSE_USERNAME));
-        registry.add("spring.datasource.clickhouse.password",
+        registry.add("spring.datasource.password",
                 () -> getEnvOrThrow("TEST_DB_CLICKHOUSE_PASSWORD"));
-        registry.add("spring.datasource.clickhouse.driver-class-name",
+        registry.add("spring.datasource.driver-class-name",
                 () -> getEnvOrDefault("TEST_DB_CLICKHOUSE_DRIVER", CLICKHOUSE_DRIVER));
     }
 

@@ -4,25 +4,18 @@ app.name=cbioportal
 # Spring Boot Properties 2.7.14
 spring.mvc.pathmatch.matching-strategy = ANT_PATH_MATCHER
 
-#Clickhouse Enabled
-# Set to True to enable Clickhouse (Warning Experimental Features)
-#clickhouse_mode=false
-
 # database
-# Properties for when Clickhouse mode is enabled (Warning: Experimental)
-#spring.datasource.mysql.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
-#spring.datasource.mysql.username=cbio
-#spring.datasource.mysql.password=P@ssword1
-#spring.datasource.mysql.driver-class-name=com.mysql.jdbc.Driver
-#spring.datasource.clickhouse.url=jdbc:ch://localhost:8443/cbioportal
-#spring.datasource.clickhouse.username=dummy
-#spring.datasource.clickhouse.password=dummy
-#spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
-spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false
-spring.datasource.username=cbio
-spring.datasource.password=P@ssword1
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
-spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
+# Note: Legacy spring.datasource.clickhouse.* properties are still supported for backward
+# compatibility but will be automatically migrated to spring.datasource.* properties.
+# It is recommended to use the standard spring.datasource.* properties.
+#spring.datasource.url=jdbc:ch://localhost:8443/cbioportal
+#spring.datasource.username=dummy
+#spring.datasource.password=dummy
+#spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+spring.datasource.url=jdbc:ch://localhost:8443/cbioportal
+spring.datasource.username=dummy
+spring.datasource.password=dummy
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
@@ -136,6 +129,12 @@ skin.study_view.link_text=To build your own case set, try out our enhanced Study
 ## setting controlling whether Download tabs and download/copy-to-clipboard controls should be shown
 # skin.hide_download_controls=false
 
+## UptimeRobot Status Page Integration
+## Automatically displays service status banners for ongoing events from UptimeRobot
+## Both properties are required to enable the integration
+# uptime_robot_status_page_url=https://status.cbioportal.org
+# uptime_robot_api_key=YOUR_API_KEY_HERE
+
 ## enable and set this property to specify a study group to be used to identify public studies for which no specific authorization entries are needed in the `authorities` table
 # always_show_study_group=
 
@@ -234,6 +233,14 @@ bitly.access.token=
 # Note: use one or the other of these properties, not both
 # google_analytics_profile_id=
 # google_tag_manager_id=
+
+# Datadog RUM (Real User Monitoring)
+# datadog_rum_application_id=
+# datadog_rum_client_token=
+# datadog_rum_site=
+# datadog_rum_env=
+# datadog_rum_session_sample_rate=
+# datadog_rum_session_replay_sample_rate=
 
 # genomespace linking
 genomespace=true

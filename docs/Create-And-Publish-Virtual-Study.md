@@ -68,10 +68,10 @@ curl \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -H 'Content-Type: application/json' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<custom_id>' \
-  --data-raw @virtual_study_definition.json
+  --data @virtual_study_definition.json
 ```
 
-The JSON payload should follow the format returned by the `/api/session/virtual_study` endpoint (fields such as `name`, `description`, `studyViewFilter`, and `studies`). If the ID already exists you will receive a `409 Conflict`. When the request succeeds, the virtual study is immediately available to all users under the `Public Virtual Studies` section, optionally enriched with `pmid` and `typeOfCancerId` query parameters the same way as above.
+See the [Virtual Study JSON Schema](./Virtual-Study-Data-Schema.md) for the full payload shape you can post to create and publish a study with a custom ID. If the ID already exists you will receive a `409 Conflict`. When the request succeeds, the virtual study is immediately available to all users under the `Public Virtual Studies` section, optionally enriched with `pmid` and `typeOfCancerId` query parameters the same way as above.
 
 ## Un-publish Virtual Study
 
@@ -85,4 +85,16 @@ curl \
   -X DELETE \
   -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
   -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>'
+```
+
+## Permanently remove a virtual study (hard delete)
+
+If you want to remove a virtual study permanently, add the `softDelete=false` query parameter.
+This will delete the virtual study forever, and it will no longer be available on any of sections.
+⚠️  **Note** that a soft delete does not deallocate the ID. If you are deleting a virtual study with a custom ID and want that ID to be available again, use hard delete instead.
+```shell
+curl \
+  -X DELETE \
+  -H 'X-PUBLISHER-API-KEY: <session.endpoint.publisher-api-key>' \
+  -v 'http://<cbioportal_host>/api/public_virtual_studies/<virtual_study_id>?softDelete=false'
 ```

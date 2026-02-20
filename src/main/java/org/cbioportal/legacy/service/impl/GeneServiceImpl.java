@@ -189,6 +189,7 @@ public class GeneServiceImpl implements GeneService {
             groupedGenes ->
                 groupedGenes.size() == 1) // filter out genes having duplicate hugoGeneSymbol
         .map(groupedGenes -> groupedGenes.get(0))
+        .sorted((g1, g2) -> g1.getHugoGeneSymbol().compareTo(g2.getHugoGeneSymbol()))
         .collect(toList());
   }
 }

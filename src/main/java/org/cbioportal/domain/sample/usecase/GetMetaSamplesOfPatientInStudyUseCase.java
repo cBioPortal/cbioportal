@@ -5,11 +5,9 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetMetaSamplesOfPatientInStudyUseCase {
   private final SampleRepository sampleRepository;
   private final PatientService patientService;

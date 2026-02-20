@@ -88,7 +88,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return molecularProfileRepository.getAllMolecularProfilesInStudy(
         studyId, projection, pageSize, pageNumber, sortBy, direction);
@@ -97,7 +97,7 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
   @Override
   public BaseMeta getMetaMolecularProfilesInStudy(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return molecularProfileRepository.getMetaMolecularProfilesInStudy(studyId);
   }

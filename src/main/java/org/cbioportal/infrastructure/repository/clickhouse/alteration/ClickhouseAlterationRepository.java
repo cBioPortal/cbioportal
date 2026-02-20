@@ -15,11 +15,9 @@ import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhouseAlterationRepository implements AlterationRepository {
 
   private final ClickhouseAlterationMapper mapper;

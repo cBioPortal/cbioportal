@@ -15,9 +15,9 @@ import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @PublicApi
@@ -33,7 +33,7 @@ public class NamespaceAttributeController {
     this.namespaceAttributeService = namespaceAttributeService;
   }
 
-  @PostMapping(path = "/namespace-attributes/fetch")
+  @RequestMapping(path = "/namespace-attributes/fetch", method = RequestMethod.POST)
   @Operation(description = "Fetch namespace attributes")
   @ApiResponse(
       responseCode = "200",

@@ -145,7 +145,7 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getAllMolecularProfilesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     molecularProfileService.getAllMolecularProfilesInStudy(
         STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
   }
@@ -166,7 +166,7 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
   @Test(expected = StudyNotFoundException.class)
   public void getMetaMolecularProfilesInStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     molecularProfileService.getMetaMolecularProfilesInStudy(STUDY_ID);
   }
 

@@ -467,4 +467,43 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
     Assert.assertNotNull(profileBCount);
     Assert.assertEquals(Integer.valueOf(1), profileBCount.getCount());
   }
+
+  private java.util.Map<String, MolecularProfileSamples> createSampleIdMap() {
+    MolecularProfileSamples mpsA = new MolecularProfileSamples();
+    mpsA.setMolecularProfileId(MOLECULAR_PROFILE_ID_A);
+    mpsA.setCommaSeparatedSampleIds("1,2,");
+
+    MolecularProfileSamples mpsB = new MolecularProfileSamples();
+    mpsB.setMolecularProfileId(MOLECULAR_PROFILE_ID_B);
+    mpsB.setCommaSeparatedSampleIds("3,");
+
+    return java.util.Map.of(MOLECULAR_PROFILE_ID_A, mpsA, MOLECULAR_PROFILE_ID_B, mpsB);
+  }
+
+  private List<Sample> createSamples() {
+    List<Sample> samples = new ArrayList<>();
+    
+    Sample s1 = new Sample();
+    s1.setInternalId(1);
+    s1.setStableId(SAMPLE_ID1);
+    s1.setPatientStableId(PATIENT_ID_1);
+    s1.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s1);
+
+    Sample s2 = new Sample();
+    s2.setInternalId(2);
+    s2.setStableId(SAMPLE_ID2);
+    s2.setPatientStableId(PATIENT_ID_2);
+    s2.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s2);
+
+    Sample s3 = new Sample();
+    s3.setInternalId(3);
+    s3.setStableId(SAMPLE_ID3);
+    s3.setPatientStableId(PATIENT_ID_3);
+    s3.setCancerStudyIdentifier(STUDY_ID);
+    samples.add(s3);
+
+    return samples;
+  }
 }

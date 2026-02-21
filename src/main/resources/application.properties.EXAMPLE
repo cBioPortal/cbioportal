@@ -242,6 +242,26 @@ bitly.access.token=
 # datadog_rum_session_sample_rate=
 # datadog_rum_session_replay_sample_rate=
 
+# API Rate Limiting (disabled by default)
+# When enabled, limits the number of API requests per client using a token bucket algorithm.
+#
+# SECURITY WARNING: Clients can spoof the X-Forwarded-For header to bypass rate limits.
+# DO NOT enable rate.limit.trust-proxies unless this application is behind a trusted reverse
+# proxy (like Nginx, Apache, or HAProxy) that is configured to strip or override
+# client-provided X-Forwarded-For headers.
+#
+# Recommended starting values for different deployment scales:
+# - Small (~10 users): requests-per-minute=60, burst-capacity=10
+# - Medium (~100 users): requests-per-minute=120, burst-capacity=20
+# - Large (~1000+ users): requests-per-minute=300, burst-capacity=50
+#
+# rate.limit.enabled=true
+# rate.limit.requests-per-minute=120
+# rate.limit.burst-capacity=20
+# rate.limit.cleanup-interval-minutes=60
+# rate.limit.max-buckets=100000
+# rate.limit.trust-proxies=false
+
 # genomespace linking
 genomespace=true
 

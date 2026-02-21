@@ -1,11 +1,15 @@
 package org.cbioportal.application.security.config;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.cbioportal.application.security.ratelimit.RateLimitFilter;
 import org.cbioportal.application.security.token.RestAuthenticationEntryPoint;
 import org.cbioportal.application.security.token.TokenAuthenticationFilter;
 import org.cbioportal.application.security.token.TokenAuthenticationSuccessHandler;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -35,6 +39,20 @@ public class ApiSecurityConfig {
   // see: "Creating and Customizing Filter Chains" @
   // https://spring.io/guides/topicals/spring-security-architecture
 
+  @Value("${api.access.token.required:false}")
+  private boolean accessTokenRequired;
+
+  @Autowired(required = false)
+  private RateLimitFilter rateLimitFilter;
+
+  static final String[] PUBLIC_API_MATCHERS = {
+    "/api/swagger-resources/**",
+    "/api/swagger-ui.html",
+    "/api/health",
+    "/api/public_virtual_studies/**",
+    "/api/cache/**"
+  };
+
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain securityFilterChain(
@@ -45,12 +63,7 @@ public class ApiSecurityConfig {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers(
-                        "/api/swagger-resources/**",
-                        "/api/swagger-ui.html",
-                        "/api/health",
-                        "/api/public_virtual_studies/**",
-                        "/api/cache/**")
+                    .requestMatchers(PUBLIC_API_MATCHERS)
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -61,6 +74,11 @@ public class ApiSecurityConfig {
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                     AntPathRequestMatcher.antMatcher("/api/**")));
+    // When rate limiting is enabled, add the rate limit filter early in the chain
+    // to reject abusive requests before any authentication processing.
+    if (rateLimitFilter != null) {
+      http.addFilterBefore(rateLimitFilter, SecurityContextHolderFilter.class);
+    }
     // When dat.method is not 'none' and a tokenService bean is present,
     // the apiTokenAuthenticationFilter is added to the filter chain.
     if (tokenService != null) {

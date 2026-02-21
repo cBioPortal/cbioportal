@@ -242,6 +242,14 @@ bitly.access.token=
 # datadog_rum_session_sample_rate=
 # datadog_rum_session_replay_sample_rate=
 
+# API Rate Limiting (disabled by default)
+# When enabled, limits the number of API requests per client using a token bucket algorithm.
+# Clients are identified by IP address (via X-Forwarded-For header or remote address).
+# rate.limit.enabled=true
+# rate.limit.requests-per-minute=120
+# rate.limit.burst-capacity=20
+# rate.limit.cleanup-interval-minutes=60
+
 # genomespace linking
 genomespace=true
 

@@ -18,6 +18,12 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.beans.factory.annotation.Value;
+import java.util.ArrayList;
+import java.util.List;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -36,8 +42,13 @@ public class ApiSecurityConfig {
   // see: "Creating and Customizing Filter Chains" @
   // https://spring.io/guides/topicals/spring-security-architecture
 
-  @Value("${api.access.token.required:false}")
-  private boolean accessTokenRequired;
+  private static final String[] PUBLIC_API_Matchers = {
+    "/api/swagger-resources/**",
+    "/api/swagger-ui.html",
+    "/api/health",
+    "/api/public_virtual_studies/**",
+    "/api/cache/**"
+  };
 
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -49,12 +60,7 @@ public class ApiSecurityConfig {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers(
-                        "/api/swagger-resources/**",
-                        "/api/swagger-ui.html",
-                        "/api/health",
-                        "/api/public_virtual_studies/**",
-                        "/api/cache/**")
+                    .requestMatchers(PUBLIC_API_Matchers)
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -72,6 +78,40 @@ public class ApiSecurityConfig {
     }
     return http.build();
   }
+
+  // ... (rest of class)
+
+class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
+  // ... (fields)
+
+  @Override
+  public void configure(HttpSecurity http) {
+    AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
+    TokenAuthenticationSuccessHandler tokenAuthenticationSuccessHandler =
+        new TokenAuthenticationSuccessHandler();
+    TokenAuthenticationFilter filter =
+        new TokenAuthenticationFilter(
+            "/**", authenticationManager, tokenService, accessTokenRequired);
+    
+    // Explicitly set the request matcher to exclude public paths if enforcement is enabled
+    if (accessTokenRequired) {
+      // Filter applies to /api/** BUT NOT the public paths
+      List<RequestMatcher> matchers = new ArrayList<>();
+      matchers.add(new AntPathRequestMatcher("/api/**"));
+      
+      List<RequestMatcher> publicMatchers = new ArrayList<>();
+      for (String pattern : ApiSecurityConfig.PUBLIC_API_Matchers) {
+        publicMatchers.add(new AntPathRequestMatcher(pattern));
+      }
+      matchers.add(new NegatedRequestMatcher(new OrRequestMatcher(publicMatchers)));
+      
+      filter.setRequiresAuthenticationRequestMatcher(new AndRequestMatcher(matchers));
+    }
+    
+    filter.setAuthenticationSuccessHandler(tokenAuthenticationSuccessHandler);
+    http.addFilterAfter(filter, SecurityContextHolderFilter.class);
+  }
+}
 
   @Autowired
   public void buildAuthenticationManager(
@@ -92,7 +132,6 @@ public class ApiSecurityConfig {
 
 class ApiTokenFilterDsl extends AbstractHttpConfigurer<ApiTokenFilterDsl, HttpSecurity> {
 
-  @Value("${api.access.token.required:false}")
   private boolean accessTokenRequired;
 
   private final DataAccessTokenService tokenService;

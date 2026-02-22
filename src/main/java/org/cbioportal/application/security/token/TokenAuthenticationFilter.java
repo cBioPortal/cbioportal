@@ -110,7 +110,8 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
     String token = extractHeaderToken(request);
 
     if (token == null) {
-      LOG.error("No token was found in request header.");
+      // DEBUG level to avoid noise for unauthorized requests
+      LOG.debug("No token was found in request header.");
       throw new BadCredentialsException("No token was found in request header.");
     }
 
@@ -127,11 +128,22 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
       Authentication authResult)
       throws IOException, ServletException {
     super.successfulAuthentication(request, response, chain, authResult);
+    
+    boolean mdcSet = false;
     if (authResult != null && authResult.getName() != null) {
       MDC.put("user", authResult.getName());
       MDC.put("auth_method", "token");
+      mdcSet = true;
     }
-    chain.doFilter(request, response);
+    
+    try {
+      chain.doFilter(request, response);
+    } finally {
+      if (mdcSet) {
+        MDC.remove("user");
+        MDC.remove("auth_method");
+      }
+    }
   }
 
   /**

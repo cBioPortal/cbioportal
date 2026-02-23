@@ -53,6 +53,12 @@ authenticate=false
 # TODO add to docs (in minutes; default 1)
 spring.security.oauth2.allowed-clock-skew=
 
+## SAML Attribute Mapping
+# Attribute in SAML response that contains the user's roles
+#saml.idp.metadata.attribute.role=Role
+# Attribute in SAML response that contains the user's email/identifier
+#saml.idp.metadata.attribute.email=mail
+
 ## data access token settings
 ## Resource Server issuer-uri for Data Access Token
 #spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:8080/realms/cbioportal

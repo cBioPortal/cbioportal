@@ -131,9 +131,8 @@ public class ClickhouseSampleMapperTest {
         mapper.getFilteredSamples(
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
-    // Only 7 study_genie_pub samples with genuine "NA" age data
-    // acc_tcga samples are excluded since that study has no age attribute defined
-    assertEquals(7, filteredSamples5.size());
+    // 4 acc_tcga + 7 study_genie_pub samples with "NA" AGE data or no AGE data
+    assertEquals(11, filteredSamples5.size());
 
     // NA + UNKNOWN
     studyViewFilter.setClinicalDataFilters(
@@ -147,8 +146,8 @@ public class ClickhouseSampleMapperTest {
         mapper.getFilteredSamples(
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
-    // 7 genuine NA samples from study_genie_pub + 1 UNKNOWN sample
-    assertEquals(8, filteredSamples6.size());
+    // 11 NA + 1 UNKNOWN
+    assertEquals(12, filteredSamples6.size());
 
     // null age filter (start, end, and value are null)
     // should return all samples with age attribute
@@ -161,16 +160,21 @@ public class ClickhouseSampleMapperTest {
     assertEquals(27, filteredSamples7.size());
 
     // NA dead filter
+    // study_genie_pub: patients with dead='NA' or no dead data (17 samples)
+    // + acc_tcga: all samples (study has no dead attribute, treated as NA) (4 samples)
     studyViewFilter.setClinicalDataFilters(
         List.of(newClinicalDataFilter("dead", List.of(newDataFilterValue(null, null, "NA")))));
     var filteredSamples8 =
         mapper.getFilteredSamples(
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
-    assertEquals(17, filteredSamples8.size());
+    assertEquals(21, filteredSamples8.size());
 
     // null age filter + NA dead filter (test null numerical + any categorical filter)
-    // should return same as NA dead filter test
+    // null age filter returns samples with age attribute (27 samples from study_genie_pub only,
+    // acc_tcga has no age)
+    // NA dead filter returns 21 samples (17 from study_genie_pub + 4 from acc_tcga)
+    // INTERSECT: only study_genie_pub samples that pass both filters = 17 samples
     studyViewFilter.setClinicalDataFilters(
         List.of(
             newClinicalDataFilter("age", List.of(newDataFilterValue(null, null, null))),
@@ -180,6 +184,21 @@ public class ClickhouseSampleMapperTest {
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     assertEquals(17, filteredSamples9.size());
+
+    // NA subtype filter: attribute exists at sample-level in acc_tcga but patient-level in
+    // study_genie_pub (cross-study attribute level conflict scenario)
+    // acc_tcga (sample-level subtype): sample tcga-a1-a0sb-01 has subtype='' (empty) -> 1 NA
+    // study_genie_pub (patient-level subtype):
+    //   - patient 316 has subtype='NA', patient 318 has subtype='' (empty) -> 2 NA samples
+    //   - patients 301-312, 319-324 have no subtype data -> 21 NA samples
+    // Total: 1 + 2 + 21 = 24 samples
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("subtype", List.of(newDataFilterValue(null, null, "NA")))));
+    var filteredSamples10 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(24, filteredSamples10.size());
   }
 
   @Test

@@ -75,7 +75,7 @@
     <!-- Unknown -->
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
-    <testcontainers.version>1.21.3</testcontainers.version>
+    <testcontainers.version>1.21.4</testcontainers.version>
     <opensaml.version>4.1.1</opensaml.version>
 
     <!-- Third Party -->

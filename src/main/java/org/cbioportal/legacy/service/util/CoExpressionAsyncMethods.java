@@ -71,6 +71,9 @@ public class CoExpressionAsyncMethods {
     }
     double t = r * Math.sqrt((n - 2.0) / (1.0 - rSquared));
     TDistribution tDist = new TDistribution(n - 2);
-    return 2.0 * (1.0 - tDist.cumulativeProbability(Math.abs(t)));
+    // Use cdf(-|t|) instead of 1-cdf(|t|) to avoid floating point cancellation
+    // when cdf(|t|) is very close to 1.0. This matches Apache Commons Math3's
+    // PearsonsCorrelation.getCorrelationPValues() approach.
+    return 2.0 * tDist.cumulativeProbability(-Math.abs(t));
   }
 }

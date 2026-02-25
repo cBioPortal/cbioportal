@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.math3.distribution.TDistribution;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
@@ -58,5 +59,18 @@ public class CoExpressionAsyncMethods {
     coExpression.setpValue(BigDecimal.valueOf(resultMatrix.getEntry(0, 1)));
 
     return CompletableFuture.supplyAsync(() -> coExpression);
+  }
+
+  public static double computePValue(double r, int n) {
+    if (n <= 2) {
+      return 1.0;
+    }
+    double rSquared = r * r;
+    if (rSquared >= 1.0) {
+      return 0.0;
+    }
+    double t = r * Math.sqrt((n - 2.0) / (1.0 - rSquared));
+    TDistribution tDist = new TDistribution(n - 2);
+    return 2.0 * (1.0 - tDist.cumulativeProbability(Math.abs(t)));
   }
 }

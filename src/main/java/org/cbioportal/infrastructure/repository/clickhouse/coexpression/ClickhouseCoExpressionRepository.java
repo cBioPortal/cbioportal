@@ -1,10 +1,11 @@
 package org.cbioportal.infrastructure.repository.clickhouse.coexpression;
 
 import java.util.List;
+import org.cbioportal.domain.coexpression.repository.CoExpressionRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class ClickhouseCoExpressionRepository {
+public class ClickhouseCoExpressionRepository implements CoExpressionRepository {
 
   private final ClickhouseCoExpressionMapper mapper;
 
@@ -12,6 +13,7 @@ public class ClickhouseCoExpressionRepository {
     this.mapper = mapper;
   }
 
+  @Override
   public List<CoExpressionResult> getCoExpressions(
       String cancerStudyIdentifierA,
       String profileTypeA,

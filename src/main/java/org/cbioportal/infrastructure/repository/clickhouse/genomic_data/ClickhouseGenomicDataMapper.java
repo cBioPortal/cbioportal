@@ -64,8 +64,13 @@ public interface ClickhouseGenomicDataMapper {
    *
    * @param studyViewFilterContext the context of the study view filter
    * @param genomicDataFilters the list of genomic data filters
+   * @param includeSampleIds a flag to include sample ids
+   * @param hugoGeneSymbol a string representing the first gene from genomicDataFilters list
    * @return a list of mutation counts by type
    */
   List<GenomicDataCountItem> getMutationCountsByType(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds,
+      String hugoGeneSymbol);
 }

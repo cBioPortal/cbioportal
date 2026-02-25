@@ -3,9 +3,11 @@ package org.cbioportal.legacy.web;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import org.cbioportal.legacy.service.CacheService;
+import org.cbioportal.legacy.service.exception.CacheOperationException;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -102,4 +104,20 @@ public class CacheControllerTest {
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN_VALUE));
     verify(cacheService, times(1)).clearCaches(false);
   }
+
+    @Test
+    @WithMockUser
+    public void shouldReturnInternalServerErrorWhenCacheOperationExceptionThrown() throws Exception {
+        doThrow(new CacheOperationException("Cache failure", new Exception()))
+            .when(cacheService)
+            .clearCaches(true);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/api/cache")
+                    .with(csrf())
+                    .header("X-API-KEY", "correct-key"))
+            .andExpect(MockMvcResultMatchers.status().isInternalServerError());
+        
+        verify(cacheService, times(1)).clearCaches(true);
+    }
 }

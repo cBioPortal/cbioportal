@@ -218,7 +218,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(CacheOperationException.class)
-  public ResponseEntity<ErrorResponse> handleCacheOperationException(CacheNotFoundException ex) {
+  public ResponseEntity<ErrorResponse> handleCacheOperationException(CacheOperationException ex) {
     ErrorResponse response =
         new ErrorResponse(
             "Error evicting caches. Please try again or validate correct operation of your configured caching implementation.");

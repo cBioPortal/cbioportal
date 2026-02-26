@@ -183,7 +183,7 @@ npm install
 CBIOPORTAL_URL=http://localhost:8082 npm test
 
 # Run a specific test suite
-npm test 'test/ColumnStoreStudyController/*.spec.ts'
+CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreStudyController/*.spec.ts'
 
 # Run with custom URL and specific pattern
 CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreMutationController/*.spec.ts'

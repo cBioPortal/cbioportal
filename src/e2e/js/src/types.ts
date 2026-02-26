@@ -208,6 +208,22 @@ export interface MutationDTO {
 }
 
 /**
+ * CoExpression - Co-expression analysis result
+ * Source: Derived from CoExpression.java model
+ * Required fields: geneticEntityId, geneticEntityType, spearmansCorrelation, pValue
+ */
+export interface CoExpression {
+  /** Entrez Gene ID as string */
+  geneticEntityId: string;
+  /** Entity type (always "GENE" for gene co-expression) */
+  geneticEntityType: string;
+  /** Spearman's rank correlation coefficient */
+  spearmansCorrelation: number;
+  /** Statistical significance p-value */
+  pValue: number;
+}
+
+/**
  * Projection types for API requests
  */
 export enum ProjectionType {

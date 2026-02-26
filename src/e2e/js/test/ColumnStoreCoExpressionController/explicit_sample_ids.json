@@ -1,0 +1,25 @@
+{
+  "sampleIds": [
+    "TCGA-OR-A5J1-01",
+    "TCGA-OR-A5J2-01",
+    "TCGA-OR-A5J3-01",
+    "TCGA-OR-A5J5-01",
+    "TCGA-OR-A5J6-01",
+    "TCGA-OR-A5J7-01",
+    "TCGA-OR-A5J8-01",
+    "TCGA-OR-A5J9-01",
+    "TCGA-OR-A5JA-01",
+    "TCGA-OR-A5JB-01",
+    "TCGA-OR-A5JC-01",
+    "TCGA-OR-A5JD-01",
+    "TCGA-OR-A5JE-01",
+    "TCGA-OR-A5JF-01",
+    "TCGA-OR-A5JG-01",
+    "TCGA-OR-A5JI-01",
+    "TCGA-OR-A5JJ-01",
+    "TCGA-OR-A5JK-01",
+    "TCGA-OR-A5JL-01",
+    "TCGA-OR-A5JM-01"
+  ],
+  "entrezGeneId": 672
+}

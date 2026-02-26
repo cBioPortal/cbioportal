@@ -39,6 +39,7 @@
           AND toFloat64OrNull(d.alteration_value) IS NOT NULL
         GROUP BY g.entrez_gene_id
         HAVING numSamples >= 3
+           AND uniqExact(toFloat64OrNull(d.alteration_value)) > 1
            AND isFinite(spearmansCorrelation)
            AND abs(spearmansCorrelation) >= #{threshold}
         ORDER BY abs(spearmansCorrelation) DESC

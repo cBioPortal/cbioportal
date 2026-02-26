@@ -787,10 +787,10 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 **The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
 
 42. **ASCN.ASCN_METHOD (Optional)**: Method used to obtain ASCN data e.g "FACETS".
-43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. 
+43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. Displayed as a plain number for single-sample patients or as a bar chart for multi-sample patients in the patient view mutation table.
 44. **ASCN.CCF_EXPECTED_COPIES_UPPER (Optional)**: Upper error for CCF estimate.
 45. **ASCN.EXPECTED_ALT_COPIES (Optional)**: Estimated number of copies harboring mutant allele.
-46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". 
+46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". Displayed as a "Clonal" boolean column in the patient view mutation table, where only "Clonal" values are indicated with a dot.
 47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene.
 48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
 49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.

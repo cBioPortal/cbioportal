@@ -52,9 +52,21 @@ public class ApiSecurityConfig {
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
+    RequestMatcher pathMatcher =
+        new OrRequestMatcher(
+            new AntPathRequestMatcher("/api/**"), new AntPathRequestMatcher("/webservice.do"));
+
+    if (accessTokenRequired) {
+      http.securityMatcher(pathMatcher);
+    } else {
+      // Only match if it has an Authorization header.
+      // This allows session-based requests (like those in E2E tests) to fall through
+      // to other security chains.
+      RequestMatcher authHeaderMatcher = request -> request.getHeader("Authorization") != null;
+      http.securityMatcher(new AndRequestMatcher(pathMatcher, authHeaderMatcher));
+    }
+
     http.csrf(AbstractHttpConfigurer::disable)
-        // This filter chain only grabs requests to the '/api' path.
-        .securityMatcher("/api/**", "/webservice.do")
         .authorizeHttpRequests(
             authorize ->
                 authorize

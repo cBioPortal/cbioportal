@@ -77,11 +77,11 @@ public class ApiSecurityConditionTest {
   }
 
   @Test
-  public void doesNotMatchWhenOptionalOAuth2AndTokenNotRequired() {
+  public void matchesWhenOptionalOAuth2AndTokenNotRequired() {
     when(environment.getProperty("authenticate", "false")).thenReturn("optional_oauth2");
     when(environment.getProperty("dat.require_token", "false")).thenReturn("false");
 
-    assertThat(condition.matches(context, metadata)).isFalse();
+    assertThat(condition.matches(context, metadata)).isTrue();
   }
 
   @Test

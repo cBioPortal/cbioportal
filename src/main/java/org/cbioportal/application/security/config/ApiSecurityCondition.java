@@ -43,14 +43,13 @@ public class ApiSecurityCondition implements Condition {
     String authenticate = context.getEnvironment().getProperty("authenticate", "false");
     String requireToken = context.getEnvironment().getProperty("dat.require_token", "false");
 
-    boolean isAuthenticationEnabled =
-        !"false".equalsIgnoreCase(authenticate)
-            && !"optional_oauth2".equalsIgnoreCase(authenticate);
-
     boolean isTokenRequired = "true".equalsIgnoreCase(requireToken);
 
-    // API Security should be enabled if authentication is globally enabled OR if
-    // token is specifically required
-    return isAuthenticationEnabled || isTokenRequired;
+    // API Security should be enabled if authentication is enabled (including
+    // optional modes)
+    // OR if token is specifically required.
+    // The conditional matcher in ApiSecurityConfig handles the actual "skip" logic
+    // for session-based requests.
+    return !"false".equalsIgnoreCase(authenticate) || isTokenRequired;
   }
 }

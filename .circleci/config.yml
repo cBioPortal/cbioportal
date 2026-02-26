@@ -383,8 +383,8 @@ jobs:
               CBIOPORTAL_URL: http://localhost:8080
             command: |
               cd cbioportal/src/e2e/js
-              nvm install 18
-              nvm use 18
+              nvm install 22.18.0
+              nvm use 22.18.0
               npm install
               npm test
 

@@ -11,6 +11,6 @@ public interface ClickhouseCoExpressionMapper {
       @Param("cancerStudyIdentifierB") String cancerStudyIdentifierB,
       @Param("profileTypeB") String profileTypeB,
       @Param("hugoGeneSymbol") String hugoGeneSymbol,
-      @Param("sampleUniqueIds") List<String> sampleUniqueIds,
+      @Param("sampleUniqueIds") String[] sampleUniqueIds,
       @Param("threshold") Double threshold);
 }

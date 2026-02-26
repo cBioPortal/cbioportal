@@ -28,7 +28,7 @@ public class ClickhouseCoExpressionRepository implements CoExpressionRepository 
         cancerStudyIdentifierB,
         profileTypeB,
         hugoGeneSymbol,
-        sampleUniqueIds,
+        sampleUniqueIds != null ? sampleUniqueIds.toArray(new String[0]) : null,
         threshold);
   }
 }

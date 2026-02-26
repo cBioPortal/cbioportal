@@ -6,15 +6,17 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.domain.coexpression.usecase.FetchCoExpressionsUseCase;
 import org.cbioportal.legacy.model.CoExpression;
+import org.cbioportal.legacy.service.exception.GeneNotFoundException;
+import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,9 +34,8 @@ public class ColumnStoreCoExpressionController {
   @Hidden
   @PreAuthorize(
       "hasPermission(#molecularProfileIdA, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) and hasPermission(#molecularProfileIdB, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @RequestMapping(
+  @PostMapping(
       value = "/molecular-profiles/co-expressions/fetch",
-      method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<CoExpression>> fetchCoExpressions(
@@ -45,7 +46,7 @@ public class ColumnStoreCoExpressionController {
       @Parameter(required = true, description = "Co-Expression Filter") @Valid @RequestBody
           CoExpressionFilter coExpressionFilter,
       @Parameter(description = "Threshold") @RequestParam(defaultValue = "0.3") Double threshold)
-      throws Exception {
+      throws MolecularProfileNotFoundException, GeneNotFoundException {
 
     if (coExpressionFilter.getEntrezGeneId() == null) {
       return new ResponseEntity<>(List.of(), HttpStatus.OK);

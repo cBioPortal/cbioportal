@@ -109,13 +109,13 @@ public class FetchCoExpressionsUseCaseTest {
 
     verify(coExpressionRepository)
         .getCoExpressions(
-            eq("acc_tcga"),
-            eq("rna_seq_v2_mrna"),
-            eq("acc_tcga"),
-            eq("rna_seq_v2_mrna"),
-            eq("KRAS"),
-            eq(List.of("acc_tcga_TCGA-OR-A5J1-01", "acc_tcga_TCGA-OR-A5J2-01")),
-            eq(0.3));
+            "acc_tcga",
+            "rna_seq_v2_mrna",
+            "acc_tcga",
+            "rna_seq_v2_mrna",
+            "KRAS",
+            List.of("acc_tcga_TCGA-OR-A5J1-01", "acc_tcga_TCGA-OR-A5J2-01"),
+            0.3);
   }
 
   // --- execute() with sampleIds tests ---
@@ -186,13 +186,13 @@ public class FetchCoExpressionsUseCaseTest {
 
     verify(coExpressionRepository)
         .getCoExpressions(
-            eq("acc_tcga"),
-            eq("rna_seq_v2_mrna"),
-            eq("acc_tcga"),
-            eq("rna_seq_v2_mrna_median_Zscores"),
-            eq("KRAS"),
-            eq(List.of("acc_tcga_SAMPLE1")),
-            eq(0.3));
+            "acc_tcga",
+            "rna_seq_v2_mrna",
+            "acc_tcga",
+            "rna_seq_v2_mrna_median_Zscores",
+            "KRAS",
+            List.of("acc_tcga_SAMPLE1"),
+            0.3);
 
     // Different profiles: getMolecularProfile should be called twice
     verify(molecularProfileService, times(2)).getMolecularProfile(any());

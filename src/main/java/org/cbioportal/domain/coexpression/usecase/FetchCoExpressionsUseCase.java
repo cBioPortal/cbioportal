@@ -3,7 +3,6 @@ package org.cbioportal.domain.coexpression.usecase;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.math3.distribution.TDistribution;
 import org.cbioportal.domain.coexpression.repository.CoExpressionRepository;
 import org.cbioportal.infrastructure.repository.clickhouse.coexpression.CoExpressionResult;
@@ -85,9 +84,7 @@ public class FetchCoExpressionsUseCase {
     String hugoGeneSymbol = gene.getHugoGeneSymbol();
 
     List<String> sampleUniqueIds =
-        sampleIds.stream()
-            .map(sampleId -> cancerStudyIdentifierA + "_" + sampleId)
-            .collect(Collectors.toList());
+        sampleIds.stream().map(sampleId -> cancerStudyIdentifierA + "_" + sampleId).toList();
 
     List<CoExpressionResult> results =
         coExpressionRepository.getCoExpressions(
@@ -112,7 +109,7 @@ public class FetchCoExpressionsUseCase {
               coExpression.setpValue(BigDecimal.valueOf(pValue));
               return coExpression;
             })
-        .collect(Collectors.toList());
+        .toList();
   }
 
   static double computePValue(double r, int n) {

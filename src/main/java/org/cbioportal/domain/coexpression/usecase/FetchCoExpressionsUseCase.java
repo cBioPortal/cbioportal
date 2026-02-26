@@ -124,7 +124,7 @@ public class FetchCoExpressionsUseCase {
       return 0.0;
     }
     double t = r * Math.sqrt((n - 2.0) / (1.0 - rSquared));
-    TDistribution tDist = new TDistribution(n - 2);
+    TDistribution tDist = new TDistribution((double) n - 2);
     return 2.0 * tDist.cumulativeProbability(-Math.abs(t));
   }
 }

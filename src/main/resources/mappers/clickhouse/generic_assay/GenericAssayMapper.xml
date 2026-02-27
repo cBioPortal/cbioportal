@@ -154,4 +154,48 @@
             <result property="count" column="count"/>
         </collection>
     </resultMap>
+
+    <select id="getGenericAssayStableIdsByProfileIds" resultType="string">
+        SELECT DISTINCT entity_stable_id
+        FROM generic_assay_profile_entity_derived
+        WHERE profile_stable_id IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+    </select>
+
+    <resultMap id="GenericAssayMetaResultMap" type="org.cbioportal.legacy.model.meta.GenericAssayMeta">
+        <result property="stableId" column="stableId"/>
+        <result property="entityType" column="entityType"/>
+        <result property="genericEntityMetaProperties" column="properties"
+                typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseMapTypeHandler"/>
+    </resultMap>
+
+    <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap">
+        SELECT
+            entity_stable_id AS stableId,
+            entity_type AS entityType,
+            properties
+        FROM generic_assay_meta_derived
+        WHERE entity_stable_id IN
+            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+    </select>
+
+    <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
+        SELECT
+            gam.entity_stable_id AS stableId,
+            gam.entity_type AS entityType,
+            gam.properties
+        FROM generic_assay_meta_derived gam
+        WHERE gam.entity_stable_id IN (
+            SELECT DISTINCT entity_stable_id
+            FROM generic_assay_profile_entity_derived
+            WHERE profile_stable_id IN
+                <foreach item="item" collection="profileIds" open="(" separator="," close=")">#{item}</foreach>
+        )
+        <if test="stableIds != null and !stableIds.isEmpty()">
+            AND gam.entity_stable_id IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+    </select>
+
 </mapper>
+

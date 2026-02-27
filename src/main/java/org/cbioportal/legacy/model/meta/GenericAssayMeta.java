@@ -9,6 +9,9 @@ public class GenericAssayMeta implements Serializable {
   private String entityType;
   private HashMap<String, String> genericEntityMetaProperties;
 
+  /** No-arg constructor required for MyBatis result mapping (resultType and resultMap). */
+  public GenericAssayMeta() {}
+
   /**
    * Create a generic assay meta object from fields
    *

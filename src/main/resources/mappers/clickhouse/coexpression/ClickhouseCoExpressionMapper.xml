@@ -23,17 +23,15 @@
               </if>
         ),
         non_constant_genes AS (
-            SELECT d.hugo_gene_symbol
-            FROM genetic_alteration_derived d
-            INNER JOIN ref_values r ON d.sample_unique_id = r.sample_unique_id
-            WHERE d.cancer_study_identifier = #{cancerStudyIdentifierB}
-              AND d.profile_type = #{profileTypeB}
-              AND d.hugo_gene_symbol != #{hugoGeneSymbol}
-              AND d.alteration_value != '' AND d.alteration_value != 'NA'
-              AND toFloat64OrNull(d.alteration_value) IS NOT NULL
-            GROUP BY d.hugo_gene_symbol
-            HAVING count(*) >= 3
-               AND uniqExact(toFloat64OrNull(d.alteration_value)) > 1
+            SELECT hugo_gene_symbol
+            FROM genetic_alteration_derived
+            WHERE cancer_study_identifier = #{cancerStudyIdentifierB}
+              AND profile_type = #{profileTypeB}
+              AND hugo_gene_symbol != #{hugoGeneSymbol}
+              AND alteration_value != '' AND alteration_value != 'NA'
+              AND toFloat64OrNull(alteration_value) IS NOT NULL
+            GROUP BY hugo_gene_symbol
+            HAVING uniqExact(toFloat64OrNull(alteration_value)) > 1
         )
         SELECT
             g.entrez_gene_id AS entrezGeneId,
@@ -48,7 +46,8 @@
           AND d.alteration_value != '' AND d.alteration_value != 'NA'
           AND toFloat64OrNull(d.alteration_value) IS NOT NULL
         GROUP BY g.entrez_gene_id
-        HAVING uniq(toFloat64OrNull(d.alteration_value)) > count(*) / 2
+        HAVING count(*) >= 3
+           AND uniq(toFloat64OrNull(d.alteration_value)) > count(*) / 2
            AND isFinite(spearmansCorrelation)
            AND abs(spearmansCorrelation) >= #{threshold}
         ORDER BY abs(spearmansCorrelation) DESC

@@ -56,7 +56,7 @@ public interface GenericAssayRepository {
 
   /**
    * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
-   * IDs via generic_assay_data_derived.
+   * IDs via generic_assay_profile_entity_derived.
    *
    * @param molecularProfileIds the list of molecular profile stable IDs
    * @return a list of distinct entity stable IDs

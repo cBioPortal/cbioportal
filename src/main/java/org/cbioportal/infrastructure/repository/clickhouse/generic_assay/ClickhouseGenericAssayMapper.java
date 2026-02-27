@@ -78,8 +78,8 @@ public interface ClickhouseGenericAssayMapper {
   List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
 
   /**
-   * Resolves profile IDs → entity stable IDs via generic_assay_data_derived and joins with
-   * generic_assay_meta_derived in a single query.
+   * Resolves profile IDs → entity stable IDs via generic_assay_profile_entity_derived and joins
+   * with generic_assay_meta_derived in a single query.
    *
    * @param profileIds the list of molecular profile stable IDs
    * @param stableIds optional additional stable ID filter; {@code null} means no filter

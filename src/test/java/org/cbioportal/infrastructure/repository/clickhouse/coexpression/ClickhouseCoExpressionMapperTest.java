@@ -61,7 +61,7 @@ public class ClickhouseCoExpressionMapperTest {
         6,
         (int) braf.getNumSamples());
 
-    // KRAS should NOT be present (constant expression value filtered by uniqExact > 1)
+    // KRAS should NOT be present (constant expression value filtered by near-constant gene filter)
     CoExpressionResult kras =
         results.stream().filter(r -> r.getEntrezGeneId() == 3845).findFirst().orElse(null);
     assertNull("KRAS should be excluded (constant expression value)", kras);
@@ -144,7 +144,8 @@ public class ClickhouseCoExpressionMapperTest {
 
     CoExpressionResult kras =
         results.stream().filter(r -> r.getEntrezGeneId() == 3845).findFirst().orElse(null);
-    assertNull("Gene with constant expression should be excluded by uniqExact > 1 filter", kras);
+    assertNull(
+        "Gene with constant expression should be excluded by near-constant gene filter", kras);
   }
 
   @Test

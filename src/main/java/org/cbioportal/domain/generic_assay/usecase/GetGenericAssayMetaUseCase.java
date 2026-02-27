@@ -35,8 +35,8 @@ public class GetGenericAssayMetaUseCase {
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()",
       key =
-          "{#stableIds == null ? null : new java.util.TreeSet(#stableIds),"
-              + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds),"
+          "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
+              + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
               + " #projection}")
   public List<GenericAssayMeta> execute(
       List<String> stableIds, List<String> molecularProfileIds, String projection) {

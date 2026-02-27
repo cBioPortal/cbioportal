@@ -10,7 +10,11 @@
             type_of_cancer.name AS "${prefix}name",
             type_of_cancer.dedicated_color AS "${prefix}dedicatedColor",
             type_of_cancer.short_name AS "${prefix}shortName",
-            type_of_cancer.parent AS "${prefix}parent"
+            type_of_cancer.parent AS "${prefix}parent",
+            type_of_cancer.version AS "${prefix}version",
+            type_of_cancer.status AS "${prefix}status",
+            type_of_cancer.history AS "${prefix}history",
+            type_of_cancer.uri AS "${prefix}uri"
         </if>
     </sql>
 

@@ -1,5 +1,5 @@
-insert into type_of_cancer (type_of_cancer_id,name,dedicated_color,short_name,parent) values ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
-insert into type_of_cancer (type_of_cancer_id,name,dedicated_color,short_name,parent) values ('acc','Adrenocortical Carcinoma','Purple','ACC','adrenal_gland');
+insert into type_of_cancer (type_of_cancer_id,name,dedicated_color,short_name,parent,version,status,history,uri) values ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue','v1','RELEASED','[]','http://oncotree.info/#/brca');
+insert into type_of_cancer (type_of_cancer_id,name,dedicated_color,short_name,parent,version,status,history,uri) values ('acc','Adrenocortical Carcinoma','Purple','ACC','adrenal_gland','v1','RELEASED','[]','http://oncotree.info/#/acc');
 
 insert into `reference_genome` values (1, 'human', 'hg19', 'GRCh37', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips', '2009-02-01 00:00:00');
 insert into `reference_genome` values (2, 'human', 'hg38', 'GRCh38', NULL, 'http://hgdownload.cse.ucsc.edu/goldenPath/hg38/bigZips', '2013-12-01 00:00:00');

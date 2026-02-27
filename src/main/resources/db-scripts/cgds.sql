@@ -105,6 +105,10 @@ CREATE TABLE `type_of_cancer` (
   `DEDICATED_COLOR` char(31) NOT NULL,
   `SHORT_NAME` varchar(127),
   `PARENT` varchar(63),
+  `VERSION` varchar(31) DEFAULT NULL,
+  `STATUS` varchar(31) DEFAULT NULL,
+  `HISTORY` text DEFAULT NULL,
+  `URI` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`TYPE_OF_CANCER_ID`)
 );
 

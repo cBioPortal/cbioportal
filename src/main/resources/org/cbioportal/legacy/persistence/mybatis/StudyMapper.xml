@@ -42,7 +42,11 @@
             ANY_VALUE(type_of_cancer.name) AS "typeOfCancer.name",
             ANY_VALUE(type_of_cancer.dedicated_color) AS "typeOfCancer.dedicatedColor",
             ANY_VALUE(type_of_cancer.short_name) AS "typeOfCancer.shortName",
-            ANY_VALUE(type_of_cancer.parent) AS "typeOfCancer.parent"
+            ANY_VALUE(type_of_cancer.parent) AS "typeOfCancer.parent",
+            ANY_VALUE(type_of_cancer.version) AS "typeOfCancer.version",
+            ANY_VALUE(type_of_cancer.status) AS "typeOfCancer.status",
+            ANY_VALUE(type_of_cancer.history) AS "typeOfCancer.history",
+            ANY_VALUE(type_of_cancer.uri) AS "typeOfCancer.uri"
         </if>
     </sql>
 

@@ -33,7 +33,7 @@
               AND toFloat64OrNull(d.alteration_value) IS NOT NULL
             GROUP BY d.hugo_gene_symbol
             HAVING count(*) >= 3
-               AND uniqExact(toFloat64OrNull(d.alteration_value)) > count(*) / 2
+               AND uniqExact(toFloat64OrNull(d.alteration_value)) > 1
         )
         SELECT
             g.entrez_gene_id AS entrezGeneId,
@@ -48,7 +48,8 @@
           AND d.alteration_value != '' AND d.alteration_value != 'NA'
           AND toFloat64OrNull(d.alteration_value) IS NOT NULL
         GROUP BY g.entrez_gene_id
-        HAVING isFinite(spearmansCorrelation)
+        HAVING uniq(toFloat64OrNull(d.alteration_value)) > count(*) / 2
+           AND isFinite(spearmansCorrelation)
            AND abs(spearmansCorrelation) >= #{threshold}
         ORDER BY abs(spearmansCorrelation) DESC
     </select>

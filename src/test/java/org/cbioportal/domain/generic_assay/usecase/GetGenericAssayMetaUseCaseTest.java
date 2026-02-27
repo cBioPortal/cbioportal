@@ -37,12 +37,12 @@ public class GetGenericAssayMetaUseCaseTest {
   @Mock private GenericAssayRepository repository;
 
   private List<GenericAssayMeta> createMockMetaList() {
-    GenericAssayMeta meta1 = new GenericAssayMeta(GENERIC_ASSAY_ID_1, ENTITY_TYPE);
+    GenericAssayMeta meta1 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_ID_1);
     HashMap<String, String> map1 = new HashMap<>();
     map1.put(PROPERTY_NAME_1, PROPERTY_VALUE_1);
     meta1.setGenericEntityMetaProperties(map1);
 
-    GenericAssayMeta meta2 = new GenericAssayMeta(GENERIC_ASSAY_ID_2, ENTITY_TYPE);
+    GenericAssayMeta meta2 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_ID_2);
     HashMap<String, String> map2 = new HashMap<>();
     map2.put(PROPERTY_NAME_2, PROPERTY_VALUE_2);
     meta2.setGenericEntityMetaProperties(map2);

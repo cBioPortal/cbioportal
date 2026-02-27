@@ -10,7 +10,7 @@ jobs:
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
     steps:
       - name: 'Checkout cbioportal repo'
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: ./cbioportal
       - name: 'Set up JDK 21'

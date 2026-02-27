@@ -41,8 +41,7 @@
 
     <select id="getCancerStudyGroups" resultType="String">
         SELECT
-            `groups`,
-            `download_groups`
+            `groups`
         FROM cancer_study
         WHERE cancer_study_id = #{internalCancerStudyId}
     </select>

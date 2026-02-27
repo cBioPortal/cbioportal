@@ -100,4 +100,66 @@ public class CancerStudyPermissionEvaluatorTest {
     boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
     assertTrue("TCGA Superuser should have DOWNLOAD access to TCGA study", allowed);
   }
+
+  @Test
+  public void testGlobalDownloadGroupRequiredDeniesWithoutGroup() {
+    // Reconfigure evaluator to require a global DOWNLOAD_GROUP
+    evaluator = new CancerStudyPermissionEvaluator(null, "false", null, "GLOBAL_DOWNLOAD", null);
+    CancerStudy study = new CancerStudy();
+    study.setCancerStudyIdentifier("study1");
+    study.setGroups("PUBLIC"); // User with PUBLIC should have READ access
+
+    // User has READ (PUBLIC) but lacks the global DOWNLOAD_GROUP
+    when(authentication.getAuthorities())
+        .thenReturn(
+            (java.util.Collection)
+                java.util.Collections.singletonList(new SimpleGrantedAuthority("PUBLIC")));
+
+    boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
+    assertFalse(
+        "Should deny DOWNLOAD when a global download group is required and user lacks it", allowed);
+  }
+
+  @Test
+  public void testGlobalDownloadGroupRequiredAllowsWithGroup() {
+    // Reconfigure evaluator to require a global DOWNLOAD_GROUP
+    evaluator = new CancerStudyPermissionEvaluator(null, "false", null, "GLOBAL_DOWNLOAD", null);
+    CancerStudy study = new CancerStudy();
+    study.setCancerStudyIdentifier("study1");
+    study.setGroups("PUBLIC"); // User with PUBLIC should have READ access
+
+    // User has both READ (PUBLIC) and the global DOWNLOAD_GROUP
+    when(authentication.getAuthorities())
+        .thenReturn(
+            (java.util.Collection)
+                java.util.Arrays.asList(
+                    new SimpleGrantedAuthority("PUBLIC"),
+                    new SimpleGrantedAuthority("GLOBAL_DOWNLOAD")));
+
+    boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
+    assertTrue(
+        "Should allow DOWNLOAD when a global download group is required and user has it", allowed);
+  }
+
+  @Test
+  public void testStudySpecificDownloadGroupsCasingAndWhitespace() {
+    evaluator = new CancerStudyPermissionEvaluator(null, "false", null, null, null);
+    CancerStudy study = new CancerStudy();
+    study.setCancerStudyIdentifier("study1");
+    study.setGroups("PUBLIC");
+    study.setDownloadGroups(" restricted_group ; second_group ");
+
+    // User has the group but in different casing
+    when(authentication.getAuthorities())
+        .thenReturn(
+            (java.util.Collection)
+                java.util.Arrays.asList(
+                    new SimpleGrantedAuthority("PUBLIC"),
+                    new SimpleGrantedAuthority("RESTRICTED_GROUP")));
+
+    boolean allowed = evaluator.hasPermission(authentication, study, AccessLevel.DOWNLOAD);
+    assertTrue(
+        "Should allow DOWNLOAD when study-specific groups match with different casing or whitespace",
+        allowed);
+  }
 }

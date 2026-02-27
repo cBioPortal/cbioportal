@@ -454,28 +454,27 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         return true;
       }
 
-      // 3. Specific Download Groups check
+      // 3. Global DOWNLOAD_GROUP check (Strict Requirement if configured)
+      if (DOWNLOAD_GROUP != null
+          && !DOWNLOAD_GROUP.isEmpty()
+          && !grantedAuthorities.contains(DOWNLOAD_GROUP.toUpperCase())) {
+        return false;
+      }
+
+      // 4. Specific Download Groups check
       String downloadGroups = cancerStudy.getDownloadGroups();
       if (downloadGroups != null && !downloadGroups.isEmpty()) {
         Set<String> dGroups =
             Arrays.stream(downloadGroups.split(";"))
+                .map(String::trim)
                 .filter(g -> !g.isEmpty())
+                .map(String::toUpperCase)
                 .collect(Collectors.toSet());
-        if (!Collections.disjoint(dGroups, grantedAuthorities)) {
-          return true;
-        }
+        return !Collections.disjoint(dGroups, grantedAuthorities);
       }
 
-      // 4. Default DOWNLOAD_GROUP check
-      if (DOWNLOAD_GROUP != null
-          && !DOWNLOAD_GROUP.isEmpty()
-          && grantedAuthorities.contains(DOWNLOAD_GROUP.toUpperCase())) {
-        return true;
-      }
-
-      // If download_groups is NOT set, everyone with READ access can download
-      // (Unless a global DOWNLOAD_GROUP is required and user lacks it, handled above)
-      return (downloadGroups == null || downloadGroups.isEmpty());
+      // If no study-specific download_groups are set, user can download (provided they have READ)
+      return true;
     }
 
     if (log.isDebugEnabled()) {

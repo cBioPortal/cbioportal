@@ -60,6 +60,10 @@ public class FetchCoExpressionsUseCase {
       Double threshold)
       throws MolecularProfileNotFoundException, GeneNotFoundException {
 
+    if (sampleIds == null || sampleIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     MolecularProfile profileA = molecularProfileService.getMolecularProfile(molecularProfileIdA);
     String cancerStudyIdentifierA = profileA.getCancerStudyIdentifier();
     String profileTypeA = molecularProfileIdA.substring(cancerStudyIdentifierA.length() + 1);

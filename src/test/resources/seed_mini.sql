@@ -69,7 +69,7 @@ DELETE FROM type_of_cancer;
 DELETE FROM genetic_entity;
 
 -- type_of_cancer
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT","VERSION","STATUS","HISTORY","URI") VALUES ('acc','Adrenocortical Carcinoma','Purple','ACC','tissue','v1','RELEASED','[]','http://oncotree.info/#/acc');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acbc','Adenoid Cystic Breast Cancer','HotPink','ACBC','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('acyc','Adenoid Cystic Carcinoma','DarkRed','ACyC','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('aeca','Sweat Gland Carcinoma (Apocrine Eccrine Carcinoma)','Black','AECA','tissue');
@@ -79,7 +79,7 @@ INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHOR
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blad','Bladder Urothelial Adenocarcinoma','Yellow','Bladder','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('blca','Bladder Urothelial Carcinoma','Yellow','Bladder','tissue');
 INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('bpdcn','Blastic Plasmacytoid Dendritic Cell Neoplasm','LightSalmon','BPDCN','tissue');
-INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT") VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue');
+INSERT INTO "type_of_cancer" ("TYPE_OF_CANCER_ID","NAME","DEDICATED_COLOR","SHORT_NAME","PARENT","VERSION","STATUS","HISTORY","URI") VALUES ('brca','Breast Invasive Carcinoma','HotPink','Breast','tissue','v1','RELEASED','[]','http://oncotree.info/#/brca');
 
 -- reference_genome
 INSERT INTO `reference_genome` VALUES (1,'human','hg19','GRCh37',2897310462,'http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips','2009-02-01');

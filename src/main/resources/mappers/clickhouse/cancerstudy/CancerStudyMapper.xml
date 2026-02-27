@@ -74,7 +74,11 @@
             type_of_cancer.name AS type_of_cancer_name,
             type_of_cancer.dedicated_color AS type_of_cancer_dedicated_color,
             type_of_cancer.short_name AS type_of_cancer_short_name,
-            type_of_cancer.parent AS type_of_cancer_parent
+            type_of_cancer.parent AS type_of_cancer_parent,
+            type_of_cancer.version AS type_of_cancer_version,
+            type_of_cancer.status AS type_of_cancer_status,
+            type_of_cancer.history AS type_of_cancer_history,
+            type_of_cancer.uri AS type_of_cancer_uri
             
         FROM cancer_study AS cs
         INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
@@ -104,7 +108,8 @@
         miRnaSampleCount,mrnaMicroarraySampleCount, methylationHm27SampleCount,
         rppaSampleCount, massSpectrometrySampleCount,completeSampleCount, 
         mrnaRnaSeqSampleCount,type_of_cancer.name, type_of_cancer.dedicated_color,
-        type_of_cancer.short_name, type_of_cancer.parent
+        type_of_cancer.short_name, type_of_cancer.parent, type_of_cancer.version,
+        type_of_cancer.status, type_of_cancer.history, type_of_cancer.uri
 
         <if test="sortAndSearchCriteria.isSortable()">
             ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
@@ -143,7 +148,11 @@
         type_of_cancer.name AS type_of_cancer_name,
         type_of_cancer.dedicated_color AS type_of_cancer_dedicated_color,
         type_of_cancer.short_name AS type_of_cancer_short_name,
-        type_of_cancer.parent AS type_of_cancer_parent
+        type_of_cancer.parent AS type_of_cancer_parent,
+        type_of_cancer.version AS type_of_cancer_version,
+        type_of_cancer.status AS type_of_cancer_status,
+        type_of_cancer.history AS type_of_cancer_history,
+        type_of_cancer.uri AS type_of_cancer_uri
 
         FROM cancer_study AS cs
         INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
@@ -232,6 +241,10 @@
             <arg column="type_of_cancer_dedicated_color" javaType="String" />
             <arg column="type_of_cancer_short_name" javaType="String" />
             <arg column="type_of_cancer_parent" javaType="String" />
+            <arg column="type_of_cancer_version" javaType="String" />
+            <arg column="type_of_cancer_status" javaType="String" />
+            <arg column="type_of_cancer_history" javaType="String" />
+            <arg column="type_of_cancer_uri" javaType="String" />
         </constructor>
     </resultMap>
 

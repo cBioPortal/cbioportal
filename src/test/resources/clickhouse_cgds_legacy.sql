@@ -57,7 +57,11 @@ CREATE TABLE type_of_cancer (
   name String,
   dedicated_color String,
   short_name Nullable(String),
-  parent Nullable(String)
+  parent Nullable(String),
+  version Nullable(String),
+  status Nullable(String),
+  history Nullable(String),
+  uri Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY type_of_cancer_id;
 

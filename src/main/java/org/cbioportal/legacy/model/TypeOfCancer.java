@@ -10,6 +10,10 @@ public class TypeOfCancer implements Serializable {
   private String dedicatedColor;
   private String shortName;
   private String parent;
+  private String version;
+  private String status;
+  private String history;
+  private String uri;
 
   public String getTypeOfCancerId() {
     return typeOfCancerId;
@@ -49,5 +53,37 @@ public class TypeOfCancer implements Serializable {
 
   public void setParent(String parent) {
     this.parent = parent;
+  }
+
+  public String getVersion() {
+    return version;
+  }
+
+  public void setVersion(String version) {
+    this.version = version;
+  }
+
+  public String getStatus() {
+    return status;
+  }
+
+  public void setStatus(String status) {
+    this.status = status;
+  }
+
+  public String getHistory() {
+    return history;
+  }
+
+  public void setHistory(String history) {
+    this.history = history;
+  }
+
+  public String getUri() {
+    return uri;
+  }
+
+  public void setUri(String uri) {
+    this.uri = uri;
   }
 }

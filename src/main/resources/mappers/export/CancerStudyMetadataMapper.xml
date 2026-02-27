@@ -24,7 +24,11 @@
             ct.name AS name,
             ct.dedicated_color AS dedicatedColor,
             ct.short_name AS shortName,
-            ct.parent AS parent
+            ct.parent AS parent,
+            ct.version AS version,
+            ct.status AS status,
+            ct.history AS history,
+            ct.uri AS uri
         FROM cancer_study cs
         JOIN type_of_cancer ct ON ct.type_of_cancer_id = cs.type_of_cancer_id
         WHERE cs.cancer_study_identifier = #{studyId}
@@ -37,7 +41,11 @@
             parent_ct.name AS name,
             parent_ct.dedicated_color AS dedicatedColor,
             parent_ct.short_name AS shortName,
-            parent_ct.parent AS parent
+            parent_ct.parent AS parent,
+            parent_ct.version AS version,
+            parent_ct.status AS status,
+            parent_ct.history AS history,
+            parent_ct.uri AS uri
         FROM type_of_cancer parent_ct
         JOIN cancer_type_hierarchy cth ON cth.parent = parent_ct.type_of_cancer_id
         )

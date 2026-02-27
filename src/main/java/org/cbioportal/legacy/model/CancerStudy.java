@@ -16,6 +16,7 @@ public class CancerStudy implements ReadPermission, Serializable {
   private String pmid;
   private String citation;
   private String groups;
+  private String downloadGroups;
   private Integer status;
   private Date importDate;
   private TypeOfCancer typeOfCancer;
@@ -106,6 +107,14 @@ public class CancerStudy implements ReadPermission, Serializable {
 
   public void setGroups(String groups) {
     this.groups = groups;
+  }
+
+  public String getDownloadGroups() {
+    return downloadGroups;
+  }
+
+  public void setDownloadGroups(String downloadGroups) {
+    this.downloadGroups = downloadGroups;
   }
 
   public Integer getStatus() {

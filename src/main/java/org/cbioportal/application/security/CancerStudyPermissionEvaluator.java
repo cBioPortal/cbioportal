@@ -97,6 +97,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
   private final String FILTER_GROUPS_BY_APP_NAME;
 
   private final String PUBLIC_CANCER_STUDIES_GROUP;
+  private final String DOWNLOAD_GROUP;
 
   //    @Value("${always_show_study_group:}")
   //    private void setPublicCancerStudiesGroup(String property) {
@@ -114,10 +115,12 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       final String appName,
       final String doFilterGroupsByAppName,
       final String alwaysShowCancerStudyGroup,
+      final String downloadGroup,
       final CacheMapUtil cacheMapUtil) {
     this.APP_NAME = appName;
     this.FILTER_GROUPS_BY_APP_NAME = doFilterGroupsByAppName;
     this.PUBLIC_CANCER_STUDIES_GROUP = alwaysShowCancerStudyGroup;
+    this.DOWNLOAD_GROUP = downloadGroup;
     this.cacheMapUtil = cacheMapUtil;
   }
 
@@ -427,6 +430,54 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     Set<String> grantedAuthorities = getGrantedAuthorities(authentication);
     String stableStudyID = cancerStudy.getCancerStudyIdentifier();
+
+    if (AccessLevel.DOWNLOAD == permission) {
+      if (!hasAccessToCancerStudy(authentication, cancerStudy, AccessLevel.READ)) {
+        return false;
+      }
+
+      // 1. Superuser Check (Move this to the top)
+      if (grantedAuthorities.contains(ALL_CANCER_STUDIES_ID.toUpperCase())) {
+        return true;
+      }
+
+      // 2. TCGA/TARGET Superuser checks
+      if (grantedAuthorities.contains(ALL_TCGA_CANCER_STUDIES_ID.toUpperCase())
+          && (stableStudyID != null && stableStudyID.toUpperCase().endsWith("_TCGA"))) {
+        return true;
+      }
+      if (grantedAuthorities.contains(ALL_TARGET_CANCER_STUDIES_ID.toUpperCase())
+          && (stableStudyID != null
+              && (stableStudyID.toUpperCase().endsWith("_TARGET")
+                  || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1")
+                  || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2")))) {
+        return true;
+      }
+
+      // 3. Specific Download Groups check
+      String downloadGroups = cancerStudy.getDownloadGroups();
+      if (downloadGroups != null && !downloadGroups.isEmpty()) {
+        Set<String> dGroups =
+            Arrays.stream(downloadGroups.split(";"))
+                .filter(g -> !g.isEmpty())
+                .collect(Collectors.toSet());
+        if (!Collections.disjoint(dGroups, grantedAuthorities)) {
+          return true;
+        }
+      }
+
+      // 4. Default DOWNLOAD_GROUP check
+      if (DOWNLOAD_GROUP != null
+          && !DOWNLOAD_GROUP.isEmpty()
+          && grantedAuthorities.contains(DOWNLOAD_GROUP.toUpperCase())) {
+        return true;
+      }
+
+      // If download_groups is NOT set, everyone with READ access can download
+      // (Unless a global DOWNLOAD_GROUP is required and user lacks it, handled above)
+      return (downloadGroups == null || downloadGroups.isEmpty());
+    }
+
     if (log.isDebugEnabled()) {
       log.debug("hasAccessToCancerStudy(), cancer study stable id: " + stableStudyID);
       log.debug("hasAccessToCancerStudy(), user: " + authentication.getPrincipal().toString());
@@ -471,8 +522,12 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     // groups)
     // need to filter out empty groups, this can cause issue if grantedAuthorities and groups both
     // contain empty string
+    String cancerStudyGroups = cancerStudy.getGroups();
+    if (cancerStudyGroups == null || cancerStudyGroups.isEmpty()) {
+      return false;
+    }
     Set<String> groups =
-        Arrays.stream(cancerStudy.getGroups().split(";"))
+        Arrays.stream(cancerStudyGroups.split(";"))
             .filter(g -> !g.isEmpty())
             .collect(Collectors.toSet());
     if (!Collections.disjoint(groups, grantedAuthorities)) {

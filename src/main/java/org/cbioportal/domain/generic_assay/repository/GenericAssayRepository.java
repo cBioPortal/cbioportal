@@ -5,6 +5,7 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 
@@ -52,4 +53,35 @@ public interface GenericAssayRepository {
   List<GenericAssayDataCountItem> getGenericAssayDataCounts(
       StudyViewFilterContext studyViewFilterContext,
       List<GenericAssayDataFilter> genericAssayDataFilters);
+
+  /**
+   * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
+   * IDs via generic_assay_data_derived.
+   *
+   * @param molecularProfileIds the list of molecular profile stable IDs
+   * @return a list of distinct entity stable IDs
+   */
+  List<String> getGenericAssayStableIdsByProfileIds(List<String> molecularProfileIds);
+
+  /**
+   * Retrieves generic assay meta data (with pre-aggregated properties) for the given entity stable
+   * IDs from the generic_assay_meta_derived table.
+   *
+   * @param stableIds the list of entity stable IDs
+   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   */
+  List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
+
+  /**
+   * Retrieves generic assay meta data for entities belonging to the given molecular profile IDs in
+   * a single query. Resolves profile → entity via generic_assay_data_derived, then joins with
+   * generic_assay_meta_derived for pre-aggregated properties. When {@code stableIds} is non-null,
+   * results are further filtered to only those stable IDs.
+   *
+   * @param profileIds the list of molecular profile stable IDs (must be non-empty)
+   * @param stableIds optional additional filter; pass {@code null} to return all entities
+   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   */
+  List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds);
 }

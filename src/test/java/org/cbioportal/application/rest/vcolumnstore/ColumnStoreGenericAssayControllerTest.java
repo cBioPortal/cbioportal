@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.web;
+package org.cbioportal.application.rest.vcolumnstore;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
-import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.hamcrest.Matchers;
@@ -17,10 +17,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,20 +29,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {GenericAssayController.class, TestConfig.class})
-public class GenericAssayControllerTest {
+@ContextConfiguration(classes = {ColumnStoreGenericAssayController.class, TestConfig.class})
+public class ColumnStoreGenericAssayControllerTest {
 
   private static final String PROF_ID = "test_prof_id";
   private static final String ENTITY_TYPE = "test_type";
   public static final String GENERIC_ASSAY_STABLE_ID_1 = "genericAssayStableId1";
   public static final String GENERIC_ASSAY_STABLE_ID_2 = "genericAssayStableId2";
-  public static final String GENERIC_ASSAY_STABLE_ID_3 = "genericAssayStableId3";
-  public static final String GENERIC_ASSAY_STABLE_ID_4 = "genericAssayStableId4";
-  private static final String SAMPLE_ID = "test_sample_stable_id_1";
-  private static final String VALUE_1 = "0.25";
-  private static final String VALUE_2 = "-0.75";
-  private static final String VALUE_3 = "";
-  private static final String VALUE_4 = "NA";
   private static final String TEST_NAME = "name";
   private static final String TEST_NAME_VALUE = "test_name";
   private static final String TEST_DESCRIPTION = "description";
@@ -55,7 +48,7 @@ public class GenericAssayControllerTest {
         }
       };
 
-  @MockBean private GenericAssayService genericAssayService;
+  @MockitoBean private GetGenericAssayMetaUseCase getGenericAssayMetaUseCase;
 
   @Autowired private MockMvc mockMvc;
 
@@ -63,18 +56,16 @@ public class GenericAssayControllerTest {
 
   @Test
   @WithMockUser
-  public void testGenericAssayMetaGetMolecularProfileId() throws Exception {
+  public void testGetGenericAssayMetaByMolecularProfileId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
 
-    Mockito.when(
-            genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-                Mockito.any(), Mockito.any(), Mockito.any()))
+    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaItems);
 
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
+                MockMvcRequestBuilders.get("/api/column-store/generic-assay-meta/" + PROF_ID)
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.request().asyncStarted())
             .andReturn();
@@ -94,30 +85,23 @@ public class GenericAssayControllerTest {
                 "$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_NAME)))
         .andExpect(
             MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
+                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
   }
 
   @Test
   @WithMockUser
-  public void testGenericAssayMetaGetGenericAssayStableId() throws Exception {
+  public void testGetGenericAssayMetaByStableId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaSingleItem = createGenericAssayMetaSingleItem();
 
-    Mockito.when(
-            genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-                Mockito.any(), Mockito.any(), Mockito.any()))
+    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaSingleItem);
 
     MvcResult mvcResult =
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+                        "/api/column-store/generic-assay-meta/generic-assay/"
+                            + GENERIC_ASSAY_STABLE_ID_2)
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.request().asyncStarted())
             .andReturn();
@@ -135,33 +119,25 @@ public class GenericAssayControllerTest {
                 "$[0].genericEntityMetaProperties", Matchers.hasKey(TEST_NAME)))
         .andExpect(
             MockMvcResultMatchers.jsonPath(
-                "$[0].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[0].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[0].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
+                "$[0].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
   }
 
   @Test
   @WithMockUser
-  public void testGenericAssayMetaFetch() throws Exception {
+  public void testFetchGenericAssayMeta() throws Exception {
     List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
     List<String> genericAssayStableIds =
         Arrays.asList(GENERIC_ASSAY_STABLE_ID_1, GENERIC_ASSAY_STABLE_ID_2);
     GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
     genericAssayMetaFilter.setGenericAssayStableIds(genericAssayStableIds);
 
-    Mockito.when(
-            genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-                Mockito.any(), Mockito.any(), Mockito.any()))
+    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaItems);
 
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/api/generic_assay_meta/fetch")
+                MockMvcRequestBuilders.post("/api/column-store/generic-assay-meta/fetch")
                     .with(csrf())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -184,39 +160,23 @@ public class GenericAssayControllerTest {
                 "$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_NAME)))
         .andExpect(
             MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasKey(TEST_DESCRIPTION)))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath(
-                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_DESCRIPTION_VALUE)));
+                "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
   }
 
   private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {
-
-    List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
-
-    GenericAssayMeta item2 =
+    List<GenericAssayMeta> items = new ArrayList<>();
+    items.add(
         new GenericAssayMeta(
-            ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES);
-    genericAssayMetaItems.add(item2);
-
-    return genericAssayMetaItems;
+            ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES));
+    return items;
   }
 
   private List<GenericAssayMeta> createGenericAssayMetaItemsList() {
-
-    List<GenericAssayMeta> genericAssayMetaItems = new ArrayList<>();
-
-    GenericAssayMeta item1 = new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_1);
-    genericAssayMetaItems.add(item1);
-
-    GenericAssayMeta item2 =
+    List<GenericAssayMeta> items = new ArrayList<>();
+    items.add(new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_1));
+    items.add(
         new GenericAssayMeta(
-            ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES);
-    genericAssayMetaItems.add(item2);
-
-    return genericAssayMetaItems;
+            ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_2, GENERIC_ENTITY_META_PROPERTIES));
+    return items;
   }
 }

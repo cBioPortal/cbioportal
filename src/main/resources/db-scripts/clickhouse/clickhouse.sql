@@ -1,4 +1,4 @@
--- version 1.0.7 of derived table schema and data definition
+-- version 1.0.8 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -745,6 +745,45 @@ EXCHANGE TABLES clinical_event_BACKUP AND clinical_event;
 --END: PRIMARY KEY ADDITIONS
 
 
+DROP TABLE IF EXISTS generic_assay_profile_entity_derived;
+CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived
+(
+    profile_stable_id LowCardinality(String),
+    entity_stable_id  String
+) ENGINE = MergeTree()
+  ORDER BY (profile_stable_id, entity_stable_id);
+
+INSERT INTO generic_assay_profile_entity_derived
+SELECT DISTINCT
+    gp.stable_id AS profile_stable_id,
+    ge.stable_id AS entity_stable_id
+FROM genetic_alteration ga
+    JOIN genetic_profile gp ON ga.genetic_profile_id = gp.genetic_profile_id
+    JOIN genetic_entity ge ON ga.genetic_entity_id = ge.id
+WHERE gp.genetic_alteration_type = 'GENERIC_ASSAY';
+
+DROP TABLE IF EXISTS generic_assay_meta_derived;
+CREATE TABLE IF NOT EXISTS generic_assay_meta_derived
+(
+    entity_stable_id String,
+    entity_type LowCardinality(String),
+    properties Map(String, String)
+) ENGINE = MergeTree()
+  ORDER BY (entity_stable_id);
+
+INSERT INTO generic_assay_meta_derived
+SELECT
+    ge.stable_id AS entity_stable_id,
+    ge.entity_type AS entity_type,
+    CAST(
+        (groupArray(gep.name), groupArray(gep.value))
+        AS Map(String, String)
+    ) AS properties
+FROM genetic_entity ge
+LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
+WHERE ge.entity_type = 'GENERIC_ASSAY'
+GROUP BY ge.stable_id, ge.entity_type;
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
@@ -753,3 +792,5 @@ OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
 OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;
+OPTIMIZE TABLE generic_assay_profile_entity_derived;
+OPTIMIZE TABLE generic_assay_meta_derived;

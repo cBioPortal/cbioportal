@@ -32,27 +32,66 @@
 
 package org.cbioportal.application.security.token;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+import io.opentracing.Span;
+import io.opentracing.Tracer;
+import io.opentracing.util.GlobalTracer;
+import java.lang.reflect.Field;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DatadogTraceServiceTest {
 
+  private Tracer mockTracer;
+  private Span mockSpan;
+
   @Before
   public void setUp() throws Exception {
-    // Reset GlobalTracer if needed (difficult in some environments, but we can try)
-    // For unit testing, we mostly want to ensure it doesn't crash even if tracer is
-    // absent
+    mockTracer = mock(Tracer.class);
+    mockSpan = mock(Span.class);
+    when(mockTracer.activeSpan()).thenReturn(mockSpan);
+
+    // Use reflection to register the mock tracer if GlobalTracer is already
+    // registered
+    // This is necessary because GlobalTracer.register() can only be called once.
+    try {
+      Field tracerField = GlobalTracer.class.getDeclaredField("tracer");
+      tracerField.setAccessible(true);
+      tracerField.set(null, mockTracer);
+
+      Field isRegisteredField = GlobalTracer.class.getDeclaredField("isRegistered");
+      isRegisteredField.setAccessible(true);
+      isRegisteredField.set(null, true);
+    } catch (Exception e) {
+      // Fallback to standard registration if reflection fails
+      GlobalTracer.registerIfAbsent(mockTracer);
+    }
   }
 
   @Test
-  public void tagCurrentSpan_doesNotThrowWhenTracerAbsent() {
+  public void tagCurrentSpan_setsTagsWhenTracerAndSpanPresent() {
     DatadogTraceService.tagCurrentSpan("user1", "token");
-    // Should pass silently
+
+    verify(mockSpan).setTag("usr.id", "user1");
+    verify(mockSpan).setTag("auth_method", "token");
   }
 
   @Test
-  public void tagCurrentSpan_handlesNullUser() {
+  public void tagCurrentSpan_doesNotThrowWhenSpanNull() {
+    when(mockTracer.activeSpan()).thenReturn(null);
+
+    DatadogTraceService.tagCurrentSpan("user1", "token");
+    // Should return early and not crash
+    verify(mockSpan, never()).setTag(anyString(), anyString());
+  }
+
+  @Test
+  public void tagCurrentSpan_handlesNullOrEmptyUser() {
     DatadogTraceService.tagCurrentSpan(null, "token");
-    // Should return early
+    DatadogTraceService.tagCurrentSpan("", "token");
+
+    verify(mockSpan, never()).setTag(anyString(), anyString());
   }
 }

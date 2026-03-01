@@ -32,7 +32,6 @@
 
 package org.cbioportal.application.security.token;
 
-import datadog.trace.api.interceptor.MutableSpan;
 import io.opentracing.Span;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
@@ -40,19 +39,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tool-agnostic service that maps MDC context fields (user, auth_method) to the active Datadog
- * trace span for API usage telemetry.
+ * Tool-agnostic service that maps MDC context fields (user, auth_method) to the active trace span
+ * for API usage telemetry.
  */
-public class DatadogTraceService {
+public final class DatadogTraceService {
 
   private static final Logger LOG = LoggerFactory.getLogger(DatadogTraceService.class);
+  private static final String TAG_USER_ID = "usr.id";
+  private static final String TAG_AUTH_METHOD = "auth_method";
 
   private DatadogTraceService() {
     // Utility class - not instantiable.
   }
 
   /**
-   * Tags the currently active Datadog span with user identity and authentication method.
+   * Tags the currently active span with user identity and authentication method.
    *
    * @param user the authenticated username
    * @param authMethod the authentication method used
@@ -61,25 +62,20 @@ public class DatadogTraceService {
     if (user == null || user.isEmpty()) {
       return;
     }
-    try {
-      Tracer tracer = GlobalTracer.get();
-      if (tracer == null) {
-        return;
-      }
-      Span span = tracer.activeSpan();
-      if (span == null) {
-        return;
-      }
-      if (span instanceof MutableSpan mutableSpan) {
-        mutableSpan.setTag("usr.id", user);
-        mutableSpan.setTag("auth_method", authMethod);
-      } else {
-        span.setTag("usr.id", user);
-        span.setTag("auth_method", authMethod);
-      }
-      LOG.debug("Tagged active Datadog span with usr.id='{}' auth_method='{}'", user, authMethod);
-    } catch (Exception e) {
-      LOG.warn("Failed to tag Datadog span with user identity - continuing without telemetry", e);
+
+    Tracer tracer = GlobalTracer.get();
+    if (tracer == null) {
+      return;
     }
+
+    Span span = tracer.activeSpan();
+    if (span == null) {
+      return;
+    }
+
+    span.setTag(TAG_USER_ID, user);
+    span.setTag(TAG_AUTH_METHOD, authMethod);
+
+    LOG.debug("Tagged active span with usr.id='{}' auth_method='{}'", user, authMethod);
   }
 }

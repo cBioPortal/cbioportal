@@ -40,7 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tool-agnostic service that maps MDC context fields (user, auth_method) to the active Datadog
+ * Tool-agnostic service that maps MDC context fields (user, auth_method) to the
+ * active Datadog
  * trace span for API usage telemetry.
  */
 public class DatadogTraceService {
@@ -48,13 +49,14 @@ public class DatadogTraceService {
   private static final Logger LOG = LoggerFactory.getLogger(DatadogTraceService.class);
 
   private DatadogTraceService() {
-    // Utility class — not instantiable.
+    // Utility class - not instantiable.
   }
 
   /**
-   * Tags the currently active Datadog span with user identity and authentication method.
+   * Tags the currently active Datadog span with user identity and authentication
+   * method.
    *
-   * @param user the authenticated username
+   * @param user       the authenticated username
    * @param authMethod the authentication method used
    */
   public static void tagCurrentSpan(String user, String authMethod) {
@@ -79,7 +81,7 @@ public class DatadogTraceService {
       }
       LOG.debug("Tagged active Datadog span with usr.id='{}' auth_method='{}'", user, authMethod);
     } catch (Exception e) {
-      LOG.warn("Failed to tag Datadog span with user identity — continuing without telemetry", e);
+      LOG.warn("Failed to tag Datadog span with user identity - continuing without telemetry", e);
     }
   }
 }

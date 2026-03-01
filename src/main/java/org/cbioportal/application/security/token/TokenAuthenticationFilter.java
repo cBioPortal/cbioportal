@@ -34,6 +34,7 @@ package org.cbioportal.application.security.token;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -119,7 +120,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
   protected void successfulAuthentication(
       HttpServletRequest request,
       HttpServletResponse response,
-      jakarta.servlet.FilterChain chain,
+      FilterChain chain,
       Authentication authResult)
       throws IOException, ServletException {
     super.successfulAuthentication(request, response, chain, authResult);

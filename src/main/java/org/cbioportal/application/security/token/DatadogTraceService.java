@@ -40,8 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Tool-agnostic service that maps MDC context fields (user, auth_method) to the
- * active Datadog
+ * Tool-agnostic service that maps MDC context fields (user, auth_method) to the active Datadog
  * trace span for API usage telemetry.
  */
 public class DatadogTraceService {
@@ -53,10 +52,9 @@ public class DatadogTraceService {
   }
 
   /**
-   * Tags the currently active Datadog span with user identity and authentication
-   * method.
+   * Tags the currently active Datadog span with user identity and authentication method.
    *
-   * @param user       the authenticated username
+   * @param user the authenticated username
    * @param authMethod the authentication method used
    */
   public static void tagCurrentSpan(String user, String authMethod) {

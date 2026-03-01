@@ -41,7 +41,8 @@ public class ApiSecurityCondition implements Condition {
   @Override
   public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     String authenticate = context.getEnvironment().getProperty("authenticate", "false");
-    String requireToken = context.getEnvironment().getProperty("api.access.token.required", "false");
+    String requireToken =
+        context.getEnvironment().getProperty("api.access.token.required", "false");
 
     boolean isTokenRequired = "true".equalsIgnoreCase(requireToken);
 

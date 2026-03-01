@@ -55,7 +55,7 @@ public class ApiSecurityConditionTest {
   @Test
   public void matchesWhenAuthenticateTrue() {
     when(environment.getProperty("authenticate", "false")).thenReturn("true");
-    when(environment.getProperty("dat.require_token", "false")).thenReturn("false");
+    when(environment.getProperty("api.access.token.required", "false")).thenReturn("false");
 
     assertThat(condition.matches(context, metadata)).isTrue();
   }
@@ -63,7 +63,7 @@ public class ApiSecurityConditionTest {
   @Test
   public void doesNotMatchWhenAuthenticateFalseAndTokenNotRequired() {
     when(environment.getProperty("authenticate", "false")).thenReturn("false");
-    when(environment.getProperty("dat.require_token", "false")).thenReturn("false");
+    when(environment.getProperty("api.access.token.required", "false")).thenReturn("false");
 
     assertThat(condition.matches(context, metadata)).isFalse();
   }
@@ -71,7 +71,7 @@ public class ApiSecurityConditionTest {
   @Test
   public void matchesWhenAuthenticateFalseButTokenRequired() {
     when(environment.getProperty("authenticate", "false")).thenReturn("false");
-    when(environment.getProperty("dat.require_token", "false")).thenReturn("true");
+    when(environment.getProperty("api.access.token.required", "false")).thenReturn("true");
 
     assertThat(condition.matches(context, metadata)).isTrue();
   }
@@ -79,7 +79,7 @@ public class ApiSecurityConditionTest {
   @Test
   public void matchesWhenOptionalOAuth2AndTokenNotRequired() {
     when(environment.getProperty("authenticate", "false")).thenReturn("optional_oauth2");
-    when(environment.getProperty("dat.require_token", "false")).thenReturn("false");
+    when(environment.getProperty("api.access.token.required", "false")).thenReturn("false");
 
     assertThat(condition.matches(context, metadata)).isTrue();
   }
@@ -87,7 +87,7 @@ public class ApiSecurityConditionTest {
   @Test
   public void matchesWhenOptionalOAuth2AndTokenRequired() {
     when(environment.getProperty("authenticate", "false")).thenReturn("optional_oauth2");
-    when(environment.getProperty("dat.require_token", "false")).thenReturn("true");
+    when(environment.getProperty("api.access.token.required", "false")).thenReturn("true");
 
     assertThat(condition.matches(context, metadata)).isTrue();
   }

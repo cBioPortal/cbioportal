@@ -15,6 +15,11 @@ public interface GenericAssayRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
+  List<GenericAssayMeta> getPageableGenericAssayMeta(List<String> stableIds, String keyword, Integer limit, Integer offset, String sortBy, String direction);
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds);
 
   @Cacheable(

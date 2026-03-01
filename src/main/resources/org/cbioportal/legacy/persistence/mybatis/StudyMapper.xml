@@ -15,7 +15,6 @@
             ANY_VALUE(cancer_study.pmid) AS "${prefix}pmid",
             ANY_VALUE(cancer_study.citation) AS "${prefix}citation",
             ANY_VALUE(cancer_study.groups) AS "${prefix}groups",
-            ANY_VALUE(cancer_study.download_groups) AS "${prefix}downloadGroups",
             ANY_VALUE(cancer_study.status) AS "${prefix}status",
             ANY_VALUE(cancer_study.import_date) AS "${prefix}importDate",
             ANY_VALUE(reference_genome.name) AS "${prefix}referenceGenome"

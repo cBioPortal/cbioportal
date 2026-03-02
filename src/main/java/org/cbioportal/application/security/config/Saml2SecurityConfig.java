@@ -42,7 +42,7 @@ public class Saml2SecurityConfig {
   @Value("${saml.idp.metadata.attribute.role:Role}")
   private String roleAttributeName;
 
-  @Value("${saml.idp.metadata.attribute.email:}")
+  @Value("${saml.idp.metadata.attribute.email:Email}")
   private String emailAttributeName;
 
   @Bean
@@ -53,16 +53,14 @@ public class Saml2SecurityConfig {
     return http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
-            auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+            auth -> auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
         .exceptionHandling(
-            eh ->
-                eh.defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    AntPathRequestMatcher.antMatcher("/api/**")))
+            eh -> eh.defaultAuthenticationEntryPointFor(
+                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                AntPathRequestMatcher.antMatcher("/api/**")))
         .saml2Login(withDefaults())
         .saml2Metadata(withDefaults())
         // NOTE: I did not get the official .saml2Logout() DSL to work as
@@ -70,10 +68,9 @@ public class Saml2SecurityConfig {
         // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
         // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
         .logout(
-            logout ->
-                logout
-                    .logoutUrl(LOGOUT_URL)
-                    .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
+            logout -> logout
+                .logoutUrl(LOGOUT_URL)
+                .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
         .build();
   }
 
@@ -84,48 +81,52 @@ public class Saml2SecurityConfig {
     return authenticationProvider;
   }
 
-  Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
+  private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
 
-    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
-        OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter();
+    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate = OpenSaml4AuthenticationProvider
+        .createDefaultResponseAuthenticationConverter();
 
     return (responseToken) -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
-      return mapAuthorities(authentication);
+      var principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+      Set<GrantedAuthority> mappedAuthorities = mapAuthorities(principal, authentication.getAuthorities());
+      return new Saml2Authentication(
+          principal, authentication.getSaml2Response(), mappedAuthorities);
     };
   }
 
-  Saml2Authentication mapAuthorities(Saml2Authentication authentication) {
-    var principal =
-        (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+  Set<GrantedAuthority> mapAuthorities(
+      Saml2AuthenticatedPrincipal principal, Collection<? extends GrantedAuthority> authorities) {
     Collection<String> roles = principal.getAttribute(this.roleAttributeName);
     Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
     if (!Objects.isNull(roles)) {
       mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
     } else {
-      mappedAuthorities.addAll(authentication.getAuthorities());
+      mappedAuthorities.addAll(authorities);
     }
+
     // Study Access Authorization requires the user's identifier (email) to be a
     // granted authority
-    String email = principal.getName();
-    if (!this.emailAttributeName.isBlank()) {
-      Collection<String> emails = principal.getAttribute(this.emailAttributeName);
-      if (emails != null && !emails.isEmpty()) {
-        email = emails.iterator().next();
+    Collection<String> emails = principal.getAttribute(this.emailAttributeName);
+    if (!Objects.isNull(emails) && !emails.isEmpty()) {
+      for (String email : emails) {
+        mappedAuthorities.add(new SimpleGrantedAuthority(email));
       }
+    } else {
+      // Fallback to NameID if no email attribute is found
+      mappedAuthorities.add(new SimpleGrantedAuthority(principal.getName()));
     }
-    mappedAuthorities.add(new SimpleGrantedAuthority(email));
-    return new Saml2Authentication(principal, authentication.getSaml2Response(), mappedAuthorities);
+    return mappedAuthorities;
   }
 
   @Bean
   public LogoutSuccessHandler logoutSuccessHandler(
       RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
     // Perform logout at the SAML2 IDP
-    DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-        new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
-    OpenSaml4LogoutRequestResolver logoutRequestResolver =
-        new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+    DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
+        relyingPartyRegistrationRepository);
+    OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
+        relyingPartyRegistrationResolver);
 
     return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
   }

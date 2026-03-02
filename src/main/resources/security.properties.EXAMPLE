@@ -57,7 +57,7 @@ spring.security.oauth2.allowed-clock-skew=
 # Attribute in SAML response that contains the user's roles
 #saml.idp.metadata.attribute.role=Role
 # Attribute in SAML response that contains the user's email/identifier
-#saml.idp.metadata.attribute.email=mail
+#saml.idp.metadata.attribute.email=Email
 
 ## data access token settings
 ## Resource Server issuer-uri for Data Access Token

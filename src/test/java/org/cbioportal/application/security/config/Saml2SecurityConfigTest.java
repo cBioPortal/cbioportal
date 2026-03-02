@@ -29,49 +29,41 @@ public class Saml2SecurityConfigTest {
 
   @Test
   public void testMapAuthoritiesWithRolesAndEmail() {
-    Saml2Authentication authentication = mock(Saml2Authentication.class);
     Saml2AuthenticatedPrincipal principal = mock(Saml2AuthenticatedPrincipal.class);
 
-    when(authentication.getPrincipal()).thenReturn(principal);
-    when(authentication.getSaml2Response()).thenReturn("dummy-response");
     when(principal.getName()).thenReturn("user@example.com");
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("ADMIN", "USER"));
     when(principal.getAttribute("mail")).thenReturn(List.of("user@example.com"));
 
-    Saml2Authentication result = saml2SecurityConfig.mapAuthorities(authentication);
+    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
 
-    Set<String> authorities =
-        result.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toSet());
+    Set<String> authorityNames = authorities.stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.toSet());
 
-    assertEquals(3, authorities.size());
-    assertTrue(authorities.contains("ROLE_ADMIN"));
-    assertTrue(authorities.contains("ROLE_USER"));
-    assertTrue(authorities.contains("user@example.com"));
+    assertEquals(3, authorityNames.size());
+    assertTrue(authorityNames.contains("ROLE_ADMIN"));
+    assertTrue(authorityNames.contains("ROLE_USER"));
+    assertTrue(authorityNames.contains("user@example.com"));
   }
 
   @Test
   public void testMapAuthoritiesWithRolesAndDefaultEmail() {
     // Test fallback to principal.getName() when email attribute is missing
-    Saml2Authentication authentication = mock(Saml2Authentication.class);
     Saml2AuthenticatedPrincipal principal = mock(Saml2AuthenticatedPrincipal.class);
 
-    when(authentication.getPrincipal()).thenReturn(principal);
-    when(authentication.getSaml2Response()).thenReturn("dummy-response");
     when(principal.getName()).thenReturn("user_name");
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("USER"));
     when(principal.getAttribute("mail")).thenReturn(null);
 
-    Saml2Authentication result = saml2SecurityConfig.mapAuthorities(authentication);
+    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
 
-    Set<String> authorities =
-        result.getAuthorities().stream()
-            .map(GrantedAuthority::getAuthority)
-            .collect(Collectors.toSet());
+    Set<String> authorityNames = authorities.stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.toSet());
 
-    assertEquals(2, authorities.size());
-    assertTrue(authorities.contains("ROLE_USER"));
-    assertTrue(authorities.contains("user_name"));
+    assertEquals(2, authorityNames.size());
+    assertTrue(authorityNames.contains("ROLE_USER"));
+    assertTrue(authorityNames.contains("user_name"));
   }
 }

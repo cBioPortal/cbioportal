@@ -88,7 +88,8 @@ public class Saml2SecurityConfig {
 
     return (responseToken) -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
-      var principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+      Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication)
+          .getPrincipal();
       Set<GrantedAuthority> mappedAuthorities = mapAuthorities(principal, authentication.getAuthorities());
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);

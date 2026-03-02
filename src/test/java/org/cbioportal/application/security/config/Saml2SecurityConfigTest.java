@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
-import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class Saml2SecurityConfigTest {
@@ -33,9 +33,9 @@ public class Saml2SecurityConfigTest {
 
     when(principal.getName()).thenReturn("user@example.com");
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("ADMIN", "USER"));
-    when(principal.getAttribute("mail")).thenReturn(List.of("user@example.com"));
+    when(principal.getAttribute("mail")).thenReturn(Collections.singletonList("user@example.com"));
 
-    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
+    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
 
     Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
@@ -54,7 +54,7 @@ public class Saml2SecurityConfigTest {
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("USER"));
     when(principal.getAttribute("mail")).thenReturn(null);
 
-    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
+    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
 
     Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 

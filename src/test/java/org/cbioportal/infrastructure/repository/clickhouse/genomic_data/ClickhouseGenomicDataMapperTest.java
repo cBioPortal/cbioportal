@@ -37,6 +37,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClickhouseGenomicDataMapperTest {
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
   private static final String STUDY_ACC_TCGA = "acc_tcga";
+  private static final String HUGO_GENE_SYMBOL = "AKT1";
 
   @Autowired private ClickhouseGenomicDataMapper mapper;
 
@@ -119,7 +120,9 @@ public class ClickhouseGenomicDataMapperTest {
     List<GenomicDataCountItem> actualMutationCountsByType =
         mapper.getMutationCountsByType(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
-            List.of(genomicDataFilterMutation));
+            List.of(genomicDataFilterMutation),
+            false,
+            HUGO_GENE_SYMBOL);
     List<GenomicDataCountItem> expectedMutationCountsByType =
         List.of(
             new GenomicDataCountItem(
@@ -132,6 +135,110 @@ public class ClickhouseGenomicDataMapperTest {
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
         .isEqualTo(expectedMutationCountsByType);
+  }
+
+  @Test
+  public void getMutationCountsByTypeAddSampleId() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    ArrayList<String> studyIds = new ArrayList<>();
+    studyIds.add(STUDY_TCGA_PUB);
+    studyViewFilter.setStudyIds(studyIds);
+
+    GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
+    List<GenomicDataCountItem> actualCounts =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            true,
+            HUGO_GENE_SYMBOL);
+
+    List<GenomicDataCountItem> expectedMutationCountsByType =
+        List.of(
+            new GenomicDataCountItem(
+                "AKT1",
+                "mutations",
+                List.of(
+                    new GenomicDataCount(
+                        "nonsense mutation",
+                        "nonsense_mutation",
+                        2,
+                        1,
+                        List.of("study_tcga_pub_tcga-a1-a0sb-01")),
+                    new GenomicDataCount(
+                        "missense mutation",
+                        "missense_mutation",
+                        1,
+                        1,
+                        List.of("study_tcga_pub_tcga-a1-a0sd-01")))));
+
+    List<GenomicDataCountItem> expectedNotMutatedCounts =
+        List.of(
+            new GenomicDataCountItem(
+                "AKT1",
+                "Not Mutated",
+                List.of(
+                    new GenomicDataCount(
+                        "Not Mutated",
+                        "NOT_MUTATED",
+                        8,
+                        8,
+                        List.of(
+                            "study_tcga_pub_tcga-a1-a0sj-01",
+                            "study_tcga_pub_tcga-a1-a0sh-01",
+                            "study_tcga_pub_tcga-a1-a0sm-01",
+                            "study_tcga_pub_tcga-a1-a0so-01",
+                            "study_tcga_pub_tcga-a1-a0sk-01",
+                            "study_tcga_pub_tcga-a1-a0si-01",
+                            "study_tcga_pub_tcga-a1-a0sp-01",
+                            "study_tcga_pub_tcga-a1-a0se-01")))));
+
+    List<GenomicDataCountItem> expectedNotProfiledCounts =
+        List.of(
+            new GenomicDataCountItem(
+                "AKT1",
+                "Not Profiled",
+                List.of(
+                    new GenomicDataCount(
+                        "Not Profiled",
+                        "NOT_PROFILED",
+                        5,
+                        5,
+                        List.of(
+                            "study_tcga_pub_tcga-a1-a0sb-02",
+                            "study_tcga_pub_tcga-a1-a0sn-01",
+                            "study_tcga_pub_tcga-a1-a0sq-01",
+                            "study_tcga_pub_tcga-a1-a0sf-01",
+                            "study_tcga_pub_tcga-a1-a0sg-01")))));
+
+    // Combine all expected results into a single list
+    List<GenomicDataCountItem> expectedAllCounts = new ArrayList<>();
+    expectedAllCounts.addAll(expectedMutationCountsByType);
+    expectedAllCounts.addAll(expectedNotMutatedCounts);
+    expectedAllCounts.addAll(expectedNotProfiledCounts);
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedAllCounts);
+  }
+
+  @Test
+  public void getMutationCountsByTypeNoSampleId() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+    GenomicDataFilter genomicDataFilterMutation = new GenomicDataFilter("AKT1", "mutation");
+    List<GenomicDataCountItem> mutationCountsByType =
+        mapper.getMutationCountsByType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genomicDataFilterMutation),
+            false,
+            HUGO_GENE_SYMBOL);
+
+    assertThat(mutationCountsByType)
+        .flatExtracting(GenomicDataCountItem::getCounts)
+        .extracting(GenomicDataCount::getSampleIds)
+        .containsOnlyNulls();
   }
 
   @Test

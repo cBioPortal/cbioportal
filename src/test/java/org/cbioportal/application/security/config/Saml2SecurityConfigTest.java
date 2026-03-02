@@ -37,9 +37,7 @@ public class Saml2SecurityConfigTest {
 
     Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
 
-    Set<String> authorityNames = authorities.stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.toSet());
+    Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
     assertEquals(3, authorityNames.size());
     assertTrue(authorityNames.contains("ROLE_ADMIN"));
@@ -58,9 +56,7 @@ public class Saml2SecurityConfigTest {
 
     Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, List.of());
 
-    Set<String> authorityNames = authorities.stream()
-        .map(GrantedAuthority::getAuthority)
-        .collect(Collectors.toSet());
+    Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
     assertEquals(2, authorityNames.size());
     assertTrue(authorityNames.contains("ROLE_USER"));

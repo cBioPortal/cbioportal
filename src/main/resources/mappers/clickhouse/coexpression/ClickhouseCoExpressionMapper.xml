@@ -50,7 +50,25 @@
            AND uniq(toFloat64OrNull(d.alteration_value)) > count(*) / 2
            AND isFinite(spearmansCorrelation)
            AND abs(spearmansCorrelation) >= #{threshold}
-        ORDER BY abs(spearmansCorrelation) DESC
+
+        UNION ALL
+
+        SELECT
+            g.entrez_gene_id AS entrezGeneId,
+            NULL AS spearmansCorrelation,
+            count(*) AS numSamples
+        FROM genetic_alteration_derived d
+        INNER JOIN ref_values r ON d.sample_unique_id = r.sample_unique_id
+        INNER JOIN gene g ON d.hugo_gene_symbol = g.hugo_gene_symbol
+        WHERE d.cancer_study_identifier = #{cancerStudyIdentifierB}
+          AND d.profile_type = #{profileTypeB}
+          AND d.hugo_gene_symbol != #{hugoGeneSymbol}
+          AND d.alteration_value != '' AND d.alteration_value != 'NA'
+          AND toFloat64OrNull(d.alteration_value) IS NOT NULL
+        GROUP BY g.entrez_gene_id
+        HAVING count(*) &lt; 3
+            OR uniqExact(toFloat64OrNull(d.alteration_value)) = 1
+            OR uniq(toFloat64OrNull(d.alteration_value)) &lt;= count(*) / 2
     </select>
 
 </mapper>

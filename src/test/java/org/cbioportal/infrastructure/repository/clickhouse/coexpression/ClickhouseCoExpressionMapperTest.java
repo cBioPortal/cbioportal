@@ -61,10 +61,12 @@ public class ClickhouseCoExpressionMapperTest {
         6,
         (int) braf.getNumSamples());
 
-    // KRAS should NOT be present (constant expression value filtered by near-constant gene filter)
+    // KRAS should be present but with null correlation (constant expression value)
     CoExpressionResult kras =
         results.stream().filter(r -> r.getEntrezGeneId() == 3845).findFirst().orElse(null);
-    assertNull("KRAS should be excluded (constant expression value)", kras);
+    assertNotNull("KRAS should be present with null correlation", kras);
+    assertNull(
+        "KRAS correlation should be null (constant expression)", kras.getSpearmansCorrelation());
   }
 
   @Test
@@ -131,26 +133,32 @@ public class ClickhouseCoExpressionMapperTest {
         filteredResults.size() <= allResults.size());
 
     for (CoExpressionResult result : filteredResults) {
-      assertTrue(
-          "All results should meet threshold", Math.abs(result.getSpearmansCorrelation()) >= 0.9);
+      // Filtered results include genes with valid correlations meeting threshold,
+      // plus genes with null correlation (constant/near-constant)
+      if (result.getSpearmansCorrelation() != null) {
+        assertTrue(
+            "All correlated results should meet threshold",
+            Math.abs(result.getSpearmansCorrelation()) >= 0.9);
+      }
     }
   }
 
   @Test
-  public void testConstantGeneExcluded() {
-    // KRAS has all identical values (0.5) — should never appear in results
+  public void testConstantGeneReturnedWithNullCorrelation() {
+    // KRAS has all identical values (0.5) — should be present but with null correlation
     List<CoExpressionResult> results =
         mapper.getCoExpressions(STUDY_ID, PROFILE_TYPE, STUDY_ID, PROFILE_TYPE, "AKT2", null, 0.0);
 
     CoExpressionResult kras =
         results.stream().filter(r -> r.getEntrezGeneId() == 3845).findFirst().orElse(null);
-    assertNull(
-        "Gene with constant expression should be excluded by near-constant gene filter", kras);
+    assertNotNull("Constant gene should be present in results", kras);
+    assertNull("Constant gene should have null correlation", kras.getSpearmansCorrelation());
   }
 
   @Test
-  public void testMinimumSampleCount() {
-    // Request only 2 samples — below the minimum of 3 required
+  public void testMinimumSampleCountReturnsNullCorrelation() {
+    // Request only 2 samples — below the minimum of 3 required for correlation
+    // Genes should still be returned but with null correlation
     String[] twoSamples =
         new String[] {
           "study_tcga_pub_tcga-a1-a0sd-01", // sample 2
@@ -161,6 +169,11 @@ public class ClickhouseCoExpressionMapperTest {
         mapper.getCoExpressions(
             STUDY_ID, PROFILE_TYPE, STUDY_ID, PROFILE_TYPE, "AKT2", twoSamples, 0.0);
 
-    assertTrue("Should return no results when fewer than 3 samples available", results.isEmpty());
+    assertFalse("Should return results even with fewer than 3 samples", results.isEmpty());
+    for (CoExpressionResult result : results) {
+      assertNull(
+          "All results should have null correlation when fewer than 3 samples",
+          result.getSpearmansCorrelation());
+    }
   }
 }

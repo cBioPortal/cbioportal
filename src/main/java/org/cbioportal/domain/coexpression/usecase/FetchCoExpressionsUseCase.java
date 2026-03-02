@@ -106,11 +106,13 @@ public class FetchCoExpressionsUseCase {
               CoExpression coExpression = new CoExpression();
               coExpression.setGeneticEntityId(String.valueOf(result.getEntrezGeneId()));
               coExpression.setGeneticEntityType(EntityType.GENE);
-              coExpression.setSpearmansCorrelation(
-                  BigDecimal.valueOf(result.getSpearmansCorrelation()));
-              double pValue =
-                  computePValue(result.getSpearmansCorrelation(), result.getNumSamples());
-              coExpression.setpValue(BigDecimal.valueOf(pValue));
+              if (result.getSpearmansCorrelation() != null) {
+                coExpression.setSpearmansCorrelation(
+                    BigDecimal.valueOf(result.getSpearmansCorrelation()));
+                double pValue =
+                    computePValue(result.getSpearmansCorrelation(), result.getNumSamples());
+                coExpression.setpValue(BigDecimal.valueOf(pValue));
+              }
               return coExpression;
             })
         .toList();

@@ -34,7 +34,8 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
   @Autowired private SampleListRepository sampleListRepository;
 
-  private List<String> extractDistinctStableIds(List<String> stableIds, List<String> molecularProfileIds) {
+  private List<String> extractDistinctStableIds(
+      List<String> stableIds, List<String> molecularProfileIds) {
     Set<String> allStableIds = new HashSet<String>();
     // extract genericAssayStableIds from the GENERIC_ASSAY profiles
     if (molecularProfileIds != null) {
@@ -68,13 +69,15 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     return new ArrayList<String>(allStableIds);
   }
 
-  private List<GenericAssayMeta> assembleExtraProperties(List<GenericAssayMeta> metaData, String projection) {
+  private List<GenericAssayMeta> assembleExtraProperties(
+      List<GenericAssayMeta> metaData, String projection) {
     List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
     if (metaData == null || metaData.isEmpty()) {
-       return metaResults;
+      return metaResults;
     }
-    List<String> stableIds = metaData.stream().map(GenericAssayMeta::getStableId).collect(Collectors.toList());
-    
+    List<String> stableIds =
+        metaData.stream().map(GenericAssayMeta::getStableId).collect(Collectors.toList());
+
     // just return stable_id if projection is ID
     if (projection != null && projection.equals("ID")) {
       for (GenericAssayMeta meta : metaData) {
@@ -116,9 +119,12 @@ public class GenericAssayServiceImpl implements GenericAssayService {
   @Override
   public List<GenericAssayMeta> getGenericAssayMeta(
       org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter filter, String projection) {
-    List<String> distinctStableIds = extractDistinctStableIds(filter.getGenericAssayStableIds(), filter.getMolecularProfileIds());
-    
-    if (distinctStableIds.isEmpty() && (filter.getGenericAssayStableIds() != null || filter.getMolecularProfileIds() != null)) {
+    List<String> distinctStableIds =
+        extractDistinctStableIds(
+            filter.getGenericAssayStableIds(), filter.getMolecularProfileIds());
+
+    if (distinctStableIds.isEmpty()
+        && (filter.getGenericAssayStableIds() != null || filter.getMolecularProfileIds() != null)) {
       return new ArrayList<>();
     }
 
@@ -126,12 +132,12 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
     List<GenericAssayMeta> metaData =
         genericAssayRepository.getPageableGenericAssayMeta(
-             distinctStableIds.isEmpty() ? null : distinctStableIds,
-             filter.getKeyword(),
-             filter.getLimit(),
-             filter.getOffset(),
-             filter.getSortBy(),
-             direction);
+            distinctStableIds.isEmpty() ? null : distinctStableIds,
+            filter.getKeyword(),
+            filter.getLimit(),
+            filter.getOffset(),
+            filter.getSortBy(),
+            direction);
 
     return assembleExtraProperties(metaData, projection);
   }

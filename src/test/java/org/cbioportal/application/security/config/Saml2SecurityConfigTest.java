@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
@@ -35,9 +34,11 @@ public class Saml2SecurityConfigTest {
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("ADMIN", "USER"));
     when(principal.getAttribute("mail")).thenReturn(Collections.singletonList("user@example.com"));
 
-    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
+    Set<GrantedAuthority> authorities =
+        saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
 
-    Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+    Set<String> authorityNames =
+        authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
     assertEquals(3, authorityNames.size());
     assertTrue(authorityNames.contains("ROLE_ADMIN"));
@@ -54,9 +55,11 @@ public class Saml2SecurityConfigTest {
     when(principal.getAttribute("Role")).thenReturn(Arrays.asList("USER"));
     when(principal.getAttribute("mail")).thenReturn(null);
 
-    Set<GrantedAuthority> authorities = saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
+    Set<GrantedAuthority> authorities =
+        saml2SecurityConfig.mapAuthorities(principal, Collections.emptyList());
 
-    Set<String> authorityNames = authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+    Set<String> authorityNames =
+        authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
 
     assertEquals(2, authorityNames.size());
     assertTrue(authorityNames.contains("ROLE_USER"));

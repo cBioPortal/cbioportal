@@ -53,14 +53,16 @@ public class Saml2SecurityConfig {
     return http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
-            auth -> auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
-                .permitAll()
-                .anyRequest()
-                .authenticated())
+            auth ->
+                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .exceptionHandling(
-            eh -> eh.defaultAuthenticationEntryPointFor(
-                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                AntPathRequestMatcher.antMatcher("/api/**")))
+            eh ->
+                eh.defaultAuthenticationEntryPointFor(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
+                    AntPathRequestMatcher.antMatcher("/api/**")))
         .saml2Login(withDefaults())
         .saml2Metadata(withDefaults())
         // NOTE: I did not get the official .saml2Logout() DSL to work as
@@ -68,9 +70,10 @@ public class Saml2SecurityConfig {
         // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
         // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
         .logout(
-            logout -> logout
-                .logoutUrl(LOGOUT_URL)
-                .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
+            logout ->
+                logout
+                    .logoutUrl(LOGOUT_URL)
+                    .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
         .build();
   }
 
@@ -81,16 +84,18 @@ public class Saml2SecurityConfig {
     return authenticationProvider;
   }
 
-  private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> rolesConverter() {
+  private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication>
+      rolesConverter() {
 
-    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate = OpenSaml4AuthenticationProvider
-        .createDefaultResponseAuthenticationConverter();
+    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
+        OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter();
 
     return (responseToken) -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
-      Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication)
-          .getPrincipal();
-      Set<GrantedAuthority> mappedAuthorities = mapAuthorities(principal, authentication.getAuthorities());
+      Saml2AuthenticatedPrincipal principal =
+          (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+      Set<GrantedAuthority> mappedAuthorities =
+          mapAuthorities(principal, authentication.getAuthorities());
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);
     };
@@ -124,10 +129,10 @@ public class Saml2SecurityConfig {
   public LogoutSuccessHandler logoutSuccessHandler(
       RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
     // Perform logout at the SAML2 IDP
-    DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
-        relyingPartyRegistrationRepository);
-    OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
-        relyingPartyRegistrationResolver);
+    DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
+        new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
+    OpenSaml4LogoutRequestResolver logoutRequestResolver =
+        new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
 
     return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
   }

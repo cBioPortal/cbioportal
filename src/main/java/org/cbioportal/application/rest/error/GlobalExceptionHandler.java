@@ -38,12 +38,12 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 // TODO
-// - consider extending extends ResponseEntityExceptionHandler
 // - check controllers for not catching exceptions themselves
 @ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 

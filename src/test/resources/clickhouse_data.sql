@@ -582,6 +582,13 @@ insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummuta
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-1,2,0,1,-2,2,-1,0,1,-2,2,0,1,-1,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (4,2,'1.4146,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1146,0.3498,0.0349,0.4927,-0.8665,-0.4754,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,2,'-0.8097,0.7360,-1.0225,-0.8922,0.7247,0.3537,1.2702,-0.1419,');
+-- co-expression test data for study_tcga_pub_mrna (profile 3, samples: 2,3,6,8,9,10,12,13)
+-- AKT1: all 8 samples have valid expression values
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,1,'0.5210,-0.3140,1.1550,0.2890,-0.8670,0.4230,-1.3640,0.7120,');
+-- BRAF: samples 6 and 10 (positions 3 and 6) have NA — tests missing-value handling
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,6,'0.3450,-0.2180,NA,0.8910,-0.5670,NA,1.2340,-0.4560,');
+-- KRAS: all samples have the same constant value — tests constant-gene filter (should be excluded)
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,10,'0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (9,17,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (9,18,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (11,19,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');

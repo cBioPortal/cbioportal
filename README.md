@@ -180,13 +180,13 @@ npm install
 
 
 # Run tests against a custom server URL
-CBIOPORTAL_URL=http://localhost:8082 npm test
+CBIOPORTAL_URL={local cbioportal url} npm test
 
 # Run a specific test suite
-npm test 'test/ColumnStoreStudyController/*.spec.ts'
+CBIOPORTAL_URL={local cbioportal url} npm test 'test/ColumnStoreStudyController/*.spec.ts'
 
 # Run with custom URL and specific pattern
-CBIOPORTAL_URL=http://localhost:8082 npm test 'test/ColumnStoreMutationController/*.spec.ts'
+CBIOPORTAL_URL={local cbioportal url} npm test 'test/ColumnStoreMutationController/*.spec.ts'
 ```
 
 

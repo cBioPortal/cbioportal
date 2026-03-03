@@ -25,6 +25,8 @@ import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.exception.TokenNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,6 +44,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 // - check controllers for not catching exceptions themselves
 @ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler {
+
+  private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(UnsupportedOperationException.class)
   public ResponseEntity<ErrorResponse> handleUnsupportedOperation() {
@@ -242,7 +246,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BadSqlGrammarException.class)
   public ResponseEntity<ErrorResponse> handleBadSqlGrammar(BadSqlGrammarException ex) {
-    ex.printStackTrace(); // we still want this to show up in the logs
+    LOG.error("SQL grammar exception", ex);
     return new ResponseEntity<>(
         new ErrorResponse(
             "SQL exception. If you are a maintainer of this instance, see logs for details."),
@@ -252,5 +256,13 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(NoSuchElementException.class)
   public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex) {
     return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.NOT_FOUND);
+  }
+
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleUncaughtException(Exception ex) {
+    LOG.error("Unhandled exception", ex);
+    return new ResponseEntity<>(
+        new ErrorResponse("An unexpected error occurred. Please contact your administrator."),
+        HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

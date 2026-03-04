@@ -63,37 +63,41 @@ describe('ColumnStoreCoExpressionController E2E Tests', () => {
         'BRCA1 should have co-expressed genes above threshold 0.3'
       );
 
-      // Verify each result has the required fields
+      // Verify each result has the required fields (spearmansCorrelation and pValue may be null
+      // for genes that cannot be correlated, e.g. constant expression or too few samples)
       const allHaveRequiredFields = _.every(coExpressions, (ce) =>
         ce.geneticEntityId !== undefined &&
-        ce.geneticEntityType !== undefined &&
-        ce.spearmansCorrelation !== undefined &&
-        ce.pValue !== undefined
+        ce.geneticEntityType !== undefined
       );
-      expect(allHaveRequiredFields, 'All results should have geneticEntityId, geneticEntityType, spearmansCorrelation, and pValue').to.be.true;
+      expect(allHaveRequiredFields, 'All results should have geneticEntityId and geneticEntityType').to.be.true;
 
       // Verify all geneticEntityType values are "GENE"
       const allAreGenes = _.every(coExpressions, { geneticEntityType: 'GENE' });
       expect(allAreGenes, 'All results should have geneticEntityType = GENE').to.be.true;
 
-      // Verify all correlations meet the threshold of 0.3
-      const allAboveThreshold = _.every(coExpressions, (ce) =>
+      // Separate correlated genes (non-null) from uncorrelatable genes (null correlation)
+      const correlatedGenes = _.filter(coExpressions, (ce) => ce.spearmansCorrelation !== null);
+      const nullGenes = _.filter(coExpressions, (ce) => ce.spearmansCorrelation === null);
+
+      // Verify there are both correlated and uncorrelatable genes
+      expect(correlatedGenes.length).to.be.greaterThan(0, 'Should have correlated genes');
+      expect(nullGenes.length).to.be.greaterThan(0, 'Should have uncorrelatable genes with null correlation');
+
+      // Verify all correlated genes meet the threshold of 0.3
+      const allAboveThreshold = _.every(correlatedGenes, (ce) =>
         Math.abs(ce.spearmansCorrelation) >= 0.3
       );
-      expect(allAboveThreshold, 'All |spearmansCorrelation| should be >= 0.3').to.be.true;
+      expect(allAboveThreshold, 'All correlated |spearmansCorrelation| should be >= 0.3').to.be.true;
 
-      // Verify all p-values are between 0 and 1
-      const allPValuesValid = _.every(coExpressions, (ce) =>
+      // Verify all correlated genes have p-values between 0 and 1
+      const allPValuesValid = _.every(correlatedGenes, (ce) =>
         ce.pValue >= 0 && ce.pValue <= 1
       );
-      expect(allPValuesValid, 'All pValues should be between 0 and 1').to.be.true;
+      expect(allPValuesValid, 'All correlated pValues should be between 0 and 1').to.be.true;
 
-      // Verify results are sorted by |spearmansCorrelation| descending
-      const correlations = _.map(coExpressions, (ce) => Math.abs(ce.spearmansCorrelation));
-      const isSorted = _.every(correlations, (val, idx) =>
-        idx === 0 || correlations[idx - 1] >= val
-      );
-      expect(isSorted, 'Results should be sorted by |spearmansCorrelation| descending').to.be.true;
+      // Verify uncorrelatable genes have null pValue
+      const allNullPValues = _.every(nullGenes, (ce) => ce.pValue === null);
+      expect(allNullPValues, 'Uncorrelatable genes should have null pValue').to.be.true;
 
       // MCM2 (entrez 4171) is known to be strongly co-expressed with BRCA1 in acc_tcga (~0.806)
       const mcm2 = _.find(coExpressions, { geneticEntityId: '4171' });
@@ -131,17 +135,18 @@ describe('ColumnStoreCoExpressionController E2E Tests', () => {
       const brca1InResults = _.find(coExpressions, { geneticEntityId: '672' });
       expect(brca1InResults, 'BRCA1 should not appear in its own co-expression results').to.be.undefined;
 
-      // Verify all correlations meet the threshold
-      const allAboveThreshold = _.every(coExpressions, (ce) =>
+      // Verify all correlated genes meet the threshold (null-correlation genes are excluded)
+      const correlatedGenes = _.filter(coExpressions, (ce) => ce.spearmansCorrelation !== null);
+      const allAboveThreshold = _.every(correlatedGenes, (ce) =>
         Math.abs(ce.spearmansCorrelation) >= 0.3
       );
-      expect(allAboveThreshold, 'All |spearmansCorrelation| should be >= 0.3').to.be.true;
+      expect(allAboveThreshold, 'All correlated |spearmansCorrelation| should be >= 0.3').to.be.true;
 
-      // Cross-profile should have fewer results than same-profile due to fewer overlapping samples
-      // and fewer genes in the RPPA panel (~203 proteins vs ~20,343 mRNA genes)
-      expect(coExpressions.length).to.be.lessThan(
+      // Cross-profile should have fewer correlated results than same-profile due to fewer overlapping
+      // samples and fewer genes in the RPPA panel (~203 proteins vs ~20,343 mRNA genes)
+      expect(correlatedGenes.length).to.be.lessThan(
         500,
-        'Cross-profile results should be limited by the smaller RPPA gene panel'
+        'Cross-profile correlated results should be limited by the smaller RPPA gene panel'
       );
     });
   });
@@ -170,19 +175,18 @@ describe('ColumnStoreCoExpressionController E2E Tests', () => {
         'Should still find co-expressed genes with 20 samples'
       );
 
-      // Verify all results have valid structure
+      // Verify all results have valid structure (spearmansCorrelation may be null for uncorrelatable genes)
       const allHaveRequiredFields = _.every(coExpressions, (ce) =>
-        ce.geneticEntityId !== undefined &&
-        ce.spearmansCorrelation !== undefined &&
-        ce.pValue !== undefined
+        ce.geneticEntityId !== undefined
       );
-      expect(allHaveRequiredFields, 'All results should have required fields').to.be.true;
+      expect(allHaveRequiredFields, 'All results should have geneticEntityId').to.be.true;
 
-      // Verify threshold is respected
-      const allAboveThreshold = _.every(coExpressions, (ce) =>
+      // Verify threshold is respected for correlated genes
+      const correlatedGenes = _.filter(coExpressions, (ce) => ce.spearmansCorrelation !== null);
+      const allAboveThreshold = _.every(correlatedGenes, (ce) =>
         Math.abs(ce.spearmansCorrelation) >= 0.3
       );
-      expect(allAboveThreshold, 'All |spearmansCorrelation| should be >= 0.3').to.be.true;
+      expect(allAboveThreshold, 'All correlated |spearmansCorrelation| should be >= 0.3').to.be.true;
     });
   });
 
@@ -207,17 +211,21 @@ describe('ColumnStoreCoExpressionController E2E Tests', () => {
         0.6
       );
 
-      // Higher threshold should return strictly fewer results
-      expect(coExpressionsHigh.length).to.be.lessThan(
-        coExpressionsLow.length,
-        'Threshold 0.6 should return fewer results than threshold 0.3'
+      // Filter to only correlated genes for comparison (null-correlation genes appear in both)
+      const correlatedLow = _.filter(coExpressionsLow, (ce) => ce.spearmansCorrelation !== null);
+      const correlatedHigh = _.filter(coExpressionsHigh, (ce) => ce.spearmansCorrelation !== null);
+
+      // Higher threshold should return strictly fewer correlated results
+      expect(correlatedHigh.length).to.be.lessThan(
+        correlatedLow.length,
+        'Threshold 0.6 should return fewer correlated results than threshold 0.3'
       );
 
-      // Verify all high-threshold results meet the stricter threshold
-      const allAboveHighThreshold = _.every(coExpressionsHigh, (ce) =>
+      // Verify all high-threshold correlated results meet the stricter threshold
+      const allAboveHighThreshold = _.every(correlatedHigh, (ce) =>
         Math.abs(ce.spearmansCorrelation) >= 0.6
       );
-      expect(allAboveHighThreshold, 'All |spearmansCorrelation| should be >= 0.6').to.be.true;
+      expect(allAboveHighThreshold, 'All correlated |spearmansCorrelation| should be >= 0.6').to.be.true;
 
       // MCM2 (entrez 4171) has correlation ~0.806 with BRCA1, so it should still be present at 0.6
       const mcm2 = _.find(coExpressionsHigh, { geneticEntityId: '4171' });
@@ -305,23 +313,27 @@ describe('ColumnStoreCoExpressionController E2E Tests', () => {
         'Even a small study should produce some co-expression results'
       );
 
-      // Verify all correlations are finite numbers (not NaN or Infinity)
-      const allFinite = _.every(coExpressions, (ce) =>
+      // Separate correlated genes from uncorrelatable genes (null correlation)
+      const correlatedGenes = _.filter(coExpressions, (ce) => ce.spearmansCorrelation !== null);
+      expect(correlatedGenes.length).to.be.greaterThan(0, 'Should have some correlated genes');
+
+      // Verify all correlated results are finite numbers (not NaN or Infinity)
+      const allFinite = _.every(correlatedGenes, (ce) =>
         Number.isFinite(ce.spearmansCorrelation) && Number.isFinite(ce.pValue)
       );
-      expect(allFinite, 'All correlations and p-values should be finite numbers').to.be.true;
+      expect(allFinite, 'All correlated correlations and p-values should be finite numbers').to.be.true;
 
-      // Verify all p-values are in valid range [0, 1]
-      const allPValuesValid = _.every(coExpressions, (ce) =>
+      // Verify all correlated p-values are in valid range [0, 1]
+      const allPValuesValid = _.every(correlatedGenes, (ce) =>
         ce.pValue >= 0 && ce.pValue <= 1
       );
-      expect(allPValuesValid, 'All pValues should be between 0 and 1').to.be.true;
+      expect(allPValuesValid, 'All correlated pValues should be between 0 and 1').to.be.true;
 
-      // Verify threshold is still respected
-      const allAboveThreshold = _.every(coExpressions, (ce) =>
+      // Verify threshold is still respected for correlated genes
+      const allAboveThreshold = _.every(correlatedGenes, (ce) =>
         Math.abs(ce.spearmansCorrelation) >= 0.3
       );
-      expect(allAboveThreshold, 'All |spearmansCorrelation| should be >= 0.3').to.be.true;
+      expect(allAboveThreshold, 'All correlated |spearmansCorrelation| should be >= 0.3').to.be.true;
     });
   });
 

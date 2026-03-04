@@ -69,6 +69,7 @@
         HAVING count(*) &lt; 3
             OR uniqExact(toFloat64OrNull(d.alteration_value)) = 1
             OR uniq(toFloat64OrNull(d.alteration_value)) &lt;= count(*) / 2
+        SETTINGS max_bytes_before_external_group_by = 2000000000
     </select>
 
 </mapper>

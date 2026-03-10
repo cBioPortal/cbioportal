@@ -715,33 +715,28 @@ CREATE TABLE `resource_definition` (
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
--- --------------------------------------------------------
-CREATE TABLE `resource_sample` (
-  `INTERNAL_ID` int(11) NOT NULL,
-  `RESOURCE_ID` varchar(255) NOT NULL,
-  `URL` varchar(255) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`,`RESOURCE_ID`,`URL`),
-  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `resource_patient` (
-  `INTERNAL_ID` int(11) NOT NULL,
-  `RESOURCE_ID` varchar(255) NOT NULL,
-  `URL` varchar(255) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`,`RESOURCE_ID`,`URL`),
-  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
-);
-
--- --------------------------------------------------------
-CREATE TABLE `resource_study` (
-  `INTERNAL_ID` int(11) NOT NULL,
-  `RESOURCE_ID` varchar(255) NOT NULL,
-  `URL` varchar(255) NOT NULL,
-  PRIMARY KEY (`INTERNAL_ID`,`RESOURCE_ID`,`URL`),
-  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+CREATE TABLE `resource_node` (
+  `ID`                  bigint        NOT NULL AUTO_INCREMENT,
+  `RESOURCE_ID`         varchar(255)  NOT NULL,
+  `CANCER_STUDY_ID`     int(11)       NOT NULL,
+  `ENTITY_TYPE`         ENUM('STUDY','PATIENT','SAMPLE') NOT NULL,
+  `ENTITY_INTERNAL_ID`  int(11)       NOT NULL,
+  `PARENT_ID`           bigint        DEFAULT NULL,
+  `NODE_TYPE`           ENUM('GROUP','ITEM') NOT NULL,
+  `DISPLAY_NAME`        varchar(255)  NOT NULL,
+  `URL`                 varchar(512)  DEFAULT NULL,   -- ITEM nodes only
+  `TYPE`                varchar(64)   DEFAULT NULL,   -- ITEM nodes only; free-text
+  `METADATA`            JSON          DEFAULT NULL,
+  `PRIORITY`            int(11)       DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  INDEX `idx_node_entity` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `ENTITY_INTERNAL_ID`),
+  INDEX `idx_node_parent` (`PARENT_ID`),
+  FOREIGN KEY (`RESOURCE_ID`, `CANCER_STUDY_ID`)
+      REFERENCES `resource_definition` (`RESOURCE_ID`, `CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`PARENT_ID`)
+      REFERENCES `resource_node` (`ID`) ON DELETE CASCADE
 );
 
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
 INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`, `GENE_TABLE_VERSION`)
-  VALUES ('2.14.5', NULL, '1.0.7', NULL);
+  VALUES ('2.15.0', NULL, '1.0.7', NULL);

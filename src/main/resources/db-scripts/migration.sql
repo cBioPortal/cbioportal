@@ -1085,9 +1085,35 @@ ALTER TABLE `clinical_event` MODIFY COLUMN `EVENT_TYPE` varchar(50) NOT NULL;
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.4";
 
 ##version: 2.14.5
+-- reminder : always set both the current DB_SCHEMA_VERSION and the current DERIVED_TABLE_SCHEMA_VERSION at each update
+ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
+UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`="1.0.7";
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.5";
 
 ##version: 2.15.0
+
+CREATE TABLE `resource_node` (
+  `ID`                  bigint        NOT NULL AUTO_INCREMENT,
+  `RESOURCE_ID`         varchar(255)  NOT NULL,
+  `CANCER_STUDY_ID`     int(11)       NOT NULL,
+  `ENTITY_TYPE`         ENUM('STUDY','PATIENT','SAMPLE') NOT NULL,
+  `ENTITY_INTERNAL_ID`  int(11)       NOT NULL,
+  `PARENT_ID`           bigint        DEFAULT NULL,
+  `NODE_TYPE`           ENUM('GROUP','ITEM') NOT NULL,
+  `DISPLAY_NAME`        varchar(255)  NOT NULL,
+  `URL`                 varchar(512)  DEFAULT NULL,   -- ITEM nodes only
+  `TYPE`                varchar(64)   DEFAULT NULL,   -- ITEM nodes only; free-text
+  `METADATA`            JSON          DEFAULT NULL,
+  `PRIORITY`            int(11)       DEFAULT 0,
+  PRIMARY KEY (`ID`),
+  INDEX `idx_node_entity` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `ENTITY_INTERNAL_ID`),
+  INDEX `idx_node_parent` (`PARENT_ID`),
+  FOREIGN KEY (`RESOURCE_ID`, `CANCER_STUDY_ID`)
+      REFERENCES `resource_definition` (`RESOURCE_ID`, `CANCER_STUDY_ID`) ON DELETE CASCADE,
+  FOREIGN KEY (`PARENT_ID`)
+      REFERENCES `resource_node` (`ID`) ON DELETE CASCADE
+);
+
 INSERT INTO resource_node
   (RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, ENTITY_INTERNAL_ID,
    PARENT_ID, NODE_TYPE, DISPLAY_NAME, URL)
@@ -1123,7 +1149,5 @@ DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_study;
 
--- reminder : always set both the current DB_SCHEMA_VERSION and the current DERIVED_TABLE_SCHEMA_VERSION at each update
-ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
 UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`="1.0.7";
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.15.0";

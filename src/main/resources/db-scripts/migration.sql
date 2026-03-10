@@ -1119,6 +1119,9 @@ FROM resource_study rs
 JOIN resource_definition rd
   ON rs.RESOURCE_ID = rd.RESOURCE_ID;
 
+DROP TABLE resource_patient;
+DROP TABLE resource_sample;
+DROP TABLE resource_study;
 
 -- reminder : always set both the current DB_SCHEMA_VERSION and the current DERIVED_TABLE_SCHEMA_VERSION at each update
 ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);

@@ -3,13 +3,18 @@
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.ResourceDataMapper">
 
-    <sql id="selectSampleResource">
-        sample.stable_id AS "${prefix}sampleId",
-        patient.stable_id AS "${prefix}patientId",
+    <sql id="selectNodeFields">
+        resource_node.id AS "${prefix}id",
         resource_node.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
+        resource_node.node_type AS "${prefix}nodeType",
+        resource_node.entity_type AS "${prefix}entityType",
+        resource_node.display_name AS "${prefix}displayName",
+        resource_node.parent_id AS "${prefix}parentId",
+        resource_node.priority AS "${prefix}priority"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , resource_node.url AS "${prefix}url"
+            , resource_node.type AS "${prefix}type"
+            , resource_node.metadata AS "${prefix}metadata"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -17,35 +22,30 @@
                 <property name="prefix" value="${prefix}resourceDefinition."/>
             </include>
         </if>
+    </sql>
+
+    <sql id="selectSampleResource">
+        sample.stable_id AS "${prefix}sampleId",
+        patient.stable_id AS "${prefix}patientId",
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="selectPatientResource">
         patient.stable_id AS "${prefix}patientId",
-        resource_node.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_node.url AS "${prefix}url"
-        </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
-                <property name="prefix" value="${prefix}resourceDefinition."/>
-            </include>
-        </if>
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="selectStudyResource">
-        resource_node.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_node.url AS "${prefix}url"
-        </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
-                <property name="prefix" value="${prefix}resourceDefinition."/>
-            </include>
-        </if>
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="fromSample">

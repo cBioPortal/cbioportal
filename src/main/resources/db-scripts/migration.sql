@@ -1103,7 +1103,7 @@ INSERT INTO resource_node
    PARENT_ID, NODE_TYPE, DISPLAY_NAME, URL)
 SELECT
   rd.RESOURCE_ID, rd.CANCER_STUDY_ID, 'SAMPLE', rs.INTERNAL_ID,
-  NULL, 'ITEM', rd.DISPLAY_NAME, rp.URL
+  NULL, 'ITEM', rd.DISPLAY_NAME, rs.URL
 FROM resource_sample rs
 JOIN resource_definition rd
   ON rs.RESOURCE_ID = rd.RESOURCE_ID;
@@ -1114,7 +1114,7 @@ INSERT INTO resource_node
    PARENT_ID, NODE_TYPE, DISPLAY_NAME, URL)
 SELECT
   rd.RESOURCE_ID, rd.CANCER_STUDY_ID, 'STUDY', rs.INTERNAL_ID,
-  NULL, 'ITEM', rd.DISPLAY_NAME, rp.URL
+  NULL, 'ITEM', rd.DISPLAY_NAME, rs.URL
 FROM resource_study rs
 JOIN resource_definition rd
   ON rs.RESOURCE_ID = rd.RESOURCE_ID;

@@ -530,7 +530,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     * [China Pan-cancer (OrigiMed, 2020)](https://www.cbioportal.org/study/summary?id=pan_origimed_2020) *10,194 samples*
 
 ## Sep 21, 2021
-* **Enhancement**: Dowloading the Lollipop plot on the Mutations Tab of the _Results View_ will now also include the annotation tracks:
+* **Enhancement**: Downloading the Lollipop plot on the Mutations Tab of the _Results View_ will now also include the annotation tracks:
 
     <img src="https://user-images.githubusercontent.com/1334004/139694195-51ad5580-efa5-4b25-9a10-2754726a246b.png" width="700" />
 

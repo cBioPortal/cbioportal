@@ -53,7 +53,7 @@ CREATE TABLE `resource_node` (
 
 Existing `resource_sample`, `resource_patient`, `resource_study` rows each become a root-level `ITEM` node with `PARENT_ID=NULL`. Migrated rows will have `TYPE=NULL` and `METADATA=NULL` since old tables have no equivalent columns — this is acceptable and expected.
 
-**Note on `DISPLAY_NAME` in migration:** old tables have no per-row display name. The resource ID is used as the node's `DISPLAY_NAME`, NOT `resource_definition.DISPLAY_NAME`, which is already used as the tree root label.
+**Note on `DISPLAY_NAME` in migration:** old tables have no per-row display name. The `resource_definition.DISPLAY_NAME` is used as the node's `DISPLAY_NAME`.
 
 **Note on `ENTITY_INTERNAL_ID` for `resource_study`:** study-scoped nodes have no patient/sample to reference. Use the study's own `CANCER_STUDY_ID` as `ENTITY_INTERNAL_ID`.
 

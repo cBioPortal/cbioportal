@@ -259,9 +259,9 @@ CREATE TABLE `geneset_gene` (
 CREATE TABLE `geneset_hierarchy_node` (
   `NODE_ID` BIGINT(20) NOT NULL auto_increment,
   `NODE_NAME` VARCHAR(200) NOT NULL,
-  `PARENT_ID` BIGINT NULL DEFAULT NULL,
+  `GROUP_PATH` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`NODE_ID`),
-  UNIQUE INDEX `NODE_NAME_UNIQUE` (`NODE_NAME` ASC, `PARENT_ID` ASC)
+  UNIQUE INDEX `NODE_NAME_UNIQUE` (`NODE_NAME` ASC, `GROUP_PATH` ASC)
 );
 
 -- --------------------------------------------------------
@@ -721,20 +721,16 @@ CREATE TABLE `resource_node` (
   `CANCER_STUDY_ID`     int(11)       NOT NULL,
   `ENTITY_TYPE`         ENUM('STUDY','PATIENT','SAMPLE') NOT NULL,
   `ENTITY_INTERNAL_ID`  int(11)       NOT NULL,
-  `PARENT_ID`           bigint        DEFAULT NULL,
-  `NODE_TYPE`           ENUM('GROUP','ITEM') NOT NULL,
   `DISPLAY_NAME`        varchar(255)  NOT NULL,
   `URL`                 varchar(512)  DEFAULT NULL,   -- ITEM nodes only
   `TYPE`                varchar(64)   DEFAULT NULL,   -- ITEM nodes only; free-text
   `METADATA`            JSON          DEFAULT NULL,
+  `GROUP_PATH`          varchar(255)  DEFAULT NULL,
   `PRIORITY`            int(11)       DEFAULT 0,
   PRIMARY KEY (`ID`),
   INDEX `idx_node_entity` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `ENTITY_INTERNAL_ID`),
-  INDEX `idx_node_parent` (`PARENT_ID`),
   FOREIGN KEY (`RESOURCE_ID`, `CANCER_STUDY_ID`)
       REFERENCES `resource_definition` (`RESOURCE_ID`, `CANCER_STUDY_ID`) ON DELETE CASCADE,
-  FOREIGN KEY (`PARENT_ID`)
-      REFERENCES `resource_node` (`ID`) ON DELETE CASCADE
 );
 
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml

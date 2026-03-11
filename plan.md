@@ -96,16 +96,21 @@ JOIN resource_definition rd
 
 ## Import File Format
 
-Five optional columns added to existing data files
-(`data_resource_patient.txt`, `data_resource_sample.txt`, `data_resource_study.txt`):
+All three data files share a unified column set. Required vs optional columns:
 
-| Column | Description |
-|---|---|
-| `DISPLAY_NAME` | Human-readable label for the item |
-| `TYPE` | Free-text sub-classification (e.g. `H_AND_E`, `CT`, `BAM`) |
-| `GROUP_PATH` | `/`-separated path of GROUP ancestors (e.g. `Block A/H&E Panel`) |
-| `METADATA` | JSON string for arbitrary domain-specific key/value data |
-| `PRIORITY` | Integer display order (default `0`); lower values appear first |
+| Column | Required | Description |
+|---|---|---|
+| `PATIENT_ID` | Optional | Required for patient- and sample-scoped resources; omit for study resources |
+| `SAMPLE_ID` | Optional | Required for sample-scoped resources only; omit for patient/study resources |
+| `RESOURCE_ID` | Required | References a `resource_definition` |
+| `URL` | Required | The resource URL |
+| `DISPLAY_NAME` | Optional | Human-readable label for the item |
+| `TYPE` | Optional | Free-text sub-classification (e.g. `H_AND_E`, `CT`, `BAM`) |
+| `GROUP_PATH` | Optional | `/`-separated path of GROUP ancestors (e.g. `Block A/H&E Panel`) |
+| `METADATA` | Optional | JSON string for arbitrary domain-specific key/value data |
+| `PRIORITY` | Optional | Integer display order (default `0`); lower values appear first |
+
+The importer determines the entity type from the `resource_definition.RESOURCE_TYPE` field (STUDY/PATIENT/SAMPLE) rather than from column presence.
 
 ### Importer logic for `GROUP_PATH`
 
@@ -117,6 +122,7 @@ Five optional columns added to existing data files
 ### Example
 
 ```
+# data_resource_patient.txt — PATIENT_ID required, no SAMPLE_ID
 PATIENT_ID  RESOURCE_ID   URL                    DISPLAY_NAME     TYPE           GROUP_PATH                         METADATA                                        PRIORITY
 P001        pathology     https://viewer/1       H&E              H_AND_E        Block A – Primary Tumor            {"stain":"hematoxylin","magnification":"20x"}    0
 P001        pathology     https://viewer/2       IHC CD3          IHC            Block A – Primary Tumor            {"antibody":"CD3","clone":"SP7"}                 1
@@ -127,6 +133,11 @@ P001        ct_scans      https://ohif/2         Instance         CT            
 P001        reports       https://reports/1      Biopsy Report    PATH_REPORT    2023                                                                               0
 P001        raw_data      https://storage/1      Tumor BAM        BAM            WGS                                                                                0
 P001        publications  https://pubmed/1       TCGA Paper 2021  JOURNAL                                                                                           0
+
+# data_resource_study.txt — no PATIENT_ID or SAMPLE_ID
+RESOURCE_ID     URL                           DISPLAY_NAME          TYPE        GROUP_PATH   METADATA   PRIORITY
+study_sponsors  https://sponsor-info/1        Sponsor Overview      PDF                                 0
+study_protocol  https://protocol-docs/1       Protocol v2           PDF         2023                    0
 ```
 
 ---

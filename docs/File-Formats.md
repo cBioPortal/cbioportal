@@ -1690,21 +1690,7 @@ The resource definition file should follow this format, it has three **required*
 <tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
 </table>
 
-### New optional columns for resource data files
-
-Three optional columns can be added to any of the resource data files (`data_resource_patient.txt`, `data_resource_sample.txt`, `data_resource_study.txt`) to enable hierarchical grouping and richer labeling of resource items:
-
-| Column | Description |
-|---|---|
-| `DISPLAY_NAME` | Human-readable label shown for the item in the UI tree. If omitted, falls back to the `DISPLAY_NAME` from the resource definition. |
-| `TYPE` | Free-text sub-classification of the item (e.g. `H_AND_E`, `IHC`, `CT`, `BAM`, `PDF`, `JOURNAL`). Shown as a badge next to the item in the UI. No fixed vocabulary — new values can be introduced without schema changes. |
-| `GROUP_PATH` | A `/`-separated path of folder (GROUP) ancestors under which this item is nested (e.g. `Block A – Primary Tumor` or `CT 2023-01-15/Series 1: Axial T2`). Each path segment creates or reuses a named folder node in the tree at the correct depth. An empty or absent `GROUP_PATH` places the item at the root of its category — this preserves full backward compatibility with files that do not include this column. |
-
-#### Note on `GROUP_PATH`
-
-1. `GROUP_PATH` defines the folder hierarchy under which a resource item appears in the UI. Each `/`-separated segment becomes a nested folder level. For example, `CT 2023-01-15/Series 1: Axial T2` produces a folder called `CT 2023-01-15` containing a subfolder called `Series 1: Axial T2`, with the item placed inside that subfolder.
-2. Multiple rows sharing the same `GROUP_PATH` value are grouped together under the same folder. If two rows share the first segment of their path (e.g. both start with `CT 2023-01-15/`), they appear under the same top-level folder with separate subfolders beneath it.
-3. If `GROUP_PATH` is empty or the column is omitted entirely, the item appears directly under its resource category with no folder wrapping. This is the default behavior and ensures existing data files without this column continue to load correctly.
+The following three files — `data_resource_sample.txt`, `data_resource_patient.txt`, and `data_resource_study.txt`, define the actual resource items for each entity level. Each file has a set of required columns and supports five optional columns described in [Optional columns](#optional-columns).
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
@@ -1715,14 +1701,17 @@ The sample resource file should follow this format, it has four **required** col
 - **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
 - **TYPE (optional)**: free-text sub-classification of the item (e.g. `H_AND_E`, `IHC`, `BAM`).
 - **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested (e.g. `Block A – Primary Tumor`). Leave empty for a flat/root-level item.
+- **METADATA (optional)**: a JSON string of domain-specific key/value pairs for this item (e.g. `{"stain":"hematoxylin","magnification":"20x"}`).
+- **PRIORITY (optional)**: integer display order within the item's folder or category. Defaults to `0`.
 
 ### Example *Sample Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide1</td><td>H&amp;E</td><td>H_AND_E</td><td>Block A – Primary Tumor</td></tr>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide2</td><td>IHC CD3</td><td>IHC</td><td>Block A – Primary Tumor</td></tr>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide3</td><td>H&amp;E</td><td>H_AND_E</td><td>Block B – Metastasis</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY</td><td>https://viewer/slide4</td><td>H&amp;E</td><td>H_AND_E</td><td></td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th><th>METADATA</th><th>PRIORITY</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide1</td><td>H&amp;E</td><td>H_AND_E</td><td>Block A – Primary Tumor</td><td>{"stain":"hematoxylin","magnification":"20x"}</td><td>0</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide2</td><td>IHC CD3</td><td>IHC</td><td>Block A – Primary Tumor</td><td>{"antibody":"CD3","clone":"SP7"}</td><td>1</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide3</td><td>IHC PD-L1</td><td>IHC</td><td>Block A – Primary Tumor</td><td>{"antibody":"PD-L1","clone":"22C3"}</td><td>2</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide4</td><td>H&amp;E</td><td>H_AND_E</td><td>Block B – Metastasis</td><td>{"stain":"hematoxylin","magnification":"20x"}</td><td>0</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY</td><td>https://viewer/slide5</td><td>H&amp;E</td><td>H_AND_E</td><td></td><td></td><td>0</td></tr>
 </table>
 
 The last row has an empty `GROUP_PATH`, so that item appears at the root level of the Pathology category — the same behavior as the old format without this column.
@@ -1735,14 +1724,16 @@ The patient resource file should follow this format, it has three **required** c
 - **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
 - **TYPE (optional)**: free-text sub-classification of the item (e.g. `CT`, `PATH_REPORT`, `BAM`, `JOURNAL`).
 - **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested. Supports multiple levels of nesting (e.g. `CT 2023-01-15/Series 1: Axial T2`). Leave empty for a flat/root-level item.
+- **METADATA (optional)**: a JSON string of domain-specific key/value pairs for this item (e.g. `{"modality":"CT","slices":120}`).
+- **PRIORITY (optional)**: integer display order within the item's folder or category. Defaults to `0`.
 
 ### Example *Patient Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/1</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 1: Axial T2</td></tr>
-<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/2</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 2: Coronal T1</td></tr>
-<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://reports/1</td><td>Biopsy Report</td><td>PATH_REPORT</td><td>2023</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>CT_SCANS</td><td>https://pubmed/1</td><td>TCGA Paper 2021</td><td>JOURNAL</td><td></td></tr>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th><th>METADATA</th><th>PRIORITY</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/1</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 1: Axial T2</td><td>{"modality":"CT","slices":120}</td><td>0</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/2</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 2: Coronal T1</td><td>{"modality":"CT","slices":80}</td><td>0</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>reports</td><td>https://reports/1</td><td>Biopsy Report</td><td>PATH_REPORT</td><td>2023</td><td></td><td>0</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>publications</td><td>https://pubmed/1</td><td>TCGA Paper 2021</td><td>JOURNAL</td><td></td><td></td><td>0</td></tr>
 </table>
 
 The two-level `GROUP_PATH` in the CT scan rows (e.g. `CT 2023-01-15/Series 1: Axial T2`) creates a two-deep folder structure: a date-level group containing a series-level group. The last row has an empty `GROUP_PATH` and therefore appears flat at the root of its category.
@@ -1754,29 +1745,74 @@ The study resource file should follow this format, it has two **required** colum
 - **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
 - **TYPE (optional)**: free-text sub-classification of the item.
 - **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested. Leave empty for a flat/root-level item.
+- **METADATA (optional)**: a JSON string of domain-specific key/value pairs for this item.
+- **PRIORITY (optional)**: integer display order within the item's folder or category. Defaults to `0`.
 
 ### Example *Study Resource* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Study Sponsors</td><td></td><td></td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th><th>METADATA</th><th>PRIORITY</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Study Sponsors</td><td></td><td></td><td></td><td>0</td></tr>
 </table>
+
+### Optional columns
+
+Five optional columns can be added to any of the resource data files (`data_resource_patient.txt`, `data_resource_sample.txt`, `data_resource_study.txt`) to enable hierarchical grouping, richer labeling, domain-specific metadata, and explicit display ordering of resource items:
+
+| Column | Description |
+|---|---|
+| `DISPLAY_NAME` | Human-readable label shown for the item in the UI tree. If omitted, falls back to the `DISPLAY_NAME` from the resource definition. |
+| `TYPE` | Free-text sub-classification of the item (e.g. `H_AND_E`, `IHC`, `CT`, `BAM`, `PDF`, `JOURNAL`). Shown as a badge next to the item in the UI. No fixed vocabulary — new values can be introduced without schema changes. |
+| `GROUP_PATH` | A `/`-separated path of folder (GROUP) ancestors under which this item is nested (e.g. `Block A – Primary Tumor` or `CT 2023-01-15/Series 1: Axial T2`). Each path segment creates or reuses a named folder node in the tree at the correct depth. An empty or absent `GROUP_PATH` places the item at the root of its category — this preserves full backward compatibility with files that do not include this column. |
+| `METADATA` | A JSON string of arbitrary key/value pairs for domain-specific descriptive data about the item (e.g. `{"stain":"hematoxylin","magnification":"20x"}` for a pathology slide, or `{"modality":"CT","slices":120}` for an imaging series). If omitted, no additional metadata is stored. |
+| `PRIORITY` | An integer that controls the display order of items within their parent folder or category. Lower values appear first. Defaults to `0` if omitted. |
+
+#### Note on `GROUP_PATH`
+
+- `GROUP_PATH` defines the folder hierarchy under which a resource item appears in the UI. Each `/`-separated segment becomes a nested folder level. For example, `CT 2023-01-15/Series 1: Axial T2` produces a folder called `CT 2023-01-15` containing a subfolder called `Series 1: Axial T2`, with the item placed inside that subfolder.
+- Multiple rows sharing the same `GROUP_PATH` value are grouped together under the same folder. If two rows share the first segment of their path (e.g. both start with `CT 2023-01-15/`), they appear under the same top-level folder with separate subfolders beneath it.
+- If `GROUP_PATH` is empty or the column is omitted entirely, the item appears directly under its resource category with no folder wrapping. This is the default behavior and ensures existing data files without this column continue to load correctly.
+
+#### Note on `METADATA`
+
+- `METADATA` must be a valid JSON string. The keys and values are free-form and specific to the resource domain — there is no required schema. The data is stored as-is and surfaced in the UI alongside the item. If the field is omitted or left empty for a row, no metadata is stored for that item.
+
+#### Note on `PRIORITY`
+
+- `PRIORITY` controls the sort order of items within their containing folder or category. Items with a lower `PRIORITY` value are displayed before items with a higher value. Items sharing the same `PRIORITY` value are sorted by their `DISPLAY_NAME`. If omitted, the default value of `0` is used.
 
 ### Resource tree rendering in the UI
 
-The resource data is rendered as an accordion/tree in the patient and study views. The `DISPLAY_NAME` from the `resource_definition` file is used as the top-level category heading. Within each category, GROUP nodes (created from `GROUP_PATH` segments) appear as expandable folders, and ITEM nodes (the actual URL-bearing rows) appear as clickable links or embedded viewers. The `TYPE` field is shown as a badge next to each item.
+- The resource data is rendered as an accordion/tree in the patient and study views. The `DISPLAY_NAME` from the `resource_definition` file is used as the top-level category heading. Within each category, GROUP nodes (created from `GROUP_PATH` segments) appear as expandable folders, and ITEM nodes (the actual URL-bearing rows) appear as clickable links or embedded viewers. The `TYPE` field is shown as a badge next to each item, and items within a folder are ordered by their `PRIORITY` value.
 
 Example tree rendered from the patient resource data example above:
 
 ```
-▼ Radiology                          ← resource_definition DISPLAY_NAME
-  ▼ CT 2023-01-15                    ← GROUP node (depth 1)
-    ▼ Series 1: Axial T2             ← GROUP node (depth 2)
-        Instance        [CT]         → viewer
-    ▼ Series 2: Coronal T1           ← GROUP node (depth 2)
-        Instance        [CT]         → viewer
-  ▼ 2023                             ← GROUP node
-      Biopsy Report  [PATH_REPORT]   → link
-  TCGA Paper 2021    [JOURNAL]       → link  (root-level, no GROUP_PATH)
+▼ Pathology                      ← resource_definition DISPLAY_NAME
+  ▼ Block A – Primary Tumor      ← GROUP node
+      H&E            [H_AND_E]   → iframe
+      IHC CD3        [IHC]       → iframe
+      IHC PD-L1      [IHC]       → iframe
+  ▼ Block B – Metastasis         ← GROUP node
+      H&E            [H_AND_E]   → iframe
+
+▼ Radiology
+  ▼ CT 2023-01-15                ← GROUP node (depth 1)
+    ▼ Series 1: Axial T2         ← GROUP node (depth 2)
+        Instance     [CT]        → iframe
+    ▼ Series 2: Coronal T1       ← GROUP node (depth 2)
+        Instance     [CT]        → iframe
+
+▼ Clinical Reports
+  ▼ 2023                         ← GROUP node
+      Biopsy Report  [PATH_REPORT] → link
+
+▼ Raw Data Files
+  ▼ WGS                          ← GROUP node
+      Tumor BAM      [BAM]       → link
+      Normal BAM     [BAM]       → link
+
+▼ Publications                   ← flat, no GROUP
+    TCGA Paper 2021  [JOURNAL]   → link
 ```
 
 ## Custom namespace columns

@@ -1641,11 +1641,13 @@ Each collection of mutational signatures can consist of up to three different da
 
 ## Resource Data
 
-The resource data is used to capture resource data in patients, samples and studies. The resources will be represented by URLs with meta data. The types of resources include:
+The resource data is used to capture resource data in patients, samples and studies. The resources will be represented by URLs with metadata. The types of resources include:
 - Files: pdf, txt, png, json, etc.
 - Web links: non-file links e.g. URLs to other systems
 
-the resource file is split into a resource definition file, sample resource file, patient resource file and study resource file. All data files are required to have a matching meta file.
+Resources are displayed in cBioPortal as a hierarchical tree. Each `resource_definition` provides the top-level category label. Within a category, items can be organized into nested groups (folders) using the `GROUP_PATH` column, allowing multi-level structure such as tissue blocks, imaging series, or year-based report archives. Items without a `GROUP_PATH` appear flat at the root of their category, which is the behavior of the original format and remains fully supported.
+
+The resource file is split into a resource definition file, sample resource file, patient resource file and study resource file. All data files are required to have a matching meta file.
 
 ### Meta files
 The resource metadata files have to contain the following fields:
@@ -1674,57 +1676,108 @@ data_filename: data_resource_sample.txt
 ### Resource Definition Data File
 The resource definition file should follow this format, it has three **required** columns:
 - **RESOURCE_ID (required)**: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.
-- **DISPLAY_NAME (required)**: a display name for resources.
+- **DISPLAY_NAME (required)**: a display name for the resource category. This label is used as the top-level heading in the resource tree in the UI.
 - **RESOURCE_TYPE (required)**: resource type for resources, must be SAMPLE, PATIENT or STUDY.
-- **DESCRIPTION (optional)**: a discription for resources.
-- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
+- **DESCRIPTION (optional)**: a description for resources.
+- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), default is `false`.
 - **PRIORITY (optional)**: if not given, will give a default value.
 
 ### Example *Resource Definition* data file
 <table>
 <thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
-<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
-<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
+<tr><td>PATHOLOGY</td><td>Pathology</td><td>SAMPLE</td><td>Pathology images for the sample</td><td>TRUE</td><td>1</td></tr>
+<tr><td>CT_SCANS</td><td>Radiology</td><td>PATIENT</td><td>CT imaging series for the patient</td><td>FALSE</td><td>2</td></tr>
 <tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
 </table>
+
+### New optional columns for resource data files
+
+Three optional columns can be added to any of the resource data files (`data_resource_patient.txt`, `data_resource_sample.txt`, `data_resource_study.txt`) to enable hierarchical grouping and richer labeling of resource items:
+
+| Column | Description |
+|---|---|
+| `DISPLAY_NAME` | Human-readable label shown for the item in the UI tree. If omitted, falls back to the `DISPLAY_NAME` from the resource definition. |
+| `TYPE` | Free-text sub-classification of the item (e.g. `H_AND_E`, `IHC`, `CT`, `BAM`, `PDF`, `JOURNAL`). Shown as a badge next to the item in the UI. No fixed vocabulary — new values can be introduced without schema changes. |
+| `GROUP_PATH` | A `/`-separated path of folder (GROUP) ancestors under which this item is nested (e.g. `Block A – Primary Tumor` or `CT 2023-01-15/Series 1: Axial T2`). Each path segment creates or reuses a named folder node in the tree at the correct depth. An empty or absent `GROUP_PATH` places the item at the root of its category — this preserves full backward compatibility with files that do not include this column. |
+
+#### Note on `GROUP_PATH`
+
+1. `GROUP_PATH` defines the folder hierarchy under which a resource item appears in the UI. Each `/`-separated segment becomes a nested folder level. For example, `CT 2023-01-15/Series 1: Axial T2` produces a folder called `CT 2023-01-15` containing a subfolder called `Series 1: Axial T2`, with the item placed inside that subfolder.
+2. Multiple rows sharing the same `GROUP_PATH` value are grouped together under the same folder. If two rows share the first segment of their path (e.g. both start with `CT 2023-01-15/`), they appear under the same top-level folder with separate subfolders beneath it.
+3. If `GROUP_PATH` is empty or the column is omitted entirely, the item appears directly under its resource category with no folder wrapping. This is the default behavior and ensures existing data files without this column continue to load correctly.
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resource, must start with `http` or `https`.
+- **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
+- **TYPE (optional)**: free-text sub-classification of the item (e.g. `H_AND_E`, `IHC`, `BAM`).
+- **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested (e.g. `Block A – Primary Tumor`). Leave empty for a flat/root-level item.
 
 ### Example *Sample Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide1</td><td>H&amp;E</td><td>H_AND_E</td><td>Block A – Primary Tumor</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide2</td><td>IHC CD3</td><td>IHC</td><td>Block A – Primary Tumor</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY</td><td>https://viewer/slide3</td><td>H&amp;E</td><td>H_AND_E</td><td>Block B – Metastasis</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY</td><td>https://viewer/slide4</td><td>H&amp;E</td><td>H_AND_E</td><td></td></tr>
 </table>
+
+The last row has an empty `GROUP_PATH`, so that item appears at the root level of the Pathology category — the same behavior as the old format without this column.
 
 ### Patient Resource Data File
 The patient resource file should follow this format, it has three **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resource, must start with `http` or `https`.
+- **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
+- **TYPE (optional)**: free-text sub-classification of the item (e.g. `CT`, `PATH_REPORT`, `BAM`, `JOURNAL`).
+- **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested. Supports multiple levels of nesting (e.g. `CT 2023-01-15/Series 1: Axial T2`). Leave empty for a flat/root-level item.
 
 ### Example *Patient Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/1</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 1: Axial T2</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://ohif/2</td><td>Instance</td><td>CT</td><td>CT 2023-01-15/Series 2: Coronal T1</td></tr>
+<tr><td>TCGA-A2-A04P</td><td>CT_SCANS</td><td>https://reports/1</td><td>Biopsy Report</td><td>PATH_REPORT</td><td>2023</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>CT_SCANS</td><td>https://pubmed/1</td><td>TCGA Paper 2021</td><td>JOURNAL</td><td></td></tr>
 </table>
+
+The two-level `GROUP_PATH` in the CT scan rows (e.g. `CT 2023-01-15/Series 1: Axial T2`) creates a two-deep folder structure: a date-level group containing a series-level group. The last row has an empty `GROUP_PATH` and therefore appears flat at the root of its category.
 
 ### Study Resource Data File
 The study resource file should follow this format, it has two **required** columns:
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resource, must start with `http` or `https`.
+- **DISPLAY_NAME (optional)**: human-readable label for this item in the UI tree.
+- **TYPE (optional)**: free-text sub-classification of the item.
+- **GROUP_PATH (optional)**: `/`-separated folder path under which this item is nested. Leave empty for a flat/root-level item.
 
 ### Example *Study Resource* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>GROUP_PATH</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Study Sponsors</td><td></td><td></td></tr>
 </table>
+
+### Resource tree rendering in the UI
+
+The resource data is rendered as an accordion/tree in the patient and study views. The `DISPLAY_NAME` from the `resource_definition` file is used as the top-level category heading. Within each category, GROUP nodes (created from `GROUP_PATH` segments) appear as expandable folders, and ITEM nodes (the actual URL-bearing rows) appear as clickable links or embedded viewers. The `TYPE` field is shown as a badge next to each item.
+
+Example tree rendered from the patient resource data example above:
+
+```
+▼ Radiology                          ← resource_definition DISPLAY_NAME
+  ▼ CT 2023-01-15                    ← GROUP node (depth 1)
+    ▼ Series 1: Axial T2             ← GROUP node (depth 2)
+        Instance        [CT]         → viewer
+    ▼ Series 2: Coronal T1           ← GROUP node (depth 2)
+        Instance        [CT]         → viewer
+  ▼ 2023                             ← GROUP node
+      Biopsy Report  [PATH_REPORT]   → link
+  TCGA Paper 2021    [JOURNAL]       → link  (root-level, no GROUP_PATH)
+```
 
 ## Custom namespace columns
 

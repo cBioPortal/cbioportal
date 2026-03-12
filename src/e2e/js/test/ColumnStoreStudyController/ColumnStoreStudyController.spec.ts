@@ -54,7 +54,7 @@ describe('ColumnStoreStudyController E2E Tests', () => {
   describe('testGetStudyById', () => {
 
     // Study IDs used across multiple tests
-    const KNOWN_STUDY_ID = 'mskimpact';
+    const KNOWN_STUDY_ID = 'acc_tcga';
     const NONEXISTENT_STUDY_ID = 'nonexistent_study_xyz_000';
 
     it('should return a single study with all required fields', async () => {

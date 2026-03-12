@@ -1,6 +1,5 @@
 ## March 15, 2026
-*   **Added data** consisting of 59,989 samples from 19 studies:
-    * [MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://www.cbioportal.org/study/summary?id=msk_impact_50k_2026) *54331 samples*
+*   **Added data** consisting of 5,657 samples from 18 studies:
     * [Cancer Cell Line Encyclopedia (Broad, Nat Rev Cancer 2025)](https://www.cbioportal.org/study/summary?id=depmap_broad_2025) *1981 samples*
     * [Renal Cell Carcinoma (St. James, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=ccrcc_sjuh_2023) *943 samples*
 	* [Acute Myeloid Leukemia (St. Jude, Nat Genet 2024)](https://www.cbioportal.org/study/summary?id=aml_stjude_2024) *887 samples*

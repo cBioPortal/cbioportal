@@ -1,6 +1,5 @@
-## March 15, 2026
-*   **Added data** consisting of 5,657 samples from 18 studies:
-    * [Cancer Cell Line Encyclopedia (Broad, Nat Rev Cancer 2025)](https://www.cbioportal.org/study/summary?id=depmap_broad_2025) *1981 samples*
+## March 12, 2026
+*   **Added data** consisting of 3,676 samples from 17 studies:
     * [Renal Cell Carcinoma (St. James, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=ccrcc_sjuh_2023) *943 samples*
 	* [Acute Myeloid Leukemia (St. Jude, Nat Genet 2024)](https://www.cbioportal.org/study/summary?id=aml_stjude_2024) *887 samples*
     * [Metastatic Bladder Urothelial Carcinoma (IMvigor210 Phase II Trial, ESMO Open. 2024) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=blca_iatlas_imvigor210_2017) *347 samples*
@@ -19,8 +18,10 @@
     * [Breast Invasive Lobular Carcinoma (MSK, NPJ Precis Oncol 2024)](https://www.cbioportal.org/study/summary?id=ilc_msk_2023) *25 samples*
     * [Metastatic Renal Clear Cell Carcinoma (Phase 1 Biomarker Trial, Clin Cancer Res. 2016) - iAtlas Harmonized)](https://www.cbioportal.org/study/summary?id=ccrcc_iatlas_choueiri_2016) *16 samples*
 
- *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 7, 2025 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
+*   **Data Improvement**
 
+    * Cancer Cell Line Encyclopedia (DepMap Broad 2025): Added segmented copy number data, log2 copy number alteration (CNA) values, and RNA expression profiles to enhance molecular characterization of the cell line cohort. Study page: https://www.cbioportal.org/study/summary?id=depmap_broad_2025
+ *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 7, 2025 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
 ## November 15, 2025
 * **Data Improvement**: The default transcripts for each gene were updated to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). Also Ensembl's subversions are now included for each transcript.

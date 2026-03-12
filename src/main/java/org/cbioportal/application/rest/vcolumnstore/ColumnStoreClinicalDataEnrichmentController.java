@@ -88,7 +88,7 @@ public class ColumnStoreClinicalDataEnrichmentController {
   public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
       @Parameter(required = true, description = "Group filter with sample identifiers")
           @Valid
-          @RequestBody(required = false)
+          @RequestBody
           GroupFilter groupFilter) {
 
     return new ResponseEntity<>(

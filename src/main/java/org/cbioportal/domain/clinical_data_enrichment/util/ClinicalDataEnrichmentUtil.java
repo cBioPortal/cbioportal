@@ -219,14 +219,14 @@ public final class ClinicalDataEnrichmentUtil {
   }
 
   /**
-   * Extracts all possible categories for Chi-squared test, excluding NA values.
+   * Extracts all possible categories for Chi-squared test.
    *
-   * <p>Collects all unique category values across all groups for the specified attribute. NA values
-   * are explicitly excluded as they represent missing data rather than a valid category.
+   * <p>Collects all unique category values across all groups for the specified attribute. NA
+   * filtering occurs upstream in the database query layer.
    *
    * @param attributeId the clinical attribute ID to extract categories for
    * @param countsByGroupAndAttribute list of maps containing count items by group
-   * @return set of all unique non-NA category values
+   * @return set of all unique category values
    */
   private static Set<String> extractAllCategories(
       String attributeId, List<Map<String, ClinicalDataCountItem>> countsByGroupAndAttribute) {

@@ -89,6 +89,9 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
+    if (CollectionUtils.isEmpty(sampleUniqueIds) && CollectionUtils.isEmpty(patientUniqueIds)) {
+      return Collections.emptyList();
+    }
     return mapper.getClinicalDataCountsForEnrichments(
         sampleUniqueIds,
         patientUniqueIds,
@@ -147,6 +150,9 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
+    if (CollectionUtils.isEmpty(sampleUniqueIds) && CollectionUtils.isEmpty(patientUniqueIds)) {
+      return Collections.emptyList();
+    }
     return mapper.fetchClinicalDataSummaryForEnrichments(
         sampleUniqueIds,
         patientUniqueIds,

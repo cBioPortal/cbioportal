@@ -107,7 +107,7 @@ public class FetchClinicalDataEnrichmentsUseCase {
             .filter(validSamples -> !validSamples.isEmpty())
             .toList();
 
-    if (groupedSamples.isEmpty()) {
+    if (groupedSamples.size() < 2) {
       return new ArrayList<>();
     }
 

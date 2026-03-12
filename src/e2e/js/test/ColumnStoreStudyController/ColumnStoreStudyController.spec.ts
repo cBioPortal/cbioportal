@@ -106,7 +106,10 @@ describe('ColumnStoreStudyController E2E Tests', () => {
       expect(study.cancerType.name).to.be.a('string', 'cancerType.name should be a string');
       expect(study.cancerType.dedicatedColor).to.be.a('string', 'cancerType.dedicatedColor should be a string');
       expect(study.cancerType.shortName).to.be.a('string', 'cancerType.shortName should be a string');
-      expect(study.cancerType.parent).to.be.a('string', 'cancerType.parent should be a string');
+      // cancerType.parent is nullable in the data model, so only check type when present
+      if (study.cancerType.parent != null) {
+        expect(study.cancerType.parent).to.be.a('string', 'cancerType.parent should be a string when present');
+      }
     });
 
     it('should return 404 for a non-existent study', async () => {

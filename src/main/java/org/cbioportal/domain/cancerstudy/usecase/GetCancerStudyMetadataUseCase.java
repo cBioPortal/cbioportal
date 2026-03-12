@@ -113,12 +113,11 @@ public class GetCancerStudyMetadataUseCase {
     if (metadata == null) {
       return null;
     }
-    List<ResourceCount> resourceCounts = studyRepository.getResourceCountsForAllStudies();
-    Map<String, List<ResourceCount>> resourceCountsMap =
-        resourceCounts.stream().collect(Collectors.groupingBy(rc -> rc.cancerStudyIdentifier()));
-    return new CancerStudyMetadata(
-        metadata,
-        resourceCountsMap.getOrDefault(metadata.cancerStudyIdentifier(), Collections.emptyList()));
+    List<ResourceCount> resourceCounts =
+        studyRepository.getResourceCountsForAllStudies().stream()
+            .filter(rc -> studyId.equals(rc.cancerStudyIdentifier()))
+            .toList();
+    return new CancerStudyMetadata(metadata, resourceCounts);
   }
 
   public List<ResourceCount> getResourceCountsForAllStudies(ProjectionType projectionType) {

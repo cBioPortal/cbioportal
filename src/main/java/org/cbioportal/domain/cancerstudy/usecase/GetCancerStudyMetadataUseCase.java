@@ -108,6 +108,19 @@ public class GetCancerStudyMetadataUseCase {
         .toList();
   }
 
+  public CancerStudyMetadata getStudy(String studyId) {
+    CancerStudyMetadata metadata = studyRepository.getCancerStudyMetadata(studyId);
+    if (metadata == null) {
+      return null;
+    }
+    List<ResourceCount> resourceCounts = studyRepository.getResourceCountsForAllStudies();
+    Map<String, List<ResourceCount>> resourceCountsMap =
+        resourceCounts.stream().collect(Collectors.groupingBy(rc -> rc.cancerStudyIdentifier()));
+    return new CancerStudyMetadata(
+        metadata,
+        resourceCountsMap.getOrDefault(metadata.cancerStudyIdentifier(), Collections.emptyList()));
+  }
+
   public List<ResourceCount> getResourceCountsForAllStudies(ProjectionType projectionType) {
     return switch (projectionType) {
       case DETAILED, SUMMARY -> studyRepository.getResourceCountsForAllStudies();

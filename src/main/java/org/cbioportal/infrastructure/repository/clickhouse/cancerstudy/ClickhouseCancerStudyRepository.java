@@ -69,6 +69,17 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
+  public CancerStudyMetadata getCancerStudyMetadata(String studyId) {
+    List<CancerStudyMetadata> results =
+        cancerStudyMapper.getCancerStudiesMetadata(
+            new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
+    return results.isEmpty() ? null : results.getFirst();
+  }
+
+  @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
     return cancerStudyMapper.getFilteredStudyIds(studyViewFilterContext);
   }

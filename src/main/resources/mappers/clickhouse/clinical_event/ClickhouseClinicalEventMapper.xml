@@ -14,4 +14,41 @@
         </where>
         GROUP BY event_type
     </select>
+
+    <resultMap id="patientClinicalEventResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <id property="clinicalEventId" column="clinicalEventId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="startDate" column="startDate"/>
+        <result property="stopDate" column="stopDate"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData">
+            <result property="key" column="key"/>
+            <result property="value" column="value"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPatientClinicalEvents" resultMap="patientClinicalEventResultMap">
+        SELECT
+            ce.clinical_event_id AS clinicalEventId,
+            ce.event_type AS eventType,
+            ce.patient_stable_id AS patientId,
+            ce.cancer_study_identifier AS studyId,
+            ce.start_date AS startDate,
+            ce.stop_date AS stopDate,
+            ced.`key` AS `key`,
+            ced.value AS value
+        FROM clinical_event ce
+        LEFT JOIN (
+            SELECT clinical_event_id, `key`, value
+            FROM clinical_event_data
+            WHERE clinical_event_id IN (
+                SELECT clinical_event_id FROM clinical_event
+                WHERE cancer_study_identifier = #{studyId} AND patient_stable_id = #{patientId}
+            )
+        ) ced ON ce.clinical_event_id = ced.clinical_event_id
+        WHERE ce.cancer_study_identifier = #{studyId}
+          AND ce.patient_stable_id = #{patientId}
+        ORDER BY ce.clinical_event_id ASC
+    </select>
 </mapper>

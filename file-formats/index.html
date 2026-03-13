@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.826140046364">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.826747659260">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,12 +36,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.826140046364" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.826747659260" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.826140046364" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.826747659260" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.826140046364" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.826140046364" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.826747659260" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.826747659260" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1362,10 +1362,10 @@ the <a href="https://www.cbioportal.org/index.do?cancer_study_list=acc_tcga&amp;
 <p><strong>The ASCN columns below are optional by default. If <code v-pre>ascn</code> is a defined namespace in <code v-pre>meta_mutations_extended.txt</code>, then these columns are ALL required.</strong></p>
 <ol start="42">
 <li><strong>ASCN.ASCN_METHOD (Optional)</strong>: Method used to obtain ASCN data e.g &quot;FACETS&quot;.</li>
-<li><strong>ASCN.CCF_EXPECTED_COPIES (Optional)</strong>: Cancer-cell fraction if mutation exists on major allele.</li>
+<li><strong>ASCN.CCF_EXPECTED_COPIES (Optional)</strong>: Cancer-cell fraction if mutation exists on major allele. Displayed as a plain number for single-sample patients or as a bar chart for multi-sample patients in the patient view mutation table.</li>
 <li><strong>ASCN.CCF_EXPECTED_COPIES_UPPER (Optional)</strong>: Upper error for CCF estimate.</li>
 <li><strong>ASCN.EXPECTED_ALT_COPIES (Optional)</strong>: Estimated number of copies harboring mutant allele.</li>
-<li><strong>ASCN.CLONAL (Optional)</strong>: &quot;Clonal&quot;, &quot;Subclonal&quot;, or &quot;Indeterminate&quot;.</li>
+<li><strong>ASCN.CLONAL (Optional)</strong>: &quot;Clonal&quot;, &quot;Subclonal&quot;, or &quot;Indeterminate&quot;. Displayed as a &quot;Clonal&quot; boolean column in the patient view mutation table, where only &quot;Clonal&quot; values are indicated with a dot.</li>
 <li><strong>ASCN.TOTAL_COPY_NUMBER (Optional)</strong>: Total copy number of the gene.</li>
 <li><strong>ASCN.MINOR_COPY_NUMBER (Optional)</strong>: Copy number of the minor allele.</li>
 <li><strong>ASCN.ASCN_INTEGER_COPY_NUMER (Optional)</strong>: Absolute integer copy-number estimate.</li>

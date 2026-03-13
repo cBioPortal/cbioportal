@@ -43,7 +43,9 @@ Any new exception must be documented here with a justification.
 
 ### Enforcement
 
-An ArchUnit test should verify that all `@RequestMapping` methods in `@RestController` classes have `@PreAuthorize`, unless the controller is in the documented exceptions list. See the endpoint authorization architecture test for details.
+An ArchUnit test (`EndpointAuthorizationArchTest`) verifies that all `@RequestMapping` methods in `@RestController` classes have `@PreAuthorize`, unless the controller or method is in a documented exceptions list. If you add a new endpoint, the test will fail unless you either:
+1. Add `@PreAuthorize` to the method, OR
+2. Add the controller to `AUTHORIZED_EXCEPTIONS` (or the method to `METHOD_EXCEPTIONS`) with a justification comment
 
 ## Code Conventions
 

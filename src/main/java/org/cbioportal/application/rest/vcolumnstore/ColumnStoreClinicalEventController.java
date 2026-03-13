@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import org.cbioportal.domain.clinical_event.usecase.GetPatientClinicalEventsUseCase;
 import org.cbioportal.legacy.model.ClinicalEvent;
+import org.cbioportal.legacy.service.exception.PatientNotFoundException;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +37,8 @@ public class ColumnStoreClinicalEventController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsOfPatientInStudy(
       @Parameter(required = true, description = "Study ID") @PathVariable String studyId,
-      @Parameter(required = true, description = "Patient ID") @PathVariable String patientId) {
+      @Parameter(required = true, description = "Patient ID") @PathVariable String patientId)
+      throws PatientNotFoundException, StudyNotFoundException {
 
     List<ClinicalEvent> clinicalEvents =
         getPatientClinicalEventsUseCase.execute(studyId, patientId);

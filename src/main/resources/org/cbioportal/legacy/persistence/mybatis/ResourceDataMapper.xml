@@ -3,13 +3,18 @@
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.ResourceDataMapper">
 
-    <sql id="selectSampleResource">
-        sample.stable_id AS "${prefix}sampleId",
-        patient.stable_id AS "${prefix}patientId",
-        resource_sample.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
+    <sql id="selectNodeFields">
+        resource_node.id AS "${prefix}id",
+        resource_node.resource_id AS "${prefix}resourceId",
+        resource_node.node_type AS "${prefix}nodeType",
+        resource_node.entity_type AS "${prefix}entityType",
+        resource_node.display_name AS "${prefix}displayName",
+        resource_node.parent_id AS "${prefix}parentId",
+        resource_node.priority AS "${prefix}priority"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_sample.url AS "${prefix}url"
+            , resource_node.url AS "${prefix}url"
+            , resource_node.type AS "${prefix}type"
+            , resource_node.metadata AS "${prefix}metadata"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -17,90 +22,88 @@
                 <property name="prefix" value="${prefix}resourceDefinition."/>
             </include>
         </if>
+    </sql>
+
+    <sql id="selectSampleResource">
+        sample.stable_id AS "${prefix}sampleId",
+        patient.stable_id AS "${prefix}patientId",
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="selectPatientResource">
         patient.stable_id AS "${prefix}patientId",
-        resource_patient.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_patient.url AS "${prefix}url"
-        </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
-                <property name="prefix" value="${prefix}resourceDefinition."/>
-            </include>
-        </if>
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="selectStudyResource">
-        resource_study.resource_id AS "${prefix}resourceId",
-        cancer_study.cancer_study_identifier AS "${prefix}studyId"
-        <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_study.url AS "${prefix}url"
-        </if>
-        <if test="projection == 'DETAILED'">
-            ,
-            <include refid="org.cbioportal.legacy.persistence.mybatis.ResourceDefinitionMapper.select">
-                <property name="prefix" value="${prefix}resourceDefinition."/>
-            </include>
-        </if>
+        cancer_study.cancer_study_identifier AS "${prefix}studyId",
+        <include refid="selectNodeFields">
+            <property name="prefix" value="${prefix}"/>
+        </include>
     </sql>
 
     <sql id="fromSample">
-        FROM resource_sample
-        INNER JOIN sample ON resource_sample.internal_id = sample.internal_id
+        FROM resource_node
+        INNER JOIN sample ON resource_node.entity_internal_id = sample.internal_id AND resource_node.entity_type = 'SAMPLE'
         INNER JOIN patient ON sample.patient_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN cancer_study ON resource_node.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="fromPatient">
-        FROM resource_patient
-        INNER JOIN patient ON resource_patient.internal_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        FROM resource_node
+        INNER JOIN patient ON resource_node.entity_internal_id = patient.internal_id AND resource_node.entity_type = 'PATIENT'
+        INNER JOIN cancer_study ON resource_node.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="fromStudy">
-        FROM resource_study
-        INNER JOIN cancer_study ON resource_study.internal_id = cancer_study.cancer_study_id
+        FROM resource_node
+        INNER JOIN cancer_study ON resource_node.entity_internal_id = cancer_study.cancer_study_id AND resource_node.entity_type = 'STUDY'
     </sql>
 
     <sql id="whereSample">
         <where>
+            resource_node.node_type = 'ITEM'
             <if test="sampleId == null">
-                cancer_study.cancer_study_identifier = #{studyId}
+                AND cancer_study.cancer_study_identifier = #{studyId}
             </if>
             <if test="sampleId != null">
-                 cancer_study.cancer_study_identifier = #{studyId} AND
-                 sample.stable_id = #{sampleId}
+                AND cancer_study.cancer_study_identifier = #{studyId}
+                AND sample.stable_id = #{sampleId}
             </if>
             <if test="resourceId != null">
-                AND resource_sample.resource_id = #{resourceId}
+                AND resource_node.resource_id = #{resourceId}
             </if>
         </where>
     </sql>
 
     <sql id="wherePatient">
         <where>
+            resource_node.node_type = 'ITEM'
             <if test="patientId == null">
-                cancer_study.cancer_study_identifier = #{studyId}
+                AND cancer_study.cancer_study_identifier = #{studyId}
             </if>
             <if test="patientId != null">
-                 cancer_study.cancer_study_identifier = #{studyId} AND
-                 patient.stable_id = #{patientId}
+                AND cancer_study.cancer_study_identifier = #{studyId}
+                AND patient.stable_id = #{patientId}
             </if>
             <if test="resourceId != null">
-                AND resource_patient.resource_id = #{resourceId}
+                AND resource_node.resource_id = #{resourceId}
             </if>
         </where>
     </sql>
 
     <sql id="whereStudy">
         <where>
-            cancer_study.cancer_study_identifier = #{studyId}
+            resource_node.node_type = 'ITEM'
+            AND cancer_study.cancer_study_identifier = #{studyId}
             <if test="resourceId != null">
-                AND resource_study.resource_id = #{resourceId}
+                AND resource_node.resource_id = #{resourceId}
             </if>
         </where>
     </sql>
@@ -112,16 +115,16 @@
         </include>
         <include refid="fromSample"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_sample.resource_id = resource_definition.resource_id
-            AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
+            INNER JOIN resource_definition ON resource_node.resource_id = resource_definition.resource_id
+            AND resource_node.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereSample"/>
-        <choose>    
+        <choose>
             <when test="sortBy != null and projection != 'ID'">
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_sample.resource_id ASC
+                ORDER BY resource_node.resource_id ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">
@@ -136,8 +139,8 @@
         </include>
         <include refid="fromPatient"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_patient.resource_id = resource_definition.resource_id
-            AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
+            INNER JOIN resource_definition ON resource_node.resource_id = resource_definition.resource_id
+            AND resource_node.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="wherePatient"/>
         <choose>
@@ -145,7 +148,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_patient.resource_id ASC
+                ORDER BY resource_node.resource_id ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">
@@ -160,8 +163,8 @@
         </include>
         <include refid="fromStudy"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_study.resource_id = resource_definition.resource_id
-            AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
+            INNER JOIN resource_definition ON resource_node.resource_id = resource_definition.resource_id
+            AND resource_node.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereStudy"/>
         <choose>
@@ -169,7 +172,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_study.resource_id ASC
+                ORDER BY resource_node.resource_id ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">

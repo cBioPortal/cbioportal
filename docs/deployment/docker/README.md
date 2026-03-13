@@ -158,7 +158,10 @@ at [these notes](notes-for-non-linux.md) to allocate more memory for the
 virtual machine in which all Docker processes are running.
 
 ## Clickhouse Mode ##
-For cBioPortal instances with large cohorts (>100K samples), we developed a "Clickhouse mode" of the Study View. This mode uses Clickhouse as an additional database next to MySQL for 10x faster querying (see [video](https://www.youtube.com/watch?v=8PAJRCeycU4)). The mode is experimental and is currently used only by the public-facing [GENIE instance](https://genie.cbioportal.org). We plan to roll it out to other portals later this year (see [roadmap ticket](https://github.com/orgs/cBioPortal/projects/16?query=sort%3Aupdated-desc+is%3Aopen&pane=issue&itemId=92222076&issue=cBioPortal%7Croadmap%7C1)). Follow the steps below to run cBioPortal Docker Compose in clickhouse mode.
+
+cBioPortal has officially released **v7**, which uses **ClickHouse as the sole database backend**. This is now the standard architecture for the portal. For more information on the v7 release and its database requirements, please refer to the main [cBioPortal README.md](../../../README.md#🌳-branching-and-release-strategy).
+
+For legacy v6 deployments (experimental Clickhouse mode alongside MySQL), see the instructions below:
 1. Modify [.env](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to use release >= 6.0.27 of cBioPortal.
     ```text
     ...
@@ -169,7 +172,7 @@ For cBioPortal instances with large cohorts (>100K samples), we developed a "Cli
     ```shell
     ./init.sh
     ```
-3. Start cBioPortal with clickhouse
+3. Start legacy cBioPortal with clickhouse
     ```shell
     docker compose -f docker-compose.yml -f addon/clickhouse/docker-compose.clickhouse.yml up
     ```

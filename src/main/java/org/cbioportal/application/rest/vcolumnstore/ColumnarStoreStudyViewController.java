@@ -48,6 +48,7 @@ import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.columnar.util.NewStudyViewFilterUtil;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataType;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataBinMethod;
@@ -398,6 +399,15 @@ public class ColumnarStoreStudyViewController {
     // Only mutation count can use log scale
     boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
 
+    // Determine if both attributes are patient-level
+    Map<String, ClinicalDataType> attrTypeMap =
+        studyViewService.getClinicalAttributeDataTypeMap(studyViewFilter);
+    boolean bothPatientAttributes =
+        attrTypeMap.getOrDefault(categoricalAttributeId, ClinicalDataType.SAMPLE)
+                == ClinicalDataType.PATIENT
+            && attrTypeMap.getOrDefault(numericalAttributeId, ClinicalDataType.SAMPLE)
+                == ClinicalDataType.PATIENT;
+
     Set<Integer> sampleIdsSet = filteredSamples.stream().map(Sample::internalId).collect(toSet());
 
     ClinicalViolinPlotData result =
@@ -409,7 +419,8 @@ public class ColumnarStoreStudyViewController {
             numCurvePoints,
             useLogScale,
             sigmaMultiplier,
-            studyViewFilter);
+            studyViewFilter,
+            bothPatientAttributes);
 
     return new ResponseEntity<>(result, HttpStatus.OK);
   }

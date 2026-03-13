@@ -40,11 +40,13 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
       BigDecimal numCurvePoints,
       Boolean useLogScale,
       BigDecimal sigmaMultiplier,
-      StudyViewFilter studyViewFilter) {
+      StudyViewFilter studyViewFilter,
+      Boolean patientAttribute) {
     ClinicalViolinPlotData result = new ClinicalViolinPlotData();
     result.setAxisStart(Double.POSITIVE_INFINITY);
     result.setAxisEnd(Double.NEGATIVE_INFINITY);
     result.setRows(new ArrayList<>());
+    result.setPatientAttribute(patientAttribute);
 
     // clinicalDataMap is a map sampleId->studyId->data
     Map<String, Map<String, List<ClinicalData>>> clinicalDataMap =
@@ -188,6 +190,10 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
           row.setCategory(category);
           row.setNumSamples(
               countFilteredSamples(samplesForSampleCountsIds, data, outliers.get(category)));
+          if (Boolean.TRUE.equals(patientAttribute)) {
+            row.setNumPatients(
+                countFilteredPatients(samplesForSampleCountsIds, data, outliers.get(category)));
+          }
           row.setBoxData(boxData.get(category).limitWhiskers(result));
 
           List<ClinicalData> _individualPoints = new ArrayList<>();
@@ -251,6 +257,18 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             .flatMap(Collection::stream)
             .map(ClinicalData::getInternalId)
             .filter(filteredSampleIds::contains)
+            .count();
+  }
+
+  @SafeVarargs
+  private static int countFilteredPatients(
+      Set<Integer> filteredSampleIds, List<ClinicalData>... dataLists) {
+    return (int)
+        Arrays.stream(dataLists)
+            .flatMap(Collection::stream)
+            .filter(d -> filteredSampleIds.contains(d.getInternalId()))
+            .map(d -> d.getPatientId() + "\t" + d.getStudyId())
+            .distinct()
             .count();
   }
 

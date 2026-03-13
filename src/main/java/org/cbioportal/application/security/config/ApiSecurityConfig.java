@@ -35,6 +35,14 @@ public class ApiSecurityConfig {
   // see: "Creating and Customizing Filter Chains" @
   // https://spring.io/guides/topicals/spring-security-architecture
 
+  static final String[] PUBLIC_API_MATCHERS = {
+    "/api/swagger-resources/**",
+    "/api/swagger-ui.html",
+    "/api/health",
+    "/api/public_virtual_studies/**",
+    "/api/cache/**"
+  };
+
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain securityFilterChain(
@@ -45,12 +53,7 @@ public class ApiSecurityConfig {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers(
-                        "/api/swagger-resources/**",
-                        "/api/swagger-ui.html",
-                        "/api/health",
-                        "/api/public_virtual_studies/**",
-                        "/api/cache/**")
+                    .requestMatchers(PUBLIC_API_MATCHERS)
                     .permitAll()
                     .anyRequest()
                     .authenticated())
@@ -61,6 +64,7 @@ public class ApiSecurityConfig {
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                     AntPathRequestMatcher.antMatcher("/api/**")));
+
     // When dat.method is not 'none' and a tokenService bean is present,
     // the apiTokenAuthenticationFilter is added to the filter chain.
     if (tokenService != null) {

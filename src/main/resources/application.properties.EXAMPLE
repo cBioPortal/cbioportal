@@ -441,6 +441,9 @@ server.max-http-request-header-size=16384
 # Development Configuration
 spring.devtools.restart.enabled=false
 
+## API access token requirement (true means tokens are mandatory for /api/**)
+api.access.token.required=false
+
 ## Study Tag functionality
 #enable_study_tags=true|false
 

@@ -18,14 +18,15 @@ import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -54,6 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/column-store")
+@Profile("clickhouse")
 public class ColumnStoreClinicalDataController {
 
   private final FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase;
@@ -79,6 +81,10 @@ public class ColumnStoreClinicalDataController {
    * data in the specified projection format. For metadata queries (projection = META), only the
    * total count is returned in the response headers.
    *
+   * <p>Access control is enforced via {@code @PreAuthorize} which validates user permissions
+   * against the cancer studies referenced in the filter. Study IDs are automatically extracted by
+   * {@link org.cbioportal.application.security.CancerStudyPermissionEvaluator}.
+   *
    * <p>Projection types:
    *
    * <ul>
@@ -89,8 +95,6 @@ public class ColumnStoreClinicalDataController {
    *   <li><strong>META</strong> - Returns only count information in response headers
    * </ul>
    *
-   * @param interceptedClinicalDataMultiStudyFilter security-intercepted filter for permission
-   *     validation
    * @param clinicalDataType type of clinical data to retrieve (SAMPLE or PATIENT)
    * @param clinicalDataMultiStudyFilter filter containing patient/sample identifiers and attribute
    *     IDs
@@ -100,10 +104,9 @@ public class ColumnStoreClinicalDataController {
    */
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @RequestMapping(
+      "hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @PostMapping(
       value = "/clinical-data/fetch",
-      method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Fetch clinical data by patient IDs or sample IDs (all studies)")
@@ -113,13 +116,6 @@ public class ColumnStoreClinicalDataController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
   public ResponseEntity<List<ClinicalDataDTO>> fetchClinicalData(
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestBody(required = false)
-          ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
       @Parameter(description = "Type of the clinical data") @RequestParam(defaultValue = "SAMPLE")
           ClinicalDataType clinicalDataType,
       @Parameter(
@@ -137,13 +133,13 @@ public class ColumnStoreClinicalDataController {
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
           fetchClinicalDataMetaUseCase
-              .execute(interceptedClinicalDataMultiStudyFilter, clinicalDataType)
+              .execute(clinicalDataMultiStudyFilter, clinicalDataType)
               .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     }
     return ResponseEntity.ok(
         ClinicalDataMapper.INSTANCE.toDTOs(
             fetchClinicalDataUseCase.execute(
-                interceptedClinicalDataMultiStudyFilter, clinicalDataType, projection)));
+                clinicalDataMultiStudyFilter, clinicalDataType, projection)));
   }
 }

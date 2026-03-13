@@ -44,6 +44,30 @@ public class NamespaceAttributeServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void fetchNamespaceAttributes_NullOuterKeyList() {
+    Mockito.when(namespaceRepository.getNamespaceOuterKey(Arrays.asList(STUDY_ID)))
+        .thenReturn(null);
+    List<NamespaceAttribute> result =
+        namespaceAttributeService.fetchNamespaceAttributes(Arrays.asList(STUDY_ID));
+    Assert.assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void fetchNamespaceAttributes_NullInnerKeyList() {
+    List<NamespaceAttribute> outerKeys = new ArrayList<>();
+    outerKeys.add(new NamespaceAttribute(NAMESPACE_OUTER_KEY_1, NAMESPACE_INNER_KEY_1));
+
+    Mockito.when(namespaceRepository.getNamespaceOuterKey(Arrays.asList(STUDY_ID)))
+        .thenReturn(outerKeys);
+
+    Mockito.when(namespaceRepository.getNamespaceInnerKey(any(), any())).thenReturn(null);
+
+    List<NamespaceAttribute> result =
+        namespaceAttributeService.fetchNamespaceAttributes(Arrays.asList(STUDY_ID));
+    Assert.assertTrue(result.isEmpty());
+  }
+
+  @Test
   public void getNamespaceAttributeCountsBySampleIds() {
 
     List<NamespaceAttribute> namespaceAttributes = new ArrayList<>();

@@ -885,13 +885,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
           molecularProfileCasesGroupFilters);
       request.setAttribute(
           "interceptedMolecularProfileCasesGroupFilters", molecularProfileCasesGroupFilters);
-      if (molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes() != null) {
-        AlterationFilter alterationEnrichmentEventTypes =
-            molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
-        LOG.debug("extracted alterationEventTypes: {}", alterationEnrichmentEventTypes);
-        LOG.debug("setting alterationEventTypes to {}", alterationEnrichmentEventTypes);
-        request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);
+      AlterationFilter alterationEnrichmentEventTypes =
+          molecularProfileCasesAndAlterationTypesGroupFilters.getAlterationEventTypes();
+      if (alterationEnrichmentEventTypes == null) {
+        alterationEnrichmentEventTypes = new AlterationFilter();
       }
+      LOG.debug("extracted alterationEventTypes: {}", alterationEnrichmentEventTypes);
+      LOG.debug("setting alterationEventTypes to {}", alterationEnrichmentEventTypes);
+      request.setAttribute("alterationEventTypes", alterationEnrichmentEventTypes);
       if (cacheMapUtil.hasCacheEnabled()) {
         Collection<String> cancerStudyIdCollection =
             extractCancerStudyIdsFromMolecularProfileCasesGroups(molecularProfileCasesGroupFilters);

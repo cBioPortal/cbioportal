@@ -8,7 +8,7 @@
     <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.legacy.model.UserAuthorities">
         <result property="email" column="email"/>
         <collection property="authorities" ofType="String">
-            <result property="authority" column="authority"/>
+            <result column="authority"/>
         </collection>
     </resultMap>
 

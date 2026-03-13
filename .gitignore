@@ -110,3 +110,16 @@ security.properties
 *.crt
 *.key
 *~
+*.log
+*.txt
+build_output*
+test_output*
+run_e2e*
+hs_err*
+verify_output.txt
+.gemini/
+.agents/
+.agent/
+_agents/
+_agent/
+

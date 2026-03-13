@@ -23,9 +23,10 @@ public class MethodSecurityConfig {
       @Value("${app.name:}") String appName,
       @Value("${filter_groups_by_appname:true}") String doFilterGroupsByAppName,
       @Value("${always_show_study_group:}") String alwaysShowCancerStudyGroup,
+      @Value("${download_group:}") String downloadGroup,
       CacheMapUtil cacheMapUtil) {
     return new CancerStudyPermissionEvaluator(
-        appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, cacheMapUtil);
+        appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, downloadGroup, cacheMapUtil);
   }
 
   @Bean

@@ -102,6 +102,9 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   public DataAccessToken getDataAccessToken(String username) {
     List<DataAccessToken> allDataAccessTokens =
         dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    if (allDataAccessTokens.isEmpty()) {
+      throw new TokenNotFoundException("No data access tokens found for user: " + username);
+    }
     DataAccessToken newestDataAccessToken = allDataAccessTokens.get(allDataAccessTokens.size() - 1);
     return newestDataAccessToken;
   }

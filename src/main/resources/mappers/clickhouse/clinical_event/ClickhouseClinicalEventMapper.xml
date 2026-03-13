@@ -42,7 +42,7 @@
         INNER JOIN patient p ON ce.patient_id = p.internal_id
         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
         LEFT JOIN (
-            SELECT clinical_event_id, `key`, value
+            SELECT clinical_event_id, CAST(`key` AS Nullable(String)) AS `key`, CAST(value AS Nullable(String)) AS value
             FROM clinical_event_data
             WHERE clinical_event_id IN (
                 SELECT ce2.clinical_event_id

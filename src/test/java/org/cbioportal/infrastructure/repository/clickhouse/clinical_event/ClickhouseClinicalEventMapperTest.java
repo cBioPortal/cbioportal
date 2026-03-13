@@ -46,7 +46,7 @@ public class ClickhouseClinicalEventMapperTest {
 
     var clinicalEventTypeCounts = mapper.getClinicalEventTypeCounts(studyViewFilterContext);
 
-    assertEquals(4, clinicalEventTypeCounts.size());
+    assertEquals(5, clinicalEventTypeCounts.size());
 
     var clinicalEventTypeCountOptional =
         clinicalEventTypeCounts.stream()
@@ -78,21 +78,23 @@ public class ClickhouseClinicalEventMapperTest {
   }
 
   @Test
-  public void getPatientClinicalEventsForPatientWithOneEvent() {
-    // Patient tcga-a1-a0sb (patient_id=1) has 1 clinical event: status
+  public void getPatientClinicalEventsForPatientWithAndWithoutAttributes() {
+    // Patient tcga-a1-a0sb (patient_id=1) has 2 clinical events:
+    //   - status (id=1) with 2 attributes
+    //   - IMAGING (id=5) with no attributes
     List<ClinicalEvent> result = mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sb");
 
-    assertEquals(1, result.size());
+    assertEquals(2, result.size());
 
-    ClinicalEvent statusEvent = result.get(0);
-    assertEquals("status", statusEvent.getEventType());
-    assertEquals(STUDY_TCGA_PUB, statusEvent.getStudyId());
-    assertEquals("tcga-a1-a0sb", statusEvent.getPatientId());
-    assertEquals((Integer) 123, statusEvent.getStartDate());
-    assertEquals((Integer) 0, statusEvent.getStopDate());
-
-    // Verify attributes: status=radiographic_progression, SAMPLE_ID=tcga-a1-a0sb-01
-    List<ClinicalEventData> attrs = statusEvent.getAttributes();
+    // Verify status event has attributes
+    Optional<ClinicalEvent> statusEvent =
+        result.stream().filter(e -> "status".equals(e.getEventType())).findFirst();
+    assertTrue(statusEvent.isPresent());
+    assertEquals(STUDY_TCGA_PUB, statusEvent.get().getStudyId());
+    assertEquals("tcga-a1-a0sb", statusEvent.get().getPatientId());
+    assertEquals((Integer) 123, statusEvent.get().getStartDate());
+    assertEquals((Integer) 0, statusEvent.get().getStopDate());
+    List<ClinicalEventData> attrs = statusEvent.get().getAttributes();
     assertEquals(2, attrs.size());
     assertTrue(
         attrs.stream()
@@ -104,6 +106,15 @@ public class ClickhouseClinicalEventMapperTest {
         attrs.stream()
             .anyMatch(
                 a -> "SAMPLE_ID".equals(a.getKey()) && "tcga-a1-a0sb-01".equals(a.getValue())));
+
+    // Verify IMAGING event has empty attributes list (not a list with a null entry)
+    Optional<ClinicalEvent> imagingEvent =
+        result.stream().filter(e -> "IMAGING".equals(e.getEventType())).findFirst();
+    assertTrue(imagingEvent.isPresent());
+    assertEquals((Integer) 500, imagingEvent.get().getStartDate());
+    assertEquals((Integer) 600, imagingEvent.get().getStopDate());
+    assertNotNull(imagingEvent.get().getAttributes());
+    assertEquals(0, imagingEvent.get().getAttributes().size());
   }
 
   @Test

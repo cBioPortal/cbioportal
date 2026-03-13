@@ -1,3 +1,28 @@
+## March 12, 2026
+*   **Added data** consisting of 3,676 samples from 17 studies:
+    * [Renal Cell Carcinoma (St. James, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=ccrcc_sjuh_2023) *943 samples*
+	* [Acute Myeloid Leukemia (St. Jude, Nat Genet 2024)](https://www.cbioportal.org/study/summary?id=aml_stjude_2024) *887 samples*
+    * [Metastatic Bladder Urothelial Carcinoma (IMvigor210 Phase II Trial, ESMO Open. 2024) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=blca_iatlas_imvigor210_2017) *347 samples*
+    * [The Angiosarcoma Project - Count Me In (Provisional, April 2025)](https://www.cbioportal.org/study/summary?id=angs_painter_2025) *328 samples*
+    * [https://www.cbioportal.org/study/summary?id=es_dsrct_msk_2023](https://www.cbioportal.org/study/summary?id=es_dsrct_msk_2023) *290 samples*
+    * [Renal Cell Carcinoma (IMmotion150 Clinical Trial, Nat Med. 2018) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=rcc_iatlas_immotion150_2018) *263 samples*
+    * [Metastatic Melanoma (DFCI, Nat Med. 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_liu_2019) *122 samples*
+    * [Metastatic Pancreatic Adenocarcinoma (PRINCE Trial, Nat Med. 2022) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=paad_iatlas_prince_2022) *93 samples*
+    * [Metastatic Melanoma (Immunotherapy Trial, Cancer Cell 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_gide_2019) *91 samples*
+    * [Colorectal Cancer (HTAN MSK, Nature 2025)](https://www.cbioportal.org/study/summary?id=crc_hta8_htan_2024) *83 samples*
+    * [Endometrial Carcinoma (MSK, Molecular Oncology 2024)](https://www.cbioportal.org/study/summary?id=ucs_msk_2024) *69 samples*
+    * [Pediatric Low-Grade Glioma (CTF, Acta Neuropathol 2021)](https://www.cbioportal.org/study/summary?id=lgg_ctf_synodos_2025) *31 samples*
+    * [Metastatic Triple Negative Breast Cancer (UNC Phase II Trial, J Immunother Cancer 2022) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=brca_iatlas_anders_2022) *31 samples*
+    * [Glioblastoma (Randomized Clinical Trial, Nat Med. 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=gbm_iatlas_prins_2019) *30 samples*
+    * [Metastatic Melanoma (UCLA, Cell 2016) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_hugo_ucla_2016) *27 samples*
+    * [Breast Invasive Lobular Carcinoma (MSK, NPJ Precis Oncol 2024)](https://www.cbioportal.org/study/summary?id=ilc_msk_2023) *25 samples*
+    * [Metastatic Renal Clear Cell Carcinoma (Phase 1 Biomarker Trial, Clin Cancer Res. 2016) - iAtlas Harmonized)](https://www.cbioportal.org/study/summary?id=ccrcc_iatlas_choueiri_2016) *16 samples*
+
+*   **Data Improvement**
+
+    * Cancer Cell Line Encyclopedia (DepMap Broad 2025): Added segmented copy number data, log2 copy number alteration (CNA) values, and RNA expression profiles to enhance molecular characterization of the cell line cohort. Study page: https://www.cbioportal.org/study/summary?id=depmap_broad_2025
+ *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 7, 2025 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
+
 ## November 15, 2025
 * **Data Improvement**: The default transcripts for each gene were updated to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). Also Ensembl's subversions are now included for each transcript.
 

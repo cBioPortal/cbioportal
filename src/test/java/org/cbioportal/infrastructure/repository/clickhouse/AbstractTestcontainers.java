@@ -31,14 +31,24 @@ public abstract class AbstractTestcontainers {
 
     @Override
     public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-      clickhouseContainer.start();
-      TestPropertyValues values =
-          TestPropertyValues.of(
-              "spring.datasource.url=" + clickhouseContainer.getJdbcUrl(),
-              "spring.datasource.password=" + clickhouseContainer.getPassword(),
-              "spring.datasource.username=" + clickhouseContainer.getUsername(),
-              "spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver");
-      values.applyTo(configurableApplicationContext);
+      if ("true".equalsIgnoreCase(System.getProperty("db.test.use_remote_clickhouse"))) {
+        TestPropertyValues values =
+            TestPropertyValues.of(
+                "spring.datasource.url=" + System.getProperty("db.test.clickhouse.url"),
+                "spring.datasource.password=" + System.getProperty("db.test.clickhouse.password"),
+                "spring.datasource.username=" + System.getProperty("db.test.clickhouse.username"),
+                "spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver");
+        values.applyTo(configurableApplicationContext);
+      } else {
+        clickhouseContainer.start();
+        TestPropertyValues values =
+            TestPropertyValues.of(
+                "spring.datasource.url=" + clickhouseContainer.getJdbcUrl(),
+                "spring.datasource.password=" + clickhouseContainer.getPassword(),
+                "spring.datasource.username=" + clickhouseContainer.getUsername(),
+                "spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver");
+        values.applyTo(configurableApplicationContext);
+      }
     }
   }
 }

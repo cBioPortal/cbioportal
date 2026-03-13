@@ -137,3 +137,23 @@ Listening for transport dt_socket at address: 5005
 ```
 
 Once you connected your IDE (after setting a breakpoint in the code), the execution will continue in your debugger view.
+
+## Running tests with frozen ClickHouse Cloud database
+
+To speed up local testing, you can run tests against a frozen ClickHouse database hosted on ClickHouse Cloud (or any remote instance) instead of spinning up a local Docker container for each run.
+
+**Prerequisites**:
+- A ClickHouse instance pre-populated with test data (schema from `clickhouse_cgds.sql` and data from `clickhouse_data.sql`).
+
+**Command**:
+Pass the `db.test.use_remote_clickhouse=true` system property along with the connection details:
+
+```shell
+mvn test \
+  -Ddb.test.use_remote_clickhouse=true \
+  -Ddb.test.clickhouse.url=jdbc:clickhouse://<HOST>:<PORT>/<DB> \
+  -Ddb.test.clickhouse.username=<USERNAME> \
+  -Ddb.test.clickhouse.password=<PASSWORD>
+```
+
+This will bypass the `testcontainers` initialization and connect directly to the specified database.

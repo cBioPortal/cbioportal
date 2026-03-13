@@ -14,4 +14,46 @@
         </where>
         GROUP BY event_type
     </select>
+
+    <resultMap id="patientClinicalEventResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <id property="clinicalEventId" column="clinicalEventId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="startDate" column="startDate"/>
+        <result property="stopDate" column="stopDate"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData" notNullColumn="key">
+            <result property="key" column="key"/>
+            <result property="value" column="value"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPatientClinicalEvents" resultMap="patientClinicalEventResultMap">
+        SELECT
+            ce.clinical_event_id AS clinicalEventId,
+            ce.event_type AS eventType,
+            p.stable_id AS patientId,
+            cs.cancer_study_identifier AS studyId,
+            ce.start_date AS startDate,
+            ce.stop_date AS stopDate,
+            ced.`key` AS `key`,
+            ced.value AS value
+        FROM clinical_event ce
+        INNER JOIN patient p ON ce.patient_id = p.internal_id
+        INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+        LEFT JOIN (
+            SELECT clinical_event_id, CAST(`key` AS Nullable(String)) AS `key`, CAST(value AS Nullable(String)) AS value
+            FROM clinical_event_data
+            WHERE clinical_event_id IN (
+                SELECT ce2.clinical_event_id
+                FROM clinical_event ce2
+                INNER JOIN patient p2 ON ce2.patient_id = p2.internal_id
+                INNER JOIN cancer_study cs2 ON p2.cancer_study_id = cs2.cancer_study_id
+                WHERE cs2.cancer_study_identifier = #{studyId} AND p2.stable_id = #{patientId}
+            )
+        ) ced ON ce.clinical_event_id = ced.clinical_event_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+          AND p.stable_id = #{patientId}
+        ORDER BY ce.clinical_event_id ASC
+    </select>
 </mapper>

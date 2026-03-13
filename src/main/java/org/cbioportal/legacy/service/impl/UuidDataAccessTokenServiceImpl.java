@@ -64,7 +64,8 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
   private static final Logger log = LoggerFactory.getLogger(UuidDataAccessTokenServiceImpl.class);
 
-  // create a data access token (randomly generated UUID) and insert corresponding record into table
+  // create a data access token (randomly generated UUID) and insert corresponding
+  // record into table
   // with parts:
   // username
   // uuid
@@ -102,6 +103,9 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   public DataAccessToken getDataAccessToken(String username) {
     List<DataAccessToken> allDataAccessTokens =
         dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
+    if (allDataAccessTokens.isEmpty()) {
+      return createDataAccessToken(username);
+    }
     DataAccessToken newestDataAccessToken = allDataAccessTokens.get(allDataAccessTokens.size() - 1);
     return newestDataAccessToken;
   }
@@ -184,9 +188,11 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
     // when DaoAuthenticationProvider does authentication on user returned by
     // PortalUserDetailsService
-    // which has password "unused", this password won't match, and then there is a BadCredentials
+    // which has password "unused", this password won't match, and then there is a
+    // BadCredentials
     // exception thrown
-    // this is a good way to catch that the wrong authetication provider is being used
+    // this is a good way to catch that the wrong authetication provider is being
+    // used
     return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
   }
 }

@@ -19,6 +19,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
@@ -40,6 +41,9 @@ public class Saml2SecurityConfig {
 
   @Value("${saml.idp.metadata.attribute.role:Role}")
   private String roleAttributeName;
+
+  @Value("${saml.idp.metadata.attribute.email:Email}")
+  private String emailAttributeName;
 
   @Bean
   @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
@@ -88,18 +92,37 @@ public class Saml2SecurityConfig {
 
     return (responseToken) -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
-      var principal =
+      Saml2AuthenticatedPrincipal principal =
           (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
-      Collection<String> roles = principal.getAttribute(this.roleAttributeName);
-      Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
-      if (!Objects.isNull(roles)) {
-        mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
-      } else {
-        mappedAuthorities.addAll(authentication.getAuthorities());
-      }
+      Set<GrantedAuthority> mappedAuthorities =
+          mapAuthorities(principal, authentication.getAuthorities());
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);
     };
+  }
+
+  Set<GrantedAuthority> mapAuthorities(
+      Saml2AuthenticatedPrincipal principal, Collection<? extends GrantedAuthority> authorities) {
+    Collection<String> roles = principal.getAttribute(this.roleAttributeName);
+    Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+    if (!Objects.isNull(roles)) {
+      mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
+    } else {
+      mappedAuthorities.addAll(authorities);
+    }
+
+    // Study Access Authorization requires the user's identifier (email) to be a
+    // granted authority
+    Collection<String> emails = principal.getAttribute(this.emailAttributeName);
+    if (!Objects.isNull(emails) && !emails.isEmpty()) {
+      for (String email : emails) {
+        mappedAuthorities.add(new SimpleGrantedAuthority(email));
+      }
+    } else {
+      // Fallback to NameID if no email attribute is found
+      mappedAuthorities.add(new SimpleGrantedAuthority(principal.getName()));
+    }
+    return mappedAuthorities;
   }
 
   @Bean

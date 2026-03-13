@@ -61,7 +61,7 @@ The following properties must be present in application.properties in order to a
 
 * **Description**: The time in seconds between token creation and token expiration.
 * **Permissible Values**: An integer value greater than zero.
-* **Default Value**: 2592000 (30 days)
+* **Default Value**: -1
 
 **Property**: dat.jwt.secret\_key (required only when dat.method = jwt)
 

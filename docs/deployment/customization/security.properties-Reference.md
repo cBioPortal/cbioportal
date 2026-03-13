@@ -96,7 +96,7 @@ spring.security.oauth2.allowed-clock-skew=
 # TODO: Currently Dat.method has only been tested with oauth2
 dat.unauth_users=
 dat.method=oauth2
-dat.ttl_seconds=2592000
+dat.ttl_seconds=-1
 dat.uuid.max_number_per_user=1
 dat.jwt.secret_key=
 dat.filter_user_role=

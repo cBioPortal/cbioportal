@@ -163,7 +163,7 @@ If you need a very different parsing of the SAML tokens than what is done at `or
 
     saml.custom.userservice.class=<your_package.your_class_name>
 
-:warning: The properties `saml.idp.metadata.attribute.email`, and `saml.idp.metadata.attribute.userName` can also vary per IDP. It is important to set these correctly since these are a required field by the cBioPortal SAML parser (that is, if `org.cbioportal.security.spring.authentication.saml.SAMLUserDetailsServiceImpl` is chosen for property `saml.custom.userservice.class`). 
+:warning: The property `saml.idp.metadata.attribute.email` can vary per IDP. It is important to set this correctly for **Study Access Authorization** to work. cBioPortal requires the user's email (or unique identifier) to be present in their granted authorities to evaluate access to private studies. If this property is not set, cBioPortal will default to the NameID from the SAML response.
 
 :warning: Some IDPs like to provide their own logout page (e.g. when they don't support the custom SAML Single Logout protocol). For this you can adjust the  
 `saml.logout.url` property to a custom URL provided by the IDP. Also set the `saml.logout.local=true` property in this case to indicate that global logout (or Single Logout) is not supported by IDP:

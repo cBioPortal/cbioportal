@@ -193,6 +193,23 @@ public class UuidDataAccessTokenServiceImplTest {
     }
   }
 
+  /* Tests getDataAccessToken when user has no existing tokens
+   * Should create and return a new token instead of throwing an exception
+   */
+  @Test
+  public void getDataAccessTokenCreatesTokenWhenNoneExist() {
+    uuidDataAccessTokenServiceImplTestConfiguration.resetAddedDataAccessToken();
+
+    DataAccessToken token =
+        uuidDataAccessTokenServiceImpl.getDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME);
+
+    Assert.assertNotNull("Returned token should not be null", token);
+    Assert.assertNotNull(
+        "Token should be persisted when none exist",
+        uuidDataAccessTokenServiceImplTestConfiguration.getAddedDataAccessToken());
+  }
+
   /* Tests validation of a valid token
    * Mock is configured to test a token with expiration date 100000 seconds after current time
    * Should return true

@@ -22,7 +22,7 @@
         <result property="studyId" column="studyId"/>
         <result property="startDate" column="startDate"/>
         <result property="stopDate" column="stopDate"/>
-        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData">
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData" notNullColumn="key">
             <result property="key" column="key"/>
             <result property="value" column="value"/>
         </collection>

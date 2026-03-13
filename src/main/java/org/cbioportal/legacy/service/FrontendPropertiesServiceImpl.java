@@ -391,7 +391,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         }
       }
     }
-    return propertyValue;
+    return parseUrl(propertyValue);
   }
 
   /*
@@ -409,3 +409,4 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     return rv;
   }
 }
+

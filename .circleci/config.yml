@@ -382,11 +382,11 @@ jobs:
             environment:
               CBIOPORTAL_URL: http://localhost:8080
             command: |
-              cd cbioportal
-              nvm install 15.2.1
-              nvm use 15.2.1
+              cd cbioportal/src/e2e/js
+              nvm install 22.18.0
+              nvm use 22.18.0
               npm install
-              npm run test:watch
+              npm test
 
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
@@ -539,8 +539,6 @@ workflows:
               - build_frontend
               - build_web_and_data_image
 #        - run_api_tests:
-#            context:
-#              - api-tests
 #            requires:
 #              - build_web_image
         - run_security_tests:

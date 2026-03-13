@@ -78,23 +78,23 @@ import org.cbioportal.legacy.web.util.LogScaleDataBinner;
 import org.cbioportal.legacy.web.util.ScientificSmallDataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebMvcTest
 // TODO clean up dependencies for this test (use Mocks better)
 // TODO Rework to accurately test StudyViewController
@@ -196,7 +196,7 @@ public class StudyViewControllerTest {
 
   private String uniqueKeySample1;
 
-  @Before
+  @BeforeEach
   public void setUp() throws Exception {
     SampleIdentifier sampleIdentifier = new SampleIdentifier();
     sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
@@ -787,7 +787,7 @@ public class StudyViewControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].counts[1].count").value(1));
   }
 
-  @Ignore("Skip StudyViewControllerTest.fetchClinicalDataDensityPlot due to assertion errors")
+  @Disabled("Skip StudyViewControllerTest.fetchClinicalDataDensityPlot due to assertion errors")
   @Test
   @WithMockUser
   public void fetchClinicalDataDensityPlot() throws Exception {

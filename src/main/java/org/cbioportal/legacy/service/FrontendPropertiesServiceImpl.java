@@ -1,6 +1,15 @@
 package org.cbioportal.legacy.service;
 
 import jakarta.annotation.PostConstruct;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -297,9 +306,11 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     return serverConfigProperties.get(property.getFrontendName());
   }
 
-  public Map<String, String> getFrontendProperties() {
-    // Make sure that requests work on individual instances of this data.
-    return cloneProperties();
+  public Map<String, String> getFrontendProperties(Authentication authentication) {
+      // Make sure that requests work on individual instances of this data.
+      Map<String,String> properties = cloneProperties();
+      updateShowDownloadButtonProperties(properties, authentication);
+      return properties;
   }
 
   private Map<String, String> cloneProperties() {
@@ -308,6 +319,16 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
             HashMap::new,
             (out, entry) -> out.put(entry.getKey(), entry.getValue()),
             HashMap::putAll);
+  }
+
+  private void updateShowDownloadButtonProperties(Map<String,String> properties, Authentication authentication) {
+    String downloadGroup = "ROLE_" + env.getProperty("download_group", "");
+    if(authentication != null && StringUtils.isNotEmpty(downloadGroup)) {
+      boolean userHasDownloadRole = authentication.getAuthorities().contains(new SimpleGrantedAuthority(downloadGroup));
+      if(userHasDownloadRole) {
+        properties.put("skin_hide_download_controls", "show");
+      }
+    }
   }
 
   /**

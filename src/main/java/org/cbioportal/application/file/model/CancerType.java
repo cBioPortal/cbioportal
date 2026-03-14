@@ -1,6 +1,5 @@
 package org.cbioportal.application.file.model;
 
-import java.util.LinkedHashMap;
 import java.util.SequencedMap;
 
 public class CancerType implements TableRow {
@@ -50,13 +49,22 @@ public class CancerType implements TableRow {
     this.typeOfCancerId = typeOfCancerId;
   }
 
+  private static final java.util.LinkedHashMap<
+          String, java.util.function.Function<CancerType, String>>
+      ROW = new java.util.LinkedHashMap<>();
+
+  static {
+    ROW.put("TYPE_OF_CANCER_ID", CancerType::getTypeOfCancerId);
+    ROW.put("NAME", CancerType::getName);
+    ROW.put("SHORT_NAME", CancerType::getShortName);
+    ROW.put("DEDICATED_COLOR", CancerType::getDedicatedColor);
+    ROW.put("PARENT", CancerType::getParent);
+  }
+
   @Override
   public SequencedMap<String, String> toRow() {
-    var row = new LinkedHashMap<String, String>();
-    row.put("TYPE_OF_CANCER_ID", typeOfCancerId);
-    row.put("NAME", name);
-    row.put("DEDICATED_COLOR", dedicatedColor);
-    row.put("PARENT", parent);
+    var row = new java.util.LinkedHashMap<String, String>();
+    ROW.forEach((key, value) -> row.put(key, value.apply(this)));
     return row;
   }
 }

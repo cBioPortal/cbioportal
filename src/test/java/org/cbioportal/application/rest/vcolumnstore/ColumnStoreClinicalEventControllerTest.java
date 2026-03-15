@@ -1,5 +1,7 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 import org.cbioportal.domain.clinical_event.usecase.GetPatientClinicalEventsUseCase;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.model.ClinicalEventData;
+import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -48,7 +51,8 @@ public class ColumnStoreClinicalEventControllerTest {
   public void getAllClinicalEventsOfPatientInStudy() throws Exception {
     List<ClinicalEvent> events = createClinicalEvents();
 
-    when(getPatientClinicalEventsUseCase.execute(TEST_STUDY_ID, TEST_PATIENT_ID))
+    when(getPatientClinicalEventsUseCase.execute(
+            eq(TEST_STUDY_ID), eq(TEST_PATIENT_ID), any(), any(), any(), any(), any()))
         .thenReturn(events);
 
     mockMvc
@@ -85,7 +89,8 @@ public class ColumnStoreClinicalEventControllerTest {
   @Test
   @WithMockUser
   public void getAllClinicalEventsReturnsEmptyListForPatientWithNoEvents() throws Exception {
-    when(getPatientClinicalEventsUseCase.execute(TEST_STUDY_ID, TEST_PATIENT_ID))
+    when(getPatientClinicalEventsUseCase.execute(
+            eq(TEST_STUDY_ID), eq(TEST_PATIENT_ID), any(), any(), any(), any(), any()))
         .thenReturn(Collections.emptyList());
 
     mockMvc
@@ -102,7 +107,8 @@ public class ColumnStoreClinicalEventControllerTest {
   @Test
   @WithMockUser
   public void getAllClinicalEventsReturns404ForNonExistentPatient() throws Exception {
-    when(getPatientClinicalEventsUseCase.execute(TEST_STUDY_ID, "nonexistent_patient"))
+    when(getPatientClinicalEventsUseCase.execute(
+            eq(TEST_STUDY_ID), eq("nonexistent_patient"), any(), any(), any(), any(), any()))
         .thenThrow(new PatientNotFoundException(TEST_STUDY_ID, "nonexistent_patient"));
 
     mockMvc
@@ -121,7 +127,8 @@ public class ColumnStoreClinicalEventControllerTest {
   @Test
   @WithMockUser
   public void getAllClinicalEventsReturns404ForNonExistentStudy() throws Exception {
-    when(getPatientClinicalEventsUseCase.execute("fake_study", TEST_PATIENT_ID))
+    when(getPatientClinicalEventsUseCase.execute(
+            eq("fake_study"), eq(TEST_PATIENT_ID), any(), any(), any(), any(), any()))
         .thenThrow(new StudyNotFoundException("fake_study"));
 
     mockMvc
@@ -134,6 +141,27 @@ public class ColumnStoreClinicalEventControllerTest {
         .andExpect(MockMvcResultMatchers.status().isNotFound())
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.message").value("Study not found: fake_study"));
+  }
+
+  @Test
+  @WithMockUser
+  public void getAllClinicalEventsWithMetaProjectionReturnsTotalCount() throws Exception {
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(5);
+
+    when(getPatientClinicalEventsUseCase.executeMeta(TEST_STUDY_ID, TEST_PATIENT_ID))
+        .thenReturn(baseMeta);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                    "/api/column-store/studies/{studyId}/patients/{patientId}/clinical-events",
+                    TEST_STUDY_ID,
+                    TEST_PATIENT_ID)
+                .param("projection", "META")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.header().string("total-count", "5"));
   }
 
   private List<ClinicalEvent> createClinicalEvents() {

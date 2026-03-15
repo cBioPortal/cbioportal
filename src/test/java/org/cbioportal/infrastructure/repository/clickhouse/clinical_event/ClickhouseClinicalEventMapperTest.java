@@ -11,6 +11,7 @@ import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainer
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.model.ClinicalEventData;
+import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.web.parameter.DataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -32,7 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhouseClinicalEventMapperTest {
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
-  private static final String PATIENT_ID = "TCGA-A1-A0SB";
+  private static final String PATIENT_ID = "tcga-a1-a0sb";
 
   @Autowired private ClickhouseClinicalEventMapper mapper;
 
@@ -82,7 +83,9 @@ public class ClickhouseClinicalEventMapperTest {
     // Patient tcga-a1-a0sb (patient_id=1) has 2 clinical events:
     //   - status (id=1) with 2 attributes
     //   - IMAGING (id=5) with no attributes
-    List<ClinicalEvent> result = mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sb");
+    List<ClinicalEvent> result =
+        mapper.getPatientClinicalEvents(
+            STUDY_TCGA_PUB, PATIENT_ID, "SUMMARY", null, null, null, null);
 
     assertEquals(2, result.size());
 
@@ -91,7 +94,7 @@ public class ClickhouseClinicalEventMapperTest {
         result.stream().filter(e -> "status".equals(e.getEventType())).findFirst();
     assertTrue(statusEvent.isPresent());
     assertEquals(STUDY_TCGA_PUB, statusEvent.get().getStudyId());
-    assertEquals("tcga-a1-a0sb", statusEvent.get().getPatientId());
+    assertEquals(PATIENT_ID, statusEvent.get().getPatientId());
     assertEquals((Integer) 123, statusEvent.get().getStartDate());
     assertEquals((Integer) 0, statusEvent.get().getStopDate());
     List<ClinicalEventData> attrs = statusEvent.get().getAttributes();
@@ -120,7 +123,9 @@ public class ClickhouseClinicalEventMapperTest {
   @Test
   public void getPatientClinicalEventsForPatientWithMultipleEvents() {
     // Patient tcga-a1-a0sd (patient_id=2) has 3 clinical events: SPECIMEN, Treatment, Seqencing
-    List<ClinicalEvent> result = mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sd");
+    List<ClinicalEvent> result =
+        mapper.getPatientClinicalEvents(
+            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", null, null, null, null);
 
     assertEquals(3, result.size());
 
@@ -152,9 +157,58 @@ public class ClickhouseClinicalEventMapperTest {
   }
 
   @Test
+  public void getPatientClinicalEventsWithPagination() {
+    // Patient tcga-a1-a0sd has 3 events; request only 2 (limit=2, offset=0)
+    List<ClinicalEvent> result =
+        mapper.getPatientClinicalEvents(
+            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", 2, 0, null, null);
+
+    assertEquals(2, result.size());
+
+    // Request page 2 (limit=2, offset=2) — should return 1 remaining event
+    List<ClinicalEvent> page2 =
+        mapper.getPatientClinicalEvents(
+            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", 2, 2, null, null);
+
+    assertEquals(1, page2.size());
+  }
+
+  @Test
+  public void getPatientClinicalEventsIdProjection() {
+    List<ClinicalEvent> result =
+        mapper.getPatientClinicalEventsIdProjection(STUDY_TCGA_PUB, PATIENT_ID, null, null);
+
+    assertEquals(2, result.size());
+
+    // ID projection should not include startDate, stopDate, or attributes
+    ClinicalEvent event = result.get(0);
+    assertNotNull(event.getEventType());
+    assertNotNull(event.getPatientId());
+    assertNotNull(event.getStudyId());
+    assertNull(event.getStartDate());
+    assertNull(event.getStopDate());
+    assertTrue(event.getAttributes() == null || event.getAttributes().isEmpty());
+  }
+
+  @Test
   public void getPatientClinicalEventsReturnsEmptyForNonexistentPatient() {
     List<ClinicalEvent> result =
-        mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "nonexistent-patient");
+        mapper.getPatientClinicalEvents(
+            STUDY_TCGA_PUB, "nonexistent-patient", "SUMMARY", null, null, null, null);
     assertEquals(0, result.size());
+  }
+
+  @Test
+  public void getMetaPatientClinicalEventsReturnsTotalCount() {
+    BaseMeta meta = mapper.getMetaPatientClinicalEvents(STUDY_TCGA_PUB, PATIENT_ID);
+    assertNotNull(meta);
+    assertEquals((Integer) 2, meta.getTotalCount());
+  }
+
+  @Test
+  public void getMetaPatientClinicalEventsReturnsZeroForNonexistentPatient() {
+    BaseMeta meta = mapper.getMetaPatientClinicalEvents(STUDY_TCGA_PUB, "nonexistent-patient");
+    assertNotNull(meta);
+    assertEquals((Integer) 0, meta.getTotalCount());
   }
 }

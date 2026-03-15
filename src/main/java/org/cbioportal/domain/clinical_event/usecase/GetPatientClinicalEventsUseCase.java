@@ -3,6 +3,7 @@ package org.cbioportal.domain.clinical_event.usecase;
 import java.util.List;
 import org.cbioportal.domain.clinical_event.repository.ClinicalEventRepository;
 import org.cbioportal.legacy.model.ClinicalEvent;
+import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -20,9 +21,23 @@ public class GetPatientClinicalEventsUseCase {
     this.patientService = patientService;
   }
 
-  public List<ClinicalEvent> execute(String studyId, String patientId)
+  public List<ClinicalEvent> execute(
+      String studyId,
+      String patientId,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction)
       throws PatientNotFoundException, StudyNotFoundException {
     patientService.getPatientInStudy(studyId, patientId);
-    return clinicalEventRepository.getPatientClinicalEvents(studyId, patientId);
+    return clinicalEventRepository.getPatientClinicalEvents(
+        studyId, patientId, projection, pageSize, pageNumber, sortBy, direction);
+  }
+
+  public BaseMeta executeMeta(String studyId, String patientId)
+      throws PatientNotFoundException, StudyNotFoundException {
+    patientService.getPatientInStudy(studyId, patientId);
+    return clinicalEventRepository.getMetaPatientClinicalEvents(studyId, patientId);
   }
 }

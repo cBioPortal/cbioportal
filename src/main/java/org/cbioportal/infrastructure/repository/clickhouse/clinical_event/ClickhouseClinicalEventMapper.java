@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
+import org.cbioportal.legacy.model.meta.BaseMeta;
 
 /**
  * Mapper interface for retrieving clinical event type data from ClickHouse. This interface provides
@@ -16,5 +17,20 @@ public interface ClickhouseClinicalEventMapper {
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
   List<ClinicalEvent> getPatientClinicalEvents(
+      @Param("studyId") String studyId,
+      @Param("patientId") String patientId,
+      @Param("projection") String projection,
+      @Param("limit") Integer limit,
+      @Param("offset") Integer offset,
+      @Param("sortBy") String sortBy,
+      @Param("direction") String direction);
+
+  List<ClinicalEvent> getPatientClinicalEventsIdProjection(
+      @Param("studyId") String studyId,
+      @Param("patientId") String patientId,
+      @Param("limit") Integer limit,
+      @Param("offset") Integer offset);
+
+  BaseMeta getMetaPatientClinicalEvents(
       @Param("studyId") String studyId, @Param("patientId") String patientId);
 }

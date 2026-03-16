@@ -31,6 +31,9 @@ public class GetGenericAssayMetaUseCase {
    * @param projection projection level (e.g. "ID", "SUMMARY", "DETAILED")
    * @return a list of {@link GenericAssayMeta}
    */
+  // Cache key normalizes input lists into sorted TreeSets so that callers passing
+  // the same IDs in different order share the same cache entry. Null-safe: null
+  // lists produce null keys. Non-null entries are filtered to exclude nulls.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()",

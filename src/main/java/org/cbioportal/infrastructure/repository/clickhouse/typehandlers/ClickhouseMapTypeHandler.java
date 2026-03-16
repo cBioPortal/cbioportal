@@ -4,7 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -41,10 +41,10 @@ public class ClickhouseMapTypeHandler extends BaseTypeHandler<Map<String, String
 
   private Map<String, String> convertToMap(Object value) {
     if (value instanceof Map<?, ?> map) {
-      HashMap<String, String> result = new HashMap<>();
+      LinkedHashMap<String, String> result = new LinkedHashMap<>();
       map.forEach((k, v) -> result.put(String.valueOf(k), v == null ? null : String.valueOf(v)));
       return result;
     }
-    return new HashMap<>();
+    return new LinkedHashMap<>();
   }
 }

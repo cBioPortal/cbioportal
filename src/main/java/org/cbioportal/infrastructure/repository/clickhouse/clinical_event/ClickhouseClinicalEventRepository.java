@@ -37,8 +37,7 @@ public class ClickhouseClinicalEventRepository implements ClinicalEventRepositor
     if ("ID".equals(projection)) {
       return mapper.getPatientClinicalEventsIdProjection(studyId, patientId, pageSize, offset);
     }
-    return mapper.getPatientClinicalEvents(
-        studyId, patientId, projection, pageSize, offset, sortBy, direction);
+    return mapper.getPatientClinicalEvents(studyId, patientId, pageSize, offset, sortBy, direction);
   }
 
   @Override

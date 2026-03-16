@@ -9,6 +9,15 @@ import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Use case for retrieving patient clinical events from a column-store backend.
+ *
+ * <p>Note: patient existence validation is delegated to {@link PatientService} from the legacy
+ * layer. This is intentional: the legacy service already encapsulates the study-not-found /
+ * patient-not-found exception semantics and JPA-backed lookups that we do not want to duplicate
+ * here. A domain-level patient port can be introduced once the broader migration to the new domain
+ * layer is further along.
+ */
 @Service
 public class GetPatientClinicalEventsUseCase {
 

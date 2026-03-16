@@ -23,7 +23,6 @@ import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,7 +38,6 @@ import org.springframework.stereotype.Service;
  * </ul>
  */
 @Service
-@Profile("clickhouse")
 public class FetchClinicalDataEnrichmentsUseCase {
 
   private final SampleRepository sampleRepository;

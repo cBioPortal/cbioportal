@@ -117,7 +117,7 @@
             <include refid="fetchClinicalDataSummaryQuery">
                 <property name="type" value="patient"/>
                 <property name="attributeIds" value="conflictingAttributeIds"/>
-                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="uniqueIds" value="sampleUniqueIds"/>
                 <property name="isConflicting" value="true"/>
             </include>
         </if>
@@ -391,7 +391,7 @@
             <include refid="getClinicalDataCountsQueryForEnrichments">
                 <property name="type" value="patient"/>
                 <property name="attributeIds" value="conflictingAttributeIds"/>
-                <property name="uniqueIds" value="patientUniqueIds"/>
+                <property name="uniqueIds" value="sampleUniqueIds"/>
                 <property name="isConflicting" value="true"/>
             </include>
         </if>
@@ -400,7 +400,7 @@
     <sql id="getClinicalDataCountsQueryForEnrichments">
         SELECT
             attribute_name AS attributeId,
-            lowerUTF8(attribute_value) AS value,
+            attribute_value AS value,
             cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived cdd
             <if test="'${isConflicting}' == 'true'">

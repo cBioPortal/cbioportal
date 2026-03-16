@@ -13,7 +13,6 @@ import org.cbioportal.application.rest.mapper.ClinicalDataEnrichmentMapper;
 import org.cbioportal.application.rest.response.ClinicalDataEnrichmentDTO;
 import org.cbioportal.domain.clinical_data_enrichment.usecase.FetchClinicalDataEnrichmentsUseCase;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,12 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
  * clinical data across multiple sample groups. It uses the ClickHouse column store backend for
  * efficient data retrieval and supports both numerical (Kruskal-Wallis) and categorical
  * (Chi-squared) statistical tests.
- *
- * <p>Only available when the "clickhouse" profile is active.
  */
 @RestController
 @RequestMapping("/api/column-store")
-@Profile("clickhouse")
 public class ColumnStoreClinicalDataEnrichmentController {
 
   private final FetchClinicalDataEnrichmentsUseCase fetchClinicalDataEnrichmentsUseCase;

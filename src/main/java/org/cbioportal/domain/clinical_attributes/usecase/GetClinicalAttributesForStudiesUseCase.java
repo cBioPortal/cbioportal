@@ -3,7 +3,6 @@ package org.cbioportal.domain.clinical_attributes.usecase;
 import java.util.List;
 import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRepository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
  * {@link ClinicalAttributesRepository} to fetch the required data.
  */
 @Service
-@Profile("clickhouse")
 public class GetClinicalAttributesForStudiesUseCase {
 
   private final ClinicalAttributesRepository clinicalAttributesRepository;

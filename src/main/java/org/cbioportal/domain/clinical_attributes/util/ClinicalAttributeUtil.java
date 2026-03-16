@@ -44,8 +44,14 @@ public abstract class ClinicalAttributeUtil {
         }
       }
 
-      // Categorize based on the flags
+      // Categorize based on the flags.
+      // For conflicting attributes (both sample and patient level across studies), add to both
+      // sampleAttributeIds and conflictingAttributeIds so that data is fetched from both the
+      // sample-level table (for studies storing it as sample) and the patient-level table joined to
+      // samples (for studies storing it as patient). This mirrors legacy behavior in
+      // ClinicalAttributeUtil.extractCategorizedClinicalAttributes.
       if (isSampleAttribute && isPatientAttribute) {
+        sampleAttributeIds.add(attrId);
         conflictingAttributeIds.add(attrId);
       } else if (isPatientAttribute) {
         patientAttributeIds.add(attrId);

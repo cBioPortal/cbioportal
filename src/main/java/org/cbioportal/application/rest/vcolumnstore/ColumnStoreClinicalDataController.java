@@ -18,7 +18,6 @@ import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,8 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
  *   <li>Metadata queries for count operations
  * </ul>
  *
- * <p>This controller is only active when the "clickhouse" profile is enabled and requires
- * appropriate read permissions for the requested cancer studies.
+ * <p>Requires appropriate read permissions for the requested cancer studies.
  *
  * @see FetchClinicalDataUseCase
  * @see FetchClinicalDataMetaUseCase
@@ -55,7 +53,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/column-store")
-@Profile("clickhouse")
 public class ColumnStoreClinicalDataController {
 
   private final FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase;

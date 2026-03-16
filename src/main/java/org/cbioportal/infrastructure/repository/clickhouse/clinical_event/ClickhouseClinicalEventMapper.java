@@ -8,18 +8,22 @@ import org.cbioportal.legacy.model.ClinicalEventTypeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
 /**
- * Mapper interface for retrieving clinical event type data from ClickHouse. This interface provides
- * methods to fetch clinical event data from ClickHouse.
+ * MyBatis mapper interface for retrieving clinical events from ClickHouse. SUMMARY and DETAILED
+ * projections both return full event data (dates + attributes); the ID projection is handled by a
+ * separate, lighter query ({@link #getPatientClinicalEventsIdProjection}).
  */
 public interface ClickhouseClinicalEventMapper {
 
+  /**
+   * Retrieves counts of distinct patients per clinical event type, filtered by the given study view
+   * context.
+   */
   List<ClinicalEventTypeCount> getClinicalEventTypeCounts(
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
   List<ClinicalEvent> getPatientClinicalEvents(
       @Param("studyId") String studyId,
       @Param("patientId") String patientId,
-      @Param("projection") String projection,
       @Param("limit") Integer limit,
       @Param("offset") Integer offset,
       @Param("sortBy") String sortBy,

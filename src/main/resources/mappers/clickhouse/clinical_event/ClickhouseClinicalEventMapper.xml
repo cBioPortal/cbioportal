@@ -44,14 +44,18 @@
     </sql>
 
     <sql id="eventSortAndLimit">
+        ORDER BY
         <choose>
-            <when test="sortBy != null and projection != 'ID'">
-                ORDER BY "${sortBy}" ${direction}
-            </when>
-            <otherwise>
-                ORDER BY ce.clinical_event_id ASC
-            </otherwise>
+            <when test="sortBy == 'eventType'">ce.event_type</when>
+            <when test="sortBy == 'startDate'">ce.start_date</when>
+            <when test="sortBy == 'stopDate'">ce.stop_date</when>
+            <otherwise>ce.clinical_event_id</otherwise>
         </choose>
+        <choose>
+            <when test="sortBy != null and direction == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        <if test="sortBy != null">, ce.clinical_event_id ASC</if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>
@@ -71,7 +75,8 @@
         </if>
     </select>
 
-    <!-- projection = SUMMARY or DETAILED: dates + attributes, pagination on events -->
+    <!-- SUMMARY and DETAILED projections both return full data (dates + attributes); ID projection
+         routes to getPatientClinicalEventsIdProjection instead. -->
     <select id="getPatientClinicalEvents" resultMap="patientClinicalEventResultMap">
         SELECT
             ev.clinicalEventId,
@@ -106,13 +111,16 @@
         ) ced ON ev.clinicalEventId = ced.clinical_event_id
         ORDER BY
         <choose>
-            <when test="sortBy != null">
-                ev."${sortBy}" ${direction}, ev.clinicalEventId ASC
-            </when>
-            <otherwise>
-                ev.clinicalEventId ASC
-            </otherwise>
+            <when test="sortBy == 'eventType'">ev.eventType</when>
+            <when test="sortBy == 'startDate'">ev.startDate</when>
+            <when test="sortBy == 'stopDate'">ev.stopDate</when>
+            <otherwise>ev.clinicalEventId</otherwise>
         </choose>
+        <choose>
+            <when test="sortBy != null and direction == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        <if test="sortBy != null">, ev.clinicalEventId ASC</if>
     </select>
 
     <select id="getMetaPatientClinicalEvents" resultType="org.cbioportal.legacy.model.meta.BaseMeta">

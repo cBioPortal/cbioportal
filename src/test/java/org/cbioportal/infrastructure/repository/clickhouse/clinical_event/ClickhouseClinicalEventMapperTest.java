@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
@@ -84,8 +83,7 @@ public class ClickhouseClinicalEventMapperTest {
     //   - status (id=1) with 2 attributes
     //   - IMAGING (id=5) with no attributes
     List<ClinicalEvent> result =
-        mapper.getPatientClinicalEvents(
-            STUDY_TCGA_PUB, PATIENT_ID, "SUMMARY", null, null, null, null);
+        mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, PATIENT_ID, null, null, null, null);
 
     assertEquals(2, result.size());
 
@@ -122,17 +120,15 @@ public class ClickhouseClinicalEventMapperTest {
 
   @Test
   public void getPatientClinicalEventsForPatientWithMultipleEvents() {
-    // Patient tcga-a1-a0sd (patient_id=2) has 3 clinical events: SPECIMEN, Treatment, Seqencing
+    // Patient tcga-a1-a0sd (patient_id=2) has 3 clinical events: SPECIMEN, Treatment, Sequencing
     List<ClinicalEvent> result =
-        mapper.getPatientClinicalEvents(
-            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", null, null, null, null);
+        mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sd", null, null, null, null);
 
     assertEquals(3, result.size());
 
     // Verify event types
-    List<String> eventTypes =
-        result.stream().map(ClinicalEvent::getEventType).sorted().collect(Collectors.toList());
-    assertEquals(List.of("SPECIMEN", "Seqencing", "Treatment"), eventTypes);
+    List<String> eventTypes = result.stream().map(ClinicalEvent::getEventType).sorted().toList();
+    assertEquals(List.of("SPECIMEN", "Sequencing", "Treatment"), eventTypes);
 
     // Verify SPECIMEN event details
     Optional<ClinicalEvent> specimenEvent =
@@ -160,15 +156,13 @@ public class ClickhouseClinicalEventMapperTest {
   public void getPatientClinicalEventsWithPagination() {
     // Patient tcga-a1-a0sd has 3 events; request only 2 (limit=2, offset=0)
     List<ClinicalEvent> result =
-        mapper.getPatientClinicalEvents(
-            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", 2, 0, null, null);
+        mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sd", 2, 0, null, null);
 
     assertEquals(2, result.size());
 
     // Request page 2 (limit=2, offset=2) — should return 1 remaining event
     List<ClinicalEvent> page2 =
-        mapper.getPatientClinicalEvents(
-            STUDY_TCGA_PUB, "tcga-a1-a0sd", "SUMMARY", 2, 2, null, null);
+        mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sd", 2, 2, null, null);
 
     assertEquals(1, page2.size());
   }
@@ -194,7 +188,7 @@ public class ClickhouseClinicalEventMapperTest {
   public void getPatientClinicalEventsReturnsEmptyForNonexistentPatient() {
     List<ClinicalEvent> result =
         mapper.getPatientClinicalEvents(
-            STUDY_TCGA_PUB, "nonexistent-patient", "SUMMARY", null, null, null, null);
+            STUDY_TCGA_PUB, "nonexistent-patient", null, null, null, null);
     assertEquals(0, result.size());
   }
 

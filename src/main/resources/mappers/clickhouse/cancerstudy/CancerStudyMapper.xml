@@ -29,7 +29,7 @@
             SELECT
                 COUNT(DISTINCT patient_stable_id) as count,
                 cancer_study_identifier
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
             <where>
                 event_type IN ('Treatment', 'TREATMENT')
             </where>

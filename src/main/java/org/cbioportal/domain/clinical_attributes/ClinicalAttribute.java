@@ -2,6 +2,7 @@ package org.cbioportal.domain.clinical_attributes;
 
 import java.io.Serializable;
 
+// DETAILED projection
 public record ClinicalAttribute(
     String attrId,
     String displayName,
@@ -11,4 +12,11 @@ public record ClinicalAttribute(
     String priority,
     Integer cancerStudyId,
     String cancerStudyIdentifier)
-    implements Serializable {}
+    implements Serializable {
+
+  // ID projection
+  public ClinicalAttribute(
+      String attrId, String datatype, Boolean patientAttribute, String cancerStudyIdentifier) {
+    this(attrId, null, null, datatype, patientAttribute, null, null, cancerStudyIdentifier);
+  }
+}

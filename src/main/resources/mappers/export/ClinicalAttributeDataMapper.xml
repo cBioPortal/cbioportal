@@ -136,7 +136,7 @@
     <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">
         <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT count() > 0
-        FROM clinical_event ce
+        FROM clinical_event_derived ce
         JOIN patient p ON p.internal_id = ce.patient_id
             <if test="sampleIds != null">
                 JOIN sample s ON s.patient_id = p.internal_id
@@ -148,7 +148,7 @@
     <select id="getDistinctClinicalEventKeys" resultType="java.lang.String">
         SELECT DISTINCT
             ced.`key`
-        FROM clinical_event ce
+        FROM clinical_event_derived ce
         JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
         JOIN patient p ON p.internal_id = ce.patient_id
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
@@ -165,7 +165,7 @@
             ced.clinical_event_id AS clinicalEventId,
             ced.`key` AS `key`,
             ced.value AS value
-        FROM clinical_event ce
+        FROM clinical_event_derived ce
         JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
         JOIN patient p ON p.internal_id = ce.patient_id
         <if test="sampleIds != null">
@@ -188,7 +188,7 @@
             ce.start_date AS startDate,
             ce.stop_date AS stopDate,
             ce.event_type AS eventType
-        FROM clinical_event ce
+        FROM clinical_event_derived ce
         JOIN patient p ON p.internal_id = ce.patient_id
         <if test="sampleIds != null">
             JOIN sample s ON s.patient_id = p.internal_id
@@ -204,7 +204,7 @@
     <select id="getDistinctEventTypes" resultType="java.lang.String">
         SELECT DISTINCT
             ce.event_type
-        FROM clinical_event ce
+        FROM clinical_event_derived ce
         JOIN patient p ON p.internal_id = ce.patient_id
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}

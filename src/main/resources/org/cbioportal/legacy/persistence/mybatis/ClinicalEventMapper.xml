@@ -3,20 +3,20 @@
 
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.ClinicalEventMapper">
     <sql id="select">
-        clinical_event.clinical_event_id AS "clinicalEventId",
-        clinical_event.event_type AS "eventType",
+        clinical_event_derived.clinical_event_id AS "clinicalEventId",
+        clinical_event_derived.event_type AS "eventType",
         patient.stable_id AS "patientId",
         cancer_study.cancer_study_identifier AS "studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            clinical_event.start_date AS "startDate",
-            clinical_event.stop_date AS "stopDate"
+            clinical_event_derived.start_date AS "startDate",
+            clinical_event_derived.stop_date AS "stopDate"
         </if>
     </sql>
 
     <sql id="from">
-        FROM clinical_event
-        INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+        FROM clinical_event_derived
+        INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
@@ -43,7 +43,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY clinical_event.clinical_event_id ASC
+                ORDER BY clinical_event_derived.clinical_event_id ASC
             </otherwise>
         </choose>    
         <if test="limit != null and limit != 0">
@@ -82,7 +82,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY clinical_event.clinical_event_id ASC
+                ORDER BY clinical_event_derived.clinical_event_id ASC
             </otherwise>
         </choose>    
         <if test="limit != null and limit != 0">
@@ -99,13 +99,13 @@
 
     <select id="getSamplesOfPatientsPerEventType" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
-        clinical_event.clinical_event_id as clinicalEventId,
-        clinical_event.event_type as eventType,
+        clinical_event_derived.clinical_event_id as clinicalEventId,
+        clinical_event_derived.event_type as eventType,
         sample.stable_id as uniqueSampleKey,
         patient.stable_id as patientId
         FROM sample
         INNER JOIN patient ON sample.patient_id = patient.internal_id
-        INNER JOIN clinical_event ON clinical_event.patient_id = patient.internal_id
+        INNER JOIN clinical_event_derived ON clinical_event_derived.patient_id = patient.internal_id
         INNER JOIN cancer_study ON cancer_study.cancer_study_id = patient.cancer_study_id
         <where>
             <if test="sampleIds == null and studyIds != null">
@@ -133,8 +133,8 @@
 
     <select id="getPatientsDistinctClinicalEventInStudies" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
-            ANY_VALUE(clinical_event.clinical_event_id) AS clinicalEventId,
-            clinical_event.event_type AS eventType,
+            ANY_VALUE(clinical_event_derived.clinical_event_id) AS clinicalEventId,
+            clinical_event_derived.event_type AS eventType,
             patient.stable_id AS patientId
         <include refid="from"/>
         <where>
@@ -162,10 +162,10 @@
                 AND
                 <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
                     <if test="element.attributes == null || element.attributes.isEmpty()">
-                        clinical_event.event_type = #{element.eventType}
+                        clinical_event_derived.event_type = #{element.eventType}
                     </if>
                     <if test="element.attributes != null and !element.attributes.isEmpty()">
-                        (CONCAT(clinical_event.event_type, '_', clinical_event_data.key)) IN
+                        (CONCAT(clinical_event_derived.event_type, '_', clinical_event_data.key)) IN
                         <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
                             CONCAT(#{element.eventType}, '_', #{attribute.key})
                         </foreach>
@@ -173,18 +173,18 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY clinical_event.event_type, patient.stable_id
+        GROUP BY clinical_event_derived.event_type, patient.stable_id
     </select>
 
     <select id="getTimelineEvents" resultType="org.cbioportal.legacy.model.ClinicalEvent">
         SELECT
             ANY_VALUE(patient.stable_id) AS patientId,
             cancer_study.cancer_study_identifier AS studyId,
-            MIN(clinical_event.start_date) AS startDate,
-            GREATEST(MAX(clinical_event.start_date), COALESCE(MAX(clinical_event.stop_date),0)) AS stopDate
-        FROM clinical_event
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
+            MIN(clinical_event_derived.start_date) AS startDate,
+            GREATEST(MAX(clinical_event_derived.start_date), COALESCE(MAX(clinical_event_derived.stop_date),0)) AS stopDate
+        FROM clinical_event_derived
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="patientIds == null and studyIds != null">
@@ -211,10 +211,10 @@
                 AND
                 <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
                     <if test="element.attributes == null || element.attributes.isEmpty()">
-                        clinical_event.event_type = #{element.eventType}
+                        clinical_event_derived.event_type = #{element.eventType}
                     </if>
                     <if test="element.attributes != null and !element.attributes.isEmpty()">
-                        (CONCAT(clinical_event.event_type, '_', clinical_event_data.key, '_', clinical_event_data.value)) IN
+                        (CONCAT(clinical_event_derived.event_type, '_', clinical_event_data.key, '_', clinical_event_data.value)) IN
                         <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
                             CONCAT(#{element.eventType}, '_', #{attribute.key}, '_', #{attribute.value})
                         </foreach>
@@ -223,7 +223,7 @@
             </if>
         </where>
         GROUP BY
-        clinical_event.patient_id, cancer_study.cancer_study_identifier;
+        clinical_event_derived.patient_id, cancer_study.cancer_study_identifier;
     </select>
 
     <resultMap id="clinicalEventsResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
@@ -236,12 +236,12 @@
     
     <select id="getClinicalEventsMeta" resultMap="clinicalEventsResultMap">
         SELECT
-            LOWER(clinical_event.event_type) AS eventType,
+            LOWER(clinical_event_derived.event_type) AS eventType,
             LOWER(clinical_event_data.key) AS "key",
             LOWER(clinical_event_data.value) AS value
-        FROM clinical_event
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
+        FROM clinical_event_derived
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <where>
             <if test="patientIds == null and studyIds != null">
@@ -268,10 +268,10 @@
                 AND
                 <foreach item="element" collection="clinicalEvents" open="(" separator="OR " close=")">
                     <if test="element.attributes == null || element.attributes.isEmpty()">
-                        clinical_event.event_type = #{element.eventType}
+                        clinical_event_derived.event_type = #{element.eventType}
                     </if>
                     <if test="element.attributes != null and !element.attributes.isEmpty()">
-                        (CONCAT(clinical_event.event_type, '_', clinical_event_data.key)) IN
+                        (CONCAT(clinical_event_derived.event_type, '_', clinical_event_data.key)) IN
                         <foreach item="attribute" collection="element.attributes" open="(" separator="," close=")">
                             CONCAT(#{element.eventType}, '_', #{attribute.key})
                         </foreach>
@@ -279,7 +279,7 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY clinical_event.event_type , clinical_event_data.key, clinical_event_data.value;
+        GROUP BY clinical_event_derived.event_type , clinical_event_data.key, clinical_event_data.value;
     </select>
 
 </mapper>

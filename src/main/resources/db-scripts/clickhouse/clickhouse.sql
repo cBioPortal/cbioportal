@@ -709,8 +709,8 @@ SELECT * FROM genetic_alteration;
 EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
 
 -- Adds primary key to the clinical_event table for Clickhouse-only
-DROP TABLE IF EXISTS clinical_event_BACKUP;
-CREATE TABLE clinical_event_BACKUP
+DROP TABLE IF EXISTS clinical_event_derived;
+CREATE TABLE clinical_event_derived
 (
     `clinical_event_id` Int64,
     `patient_id` Nullable(Int64),
@@ -726,7 +726,7 @@ ORDER BY (cancer_study_identifier, event_type, clinical_event_id)
 SETTINGS index_granularity = 8192;
 
 -- Copy the data
-INSERT INTO clinical_event_BACKUP
+INSERT INTO clinical_event_derived
 SELECT
     ce.clinical_event_id,
     ce.patient_id,
@@ -739,9 +739,6 @@ FROM clinical_event ce
     INNER JOIN patient p ON ce.patient_id = p.internal_id
     INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
--- SWITCH THE TABLES
-EXCHANGE TABLES clinical_event_BACKUP AND clinical_event;
-
 --END: PRIMARY KEY ADDITIONS
 
 
@@ -751,5 +748,6 @@ OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_data_derived;
+OPTIMIZE TABLE clinical_event_derived;
 OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;

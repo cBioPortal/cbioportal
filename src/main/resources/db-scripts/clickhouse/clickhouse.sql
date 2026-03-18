@@ -708,7 +708,7 @@ SELECT * FROM genetic_alteration;
 -- SWITCH THE TABLES
 EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
 
--- Adds primary key to the clinical_event table for Clickhouse-only
+-- Creates and populates clinical_event_derived with a primary key for Clickhouse-only (original clinical_event table remains unchanged)
 DROP TABLE IF EXISTS clinical_event_derived;
 CREATE TABLE clinical_event_derived
 (

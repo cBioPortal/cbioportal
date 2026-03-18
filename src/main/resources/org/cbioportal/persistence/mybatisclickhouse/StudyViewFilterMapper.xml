@@ -188,7 +188,7 @@
                     ced.patient_unique_id AS patient_unique_id,
                     min(ced.start_date) AS time_taken,
                     ced.cancer_study_identifier AS cancer_study_identifier
-                FROM clinical_event_derived ced
+                FROM clinical_event_data_derived ced
                 <where>
                     key = 'SAMPLE_ID'
                     AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
@@ -201,7 +201,7 @@
                     patient_unique_id,
                     value AS treatment,
                     argMin(start_date, start_date) AS treatment_time_taken
-                FROM clinical_event_derived
+                FROM clinical_event_data_derived
                 WHERE lower(event_type) = 'treatment'
                 AND key = 'AGENT'
                 GROUP BY patient_unique_id, value
@@ -230,7 +230,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" close=")">
                         event_type = #{dataFilterValue.value}
@@ -247,7 +247,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
                          separator=") OR ("

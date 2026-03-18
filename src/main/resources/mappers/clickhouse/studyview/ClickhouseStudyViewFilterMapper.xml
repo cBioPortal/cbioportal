@@ -188,7 +188,7 @@
                     ced.patient_unique_id AS patient_unique_id,
                     min(ced.start_date) AS time_taken,
                     ced.cancer_study_identifier AS cancer_study_identifier
-                FROM clinical_event_derived ced
+                FROM clinical_event_data_derived ced
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                         cancer_study_identifier IN
@@ -208,7 +208,7 @@
                     patient_unique_id,
                     value AS treatment,
                     argMin(start_date, start_date) AS treatment_time_taken
-                FROM clinical_event_derived
+                FROM clinical_event_data_derived
                 WHERE
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                         cancer_study_identifier IN
@@ -245,7 +245,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                         cancer_study_identifier IN
@@ -270,7 +270,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                         cancer_study_identifier IN

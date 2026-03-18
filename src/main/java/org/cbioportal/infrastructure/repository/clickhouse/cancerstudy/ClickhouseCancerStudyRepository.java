@@ -62,8 +62,10 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   }
 
   /**
-   * @param studyViewFilterContext
-   * @return
+   * Retrieves detailed metadata for a single cancer study by its identifier.
+   *
+   * @param studyId the cancer study identifier to look up
+   * @return the {@link CancerStudyMetadata} for the study, or {@code null} if not found
    */
   @Override
   @Cacheable(

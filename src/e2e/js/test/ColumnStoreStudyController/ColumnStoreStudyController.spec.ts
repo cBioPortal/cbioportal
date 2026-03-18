@@ -74,6 +74,8 @@ describe('ColumnStoreStudyController E2E Tests', () => {
         await axios.get(`${config.serverUrl}/api/column-store/studies/nonexistent_study_xyz`);
         expect.fail('Expected 404');
       } catch (error: any) {
+        // Distinguish HTTP error responses from network/transport failures
+        expect(error.response, 'Expected an HTTP error response, not a network error').to.not.be.undefined;
         expect(error.response.status).to.equal(404);
       }
     });

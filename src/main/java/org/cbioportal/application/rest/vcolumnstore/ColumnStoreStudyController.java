@@ -142,7 +142,38 @@ public class ColumnStoreStudyController {
     if (study == null) {
       return ResponseEntity.notFound().build();
     }
-    return ResponseEntity.ok(CancerStudyMetadataMapper.INSTANCE.toDto(study));
+    var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study);
+    // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
+    var dtoWithPermission =
+        new CancerStudyMetadataDTO(
+            dto.studyId(),
+            dto.cancerTypeId(),
+            dto.name(),
+            dto.description(),
+            dto.publicStudy(),
+            dto.pmid(),
+            dto.citation(),
+            dto.groups(),
+            dto.status(),
+            dto.importDate(),
+            dto.allSampleCount(),
+            dto.sequencedSampleCount(),
+            dto.cnaSampleCount(),
+            dto.mrnaRnaSeqSampleCount(),
+            dto.mrnaRnaSeqV2SampleCount(),
+            dto.mrnaMicroarraySampleCount(),
+            dto.miRnaSampleCount(),
+            dto.methylationHm27SampleCount(),
+            dto.rppaSampleCount(),
+            dto.massSpectrometrySampleCount(),
+            dto.completeSampleCount(),
+            dto.referenceGenome(),
+            dto.treatmentCount(),
+            dto.structuralVariantCount(),
+            dto.cancerType(),
+            true,
+            dto.resourceCounts());
+    return ResponseEntity.ok(dtoWithPermission);
   }
 
   /**

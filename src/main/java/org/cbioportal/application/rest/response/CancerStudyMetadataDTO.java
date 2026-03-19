@@ -33,36 +33,4 @@ public record CancerStudyMetadataDTO(
     Integer structuralVariantCount,
     TypeOfCancer cancerType,
     Boolean readPermission,
-    List<ResourceCount> resourceCounts) {
-
-  public CancerStudyMetadataDTO withReadPermission(Boolean readPermission) {
-    return new CancerStudyMetadataDTO(
-        studyId,
-        cancerTypeId,
-        name,
-        description,
-        publicStudy,
-        pmid,
-        citation,
-        groups,
-        status,
-        importDate,
-        allSampleCount,
-        sequencedSampleCount,
-        cnaSampleCount,
-        mrnaRnaSeqSampleCount,
-        mrnaRnaSeqV2SampleCount,
-        mrnaMicroarraySampleCount,
-        miRnaSampleCount,
-        methylationHm27SampleCount,
-        rppaSampleCount,
-        massSpectrometrySampleCount,
-        completeSampleCount,
-        referenceGenome,
-        treatmentCount,
-        structuralVariantCount,
-        cancerType,
-        readPermission,
-        resourceCounts);
-  }
-}
+    List<ResourceCount> resourceCounts) {}

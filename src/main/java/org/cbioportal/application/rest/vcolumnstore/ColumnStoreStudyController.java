@@ -143,7 +143,7 @@ public class ColumnStoreStudyController {
       return ResponseEntity.notFound().build();
     }
     // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
-    var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study).withReadPermission(true);
+    var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);
   }
 

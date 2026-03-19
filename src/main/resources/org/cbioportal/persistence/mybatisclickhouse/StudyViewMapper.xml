@@ -628,13 +628,13 @@
 
     <select id="getTotalSampleTreatmentCounts" resultType="int">
         SELECT
-            count(distinct ced.value) AS totalSamples
-        FROM clinical_event_data_derived ced
+            count(distinct cedd.value) AS totalSamples
+        FROM clinical_event_data_derived cedd
         <where>
             AND key = 'SAMPLE_ID'
             AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
-            concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            concat(cedd.cancer_study_identifier, '_', cedd.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
             patient_unique_id IN (
             SELECT
@@ -664,16 +664,16 @@
         <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->
         WITH sample_acquisition_events AS (
             SELECT
-                ced.value AS sample_id,
-                ced.patient_unique_id,
-                min(ced.start_date) AS time_taken,
-                ced.cancer_study_identifier AS cancer_study_identifier
-            FROM clinical_event_data_derived ced
+                cedd.value AS sample_id,
+                cedd.patient_unique_id,
+                min(cedd.start_date) AS time_taken,
+                cedd.cancer_study_identifier AS cancer_study_identifier
+            FROM clinical_event_data_derived cedd
             <where>
                 key = 'SAMPLE_ID'
                 AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             </where>
-            GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+            GROUP BY patient_unique_id, cedd.value, cancer_study_identifier
         ),
         <!-- Nested sub query to grab minimum treatment event. When there are multiple treatments that are of the same
         type we only care about the first treatment.
@@ -691,13 +691,13 @@
             GROUP BY patient_unique_id, value
         )
         SELECT
-            countIf(ced.sample_id,ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
-            countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
+            countIf(sae.sample_id,sae.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
+            countIf(sae.sample_id, sae.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
             treatments.treatment AS treatment
-        FROM sample_acquisition_events ced
-            INNER JOIN treatments ON treatments.patient_unique_id = ced.patient_unique_id
+        FROM sample_acquisition_events sae
+            INNER JOIN treatments ON treatments.patient_unique_id = sae.patient_unique_id
         <where>
-            concat(ced.cancer_study_identifier, '_', ced.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            concat(sae.cancer_study_identifier, '_', sae.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
         GROUP BY treatments.treatment
     </select>

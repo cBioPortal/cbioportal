@@ -136,8 +136,8 @@
     <select id="hasClinicalTimelineData" resultType="java.lang.Boolean">
         <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT count() > 0
-        FROM clinical_event_derived ce
-        JOIN patient p ON p.internal_id = ce.patient_id
+        FROM clinical_event_derived ce_derived
+        JOIN patient p ON p.internal_id = ce_derived.patient_id
             <if test="sampleIds != null">
                 JOIN sample s ON s.patient_id = p.internal_id
                 AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
@@ -147,27 +147,27 @@
     </select>
     <select id="getDistinctClinicalEventKeys" resultType="java.lang.String">
         SELECT DISTINCT
-            ced.`key`
-        FROM clinical_event_derived ce
-        JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
-        JOIN patient p ON p.internal_id = ce.patient_id
+            ce_data.`key`
+        FROM clinical_event_derived ce_derived
+        JOIN clinical_event_data ce_data ON ce_data.clinical_event_id = ce_derived.clinical_event_id
+        JOIN patient p ON p.internal_id = ce_derived.patient_id
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
         <if test="eventType != null">
-            AND ce.event_type = #{eventType}
+            AND ce_derived.event_type = #{eventType}
         </if>
-        ORDER BY ced.`key`
+        ORDER BY ce_data.`key`
     </select>
     <select id="getClinicalEventData" resultType="org.cbioportal.application.file.model.ClinicalEventData"
             resultSetType="FORWARD_ONLY">
         <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT DISTINCT
-            ced.clinical_event_id AS clinicalEventId,
-            ced.`key` AS `key`,
-            ced.value AS value
-        FROM clinical_event_derived ce
-        JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
-        JOIN patient p ON p.internal_id = ce.patient_id
+            ce_data.clinical_event_id AS clinicalEventId,
+            ce_data.`key` AS `key`,
+            ce_data.value AS value
+        FROM clinical_event_derived ce_derived
+        JOIN clinical_event_data ce_data ON ce_data.clinical_event_id = ce_derived.clinical_event_id
+        JOIN patient p ON p.internal_id = ce_derived.patient_id
         <if test="sampleIds != null">
             JOIN sample s ON s.patient_id = p.internal_id
             AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
@@ -175,21 +175,21 @@
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
         <if test="eventType != null">
-            AND ce.event_type = #{eventType}
+            AND ce_derived.event_type = #{eventType}
         </if>
-        ORDER BY ced.clinical_event_id
+        ORDER BY ce_data.clinical_event_id
     </select>
     <select id="getClinicalEvents" resultType="org.cbioportal.application.file.model.ClinicalEvent"
             resultSetType="FORWARD_ONLY">
         <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
         SELECT DISTINCT
-            ce.clinical_event_id AS clinicalEventId,
+            ce_derived.clinical_event_id AS clinicalEventId,
             p.stable_id AS patientId,
-            ce.start_date AS startDate,
-            ce.stop_date AS stopDate,
-            ce.event_type AS eventType
-        FROM clinical_event_derived ce
-        JOIN patient p ON p.internal_id = ce.patient_id
+            ce_derived.start_date AS startDate,
+            ce_derived.stop_date AS stopDate,
+            ce_derived.event_type AS eventType
+        FROM clinical_event_derived ce_derived
+        JOIN patient p ON p.internal_id = ce_derived.patient_id
         <if test="sampleIds != null">
             JOIN sample s ON s.patient_id = p.internal_id
             AND s.stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
@@ -197,15 +197,15 @@
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
         <if test="eventType != null">
-            AND ce.event_type = #{eventType}
+            AND ce_derived.event_type = #{eventType}
         </if>
-        ORDER BY ce.clinical_event_id
+        ORDER BY ce_derived.clinical_event_id
     </select>
     <select id="getDistinctEventTypes" resultType="java.lang.String">
         SELECT DISTINCT
-            ce.event_type
-        FROM clinical_event_derived ce
-        JOIN patient p ON p.internal_id = ce.patient_id
+            ce_derived.event_type
+        FROM clinical_event_derived ce_derived
+        JOIN patient p ON p.internal_id = ce_derived.patient_id
         JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
         WHERE cs.cancer_study_identifier = #{studyId}
     </select>

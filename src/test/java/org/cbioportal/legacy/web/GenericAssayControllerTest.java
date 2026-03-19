@@ -23,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -70,10 +71,16 @@ public class GenericAssayControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaItems);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
-                .accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -106,12 +113,17 @@ public class GenericAssayControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaSingleItem);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get(
+                        "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.get(
-                    "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
-                .accept(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.status().isOk())
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -146,13 +158,19 @@ public class GenericAssayControllerTest {
                 Mockito.any(), Mockito.any(), Mockito.any()))
         .thenReturn(genericAssayMetaItems);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/generic_assay_meta/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/generic_assay_meta/fetch")
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

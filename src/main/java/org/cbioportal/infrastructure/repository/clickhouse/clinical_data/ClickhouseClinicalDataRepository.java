@@ -17,8 +17,6 @@ import org.springframework.stereotype.Repository;
  * for analytical queries. It delegates to MyBatis mappers for SQL query execution and handles
  * empty-collection edge cases to prevent unnecessary database calls.
  *
- * <p>Only active when the "clickhouse" profile is enabled.
- *
  * @see ClinicalDataRepository
  * @see ClickhouseClinicalDataMapper
  */

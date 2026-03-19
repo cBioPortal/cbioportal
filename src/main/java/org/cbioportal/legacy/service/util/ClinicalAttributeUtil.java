@@ -92,12 +92,12 @@ public abstract class ClinicalAttributeUtil {
   }
 
   public static List<ClinicalAttribute> convertToLegacyClinicalAttributeList(
-      List<org.cbioportal.domain.clinical_attributes.ClinicalAttribute> clinicalDataList) {
-    if (clinicalDataList == null) {
+      List<org.cbioportal.domain.clinical_attributes.ClinicalAttribute> clinicalAttributes) {
+    if (clinicalAttributes == null) {
       return Collections.emptyList();
     }
 
-    return clinicalDataList.stream()
+    return clinicalAttributes.stream()
         .map(ClinicalAttributeUtil::convertToLegacyClinicalAttribute)
         .toList();
   }

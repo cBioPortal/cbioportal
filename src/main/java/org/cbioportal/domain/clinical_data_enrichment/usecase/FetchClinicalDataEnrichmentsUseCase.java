@@ -61,6 +61,10 @@ public class FetchClinicalDataEnrichmentsUseCase {
    */
   public List<ClinicalDataEnrichment> execute(GroupFilter groupFilter) {
 
+    if (groupFilter == null || groupFilter.getGroups() == null) {
+      return new ArrayList<>();
+    }
+
     // Extract all studyIds and sampleIds from all groups
     List<String> allStudyIds =
         groupFilter.getGroups().stream()
@@ -175,6 +179,7 @@ public class FetchClinicalDataEnrichmentsUseCase {
     List<String> sampleAttributeIds = categorized.sampleAttributeIds();
     List<String> patientAttributeIds = categorized.patientAttributeIds();
     List<String> conflictingAttributeIds = categorized.conflictingAttributeIds();
+    Set<String> patientAttributeIdSet = new HashSet<>(patientAttributeIds);
 
     // Fetch all clinical data for all groups
     Map<String, Map<String, Double>> allNumericalDataBySampleAndAttributes =
@@ -196,7 +201,7 @@ public class FetchClinicalDataEnrichmentsUseCase {
           addSampleDataToGroup(
               sampleData,
               patientUniqueId,
-              patientAttributeIds,
+              patientAttributeIdSet,
               groupDataByAttribute,
               processedPatientsPerAttribute);
         }
@@ -226,7 +231,7 @@ public class FetchClinicalDataEnrichmentsUseCase {
   private void addSampleDataToGroup(
       Map<String, Double> sampleData,
       String patientUniqueId,
-      List<String> patientAttributeIds,
+      Set<String> patientAttributeIds,
       Map<String, List<Double>> groupDataByAttribute,
       Map<String, Set<String>> processedPatientsPerAttribute) {
 

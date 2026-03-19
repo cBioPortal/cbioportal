@@ -63,8 +63,7 @@ public class ColumnStoreClinicalDataEnrichmentController {
    * extracted by {@link org.cbioportal.application.security.CancerStudyPermissionEvaluator}.
    *
    * @param groupFilter filter containing multiple groups of sample identifiers
-   * @return list of clinical data enrichments with p-values and test statistics, sorted by
-   *     significance
+   * @return list of clinical data enrichments with p-values and test statistics
    */
   @Hidden
   @PreAuthorize(

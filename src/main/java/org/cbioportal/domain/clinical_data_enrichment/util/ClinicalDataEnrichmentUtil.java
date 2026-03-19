@@ -83,12 +83,6 @@ public final class ClinicalDataEnrichmentUtil {
 
     List<ClinicalDataEnrichment> enrichments = new ArrayList<>();
 
-    // Determine test name based on number of groups
-    EnrichmentTestMethod method =
-        dataByGroupAndAttribute.size() == 2
-            ? EnrichmentTestMethod.WILCOXON
-            : EnrichmentTestMethod.KRUSKAL_WALLIS;
-
     for (ClinicalAttribute clinicalAttribute : numericalAttributes) {
       String attributeId = clinicalAttribute.attrId();
 
@@ -102,6 +96,9 @@ public final class ClinicalDataEnrichmentUtil {
         double pValue = KruskalWallis.getPvalue(testData.transposeCollection());
         if (!Double.isNaN(pValue)) {
           int groupCount = testData.transposeCollection().keySet().size();
+          // Determine test method based on actual groups with data for this attribute
+          EnrichmentTestMethod method =
+              groupCount == 2 ? EnrichmentTestMethod.WILCOXON : EnrichmentTestMethod.KRUSKAL_WALLIS;
           ClinicalDataEnrichment clinicalEnrichment =
               new ClinicalDataEnrichment(
                   clinicalAttribute,

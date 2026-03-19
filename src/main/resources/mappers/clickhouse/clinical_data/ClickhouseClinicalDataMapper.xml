@@ -127,7 +127,10 @@
         SELECT
             cd.internal_id as internalId,
             <choose>
-                <when test="'${type}' == 'sample' or '${isConflicting}' == 'true'">
+                <when test="'${isConflicting}' == 'true'">
+                    replaceOne(sd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
+                </when>
+                <when test="'${type}' == 'sample'">
                     replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
                 </when>
                 <otherwise>
@@ -361,9 +364,6 @@
     </sql>
 
     <select id="getClinicalDataCountsForEnrichments" resultMap="ClinicalDataCountItemResultMap">
-        <!-- Pre-calculate list sizes to avoid MyBatis reflection issues -->
-        <bind name="sampleUniqueIdsSize" value="sampleUniqueIds == null ? 0 : sampleUniqueIds.size()" />
-        <bind name="patientUniqueIdsSize" value="patientUniqueIds == null ? 0 : patientUniqueIds.size()" />
 
         <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
             <include refid="getClinicalDataCountsQueryForEnrichments">

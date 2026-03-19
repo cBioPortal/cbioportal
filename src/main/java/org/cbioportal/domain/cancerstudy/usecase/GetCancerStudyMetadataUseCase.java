@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.domain.cancerstudy.ResourceCount;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.security.access.prepost.PostFilter;
@@ -108,10 +109,10 @@ public class GetCancerStudyMetadataUseCase {
         .toList();
   }
 
-  public CancerStudyMetadata getStudy(String studyId) {
+  public CancerStudyMetadata getStudy(String studyId) throws StudyNotFoundException {
     CancerStudyMetadata metadata = studyRepository.getCancerStudyMetadata(studyId);
     if (metadata == null) {
-      return null;
+      throw new StudyNotFoundException(studyId);
     }
     List<ResourceCount> resourceCounts =
         studyRepository.getResourceCountsForAllStudies().stream()

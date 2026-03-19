@@ -8,6 +8,7 @@ import java.util.List;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
@@ -137,11 +138,9 @@ public class ColumnStoreStudyController {
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @GetMapping(value = "/studies/{studyId}", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId) {
+  public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
+      throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
-    if (study == null) {
-      return ResponseEntity.notFound().build();
-    }
     // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
     var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);

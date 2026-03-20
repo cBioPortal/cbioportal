@@ -409,4 +409,3 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     return rv;
   }
 }
-

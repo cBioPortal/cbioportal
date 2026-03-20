@@ -92,6 +92,7 @@ public class EndpointAuthorizationArchTest {
           // attrs
           "org.cbioportal.legacy.web.MskEntityTranslationController", // study-specific lookups
           "org.cbioportal.legacy.web.GenericAssayController", // @PreAuthorize removed for perf
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController", // @PreAuthorize removed for perf
           "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController", // study data
           "org.cbioportal.application.file.export.ExportController" // exports study data
           );

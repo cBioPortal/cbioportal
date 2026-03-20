@@ -87,14 +87,10 @@ public class EndpointAuthorizationArchTest {
           // TODO: These controllers access study-specific data and SHOULD have @PreAuthorize.
           // They are listed here temporarily to avoid breaking the build.
           // Each should be fixed and removed from this list.
-          "org.cbioportal.legacy.web.MutationCountController", // queries mutation counts by gene
-          "org.cbioportal.legacy.web.NamespaceAttributeController", // study-specific namespace
-          // attrs
           "org.cbioportal.legacy.web.MskEntityTranslationController", // study-specific lookups
           "org.cbioportal.legacy.web.GenericAssayController", // @PreAuthorize removed for perf
           "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController", // @PreAuthorize removed for perf
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController", // study data
-          "org.cbioportal.application.file.export.ExportController" // exports study data
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController" // study data
           );
 
   /**

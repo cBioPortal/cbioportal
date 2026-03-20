@@ -6,6 +6,8 @@ import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
@@ -42,6 +44,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 // - check controllers for not catching exceptions themselves
 @ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler {
+
+  private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(UnsupportedOperationException.class)
   public ResponseEntity<ErrorResponse> handleUnsupportedOperation() {
@@ -218,7 +222,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(CacheOperationException.class)
-  public ResponseEntity<ErrorResponse> handleCacheOperationException(CacheNotFoundException ex) {
+  public ResponseEntity<ErrorResponse> handleCacheOperationException(CacheOperationException ex) {
     ErrorResponse response =
         new ErrorResponse(
             "Error evicting caches. Please try again or validate correct operation of your configured caching implementation.");
@@ -242,7 +246,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(BadSqlGrammarException.class)
   public ResponseEntity<ErrorResponse> handleBadSqlGrammar(BadSqlGrammarException ex) {
-    ex.printStackTrace(); // we still want this to show up in the logs
+    log.error("SQL grammar exception", ex);
     return new ResponseEntity<>(
         new ErrorResponse(
             "SQL exception. If you are a maintainer of this instance, see logs for details."),

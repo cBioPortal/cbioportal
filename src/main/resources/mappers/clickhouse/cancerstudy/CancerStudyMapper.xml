@@ -27,7 +27,7 @@
         ),
         treatment AS (
             SELECT
-                COUNT(DISTINCT patient_stable_id) as count,
+                COUNT(DISTINCT patient_unique_id) as count,
                 cancer_study_identifier
             FROM clinical_event_data_derived
             <where>

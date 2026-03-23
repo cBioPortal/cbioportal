@@ -1,0 +1,22 @@
+name: sonarcloud-pr-build
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  save-pr-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Save PR info for SonarCloud analysis
+        run: |
+          mkdir pr-info
+          echo "${{ github.event.number }}" > pr-info/pr-number.txt
+          echo "${{ github.head_ref }}" > pr-info/pr-head-ref.txt
+          echo "${{ github.base_ref }}" > pr-info/pr-base-ref.txt
+
+      - name: Upload PR info
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-info
+          path: pr-info/
+          retention-days: 1

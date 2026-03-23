@@ -57,12 +57,12 @@
             LEFT JOIN
             (
                 SELECT
-                    COUNT(DISTINCT(clinical_event.patient_id)) as count,
+                    COUNT(DISTINCT(clinical_event_derived.patient_id)) as count,
                     patient.cancer_study_id as cancer_study_id
                 FROM cancer_study
                     INNER JOIN patient ON cancer_study.cancer_study_id = patient.cancer_study_id
-                    LEFT JOIN clinical_event on clinical_event.patient_id = patient.internal_id
-                WHERE clinical_event.event_type = 'Treatment'
+                    LEFT JOIN clinical_event_derived on clinical_event_derived.patient_id = patient.internal_id
+                WHERE clinical_event_derived.event_type = 'Treatment'
                 GROUP BY patient.cancer_study_id
             ) as treatment on cancer_study.cancer_study_id = treatment.cancer_study_id
             LEFT JOIN

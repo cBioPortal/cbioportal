@@ -76,7 +76,9 @@ public class DiscreteCopyNumberController {
           @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
           @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE)
           Integer pageSize,
-      @Parameter(description = "Page number of the result list")
+      @Parameter(
+              description =
+                  "Zero-based page number of the result list (0 = first page). Ignored when pageSize=0.")
           @Min(PagingConstants.MIN_PAGE_NUMBER)
           @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER)
           Integer pageNumber)
@@ -146,7 +148,9 @@ public class DiscreteCopyNumberController {
           @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
           @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE)
           Integer pageSize,
-      @Parameter(description = "Page number of the result list")
+      @Parameter(
+              description =
+                  "Zero-based page number of the result list (0 = first page). Ignored when pageSize=0.")
           @Min(PagingConstants.MIN_PAGE_NUMBER)
           @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER)
           Integer pageNumber)

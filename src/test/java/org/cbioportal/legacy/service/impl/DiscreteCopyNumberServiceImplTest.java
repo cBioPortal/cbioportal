@@ -201,6 +201,41 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmpNoPagingNormalizesPageNumber()
+      throws Exception {
+
+    createMolecularProfile();
+
+    List<DiscreteCopyNumberData> expectedDiscreteCopyNumberDataList = new ArrayList<>();
+    expectedDiscreteCopyNumberDataList.add(new DiscreteCopyNumberData());
+
+    List<Integer> alterationTypes = Collections.singletonList(-2);
+
+    Mockito.when(
+            discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                MOLECULAR_PROFILE_ID,
+                SAMPLE_LIST_ID,
+                Arrays.asList(ENTREZ_GENE_ID_1),
+                alterationTypes,
+                PROJECTION,
+                0,
+                0))
+        .thenReturn(expectedDiscreteCopyNumberDataList);
+
+    List<DiscreteCopyNumberData> result =
+        discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            MOLECULAR_PROFILE_ID,
+            SAMPLE_LIST_ID,
+            Arrays.asList(ENTREZ_GENE_ID_1),
+            alterationTypes,
+            PROJECTION,
+            0,
+            999);
+
+    Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
+  }
+
+  @Test
   public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdNonHomdelOrAmp()
       throws Exception {
 
@@ -326,6 +361,41 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
             PROJECTION,
             0,
             0);
+
+    Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
+  }
+
+  @Test
+  public void fetchDiscreteCopyNumbersInMolecularProfileHomdelOrAmpNoPagingNormalizesPageNumber()
+      throws Exception {
+
+    createMolecularProfile();
+
+    List<DiscreteCopyNumberData> expectedDiscreteCopyNumberDataList = new ArrayList<>();
+    expectedDiscreteCopyNumberDataList.add(new DiscreteCopyNumberData());
+
+    List<Integer> alterationTypes = Collections.singletonList(-2);
+
+    Mockito.when(
+            discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(
+                MOLECULAR_PROFILE_ID,
+                Arrays.asList(SAMPLE_ID1),
+                Arrays.asList(ENTREZ_GENE_ID_1),
+                alterationTypes,
+                PROJECTION,
+                0,
+                0))
+        .thenReturn(expectedDiscreteCopyNumberDataList);
+
+    List<DiscreteCopyNumberData> result =
+        discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID,
+            Arrays.asList(SAMPLE_ID1),
+            Arrays.asList(ENTREZ_GENE_ID_1),
+            alterationTypes,
+            PROJECTION,
+            0,
+            999);
 
     Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
   }

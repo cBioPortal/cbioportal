@@ -42,6 +42,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     validateMolecularProfile(molecularProfileId);
     if (isHomdelOrAmpOnly(alterationTypes)) {
+      Integer normalizedPageNumber = normalizePageNumber(pageSize, pageNumber);
 
       return discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
           molecularProfileId,
@@ -50,7 +51,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
           alterationTypes,
           projection,
           pageSize,
-          pageNumber);
+          normalizedPageNumber);
     }
 
     return paginateDiscreteCopyNumberData(
@@ -105,6 +106,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     validateMolecularProfile(molecularProfileId);
     if (isHomdelOrAmpOnly(alterationTypes)) {
+      Integer normalizedPageNumber = normalizePageNumber(pageSize, pageNumber);
       return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(
           molecularProfileId,
           sampleIds,
@@ -112,7 +114,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
           alterationTypes,
           projection,
           pageSize,
-          pageNumber);
+          normalizedPageNumber);
     }
 
     return paginateDiscreteCopyNumberData(
@@ -326,5 +328,9 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     return new ArrayList<>(
         data.subList(offset, PaginationCalculator.lastIndex(offset, pageSize, data.size())));
+  }
+
+  private Integer normalizePageNumber(Integer pageSize, Integer pageNumber) {
+    return pageSize != null && pageSize == 0 ? 0 : pageNumber;
   }
 }

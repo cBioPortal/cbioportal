@@ -285,6 +285,50 @@ public class DiscreteCopyNumberControllerTest {
 
   @Test
   @WithMockUser
+  public void fetchDiscreteCopyNumbersInMolecularProfileWithPagingParameters() throws Exception {
+
+    List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
+    Mockito.when(
+            discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+                Mockito.anyString(),
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
+        .thenReturn(discreteCopyNumberDataList);
+
+    DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+                .with(csrf())
+                .param(
+                    "discreteCopyNumberEventType",
+                    DiscreteCopyNumberEventType.HOMDEL_AND_AMP.name())
+                .param("pageSize", "1")
+                .param("pageNumber", "1")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberFilter)))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    Mockito.verify(discreteCopyNumberService)
+        .fetchDiscreteCopyNumbersInMolecularProfile(
+            Mockito.anyString(),
+            Mockito.anyList(),
+            Mockito.anyList(),
+            Mockito.anyList(),
+            Mockito.anyString(),
+            Mockito.eq(1),
+            Mockito.eq(1));
+  }
+
+  @Test
+  @WithMockUser
   public void fetchDiscreteCopyNumbersInMolecularProfileDetailedProjection() throws Exception {
 
     List<DiscreteCopyNumberData> discreteCopyNumberDataList =

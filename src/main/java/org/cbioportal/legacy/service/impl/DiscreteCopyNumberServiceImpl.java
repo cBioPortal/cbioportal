@@ -320,10 +320,11 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
-    if (offset == null || offset >= data.size()) {
+    if (offset == null || offset < 0 || offset >= data.size()) {
       return Collections.emptyList();
     }
 
-    return data.subList(offset, PaginationCalculator.lastIndex(offset, pageSize, data.size()));
+    return new ArrayList<>(
+        data.subList(offset, PaginationCalculator.lastIndex(offset, pageSize, data.size())));
   }
 }

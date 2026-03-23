@@ -376,6 +376,50 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void fetchDiscreteCopyNumbersInMolecularProfileNonHomdelOrAmpPaged() throws Exception {
+
+    createMolecularProfile();
+
+    List<GeneMolecularData> expectedMolecularDataList = new ArrayList<>();
+    GeneMolecularData first = new GeneMolecularData();
+    first.setValue("-1");
+    first.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+    first.setSampleId(SAMPLE_ID1);
+    first.setEntrezGeneId(ENTREZ_GENE_ID_1);
+    GeneMolecularData second = new GeneMolecularData();
+    second.setValue("1");
+    second.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+    second.setSampleId(SAMPLE_ID2);
+    second.setEntrezGeneId(ENTREZ_GENE_ID_2);
+    expectedMolecularDataList.add(first);
+    expectedMolecularDataList.add(second);
+
+    Mockito.when(
+            molecularDataService.fetchMolecularData(
+                MOLECULAR_PROFILE_ID,
+                Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+                Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2),
+                PROJECTION))
+        .thenReturn(expectedMolecularDataList);
+
+    List<Integer> alterationTypes = Arrays.asList(-1, 1);
+
+    List<DiscreteCopyNumberData> result =
+        discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
+            MOLECULAR_PROFILE_ID,
+            Arrays.asList(SAMPLE_ID1, SAMPLE_ID2),
+            Arrays.asList(ENTREZ_GENE_ID_1, ENTREZ_GENE_ID_2),
+            alterationTypes,
+            PROJECTION,
+            1,
+            1);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals((Integer) 1, result.get(0).getAlteration());
+    Assert.assertEquals(SAMPLE_ID2, result.get(0).getSampleId());
+  }
+
+  @Test
   public void fetchMetaDiscreteCopyNumbersInMolecularProfileHomdelOrAmp() throws Exception {
 
     createMolecularProfile();

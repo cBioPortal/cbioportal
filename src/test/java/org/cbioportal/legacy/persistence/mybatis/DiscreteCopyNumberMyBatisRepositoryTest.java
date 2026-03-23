@@ -271,6 +271,31 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
   }
 
   @Test
+  public void fetchDiscreteCopyNumbersInMolecularProfilePaged() throws Exception {
+
+    List<String> sampleIds = new ArrayList<>();
+    sampleIds.add("TCGA-A1-A0SB-01");
+    sampleIds.add("TCGA-A1-A0SD-01");
+
+    List<Integer> alterations = new ArrayList<>();
+    alterations.add(-2);
+    alterations.add(2);
+
+    List<Integer> entrezGeneIds = new ArrayList<>();
+    entrezGeneIds.add(207);
+    entrezGeneIds.add(208);
+
+    List<DiscreteCopyNumberData> result =
+        discreteCopyNumberMyBatisRepository.fetchDiscreteCopyNumbersInMolecularProfile(
+            "study_tcga_pub_gistic", sampleIds, entrezGeneIds, alterations, "SUMMARY", 1, 1);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals("TCGA-A1-A0SD-01", result.get(0).getSampleId());
+    Assert.assertEquals((Integer) 207, result.get(0).getEntrezGeneId());
+    Assert.assertEquals((Integer) 2, result.get(0).getAlteration());
+  }
+
+  @Test
   public void fetchMetaDiscreteCopyNumbersInMolecularProfile() throws Exception {
 
     List<String> sampleIds = new ArrayList<>();

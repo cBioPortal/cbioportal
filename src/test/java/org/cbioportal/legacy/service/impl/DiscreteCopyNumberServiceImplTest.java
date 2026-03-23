@@ -182,7 +182,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
                 SAMPLE_LIST_ID,
                 Arrays.asList(ENTREZ_GENE_ID_1),
                 alterationTypes,
-                PROJECTION))
+                PROJECTION,
+                0,
+                0))
         .thenReturn(expectedDiscreteCopyNumberDataList);
 
     List<DiscreteCopyNumberData> result =
@@ -191,7 +193,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
             SAMPLE_LIST_ID,
             Arrays.asList(ENTREZ_GENE_ID_1),
             alterationTypes,
-            PROJECTION);
+            PROJECTION,
+            0,
+            0);
 
     Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
   }
@@ -226,7 +230,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
             SAMPLE_LIST_ID,
             Arrays.asList(ENTREZ_GENE_ID_1),
             alterationTypes,
-            PROJECTION);
+            PROJECTION,
+            0,
+            0);
 
     Assert.assertEquals(1, result.size());
     DiscreteCopyNumberData discreteCopyNumberData = result.get(0);
@@ -306,7 +312,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
                 Arrays.asList(SAMPLE_ID1),
                 Arrays.asList(ENTREZ_GENE_ID_1),
                 alterationTypes,
-                PROJECTION))
+                PROJECTION,
+                0,
+                0))
         .thenReturn(expectedDiscreteCopyNumberDataList);
 
     List<DiscreteCopyNumberData> result =
@@ -315,7 +323,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
             Arrays.asList(SAMPLE_ID1),
             Arrays.asList(ENTREZ_GENE_ID_1),
             alterationTypes,
-            PROJECTION);
+            PROJECTION,
+            0,
+            0);
 
     Assert.assertEquals(expectedDiscreteCopyNumberDataList, result);
   }
@@ -352,7 +362,9 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
             Arrays.asList(SAMPLE_ID1),
             Arrays.asList(ENTREZ_GENE_ID_1),
             alterationTypes,
-            PROJECTION);
+            PROJECTION,
+            0,
+            0);
 
     Assert.assertEquals(1, result.size());
     DiscreteCopyNumberData discreteCopyNumberData = result.get(0);

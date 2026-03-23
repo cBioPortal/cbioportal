@@ -15,7 +15,9 @@ public interface DiscreteCopyNumberService {
       String sampleListId,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection)
+      String projection,
+      Integer pageSize,
+      Integer pageNumber)
       throws MolecularProfileNotFoundException;
 
   BaseMeta getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -30,7 +32,9 @@ public interface DiscreteCopyNumberService {
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection)
+      String projection,
+      Integer pageSize,
+      Integer pageNumber)
       throws MolecularProfileNotFoundException;
 
   List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(

@@ -23,6 +23,13 @@
         </if>
     </sql>
 
+    <sql id="projectionAndLimitFilter">
+        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </sql>
+
     <sql id="from">
         FROM sample_cna_event sample_cna_event
         INNER JOIN cna_event ON cna_event.cna_event_id = sample_cna_event.cna_event_id
@@ -190,7 +197,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="whereBySampleListId"/>
-        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
+        <include refid="projectionAndLimitFilter"/>
     </select>
 
     <select id="getMetaDiscreteCopyNumbersBySampleListId" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
@@ -208,7 +215,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="where"/>
-        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
+        <include refid="projectionAndLimitFilter"/>
     </select>
 
     <select id="getDiscreteCopyNumbersInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.DiscreteCopyNumberData">

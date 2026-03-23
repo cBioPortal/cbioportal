@@ -74,7 +74,13 @@ public class DiscreteCopyNumberControllerTest {
 
     Mockito.when(
             discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
         .thenReturn(discreteCopyNumberDataList);
 
     mockMvc
@@ -117,7 +123,13 @@ public class DiscreteCopyNumberControllerTest {
     discreteCopyNumberDataList.get(0).setAnnotationJson(null);
     Mockito.when(
             discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
         .thenReturn(discreteCopyNumberDataList);
 
     mockMvc
@@ -146,7 +158,13 @@ public class DiscreteCopyNumberControllerTest {
 
     Mockito.when(
             discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
         .thenReturn(discreteCopyNumberDataList);
 
     mockMvc
@@ -227,7 +245,9 @@ public class DiscreteCopyNumberControllerTest {
                 Mockito.anyList(),
                 Mockito.anyList(),
                 Mockito.anyList(),
-                Mockito.anyString()))
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
         .thenReturn(discreteCopyNumberDataList);
 
     DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();
@@ -276,7 +296,9 @@ public class DiscreteCopyNumberControllerTest {
                 Mockito.anyList(),
                 Mockito.anyList(),
                 Mockito.anyList(),
-                Mockito.anyString()))
+                Mockito.anyString(),
+                Mockito.anyInt(),
+                Mockito.anyInt()))
         .thenReturn(discreteCopyNumberDataList);
 
     DiscreteCopyNumberFilter discreteCopyNumberFilter = createDiscreteCopyNumberFilter();

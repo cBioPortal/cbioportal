@@ -14,6 +14,7 @@ import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
+import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.legacy.service.DiscreteCopyNumberService;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
@@ -34,22 +35,33 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       String sampleListId,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection)
+      String projection,
+      Integer pageSize,
+      Integer pageNumber)
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
     if (isHomdelOrAmpOnly(alterationTypes)) {
 
       return discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-          molecularProfileId, sampleListId, entrezGeneIds, alterationTypes, projection);
+          molecularProfileId,
+          sampleListId,
+          entrezGeneIds,
+          alterationTypes,
+          projection,
+          pageSize,
+          pageNumber);
     }
 
-    return molecularDataService
-        .getMolecularData(molecularProfileId, sampleListId, entrezGeneIds, projection)
-        .stream()
-        .filter(g -> isValidAlteration(alterationTypes, g))
-        .map(this::convert)
-        .collect(Collectors.toList());
+    return paginateDiscreteCopyNumberData(
+        molecularDataService
+            .getMolecularData(molecularProfileId, sampleListId, entrezGeneIds, projection)
+            .stream()
+            .filter(g -> isValidAlteration(alterationTypes, g))
+            .map(this::convert)
+            .collect(Collectors.toList()),
+        pageSize,
+        pageNumber);
   }
 
   @Override
@@ -86,21 +98,32 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection)
+      String projection,
+      Integer pageSize,
+      Integer pageNumber)
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
     if (isHomdelOrAmpOnly(alterationTypes)) {
       return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(
-          molecularProfileId, sampleIds, entrezGeneIds, alterationTypes, projection);
+          molecularProfileId,
+          sampleIds,
+          entrezGeneIds,
+          alterationTypes,
+          projection,
+          pageSize,
+          pageNumber);
     }
 
-    return molecularDataService
-        .fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, projection)
-        .stream()
-        .filter(g -> isValidAlteration(alterationTypes, g))
-        .map(this::convert)
-        .collect(Collectors.toList());
+    return paginateDiscreteCopyNumberData(
+        molecularDataService
+            .fetchMolecularData(molecularProfileId, sampleIds, entrezGeneIds, projection)
+            .stream()
+            .filter(g -> isValidAlteration(alterationTypes, g))
+            .map(this::convert)
+            .collect(Collectors.toList()),
+        pageSize,
+        pageNumber);
   }
 
   @Override
@@ -287,5 +310,20 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     }
 
     return molecularProfile;
+  }
+
+  private List<DiscreteCopyNumberData> paginateDiscreteCopyNumberData(
+      List<DiscreteCopyNumberData> data, Integer pageSize, Integer pageNumber) {
+
+    if (pageSize == null || pageSize == 0) {
+      return data;
+    }
+
+    Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
+    if (offset == null || offset >= data.size()) {
+      return Collections.emptyList();
+    }
+
+    return data.subList(offset, PaginationCalculator.lastIndex(offset, pageSize, data.size()));
   }
 }

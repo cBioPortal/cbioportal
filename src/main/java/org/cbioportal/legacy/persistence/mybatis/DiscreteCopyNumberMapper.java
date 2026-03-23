@@ -13,7 +13,9 @@ public interface DiscreteCopyNumberMapper {
       String sampleListId,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection);
+      String projection,
+      Integer limit,
+      Integer offset);
 
   BaseMeta getMetaDiscreteCopyNumbersBySampleListId(
       String molecularProfileId,
@@ -26,7 +28,9 @@ public interface DiscreteCopyNumberMapper {
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection);
+      String projection,
+      Integer limit,
+      Integer offset);
 
   List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfiles(
       List<String> molecularProfileIds,

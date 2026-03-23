@@ -17,7 +17,9 @@ public interface DiscreteCopyNumberRepository {
       String sampleListId,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection);
+      String projection,
+      Integer pageSize,
+      Integer pageNumber);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
@@ -36,7 +38,9 @@ public interface DiscreteCopyNumberRepository {
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection);
+      String projection,
+      Integer pageSize,
+      Integer pageNumber);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

@@ -6,6 +6,7 @@ import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
+import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -20,10 +21,18 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
       String sampleListId,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection) {
+      String projection,
+      Integer pageSize,
+      Integer pageNumber) {
 
     return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleListId(
-        molecularProfileId, sampleListId, entrezGeneIds, alterationTypes, projection);
+        molecularProfileId,
+        sampleListId,
+        entrezGeneIds,
+        alterationTypes,
+        projection,
+        pageSize,
+        PaginationCalculator.offset(pageSize, pageNumber));
   }
 
   @Override
@@ -43,10 +52,18 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes,
-      String projection) {
+      String projection,
+      Integer pageSize,
+      Integer pageNumber) {
 
     return discreteCopyNumberMapper.getDiscreteCopyNumbersBySampleIds(
-        molecularProfileId, sampleIds, entrezGeneIds, alterationTypes, projection);
+        molecularProfileId,
+        sampleIds,
+        entrezGeneIds,
+        alterationTypes,
+        projection,
+        pageSize,
+        PaginationCalculator.offset(pageSize, pageNumber));
   }
 
   @Override

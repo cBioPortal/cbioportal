@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -18,6 +20,7 @@ import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
+import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -67,7 +70,16 @@ public class DiscreteCopyNumberController {
           DiscreteCopyNumberEventType discreteCopyNumberEventType,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
-          Projection projection)
+          Projection projection,
+      @Parameter(description = "Page size of the result list")
+          @Max(PagingConstants.MAX_PAGE_SIZE)
+          @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
+          @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE)
+          Integer pageSize,
+      @Parameter(description = "Page number of the result list")
+          @Min(PagingConstants.MIN_PAGE_NUMBER)
+          @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER)
+          Integer pageNumber)
       throws MolecularProfileNotFoundException {
 
     if (projection == Projection.META) {
@@ -90,7 +102,9 @@ public class DiscreteCopyNumberController {
               sampleListId,
               null,
               discreteCopyNumberEventType.getAlterationTypes(),
-              projection.name()),
+              projection.name(),
+              pageSize,
+              pageNumber),
           HttpStatus.OK);
     }
   }
@@ -126,7 +140,16 @@ public class DiscreteCopyNumberController {
           DiscreteCopyNumberFilter discreteCopyNumberFilter,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
-          Projection projection)
+          Projection projection,
+      @Parameter(description = "Page size of the result list")
+          @Max(PagingConstants.MAX_PAGE_SIZE)
+          @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
+          @RequestParam(defaultValue = PagingConstants.DEFAULT_NO_PAGING_PAGE_SIZE)
+          Integer pageSize,
+      @Parameter(description = "Page number of the result list")
+          @Min(PagingConstants.MIN_PAGE_NUMBER)
+          @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_NUMBER)
+          Integer pageNumber)
       throws MolecularProfileNotFoundException {
 
     if (projection == Projection.META) {
@@ -159,7 +182,9 @@ public class DiscreteCopyNumberController {
                 discreteCopyNumberFilter.getSampleListId(),
                 discreteCopyNumberFilter.getEntrezGeneIds(),
                 discreteCopyNumberEventType.getAlterationTypes(),
-                projection.name());
+                projection.name(),
+                pageSize,
+                pageNumber);
       } else {
         discreteCopyNumberDataList =
             discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
@@ -167,7 +192,9 @@ public class DiscreteCopyNumberController {
                 discreteCopyNumberFilter.getSampleIds(),
                 discreteCopyNumberFilter.getEntrezGeneIds(),
                 discreteCopyNumberEventType.getAlterationTypes(),
-                projection.name());
+                projection.name(),
+                pageSize,
+                pageNumber);
       }
 
       return new ResponseEntity<>(discreteCopyNumberDataList, HttpStatus.OK);

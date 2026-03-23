@@ -127,7 +127,13 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            "study_tcga_pub_gistic", "study_tcga_pub_all", entrezGeneIds, alterations, "SUMMARY");
+            "study_tcga_pub_gistic",
+            "study_tcga_pub_all",
+            entrezGeneIds,
+            alterations,
+            "SUMMARY",
+            0,
+            0);
     result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());
@@ -153,7 +159,13 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-            "study_tcga_pub_gistic", "study_tcga_pub_all", entrezGeneIds, alterations, "DETAILED");
+            "study_tcga_pub_gistic",
+            "study_tcga_pub_all",
+            entrezGeneIds,
+            alterations,
+            "DETAILED",
+            0,
+            0);
 
     Assert.assertEquals(3, result.size());
     // We do not test order here
@@ -246,7 +258,7 @@ public class DiscreteCopyNumberMyBatisRepositoryTest {
 
     List<DiscreteCopyNumberData> result =
         discreteCopyNumberMyBatisRepository.fetchDiscreteCopyNumbersInMolecularProfile(
-            "study_tcga_pub_gistic", sampleIds, entrezGeneIds, alterations, "SUMMARY");
+            "study_tcga_pub_gistic", sampleIds, entrezGeneIds, alterations, "SUMMARY", 0, 0);
     result = sortedResult(result);
 
     Assert.assertEquals(3, result.size());

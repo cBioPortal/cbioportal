@@ -397,8 +397,14 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     if (c1 == null || c2 == null) {
       return true; // If either collection is null, they are considered disjoint.
     }
-    Set<String> upperC1 = c1.stream().map(String::toUpperCase).collect(Collectors.toSet());
-    Set<String> upperC2 = c2.stream().map(String::toUpperCase).collect(Collectors.toSet());
+    Set<String> upperC1 = c1.stream()
+        .filter(Objects::nonNull)
+        .map(String::toUpperCase)
+        .collect(Collectors.toSet());
+    Set<String> upperC2 = c2.stream()
+        .filter(Objects::nonNull)
+        .map(String::toUpperCase)
+        .collect(Collectors.toSet());
     return Collections.disjoint(upperC1, upperC2);
   }
 

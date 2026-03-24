@@ -1,6 +1,6 @@
 # Chat Interface
 
-We're implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. Please reach out if you'd like to test it on cbioportal@googlegroups.com.
+We're implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. We're looking for early test users to provide us with feedback and help guide future development. If that sounds like you, sign up [here](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform).
 
 > **Note:** This is a prototype and work in progress. Features and functionality are actively being developed and improved.
 
@@ -9,7 +9,6 @@ We're implementing an AI-powered chat interface that allows users to ask questio
 The cBioPortal chat interface is an experimental platform with multiple AI agents currently in development. These early prototypes use Claude, an LLM developed by Anthropic, and are designed for different use cases:
 
 - **cBioDBAgent** - Query the cBioPortal database for information about studies, patients, samples, and treatments
-- **cBioDocsAgent** - Get help using and deploying cBioPortal by referencing documentation
 - **cBioNavigator** - Navigate the cBioPortal web interface
 
 We are actively exploring various approaches to make cBioPortal more accessible through natural language interactions. These agents are early prototypes and their capabilities will evolve as we continue development.
@@ -33,25 +32,25 @@ Queries the cBioPortal database directly to answer questions about data:
     - [How many patients and samples are in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=How%20many%20patients%20and%20samples%20are%20in%20the%20MSK%20CHORD%20Study?&submit=true&spec=cBioDBAgent)
     - [What treatment did most patients receive in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=What%20treatment%20did%20most%20patients%20recieve%20in%20the%20MSK%20CHORD%20study?&submit=true&spec=cBioDBAgent)
 
-### cBioDocsAgent
-
-Helps you understand how to use and deploy cBioPortal by referencing documentation:
-
-- Search and retrieve information from cBioPortal documentation
-- Get guidance on deployment, configuration, and usage
-- Find answers to technical questions about cBioPortal
 
 ### cBioNavigator
 
 Assists with navigating the cBioPortal web interface:
 
-- Help understanding how to use different features in the web interface
+- Describe what you want to see in plain English, and get a link to the most relevant cBioPortal page
 - Guidance on navigating through studies and visualizations
 - Support for exploring cBioPortal's web-based tools
 
+**Example Queries:**
+- [Navigate to the MSK-IMPACT study](https://chat.cbioportal.org/c/new?q=Navigate%20to%20the%20MSK-IMPACT%20study&submit=true&spec=cBioNavigator)
+- [Show me an OncoPrint for BRAF and CDKN2A in melanoma](https://chat.cbioportal.org/c/new?q=Show%20me%20an%20OncoPrint%20for%20BRAF%20and%20CDKN2A%20in%20melanoma&submit=true&spec=cBioNavigator)
+- [Compare low grade glioma by molecular subtype](https://chat.cbioportal.org/c/new?q=Compare%20low%20grade%20glioma%20by%20molecular%20subtype&submit=true&spec=cBioNavigator)
+- [Show me patient view for IDH1 mutant cholangiocarcinoma](https://chat.cbioportal.org/c/new?q=Show%20me%20patient%20view%20for%20IDH1%20mutant%20cholangiocarcinoma&submit=true&spec=cBioNavigator)
+
+
 ## Tips for Using the Chat Interface
 
-- **Choose the right agent**: Select the agent that best matches your need - data queries (cBioDBAgent), documentation (cBioDocsAgent), or web navigation (cBioNavigator)
+- **Choose the right agent**: Select the agent that best matches your need - data queries (cBioDBAgent) or web navigation (cBioNavigator)
 - **Be specific**: Include study names or specific data types when possible
 - **Ask follow-up questions**: The chat interface maintains context, so you can ask related questions in sequence
 - **Explore different angles**: Try rephrasing questions or asking for different perspectives on the data
@@ -59,7 +58,7 @@ Assists with navigating the cBioPortal web interface:
 
 ## Getting Started
 
-1. Reach out to cbioportal@googlegroups.com to get access to the chat interface
+1. Fill out this [form](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform) to request access. We are onboarding new users in groups, so we appreciate your patience until we get in touch.
 2. Type your question in the chat input
 3. Review the AI-generated response
 4. Ask follow-up questions to dive deeper into the data
@@ -85,9 +84,6 @@ Each agent has specialized components depending on its function:
 **cBioDBAgent:**
 - **MCP Layer**: Model Context Protocol (MCP) servers provide the connection between Claude and cBioPortal data
 - **Database**: Queries are executed against cBioPortal's [ClickHouse](https://clickhouse.com/) database
-
-**cBioDocsAgent:**
-- **Documentation Access**: References cBioPortal documentation to answer questions
 
 **cBioNavigator:**
 - **Web Interface Tools**: Uses MCP tools to interact with the cBioPortal website

@@ -13,6 +13,7 @@ jobs:
           echo "${{ github.event.number }}" > pr-info/pr-number.txt
           echo "${{ github.head_ref }}" > pr-info/pr-head-ref.txt
           echo "${{ github.base_ref }}" > pr-info/pr-base-ref.txt
+          echo "${{ github.event.pull_request.head.sha }}" > pr-info/pr-head-sha.txt
 
       - name: Upload PR info
         uses: actions/upload-artifact@v4

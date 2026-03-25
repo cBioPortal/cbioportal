@@ -37,6 +37,7 @@ jobs:
           echo "number=$(cat pr-info/pr-number.txt)" >> $GITHUB_OUTPUT
           echo "head-ref=$(cat pr-info/pr-head-ref.txt)" >> $GITHUB_OUTPUT
           echo "base-ref=$(cat pr-info/pr-base-ref.txt)" >> $GITHUB_OUTPUT
+          echo "head-sha=$(cat pr-info/pr-head-sha.txt)" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v2
         if: github.event_name == 'push'
@@ -47,7 +48,7 @@ jobs:
         if: github.event_name == 'workflow_run'
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ steps.pr-info.outputs.head-sha }}
 
       - name: Set up JDK 21
         uses: actions/setup-java@v1
@@ -87,7 +88,7 @@ jobs:
             -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.number }} \
             -Dsonar.pullrequest.branch=${{ steps.pr-info.outputs.head-ref }} \
             -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }} \
-            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
+            -Dsonar.scm.revision=${{ steps.pr-info.outputs.head-sha }}
 #     TODO: decide if we want to keep this in the future, or remove it entirely
 #      - name: 'Run integration tests'
 #        run: |

@@ -255,7 +255,7 @@ Below you can find the complete list of all the available skin properties.
         </tr>
 		<tr>
             <td>skin.hide_download_controls</td>
-            <td>controls download options in UI. **true**: hides all download options. **false**:  shows all download options. **data**: disable data download but not figure download</td>
+            <td>controls download options in UI. **true**: hides all download options. **false**:  shows all download options. **data**: disable data download but not figure download. Broken in later versions, see <a href="https://github.com/cBioPortal/cbioportal/issues/11821" target="_blank">ticket</a></td>
             <td>false</td>
             <td>true / false / data</td>
         </tr>

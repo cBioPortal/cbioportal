@@ -26,7 +26,7 @@ public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutated
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return significantlyMutatedGeneRepository.getSignificantlyMutatedGenes(
         studyId, projection, pageSize, pageNumber, sortBy, direction);
@@ -35,7 +35,7 @@ public class SignificantlyMutatedGeneServiceImpl implements SignificantlyMutated
   @Override
   public BaseMeta getMetaSignificantlyMutatedGenes(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return significantlyMutatedGeneRepository.getMetaSignificantlyMutatedGenes(studyId);
   }

@@ -4,14 +4,14 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.InfoMapper">
 
     <resultMap id="InfoDbResult" type="org.cbioportal.legacy.model.InfoDb">
-        <result column="DB_SCHEMA_VERSION" property="dbSchemaVersion"/>
-        <result column="GENESET_VERSION" property="genesetVersion"/>
-        <result column="DERIVED_TABLE_SCHEMA_VERSION" property="derivedTableSchemaVersion"/>
-        <result column="GENE_TABLE_VERSION" property="geneTableVersion"/>
+        <result column="db_schema_version" property="dbSchemaVersion"/>
+        <result column="geneset_version" property="genesetVersion"/>
+        <result column="derived_table_schema_version" property="derivedTableSchemaVersion"/>
+        <result column="gene_table_version" property="geneTableVersion"/>
     </resultMap>
 
     <select id="getInfo" resultMap="InfoDbResult">
-        SELECT DB_SCHEMA_VERSION, GENESET_VERSION, DERIVED_TABLE_SCHEMA_VERSION, GENE_TABLE_VERSION
+        SELECT db_schema_version, geneset_version, derived_table_schema_version, gene_table_version
         FROM info
         LIMIT 1
     </select>

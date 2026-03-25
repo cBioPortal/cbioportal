@@ -9,11 +9,9 @@ import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhouseGenomicDataRepository implements GenomicDataRepository {
 
   private final ClickhouseGenomicDataMapper mapper;
@@ -49,7 +47,11 @@ public class ClickhouseGenomicDataRepository implements GenomicDataRepository {
 
   @Override
   public List<GenomicDataCountItem> getMutationCountsByType(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
-    return mapper.getMutationCountsByType(studyViewFilterContext, genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds,
+      String hugoGeneSymbol) {
+    return mapper.getMutationCountsByType(
+        studyViewFilterContext, genomicDataFilters, includeSampleIds, hugoGeneSymbol);
   }
 }

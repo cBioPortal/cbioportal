@@ -4,18 +4,27 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.DataAccessToken;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {DataAccessTokenMyBatisRepository.class, TestConfig.class})
+@Import({MyBatisLegacyConfig.class, DataAccessTokenMyBatisRepository.class})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class DataAccessTokenMyBatisRepositoryTest {
 
   @Autowired private DataAccessTokenMyBatisRepository dataAccessTokenMyBatisRepository;
@@ -36,9 +45,9 @@ public class DataAccessTokenMyBatisRepositoryTest {
   @Test
   public void getDataAccessToken() {
     DataAccessToken dataAccessToken =
-        dataAccessTokenMyBatisRepository.getDataAccessToken("6c9a641e-9719-fake-data-f17e089b37e8");
-    Assert.assertEquals("6c9a641e-9719-fake-data-f17e089b37e8", dataAccessToken.getToken());
-    Assert.assertEquals("mockemail2@email.com", dataAccessToken.getUsername());
+        dataAccessTokenMyBatisRepository.getDataAccessToken("1337rand-ki1n-4bna-974c-s4sk3n4rut0l");
+    Assert.assertEquals("1337rand-ki1n-4bna-974c-s4sk3n4rut0l", dataAccessToken.getToken());
+    Assert.assertEquals("mockemail3@email.com", dataAccessToken.getUsername());
   }
 
   @Test
@@ -57,8 +66,8 @@ public class DataAccessTokenMyBatisRepositoryTest {
     DataAccessToken newDataAccessToken = dataAccessTokenMyBatisRepository.getDataAccessToken(uuid);
     Assert.assertEquals(uuid, newDataAccessToken.getToken());
     Assert.assertEquals("mockemail2@email.com", newDataAccessToken.getUsername());
-    Assert.assertEquals(creationDate, newDataAccessToken.getCreation());
-    Assert.assertEquals(expirationDate, newDataAccessToken.getExpiration());
+    Assert.assertEquals(creationDate.toString(), newDataAccessToken.getCreation().toString());
+    Assert.assertEquals(expirationDate.toString(), newDataAccessToken.getExpiration().toString());
   }
 
   @Test

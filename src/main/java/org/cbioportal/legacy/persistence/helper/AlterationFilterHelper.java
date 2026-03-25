@@ -150,6 +150,7 @@ public final class AlterationFilterHelper {
 
   public boolean shouldApplyCnaAlterationFilter() {
     return isSomeDriverAnnotationsSelected()
+        || isSomeTierOptionsSelected()
         || mappedCnaTypes.hasNone()
         || (!mappedCnaTypes.hasNone() && !mappedCnaTypes.hasAll());
   }

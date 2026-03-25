@@ -404,7 +404,7 @@ All genes referenced in the custom driver annotation file must be present in the
 The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
 
 You can learn more about configuring these annotations in the [application.properties documentation](/deployment/customization/application.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
-![schreenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
+![screenshot mutation color menu](images/screenshot-mutation-color-menu.png) 
 
 ### Example
 An example data file which includes the required column header would look like:
@@ -770,7 +770,7 @@ It is possible to manually add columns for defining custom driver annotations. T
 The `cbp_driver` column flags the mutation as either driver or passenger. In cBioPortal, passenger mutations are also known as variants of unknown significance (VUS). The `cbp_driver_tiers` column assigns an annotation tier to the mutation, such as "Driver", "Highly actionable" or "Potential drug target". When a tier is selected, mutations with that annotation are highlighted as driver. Both types of custom annotations contain a second column with the suffix `_annotation`, to add a description. This is displayed in the tooltip that appears when hovering over the sample's custom annotation icon in the OncoPrint view.
 
 You can learn more about configuring these annotations in the [application.properties documentation](/deployment/customization/application.properties-Reference.md#custom-annotation-of-driver-and-passenger-mutations). When properly configured, the customized annotations appear in the "Mutation Color" menu of the OncoPrint view: \
-![schreenshot mutation color menu](/images/screenshot-mutation-color-menu.png) 
+![screenshot mutation color menu](/images/screenshot-mutation-color-menu.png) 
 
 ### Adding your own mutation annotation columns
 Additional mutation annotation columns can be added to the cBioPortal mutation data file. In this way, the portal will
@@ -787,10 +787,10 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 **The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
 
 42. **ASCN.ASCN_METHOD (Optional)**: Method used to obtain ASCN data e.g "FACETS".
-43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. 
+43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. Displayed as a plain number for single-sample patients or as a bar chart for multi-sample patients in the patient view mutation table.
 44. **ASCN.CCF_EXPECTED_COPIES_UPPER (Optional)**: Upper error for CCF estimate.
 45. **ASCN.EXPECTED_ALT_COPIES (Optional)**: Estimated number of copies harboring mutant allele.
-46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". 
+46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". Displayed as a "Clonal" boolean column in the patient view mutation table, where only "Clonal" values are indicated with a dot.
 47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene.
 48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
 49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.

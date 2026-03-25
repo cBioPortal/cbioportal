@@ -43,11 +43,9 @@ import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.cbioportal.shared.util.ClinicalDataCountItemUtil;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 /**
  * A service class responsible for handling study view-related operations, including retrieving
  * filtered samples, genomic data counts, clinical data, and other study-specific information. This
@@ -306,10 +304,13 @@ public class StudyViewService {
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(
-      StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+      StudyViewFilter studyViewFilter,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds) {
     return genomicDataUseCases
         .getMutationCountsByTypeUseCase()
-        .execute(buildStudyViewFilterContext(studyViewFilter), genomicDataFilters);
+        .execute(
+            buildStudyViewFilterContext(studyViewFilter), genomicDataFilters, includeSampleIds);
   }
 
   @Cacheable(

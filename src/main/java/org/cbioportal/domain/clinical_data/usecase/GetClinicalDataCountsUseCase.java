@@ -11,7 +11,6 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
  * missing attributes are accounted for in the result.
  */
 @Service
-@Profile("clickhouse")
 public class GetClinicalDataCountsUseCase {
 
   private final ClinicalDataRepository clinicalDataRepository;

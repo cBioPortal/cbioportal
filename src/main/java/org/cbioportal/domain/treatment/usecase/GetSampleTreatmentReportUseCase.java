@@ -9,11 +9,9 @@ import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetSampleTreatmentReportUseCase {
   private final TreatmentRepository treatmentRepository;
 

@@ -6,15 +6,15 @@
     <cache readOnly="true" size="100000"/>
 
     <sql id="select">
-        reference_genome_gene.ENTREZ_GENE_ID AS "${prefix}entrezGeneId",
-        reference_genome_gene.REFERENCE_GENOME_ID AS "${prefix}referenceGenomeId"
+        reference_genome_gene.entrez_gene_id AS "${prefix}entrezGeneId",
+        reference_genome_gene.reference_genome_id AS "${prefix}referenceGenomeId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            gene.HUGO_GENE_SYMBOL AS "${prefix}hugoGeneSymbol",
-            reference_genome_gene.CHR AS "${prefix}chromosome",
-            reference_genome_gene.CYTOBAND AS "${prefix}cytoband",
-            reference_genome_gene.START AS "${prefix}start",
-            reference_genome_gene.END AS "${prefix}end"
+            gene.hugo_gene_symbol AS "${prefix}hugoGeneSymbol",
+            reference_genome_gene.chr AS "${prefix}chromosome",
+            reference_genome_gene.cytoband AS "${prefix}cytoband",
+            reference_genome_gene.start AS "${prefix}start",
+            reference_genome_gene.end AS "${prefix}end"
         </if>
     </sql>
 
@@ -24,10 +24,10 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
         <if test="genomeName != null">
-            INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-            WHERE reference_genome.NAME = #{genomeName}
+            INNER JOIN reference_genome ON reference_genome.reference_genome_id = reference_genome_gene.reference_genome_id
+            WHERE reference_genome.name = #{genomeName}
         </if>
     </select>
 
@@ -37,15 +37,13 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        INNER JOIN reference_genome ON reference_genome.reference_genome_id = reference_genome_gene.reference_genome_id
+        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
-                gene.HUGO_GENE_SYMBOL IN
-                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-                AND reference_genome.NAME = #{genomeName}
+                gene.hugo_gene_symbol IN
+                    <foreach item="item" collection="geneIds" open="(" separator="," close=")">#{item}</foreach>
+                AND reference_genome.name = #{genomeName}
             </if>
             <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">
                 FALSE
@@ -59,34 +57,32 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        INNER JOIN reference_genome ON reference_genome.reference_genome_id = reference_genome_gene.reference_genome_id
+        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
         <where>
             <if test="geneIds != null and !geneIds.isEmpty() and genomeName != null">
-                gene.ENTREZ_GENE_ID IN
-                <foreach item="item" collection="geneIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-                AND reference_genome.NAME = #{genomeName}
+                gene.entrez_gene_id IN
+                    <foreach item="item" collection="geneIds" open="(" separator="," close=")">#{item}</foreach>
+                AND reference_genome.name = #{genomeName}
             </if>
             <if test="geneIds == null or geneIds.isEmpty() or genomeName == null">
                 FALSE
             </if>
         </where>
     </select>
-    
+
     <select id="getReferenceGenomeGene" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
         SELECT
         <include refid="select">
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
-        INNER JOIN gene ON gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
+        INNER JOIN reference_genome ON reference_genome.reference_genome_id = reference_genome_gene.reference_genome_id
+        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
         <where>
             <if test="genomeName != null and geneId != null">
-                reference_genome.NAME = #{genomeName} AND gene.ENTREZ_GENE_ID = #{geneId}
-            </if>  
+                reference_genome.name = #{genomeName} AND gene.entrez_gene_id = #{geneId}
+            </if>
         </where>
     </select>
     <select id="getReferenceGenomeGeneByEntityId" resultType="org.cbioportal.legacy.model.ReferenceGenomeGene">
@@ -95,11 +91,11 @@
             <property name="prefix" value=""/>
         </include>
         FROM reference_genome_gene
-        INNER JOIN gene on gene.ENTREZ_GENE_ID = reference_genome_gene.ENTREZ_GENE_ID
-        INNER JOIN reference_genome ON reference_genome.REFERENCE_GENOME_ID = reference_genome_gene.REFERENCE_GENOME_ID
+        INNER JOIN gene ON gene.entrez_gene_id = reference_genome_gene.entrez_gene_id
+        INNER JOIN reference_genome ON reference_genome.reference_genome_id = reference_genome_gene.reference_genome_id
         <where>
             <if test="genomeName != null and geneticEntityId != null">
-                reference_genome.NAME = #{genomeName} AND gene.GENETIC_ENTITY_ID = #{geneticEntityId}
+                reference_genome.name = #{genomeName} AND gene.genetic_entity_id = #{geneticEntityId}
             </if>
             <if test="genomeName == null or geneticEntityId == null">
                 FALSE

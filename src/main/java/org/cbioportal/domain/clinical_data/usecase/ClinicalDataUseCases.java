@@ -1,6 +1,5 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
  * @param getSampleClinicalDataUseCase the use case for retrieving clinical data for samples
  */
 @Service
-@Profile("clickhouse")
 public record ClinicalDataUseCases(
     GetClinicalDataCountsUseCase getClinicalDataCountsUseCase,
     GetClinicalDataForXyPlotUseCase getClinicalDataForXyPlotUseCase,

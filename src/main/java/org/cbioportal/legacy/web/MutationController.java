@@ -69,7 +69,7 @@ public class MutationController {
           String molecularProfileId,
       @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all") @RequestParam
           String sampleListId,
-      @Parameter(description = "Entrez Gene ID") @RequestParam(required = false)
+      @Parameter(description = "Entrez Gene ID") @RequestParam(required = true)
           Integer entrezGeneId,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")

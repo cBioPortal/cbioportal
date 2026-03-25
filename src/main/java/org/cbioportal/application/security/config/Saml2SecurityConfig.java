@@ -60,6 +60,7 @@ public class Saml2SecurityConfig {
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                     AntPathRequestMatcher.antMatcher("/api/**")))
         .saml2Login(withDefaults())
+        .saml2Metadata(withDefaults())
         // NOTE: I did not get the official .saml2Logout() DSL to work as
         // described at
         // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html

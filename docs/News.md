@@ -1,4 +1,56 @@
-## Oct 31, 2025
+## March 17, 2026
+*   **Added data** consisting of 3,676 samples from 17 studies:
+    * [Renal Cell Carcinoma (St. James, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=ccrcc_sjuh_2023) *943 samples*
+	* [Acute Myeloid Leukemia (St. Jude, Nat Genet 2024)](https://www.cbioportal.org/study/summary?id=aml_stjude_2024) *887 samples*
+    * [Metastatic Bladder Urothelial Carcinoma (IMvigor210 Phase II Trial, ESMO Open. 2024) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=blca_iatlas_imvigor210_2017) *347 samples*
+    * [The Angiosarcoma Project - Count Me In (Provisional, April 2025)](https://www.cbioportal.org/study/summary?id=angs_painter_2025) *328 samples*
+    * [Ewing Sarcoma (MSK, Cancer Research 2024)](https://www.cbioportal.org/study/summary?id=es_dsrct_msk_2023) *290 samples*
+    * [Renal Cell Carcinoma (IMmotion150 Clinical Trial, Nat Med. 2018) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=rcc_iatlas_immotion150_2018) *263 samples*
+    * [Metastatic Melanoma (DFCI, Nat Med. 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_liu_2019) *122 samples*
+    * [Metastatic Pancreatic Adenocarcinoma (PRINCE Trial, Nat Med. 2022) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=paad_iatlas_prince_2022) *93 samples*
+    * [Metastatic Melanoma (Immunotherapy Trial, Cancer Cell 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_gide_2019) *91 samples*
+    * [Colorectal Cancer (HTAN MSK, Nature 2025)](https://www.cbioportal.org/study/summary?id=crc_hta8_htan_2024) *83 samples*
+    * [Endometrial Carcinoma (MSK, Molecular Oncology 2024)](https://www.cbioportal.org/study/summary?id=ucs_msk_2024) *69 samples*
+    * [Pediatric Low-Grade Glioma (CTF, Acta Neuropathol 2021)](https://www.cbioportal.org/study/summary?id=lgg_ctf_synodos_2025) *31 samples*
+    * [Metastatic Triple Negative Breast Cancer (UNC Phase II Trial, J Immunother Cancer 2022) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=brca_iatlas_anders_2022) *31 samples*
+    * [Glioblastoma (Randomized Clinical Trial, Nat Med. 2019) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=gbm_iatlas_prins_2019) *30 samples*
+    * [Metastatic Melanoma (UCLA, Cell 2016) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=mel_iatlas_hugo_ucla_2016) *27 samples*
+    * [Breast Invasive Lobular Carcinoma (MSK, NPJ Precis Oncol 2024)](https://www.cbioportal.org/study/summary?id=ilc_msk_2023) *25 samples*
+    * [Metastatic Renal Clear Cell Carcinoma (Phase 1 Biomarker Trial, Clin Cancer Res. 2016) - iAtlas Harmonized)](https://www.cbioportal.org/study/summary?id=ccrcc_iatlas_choueiri_2016) *16 samples*
+
+*   **Data Improvement**
+
+    * Cancer Cell Line Encyclopedia (DepMap Broad 2025 Q3): Added segmented copy number data, log2 copy number alteration (CNA) values, and RNA expression profiles to enhance molecular characterization of the cell line cohort. Study page: https://www.cbioportal.org/study/summary?id=depmap_broad_2025
+ *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 7, 2025 HGNC release](https://www.genenames.org/download/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
+
+## November 15, 2025
+* **Data Improvement**: The default transcripts for each gene were updated to align better with OncoKB, prioritizing clinically relevant and MANE transcripts ([Morales et al. 2022](https://www.nature.com/articles/s41586-022-04558-8)). Also Ensembl's subversions are now included for each transcript.
+
+    | Gene | Old transcript | New transcript |
+    |------|---------------|----------------|
+    | **ATXN7** | ENST00000295900 | ENST00000398590.3 |
+    | **CCNQ (FAM58A)** | ENST00000576892 | ENST00000406277.2 |
+    | **CDKN2A** | ENST00000304494 | ENST00000579755.1 |
+    | **CRLF2** | ENST00000381566 | ENST00000400841.2 |
+    | **GAB1** | ENST00000262994 | ENST00000262995.4 |
+    | **KBTBD4** | ENST00000395288 | ENST00000430070.2 |
+    | **MUTYH** | ENST00000372115 | ENST00000450313.1 |
+    | **NADK** | ENST00000341426 | ENST00000378625.1 |
+    | **PAX8** | ENST00000263334 | ENST00000429538.3 |
+    | **PGBD5** | ENST00000525115 | ENST00000391860.1 |
+    | **RBM10** | ENST00000329236 | ENST00000377604.3 |
+
+
+## November 7, 2025
+*   **New Feature:** The Data type filter on the [home page](https://www.cbioportal.org/) now has options to filter studies by imaging data.
+![image](https://github.com/user-attachments/assets/6b751179-8224-46d8-9b61-5230a0a91185)
+
+## October 10, 2025
+*   **New Feature:** Variant Allele Frequency (VAF) is now available as a data option in the Plots tab, allowing visualization of allele frequencies across samples. [Example: VHL Variant Allele Frequency in Primary vs Metastatic Renal Cell Carcinoma](https://bit.ly/4ah3RlD)
+
+    ![image](https://github.com/user-attachments/assets/ae34e946-7424-4800-b95d-1829982344d1)
+
+## October 31, 2025
 *   **Added data** consisting of 9,749 samples from 13 studies:
     * [Mixed Tumors - MiMSI Cohort (MSK, Nat Commun 2024)](https://www.cbioportal.org/study/summary?id=pancan_mimsi_msk_2024) *5033 samples*
     * [Cancer Cell Line Encyclopedia (Broad, Nat Rev Cancer 2025)](https://www.cbioportal.org/study/summary?id=ccle_broad_2025) *1970 samples*
@@ -84,7 +136,6 @@
 View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48yOi7A) and the [Mutation Mapper Tool](https://www.cbioportal.org/mutation_mapper).
     ![image](https://github.com/user-attachments/assets/ff53ee41-59d3-4c69-a494-3a7ca9a7c2d0)
 
-
 ## September 27, 2024
 *   **Added data** consisting of 2,409 samples from 10 studies:
 	* [Pediatric European MAPPYACTS Trial (Gustave Roussy, Cancer Discov 2022)](https://www.cbioportal.org/study/summary?id=pancan_mappyacts_2022) *786 samples*
@@ -98,15 +149,12 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     * [RAD51B Associated Mixed Cancers (MSK, NPJ Breast Cancer 2021)](https://www.cbioportal.org/study/summary?id=mixed_msk_tcga_2021) *19 samples*
     * [Pleural Mesothelioma (MSK, Clin Cancer Res 2024)](https://www.cbioportal.org/study/summary?id=plmeso_msk_2024) *14 samples*
 
-
 ## August 28, 2024
 
 *   **New feature** (_Windows users only_): The Group Comparison results can now be visualized in 3D with AVM, an interactive 3D visualization software tool with data shaping functions and integrated pathways. Read more on [AVM for cBioPortal](https://bit.ly/avm-cbioportal). 
     * **Note for private instances**: To enable this feature in private cBioPortal instances, please see [this instruction](https://docs.cbioportal.org/deployment/customization/application.properties-reference#add-custom-buttons-to-data-tables).
   ![image](https://github.com/user-attachments/assets/4150368b-c38c-41f8-a1da-af8c3d79ebf1)
   ![image](https://github.com/user-attachments/assets/bba1221d-e07a-460a-ac6e-774d737cdc30)
-
-
 
 ## July 29, 2024
 *   **Added data** consisting of 12,863 samples from 33 TCGA and 10 CPTAC studies from the [Genomic Data Commons (GDC)](https://gdc.cancer.gov) as part of the [Cancer Research Data Commons (NCI-CRDC)](https://datacommons.cancer.gov) initiative. More information can be found on our [FAQ](https://docs.cbioportal.org/user-guide/faq/#tcga).
@@ -184,14 +232,13 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
   
 * **New Feature**: Categorical data loaded into the generic assay format is now available in group comparison. [Example: Arm-level CNA compared between astrocytoma vs oligodendroglioma in Brain Lower Grade Glioma (TCGA, PanCancer Atlas)](https://www.cbioportal.org/comparison/generic_assay_armlevel_cna?comparisonId=616ff06a2e3200072db98b99)
 
-
   ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/9f8c99a2-eef8-4b5a-ae33-4a2b295e0514)
 
 * **Enhancement**: OncoPrint now allows you to remove a gene track.
 
   ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/23cd422b-6a4e-4eff-9c04-ac88220591d2)
 
-## Apr 2, 2024
+## April 2, 2024
 * **Introducing the cBioPortal Newsletter!** Stay updated with the latest developments, insights, and community highlights of cBioPortal. Subscribe via [LinkedIn](https://www.linkedin.com/pulse/april-update-hello-cbioportal-community-cbioportal-22vle/) or [google groups](https://groups.google.com/g/cbioportal-news). We'll be sharing valuable updates every few months.
 
 ## March 27, 2024
@@ -203,11 +250,11 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 
   ![image](https://github.com/cBioPortal/cbioportal/assets/10508276/2143593d-5fd3-4b1d-b8a4-73a68e027e27)
   
-## Mar 5, 2024
+## March 5, 2024
 *   **Local Installations Feature**: Make representation of custom driver annotation configurable:
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/f67fd82f-1789-4427-9ca1-f17fc70c1a09)
 
-## Feb 7, 2024
+## February 7, 2024
 * **New feature**: The _Datasets Page_ now lists what studies have samples profiled for Structural Variants:
     
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/0e4e73e4-d9d8-417d-912c-710163480905)
@@ -218,7 +265,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/10f73baa-d28c-4bb7-ad62-4751bd7f61cd)
 
-## Dec 29, 2023
+## December 29, 2023
 *   **Added data** consisting of 5,120 samples from 13 studies:
 	* [Endometrial Cancer (MSK, Cancer Discovery 2023)](https://www.cbioportal.org/study/summary?id=ucec_ancestry_cds_msk_2023) *1882 samples*
     * [Esophagogastric Cancer (MSK, J Natl Cancer Inst 2023)](https://www.cbioportal.org/study/summary?id=egc_msk_2023) *902 samples*
@@ -236,7 +283,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
 *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Oct 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database-schema-2131) for details.
 
-## Dec 5, 2023
+## December 5, 2023
 * **New feature**: Filter by data types on the homepage:
     
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/cf6d5486-bfd7-4f69-add0-442dbb4d354a)
@@ -248,27 +295,27 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/f2a9576e-c06d-447a-8eac-f0292bd1f935" width="700" />
 
-## Oct 17, 2023
+## October 17, 2023
 * **New feature**: Survival charts with landmark events and hazard ratios. [Example: TP53 in Lung Cancer Cases in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/48QktxS)
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/dc97c3ae-ebd7-4cd3-bb76-165517c9d2ba" width="700" />
 
-## Oct 3, 2023
+## October 3, 2023
 * **New feature**: New Structural Variants Tab on _Results View_. [Example: TMPRSS2 Structural Variants in MSK-IMPACT Clinical Sequencing Cohort](https://bit.ly/49FDhRk)
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/141e2817-3300-4af2-a845-005403d75e74" width="700" />
 
-## Sep 5, 2023
+## September 5, 2023
 * **New feature**:  Add gene-specific CNA charts to show all levels of copy number alterations (including gain and hetloss) on _Study View_:
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/873401ad-cbcf-4b07-9b80-8487af5abb18" width="700" />
 
-## Aug 30, 2023
+## August 30, 2023
 * **Enhancement**: Exclude a patient from your selection directly from the _Patient View_:
     
     ![image](https://github.com/cBioPortal/cbioportal/assets/1334004/501fe998-8408-48e3-a183-e27ab3ff3f28)
 
-## Aug 21, 2023
+## August 21, 2023
 *   **Added data** consisting of 4,488 samples from 7 studies:
 	* [Lung Adenocarcinoma Met Organotropism (MSK, Cancer Cell 2023)](https://www.cbioportal.org/study/summary?id=luad_mskcc_2023_met_organotropism) *2653 samples*
     * [Acute Myeloid Leukemia (OHSU, Cancer Cell 2022)](https://www.cbioportal.org/study/summary?id=aml_ohsu_2022) *942 samples*
@@ -281,7 +328,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 
 *   **Gene Tables Update:** Updated tables of genes (main and alias), based on [Apr 1, 2023 HGNC release](http://ftp.ebi.ac.uk/pub/databases/genenames/hgnc/archive/monthly/tsv/). See seedDB release notes [here](https://github.com/cBioPortal/datahub/tree/master/seedDB#latest-seed-database) for details.
 
-## Aug 1, 2023
+## August 1, 2023
 *   **Enhancement**: One-sided Fisher's exact tests were changed to be two-sided. The affected pages are:
 	*    Results View Page - Mutual Exclusivity Tab
     *    Results View Page - Comparison Tab - Genomic Alterations Tab
@@ -292,7 +339,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 
     Several users pointed out that using a one-sided test was incorrect for these comparisons. Please see discussions [here](https://github.com/cBioPortal/cbioportal/issues/9943) for more information.
 
-## Jul 18, 2023
+## July 18, 2023
 * **New Feature**: Add mutations table and two-sided exact p-value to comparison. [Example: AR mutations in Primary vs Metastatic Prostate Cancer samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?sessionId=5cf89323e4b0ab413787436c&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D&selectedGene=AR)
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/da0cd1ef-b9b4-49f0-a9d3-42cff0204dc2" width="700" />
@@ -303,16 +350,16 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
     <img src="https://user-images.githubusercontent.com/16869603/234271379-6a0876ea-8477-426e-a0e4-5e0b0b66aef9.gif" width="700" />
 
-## Apr 25, 2023
+## April 25, 2023
 *   **Local Installations Feature**: When custom driver annotations for structural variants are loaded, one can now filter by them in both the Oncoprint and the _Study View_. 
 
-## Apr 11, 2023
+## April 11, 2023
 *   **New Feature**: Disable autocommit and manually commit filters in study view. Manually commit filters can improve cBioPortal performance when query large dataset.
 
     <img src="https://user-images.githubusercontent.com/3323006/221857599-1eb6e9a5-55c7-4fb5-bc14-283699be0990.png" width="700" />
     <img src="https://user-images.githubusercontent.com/3323006/221858244-bf359850-79b5-4f9c-8008-6b5271721854.png" width="700" />
 
-## Apr 5, 2023
+## April 5, 2023
 *   **Added data** consisting of 2,472 samples from 5 studies:
     * [Bladder Cancer (MSK, Cell Reports 2022)](https://www.cbioportal.org/study/summary?id=paired_bladder_2022) *1659 samples*
     * [Gastrointestinal Stromal Tumor (MSK, NPJ Precis Oncol 2023)](https://www.cbioportal.org/study/summary?id=gist_msk_2022) *499 samples*
@@ -323,7 +370,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 *   **Data Improvement**
    	* Added TERT promoter mutation status to [Melanomas (TCGA, Cell 2015)](https://www.cbioportal.org/study/summary?id=skcm_tcga_pub_2015), [Papillary Thyroid Carcinoma (TCGA, Cell 2014)](https://www.cbioportal.org/study/summary?id=thca_tcga_pub) TCGA studies.
 
-## Apr 4, 2023
+## April 4, 2023
 *   **New Feature**: Allow numeric data type for custom data charts.
     
     <img src="https://user-images.githubusercontent.com/33220871/222459360-9c251f7f-1005-442f-811d-dd1ee1103161.png" width="700" />
@@ -334,17 +381,17 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     <img src="https://user-images.githubusercontent.com/33220871/223729410-03a094f4-7671-453f-b8b8-f7bc10b61c7c.png" width="700" />
     <img src="https://user-images.githubusercontent.com/33220871/223729522-fd9e19e2-6218-40d4-b9fb-f253c4faa858.png" width="700" />
 
-## Jan 10, 2023
+## January 10, 2023
 *   **New Feature**: New Pathways tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/pathways?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
     
     <img src="https://user-images.githubusercontent.com/15748980/235750129-661682f7-6593-4b7e-8873-ebba70eeae32.png" width="700" />
 
-## Dec 13, 2022
+## December 13, 2022
 *   **New Feature**: New Mutations tab on the Group Comparison view. [Example: Primary vs Metastasis samples in MSK-IMPACT Clinical Sequencing Cohort](https://www.cbioportal.org/comparison/mutations?comparisonId=61791fa92e3200072db9b64e&groupOrder=%5B%22Primary%22%2C%22Metastasis%22%5D)
     
     <img src="https://user-images.githubusercontent.com/15748980/235748831-78652ccd-b3ab-496f-9626-74ceb8c7230d.png" width="700" />
 
-## Oct 12, 2022
+## October 12, 2022
 *   **Added data** consisting of 1,459 samples from 10 studies:
 	* [Hepatocellular Carcinoma (MERiC/Basel, Nat Commun. 2022)](https://www.cbioportal.org/study/summary?id=hcc_meric_2021) *122 samples*
     * [Prostate Cancer Brain Metastases (Bern, Nat Commun. 2022)](https://www.cbioportal.org/study/summary?id=prostate_pcbm_swiss_2019) *168 samples*
@@ -357,15 +404,15 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 	* [Low-Grade Serous Ovarian Cancer (MSK, Clin Cancer Res 2022)](https://www.cbioportal.org/study/summary?id=lgsoc_mapk_msk_2022) *119 samples*
 	* [Urothelial Carcinoma (BCAN/HCRN 2022)](http://www.cbioportal.org/study/summary?id=blca_bcan_hcrn_2022) *203 samples*
 
-## Sep 6, 2022
+## September 6, 2022
 *   **Enhancement**: Oncoprint can now save clinical tracks after login:
     
     <img src="https://user-images.githubusercontent.com/3323006/188828765-ded10947-7343-49dd-b605-50b58b67a388.png" width="700" />
 
-## Aug 11, 2022
+## August 11, 2022
 *   **New Major Release**: **v5.0.0** release drops support for fusions in the mutation data format. Going forward fusions can only be imported in the Structural Variant (SV) format. This is mainly a refactoring effort to simplify the codebase and pave the way for the development of novel structural variant visualizations in the future. For cBioPortal instance maintainer, please reference our [Migration Guide](https://docs.cbioportal.org/migration-guide/#v4---v5) for instruction.
 	
-## Jul 26, 2022
+## July 26, 2022
 *   **Added data** consisting of 6,631 samples from 7 studies:
 	* [Metastatic Biliary Tract Cancers (SUMMIT - Neratinib Basket Trial, 2022)](https://www.cbioportal.org/study/summary?id=biliary_tract_summit_2022) *36 samples*
     * [Rectal Cancer (MSK, Nature Medicine 2022)](https://www.cbioportal.org/study/summary?id=rectal_msk_2022) *801 samples*
@@ -375,7 +422,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     * [Pan-cancer Analysis of Advanced and Metastatic Tumors (BCGSC, Nature Cancer 2020)](https://www.cbioportal.org/study/summary?id=pog570_bcgsc_2020) *570 samples*
     * [Prostate Adenocarcinoma (MSK, Clin Cancer Res. 2022)](https://www.cbioportal.org/study/summary?id=prad_pik3r1_msk_2021) *1,417 samples*
 
-## Jun 7, 2022
+## June 7, 2022
 * **New Feature**: Add heatmap to plot options on _Comparison Page_. [Example: Primary vs Metastatic Prostate Cancer in MSK-IMPACT (2017)](https://www.cbioportal.org/comparison/clinical?sessionId=5cf89323e4b0ab413787436c)
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/1a048863-7db6-43c6-8250-c31039a2d67f" width="700" />
@@ -414,7 +461,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 
     <img src="https://user-images.githubusercontent.com/1334004/168699333-a50ef433-5efe-45cc-a477-a3a99ed419dc.png" width="700" />
 
-## Apr 20, 2022
+## April 20, 2022
 *   **Added data** consisting of 2,557 samples from 5 studies:
     * [Breast Cancer (HTAN OHSU, 2022)](https://www.cbioportal.org/study/summary?id=brca_hta9_htan_2022) *5 samples*
     * [Colorectal Cancer (MSK, 2022)](https://www.cbioportal.org/study/summary?id=crc_dd_2022) *47 samples*
@@ -432,18 +479,17 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/aa0f0c99-4b9c-481d-9f7f-891ea03fdd34" width="700" />
 
-
-## Mar 1, 2022
+## March 1, 2022
 * **New Documentation**:
     * Add a [User Guide](https://docs.cbioportal.org/user-guide/)
     * Add [Study View and Query How-to videos](https://docs.cbioportal.org/user-guide/overview/#how-to-videos)
 
-## Feb 8, 2022
+## February 8, 2022
 * **New Feature**: Create X vs Y violin plots in _Study View_ using any categorical and numerical clinical data:
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/94d7dd21-4415-405d-8e9b-46e1de3dc095" width="700" />
 
-## Jan 19, 2022
+## January 19, 2022
 * **New Feature**: Numerical filters on the _Study View_ are now editable:
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/00926fec-f32b-48c7-a85f-fced7c29070f" width="700" />
@@ -451,11 +497,11 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     
     <img src="https://github.com/cBioPortal/cbioportal/assets/1334004/87c5f7d6-10d7-4631-8b37-fa8cef4cabe2" width="700" />
 
-## Jan 10, 2022
+## January 10, 2022
 * **New Documentation for Local cBioPortal Installations**:
     * Explain how to use [Genome Nexus to annotate MAF files](https://docs.cbioportal.org/file-formats/#create-the-cbioportal-mutation-data-file-with-genome-nexus-with-a-minimal-maf-file)
 
-## Jan 4, 2022
+## January 4, 2022
 *   **Added data** consisting of 27,447 samples from 10 studies:
     * [Endometrial Carcinoma (CPTAC, Cell 2020)](https://www.cbioportal.org/study/summary?id=ucec_cptac_2020) *95 samples*
     * [Pancreatic Ductal Adenocarcinoma (CPTAC, Cell 2021)](https://www.cbioportal.org/study/summary?id=paad_cptac_2021) *140 samples*
@@ -473,7 +519,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     (Details for the calculation can be found [HERE](https://github.com/cBioPortal/datahub-study-curation-tools/blob/master/tmb/calculate_tmb/Readme.md))   
     <img width="361" alt="Screen Shot 2022-01-04 at 11 39 20 PM" src="https://user-images.githubusercontent.com/5973438/148133673-a23506e9-7957-4581-99f0-820ca9548672.png">
 
-## Nov 12, 2021
+## November 12, 2021
 *   **Added data** consisting of 3,680 samples from 6 studies:
     * [Breast Cancer MAPK (MSKCC, Nat Commun 2021)](https://www.cbioportal.org/study/summary?id=brca_mapk_hp_msk_2021) *145 samples*
     * [Colorectal Cancer (MSK, 2020)](https://www.cbioportal.org/study/summary?id=crc_nigerian_2020) *64 samples*
@@ -482,17 +528,17 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     * [Diffuse Glioma (GLASS Consortium, Nature 2019)](https://www.cbioportal.org/study/summary?id=difg_glass_2019) *444 samples*
     * [Pan-cancer analysis of whole genomes (ICGC/TCGA, Nature 2020)](https://www.cbioportal.org/study/summary?id=pancan_pcawg_2020) *2,922 samples*
 
-## Nov 3,2021
+## November 3,2021
 * **New Feature**: Add Uniprot topology as a new annotation track on the Mutations Tab of the Results View. [Example: EGFR in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/results/mutations?cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=EGFR&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
 
     <img src="https://user-images.githubusercontent.com/16869603/141861719-f91d787e-e8c3-4c27-8273-7642ec3fd5e1.png" width="700" />
 
-## Oct 1, 2021
+## October 1, 2021
 * **New Feature**: Arm level Copy Number events are now loaded into cBioPortal using the Categorial Generic Assay Data Type. They can be found in a tab under the Add Charts Button of the _Study View_ [Example: Arm Level Data in TCGA PanCancer Atlas](https://www.cbioportal.org/study/summary?id=laml_tcga_pan_can_atlas_2018%2Cacc_tcga_pan_can_atlas_2018%2Cblca_tcga_pan_can_atlas_2018%2Clgg_tcga_pan_can_atlas_2018%2Cbrca_tcga_pan_can_atlas_2018%2Ccesc_tcga_pan_can_atlas_2018%2Cchol_tcga_pan_can_atlas_2018%2Ccoadread_tcga_pan_can_atlas_2018%2Cdlbc_tcga_pan_can_atlas_2018%2Cesca_tcga_pan_can_atlas_2018%2Cgbm_tcga_pan_can_atlas_2018%2Chnsc_tcga_pan_can_atlas_2018%2Ckich_tcga_pan_can_atlas_2018%2Ckirc_tcga_pan_can_atlas_2018%2Ckirp_tcga_pan_can_atlas_2018%2Clihc_tcga_pan_can_atlas_2018%2Cluad_tcga_pan_can_atlas_2018%2Clusc_tcga_pan_can_atlas_2018%2Cmeso_tcga_pan_can_atlas_2018%2Cov_tcga_pan_can_atlas_2018%2Cpaad_tcga_pan_can_atlas_2018%2Cpcpg_tcga_pan_can_atlas_2018%2Cprad_tcga_pan_can_atlas_2018%2Csarc_tcga_pan_can_atlas_2018%2Cskcm_tcga_pan_can_atlas_2018%2Cstad_tcga_pan_can_atlas_2018%2Ctgct_tcga_pan_can_atlas_2018%2Cthym_tcga_pan_can_atlas_2018%2Cthca_tcga_pan_can_atlas_2018%2Cucs_tcga_pan_can_atlas_2018%2Cucec_tcga_pan_can_atlas_2018%2Cuvm_tcga_pan_can_atlas_2018)
 
      <img src="https://user-images.githubusercontent.com/1334004/139692484-8245d94f-1821-4476-974e-b6c1a6cd8d12.png" width="700" />
 
-## Sep 22, 2021
+## September 22, 2021
 *   **Added data** consisting of 14,844 samples from 7 studies:
     * [Colorectal Cancer (MSK, Gastroenterology 2020)](https://www.cbioportal.org/study/summary?id=crc_apc_impact_2020) *471 samples*
     * [Metastatic Breast Cancer (MSK, Cancer Discovery 2021)](https://www.cbioportal.org/study/summary?id=breast_ink4_msk_2021) *1,365 samples*
@@ -502,22 +548,22 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
     * [Thoracic Cancer (MSK, 2021)](https://www.cbioportal.org/study/summary?id=lung_pdx_msk_2021) *68 samples*
     * [China Pan-cancer (OrigiMed, 2020)](https://www.cbioportal.org/study/summary?id=pan_origimed_2020) *10,194 samples*
 
-## Sep 21, 2021
+## September 21, 2021
 * **Enhancement**: Dowloading the Lollipop plot on the Mutations Tab of the _Results View_ will now also include the annotation tracks:
 
     <img src="https://user-images.githubusercontent.com/1334004/139694195-51ad5580-efa5-4b25-9a10-2754726a246b.png" width="700" />
 
-## Aug 17, 2021
+## August 17, 2021
 * **New Feature**: The Mutations Tab of the _Results View_ can now show exon numbers as an annotation track [Example: MET Exon 14 Mutations in MSK-IMPACT (2017) cohort](https://www.cbioportal.org/results/mutations?genetic_profile_ids_PROFILE_MUTATION_EXTENDED=msk_impact_2017_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=msk_impact_2017_cna&cancer_study_list=msk_impact_2017&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&profileFilter=mutations%2Cfusion%2Ccna&case_set_id=msk_impact_2017_cnaseq&gene_list=MET&geneset_list=%20&tab_index=tab_visualize&Action=Submit)
 
     <img src="https://user-images.githubusercontent.com/1334004/139694614-62f62640-2fab-4117-ae09-db2281690f76.png" width="700" />
 
-## Aug 10, 2021
+## August 10, 2021
 * **New Feature**: Use the filtering capabilities in the Mutations Tab of the _Results View_ to create a custom cohort that one can open directly in the _Study View_ [Example: CTNNB1 in MSK-IMPACT (2017) cohort](https://bit.ly/3w6wu00)
 
     <img src="https://user-images.githubusercontent.com/1334004/139696976-6e145c05-10d3-44c9-8499-146ad6e13f2f.png" width="700" />
 
-## Jul 27, 2021
+## July 27, 2021
 * **New Feature**: Add a custom filter to any column of the Mutations Tab in the _Results View_ [Example: CTNNB1 in MSK-IMPACT (2017) cohort](https://bit.ly/3w6wu00)
 
     <img src="https://user-images.githubusercontent.com/1334004/139697555-34507fa8-2b57-4aa8-84ee-c477efffa864.png" width="700" />
@@ -526,7 +572,7 @@ View the new V4 Mutation Assessor data in the [Mutation Table](https://bit.ly/48
 
     <img src="https://user-images.githubusercontent.com/1334004/139699259-1be86599-c2e0-457c-b257-1b0d446facf4.png" width="350" />
 
-## Jul 6, 2021
+## July 6, 2021
 * **New Feature**: Add any clinical data as a column on the Mutations Tab in the _Results View_ [Example: EGFR in MSK-IMPACT (2017) cohort](https://bit.ly/3bxFlyp)
 
     <img src="https://user-images.githubusercontent.com/1334004/139700811-4b6ce432-4abf-4dc4-8371-634a14d2b603.png" width="700" />

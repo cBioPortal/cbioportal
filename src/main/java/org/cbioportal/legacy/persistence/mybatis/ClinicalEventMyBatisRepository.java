@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import static java.util.stream.Collectors.groupingBy;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +87,8 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
   @Override
   public List<ClinicalEvent> getPatientsDistinctClinicalEventInStudies(
       List<String> studyIds, List<String> patientIds) {
-    return clinicalEventMapper.getPatientsDistinctClinicalEventInStudies(studyIds, patientIds);
+    return clinicalEventMapper.getPatientsDistinctClinicalEventInStudies(
+        studyIds, patientIds, Collections.emptyList());
   }
 
   @Override

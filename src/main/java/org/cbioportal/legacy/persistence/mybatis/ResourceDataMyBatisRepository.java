@@ -86,8 +86,9 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataForAllPatientsInStudy(
+    return resourceDataMapper.getResourceDataOfPatientInStudy(
         studyId,
+        null,
         resourceId,
         projection,
         pageSize,
@@ -106,8 +107,9 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataForAllSamplesInStudy(
+    return resourceDataMapper.getResourceDataOfSampleInStudy(
         studyId,
+        null,
         resourceId,
         projection,
         pageSize,

@@ -11,9 +11,7 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.ReferenceGenomeGene;
-import org.cbioportal.legacy.service.GeneMemoizerService;
 import org.cbioportal.legacy.service.ReferenceGenomeGeneService;
-import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.web.config.InternalApiTags;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +35,6 @@ public class ReferenceGenomeGeneController {
 
   @Autowired private ReferenceGenomeGeneService referenceGenomeGeneService;
 
-  @Autowired private GeneMemoizerService geneMemoizerService;
-
   /**
    * The memoization logic in this method is a temporary fix to make this work until Ehcache is
    * working correctly on cbioportal.org. This endpoint creates a large response and seems to bloat
@@ -60,11 +56,7 @@ public class ReferenceGenomeGeneController {
       @Parameter(required = true, description = "Name of Reference Genome hg19") @PathVariable
           String genomeName) {
 
-    List<ReferenceGenomeGene> genes = geneMemoizerService.fetchGenes(genomeName);
-    if (genes == null) {
-      genes = referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName);
-      geneMemoizerService.cacheGenes(genes, genomeName);
-    }
+    var genes = referenceGenomeGeneService.fetchAllReferenceGenomeGenes(genomeName);
     return new ResponseEntity<>(genes, HttpStatus.OK);
   }
 
@@ -77,14 +69,21 @@ public class ReferenceGenomeGeneController {
       responseCode = "200",
       description = "OK",
       content = @Content(schema = @Schema(implementation = ReferenceGenomeGene.class)))
+  @ApiResponse(responseCode = "404", description = "Reference genome or gene not found")
   public ResponseEntity<ReferenceGenomeGene> getReferenceGenomeGene(
       @Parameter(required = true, description = "Name of Reference Genome hg19") @PathVariable
           String genomeName,
-      @Parameter(required = true, description = "Entrez Gene ID 207") @PathVariable Integer geneId)
-      throws GeneNotFoundException {
+      @Parameter(required = true, description = "Entrez Gene ID 207") @PathVariable
+          Integer geneId) {
 
-    return new ResponseEntity<>(
-        referenceGenomeGeneService.getReferenceGenomeGene(geneId, genomeName), HttpStatus.OK);
+    ReferenceGenomeGene gene =
+        referenceGenomeGeneService.getReferenceGenomeGene(geneId, genomeName);
+
+    if (gene == null) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    return ResponseEntity.ok(gene);
   }
 
   @RequestMapping(

@@ -1,6 +1,6 @@
 package org.cbioportal.legacy.web;
 
-import static org.cbioportal.legacy.web.PublicVirtualStudiesController.ALL_USERS;
+import static org.cbioportal.legacy.service.VirtualStudyService.ALL_USERS;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;

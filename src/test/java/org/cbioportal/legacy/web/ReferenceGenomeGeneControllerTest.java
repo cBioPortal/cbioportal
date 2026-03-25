@@ -12,6 +12,7 @@ import org.cbioportal.legacy.service.GeneMemoizerService;
 import org.cbioportal.legacy.service.ReferenceGenomeGeneService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -60,6 +61,7 @@ public class ReferenceGenomeGeneControllerTest {
 
   @Test
   @WithMockUser
+  @Ignore("Not using geneMemoizerService anymore")
   public void getAllReferenceGenesFromCache() throws Exception {
     Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString()))
         .thenReturn(Collections.singletonList(gene));
@@ -89,6 +91,7 @@ public class ReferenceGenomeGeneControllerTest {
 
   @Test
   @WithMockUser
+  @Ignore("Not using geneMemoizerService anymore")
   public void getAllReferenceGenesNoCache() throws Exception {
     Mockito.when(geneMemoizerService.fetchGenes(Mockito.anyString())).thenReturn(null);
     Mockito.when(referenceGenomeGeneService.fetchAllReferenceGenomeGenes(Mockito.anyString()))

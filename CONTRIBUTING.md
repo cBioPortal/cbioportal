@@ -1,3 +1,9 @@
+> ⚠️ **Important**
+>
+> - All new development must target `master` (v7).
+> - The `maintenance-v6` branch accepts **security fixes only**.
+> - PRs for new features or bug fixes against v6 will not be accepted.
+
 # How to contribute
 
 Thank you for your interest in contributing to cBioPortal! This document provides a brief set of guidelines for contributing.

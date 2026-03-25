@@ -5,16 +5,22 @@
 
     <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
-        internal_id as internalId,
-        replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
-        replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
-        attribute_name as attrId,
-        attribute_value as attrValue,
-        cancer_study_identifier as studyId
+            internal_id as internalId,
+            replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
         FROM clinical_data_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
+        <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+            AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND attribute_name IN
             <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
@@ -26,16 +32,22 @@
 
     <select id="getPatientClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
-        internal_id as internalId,
-        replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
-        NULL as sampleId,
-        attribute_name as attrId,
-        attribute_value as attrValue,
-        cancer_study_identifier as studyId
+            internal_id as internalId,
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            NULL as sampleId,
+            attribute_name as attrId,
+            attribute_value as attrValue,
+            cancer_study_identifier as studyId
         FROM clinical_data_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
         </where>
+        <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+            AND cancer_study_identifier IN
+            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND attribute_name IN
             <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
@@ -107,6 +119,12 @@
 
     <sql id="fetchClinicalDataWhereClause">
         WHERE cd.type = #{clinicalDataType}
+        <if test="studyIds != null and !studyIds.isEmpty()">
+            AND cd.cancer_study_identifier IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if> 
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
             <choose>
@@ -134,6 +152,12 @@
         SELECT COUNT(*)
         FROM clinical_data_derived cd
         WHERE cd.type = #{clinicalDataType}
+        <if test="studyIds != null and !studyIds.isEmpty()">
+            AND cd.cancer_study_identifier IN
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                #{studyId}
+            </foreach>
+        </if>
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
             <choose>
@@ -191,15 +215,21 @@
         (
         WITH clinical_data_query AS (
         SELECT
-        attribute_name AS attributeId,
-        attribute_value AS value,
-        cast(count(*) AS INTEGER) as count
+            attribute_name AS attributeId,
+            attribute_value AS value,
+            cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived cdd
         <if test="'${isConflicting}' == 'true'">
             <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
             LEFT JOIN sample_derived sd ON cdd.patient_unique_id = sd.patient_unique_id
         </if>
         <where>
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                AND cdd.cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+            </if>
             AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                 <property name="attribute_value" value="value"/>

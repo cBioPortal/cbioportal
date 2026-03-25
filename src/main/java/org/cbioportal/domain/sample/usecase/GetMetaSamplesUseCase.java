@@ -3,11 +3,9 @@ package org.cbioportal.domain.sample.usecase;
 import java.util.List;
 import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.legacy.model.meta.BaseMeta;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetMetaSamplesUseCase {
   private final SampleRepository sampleRepository;
 

@@ -14,8 +14,15 @@
         SELECT
         value AS treatment,
         count(DISTINCT patient_unique_id) AS count
-        FROM clinical_event_derived
+        FROM clinical_event_data_derived
         <where>
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+                AND
+            </if>
             lower(event_type) = 'treatment'
             AND key = 'AGENT'
             AND
@@ -32,8 +39,15 @@
             patient_unique_id IN (
             SELECT
             patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
             <where>
+                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                    cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    AND
+                </if>
                 lower(event_type) = 'treatment'
                 AND key = 'AGENT'
                 AND
@@ -46,18 +60,32 @@
     <select id="getTotalSampleTreatmentCounts" resultType="int">
         SELECT
         count(distinct ced.value) AS totalSamples
-        FROM clinical_event_derived ced
+        FROM clinical_event_data_derived ced
         <where>
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+                AND
+            </if>
+            (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND key = 'SAMPLE_ID'
-            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
             AND
             patient_unique_id IN (
             SELECT
             patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
             <where>
+                <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                    cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                    AND
+                </if>
                 lower(event_type) = 'treatment'
                 AND key = 'AGENT'
                 AND
@@ -83,10 +111,17 @@
             ced.patient_unique_id,
             min(ced.start_date) AS time_taken,
             ced.cancer_study_identifier AS cancer_study_identifier
-        FROM clinical_event_derived ced
+        FROM clinical_event_data_derived ced
         <where>
-            key = 'SAMPLE_ID'
-            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+                AND
+            </if>
+            (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+            AND key = 'SAMPLE_ID'
         </where>
         GROUP BY patient_unique_id, ced.value, cancer_study_identifier
     </sql>
@@ -96,8 +131,15 @@
             patient_unique_id,
             value AS treatment,
             argMin(start_date, start_date) AS treatment_time_taken
-        FROM clinical_event_derived
+        FROM clinical_event_data_derived
         <where>
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                cancer_study_identifier IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
+                AND
+            </if>
             lower(event_type) = 'treatment'
             AND key = 'AGENT'
         </where>

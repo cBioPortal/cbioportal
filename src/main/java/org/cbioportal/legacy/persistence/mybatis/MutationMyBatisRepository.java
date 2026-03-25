@@ -62,25 +62,16 @@ public class MutationMyBatisRepository implements MutationRepository {
       String sortBy,
       String direction) {
 
-    return molecularProfileCaseIdentifierUtil
-        .getGroupedCasesByMolecularProfileId(molecularProfileIds, sampleIds)
-        .entrySet()
-        .stream()
-        .flatMap(
-            entry ->
-                mutationMapper
-                    .getMutationsInMultipleMolecularProfiles(
-                        Arrays.asList(entry.getKey()),
-                        new ArrayList<>(entry.getValue()),
-                        entrezGeneIds,
-                        false,
-                        projection,
-                        pageSize,
-                        PaginationCalculator.offset(pageSize, pageNumber),
-                        sortBy,
-                        direction)
-                    .stream())
-        .collect(Collectors.toList());
+    return mutationMapper.getMutationsInMultipleMolecularProfiles(
+        molecularProfileIds,
+        sampleIds,
+        entrezGeneIds,
+        false,
+        projection,
+        pageSize,
+        PaginationCalculator.offset(pageSize, pageNumber),
+        sortBy,
+        direction);
   }
 
   @Override

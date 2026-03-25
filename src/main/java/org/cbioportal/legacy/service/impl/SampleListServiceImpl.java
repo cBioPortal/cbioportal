@@ -83,7 +83,7 @@ public class SampleListServiceImpl implements SampleListService {
       String direction)
       throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     List<SampleList> sampleLists =
         sampleListRepository.getAllSampleListsInStudies(
@@ -100,7 +100,7 @@ public class SampleListServiceImpl implements SampleListService {
   @Override
   public BaseMeta getMetaSampleListsInStudy(String studyId) throws StudyNotFoundException {
 
-    studyService.getStudy(studyId);
+    studyService.studyExists(studyId);
 
     return sampleListRepository.getMetaSampleListsInStudy(studyId);
   }

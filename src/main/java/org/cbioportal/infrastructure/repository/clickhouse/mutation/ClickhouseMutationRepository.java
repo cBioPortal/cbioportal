@@ -7,11 +7,9 @@ import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.shared.MutationQueryOptions;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhouseMutationRepository implements MutationRepository {
 
   private final ClickhouseMutationMapper mapper;

@@ -5,25 +5,25 @@
 
     <select id="fetchVariantCounts" resultType="org.cbioportal.legacy.model.VariantCount">
         SELECT
-        genetic_profile.STABLE_ID AS molecularProfileId,
-        mutation_count_by_keyword.KEYWORD AS keyword,
-        mutation_count_by_keyword.ENTREZ_GENE_ID AS entrezGeneId,
-        mutation_count_by_keyword.KEYWORD_COUNT AS numberOfSamplesWithKeyword,
-        mutation_count_by_keyword.GENE_COUNT AS numberOfSamplesWithMutationInGene
+            genetic_profile.stable_id AS molecularProfileId,
+            mutation_count_by_keyword.keyword AS keyword,
+            mutation_count_by_keyword.entrez_gene_id AS entrezGeneId,
+            mutation_count_by_keyword.keyword_count AS numberOfSamplesWithKeyword,
+            mutation_count_by_keyword.gene_count AS numberOfSamplesWithMutationInGene
         FROM mutation_count_by_keyword
-        INNER JOIN genetic_profile ON mutation_count_by_keyword.GENETIC_PROFILE_ID = genetic_profile.GENETIC_PROFILE_ID
+            INNER JOIN genetic_profile ON mutation_count_by_keyword.genetic_profile_id = genetic_profile.genetic_profile_id
         WHERE
-        genetic_profile.STABLE_ID = #{molecularProfileId}
+        genetic_profile.stable_id = #{molecularProfileId}
         <if test="entrezGeneIds != null">
             AND
             <foreach index="i" collection="entrezGeneIds" open="(" separator="OR" close=")">
                 <if test="keywords[i] != null">
-                    mutation_count_by_keyword.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]} 
-                    AND mutation_count_by_keyword.KEYWORD = #{keywords[${i}]}
+                    mutation_count_by_keyword.entrez_gene_id = #{entrezGeneIds[${i}]}
+                    AND mutation_count_by_keyword.keyword = #{keywords[${i}]}
                 </if>
                 <if test="keywords[i] == null">
-                    mutation_count_by_keyword.ENTREZ_GENE_ID = #{entrezGeneIds[${i}]}
-                    AND mutation_count_by_keyword.KEYWORD IS NULL
+                    mutation_count_by_keyword.entrez_gene_id = #{entrezGeneIds[${i}]}
+                    AND mutation_count_by_keyword.keyword IS NULL
                 </if>
             </foreach>
         </if>

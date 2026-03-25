@@ -24,13 +24,11 @@ import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetAlterationEnrichmentsUseCase {
 
   private static final Logger log = LoggerFactory.getLogger(GetAlterationEnrichmentsUseCase.class);

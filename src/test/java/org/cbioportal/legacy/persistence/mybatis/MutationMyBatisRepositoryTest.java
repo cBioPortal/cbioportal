@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.AlleleSpecificCopyNumber;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.GeneFilterQuery;
@@ -14,26 +15,33 @@ import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.model.util.Select;
-import org.cbioportal.legacy.persistence.mybatis.config.TestConfig;
+import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(
-    classes = {
-      MutationMyBatisRepository.class,
-      MolecularProfileCaseIdentifierUtil.class,
-      TestConfig.class
-    })
+@Import({
+  MyBatisLegacyConfig.class,
+  MutationMyBatisRepository.class,
+  MolecularProfileCaseIdentifierUtil.class
+})
+@DataJpaTest
+@DirtiesContext
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
 public class MutationMyBatisRepositoryTest {
 
-  //    mutation, cna and struct var events in testSql.sql
+  //    mutation, cna and struct var events in clickhouse_data_legacy.sql
   //        SAMPLE_ID, ENTREZ_GENE_ID, HUGO_GENE_SYMBOL, GENETIC_PROFILE_ID, TYPE, MUTATION_TYPE,
   // DRIVER_FILTER, DRIVER_TIERS_FILTER, PATIENT_ID, MUTATION_TYPE
   //        1	    207	AKT1	2	CNA         -2	                Putative_Driver	    Tier 1  TCGA-A1-A0SB
@@ -956,8 +964,15 @@ public class MutationMyBatisRepositoryTest {
 
     List<Mutation> result =
         mutationMyBatisRepository.fetchMutationsInMolecularProfile(
-            "study_tcga_pub_mutations", sampleIds, null, false, "SUMMARY", null, null, null, null);
-
+            "study_tcga_pub_mutations",
+            sampleIds,
+            null,
+            false,
+            "SUMMARY",
+            null,
+            null,
+            "sampleId",
+            "ASC");
     Assert.assertEquals(3, result.size());
     Assert.assertEquals("study_tcga_pub_mutations", result.get(0).getMolecularProfileId());
     Assert.assertEquals("TCGA-A1-A0SH-01", result.get(0).getSampleId());

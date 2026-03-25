@@ -180,46 +180,46 @@
 
     <sql id="applySampleTreatmentFilter">
         <foreach item="andedSampleTreatmentFilters" collection="studyViewFilterHelper.studyViewFilter.sampleTreatmentFilters.getFilters()" open="INTERSECT" separator="INTERSECT">
-            SELECT  concat(ced.cancer_study_identifier, '_', ced.sample_id) AS sample_unique_id
+            SELECT  concat(cedd.cancer_study_identifier, '_', cedd.sample_id) AS sample_unique_id
             FROM (
             <!-- Nested sub query to grab minimum sample acquisition event -->
                 SELECT
-                    ced.value AS sample_id,
-                    ced.patient_unique_id AS patient_unique_id,
-                    min(ced.start_date) AS time_taken,
-                    ced.cancer_study_identifier AS cancer_study_identifier
-                FROM clinical_event_derived ced
+                    cedd.value AS sample_id,
+                    cedd.patient_unique_id AS patient_unique_id,
+                    min(cedd.start_date) AS time_taken,
+                    cedd.cancer_study_identifier AS cancer_study_identifier
+                FROM clinical_event_data_derived cedd
                 <where>
                     key = 'SAMPLE_ID'
                     AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
                 </where>
-                GROUP BY patient_unique_id, ced.value, cancer_study_identifier
-            ) ced
+                GROUP BY patient_unique_id, cedd.value, cancer_study_identifier
+            ) cedd
             INNER JOIN (
             <!-- Nested sub query to grab all treatments group by patients-->
                 SELECT
                     patient_unique_id,
                     value AS treatment,
                     argMin(start_date, start_date) AS treatment_time_taken
-                FROM clinical_event_derived
+                FROM clinical_event_data_derived
                 WHERE lower(event_type) = 'treatment'
                 AND key = 'AGENT'
                 GROUP BY patient_unique_id, value
-            ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
+            ) cedd_inner ON cedd_inner.patient_unique_id = cedd.patient_unique_id
             <where>
                 <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
-                    ced_inner.treatment = #{sampleTreatmentFilter.treatment}
+                    cedd_inner.treatment = #{sampleTreatmentFilter.treatment}
                     <choose>
                         <when test="sampleTreatmentFilter.time.name() == 'Pre'">
-                            AND ced.time_taken &lt;=  ced_inner.treatment_time_taken
+                            AND cedd.time_taken &lt;=  cedd_inner.treatment_time_taken
                         </when>
                         <otherwise>
-                            AND ced.time_taken &gt; ced_inner.treatment_time_taken
+                            AND cedd.time_taken &gt; cedd_inner.treatment_time_taken
                         </otherwise>
                     </choose>
                 </foreach>
             </where>
-            GROUP BY patient_unique_id, ced.sample_id, ced.time_taken, ced.cancer_study_identifier, ced_inner.treatment, ced_inner.treatment_time_taken
+            GROUP BY patient_unique_id, cedd.sample_id, cedd.time_taken, cedd.cancer_study_identifier, cedd_inner.treatment, cedd_inner.treatment_time_taken
         </foreach>
     </sql>
     
@@ -230,7 +230,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="(" separator=") OR (" close=")">
                         event_type = #{dataFilterValue.value}
@@ -247,7 +247,7 @@
             FROM sample_derived
             WHERE patient_unique_id in (
             SELECT patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
                 <where>
                     <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
                          separator=") OR ("

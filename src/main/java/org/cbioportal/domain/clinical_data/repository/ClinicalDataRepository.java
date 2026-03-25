@@ -60,7 +60,10 @@ public interface ClinicalDataRepository {
    * @see ClinicalDataType
    */
   List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataId(
-      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      ClinicalDataType clinicalDataType);
 
   /**
    * Retrieves clinical data with SUMMARY projection (basic data with values).
@@ -76,7 +79,10 @@ public interface ClinicalDataRepository {
    * @see ClinicalDataType
    */
   List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataSummary(
-      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      ClinicalDataType clinicalDataType);
 
   /**
    * Retrieves clinical data with DETAILED projection (complete data set).
@@ -93,7 +99,10 @@ public interface ClinicalDataRepository {
    * @see ClinicalDataType
    */
   List<org.cbioportal.domain.clinical_data.ClinicalData> fetchClinicalDataDetailed(
-      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      ClinicalDataType clinicalDataType);
 
   /**
    * Retrieves the count of clinical data records matching the specified criteria.
@@ -109,5 +118,8 @@ public interface ClinicalDataRepository {
    * @see ClinicalDataType
    */
   Integer fetchClinicalDataMeta(
-      List<String> uniqueIds, List<String> attributeIds, ClinicalDataType clinicalDataType);
+      List<String> uniqueIds,
+      List<String> attributeIds,
+      List<String> studyIds,
+      ClinicalDataType clinicalDataType);
 }

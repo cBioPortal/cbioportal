@@ -6,12 +6,10 @@ import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.cbioportal.shared.util.SampleDataFilterUtil;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class FetchSamplesUseCase {
   private final SampleRepository sampleRepository;
 

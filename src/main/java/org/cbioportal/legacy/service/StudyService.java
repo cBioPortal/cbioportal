@@ -31,4 +31,6 @@ public interface StudyService {
   CancerStudyTags getTags(String studyId, AccessLevel accessLevel);
 
   List<CancerStudyTags> getTagsForMultipleStudies(List<String> studyIds);
+
+  void studyExists(String studyId) throws StudyNotFoundException;
 }

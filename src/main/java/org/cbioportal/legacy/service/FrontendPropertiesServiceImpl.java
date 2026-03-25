@@ -27,7 +27,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
   private final Logger log = LoggerFactory.getLogger(FrontendPropertiesServiceImpl.class);
 
   // This enum holds properties exposed to the frontend reactapp.
-  // Format: <name of property known in frontend>("<name of property in properties file>", "<default
+  // Format: <name of property known in frontend>("<name of property in properties
+  // file>", "<default
   // value>")
   // There are some properties that require processing before being exposed to the frontend.
   public enum FrontendProperty {
@@ -51,6 +52,12 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     genomenexus_isoform_override_source("genomenexus.isoform_override_source", null),
     google_analytics_profile_id("google_analytics_profile_id", null),
     google_tag_manager_id("google_tag_manager_id", null),
+    datadog_rum_application_id("datadog_rum_application_id", null),
+    datadog_rum_client_token("datadog_rum_client_token", null),
+    datadog_rum_site("datadog_rum_site", null),
+    datadog_rum_env("datadog_rum_env", null),
+    datadog_rum_session_sample_rate("datadog_rum_session_sample_rate", null),
+    datadog_rum_session_replay_sample_rate("datadog_rum_session_replay_sample_rate", null),
     analytics_report_url("analytics_report_url", null),
     oncoprint_hide_vus_default("oncoprint.hide_vus.default", null),
     oncokb_public_api_url("oncokb.public_api.url", null),
@@ -163,7 +170,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     frontendUrl("frontend.url", null),
     skin_hide_download_controls("skin.hide_download_controls", "show"),
     skin_hide_clinical_data_tab_study_view("skin.hide_clinical_data_tab_study_view", "false"),
-    study_download_url("study_download_url", "https://cbioportal-datahub.s3.amazonaws.com/"),
+    study_download_url("study_download_url", "https://datahub.assets.cbioportal.org/"),
+
     enable_cross_study_expression("enable_cross_study_expression", ""),
     studyview_max_samples_selected("studyview.max_samples_selected", null),
     skin_home_page_show_reference_genome("skin.home_page.show_reference_genome", null),
@@ -385,7 +393,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         }
       }
     }
-    return propertyValue;
+    return parseUrl(propertyValue);
   }
 
   /*

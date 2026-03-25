@@ -29,6 +29,7 @@
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <!-- /cna-genes/fetch (returns CopyNumberCountByGene) -->
@@ -55,6 +56,7 @@
             </if>
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol, alteration, cytoband
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <select
@@ -73,8 +75,11 @@
             <include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"
             />
+            <include refid="whereCustomAnnotations" />
+            <include refid="whereMutationStatus" />
         </where>
         GROUP BY entrez_gene_id, hugo_gene_symbol
+        ORDER BY totalCount DESC, hugo_gene_symbol ASC
     </select>
 
     <!-- Grab Total Profiled Counts. Currently, this query filters out all samples associated with a Gene Panel WES before

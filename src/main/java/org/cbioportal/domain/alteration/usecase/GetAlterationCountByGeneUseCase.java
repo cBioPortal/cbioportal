@@ -1,6 +1,6 @@
 package org.cbioportal.domain.alteration.usecase;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,11 +15,9 @@ import org.cbioportal.legacy.model.MutSig;
 import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
-@Profile("clickhouse")
 public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGeneUseCase {
   private final AlterationRepository alterationRepository;
   private final GetFilteredStudyIdsUseCase getFilteredStudyIdsUseCase;
@@ -87,7 +85,7 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
    */
   private List<AlterationCountByGene> combineAlterationCountsWithConflictingHugoSymbols(
       List<AlterationCountByGene> alterationCounts) {
-    Map<String, AlterationCountByGene> alterationCountByGeneMap = new HashMap<>();
+    Map<String, AlterationCountByGene> alterationCountByGeneMap = new LinkedHashMap<>();
     for (var alterationCount : alterationCounts) {
       if (alterationCountByGeneMap.containsKey(alterationCount.getHugoGeneSymbol())) {
         AlterationCountByGene toUpdate =
@@ -138,7 +136,7 @@ public class GetAlterationCountByGeneUseCase extends AbstractAlterationCountByGe
   private Map<String, MutSig> getMutSigs(StudyViewFilterContext studyViewFilterContext)
       throws StudyNotFoundException {
     var distinctStudyIds = getFilteredStudyIdsUseCase.execute(studyViewFilterContext);
-    Map<String, MutSig> mutSigs = new HashMap<>();
+    Map<String, MutSig> mutSigs = new LinkedHashMap<>();
     if (distinctStudyIds.size() == 1) {
       var studyId = distinctStudyIds.getFirst();
       mutSigs =

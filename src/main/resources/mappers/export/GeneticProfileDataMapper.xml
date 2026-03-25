@@ -4,74 +4,78 @@
 <mapper namespace="org.cbioportal.application.file.export.repositories.mybatis.GeneticProfileDataMapper">
     <select id="getSampleStableIds" resultType="java.lang.String">
         SELECT
-           s.STABLE_ID
-        FROM genetic_profile_samples gps
-        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = gps.GENETIC_PROFILE_ID
-        JOIN JSON_TABLE (
-            CONCAT('[', TRIM(TRAILING ',' FROM gps.ORDERED_SAMPLE_LIST), ']'),
-            '$[*]' COLUMNS (
-                idx FOR ORDINALITY,  -- Position in the CSV
-                value INT PATH '$'
-            )
-        ) AS jt
-        LEFT JOIN sample s ON s.INTERNAL_ID = jt.value
-        WHERE gp.STABLE_ID = #{molecularProfileStableId}
-        ORDER BY jt.idx ASC
+            s.stable_id
+        FROM (
+                 SELECT
+                     gp.stable_id AS profile_stable_id,
+                     arrayFilter(
+                         x -> x != '',
+                         splitByChar(',', ifNull(gps.ordered_sample_list, ''))
+                     ) AS sample_ids
+                 FROM genetic_profile_samples gps
+                          JOIN genetic_profile gp ON gp.genetic_profile_id = gps.genetic_profile_id
+                 WHERE gp.stable_id = #{molecularProfileStableId}
+             ) parsed
+                 ARRAY JOIN arrayEnumerate(parsed.sample_ids) AS idx, parsed.sample_ids AS sample_internal_id
+                 LEFT JOIN sample s ON s.internal_id = toInt64(sample_internal_id)
+        WHERE parsed.profile_stable_id = #{molecularProfileStableId}
+        ORDER BY idx
     </select>
     <resultMap id="GeneticProfileDataResultMap" type="org.cbioportal.application.file.model.GeneticProfileData">
-        <id column="GENETIC_ENTITY_ID"/>
-        <result property="commaSeparatedValues" column="VALUES"/>
+        <id column="genetic_entity_id"/>
+        <result property="commaSeparatedValues" column="values"/>
         <association property="geneticEntity" javaType="org.cbioportal.application.file.model.GeneticEntity">
-            <id property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
-            <result property="stableId" column="GENETIC_ENTITY_STABLE_ID"/>
-            <result property="entityType" column="GENETIC_ENTITY_TYPE"/>
+            <id property="geneticEntityId" column="genetic_entity_id"/>
+            <result property="stableId" column="genetic_entity_stable_id"/>
+            <result property="entityType" column="genetic_entity_type"/>
         </association>
         <association property="gene" javaType="org.cbioportal.application.file.model.Gene">
-            <id property="entrezGeneId" column="ENTREZ_GENE_ID"/>
-            <result property="hugoGeneSymbol" column="HUGO_GENE_SYMBOL"/>
-            <result property="type" column="GENE_TYPE"/>
+            <id property="entrezGeneId" column="entrez_gene_id"/>
+            <result property="hugoGeneSymbol" column="hugo_gene_symbol"/>
+            <result property="type" column="gene_type"/>
         </association>
     </resultMap>
     <select id="getData" resultMap="GeneticProfileDataResultMap" resultSetType="FORWARD_ONLY" resultOrdered="true">
         SELECT
-            ga.VALUES,
-            ga.GENETIC_ENTITY_ID,
-            ge.STABLE_ID AS GENETIC_ENTITY_STABLE_ID,
-            ge.ENTITY_TYPE AS GENETIC_ENTITY_TYPE,
-            g.ENTREZ_GENE_ID,
-            g.HUGO_GENE_SYMBOL,
-            g.TYPE AS GENE_TYPE
+            ga.values AS values,
+            ga.genetic_entity_id AS genetic_entity_id,
+            ge.stable_id AS genetic_entity_stable_id,
+            ge.entity_type AS genetic_entity_type,
+            g.entrez_gene_id AS entrez_gene_id,
+            g.hugo_gene_symbol AS hugo_gene_symbol,
+            g.type AS gene_type
         FROM genetic_alteration ga
-        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID
-        JOIN genetic_entity ge ON ge.ID = ga.GENETIC_ENTITY_ID
-        LEFT JOIN gene g ON g.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
-        WHERE gp.STABLE_ID = #{molecularProfileStableId}
-        ORDER BY ga.GENETIC_ENTITY_ID
+        JOIN genetic_profile gp ON gp.genetic_profile_id = ga.genetic_profile_id
+        JOIN genetic_entity ge ON ge.id = ga.genetic_entity_id
+        LEFT JOIN gene g ON g.genetic_entity_id = ga.genetic_entity_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
+        ORDER BY ga.genetic_entity_id
     </select>
     <resultMap id="GeneticEntityPropertyResultMap" type="org.cbioportal.application.file.model.GenericEntityProperty">
-        <id column="ID"/>
-        <result property="geneticEntityId" column="GENETIC_ENTITY_ID"/>
-        <result property="name" column="NAME"/>
-        <result property="value" column="VALUE"/>
+        <id column="id"/>
+        <result property="geneticEntityId" column="genetic_entity_id"/>
+        <result property="name" column="name"/>
+        <result property="value" column="value"/>
     </resultMap>
     <select id="getGenericEntityMetaProperties" resultMap="GeneticEntityPropertyResultMap"
             resultSetType="FORWARD_ONLY">
         SELECT
-            gep.GENETIC_ENTITY_ID,
-            gep.NAME,
-            gep.VALUE
+            gep.genetic_entity_id AS genetic_entity_id,
+            gep.name AS name,
+            gep.value AS value
         FROM generic_entity_properties gep
-        JOIN genetic_alteration ga ON ga.GENETIC_ENTITY_ID = gep.GENETIC_ENTITY_ID
-        JOIN genetic_profile gp ON gp.GENETIC_PROFILE_ID = ga.GENETIC_PROFILE_ID
-        WHERE gp.STABLE_ID = #{molecularProfileStableId}
-        ORDER BY gep.GENETIC_ENTITY_ID
+        JOIN genetic_alteration ga ON ga.genetic_entity_id = gep.genetic_entity_id
+        JOIN genetic_profile gp ON gp.genetic_profile_id = ga.genetic_profile_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
+        ORDER BY gep.genetic_entity_id
     </select>
     <select id="getDistinctGenericEntityMetaPropertyNames" resultType="java.lang.String">
         SELECT DISTINCT
-            gep.NAME
+            gep.name
         FROM genetic_profile gp
-        JOIN genetic_alteration ga ON ga.GENETIC_PROFILE_ID = gp.GENETIC_PROFILE_ID
-        JOIN generic_entity_properties gep ON gep.GENETIC_ENTITY_ID = ga.GENETIC_ENTITY_ID
-        WHERE gp.STABLE_ID = #{molecularProfileStableId}
+        JOIN genetic_alteration ga ON ga.genetic_profile_id = gp.genetic_profile_id
+        JOIN generic_entity_properties gep ON gep.genetic_entity_id = ga.genetic_entity_id
+        WHERE gp.stable_id = #{molecularProfileStableId}
+        ORDER BY gep.name
     </select>
 </mapper>

@@ -6,13 +6,12 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Profile("clickhouse")
 public class ClickhouseGenericAssayRepository implements GenericAssayRepository {
 
   private final ClickhouseGenericAssayMapper mapper;
@@ -45,5 +44,21 @@ public class ClickhouseGenericAssayRepository implements GenericAssayRepository 
       StudyViewFilterContext studyViewFilterContext,
       List<GenericAssayDataFilter> genericAssayDataFilters) {
     return mapper.getGenericAssayDataCounts(studyViewFilterContext, genericAssayDataFilters);
+  }
+
+  @Override
+  public List<String> getGenericAssayStableIdsByProfileIds(List<String> molecularProfileIds) {
+    return mapper.getGenericAssayStableIdsByProfileIds(molecularProfileIds);
+  }
+
+  @Override
+  public List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds) {
+    return mapper.getGenericAssayMetaByStableIds(stableIds);
+  }
+
+  @Override
+  public List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds) {
+    return mapper.getGenericAssayMetaByProfileIds(profileIds, stableIds);
   }
 }

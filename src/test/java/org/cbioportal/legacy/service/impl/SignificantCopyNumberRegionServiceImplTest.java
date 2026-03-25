@@ -60,7 +60,7 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
   @Test(expected = StudyNotFoundException.class)
   public void getSignificantCopyNumberRegionsStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     significantCopyNumberRegionService.getSignificantCopyNumberRegions(
         STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
   }
@@ -81,7 +81,7 @@ public class SignificantCopyNumberRegionServiceImplTest extends BaseServiceImplT
   @Test(expected = StudyNotFoundException.class)
   public void getMetaSignificantCopyNumberRegionsStudyNotFound() throws Exception {
 
-    Mockito.when(studyService.getStudy(STUDY_ID)).thenThrow(new StudyNotFoundException(STUDY_ID));
+    Mockito.doThrow(new StudyNotFoundException(STUDY_ID)).when(studyService).studyExists(STUDY_ID);
     significantCopyNumberRegionService.getMetaSignificantCopyNumberRegions(STUDY_ID);
   }
 }

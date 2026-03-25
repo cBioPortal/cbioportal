@@ -214,7 +214,9 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
                 Collections.singleton(MOLECULAR_PROFILE_ID), "SUMMARY"))
         .thenReturn(Arrays.asList(molecularProfile));
 
-    Mockito.when(genePanelRepository.fetchGenePanelDataByMolecularProfileId(MOLECULAR_PROFILE_ID))
+    Mockito.when(
+            genePanelRepository.fetchGenePanelDataByMolecularProfileIds(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
         .thenReturn(genePanelDataList);
 
     List<GenePanelData> result =
@@ -268,7 +270,9 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     profileCaseIdentifier3.setCaseId(SAMPLE_ID3);
     molecularProfileSampleIdentifiers.add(profileCaseIdentifier3);
 
-    Mockito.when(genePanelRepository.fetchGenePanelDataByMolecularProfileId(MOLECULAR_PROFILE_ID))
+    Mockito.when(
+            genePanelRepository.fetchGenePanelDataByMolecularProfileIds(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
         .thenReturn(genePanelDataList);
     Set<String> molecularProfileIds =
         molecularProfileSampleIdentifiers.stream()

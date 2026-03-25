@@ -539,6 +539,8 @@ workflows:
               - build_frontend
               - build_web_and_data_image
         - run_api_tests:
+            context:
+              - clickhouse-public-staging-ro-user
             requires:
               - build_web_image
         - run_security_tests:

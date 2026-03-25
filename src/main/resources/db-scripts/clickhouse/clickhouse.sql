@@ -1,4 +1,4 @@
--- version 1.0.8 of derived table schema and data definition
+-- version 1.0.9 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS sample_derived;
 DROP TABLE IF EXISTS genomic_event_derived;
 DROP TABLE IF EXISTS clinical_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
+DROP TABLE IF EXISTS clinical_event_data_derived;
 DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
 DROP TABLE IF EXISTS mutation_derived;
@@ -16,9 +17,9 @@ DROP TABLE IF EXISTS mutation_derived;
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
 -- this MUST BE RUN prior to creation of any derived table which relies on sample_profile table
-INSERT INTO sample_profile (sample_id, genetic_profile_id, panel_id) 
+INSERT INTO sample_profile (sample_id, genetic_profile_id, panel_id)
 WITH missing_samples AS (
-    -- Select all members of lists of type '_sequenced' (mutation) which do NOT appear in sample_profile table for profiles of type mutation 
+    -- Select all members of lists of type '_sequenced' (mutation) which do NOT appear in sample_profile table for profiles of type mutation
     SELECT
         sample_id,
         cs.cancer_study_identifier AS cancer_study_identifier,
@@ -45,7 +46,7 @@ WITH missing_samples AS (
 SELECT
     ms.sample_id as sample_id,
     gp.genetic_profile_id AS genetic_profile_id,
-    NULL AS panel_id    
+    NULL AS panel_id
 FROM
     missing_samples ms
         JOIN genetic_profile gp ON ms.stable_id=gp.stable_id
@@ -117,7 +118,7 @@ CREATE TABLE sample_derived
         ORDER BY (cancer_study_identifier, sample_unique_id);
 
 INSERT INTO sample_derived
-WITH 
+WITH
     sequenced_samples AS (
         SELECT
             sample.stable_id
@@ -285,8 +286,6 @@ FROM structural_variant sv
          LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
          LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
 
-
-
 INSERT INTO genomic_event_derived
 -- Insert Structural Variants Site2
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
@@ -372,7 +371,37 @@ FROM patient AS p
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
+-- Creates and populates clinical_event_derived with a primary key for Clickhouse-only (original clinical_event table remains unchanged)
 CREATE TABLE clinical_event_derived
+(
+    `clinical_event_id` Int64,
+    `patient_id` Nullable(Int64),
+    `patient_stable_id` String,
+    `start_date` Nullable(Int64),
+    `stop_date` Nullable(Int64),
+    `event_type` LowCardinality(String),
+    `cancer_study_identifier` LowCardinality(String)
+)
+    ENGINE = MergeTree()
+PRIMARY KEY (cancer_study_identifier, event_type, clinical_event_id)
+ORDER BY (cancer_study_identifier, event_type, clinical_event_id)
+SETTINGS index_granularity = 8192;
+
+-- Copy the data
+INSERT INTO clinical_event_derived
+SELECT
+    ce.clinical_event_id,
+    ce.patient_id,
+    p.stable_id AS patient_stable_id,
+    ce.start_date,
+    ce.stop_date,
+    ce.event_type,
+    cs.cancer_study_identifier
+FROM clinical_event ce
+    INNER JOIN patient p ON ce.patient_id = p.internal_id
+    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+
+CREATE TABLE clinical_event_data_derived
 (
     patient_unique_id String,
     key String,
@@ -385,7 +414,7 @@ CREATE TABLE clinical_event_derived
 ENGINE = MergeTree
     ORDER BY (cancer_study_identifier, event_type, patient_unique_id);
 
-INSERT INTO clinical_event_derived
+INSERT INTO clinical_event_data_derived
 SELECT
     concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
     ced.key AS key,
@@ -506,8 +535,6 @@ FROM
         JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
         JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
 
-
-
 DROP TABLE IF EXISTS mutation_derived;
 CREATE TABLE mutation_derived
 (
@@ -614,14 +641,10 @@ FROM mutation
          INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
          LEFT JOIN allele_specific_copy_number ON (mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id) AND (mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id) AND (mutation.sample_id = allele_specific_copy_number.sample_id);
 
-
-
-
 -- START: PRIMARY KEY ADDITIONS
 -- THE FOLLOWING SCRIPTS EXIST TO ADD PRIMARY KEYS TO LEGACY TABLES THAT ARE MISSING THEM.  YOU
 -- CANNOT CHANGE THE PRIMARY KEY ON A TABLE IN CLICKHOUSE, SO WE NEED TO CREATE A NEW TABLE WITH THE
 -- PRIMARY KEY AND THEN COPY THE DATA OVER.
-
 
 --Adds primary key to the sample_cna_event table for Clickhouse-only
 DROP TABLE IF EXISTS sample_cna_event_BACKUP;
@@ -689,7 +712,6 @@ SELECT * FROM mutation;
 -- switch the tables
 EXCHANGE TABLES mutation_BACKUP AND mutation;
 
-
 -- Adds primary key genetic_alteration table for Clickhouse-only
 DROP TABLE IF EXISTS genetic_alteration_BACKUP;
 CREATE TABLE genetic_alteration_BACKUP
@@ -707,40 +729,6 @@ SELECT * FROM genetic_alteration;
 
 -- SWITCH THE TABLES
 EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
-
--- Adds primary key to the clinical_event table for Clickhouse-only
-DROP TABLE IF EXISTS clinical_event_BACKUP;
-CREATE TABLE clinical_event_BACKUP
-(
-    `clinical_event_id` Int64,
-    `patient_id` Nullable(Int64),
-    `patient_stable_id` String,
-    `start_date` Nullable(Int64),
-    `stop_date` Nullable(Int64),
-    `event_type` LowCardinality(String),
-    `cancer_study_identifier` LowCardinality(String)
-)
-    ENGINE = MergeTree()
-PRIMARY KEY (cancer_study_identifier, event_type, clinical_event_id)
-ORDER BY (cancer_study_identifier, event_type, clinical_event_id)
-SETTINGS index_granularity = 8192;
-
--- Copy the data
-INSERT INTO clinical_event_BACKUP
-SELECT
-    ce.clinical_event_id,
-    ce.patient_id,
-    p.stable_id AS patient_stable_id,
-    ce.start_date,
-    ce.stop_date,
-    ce.event_type,
-    cs.cancer_study_identifier
-FROM clinical_event ce
-    INNER JOIN patient p ON ce.patient_id = p.internal_id
-    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
-
--- SWITCH THE TABLES
-EXCHANGE TABLES clinical_event_BACKUP AND clinical_event;
 
 --END: PRIMARY KEY ADDITIONS
 
@@ -790,6 +778,7 @@ OPTIMIZE TABLE sample_derived;
 OPTIMIZE TABLE genomic_event_derived;
 OPTIMIZE TABLE clinical_data_derived;
 OPTIMIZE TABLE clinical_event_derived;
+OPTIMIZE TABLE clinical_event_data_derived;
 OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;
 OPTIMIZE TABLE generic_assay_profile_entity_derived;

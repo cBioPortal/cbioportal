@@ -574,7 +574,7 @@
         SELECT
             event_type as eventType,
             count(DISTINCT patient_unique_id) as count
-        FROM clinical_event_derived
+        FROM clinical_event_data_derived
         <where>
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
@@ -591,7 +591,7 @@
             patient_unique_id IN (
                 SELECT
                     patient_unique_id
-                FROM clinical_event_derived
+                FROM clinical_event_data_derived
                 <where>
                     lower(event_type) = 'treatment'
                     AND key = 'AGENT'
@@ -614,7 +614,7 @@
         SELECT
         value AS treatment,
         count(DISTINCT patient_unique_id) AS count
-        FROM clinical_event_derived
+        FROM clinical_event_data_derived
         <where>
             lower(event_type) = 'treatment'
             AND key = 'AGENT'
@@ -628,18 +628,18 @@
 
     <select id="getTotalSampleTreatmentCounts" resultType="int">
         SELECT
-            count(distinct ced.value) AS totalSamples
-        FROM clinical_event_derived ced
+            count(distinct cedd.value) AS totalSamples
+        FROM clinical_event_data_derived cedd
         <where>
             AND key = 'SAMPLE_ID'
             AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             AND
-            concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            concat(cedd.cancer_study_identifier, '_', cedd.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
             patient_unique_id IN (
             SELECT
                 patient_unique_id
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
             <where>
                 lower(event_type) = 'treatment'
                 AND key = 'AGENT'
@@ -664,16 +664,16 @@
         <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->
         WITH sample_acquisition_events AS (
             SELECT
-                ced.value AS sample_id,
-                ced.patient_unique_id,
-                min(ced.start_date) AS time_taken,
-                ced.cancer_study_identifier AS cancer_study_identifier
-            FROM clinical_event_derived ced
+                cedd.value AS sample_id,
+                cedd.patient_unique_id,
+                min(cedd.start_date) AS time_taken,
+                cedd.cancer_study_identifier AS cancer_study_identifier
+            FROM clinical_event_data_derived cedd
             <where>
                 key = 'SAMPLE_ID'
                 AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
             </where>
-            GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+            GROUP BY patient_unique_id, cedd.value, cancer_study_identifier
         ),
         <!-- Nested sub query to grab minimum treatment event. When there are multiple treatments that are of the same
         type we only care about the first treatment.
@@ -683,7 +683,7 @@
                 patient_unique_id,
                 value AS treatment,
                 argMin(start_date, start_date) AS treatment_time_taken
-            FROM clinical_event_derived
+            FROM clinical_event_data_derived
             <where>
                 lower(event_type) = 'treatment'
                 AND key = 'AGENT'
@@ -691,13 +691,13 @@
             GROUP BY patient_unique_id, value
         )
         SELECT
-            countIf(ced.sample_id,ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
-            countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
+            countIf(sae.sample_id,sae.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
+            countIf(sae.sample_id, sae.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
             treatments.treatment AS treatment
-        FROM sample_acquisition_events ced
-            INNER JOIN treatments ON treatments.patient_unique_id = ced.patient_unique_id
+        FROM sample_acquisition_events sae
+            INNER JOIN treatments ON treatments.patient_unique_id = sae.patient_unique_id
         <where>
-            concat(ced.cancer_study_identifier, '_', ced.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
+            concat(sae.cancer_study_identifier, '_', sae.sample_id) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
         GROUP BY treatments.treatment
     </select>
@@ -837,7 +837,7 @@
     <!--
         Abstraction for StudyViewFilter. Currently, we have many ch tables that have both
         sample_unique_id and patient_unique_id. Also, we have some edges cases were tables only have patient_unique_id
-        or sample_unique_id (i.e. clinical_event_derived). This forces the filtering (where clause) to convert the
+        or sample_unique_id (i.e. clinical_event_data_derived). This forces the filtering (where clause) to convert the
         patient_unique_id(s) to a list of sample_unique_id(s). So we have three separate modes:
 
         SAMPLE_ID_ONLY - Forces all filters that use patient_unique_ids to be converted to list of sample_unique_id(s) and

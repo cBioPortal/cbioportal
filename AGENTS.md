@@ -39,6 +39,13 @@ Controllers serving only public/reference data do not need authorization. These 
 - `IndexPageController` / `LoginPageController` — UI pages
 - `PublicVirtualStudiesController` — explicitly public
 
+The following controllers have known authorization gaps that are tracked as TODOs:
+- `MutationCountController` — returns aggregate mutation counts across all studies with no study IDs in the request or response; `@PostFilter` is not applicable; authorization approach needs further investigation
+- `MskEntityTranslationController` — accesses study-specific data but lacks `@PreAuthorize`; currently allowed in the ArchUnit test to avoid breaking the build
+- `GenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
+- `ColumnStoreGenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
+- `ColumnStoreStudyController` — serves study data without per-study authorization; currently allowed in the ArchUnit test to avoid breaking the build
+
 Any new exception must be documented here with a justification.
 
 ### Enforcement

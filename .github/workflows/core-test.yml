@@ -2,7 +2,7 @@ name: Core tests
 
 on:
   push:
-  pull_request_target:
+  pull_request:
   workflow_dispatch:
     inputs:
       ref:
@@ -11,7 +11,6 @@ on:
         default: 'master'
 
 permissions:
-      id-token: write   # This is required for requesting the JWT
       contents: read    # This is required for actions/checkout
 
 jobs:
@@ -26,9 +25,6 @@ jobs:
         ports:
           - 3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
-    env:
-      TEST_DB_CLICKHOUSE_PASSWORD: ${{ secrets.TEST_DB_CLICKHOUSE_PASSWORD }}
-      TEST_DB_MYSQL_PASSWORD: ${{ secrets.TEST_DB_MYSQL_PASSWORD }}
     steps:
       - name: 'Checkout cbioportal repo'
         uses: actions/checkout@v2
@@ -83,7 +79,7 @@ jobs:
 #        working-directory: ./cbioportal
 #        run: |
 #          mvn verify -Pintegration-test
-      - name: 'Run e2e tests separately'
-        working-directory: ./cbioportal
-        run: |
-          mvn verify -Pe2e-test
+#      - name: 'Run e2e tests separately'
+#        working-directory: ./cbioportal
+#        run: |
+#          mvn verify -Pe2e-test

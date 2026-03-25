@@ -1,6 +1,5 @@
 package org.cbioportal.legacy.web;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @PublicApi
 @RestController()
@@ -37,12 +35,9 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class GenericAssayController {
 
   private final GenericAssayService genericAssayService;
-  private final ObjectMapper objectMapper;
 
-  public GenericAssayController(
-      GenericAssayService genericAssayService, ObjectMapper objectMapper) {
+  public GenericAssayController(GenericAssayService genericAssayService) {
     this.genericAssayService = genericAssayService;
-    this.objectMapper = objectMapper;
   }
 
   // PreAuthorize is removed for performance reason
@@ -57,7 +52,7 @@ public class GenericAssayController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
-  public ResponseEntity<StreamingResponseBody> fetchGenericAssayMeta(
+  public ResponseEntity<List<GenericAssayMeta>> fetchGenericAssayMeta(
       @Parameter(required = true, description = "List of Molecular Profile ID or List of Stable ID")
           @Valid
           @RequestBody
@@ -97,7 +92,7 @@ public class GenericAssayController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
-  public ResponseEntity<StreamingResponseBody> getGenericAssayMeta(
+  public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta(
       @Parameter(required = true, description = "Molecular Profile ID") @PathVariable
           String molecularProfileId,
       @Parameter(description = "Level of detail of the response")
@@ -119,7 +114,7 @@ public class GenericAssayController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
-  public ResponseEntity<StreamingResponseBody> getGenericAssayMetaByStableId(
+  public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMetaByStableId(
       @Parameter(required = false, description = "Generic Assay stable ID") @PathVariable
           String genericAssayStableId,
       @Parameter(description = "Level of detail of the response")
@@ -131,9 +126,7 @@ public class GenericAssayController {
             Arrays.asList(genericAssayStableId), null, projection.name()));
   }
 
-  private ResponseEntity<StreamingResponseBody> streamJson(List<GenericAssayMeta> data) {
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(outputStream -> objectMapper.writeValue(outputStream, data));
+  private ResponseEntity<List<GenericAssayMeta>> streamJson(List<GenericAssayMeta> data) {
+    return ResponseEntity.ok(data);
   }
 }

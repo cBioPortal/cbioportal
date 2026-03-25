@@ -200,7 +200,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
-  public void getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmpNoPagingNormalizesPageNumber()
+  public void
+      getDiscreteCopyNumbersInMolecularProfileBySampleListIdHomdelOrAmpNoPagingNormalizesPageNumber()
       throws Exception {
 
     createMolecularProfile();
@@ -471,7 +472,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
-  public void fetchDiscreteCopyNumbersInMolecularProfileNonDiploidPagedUsesSqlPath() throws Exception {
+  public void fetchDiscreteCopyNumbersInMolecularProfileNonDiploidPagedUsesSqlPath()
+      throws Exception {
 
     createMolecularProfile();
 
@@ -535,7 +537,8 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
-  public void fetchMetaDiscreteCopyNumbersInMolecularProfileNonDiploidUsesSqlPath() throws Exception {
+  public void fetchMetaDiscreteCopyNumbersInMolecularProfileNonDiploidUsesSqlPath()
+      throws Exception {
 
     createMolecularProfile();
 

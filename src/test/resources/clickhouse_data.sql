@@ -43,6 +43,9 @@ insert into genetic_entity (id,entity_type,stable_id) values (28,'generic_assay'
 insert into genetic_entity (id,entity_type,stable_id) values (29,'generic_assay','mean_2');
 insert into genetic_entity (id,entity_type,stable_id) values (30,'GENERIC_ASSAY','1p_status');
 insert into genetic_entity (id,entity_type,stable_id) values (31,'GENERIC_ASSAY','DMETS_DX_ADRENAL');
+insert into genetic_entity (id,entity_type,stable_id) values (32,'GENERIC_ASSAY','2p_status');
+insert into genetic_entity (id,entity_type,stable_id) values (33,'GENERIC_ASSAY','9p_status');
+insert into genetic_entity (id,entity_type,stable_id) values (34,'GENERIC_ASSAY','10p_status');
 
 -- hugo_gene_symbol should be UPPERCASE
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(207,'AKT1',1,'protein-coding');
@@ -598,6 +601,9 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Loss,Gain,Unchanged,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (19,31,'No,NA,NA,NA,NA,NA,No,NA,NA,NA,No,No,NA,NA,NA,NA,NA,No,NA,No,No,NA,No,No,Yes,NA,No,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);

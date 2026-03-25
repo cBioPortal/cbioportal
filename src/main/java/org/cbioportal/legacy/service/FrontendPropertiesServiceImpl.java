@@ -169,7 +169,9 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     sessionServiceEnabled("session.service.url", ""),
     frontendUrl("frontend.url", null),
     skin_hide_download_controls("skin.hide_download_controls", "show"),
+    skin_hide_clinical_data_tab_study_view("skin.hide_clinical_data_tab_study_view", "false"),
     study_download_url("study_download_url", "https://datahub.assets.cbioportal.org/"),
+
     enable_cross_study_expression("enable_cross_study_expression", ""),
     studyview_max_samples_selected("studyview.max_samples_selected", null),
     skin_home_page_show_reference_genome("skin.home_page.show_reference_genome", null),

@@ -68,26 +68,26 @@ jobs:
       - name: 'Create application.properties'
         run: |
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
-      - name: Build and analyze (push)
+      - name: 'Add host.testcontainers.internal to /etc/hosts'
+        run: |
+            echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
+      - name: Build, collect coverage and analyze (push)
         if: github.event_name == 'push'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
-      - name: Build and analyze (pull request)
+        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+      - name: Build, collect coverage and analyze (pull request)
         if: github.event_name == 'workflow_run'
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mvn clean install verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.number }} \
             -Dsonar.pullrequest.branch=${{ steps.pr-info.outputs.head-ref }} \
             -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }} \
             -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}
-      - name: 'Add host.testcontainers.internal to /etc/hosts'
-        run: |
-            echo "127.0.0.1 host.testcontainers.internal" | sudo tee -a /etc/hosts
 #     TODO: decide if we want to keep this in the future, or remove it entirely
 #      - name: 'Run integration tests'
 #        run: |
@@ -95,20 +95,3 @@ jobs:
 #      - name: 'Run e2e tests'
 #        run: |
 #          mvn verify -Pe2e-test
-      - name: Code Coverage (push)
-        if: github.event_name == 'push'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn sonar:sonar -Pcoverage
-      - name: Code Coverage (pull request)
-        if: github.event_name == 'workflow_run'
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mvn sonar:sonar -Pcoverage \
-            -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.number }} \
-            -Dsonar.pullrequest.branch=${{ steps.pr-info.outputs.head-ref }} \
-            -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }} \
-            -Dsonar.scm.revision=${{ github.event.workflow_run.head_sha }}

@@ -41,7 +41,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
-    if (isHomdelOrAmpOnly(alterationTypes)) {
+    if (canUseSqlRepository(alterationTypes)) {
       Integer normalizedPageNumber = normalizePageNumber(pageSize, pageNumber);
 
       return discreteCopyNumberRepository.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -74,7 +74,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
-    if (isHomdelOrAmpOnly(alterationTypes)) {
+    if (canUseSqlRepository(alterationTypes)) {
       return discreteCopyNumberRepository
           .getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
               molecularProfileId, sampleListId, entrezGeneIds, alterationTypes);
@@ -105,7 +105,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
-    if (isHomdelOrAmpOnly(alterationTypes)) {
+    if (canUseSqlRepository(alterationTypes)) {
       Integer normalizedPageNumber = normalizePageNumber(pageSize, pageNumber);
       return discreteCopyNumberRepository.fetchDiscreteCopyNumbersInMolecularProfile(
           molecularProfileId,
@@ -188,7 +188,7 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       throws MolecularProfileNotFoundException {
 
     validateMolecularProfile(molecularProfileId);
-    if (isHomdelOrAmpOnly(alterationTypes)) {
+    if (canUseSqlRepository(alterationTypes)) {
       return discreteCopyNumberRepository.fetchMetaDiscreteCopyNumbersInMolecularProfile(
           molecularProfileId, sampleIds, entrezGeneIds, alterationTypes);
     }
@@ -272,6 +272,12 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
     discreteCopyNumberData.setAlteration(Integer.parseInt(molecularData.getValue()));
 
     return discreteCopyNumberData;
+  }
+
+  private boolean canUseSqlRepository(List<Integer> alterationTypes) {
+    // sample_cna_event/cna_event path does not include DIPLOID records.
+    // If DIPLOID is requested, we must use molecular data fallback.
+    return !alterationTypes.contains(0);
   }
 
   private boolean isHomdelOrAmpOnly(List<Integer> alterationTypes) {

@@ -5,9 +5,13 @@ on:
       - master
       - maintenance-v6
   # workflow_run is triggered when sonarcloud-pr-build completes.
-  # Unlike pull_request, workflow_run always runs in the base repo context and
-  # has access to secrets — including from fork PRs — without exposing them to
-  # untrusted code (the workflow file itself comes from the base branch).
+  # workflow_run always runs in the base repo context, so repository secrets
+  # are available even for fork PRs.
+  # Security note: this job checks out the PR head commit and runs the Maven
+  # build, which means untrusted PR code executes with SONAR_TOKEN and
+  # GITHUB_TOKEN present.  The risk is accepted because both tokens have
+  # minimal, read/write-constrained permissions (see the `permissions` block
+  # below) and SonarCloud analysis is the explicit purpose of this workflow.
   workflow_run:
     workflows: ["sonarcloud-pr-build"]
     types:
@@ -17,6 +21,11 @@ jobs:
   build:
     name: sonarcloud
     runs-on: ubuntu-latest
+    permissions:
+      actions: read        # required to download artifacts from the triggering workflow run
+      contents: read       # required to check out the repository
+      statuses: write      # required for SonarCloud to post commit status checks
+      pull-requests: write # required for SonarCloud to post inline PR comments
     if: >-
       github.event_name == 'push' ||
       github.event.workflow_run.conclusion == 'success'

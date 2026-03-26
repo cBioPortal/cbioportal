@@ -1,6 +1,6 @@
 package org.cbioportal.domain.alteration.usecase;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.math3.util.Pair;
@@ -72,7 +72,8 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
    */
   private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(
       List<CopyNumberCountByGene> alterationCounts) {
-    Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new HashMap<>();
+    Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap =
+        new LinkedHashMap<>();
     for (var alterationCount : alterationCounts) {
       var copyNumberKey =
           Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration());
@@ -114,7 +115,7 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
   private Map<Pair<String, Integer>, Gistic> getGisticMap(
       StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
     var distinctStudyIds = getFilteredStudyIdsUseCase.execute(studyViewFilterContext);
-    Map<Pair<String, Integer>, Gistic> gisticMap = new HashMap<>();
+    Map<Pair<String, Integer>, Gistic> gisticMap = new LinkedHashMap<>();
     if (distinctStudyIds.size() == 1) {
       var studyId = distinctStudyIds.getFirst();
       List<Gistic> gisticList =

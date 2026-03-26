@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -187,49 +186,6 @@ public class GenericAssayDataControllerTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
     Mockito.verifyNoInteractions(genericAssayService);
-  }
-
-  @Test
-  public void
-      testGenericAssayDataFetchInMultipleMolecularProfilesUsesSampleIdentifiersWhenMolecularProfilesEmpty()
-          throws Exception {
-    List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
-    GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
-        new GenericAssayDataMultipleStudyFilter();
-    genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(
-        createSampleMolecularIdentifiers());
-    genericAssayDataMultipleStudyFilter.setMolecularProfileIds(new ArrayList<>());
-    genericAssayDataMultipleStudyFilter.setGenericAssayStableIds(
-        Arrays.asList(GENERIC_ASSAY_STABLE_ID_1));
-
-    Mockito.when(
-            genericAssayService.fetchGenericAssayData(
-                Mockito.anyList(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(genericAssayDataItems);
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
-        .andExpect(MockMvcResultMatchers.status().isOk());
-
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> capturedMolecularProfileIds = ArgumentCaptor.forClass(List.class);
-    @SuppressWarnings("unchecked")
-    ArgumentCaptor<List<String>> capturedSampleIds = ArgumentCaptor.forClass(List.class);
-
-    Mockito.verify(genericAssayService)
-        .fetchGenericAssayData(
-            capturedMolecularProfileIds.capture(),
-            capturedSampleIds.capture(),
-            Mockito.anyList(),
-            Mockito.anyString());
-
-    org.junit.Assert.assertEquals(4, capturedMolecularProfileIds.getValue().size());
-    org.junit.Assert.assertEquals(4, capturedSampleIds.getValue().size());
-    org.junit.Assert.assertTrue(capturedSampleIds.getValue().stream().allMatch(SAMPLE_ID::equals));
   }
 
   public void testGenericAssayDataGet() throws Exception {

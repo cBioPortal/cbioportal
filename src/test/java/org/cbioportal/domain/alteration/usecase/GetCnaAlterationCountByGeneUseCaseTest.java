@@ -62,10 +62,7 @@ class GetCnaAlterationCountByGeneUseCaseTest {
   void combineCopyNumberCounts_mergesDuplicates() throws Exception {
     // TP53 appears twice (same hugo+alteration) — counts should be summed
     List<CopyNumberCountByGene> input =
-        List.of(
-            makeCna("TP53", -2, 3, 3),
-            makeCna("KRAS", 2, 10, 10),
-            makeCna("TP53", -2, 4, 4));
+        List.of(makeCna("TP53", -2, 3, 3), makeCna("KRAS", 2, 10, 10), makeCna("TP53", -2, 4, 4));
 
     List<CopyNumberCountByGene> result = invokeCombine(input);
 
@@ -75,10 +72,7 @@ class GetCnaAlterationCountByGeneUseCaseTest {
     assertEquals(7, tp53.getTotalCount());
     assertEquals(7, tp53.getNumberOfAlteredCases());
     CopyNumberCountByGene kras =
-        result.stream()
-            .filter(c -> "KRAS".equals(c.getHugoGeneSymbol()))
-            .findFirst()
-            .orElseThrow();
+        result.stream().filter(c -> "KRAS".equals(c.getHugoGeneSymbol())).findFirst().orElseThrow();
     assertEquals(10, kras.getTotalCount());
   }
 

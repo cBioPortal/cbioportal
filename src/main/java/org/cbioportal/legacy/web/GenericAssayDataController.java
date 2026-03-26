@@ -175,7 +175,7 @@ public class GenericAssayDataController {
           @RequestBody(required = false)
           GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter,
       @Parameter(description = "Level of detail of the response")
-      @RequestParam(defaultValue = "SUMMARY")
+          @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws MolecularProfileNotFoundException {
 

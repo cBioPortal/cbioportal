@@ -149,8 +149,9 @@ public class GenericAssayDataControllerTest {
   }
 
   @Test
-  public void testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsEmpty()
-      throws Exception {
+  public void
+      testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsEmpty()
+          throws Exception {
     GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
         new GenericAssayDataMultipleStudyFilter();
     genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(new ArrayList<>());
@@ -170,8 +171,9 @@ public class GenericAssayDataControllerTest {
   }
 
   @Test
-  public void testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsMissing()
-      throws Exception {
+  public void
+      testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsMissing()
+          throws Exception {
     GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
         new GenericAssayDataMultipleStudyFilter();
     genericAssayDataMultipleStudyFilter.setGenericAssayStableIds(

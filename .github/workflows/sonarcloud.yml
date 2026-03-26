@@ -92,12 +92,16 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ steps.pr-info.outputs.number }}
+          PR_HEAD_REF: ${{ steps.pr-info.outputs.head-ref }}
+          PR_BASE_REF: ${{ steps.pr-info.outputs.base-ref }}
+          PR_HEAD_SHA: ${{ steps.pr-info.outputs.head-sha }}
         run: |
           mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.pullrequest.key=${{ steps.pr-info.outputs.number }} \
-            -Dsonar.pullrequest.branch=${{ steps.pr-info.outputs.head-ref }} \
-            -Dsonar.pullrequest.base=${{ steps.pr-info.outputs.base-ref }} \
-            -Dsonar.scm.revision=${{ steps.pr-info.outputs.head-sha }}
+            -Dsonar.pullrequest.key="$PR_NUMBER" \
+            -Dsonar.pullrequest.branch="$PR_HEAD_REF" \
+            -Dsonar.pullrequest.base="$PR_BASE_REF" \
+            -Dsonar.scm.revision="$PR_HEAD_SHA"
 #     TODO: decide if we want to keep this in the future, or remove it entirely
 #      - name: 'Run integration tests'
 #        run: |

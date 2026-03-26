@@ -184,7 +184,8 @@ public class GenericAssayDataController {
     }
 
     List<GenericAssayData> result;
-    if (interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+    if (!CollectionUtils.isEmpty(
+        interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds())) {
       result =
           filterEmptyGenericAssayData(
               genericAssayService.fetchGenericAssayData(

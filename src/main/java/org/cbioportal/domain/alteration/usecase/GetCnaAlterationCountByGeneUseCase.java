@@ -1,5 +1,7 @@
 package org.cbioportal.domain.alteration.usecase;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +88,13 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
         alterationCountByGeneMap.put(copyNumberKey, alterationCount);
       }
     }
-    return alterationCountByGeneMap.values().stream().toList();
+    return alterationCountByGeneMap.values().stream()
+        .sorted(
+            Comparator.comparing(
+                    CopyNumberCountByGene::getTotalCount, Comparator.reverseOrder())
+                .thenComparing(CopyNumberCountByGene::getHugoGeneSymbol)
+                .thenComparing(CopyNumberCountByGene::getAlteration))
+        .toList();
   }
 
   /**
@@ -115,7 +123,7 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
   private Map<Pair<String, Integer>, Gistic> getGisticMap(
       StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
     var distinctStudyIds = getFilteredStudyIdsUseCase.execute(studyViewFilterContext);
-    Map<Pair<String, Integer>, Gistic> gisticMap = new LinkedHashMap<>();
+    Map<Pair<String, Integer>, Gistic> gisticMap = new HashMap<>();
     if (distinctStudyIds.size() == 1) {
       var studyId = distinctStudyIds.getFirst();
       List<Gistic> gisticList =

@@ -80,6 +80,12 @@ describe('ColumnStoreStudyController E2E Tests', () => {
       }
     });
 
+    // INTENTIONAL FAILURE — demonstrates how a failing test appears in CircleCI Tests tab.
+    // Remove this test once the failure screenshot has been captured.
+    it('DEMO FAILURE: this test is intentionally broken', async () => {
+      expect(1, 'Intentional failure to demonstrate CircleCI test reporting').to.equal(2);
+    });
+
     it('should return data consistent with the list endpoint', async () => {
       // Fetch the same study from both the single and list endpoints
       const singleResponse = await axios.get<CancerStudyMetadataDTO>(

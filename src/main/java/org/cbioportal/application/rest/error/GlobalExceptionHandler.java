@@ -34,6 +34,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -179,8 +180,21 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException ex) {
 
     FieldError fieldError = ex.getBindingResult().getFieldError();
+    if (fieldError != null) {
+      return new ResponseEntity<>(
+          new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
+          HttpStatus.BAD_REQUEST);
+    }
+
+    ObjectError globalError = ex.getBindingResult().getGlobalError();
+    if (globalError != null) {
+      return new ResponseEntity<>(
+          new ErrorResponse(globalError.getObjectName() + " " + globalError.getDefaultMessage()),
+          HttpStatus.BAD_REQUEST);
+    }
+
     return new ResponseEntity<>(
-        new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
+        new ErrorResponse("Request payload failed validation"),
         HttpStatus.BAD_REQUEST);
   }
 

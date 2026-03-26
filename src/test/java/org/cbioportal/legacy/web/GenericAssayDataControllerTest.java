@@ -148,6 +148,46 @@ public class GenericAssayDataControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
   }
 
+  @Test
+  public void testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsEmpty()
+      throws Exception {
+    GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
+        new GenericAssayDataMultipleStudyFilter();
+    genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(new ArrayList<>());
+    genericAssayDataMultipleStudyFilter.setMolecularProfileIds(new ArrayList<>());
+    genericAssayDataMultipleStudyFilter.setGenericAssayStableIds(
+        Arrays.asList(GENERIC_ASSAY_STABLE_ID_1));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(genericAssayService);
+  }
+
+  @Test
+  public void testGenericAssayDataFetchInMultipleMolecularProfilesReturnsBadRequestWhenSelectorsMissing()
+      throws Exception {
+    GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
+        new GenericAssayDataMultipleStudyFilter();
+    genericAssayDataMultipleStudyFilter.setGenericAssayStableIds(
+        Arrays.asList(GENERIC_ASSAY_STABLE_ID_1));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(genericAssayService);
+  }
+
   public void testGenericAssayDataGet() throws Exception {
     List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
     Mockito.when(

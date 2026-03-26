@@ -115,7 +115,7 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
   private Map<Pair<String, Integer>, Gistic> getGisticMap(
       StudyViewFilterContext studyViewFilterContext) throws StudyNotFoundException {
     var distinctStudyIds = getFilteredStudyIdsUseCase.execute(studyViewFilterContext);
-    Map<Pair<String, Integer>, Gistic> gisticMap = new HashMap<>();
+    Map<Pair<String, Integer>, Gistic> gisticMap = new LinkedHashMap<>();
     if (distinctStudyIds.size() == 1) {
       var studyId = distinctStudyIds.getFirst();
       List<Gistic> gisticList =

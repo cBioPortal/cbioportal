@@ -1,6 +1,5 @@
 package org.cbioportal.domain.alteration.usecase;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -88,13 +87,7 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
         alterationCountByGeneMap.put(copyNumberKey, alterationCount);
       }
     }
-    return alterationCountByGeneMap.values().stream()
-        .sorted(
-            Comparator.comparing(
-                    CopyNumberCountByGene::getTotalCount, Comparator.reverseOrder())
-                .thenComparing(CopyNumberCountByGene::getHugoGeneSymbol)
-                .thenComparing(CopyNumberCountByGene::getAlteration))
-        .toList();
+    return alterationCountByGeneMap.values().stream().toList();
   }
 
   /**

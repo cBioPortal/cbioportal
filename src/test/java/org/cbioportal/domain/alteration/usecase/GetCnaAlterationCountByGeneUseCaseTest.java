@@ -59,36 +59,8 @@ class GetCnaAlterationCountByGeneUseCaseTest {
   }
 
   @Test
-  void combineCopyNumberCounts_sortsByTotalCountDesc() throws Exception {
-    List<CopyNumberCountByGene> input =
-        List.of(
-            makeCna("KRAS", 2, 5, 5),
-            makeCna("TP53", -2, 10, 10),
-            makeCna("BRCA1", 2, 3, 3));
-
-    List<CopyNumberCountByGene> result = invokeCombine(input);
-
-    assertEquals(3, result.size());
-    assertEquals("TP53", result.get(0).getHugoGeneSymbol());
-    assertEquals("KRAS", result.get(1).getHugoGeneSymbol());
-    assertEquals("BRCA1", result.get(2).getHugoGeneSymbol());
-  }
-
-  @Test
-  void combineCopyNumberCounts_sortsByHugoSymbolAscOnTie() throws Exception {
-    List<CopyNumberCountByGene> input =
-        List.of(makeCna("TP53", -2, 5, 5), makeCna("BRCA1", 2, 5, 5));
-
-    List<CopyNumberCountByGene> result = invokeCombine(input);
-
-    assertEquals(2, result.size());
-    assertEquals("BRCA1", result.get(0).getHugoGeneSymbol());
-    assertEquals("TP53", result.get(1).getHugoGeneSymbol());
-  }
-
-  @Test
-  void combineCopyNumberCounts_mergesDuplicatesAndSorts() throws Exception {
-    // TP53 appears twice (same hugo+alteration) — counts should be summed then sorted
+  void combineCopyNumberCounts_mergesDuplicates() throws Exception {
+    // TP53 appears twice (same hugo+alteration) — counts should be summed
     List<CopyNumberCountByGene> input =
         List.of(
             makeCna("TP53", -2, 3, 3),
@@ -98,25 +70,26 @@ class GetCnaAlterationCountByGeneUseCaseTest {
     List<CopyNumberCountByGene> result = invokeCombine(input);
 
     assertEquals(2, result.size());
-    // KRAS stays first (totalCount=10), merged TP53 comes second (totalCount=7)
-    assertEquals("KRAS", result.get(0).getHugoGeneSymbol());
-    assertEquals(10, result.get(0).getTotalCount());
-    assertEquals("TP53", result.get(1).getHugoGeneSymbol());
-    assertEquals(7, result.get(1).getTotalCount());
-    assertEquals(7, result.get(1).getNumberOfAlteredCases());
+    CopyNumberCountByGene tp53 =
+        result.stream().filter(c -> "TP53".equals(c.getHugoGeneSymbol())).findFirst().orElseThrow();
+    assertEquals(7, tp53.getTotalCount());
+    assertEquals(7, tp53.getNumberOfAlteredCases());
+    CopyNumberCountByGene kras =
+        result.stream()
+            .filter(c -> "KRAS".equals(c.getHugoGeneSymbol()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(10, kras.getTotalCount());
   }
 
   @Test
-  void combineCopyNumberCounts_sortsByAlterationAscOnFullTie() throws Exception {
-    // Same hugo+different alteration, same totalCount and hugo symbol → sort by alteration
+  void combineCopyNumberCounts_preservesNonDuplicates() throws Exception {
     List<CopyNumberCountByGene> input =
-        List.of(makeCna("TP53", 2, 5, 5), makeCna("TP53", -2, 5, 5));
+        List.of(makeCna("KRAS", 2, 5, 5), makeCna("TP53", -2, 10, 10));
 
     List<CopyNumberCountByGene> result = invokeCombine(input);
 
     assertEquals(2, result.size());
-    assertEquals(-2, result.get(0).getAlteration());
-    assertEquals(2, result.get(1).getAlteration());
   }
 
   @Test

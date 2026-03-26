@@ -24,7 +24,7 @@
                 AND
             </if>
             lower(event_type) = 'treatment'
-            AND key = 'AGENT'
+            AND `key` = 'AGENT'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
         </where>
@@ -49,7 +49,7 @@
                     AND
                 </if>
                 lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                AND `key` = 'AGENT'
                 AND
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
             </where>
@@ -69,8 +69,8 @@
                 </foreach>
                 AND
             </if>
-            (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
-            AND key = 'SAMPLE_ID'
+            (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
+            AND `key` = 'SAMPLE_ID'
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
             AND
@@ -87,7 +87,7 @@
                     AND
                 </if>
                 lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                AND `key` = 'AGENT'
                 AND
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
             </where>
@@ -120,8 +120,8 @@
                 </foreach>
                 AND
             </if>
-            (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
-            AND key = 'SAMPLE_ID'
+            (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
+            AND `key` = 'SAMPLE_ID'
         </where>
         GROUP BY patient_unique_id, ced.value, cancer_study_identifier
     </sql>
@@ -141,7 +141,7 @@
                 AND
             </if>
             lower(event_type) = 'treatment'
-            AND key = 'AGENT'
+            AND `key` = 'AGENT'
         </where>
         GROUP BY patient_unique_id, value
     </sql>

@@ -43,7 +43,7 @@
             gp.genetic_alteration_type = #{alterationType}
             <!-- Currently we only look at CNA dataType Discrete -->
             AND gp.datatype != 'CONTINUOUS'
-            AND cancer_study.cancer_study_identifier IN (unique_study_ids);
+            AND cancer_study.cancer_study_identifier IN (SELECT cancer_study_identifier FROM unique_study_ids)
         </where>
     </select>
 
@@ -54,14 +54,14 @@
         SELECT
         concat(entity_stable_id, profile_type) AS attributeId,
         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-            <property name="attribute_value" value="value"/>
+            <property name="attribute_value" value="`value`"/>
         </include> AS value,
-        cast(count(value) as INTEGER) AS count
+        cast(count(`value`) as INTEGER) AS count
         FROM generic_assay_data_derived
         <where>
             <!-- Need to ensure no NA values -->
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
             </include> != 'NA' AND
             profile_type = #{profileType} AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
@@ -69,7 +69,7 @@
                 entity_stable_id = #{genericAssayDataBinFilter.stableId}
             </foreach>
         </where>
-        GROUP BY entity_stable_id, profile_type, value
+        GROUP BY entity_stable_id, profile_type, `value`
         ),
         generic_assay_sum AS (
         SELECT
@@ -85,7 +85,7 @@
         SELECT
         coalesce((SELECT attributeId FROM generic_assay_sum LIMIT 1), concat(#{genericAssayDataBinFilters[0].stableId}, #{profileType})) as attributeId,
         'NA' as value,
-        cast(((SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
+        cast(((<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
@@ -93,13 +93,13 @@
         WITH generic_assay_query AS (
         SELECT
         entity_stable_id AS stableId,
-        value,
+        `value`,
         cast(count(distinct patient_unique_id) AS INTEGER) AS count
         FROM generic_assay_data_derived
         <where>
             <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
             </include> != 'NA' AND
             profile_type = #{profileType} AND
             <include
@@ -108,7 +108,7 @@
                 entity_stable_id = #{genericAssayDataFilter.stableId}
             </foreach>
         </where>
-        GROUP BY entity_stable_id, value
+        GROUP BY entity_stable_id, `value`
         ),
         generic_assay_data_sum AS (
         SELECT
@@ -126,9 +126,9 @@
         coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
         'NA' as value,
         cast((
-        multiIf(
+        IF(
         (
-        SELECT count() > 0
+        SELECT COUNT(*) > 0
         FROM genetic_profile
         WHERE
         patient_level = 1
@@ -140,8 +140,8 @@
             </foreach>
         </if>
         ),
-        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>)),
-        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>))
+        (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>),
+        (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>)
         )
         - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
         as INTEGER) as count

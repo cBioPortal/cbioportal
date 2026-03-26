@@ -202,7 +202,7 @@
         cs.public as "patient.cancerStudy.publicStudy",
         cs.pmid as "patient.cancerStudy.pmid",
         cs.citation as "patient.cancerStudy.citation",
-        cs.groups as "patient.cancerStudy.groups",
+        cs.`groups` as "patient.cancerStudy.groups",
         cs.status as "patient.cancerStudy.status",
         cs.import_date as "patient.cancerStudy.importDate",
         rg.name as "patient.cancerStudy.referenceGenome"
@@ -217,30 +217,28 @@
 
     <sql id="filterByCaseAndStudy">
         <where>
-            <bind name="studyIdsArray" value="studyIds != null ? studyIds.toArray(new String[studyIds.size()]) : null" />
-            <bind name="sampleIdsArray" value="sampleIds != null ? sampleIds.toArray(new String[sampleIds.size()]) : null" />
             <if test="sampleIds == null and studyIds != null">
                 sample_derived.cancer_study_identifier IN
                 <if test="studyIds.isEmpty()">
                     (NULL)
                 </if>
                 <if test="!studyIds.isEmpty()">
-                    (#{studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    (<foreach collection="studyIds" item="id" separator=",">#{id}</foreach>)
                 </if>
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
                     sample_derived.cancer_study_identifier = #{studyIds[0]}
                     AND
-                    sample_stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    sample_stable_id IN (<foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>)
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     <bind
                         name="studyAndSampleTuples"
                         value="@org.cbioportal.shared.util.SampleDataFilterUtil@generateStudyAndSampleTuples(studyIds, sampleIds)"
                     />
-                    concat(sample_derived.cancer_study_identifier, '_', sample_stable_id) IN 
-                    (#{studyAndSampleTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    concat(sample_derived.cancer_study_identifier, '_', sample_stable_id) IN
+                    (<foreach collection="studyAndSampleTuples" item="key" separator=",">#{key}</foreach>)
                 </if>
             </if>
             <if test="patientId != null">
@@ -249,7 +247,7 @@
             <if test="keyword != null">
                 AND
                 <foreach item="item" collection="keyword.trim().split(' ')" open="(" separator=") AND (" close=")">
-                    sample_stable_id ILIKE concat('%', #{item}, '%')
+                    LOWER(sample_stable_id) LIKE CONCAT('%', LOWER(#{item}), '%')
                 </foreach>
             </if>
         </where>
@@ -260,7 +258,6 @@
     </sql>
     
     <sql id="filterBySampleListId">
-        <bind name="sampleListIdsArray" value="sampleListIds.toArray(new String[sampleListIds.size()])" />
         WHERE sample_derived.internal_id IN
         (
         SELECT
@@ -268,7 +265,7 @@
         FROM sample_list_list
             INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
         WHERE sample_list.stable_id IN
-            (#{sampleListIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            (<foreach collection="sampleListIds" item="id" separator=",">#{id}</foreach>)
         )
     </sql>
 
@@ -280,7 +277,7 @@
             ORDER BY sample_stable_id ASC
         </if>
         <if test="keyword != null">
-            ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), sample_stable_id
+            ORDER BY IF(LOWER(sample_stable_id) LIKE CONCAT(LOWER(#{keyword}), '%'), 0, 1), sample_stable_id
         </if>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}

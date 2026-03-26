@@ -42,12 +42,8 @@
     </select>
 
     <select id="getGeneticEntityIdsByMolecularProfileInternalIds" resultType="int">
-        SELECT genetic_alteration.genetic_entity_id
-        FROM genetic_alteration
-        <where>
-            genetic_alteration.genetic_profile_id IN
-                <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
-        </where>
+        SELECT CAST(NULL AS INT) AS genetic_entity_id
+        FROM genetic_profile WHERE 1=0
     </select>
 
     <select id="getGenericAssayStableIdsByGeneticEntityIds" resultType="string">

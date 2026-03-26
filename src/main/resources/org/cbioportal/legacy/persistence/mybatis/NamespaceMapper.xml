@@ -28,16 +28,15 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     cancer_study.CANCER_STUDY_IDENTIFIER = #{studyIds[0]} AND
                     sample.STABLE_ID IN (
-                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                     CONCAT(cancer_study.CANCER_STUDY_IDENTIFIER, ':', sample.STABLE_ID) IN (
-                        #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
                     )
                 </if>
             </if>

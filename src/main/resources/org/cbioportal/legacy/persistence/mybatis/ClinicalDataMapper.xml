@@ -65,16 +65,15 @@
             <if test="sampleIds != null">
                 <choose>
                     <when test="studyIds.stream().distinct().count() == 1">
-                        <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         sample.stable_id IN (
-                            #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                            <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
                     <otherwise>
                         <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                            #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                            <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
                         )
                     </otherwise>
                 </choose>
@@ -94,16 +93,15 @@
             <if test="patientIds != null">
                 <choose>
                     <when test="studyIds.stream().distinct().count() == 1">
-                        <bind name="patientArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(patientIds)" />
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         patient.stable_id IN (
-                            #{patientArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                            <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
                     <otherwise>
                         <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
-                            #{patientUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                            <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
                         )
                     </otherwise>
                 </choose>
@@ -338,7 +336,7 @@
             <when test="sortIsPatientAttr">
                 SELECT sample.internal_id sampleInternalId, sample.stable_id sampleId, patient.stable_id patientId, clinical_patient.attr_id sortAttrId,
                 <choose>
-                    <when test="sortAttrIsNumber">toFloat64OrNull(clinical_patient.attr_value) sortAttrValue
+                    <when test="sortAttrIsNumber">TRY_CAST(clinical_patient.attr_value AS DOUBLE) sortAttrValue
                     </when>
                     <otherwise>
                         clinical_patient.attr_value sortAttrValue
@@ -353,7 +351,7 @@
                 SELECT sample.internal_id sampleInternalId, sample.stable_id sampleId, patient.stable_id patientId, clinical_sample.attr_id sortAttrId,
                 <choose>
                     <when test="sortAttrIsNumber">
-                        toFloat64OrNull(clinical_sample.attr_value) sortAttrValue
+                        TRY_CAST(clinical_sample.attr_value AS DOUBLE) sortAttrValue
                     </when>
                     <otherwise>
                         clinical_sample.attr_value sortAttrValue

@@ -30,7 +30,7 @@
             cancer_study.public                  AS "cancerStudy.publicStudy",
             cancer_study.pmid                    AS "cancerStudy.pmid",
             cancer_study.citation                AS "cancerStudy.citation",
-            cancer_study.groups                  AS "cancerStudy.groups",
+            cancer_study.`groups`                AS "cancerStudy.groups",
             cancer_study.status                  AS "cancerStudy.status",
             cancer_study.import_date             AS "cancerStudy.importDate",
             reference_genome.name                AS "cancerStudy.referenceGenome"

@@ -67,7 +67,7 @@
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 (
-                    #{filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    <foreach collection="filteredSampleIdentifiers" item="id" separator=",">#{id}</foreach>
                 )
             </if>
             <if test="studyViewFilterContext.customDataFilters != null and !studyViewFilterContext.customDataFilters.isEmpty() and studyViewFilterContext.customSampleIdentifiers != null">
@@ -197,8 +197,8 @@
                         </foreach>
                         AND
                     </if>
-                    (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
-                    AND key = 'SAMPLE_ID'
+                    (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
+                    AND `key` = 'SAMPLE_ID'
                 </where>
                 GROUP BY patient_unique_id, ced.value, cancer_study_identifier
             ) ced
@@ -207,7 +207,7 @@
                 SELECT
                     patient_unique_id,
                     value AS treatment,
-                    argMin(start_date, start_date) AS treatment_time_taken
+                    MIN(start_date) AS treatment_time_taken
                 FROM clinical_event_derived
                 WHERE
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
@@ -218,7 +218,7 @@
                         AND
                     </if>
                     lower(event_type) = 'treatment'
-                    AND key = 'AGENT'
+                    AND `key` = 'AGENT'
                 GROUP BY patient_unique_id, value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
@@ -285,7 +285,7 @@
                         open="((" separator=") OR (" close="))"
                     >
                         lower(event_type) = 'treatment'
-                        AND key = 'AGENT'
+                        AND `key` = 'AGENT'
                         AND value = #{patientTreatmentFilter.treatment}
                     </foreach>
                 </where>
@@ -310,7 +310,7 @@
                 -->
                 <if test="dataFilterValue.value != null">
                     AND 
-                    ${attribute_value} ILIKE #{dataFilterValue.value}
+                    LOWER(${attribute_value}) LIKE LOWER(#{dataFilterValue.value})
                 </if>
                 <!--
                     Special case: In case null start, end, and value values go through, don't apply filter.
@@ -323,13 +323,13 @@
                     We need to make sure to treat these values as numerical for filtering purposes.
                 -->
                 <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP_LIKE(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP_LIKE(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP_LIKE(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <!--
                     Actual filtering of values that fall within the range of (start, end].
@@ -338,13 +338,12 @@
                 <if test="dataFilterValue.start != null or dataFilterValue.end != null">
                     <choose>
                         <when test="dataFilterValue.start == dataFilterValue.end">
-                            AND abs(
-                                minus(
+                            AND ABS(
+                                (
                                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.castStringValueToFloat">
                                     <property name="attribute_value" value="${attribute_value}"/>
-                                </include>,
-                                cast(#{dataFilterValue.start} as float)
-                                )
+                                </include>)
+                                - cast(#{dataFilterValue.start} as float)
                             ) &lt; exp(-11)
                         </when>
                         <otherwise>
@@ -465,7 +464,7 @@
                 </otherwise>
             </choose>
             WHERE (categorical_clinical_data.attribute_value IS NULL
-                OR empty(categorical_clinical_data.attribute_value)
+                OR categorical_clinical_data.attribute_value = ''
                 OR
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                     <property name="attribute_value" value="categorical_clinical_data.attribute_value"/>
@@ -586,14 +585,14 @@
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
                         (categorical_clinical_data.attribute_value IS NULL
-                        OR empty(categorical_clinical_data.attribute_value)
+                        OR categorical_clinical_data.attribute_value = ''
                         OR
                         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                             <property name="attribute_value" value="categorical_clinical_data.attribute_value"/>
                         </include> = 'NA')
                     </when>
                     <otherwise>
-                        categorical_clinical_data.attribute_value ILIKE #{dataFilterValue.value}
+                        LOWER(categorical_clinical_data.attribute_value) LIKE LOWER(#{dataFilterValue.value})
                     </otherwise>
                 </choose>
             </foreach>
@@ -689,7 +688,7 @@
     </sql>
     
     <sql id="selectAllGenericAssays">
-        SELECT sample_unique_id, patient_unique_id, value, datatype
+        SELECT sample_unique_id, patient_unique_id, `value`, datatype
         FROM generic_assay_data_derived
         WHERE profile_type = #{genericAssayDataFilter.profileType}
             AND entity_stable_id = #{genericAssayDataFilter.stableId}
@@ -716,9 +715,9 @@
             FROM sample_derived sd
                 LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
             WHERE datatype = 'LIMIT-VALUE'
-            AND value IS null OR
+            AND `value` IS null OR
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
+                    <property name="attribute_value" value="`value`"/>
                 </include> = 'NA'
         </if>
         <!-- if both 'NA' and non-NA are selected, union them together -->
@@ -733,11 +732,11 @@
             datatype = 'LIMIT-VALUE'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
             </include> != 'NA'
             AND
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyNumericalDataFilter">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
                 <property name="data_filter_collection" value="genericAssayDataFilter.values"/>
             </include>
         </if>
@@ -761,13 +760,13 @@
             <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
-                        value IS null OR
+                        `value` IS null OR
                         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                            <property name="attribute_value" value="value"/>
+                            <property name="attribute_value" value="`value`"/>
                         </include> = 'NA'
                     </when>
                     <otherwise>
-                        value ILIKE #{dataFilterValue.value}
+                        LOWER(`value`) LIKE LOWER(#{dataFilterValue.value})
                     </otherwise>
                 </choose>
             </foreach>
@@ -881,43 +880,39 @@
                     <!-- NA value samples -->
                     <when test="dataFilterValue.value == 'NA'">alteration_value IS null</when>
                     <!-- non-NA value samples -->
-                    <otherwise>alteration_value == #{dataFilterValue.value}</otherwise>
+                    <otherwise>alteration_value = #{dataFilterValue.value}</otherwise>
                 </choose>
             </foreach>
     </sql>
 
 
     <sql id="castStringValueToFloat">
-        multiIf(
-                   -- This condition is to prevent casting non numerical values to float
-                   NOT match(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$'),
-                   NULL,
-                   (startsWith(${attribute_value}, '&lt;=') OR startsWith(${attribute_value}, '>=')),
-                   cast(substr(${attribute_value}, 3) as float),
-                   startsWith(${attribute_value}, '&lt;'),
-                   cast(substr(${attribute_value}, 2) as float) - exp(-10),
-                   startsWith(${attribute_value}, '>'),
-                   cast(substr(${attribute_value}, 2) as float) + exp(-10),
-                   cast(${attribute_value} as float)
-               )
+        CASE
+            -- This condition is to prevent casting non numerical values to float
+            WHEN NOT REGEXP_LIKE(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$') THEN NULL
+            WHEN (${attribute_value} LIKE '&lt;=%' OR ${attribute_value} LIKE '>=%%') THEN cast(substr(${attribute_value}, 3) as float)
+            WHEN ${attribute_value} LIKE '&lt;%' THEN cast(substr(${attribute_value}, 2) as float) - exp(-10)
+            WHEN ${attribute_value} LIKE '>%' THEN cast(substr(${attribute_value}, 2) as float) + exp(-10)
+            ELSE cast(${attribute_value} as float)
+        END
     </sql>
 
     <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
     <sql id="isAttributeValueNA">
         ${attribute_value}=''
-        OR upperUTF8(${attribute_value})='NA'
-        OR upperUTF8(${attribute_value})='NAN'
-        OR upperUTF8(${attribute_value})='N/A'
+        OR UPPER(${attribute_value})='NA'
+        OR UPPER(${attribute_value})='NAN'
+        OR UPPER(${attribute_value})='N/A'
     </sql>
 
     <sql id="normalizeAttributeValue">
-        multiIf(
+        CASE WHEN
         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.isAttributeValueNA">
             <property name="attribute_value" value="${attribute_value}"/>
-        </include>,
-        'NA',
-        ${attribute_value}
-        )
+        </include>
+        THEN 'NA'
+        ELSE ${attribute_value}
+        END
     </sql>
 
     <sql id="applyStudyViewFilterUsingPatientId">

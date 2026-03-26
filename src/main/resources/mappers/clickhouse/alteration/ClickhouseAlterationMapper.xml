@@ -195,10 +195,10 @@ totalProfiled Count per gene in java.
             <where>ged.mutation_status != 'UNCALLED'
                 <if test="
             molecularProfiles != null ">
-                    AND ged.genetic_profile_stable_id IN (#{molecularProfiles,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    AND ged.genetic_profile_stable_id IN (<foreach collection="molecularProfiles" item="id" separator=",">#{id}</foreach>)
                 </if>
                 <if test="samples != null">
-                    AND ${unique_id} IN (#{samples,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    AND ${unique_id} IN (<foreach collection="samples" item="id" separator=",">#{id}</foreach>)
                 </if>
                 <if
                 test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"
@@ -218,7 +218,7 @@ totalProfiled Count per gene in java.
         )
         SELECT
             tcg.hugoGeneSymbol AS hugoGeneSymbol,
-            ifNull(tcg.entrezGeneId, 0) AS entrezGeneId,
+            IFNULL(tcg.entrezGeneId, 0) AS entrezGeneId,
             tcg.numberOfAlteredCases as numberOfAlteredCases,
             tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel
         FROM total_count_by_genes tcg
@@ -268,7 +268,7 @@ totalProfiled Count per gene in java.
         cancer_study.public as "cancerStudy.publicstudy",
         cancer_study.pmid as "cancerStudy.pmid",
         cancer_study.citation as "cancerStudy.citation",
-        cancer_study.groups as "cancerStudy.groups",
+        cancer_study.`groups` as "cancerStudy.groups",
         cancer_study.status as "cancerStudy.status",
         cancer_study.import_date as "cancerStudy.importdate",
         reference_genome.name as "cancerStudy.referencegenome"

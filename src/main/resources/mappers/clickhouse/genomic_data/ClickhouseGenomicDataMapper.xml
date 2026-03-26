@@ -7,7 +7,7 @@
     <select id="getMolecularProfileSampleCounts" resultType="org.cbioportal.legacy.model.GenomicDataCount">
         --we need to derive the alteration type from the stable_id by removing cancer study id
         --this should probaby be refactored at some point but we need to maintain api interface
-        SELECT replaceOne(genetic_profile.stable_id,
+        SELECT REPLACE(genetic_profile.stable_id,
         concat(sample_derived.cancer_study_identifier,'_'), '') AS value,
         genetic_profile.name AS label,
         count(sample_profile.genetic_profile_id) AS count
@@ -32,7 +32,7 @@
             <property name="attribute_value" value="alteration_value"/>
         </include>
         AS value,
-        cast(count(value) as INTEGER) AS count
+        cast(count(alteration_value) as INTEGER) AS count
         FROM genetic_alteration_derived
         <where>
             <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
@@ -49,7 +49,7 @@
                 hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
             </foreach>
         </where>
-        GROUP BY hugo_gene_symbol, profile_type, value
+        GROUP BY hugo_gene_symbol, profile_type, alteration_value
         ),
         genomic_numerical_sum AS (
         SELECT
@@ -66,9 +66,9 @@
         coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1),
         concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
         'NA' as value,
-        cast(((SELECT * FROM (<include
+        cast(((<include
             refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
-        )) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
+        ) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <!-- for /genomic-data-counts/fetch - (returns GenomicDataCountItem objects) -->
@@ -79,10 +79,15 @@
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0',
-                'Diploid', alteration_value = '-1',
-                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
-                toString(alteration_value) as value,
+                CASE alteration_value
+                    WHEN '2' THEN 'Amplified'
+                    WHEN '1' THEN 'Gained'
+                    WHEN '0' THEN 'Diploid'
+                    WHEN '-1' THEN 'Heterozygously deleted'
+                    WHEN '-2' THEN 'Homozygously deleted'
+                    ELSE 'NA'
+                END as label,
+                alteration_value as value,
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived
             <where>
@@ -120,9 +125,9 @@
             #{profileType},
             'NA' as label,
             'NA' as value,
-            cast(((SELECT * FROM (<include
+            cast(((<include
                 refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
-            )) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
+            ) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
@@ -181,7 +186,7 @@
             COUNT(DISTINCT sample_unique_id) AS uniqueCount
             <if test="includeSampleIds">
                 ,
-                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+                GROUP_CONCAT(DISTINCT sample_unique_id SEPARATOR ',') AS sampleIdsStr
             </if>
         FROM
             mutated_samples
@@ -199,7 +204,7 @@
                 'NOT_MUTATED' AS value,
                 COUNT(*) AS count,
                 COUNT(DISTINCT sample_unique_id) AS uniqueCount,
-                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+                GROUP_CONCAT(DISTINCT sample_unique_id SEPARATOR ',') AS sampleIdsStr
             FROM profiled_samples
             where sample_unique_id NOT in (SELECT sample_unique_id from mutated_samples)
 
@@ -212,7 +217,7 @@
                 'NOT_PROFILED' AS value,
                 COUNT(*) AS count,
                 COUNT(DISTINCT sample_unique_id) AS uniqueCount,
-                arrayStringConcat(groupArray(DISTINCT sample_unique_id), ',') AS sampleIdsStr
+                GROUP_CONCAT(DISTINCT sample_unique_id SEPARATOR ',') AS sampleIdsStr
             FROM all_samples
             WHERE
             sample_unique_id NOT IN (  SELECT sample_unique_id FROM profiled_samples
@@ -256,8 +261,8 @@
         SELECT
         cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
         cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
-        cast(((SELECT * FROM (<include
+        cast(((<include
             refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
-        )) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
+        ) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
     </select>
 </mapper>

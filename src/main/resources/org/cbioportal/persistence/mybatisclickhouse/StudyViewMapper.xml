@@ -200,7 +200,7 @@
             type='${type}'
             AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="attribute_value"/>
             </include>
             != 'NA'
             AND
@@ -221,7 +221,7 @@
                 #{attributeId}
             </foreach>
         </where>
-        GROUP BY attribute_name, value ),
+        GROUP BY attribute_name, attribute_value ),
         clinical_data_sum AS (SELECT attributeId, sum(count) AS sum FROM clinical_data_query GROUP BY attributeId)
         
         SELECT * FROM clinical_data_query
@@ -237,11 +237,9 @@
                         <include refid="getTotalPatientCount"/>    
                     </otherwise>
                 </choose>
-        ) - clinical_data_sum.sum) AS count
+        ) - clinical_data_sum.sum) AS na_count
         FROM clinical_data_sum
-        <where>
-            count > 0
-        </where>
+        HAVING na_count > 0
         )
     </sql>
     
@@ -265,9 +263,14 @@
             SELECT
                 hugo_gene_symbol as hugoGeneSymbol,
                 #{profileType} as profileType,
-                multiIf(alteration_value = '2', 'Amplified', alteration_value = '1', 'Gained', alteration_value = '0', 'Diploid', alteration_value = '-1',
-                'Heterozygously deleted', alteration_value = '-2', 'Homozygously deleted', 'NA') as label,
-                toString(alteration_value) as value,
+                CASE alteration_value
+                    WHEN '2' THEN 'Amplified'
+                    WHEN '1' THEN 'Gained'
+                    WHEN '0' THEN 'Diploid'
+                    WHEN '-1' THEN 'Heterozygously deleted'
+                    WHEN '-2' THEN 'Homozygously deleted'
+                    ELSE 'NA' END as label,
+                alteration_value as value,
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived
             <where>
@@ -303,7 +306,7 @@
             #{profileType},
             'NA' as label,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
+            cast(((<include refid="getTotalSampleCount"/>) - coalesce((SELECT cna_count FROM cna_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
     
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
@@ -311,13 +314,13 @@
         WITH generic_assay_query AS (
             SELECT
                 entity_stable_id AS stableId,
-                value,
+                `value`,
                 cast(count(distinct patient_unique_id) AS INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
                 <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
                 <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
+                    <property name="attribute_value" value="`value`"/>
                 </include> != 'NA' AND
                 profile_type = #{profileType} AND
                 <include refid="applyStudyViewFilter">
@@ -325,9 +328,9 @@
                 </include>
                 <foreach item="genericAssayDataFilter" collection="genericAssayDataFilters" open=" AND (" separator=" OR " close=")">
                     entity_stable_id = #{genericAssayDataFilter.stableId}
-                </foreach> 
+                </foreach>
             </where>
-            GROUP BY entity_stable_id, value
+            GROUP BY entity_stable_id, `value`
         ),
         generic_assay_data_sum AS (
             SELECT
@@ -345,9 +348,9 @@
             coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
             'NA' as value,
             cast((
-                multiIf(
+                IF(
                     (
-                        SELECT count() > 0
+                        SELECT COUNT(*) > 0
                         FROM genetic_profile
                         WHERE
                             patient_level = 1
@@ -358,8 +361,8 @@
                             </foreach>
                         </if>
                     ),
-                    (SELECT * FROM (<include refid="getTotalPatientCount"/>)),
-                    (SELECT * FROM (<include refid="getTotalSampleCount"/>))
+                    (<include refid="getTotalPatientCount"/>),
+                    (<include refid="getTotalSampleCount"/>)
                 )
                 - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
             as INTEGER) as count 
@@ -391,7 +394,7 @@
         SELECT
             cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,
             cast(((SELECT * FROM profiled_count) - (SELECT * FROM mutated_count)) as INTEGER) as notMutatedCount,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
+            cast(((<include refid="getTotalSampleCount"/>) - (SELECT * FROM profiled_count)) as INTEGER) as notProfiledCount
     </select>
 
     <!-- for /mutation-data-counts/fetch - (returns GenomicDataCountItem objects) mutation type counts table part-->
@@ -473,7 +476,7 @@
         FROM clinical_attribute_meta cammo
                  JOIN cancer_study cs on cs.cancer_study_id = cammo.cancer_study_id
         <where>
-            cancerStudyIdentifier IN
+            cs.cancer_study_identifier IN
             <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
@@ -594,7 +597,7 @@
                 FROM clinical_event_derived
                 <where>
                     lower(event_type) = 'treatment'
-                    AND key = 'AGENT'
+                    AND `key` = 'AGENT'
                     AND
                     <include refid="applyStudyViewFilter">
                         <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
@@ -617,7 +620,7 @@
         FROM clinical_event_derived
         <where>
             lower(event_type) = 'treatment'
-            AND key = 'AGENT'
+            AND `key` = 'AGENT'
             AND
             <include refid="applyStudyViewFilter">
                 <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
@@ -631,8 +634,8 @@
             count(distinct ced.value) AS totalSamples
         FROM clinical_event_derived ced
         <where>
-            AND key = 'SAMPLE_ID'
-            AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+            AND `key` = 'SAMPLE_ID'
+            AND (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
             AND
             concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="sampleUniqueIdsFromStudyViewFilter"/>)
             AND
@@ -642,7 +645,7 @@
             FROM clinical_event_derived
             <where>
                 lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                AND `key` = 'AGENT'
                 AND
                 <include refid="applyStudyViewFilter">
                     <property name="filter_type" value="'PATIENT_ID_ONLY'"/>
@@ -670,8 +673,8 @@
                 ced.cancer_study_identifier AS cancer_study_identifier
             FROM clinical_event_derived ced
             <where>
-                key = 'SAMPLE_ID'
-                AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                `key` = 'SAMPLE_ID'
+                AND (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
             </where>
             GROUP BY patient_unique_id, ced.value, cancer_study_identifier
         ),
@@ -686,7 +689,7 @@
             FROM clinical_event_derived
             <where>
                 lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                AND `key` = 'AGENT'
             </where>
             GROUP BY patient_unique_id, value
         )
@@ -711,7 +714,7 @@
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="alteration_value"/>
                 </include> AS value,
-                cast(count(value) as INTEGER) AS count
+                cast(count(alteration_value) as INTEGER) AS count
             FROM genetic_alteration_derived
             <where>
                 <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
@@ -726,7 +729,7 @@
                     hugo_gene_symbol = #{genomicDataBinFilter.hugoGeneSymbol}
                 </foreach>
             </where>
-            GROUP BY hugo_gene_symbol, profile_type, value
+            GROUP BY hugo_gene_symbol, profile_type, alteration_value
         ),
         genomic_numerical_sum AS (
             SELECT
@@ -742,7 +745,7 @@
         SELECT
             coalesce((SELECT attributeId FROM genomic_numerical_sum LIMIT 1), concat(#{genomicDataBinFilters[0].hugoGeneSymbol}, #{profileType})) as attributeId,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
+            cast(((<include refid="getTotalSampleCount"/>) - coalesce((SELECT genomic_numerical_count FROM genomic_numerical_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
     
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
@@ -752,14 +755,14 @@
             SELECT
                 concat(entity_stable_id, profile_type) AS attributeId,
                 <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
+                    <property name="attribute_value" value="`value`"/>
                 </include> AS value,
-                cast(count(value) as INTEGER) AS count
+                cast(count(`value`) as INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
                 <!-- Need to ensure no NA values -->
                 <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
+                    <property name="attribute_value" value="`value`"/>
                 </include> != 'NA' AND
                 profile_type = #{profileType} AND
                 <include refid="applyStudyViewFilter">
@@ -769,7 +772,7 @@
                     entity_stable_id = #{genericAssayDataBinFilter.stableId}
                 </foreach>
             </where>
-            GROUP BY entity_stable_id, profile_type, value
+            GROUP BY entity_stable_id, profile_type, `value`
         ),
         generic_assay_sum AS (
             SELECT
@@ -785,7 +788,7 @@
         SELECT
             coalesce((SELECT attributeId FROM generic_assay_sum LIMIT 1), concat(#{genericAssayDataBinFilters[0].stableId}, #{profileType})) as attributeId,
             'NA' as value,
-            cast(((SELECT * FROM (<include refid="getTotalSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
+            cast(((<include refid="getTotalSampleCount"/>) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <select id="getGenericAssayProfiles" resultType="org.cbioportal.legacy.model.MolecularProfile">
@@ -830,7 +833,7 @@
             gp.genetic_alteration_type = #{alterationType}
             <!-- Currently we only look at CNA dataType Discrete -->
             AND gp.datatype != 'CONTINUOUS'
-            AND cancer_study.cancer_study_identifier IN (unique_study_ids);
+            AND cancer_study.cancer_study_identifier IN (SELECT cancer_study_identifier FROM unique_study_ids)
         </where>
     </select>
     
@@ -885,30 +888,26 @@
         '<6' to 5.99..9...
     -->
     <sql id="castStringValueToFloat">
-        multiIf(
-             -- This condition is to prevent casting non numerical values to float
-            NOT match(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$'),
-            NULL,
-            (startsWith(${attribute_value}, '&lt;=') OR startsWith(${attribute_value}, '>=')),
-            cast(substr(${attribute_value}, 3) as float),
-            startsWith(${attribute_value}, '&lt;'),
-            cast(substr(${attribute_value}, 2) as float) - exp(-10),
-            startsWith(${attribute_value}, '>'),
-            cast(substr(${attribute_value}, 2) as float) + exp(-10),
-            cast(${attribute_value} as float)
-        )
+        CASE
+            -- This condition is to prevent casting non numerical values to float
+            WHEN NOT REGEXP(${attribute_value}, '^[><]?=?[-+]?[0-9]*[.,]?[0-9]+$') THEN NULL
+            WHEN (${attribute_value} LIKE '&lt;=%' OR ${attribute_value} LIKE '>=%') THEN cast(substr(${attribute_value}, 3) as float)
+            WHEN ${attribute_value} LIKE '&lt;%' THEN cast(substr(${attribute_value}, 2) as float) - exp(-10)
+            WHEN ${attribute_value} LIKE '>%' THEN cast(substr(${attribute_value}, 2) as float) + exp(-10)
+            ELSE cast(${attribute_value} as float)
+        END
     </sql>
 
     <!-- This is to match actual NA values ('NA', 'NAN', and 'N/A') in addition to the empty string -->
     <sql id="isAttributeValueNA">
         ${attribute_value}=''
-        OR upperUTF8(${attribute_value})='NA'
-        OR upperUTF8(${attribute_value})='NAN'
-        OR upperUTF8(${attribute_value})='N/A'
+        OR UPPER(${attribute_value})='NA'
+        OR UPPER(${attribute_value})='NAN'
+        OR UPPER(${attribute_value})='N/A'
     </sql>
 
     <sql id="normalizeAttributeValue">
-        multiIf(
+        IF(
             <include refid="isAttributeValueNA">
               <property name="attribute_value" value="${attribute_value}"/>
             </include>,

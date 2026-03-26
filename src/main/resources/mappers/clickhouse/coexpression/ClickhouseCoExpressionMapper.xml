@@ -19,7 +19,7 @@
               AND alteration_value != '' AND alteration_value != 'NA'
               AND toFloat64OrNull(alteration_value) IS NOT NULL
               <if test="sampleUniqueIds != null and sampleUniqueIds.length > 0">
-                  AND sample_unique_id IN (#{sampleUniqueIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                  AND sample_unique_id IN (<foreach collection="sampleUniqueIds" item="id" separator=",">#{id}</foreach>)
               </if>
         ),
         non_constant_genes AS (

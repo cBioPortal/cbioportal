@@ -61,16 +61,15 @@
             </when>
             <otherwise>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     genetic_profile.stable_id = #{molecularProfileIds[0]} AND
                     sample.stable_id IN (
-                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                     <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(sampleIds, molecularProfileIds)" />
                     CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
-                        #{sampleProfileKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleProfileKeys" item="key" separator=",">#{key}</foreach>
                     )
                 </if>
             </otherwise>

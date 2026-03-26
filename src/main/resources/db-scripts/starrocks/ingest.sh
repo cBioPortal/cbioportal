@@ -390,10 +390,19 @@ if should_run "generic_assay_data"; then
     done
 fi
 
-# ── Step 9b: genetic_alteration (10.3B rows) — chunked per study ──────────────
+# ── Step 9b-pre: genetic_alteration (35M rows, packed CSV) — chunked ──────────
 echo ""
-echo "[9b/9] genetic_alteration (10.3B rows, chunked by study)..."
+echo "[9b-pre/9] genetic_alteration (35M rows, chunked)..."
 if should_run "genetic_alteration"; then
+    ch_load_chunked "genetic_alteration" \
+        "genetic_profile_id, genetic_entity_id, values" \
+        "genetic_alteration"
+fi
+
+# ── Step 9b: genetic_alteration_derived (10.3B rows) — chunked per study ──────
+echo ""
+echo "[9b/9] genetic_alteration_derived (10.3B rows, chunked by study)..."
+if should_run "genetic_alteration_derived"; then
     STUDIES=()
     while IFS= read -r line; do STUDIES+=("$line"); done < <(
         ch_query "SELECT cancer_study_identifier FROM ${CH_DB}.cancer_study" \
@@ -409,7 +418,7 @@ if should_run "genetic_alteration"; then
             sample_unique_id, alteration_value
         FROM ${CH_DB}.genetic_alteration_derived
         WHERE cancer_study_identifier = '${study}'" \
-            | sr_load "genetic_alteration" "ga_$(echo "$study" | tr '[:upper:]/' '[:lower:]_')_${DONE}"
+            | sr_load "genetic_alteration_derived" "ga_$(echo "$study" | tr '[:upper:]/' '[:lower:]_')_${DONE}"
     done
 fi
 
@@ -425,7 +434,7 @@ VERIFY_TABLES=(
     clinical_data_derived clinical_event_data_derived clinical_event_derived
     genomic_event_derived mutation_derived
     generic_assay_meta_derived generic_assay_profile_entity_derived
-    generic_assay_data genetic_alteration
+    generic_assay_data genetic_alteration_derived
 )
 for tbl in "${VERIFY_TABLES[@]}"; do
     SR_COUNT=$(docker exec starrocks mysql -P 9030 -h 127.0.0.1 -u "${SR_USER}" \

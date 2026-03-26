@@ -4,8 +4,8 @@
 -- Conventions:
 --   • Dimension tables use PRIMARY KEY engine (upsert support for patient/sample edits)
 --   • Fact tables use DUPLICATE KEY engine (max ingest throughput, no dedup needed)
---   • genetic_alteration_derived → genetic_alteration  (exploded form is canonical; packed CH table skipped)
---   • generic_assay_data_derived → generic_assay_data
+--   • genetic_alteration_derived  (kept as-is; exploded form is canonical)
+--   • generic_assay_data_derived  (kept as-is; exploded form is canonical)
 --   • All other _derived tables keep their names
 --   • replication_num = 1 (single-node Docker)
 --   • Bucket counts sized for local evaluation (can be raised for production)
@@ -16,6 +16,17 @@ USE cbioportal;
 -- ============================================================
 -- DIMENSION TABLES  (PRIMARY KEY — supports row-level upserts)
 -- ============================================================
+
+CREATE TABLE IF NOT EXISTS type_of_cancer (
+    type_of_cancer_id   VARCHAR(63)  NOT NULL,
+    name                VARCHAR(255) NOT NULL,
+    dedicated_color     CHAR(31)     NOT NULL,
+    short_name          VARCHAR(127) NULL,
+    parent              VARCHAR(63)  NULL
+) ENGINE=OLAP
+DUPLICATE KEY(type_of_cancer_id)
+DISTRIBUTED BY HASH(type_of_cancer_id) BUCKETS 4
+PROPERTIES ("replication_num" = "1");
 
 CREATE TABLE IF NOT EXISTS reference_genome (
     reference_genome_id  BIGINT       NOT NULL,
@@ -143,7 +154,7 @@ PROPERTIES ("replication_num" = "1");
 
 CREATE TABLE IF NOT EXISTS genetic_profile_samples (
     genetic_profile_id  BIGINT NULL,
-    ordered_sample_list STRING NULL
+    ordered_sample_list TEXT NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (genetic_profile_id)
 DISTRIBUTED BY HASH(genetic_profile_id) BUCKETS 4
@@ -561,78 +572,12 @@ DISTRIBUTED BY HASH(genetic_entity_id) BUCKETS 16
 PROPERTIES ("replication_num" = "1");
 
 -- ============================================================
--- DERIVED TABLES  (kept as-is for query compatibility)
+-- DERIVED VIEWS are defined at the end of this file (after all base tables).
+-- Replaced tables: gene_panel_to_gene_derived, clinical_data_derived,
+--   clinical_event_data_derived (dropped), clinical_event_derived,
+--   generic_assay_meta_derived, genomic_event_derived, sample_derived,
+--   sample_to_gene_panel_derived
 -- ============================================================
-
--- gene_panel_to_gene_derived: pre-joined panel→gene mapping
-CREATE TABLE IF NOT EXISTS gene_panel_to_gene_derived (
-    gene_panel_id  VARCHAR(255) NULL,
-    entrez_gene_id BIGINT       NULL
-) ENGINE=OLAP
-DUPLICATE KEY (gene_panel_id)
-DISTRIBUTED BY HASH(gene_panel_id) BUCKETS 4
-PROPERTIES ("replication_num" = "1");
-
--- clinical_data_derived: denormalized clinical data (joined with study/sample/patient)
-CREATE TABLE IF NOT EXISTS clinical_data_derived (
-    cancer_study_identifier VARCHAR(255) NOT NULL,
-    type                 VARCHAR(64)  NOT NULL,
-    attribute_name       VARCHAR(255) NOT NULL,
-    sample_unique_id     VARCHAR(255) NOT NULL,
-    internal_id          INT          NULL,
-    patient_unique_id    VARCHAR(255) NULL,
-    attribute_value      STRING       NULL
-) ENGINE=OLAP
-DUPLICATE KEY (cancer_study_identifier, type, attribute_name, sample_unique_id)
-DISTRIBUTED BY HASH(cancer_study_identifier) BUCKETS 16
-PROPERTIES ("replication_num" = "1");
-
--- clinical_event_data_derived: denormalized timeline events
-CREATE TABLE IF NOT EXISTS clinical_event_data_derived (
-    cancer_study_identifier VARCHAR(255) NOT NULL,
-    event_type              VARCHAR(255) NOT NULL,
-    patient_unique_id       VARCHAR(255) NOT NULL,
-    `key`                   VARCHAR(255) NOT NULL,
-    value                   STRING       NULL,
-    start_date              INT          NOT NULL DEFAULT "0",
-    stop_date               INT          NOT NULL DEFAULT "0"
-) ENGINE=OLAP
-DUPLICATE KEY (cancer_study_identifier, event_type, patient_unique_id)
-DISTRIBUTED BY HASH(cancer_study_identifier) BUCKETS 16
-PROPERTIES ("replication_num" = "1");
-
--- clinical_event_derived: clinical events enriched with study + patient stable IDs
-CREATE TABLE IF NOT EXISTS clinical_event_derived (
-    cancer_study_identifier VARCHAR(255) NOT NULL,
-    event_type              VARCHAR(255) NOT NULL,
-    clinical_event_id       BIGINT       NOT NULL,
-    patient_id              BIGINT       NULL,
-    patient_stable_id       VARCHAR(255) NULL,
-    start_date              BIGINT       NULL,
-    stop_date               BIGINT       NULL
-) ENGINE=OLAP
-DUPLICATE KEY (cancer_study_identifier, event_type, clinical_event_id)
-DISTRIBUTED BY HASH(cancer_study_identifier) BUCKETS 8
-PROPERTIES ("replication_num" = "1");
-
--- generic_assay_meta_derived: entity metadata as JSON (ClickHouse Map exported via toJSONString)
-CREATE TABLE IF NOT EXISTS generic_assay_meta_derived (
-    entity_stable_id VARCHAR(255)  NOT NULL,
-    entity_type      VARCHAR(255)  NOT NULL,
-    properties       JSON          NULL
-) ENGINE=OLAP
-DUPLICATE KEY (entity_stable_id)
-DISTRIBUTED BY HASH(entity_stable_id) BUCKETS 8
-PROPERTIES ("replication_num" = "1");
-
--- generic_assay_profile_entity_derived: profile→entity membership
-CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived (
-    profile_stable_id VARCHAR(255) NOT NULL,
-    entity_stable_id  VARCHAR(255) NOT NULL
-) ENGINE=OLAP
-DUPLICATE KEY (profile_stable_id, entity_stable_id)
-DISTRIBUTED BY HASH(profile_stable_id) BUCKETS 8
-PROPERTIES ("replication_num" = "1");
 
 -- mutation_derived: fully denormalized mutation rows (used by current mapper queries)
 -- Note: dotted CH column names (GENE.*, alleleSpecificCopyNumber.*) renamed with underscores
@@ -686,15 +631,28 @@ DISTRIBUTED BY HASH(studyId) BUCKETS 32
 PROPERTIES ("replication_num" = "1");
 
 -- ============================================================
+-- PACKED-VALUE FACT TABLE  (one row per profile+gene, values = comma-sep sample values)
+-- Matches legacy MySQL/ClickHouse schema; used by MolecularDataMapper
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS genetic_alteration (
+    genetic_profile_id  BIGINT  NOT NULL,
+    genetic_entity_id   BIGINT  NOT NULL,
+    `values`            TEXT    NULL
+) ENGINE=OLAP
+DUPLICATE KEY(genetic_profile_id, genetic_entity_id)
+DISTRIBUTED BY HASH(genetic_profile_id) BUCKETS 16
+PROPERTIES ("replication_num" = "1");
+
+-- ============================================================
 -- LARGE FACT TABLES  (exploded form — DUPLICATE KEY)
 -- These replace the compact ClickHouse tables:
---   genetic_alteration_derived  → genetic_alteration
 --   generic_assay_data_derived  → generic_assay_data
 -- ============================================================
 
--- genetic_alteration: one row per (study, gene, profile_type, sample)
--- Source: genetic_alteration_derived (10.3B rows, 28.5 GB compressed in CH)
-CREATE TABLE IF NOT EXISTS genetic_alteration (
+-- genetic_alteration_derived: one row per (study, gene, profile_type, sample)
+-- Matches CH table name exactly; exploded form is canonical in SR
+CREATE TABLE IF NOT EXISTS genetic_alteration_derived (
     cancer_study_identifier VARCHAR(255) NOT NULL,
     hugo_gene_symbol        VARCHAR(255) NOT NULL,
     profile_type            VARCHAR(255) NOT NULL,
@@ -707,6 +665,7 @@ PROPERTIES ("replication_num" = "1");
 
 -- generic_assay_data: one row per (profile_type, entity, patient/sample)
 -- Source: generic_assay_data_derived (410M rows, 3.4 GB compressed in CH)
+-- generic_assay_data_derived is a view over generic_assay_data for mapper compatibility
 CREATE TABLE IF NOT EXISTS generic_assay_data (
     profile_type      VARCHAR(255) NOT NULL,
     entity_stable_id  VARCHAR(255) NOT NULL,
@@ -723,29 +682,202 @@ DUPLICATE KEY (profile_type, entity_stable_id, patient_unique_id, sample_unique_
 DISTRIBUTED BY HASH(profile_type) BUCKETS 64
 PROPERTIES ("replication_num" = "1");
 
--- genomic_event: one row per genomic event per sample
--- Source: genomic_event_derived (50M rows, 369 MB compressed in CH)
-CREATE TABLE IF NOT EXISTS genomic_event_derived (
-    genetic_profile_stable_id       VARCHAR(255) NOT NULL,
-    cancer_study_identifier         VARCHAR(255) NOT NULL,
-    variant_type                    VARCHAR(64)  NOT NULL,
-    entrez_gene_id                  INT          NOT NULL,
-    hugo_gene_symbol                VARCHAR(255) NOT NULL,
-    sample_unique_id                VARCHAR(255) NOT NULL,
-    gene_panel_stable_id            VARCHAR(255) NULL,
-    mutation_variant                VARCHAR(1024) NULL,
-    mutation_type                   VARCHAR(255) NULL,
-    mutation_status                 VARCHAR(64)  NULL,
-    driver_filter                   VARCHAR(255) NULL,
-    driver_filter_annotation        STRING       NULL,
-    driver_tiers_filter             VARCHAR(255) NULL,
-    driver_tiers_filter_annotation  STRING       NULL,
-    cna_alteration                  TINYINT      NULL,
-    cna_cytoband                    VARCHAR(64)  NULL,
-    sv_event_info                   STRING       NULL,
-    patient_unique_id               VARCHAR(255) NULL,
-    off_panel                       BOOLEAN      NOT NULL DEFAULT "0"
-) ENGINE=OLAP
-DUPLICATE KEY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id)
-DISTRIBUTED BY HASH(cancer_study_identifier) BUCKETS 64
-PROPERTIES ("replication_num" = "1");
+-- ============================================================
+-- DERIVED VIEWS  (replace pre-computed derived tables with live joins)
+-- StarRocks CBO handles these joins efficiently at query time.
+-- ============================================================
+
+CREATE VIEW IF NOT EXISTS generic_assay_data_derived AS
+    SELECT * FROM generic_assay_data;
+
+CREATE VIEW IF NOT EXISTS generic_assay_profile_entity_derived AS
+    SELECT DISTINCT profile_stable_id, entity_stable_id FROM generic_assay_data;
+
+CREATE VIEW IF NOT EXISTS sample_derived AS
+    SELECT CONCAT(cs.cancer_study_identifier, '_', s.stable_id)   AS sample_unique_id,
+           to_base64(s.stable_id)                                  AS sample_unique_id_base64,
+           s.stable_id                                             AS sample_stable_id,
+           CONCAT(cs.cancer_study_identifier, '_', p.stable_id)   AS patient_unique_id,
+           to_base64(p.stable_id)                                  AS patient_unique_id_base64,
+           p.stable_id                                             AS patient_stable_id,
+           cs.cancer_study_identifier                              AS cancer_study_identifier,
+           s.internal_id                                           AS internal_id,
+           s.patient_id                                            AS patient_internal_id,
+           s.sample_type                                           AS sample_type,
+           CASE WHEN seq.sample_id IS NOT NULL THEN 1 ELSE 0 END   AS sequenced,
+           CASE WHEN cns.sample_id IS NOT NULL THEN 1 ELSE 0 END   AS copy_number_segment_present
+    FROM sample s
+    JOIN patient p       ON s.patient_id = p.internal_id
+    JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+    LEFT JOIN (
+        SELECT sll.sample_id
+        FROM sample_list_list sll
+        JOIN sample_list sl ON sll.list_id = sl.list_id
+        JOIN sample s2      ON sll.sample_id = s2.internal_id
+        JOIN patient p2     ON s2.patient_id = p2.internal_id
+        JOIN cancer_study cs2 ON p2.cancer_study_id = cs2.cancer_study_id
+        WHERE sl.stable_id = CONCAT(cs2.cancer_study_identifier, '_sequenced')
+    ) seq ON seq.sample_id = s.internal_id
+    LEFT JOIN (
+        SELECT DISTINCT sample_id FROM copy_number_seg
+    ) cns ON cns.sample_id = s.internal_id;
+
+CREATE VIEW IF NOT EXISTS sample_to_gene_panel_derived AS
+    SELECT CONCAT(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+           gp.genetic_alteration_type                           AS alteration_type,
+           IFNULL(panel.stable_id, 'WES')                       AS gene_panel_id,
+           cs.cancer_study_identifier                           AS cancer_study_identifier,
+           gp.stable_id                                         AS genetic_profile_id
+    FROM sample_profile sp
+    JOIN genetic_profile gp  ON sp.genetic_profile_id = gp.genetic_profile_id
+    LEFT JOIN gene_panel panel ON sp.panel_id = panel.internal_id
+    JOIN sample s             ON sp.sample_id = s.internal_id
+    JOIN patient p            ON s.patient_id = p.internal_id
+    JOIN cancer_study cs      ON gp.cancer_study_id = cs.cancer_study_id;
+
+CREATE VIEW IF NOT EXISTS gene_panel_to_gene_derived AS
+    SELECT gp.stable_id          AS gene_panel_id,
+           g.hugo_gene_symbol    AS gene
+    FROM gene_panel gp
+    JOIN gene_panel_list gpl ON gp.internal_id = gpl.internal_id
+    JOIN gene g               ON g.entrez_gene_id = gpl.gene_id
+    UNION ALL
+    SELECT 'WES'               AS gene_panel_id,
+           g.hugo_gene_symbol  AS gene
+    FROM gene g
+    WHERE g.entrez_gene_id > 0;
+
+CREATE VIEW IF NOT EXISTS clinical_data_derived AS
+    SELECT s.internal_id AS internal_id,
+           CONCAT(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+           CONCAT(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+           cam.attr_id AS attribute_name,
+           IFNULL(csam.attr_value, '') AS attribute_value,
+           cs.cancer_study_identifier AS cancer_study_identifier,
+           'sample' AS type
+    FROM sample s
+    JOIN patient p ON s.patient_id = p.internal_id
+    JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+    JOIN clinical_attribute_meta cam ON cam.cancer_study_id = cs.cancer_study_id AND cam.patient_attribute = 0
+    LEFT JOIN clinical_sample csam ON csam.internal_id = s.internal_id AND csam.attr_id = cam.attr_id
+    UNION ALL
+    SELECT p.internal_id AS internal_id,
+           '' AS sample_unique_id,
+           CONCAT(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+           cam.attr_id AS attribute_name,
+           IFNULL(cpat.attr_value, '') AS attribute_value,
+           cs.cancer_study_identifier AS cancer_study_identifier,
+           'patient' AS type
+    FROM patient p
+    JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+    JOIN clinical_attribute_meta cam ON cam.cancer_study_id = cs.cancer_study_id AND cam.patient_attribute = 1
+    LEFT JOIN clinical_patient cpat ON cpat.internal_id = p.internal_id AND cpat.attr_id = cam.attr_id;
+
+CREATE VIEW IF NOT EXISTS clinical_event_derived AS
+    SELECT CONCAT(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+           ced.`key`                                             AS `key`,
+           ced.value                                             AS value,
+           ce.start_date                                         AS start_date,
+           IFNULL(ce.stop_date, 0)                               AS stop_date,
+           ce.event_type                                         AS event_type,
+           cs.cancer_study_identifier                            AS cancer_study_identifier
+    FROM clinical_event ce
+    LEFT JOIN clinical_event_data ced ON ced.clinical_event_id = ce.clinical_event_id
+    JOIN patient p  ON ce.patient_id = p.internal_id
+    JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+
+CREATE VIEW IF NOT EXISTS generic_assay_meta_derived AS
+    SELECT ge.stable_id AS entity_stable_id,
+           ge.entity_type AS entity_type,
+           parse_json(CONCAT('{', GROUP_CONCAT(
+               CONCAT('"', gep.name, '":"', REPLACE(gep.value, '"', '\\"'), '"')
+           ), '}')) AS properties
+    FROM genetic_entity ge
+    LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
+    WHERE ge.entity_type = 'GENERIC_ASSAY'
+    GROUP BY ge.stable_id, ge.entity_type;
+
+CREATE VIEW IF NOT EXISTS genomic_event_derived AS
+    SELECT CONCAT(cs.cancer_study_identifier, '_', s.stable_id)   AS sample_unique_id,
+           g.hugo_gene_symbol                                      AS hugo_gene_symbol,
+           g.entrez_gene_id                                        AS entrez_gene_id,
+           IFNULL(panel.stable_id, 'WES')                          AS gene_panel_stable_id,
+           cs.cancer_study_identifier                              AS cancer_study_identifier,
+           gp.stable_id                                            AS genetic_profile_stable_id,
+           'mutation'                                              AS variant_type,
+           me.protein_change                                       AS mutation_variant,
+           me.mutation_type                                        AS mutation_type,
+           m.mutation_status                                       AS mutation_status,
+           ada.driver_filter                                       AS driver_filter,
+           ada.driver_filter_annotation                            AS driver_filter_annotation,
+           ada.driver_tiers_filter                                 AS driver_tiers_filter,
+           ada.driver_tiers_filter_annotation                      AS driver_tiers_filter_annotation,
+           CAST(NULL AS TINYINT)                                   AS cna_alteration,
+           ''                                                      AS cna_cytoband,
+           ''                                                      AS sv_event_info,
+           CONCAT(cs.cancer_study_identifier, '_', p.stable_id)   AS patient_unique_id,
+           CASE WHEN panel.stable_id IS NOT NULL AND cov_m.gene_id IS NULL
+                THEN true ELSE false END                           AS off_panel
+    FROM mutation m
+    JOIN mutation_event me         ON m.mutation_event_id = me.mutation_event_id
+    JOIN sample_profile sp         ON m.sample_id = sp.sample_id
+                                   AND m.genetic_profile_id = sp.genetic_profile_id
+    LEFT JOIN gene_panel panel     ON sp.panel_id = panel.internal_id
+    JOIN genetic_profile gp        ON sp.genetic_profile_id = gp.genetic_profile_id
+    JOIN cancer_study cs           ON gp.cancer_study_id = cs.cancer_study_id
+    JOIN sample s                  ON m.sample_id = s.internal_id
+    JOIN patient p                 ON s.patient_id = p.internal_id
+    JOIN gene g                    ON m.entrez_gene_id = g.entrez_gene_id
+    LEFT JOIN alteration_driver_annotation ada
+                                   ON m.genetic_profile_id = ada.genetic_profile_id
+                                   AND m.sample_id = ada.sample_id
+                                   AND m.mutation_event_id = ada.alteration_event_id
+    LEFT JOIN (
+        SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
+        FROM gene_panel_list gpl
+        JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
+    ) cov_m ON cov_m.panel_stable_id = panel.stable_id AND cov_m.gene_id = m.entrez_gene_id
+
+    UNION ALL
+
+    SELECT CONCAT(cs.cancer_study_identifier, '_', s.stable_id)   AS sample_unique_id,
+           g.hugo_gene_symbol                                      AS hugo_gene_symbol,
+           g.entrez_gene_id                                        AS entrez_gene_id,
+           IFNULL(panel.stable_id, 'WES')                          AS gene_panel_stable_id,
+           cs.cancer_study_identifier                              AS cancer_study_identifier,
+           gp.stable_id                                            AS genetic_profile_stable_id,
+           'cna'                                                   AS variant_type,
+           'NA'                                                    AS mutation_variant,
+           'NA'                                                    AS mutation_type,
+           'NA'                                                    AS mutation_status,
+           ada.driver_filter                                       AS driver_filter,
+           ada.driver_filter_annotation                            AS driver_filter_annotation,
+           ada.driver_tiers_filter                                 AS driver_tiers_filter,
+           ada.driver_tiers_filter_annotation                      AS driver_tiers_filter_annotation,
+           ce.alteration                                           AS cna_alteration,
+           rgg.cytoband                                            AS cna_cytoband,
+           ''                                                      AS sv_event_info,
+           CONCAT(cs.cancer_study_identifier, '_', p.stable_id)   AS patient_unique_id,
+           CASE WHEN panel.stable_id IS NOT NULL AND cov_c.gene_id IS NULL
+                THEN true ELSE false END                           AS off_panel
+    FROM cna_event ce
+    JOIN sample_cna_event sce      ON ce.cna_event_id = sce.cna_event_id
+    JOIN sample_profile sp         ON sce.sample_id = sp.sample_id
+                                   AND sce.genetic_profile_id = sp.genetic_profile_id
+    LEFT JOIN gene_panel panel     ON sp.panel_id = panel.internal_id
+    JOIN genetic_profile gp        ON sp.genetic_profile_id = gp.genetic_profile_id
+    JOIN cancer_study cs           ON gp.cancer_study_id = cs.cancer_study_id
+    JOIN sample s                  ON sce.sample_id = s.internal_id
+    JOIN patient p                 ON s.patient_id = p.internal_id
+    JOIN gene g                    ON ce.entrez_gene_id = g.entrez_gene_id
+    JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id
+                                   AND rgg.reference_genome_id = cs.reference_genome_id
+    LEFT JOIN alteration_driver_annotation ada
+                                   ON sce.genetic_profile_id = ada.genetic_profile_id
+                                   AND sce.sample_id = ada.sample_id
+                                   AND sce.cna_event_id = ada.alteration_event_id
+    LEFT JOIN (
+        SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
+        FROM gene_panel_list gpl
+        JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
+    ) cov_c ON cov_c.panel_stable_id = panel.stable_id AND cov_c.gene_id = ce.entrez_gene_id;

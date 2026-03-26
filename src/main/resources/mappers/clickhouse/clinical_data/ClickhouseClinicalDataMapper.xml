@@ -6,8 +6,8 @@
     <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
             internal_id as internalId,
-            replaceOne(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
-            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            REPLACE(sample_unique_id, concat(cancer_study_identifier, '_'), '') as sampleId,
+            REPLACE(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
@@ -33,7 +33,7 @@
     <select id="getPatientClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
             internal_id as internalId,
-            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
+            REPLACE(patient_unique_id, concat(cancer_study_identifier, '_'), '') as patientId,
             NULL as sampleId,
             attribute_name as attrId,
             attribute_value as attrValue,
@@ -61,12 +61,12 @@
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
+                REPLACE(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
             </if>
             <if test="clinicalDataType != 'sample'">
                 NULL as sampleId,
             </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
+            REPLACE(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId
         FROM clinical_data_derived cd
@@ -77,12 +77,12 @@
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
+                REPLACE(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
             </if>
             <if test="clinicalDataType != 'sample'">
                 NULL as sampleId,
             </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
+            REPLACE(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue
@@ -94,12 +94,12 @@
         SELECT
             cd.internal_id as internalId,
             <if test="clinicalDataType == 'sample'">
-                replaceOne(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
+                REPLACE(cd.sample_unique_id, concat(cd.cancer_study_identifier, '_'), '') as sampleId,
             </if>
             <if test="clinicalDataType != 'sample'">
                 NULL as sampleId,
             </if>
-            replaceOne(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
+            REPLACE(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue,
@@ -232,7 +232,7 @@
             </if>
             AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="attribute_value"/>
             </include>
             != 'NA'
             AND
@@ -249,7 +249,7 @@
                 #{attributeId}
             </foreach>
         </where>
-        GROUP BY attribute_name, value ),
+        GROUP BY attribute_name, attribute_value ),
         clinical_data_sum AS (SELECT attributeId, sum(count) AS sum FROM clinical_data_query GROUP BY attributeId)
 
         SELECT * FROM clinical_data_query
@@ -268,11 +268,9 @@
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>
             </otherwise>
         </choose>
-        ) - clinical_data_sum.sum) AS count
+        ) - clinical_data_sum.sum) AS na_count
         FROM clinical_data_sum
-        <where>
-            count > 0
-        </where>
+        HAVING na_count > 0
         )
     </sql>
 

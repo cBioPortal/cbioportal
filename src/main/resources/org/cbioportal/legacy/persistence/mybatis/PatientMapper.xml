@@ -19,7 +19,7 @@
             cancer_study.public                  AS "${prefix}cancerStudy.publicStudy",
             cancer_study.pmid                    AS "${prefix}cancerStudy.pmid",
             cancer_study.citation                AS "${prefix}cancerStudy.citation",
-            cancer_study.groups                  AS "${prefix}cancerStudy.groups",
+            cancer_study.`groups`                AS "${prefix}cancerStudy.groups",
             cancer_study.status                  AS "${prefix}cancerStudy.status",
             cancer_study.import_date             AS "${prefix}cancerStudy.importDate",
             reference_genome.name                AS "${prefix}cancerStudy.referenceGenome"
@@ -41,7 +41,7 @@
                 <if test="patientIds != null">
                     <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
                     CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
-                        #{patientUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
                     )
                 </if>
             </if>
@@ -115,7 +115,7 @@
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
             <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
             CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
             )
         </if>
         <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">

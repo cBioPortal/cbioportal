@@ -17,8 +17,8 @@
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-        AND clinical_event.event_type ILIKE 'TREATMENT'
-        AND clinical_event_data.key ILIKE #{key}
+        AND LOWER(clinical_event.event_type) = 'treatment'
+        AND LOWER(clinical_event_data.`key`) = LOWER(#{key})
     </select>
 
     <select id="getAllSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
@@ -34,8 +34,8 @@
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event_data.key ILIKE 'SAMPLE_ID'
-            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN')
+            AND LOWER(clinical_event_data.`key`) = 'sample_id'
+            AND (LOWER(clinical_event.event_type) = 'sample acquisition' OR LOWER(clinical_event.event_type) = 'specimen')
     </select>
 
     <select id="getAllShallowSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
@@ -60,8 +60,8 @@
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event.event_type ILIKE 'TREATMENT'
-            AND clinical_event_data.key ILIKE #{key} LIMIT 1
+            AND LOWER(clinical_event.event_type) = 'treatment'
+            AND LOWER(clinical_event_data.`key`) = LOWER(#{key}) LIMIT 1
         )
     </select>
 
@@ -75,8 +75,8 @@
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event_data.key ILIKE 'SAMPLE_ID'
-            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN') LIMIT 1)
+            AND LOWER(clinical_event_data.`key`) = 'sample_id'
+            AND (LOWER(clinical_event.event_type) = 'sample acquisition' OR LOWER(clinical_event.event_type) = 'specimen') LIMIT 1)
     </select>
 
     <sql id="where">
@@ -88,16 +88,15 @@
             </if>
             <if test="sampleIds != null">
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                     sample.stable_id IN (
-                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
                     <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                     CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                        #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
                     )
                 </if>
             </if>

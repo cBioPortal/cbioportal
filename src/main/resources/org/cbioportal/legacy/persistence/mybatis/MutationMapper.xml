@@ -39,14 +39,11 @@
             driverTiersFilterAnnotation
         </if>
         <if test="projection == 'DETAILED'">
-            ,   
-            GENE.entrezGeneId,
-            GENE.hugoGeneSymbol,
-            GENE.type,
-            <include refid="getAlleleSpecificCopyNumber">
-                 <property name="prefix" value="alleleSpecificCopyNumber."/>
-            </include>          
-                                              
+            ,
+            gene_entrezGeneId,
+            gene_hugoGeneSymbol,
+            gene_type,
+            <include refid="getAlleleSpecificCopyNumber"/>
         </if>
     </sql>
 
@@ -119,20 +116,18 @@
                 INNER JOIN genetic_profile ON patient.cancer_study_id = genetic_profile.cancer_study_id
                 WHERE
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
-                    <bind name="sampleArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(sampleIds)" />
                     genetic_profile.stable_id = #{molecularProfileIds[0]} AND
                     sample.stable_id IN (
-                        #{sampleArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
                 <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                     <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(sampleIds, molecularProfileIds)" />
                     CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
-                        #{sampleProfileKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="sampleProfileKeys" item="key" separator=",">#{key}</foreach>
                     )
-                    <bind name="profileArray" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@listToArray(molecularProfileIds)" />
                     AND genetic_profile.stable_id IN (
-                        #{profileArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                        <foreach collection="molecularProfileIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
                 )
@@ -240,14 +235,14 @@
     </sql>
 
     <sql id="getAlleleSpecificCopyNumber">
-        alleleSpecificCopyNumber.ascnIntegerCopyNumber,
-        alleleSpecificCopyNumber.ascnMethod,
-        alleleSpecificCopyNumber.ccfExpectedCopiesUpper,
-        alleleSpecificCopyNumber.ccfExpectedCopies,
-        alleleSpecificCopyNumber.clonal,
-        alleleSpecificCopyNumber.minorCopyNumber,
-        alleleSpecificCopyNumber.expectedAltCopies,
-        alleleSpecificCopyNumber.totalCopyNumber
+        ascn_integerCopyNumber,
+        ascn_method,
+        ascn_ccfExpectedCopiesUpper,
+        ascn_ccfExpectedCopies,
+        ascn_clonal,
+        ascn_minorCopyNumber,
+        ascn_expectedAltCopies,
+        ascn_totalCopyNumber
     </sql>
 
     <sql id="includeAlleleSpecificCopyNumber">

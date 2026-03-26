@@ -67,7 +67,7 @@
                 FROM sample_derived
                 WHERE sample_unique_id IN
                 (
-                    #{filteredSampleIdentifiers, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    <foreach collection="filteredSampleIdentifiers" item="id" separator=",">#{id}</foreach>
                 )
             </if>
             <if test="studyViewFilterHelper.studyViewFilter.customDataFilters != null and !studyViewFilterHelper.studyViewFilter.customDataFilters.isEmpty() and studyViewFilterHelper.customDataSamples != null">
@@ -190,8 +190,8 @@
                     ced.cancer_study_identifier AS cancer_study_identifier
                 FROM clinical_event_derived ced
                 <where>
-                    key = 'SAMPLE_ID'
-                    AND (event_type ILIKE 'Sample Acquisition' OR event_type ILIKE 'SPECIMEN')
+                    `key` = 'SAMPLE_ID'
+                    AND (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
                 </where>
                 GROUP BY patient_unique_id, ced.value, cancer_study_identifier
             ) ced
@@ -203,7 +203,7 @@
                     argMin(start_date, start_date) AS treatment_time_taken
                 FROM clinical_event_derived
                 WHERE lower(event_type) = 'treatment'
-                AND key = 'AGENT'
+                AND `key` = 'AGENT'
                 GROUP BY patient_unique_id, value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
@@ -252,7 +252,7 @@
                     <foreach item="patientTreatmentFilter" collection="andedPatientTreatmentFilters.getFilters()" open="("
                          separator=") OR ("
                          close=")">    lower(event_type) = 'treatment'
-                        AND key = 'AGENT'
+                        AND `key` = 'AGENT'
                         AND value = #{patientTreatmentFilter.treatment}
                     </foreach>
                 </where>
@@ -277,20 +277,20 @@
                 -->
                 <if test="dataFilterValue.value != null">
                     AND 
-                    ${attribute_value} ILIKE #{dataFilterValue.value}
+                    LOWER(${attribute_value}) LIKE LOWER(#{dataFilterValue.value})
                 </if>
                 <!--
                     Special case: Numerical range values such as <18, >=90, etc.
                     We need to make sure to treat these values as numerical for filtering purposes.
                 -->
                 <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND REGEXP(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
                 </if>
                 <!--
                     Actual filtering of values that fall within the range of (start, end].
@@ -300,12 +300,11 @@
                     <choose>
                         <when test="dataFilterValue.start == dataFilterValue.end">
                             AND abs(
-                                minus(
+                                (
                                 <include refid="castStringValueToFloat">
                                     <property name="attribute_value" value="${attribute_value}"/>
-                                </include>,
-                                cast(#{dataFilterValue.start} as float)
-                                )
+                                </include>
+                                - cast(#{dataFilterValue.start} as float))
                             ) &lt; exp(-11)
                         </when>
                         <otherwise>
@@ -407,7 +406,7 @@
                     sd.patient_unique_id = categorical_clinical_data.patient_unique_id
                 </otherwise>
             </choose>
-            WHERE empty(attribute_value)
+            WHERE (attribute_value IS NULL OR attribute_value = '')
             AND EXISTS (<include refid="selectAllClinicalDataByAttribute"/>)
         </if>
 
@@ -461,14 +460,14 @@
             <foreach item="dataFilterValue" collection="clinicalDataFilter.values" open=" ((" separator=") OR (" close="))">
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
-                        empty(attribute_value)
+                        (attribute_value IS NULL OR attribute_value = '')
                         OR
                         <include refid="normalizeAttributeValue">
                             <property name="attribute_value" value="attribute_value"/>
                         </include> = 'NA'
                     </when>
                     <otherwise>
-                        attribute_value ILIKE #{dataFilterValue.value}
+                        LOWER(attribute_value) LIKE LOWER(#{dataFilterValue.value})
                     </otherwise>
                 </choose> 
             </foreach> 
@@ -558,7 +557,7 @@
     </sql>
     
     <sql id="selectAllGenericAssays">
-        SELECT sample_unique_id, patient_unique_id, value, datatype
+        SELECT sample_unique_id, patient_unique_id, `value`, datatype
         FROM generic_assay_data_derived
         WHERE profile_type = #{genericAssayDataFilter.profileType}
             AND entity_stable_id = #{genericAssayDataFilter.stableId}
@@ -585,9 +584,9 @@
             FROM sample_derived sd
                 LEFT JOIN (<include refid="selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
             WHERE datatype = 'LIMIT-VALUE'
-            AND value IS null OR
+            AND `value` IS null OR
                 <include refid="normalizeAttributeValue">
-                    <property name="attribute_value" value="value"/>
+                    <property name="attribute_value" value="`value`"/>
                 </include> = 'NA'
         </if>
         <!-- if both 'NA' and non-NA are selected, union them together -->
@@ -602,11 +601,11 @@
             datatype = 'LIMIT-VALUE'
             AND
             <include refid="normalizeAttributeValue">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
             </include> != 'NA'
             AND
             <include refid="applyNumericalDataFilter">
-                <property name="attribute_value" value="value"/>
+                <property name="attribute_value" value="`value`"/>
                 <property name="data_filter_collection" value="genericAssayDataFilter.values"/>
             </include>
         </if>
@@ -630,13 +629,13 @@
             <foreach item="dataFilterValue" collection="genericAssayDataFilter.values" open=" AND ((" separator=") OR (" close="))">
                 <choose>
                     <when test="dataFilterValue.value == 'NA'">
-                        value IS null OR
+                        `value` IS null OR
                         <include refid="normalizeAttributeValue">
-                            <property name="attribute_value" value="value"/>
+                            <property name="attribute_value" value="`value`"/>
                         </include> = 'NA'
                     </when>
                     <otherwise>
-                        value ILIKE #{dataFilterValue.value}
+                        LOWER(`value`) LIKE LOWER(#{dataFilterValue.value})
                     </otherwise>
                 </choose>
             </foreach>

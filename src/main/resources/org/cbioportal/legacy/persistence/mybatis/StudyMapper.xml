@@ -14,7 +14,7 @@
             ANY_VALUE(cancer_study.public) AS "${prefix}publicStudy",
             ANY_VALUE(cancer_study.pmid) AS "${prefix}pmid",
             ANY_VALUE(cancer_study.citation) AS "${prefix}citation",
-            ANY_VALUE(cancer_study.groups) AS "${prefix}groups",
+            ANY_VALUE(cancer_study.`groups`) AS "${prefix}groups",
             ANY_VALUE(cancer_study.status) AS "${prefix}status",
             ANY_VALUE(cancer_study.import_date) AS "${prefix}importDate",
             ANY_VALUE(reference_genome.name) AS "${prefix}referenceGenome"
@@ -35,7 +35,7 @@
         COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_protein_quantification') THEN 1 ELSE NULL END) AS massSpectrometrySampleCount,
         COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_3way_complete') THEN 1 ELSE NULL END) AS completeSampleCount,
         IFNULL(ANY_VALUE(treatment.count), 0 ) as treatmentCount,
-        COALESCE(ANY_VALUE(structural_variant.count), 0) as structuralVariantCount,
+        COALESCE(ANY_VALUE(sv_counts.count), 0) as structuralVariantCount,
         ANY_VALUE(type_of_cancer.type_of_cancer_id) AS "typeOfCancer.typeOfCancerId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
@@ -68,14 +68,12 @@
             LEFT JOIN
             (
                 SELECT
-                    COUNT(DISTINCT(structural_variant.sample_id)) as count,
-                    patient.cancer_study_id as cancer_study_id
-                FROM cancer_study
-                    INNER JOIN patient ON cancer_study.cancer_study_id = patient.cancer_study_id
-                    LEFT JOIN sample ON patient.internal_id = sample.patient_id
-                    INNER JOIN structural_variant on structural_variant.sample_id = sample.internal_id
-                GROUP BY patient.cancer_study_id
-            ) as structural_variant on structural_variant.cancer_study_id = cancer_study.cancer_study_id
+                    COUNT(DISTINCT sample_unique_id) as count,
+                    cancer_study_identifier
+                FROM genomic_event_derived
+                WHERE variant_type = 'structural_variant'
+                GROUP BY cancer_study_identifier
+            ) as sv_counts on sv_counts.cancer_study_identifier = cancer_study.cancer_study_identifier
         </if>
     </sql>
 
@@ -225,12 +223,12 @@
         SELECT
         <include refid="selectSampleResourceCounts"/>
         <include refid="fromResourceSample"/>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, rd.description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
         UNION ALL
         SELECT
         <include refid="selectPatientResourceCounts"/>
         <include refid="fromResourcePatient"/>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, rd.description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
         ORDER BY resourceId
     </select>
 
@@ -246,7 +244,7 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, rd.description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
         UNION ALL
         SELECT
         <include refid="selectPatientResourceCounts"/>
@@ -259,7 +257,7 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, rd.description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
         ORDER BY resourceId
     </select>
 

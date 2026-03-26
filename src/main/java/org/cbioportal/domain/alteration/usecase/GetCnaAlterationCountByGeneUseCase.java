@@ -72,7 +72,8 @@ public class GetCnaAlterationCountByGeneUseCase extends AbstractAlterationCountB
    */
   private List<CopyNumberCountByGene> combineCopyNumberCountsWithConflictingHugoSymbols(
       List<CopyNumberCountByGene> alterationCounts) {
-    Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap = new LinkedHashMap<>();
+    Map<Pair<String, Integer>, CopyNumberCountByGene> alterationCountByGeneMap =
+        new LinkedHashMap<>();
     for (var alterationCount : alterationCounts) {
       var copyNumberKey =
           Pair.create(alterationCount.getHugoGeneSymbol(), alterationCount.getAlteration());

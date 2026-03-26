@@ -381,13 +381,19 @@ jobs:
             name: Run API Tests
             environment:
               CBIOPORTAL_URL: http://localhost:8080
+              MOCHA_FILE: /tmp/repos/api-test-results/results.xml
             command: |
+              mkdir -p /tmp/repos/api-test-results
               cd cbioportal/src/e2e/js
               nvm install 22.18.0
               nvm use 22.18.0
               npm install
-              npm test
+              npm test -- --reporter mocha-junit-reporter
 
+        - store_test_results:
+            path: /tmp/repos/api-test-results
+        - store_artifacts:
+            path: /tmp/repos/api-test-results
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
 
@@ -538,9 +544,11 @@ workflows:
             requires:
               - build_frontend
               - build_web_and_data_image
-#        - run_api_tests:
-#            requires:
-#              - build_web_image
+        - run_api_tests:
+            context:
+              - clickhouse-public-staging-ro-user
+            requires:
+              - build_web_image
         - run_security_tests:
             context:
               - docker-scout

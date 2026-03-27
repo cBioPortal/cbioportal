@@ -130,7 +130,7 @@
         SELECT
             patient_unique_id,
             value AS treatment,
-            argMin(start_date, start_date) AS treatment_time_taken
+            MIN(start_date) AS treatment_time_taken
         FROM clinical_event_derived
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
@@ -155,25 +155,19 @@
          -->
         treatments AS (<include refid="treatments" />)
         SELECT
-            countIf(ced.sample_id, ced.time_taken &lt;= treatments.treatment_time_taken) AS preSampleCount,
-            countIf(ced.sample_id, ced.time_taken &gt; treatments.treatment_time_taken) AS postSampleCount,
+            COUNT(CASE WHEN ced.time_taken &lt;= treatments.treatment_time_taken THEN ced.sample_id END) AS preSampleCount,
+            COUNT(CASE WHEN ced.time_taken &gt; treatments.treatment_time_taken THEN ced.sample_id END) AS postSampleCount,
             treatments.treatment AS treatment
             <choose>
                 <when test="projection == 'DETAILED'">
                     ,
-                    groupArrayIf(
-                        (ced.sample_id, ced.patient_unique_id, ced.time_taken, ced.cancer_study_identifier),
-                        ced.time_taken &lt;= treatments.treatment_time_taken
-                    ) AS preSamples,
-                    groupArrayIf(
-                        (ced.sample_id, ced.patient_unique_id, ced.time_taken, ced.cancer_study_identifier),
-                        ced.time_taken &gt; treatments.treatment_time_taken
-                    ) AS postSamples
+                    GROUP_CONCAT(CASE WHEN ced.time_taken &lt;= treatments.treatment_time_taken THEN CONCAT(ced.sample_id, '|', ced.patient_unique_id, '|', CAST(ced.time_taken AS VARCHAR), '|', ced.cancer_study_identifier) END SEPARATOR ';') AS preSamples,
+                    GROUP_CONCAT(CASE WHEN ced.time_taken &gt; treatments.treatment_time_taken THEN CONCAT(ced.sample_id, '|', ced.patient_unique_id, '|', CAST(ced.time_taken AS VARCHAR), '|', ced.cancer_study_identifier) END SEPARATOR ';') AS postSamples
                 </when>
                 <otherwise>
                     ,
-                    array() AS preSamples,
-                    array() AS postSamples
+                    NULL AS preSamples,
+                    NULL AS postSamples
                 </otherwise>
             </choose>
         FROM sample_acquisition_events ced

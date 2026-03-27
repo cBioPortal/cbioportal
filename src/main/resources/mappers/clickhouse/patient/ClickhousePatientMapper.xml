@@ -28,7 +28,7 @@
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
-        AND label IS NOT NULL
+        AND sl.name IS NOT NULL
         GROUP BY s.cancer_study_identifier, sl.stable_id, sl.name
     </select>
 </mapper>

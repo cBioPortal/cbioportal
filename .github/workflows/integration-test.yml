@@ -8,8 +8,8 @@ jobs:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
-      # Commit of cbioportal-core that contains ClickHouse-native import support
-      CBIOPORTAL_CORE_COMMIT: 7d36671f7ec2863db12ff6a61fc031ade3787d5d
+      # Branch of cbioportal-core that contains ClickHouse-native import support
+      CBIOPORTAL_CORE_BRANCH: rfc100-import-to-clickhouse-rc
     steps:
       - name: 'Checkout cbioportal repo'
         uses: actions/checkout@v4
@@ -45,7 +45,7 @@ jobs:
         working-directory: ./
         run: |
           git clone https://github.com/cBioPortal/cbioportal-core.git cbioportal-core
-          cd cbioportal-core && git checkout ${{ env.CBIOPORTAL_CORE_COMMIT }}
+          cd cbioportal-core && git checkout ${{ env.CBIOPORTAL_CORE_BRANCH }}
           echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
           mvn --settings settings.xml -DskipTests package
           # The maven shade plugin outputs the final jar at the project root as core-<version>.jar

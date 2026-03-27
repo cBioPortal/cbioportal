@@ -11,6 +11,14 @@ run_in_service cbioportal 'metaImport.py -v -u http://cbioportal-container:8080 
 # execute updateOncokb script
 run_in_service cbioportal 'python3 /core/scripts/importer/updateOncokbAnnotations.py -s study_es_0 -p /cbioportal-webapp/application.properties'
 
-# Check that mutation annotations have been updated
-# 2 annotations should be changed to "Putative_Driver" (depends on OncoKB version)
-test `run_in_service cbioportal 'mysql -hcbioportal-database -ucbio_user -psomepassword cbioportal -e "SELECT alteration_driver_annotation.DRIVER_FILTER from cbioportal.alteration_driver_annotation inner join genetic_profile on genetic_profile.GENETIC_PROFILE_ID = alteration_driver_annotation.GENETIC_PROFILE_ID inner join cancer_study on cancer_study.CANCER_STUDY_ID = genetic_profile.CANCER_STUDY_ID WHERE cancer_study.CANCER_STUDY_IDENTIFIER = \"study_es_0\";"' | cat | grep -c 'Putative_Driver'` -eq 2
+# Check that mutation annotations have been updated via ClickHouse HTTP API.
+# 2 annotations should be changed to "Putative_Driver" (depends on OncoKB version).
+# Uses ClickHouse HTTP API instead of mysql CLI — there is no MySQL container in this setup.
+PUTATIVE_DRIVER_COUNT=$(run_in_service cbioportal \
+  'curl -sf "http://cbioportal-clickhouse-database:8123/?user=cbio_user&password=somepassword&database=cbioportal" \
+   --data "SELECT driver_filter FROM alteration_driver_annotation \
+     INNER JOIN genetic_profile ON genetic_profile.genetic_profile_id = alteration_driver_annotation.genetic_profile_id \
+     INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id \
+     WHERE cancer_study.cancer_study_identifier = '"'"'study_es_0'"'"'" \
+  | grep -c "Putative_Driver" || true')
+test "$PUTATIVE_DRIVER_COUNT" -eq 2

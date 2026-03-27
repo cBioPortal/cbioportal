@@ -39,14 +39,21 @@ jobs:
         uses: actions/checkout@master
         with:
           repository: cbioportal/cbioportal-docker-compose
+          ref: clickhouse-only-support
           path: ./cbioportal-docker-compose
       - name: 'Checkout and build cbioportal-core'
         working-directory: ./
         run: |
           git clone https://github.com/cBioPortal/cbioportal-core.git cbioportal-core
           cd cbioportal-core && git checkout ${{ env.CBIOPORTAL_CORE_COMMIT }}
-          mvn -DskipTests package
-          CORE_JAR=$(ls $GITHUB_WORKSPACE/cbioportal-core/target/cbioportal-core-*.jar | head -1)
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+          mvn --settings settings.xml -DskipTests package
+          CORE_JAR=$(ls $GITHUB_WORKSPACE/cbioportal-core/target/cbioportal-core-*.jar 2>/dev/null | head -1)
+          if [ -z "${CORE_JAR}" ]; then
+            echo "ERROR: cbioportal-core jar not found after build!"
+            ls -la $GITHUB_WORKSPACE/cbioportal-core/target/ || echo "(target/ does not exist)"
+            exit 1
+          fi
           echo "CORE_JAR_PATH=${CORE_JAR}" >> $GITHUB_ENV
           echo "Built core jar: ${CORE_JAR}"
       - name: 'Initialize cbioportal-docker-compose'

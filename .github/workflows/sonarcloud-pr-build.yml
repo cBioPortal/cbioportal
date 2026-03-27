@@ -15,10 +15,10 @@ jobs:
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: |
           mkdir pr-info
-          echo "$PR_NUMBER" > pr-info/pr-number.txt
-          echo "$PR_HEAD_REF" > pr-info/pr-head-ref.txt
-          echo "$PR_BASE_REF" > pr-info/pr-base-ref.txt
-          echo "$PR_HEAD_SHA" > pr-info/pr-head-sha.txt
+          printf '%s\n' "$PR_NUMBER" > pr-info/pr-number.txt
+          printf '%s\n' "$PR_HEAD_REF" > pr-info/pr-head-ref.txt
+          printf '%s\n' "$PR_BASE_REF" > pr-info/pr-base-ref.txt
+          printf '%s\n' "$PR_HEAD_SHA" > pr-info/pr-head-sha.txt
 
       - name: Upload PR info
         uses: actions/upload-artifact@v4

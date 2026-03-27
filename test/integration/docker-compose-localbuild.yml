@@ -1,20 +1,35 @@
 # this YAML file overrides settings in the cbioportal-docker-compose YAML
 # and maps a local maven build to appropriate locations in the container (which is retrieved by image).
+#
+# Required environment variables:
+#   PORTAL_SOURCE_DIR  - path to the cbioportal source checkout
+#   CORE_JAR_PATH      - path to the cbioportal-core jar to use for import tools
+#                        (e.g. cbioportal-core-<commit>.jar built from a specific commit)
 
 version: '3'
 
 services:
   cbioportal:
     image: cbioportal/cbioportal:master
-    command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal-webapp/application.properties --authenticate=false"
+    command: /bin/sh -c "java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal-webapp/application.properties --authenticate=false --clickhouse_mode=true --spring.profiles.active=clickhouse"
     volumes:
      #- $PORTAL_INFO_DIR:/portalinfo/
      # make docker compose run the cbioportal version-under-test
      # by volume mounting the local portal source folder into the container
-     # and running
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/src/main/resources/db-scripts:/cbioportal/db-scripts
      - $PORTAL_SOURCE_DIR/docker/web-and-data/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
      - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh
      # Mount maven.properties alongside application.properties in /cbioportal-webapp
      - ./config/maven.properties:/cbioportal-webapp/maven.properties:ro
+     # Mount application.properties at PORTAL_HOME so import tools (metaImport.py, importGenePanel.pl, etc.)
+     # can find the ClickHouse connection settings via the PORTAL_HOME environment variable
+     - ./config/application.properties:/cbioportal/application.properties:ro
+     # Override the bundled core jar with the new version that supports ClickHouse-native import.
+     # CORE_JAR_PATH must point to the cbioportal-core jar built from the tested commit.
+     - ${CORE_JAR_PATH}:/core/core-1.0.16.jar:ro
+     # ClickHouse-compatible replacement for updateOncokbAnnotations.py.
+     # The original script uses pymysql (MySQL wire protocol) and MySQL-style UPDATE syntax,
+     # neither of which works with ClickHouse. This override uses the ClickHouse HTTP API
+     # and ALTER TABLE UPDATE syntax. Remove once cbioportal-core ships a ClickHouse-native version.
+     - $PORTAL_SOURCE_DIR/test/integration/clickhouse_updateOncokbAnnotations.py:/core/scripts/importer/updateOncokbAnnotations.py:ro

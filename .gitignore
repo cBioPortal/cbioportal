@@ -109,4 +109,4 @@ Dockerfile.local
 security.properties
 *.crt
 *.key
-*~
+*~test/test_data/study_oncokb_import/ONCOKB_IMPORT_BACKUP_*

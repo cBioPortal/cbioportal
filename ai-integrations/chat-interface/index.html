@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.828215317355">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.828216409181">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.9.0.828215317355" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.9.0.828216409181" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.828215317355" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.828216409181" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.828215317355" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.828216409181" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -264,7 +264,7 @@
         <span>Chat Interface</span>
     </h1>
 </doc-anchor-target>
-<p>We&#x27;re implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. Please reach out if you&#x27;d like to test it on <a href="mailto:cbioportal@googlegroups.com">cbioportal@googlegroups.com</a>.</p>
+<p>We&#x27;re implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. We&#x27;re looking for early test users to provide us with feedback and help guide future development. If that sounds like you, sign up <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform">here</a>.</p>
 <blockquote>
 <p><strong>Note:</strong> This is a prototype and work in progress. Features and functionality are actively being developed and improved.</p>
 </blockquote>
@@ -277,7 +277,6 @@
 <p>The cBioPortal chat interface is an experimental platform with multiple AI agents currently in development. These early prototypes use Claude, an LLM developed by Anthropic, and are designed for different use cases:</p>
 <ul>
 <li><strong>cBioDBAgent</strong> - Query the cBioPortal database for information about studies, patients, samples, and treatments</li>
-<li><strong>cBioDocsAgent</strong> - Get help using and deploying cBioPortal by referencing documentation</li>
 <li><strong>cBioNavigator</strong> - Navigate the cBioPortal web interface</li>
 </ul>
 <p>We are actively exploring various approaches to make cBioPortal more accessible through natural language interactions. These agents are early prototypes and their capabilities will evolve as we continue development.</p>
@@ -315,18 +314,6 @@
 </ul>
 </li>
 </ul>
-<doc-anchor-target id="cbiodocsagent">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#cbiodocsagent">#</doc-anchor-trigger>
-        <span>cBioDocsAgent</span>
-    </h3>
-</doc-anchor-target>
-<p>Helps you understand how to use and deploy cBioPortal by referencing documentation:</p>
-<ul>
-<li>Search and retrieve information from cBioPortal documentation</li>
-<li>Get guidance on deployment, configuration, and usage</li>
-<li>Find answers to technical questions about cBioPortal</li>
-</ul>
 <doc-anchor-target id="cbionavigator">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#cbionavigator">#</doc-anchor-trigger>
@@ -335,9 +322,16 @@
 </doc-anchor-target>
 <p>Assists with navigating the cBioPortal web interface:</p>
 <ul>
-<li>Help understanding how to use different features in the web interface</li>
+<li>Describe what you want to see in plain English, and get a link to the most relevant cBioPortal page</li>
 <li>Guidance on navigating through studies and visualizations</li>
 <li>Support for exploring cBioPortal&#x27;s web-based tools</li>
+</ul>
+<p><strong>Example Queries:</strong></p>
+<ul>
+<li><a href="https://chat.cbioportal.org/c/new?q=Navigate%20to%20the%20MSK-IMPACT%20study&amp;submit=true&amp;spec=cBioNavigator">Navigate to the MSK-IMPACT study</a></li>
+<li><a href="https://chat.cbioportal.org/c/new?q=Show%20me%20an%20OncoPrint%20for%20BRAF%20and%20CDKN2A%20in%20melanoma&amp;submit=true&amp;spec=cBioNavigator">Show me an OncoPrint for BRAF and CDKN2A in melanoma</a></li>
+<li><a href="https://chat.cbioportal.org/c/new?q=Compare%20low%20grade%20glioma%20by%20molecular%20subtype&amp;submit=true&amp;spec=cBioNavigator">Compare low grade glioma by molecular subtype</a></li>
+<li><a href="https://chat.cbioportal.org/c/new?q=Show%20me%20patient%20view%20for%20IDH1%20mutant%20cholangiocarcinoma&amp;submit=true&amp;spec=cBioNavigator">Show me patient view for IDH1 mutant cholangiocarcinoma</a></li>
 </ul>
 <doc-anchor-target id="tips-for-using-the-chat-interface">
     <h2>
@@ -346,7 +340,7 @@
     </h2>
 </doc-anchor-target>
 <ul>
-<li><strong>Choose the right agent</strong>: Select the agent that best matches your need - data queries (cBioDBAgent), documentation (cBioDocsAgent), or web navigation (cBioNavigator)</li>
+<li><strong>Choose the right agent</strong>: Select the agent that best matches your need - data queries (cBioDBAgent) or web navigation (cBioNavigator)</li>
 <li><strong>Be specific</strong>: Include study names or specific data types when possible</li>
 <li><strong>Ask follow-up questions</strong>: The chat interface maintains context, so you can ask related questions in sequence</li>
 <li><strong>Explore different angles</strong>: Try rephrasing questions or asking for different perspectives on the data</li>
@@ -359,7 +353,7 @@
     </h2>
 </doc-anchor-target>
 <ol>
-<li>Reach out to <a href="mailto:cbioportal@googlegroups.com">cbioportal@googlegroups.com</a> to get access to the chat interface</li>
+<li>Fill out this <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform">form</a> to request access. We are onboarding new users in groups, so we appreciate your patience until we get in touch.</li>
 <li>Type your question in the chat input</li>
 <li>Review the AI-generated response</li>
 <li>Ask follow-up questions to dive deeper into the data</li>
@@ -397,10 +391,6 @@
 <ul>
 <li><strong>MCP Layer</strong>: Model Context Protocol (MCP) servers provide the connection between Claude and cBioPortal data</li>
 <li><strong>Database</strong>: Queries are executed against cBioPortal&#x27;s <a href="https://clickhouse.com/">ClickHouse</a> database</li>
-</ul>
-<p><strong>cBioDocsAgent:</strong></p>
-<ul>
-<li><strong>Documentation Access</strong>: References cBioPortal documentation to answer questions</li>
 </ul>
 <p><strong>cBioNavigator:</strong></p>
 <ul>

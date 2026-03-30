@@ -35,6 +35,7 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
     return molecularDataMapper
         .getCommaSeparatedSampleIdsOfMolecularProfiles(molecularProfileIds)
         .stream()
+        .filter(mps -> mps.getCommaSeparatedSampleIds() != null)
         .collect(
             Collectors.toMap(MolecularProfileSamples::getMolecularProfileId, Function.identity()));
   }

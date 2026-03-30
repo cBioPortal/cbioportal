@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.service.util;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -88,5 +89,16 @@ public abstract class ClinicalAttributeUtil {
     legacyClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
     legacyClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
     return legacyClinicalAttribute;
+  }
+
+  public static List<ClinicalAttribute> convertToLegacyClinicalAttributeList(
+      List<org.cbioportal.domain.clinical_attributes.ClinicalAttribute> clinicalAttributes) {
+    if (clinicalAttributes == null) {
+      return Collections.emptyList();
+    }
+
+    return clinicalAttributes.stream()
+        .map(ClinicalAttributeUtil::convertToLegacyClinicalAttribute)
+        .toList();
   }
 }

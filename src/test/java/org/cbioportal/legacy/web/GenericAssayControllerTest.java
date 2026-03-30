@@ -112,7 +112,6 @@ public class GenericAssayControllerTest {
                     "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))

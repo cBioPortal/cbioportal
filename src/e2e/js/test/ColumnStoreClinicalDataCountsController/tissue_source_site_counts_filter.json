@@ -1,0 +1,28 @@
+{
+  "attributes": [
+    { "attributeId": "TISSUE_SOURCE_SITE" }
+  ],
+  "studyViewFilter": {
+    "sampleIdentifiers": [
+      { "studyId": "thca_tcga", "sampleId": "TCGA-BJ-A0Z3-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-BJ-A0ZC-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-BJ-A18Y-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-BJ-A18Z-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-BJ-A190-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-DO-A1JZ-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-DO-A1K0-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-EM-A1CS-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-EM-A1CT-01" },
+      { "studyId": "thca_tcga", "sampleId": "TCGA-EM-A1CU-01" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "AU5884" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "CA9903" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "JB112852" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "MA7027" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "RO3338" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "DI6359" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "HE3202" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "KA3947" },
+      { "studyId": "nsclc_mskcc_2015", "sampleId": "RI1933" }
+    ]
+  }
+}

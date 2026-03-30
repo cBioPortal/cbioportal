@@ -439,8 +439,6 @@ public class ColumnarStoreStudyViewController {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
 
-    // If genomicDataFilters is null or empty, return an empty result list
-    // This prevents IndexOutOfBoundsException in the MyBatis mapper
     if (genomicDataFilters == null || genomicDataFilters.isEmpty()) {
       return ResponseEntity.ok(Collections.emptyList());
     }
@@ -525,8 +523,6 @@ public class ColumnarStoreStudyViewController {
     List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
     StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
 
-    // If genomicDataFilters is null or empty, return an empty result list
-    // This prevents IndexOutOfBoundsException in the MyBatis mapper
     if (genomicDataFilters == null || genomicDataFilters.isEmpty()) {
       return ResponseEntity.ok(Collections.emptyList());
     }

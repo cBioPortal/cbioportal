@@ -11,35 +11,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.Collections;
 import org.cbioportal.domain.studyview.StudyViewService;
+import org.cbioportal.infrastructure.service.BasicDataBinner;
+import org.cbioportal.infrastructure.service.ClinicalDataBinner;
+import org.cbioportal.legacy.service.ClinicalDataDensityPlotService;
+import org.cbioportal.legacy.service.CustomDataService;
+import org.cbioportal.legacy.service.ViolinPlotService;
+import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
+import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Unit tests for ColumnarStoreStudyViewController.
- *
- * <p>When genomicDataFilters is empty or null, the endpoints should return an empty list instead of
- * throwing an IndexOutOfBoundsException.
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebMvcTest
+@ContextConfiguration(classes = {ColumnarStoreStudyViewController.class, TestConfig.class})
 public class ColumnarStoreStudyViewControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
-  @Autowired private ObjectMapper objectMapper;
+  private ObjectMapper objectMapper = new ObjectMapper();
 
   @MockBean private StudyViewService studyViewService;
+
+  @MockBean private BasicDataBinner basicDataBinner;
+
+  @MockBean private ClinicalDataBinner clinicalDataBinner;
+
+  @MockBean private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
+
+  @MockBean private ViolinPlotService violinPlotService;
+
+  @MockBean private CustomDataService customDataService;
+
+  @MockBean private CustomDataFilterUtil customDataFilterUtil;
 
   private static final String TEST_STUDY_ID = "test_study";
 
@@ -62,7 +75,6 @@ public class ColumnarStoreStudyViewControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 
-    // Verify that the service was never called (early return due to empty filters)
     verify(studyViewService, never())
         .getCNACountsByGeneSpecific(
             org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList());
@@ -87,7 +99,6 @@ public class ColumnarStoreStudyViewControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 
-    // Verify that the service was never called (early return due to null filters)
     verify(studyViewService, never())
         .getCNACountsByGeneSpecific(
             org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList());
@@ -112,7 +123,6 @@ public class ColumnarStoreStudyViewControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 
-    // Verify that the service was never called (early return due to empty filters)
     verify(studyViewService, never())
         .getMutationCountsByGeneSpecific(
             org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList());
@@ -137,7 +147,6 @@ public class ColumnarStoreStudyViewControllerTest {
         .andExpect(status().isOk())
         .andExpect(content().json("[]"));
 
-    // Verify that the service was never called (early return due to null filters)
     verify(studyViewService, never())
         .getMutationCountsByGeneSpecific(
             org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.anyList());

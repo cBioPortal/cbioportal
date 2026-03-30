@@ -42,7 +42,7 @@
                 SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileId}
             )
 
-            <if test="sampleIds != null and !sampleIds.isEmpty() and sampleIds.size() &lt;= 5000">
+            <if test="sampleIds != null and !sampleIds.isEmpty()">
                 AND sample.stable_id IN
                     <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
@@ -82,7 +82,7 @@
 
     <sql id="whereInMultipleMolecularProfiles">
         <where>
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1 and sampleIds.size() &lt;= 5000">
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
                 sample_cna_event.genetic_profile_id = (
                     SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileIds[0]}
                 ) AND
@@ -90,20 +90,10 @@
                     <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                 )
             </if>
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1 and sampleIds.size() &gt; 5000">
-                sample_cna_event.genetic_profile_id = (
-                    SELECT genetic_profile_id FROM genetic_profile gp WHERE gp.stable_id = #{molecularProfileIds[0]}
-                )
-            </if>
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1 and sampleIds.size() &lt;= 5000">
+            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
                 <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(sampleIds, molecularProfileIds)" />
                 CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
                     <foreach collection="sampleProfileKeys" item="key" separator=",">#{key}</foreach>
-                )
-            </if>
-            <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1 and sampleIds.size() &gt; 5000">
-                genetic_profile.stable_id IN (
-                    <foreach collection="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().toArray()" item="pid" open="(" separator="," close=")">#{pid}</foreach>
                 )
             </if>
             <if test="_parameter.containsKey('entrezGeneIds') and entrezGeneIds != null and !entrezGeneIds.isEmpty()">
@@ -266,7 +256,7 @@
             (cna_event.entrez_gene_id, cna_event.alteration) IN
                 <foreach index="i" collection="entrezGeneIds" open="(" separator="," close=")">(#{entrezGeneIds[${i}]},#{alterations[${i}]})</foreach>
         </if>
-        <if test="sampleIds != null and !sampleIds.isEmpty() and sampleIds.size() &lt;= 5000">
+        <if test="sampleIds != null and !sampleIds.isEmpty()">
             AND sample.stable_id IN
                 <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
         </if>

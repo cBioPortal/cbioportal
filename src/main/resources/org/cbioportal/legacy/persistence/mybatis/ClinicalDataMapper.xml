@@ -64,24 +64,16 @@
             </if>
             <if test="sampleIds != null">
                 <choose>
-                    <when test="studyIds.stream().distinct().count() == 1 and sampleIds.size() &lt;= 5000">
+                    <when test="studyIds.stream().distinct().count() == 1">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         sample.stable_id IN (
                             <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
-                    <when test="studyIds.stream().distinct().count() == 1 and sampleIds.size() &gt; 5000">
-                        cancer_study.cancer_study_identifier = #{studyIds[0]}
-                    </when>
-                    <when test="sampleIds.size() &lt;= 5000">
+                    <otherwise>
                         <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
                             <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
-                        )
-                    </when>
-                    <otherwise>
-                        cancer_study.cancer_study_identifier IN (
-                            <foreach collection="studyIds.stream().distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
                         )
                     </otherwise>
                 </choose>
@@ -100,24 +92,16 @@
             </if>
             <if test="patientIds != null">
                 <choose>
-                    <when test="studyIds.stream().distinct().count() == 1 and patientIds.size() &lt;= 5000">
+                    <when test="studyIds.stream().distinct().count() == 1">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         patient.stable_id IN (
                             <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
-                    <when test="studyIds.stream().distinct().count() == 1 and patientIds.size() &gt; 5000">
-                        cancer_study.cancer_study_identifier = #{studyIds[0]}
-                    </when>
-                    <when test="patientIds.size() &lt;= 5000">
+                    <otherwise>
                         <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
                             <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
-                        )
-                    </when>
-                    <otherwise>
-                        cancer_study.cancer_study_identifier IN (
-                            <foreach collection="studyIds.stream().distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
                         )
                     </otherwise>
                 </choose>
@@ -389,12 +373,10 @@
         INNER JOIN sample ON clinical_sample.internal_id = sample.internal_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
-        <if test="sampleInternalIds.size() &lt;= 5000">
         WHERE sample.internal_id IN
         <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
             #{item}
         </foreach>
-        </if>
     </select>
 
     <select id="getPatientClinicalDataBySampleInternalIds" resultType="org.cbioportal.legacy.model.ClinicalData">
@@ -404,12 +386,10 @@
         INNER JOIN patient ON clinical_patient.internal_id = patient.internal_id
         INNER JOIN sample ON patient.internal_id = sample.patient_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
-        <if test="sampleInternalIds.size() &lt;= 5000">
         WHERE sample.internal_id IN
         <foreach item="item" collection="sampleInternalIds" open="(" separator="," close=")">
             #{item}
         </foreach>
-        </if>
     </select>
 
 </mapper>

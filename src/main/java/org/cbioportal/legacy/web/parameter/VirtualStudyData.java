@@ -1,18 +1,30 @@
 package org.cbioportal.legacy.web.parameter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.web.validation.ValidVirtualStudyData;
+import org.cbioportal.legacy.web.validation.VirtualStudyValidationMessages;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ValidVirtualStudyData
 public class VirtualStudyData implements Serializable {
 
+  @NotBlank(message = VirtualStudyValidationMessages.NAME_REQUIRED)
   private String name;
+
   private String description;
+
+  @NotEmpty(message = VirtualStudyValidationMessages.STUDIES_REQUIRED)
+  @Valid
   private Set<VirtualStudySamples> studies;
-  private StudyViewFilter studyViewFilter;
+
+  @Valid private StudyViewFilter studyViewFilter;
   private Float version = 1.0f;
   private String owner = "anonymous";
   private Set<String> origin = new HashSet<>();

@@ -60,16 +60,24 @@
                     <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">#{item}</foreach>
             </when>
             <otherwise>
-                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1">
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1 and sampleIds.size() &lt;= 5000">
                     genetic_profile.stable_id = #{molecularProfileIds[0]} AND
                     sample.stable_id IN (
                         <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                     )
                 </if>
-                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1">
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() == 1 and sampleIds.size() &gt; 5000">
+                    genetic_profile.stable_id = #{molecularProfileIds[0]}
+                </if>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1 and sampleIds.size() &lt;= 5000">
                     <bind name="sampleProfileKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(sampleIds, molecularProfileIds)" />
                     CONCAT(sample.stable_id, ':', genetic_profile.stable_id) IN (
                         <foreach collection="sampleProfileKeys" item="key" separator=",">#{key}</foreach>
+                    )
+                </if>
+                <if test="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().count() > 1 and sampleIds.size() &gt; 5000">
+                    genetic_profile.stable_id IN (
+                        <foreach collection="@java.util.Arrays@stream(molecularProfileIds.toArray()).distinct().toArray()" item="pid" open="(" separator="," close=")">#{pid}</foreach>
                     )
                 </if>
             </otherwise>

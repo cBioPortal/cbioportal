@@ -12,46 +12,64 @@
     </resultMap>
     <select id="getPatientTreatments" resultMap="PatientTreatment">
         SELECT
-        value AS treatment,
-        count(DISTINCT patient_unique_id) AS count
-        FROM clinical_event_derived
+        ced.value AS treatment,
+        count(DISTINCT concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id)) AS count
+        FROM clinical_event_data ced
+        RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+        JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+        JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                cancer_study_identifier IN
+                cs_ce.cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
                 AND
             </if>
-            lower(event_type) = 'treatment'
-            AND `key` = 'AGENT'
+            lower(ce.event_type) = 'treatment'
+            AND ced.`key` = 'AGENT'
             AND
-            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+            concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id) in (
+                SELECT patient_unique_id
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                <where>
+                    sample_unique_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+                </where>
+            )
         </where>
-        GROUP BY value
+        GROUP BY ced.value
     </select>
 
     <select id="getPatientTreatmentCounts" resultType="int">
         SELECT
         count(DISTINCT patient_unique_id) AS totalPatients
-        FROM sample_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
         <where>
             patient_unique_id IN (
-            SELECT
-            patient_unique_id
-            FROM clinical_event_derived
+            SELECT DISTINCT
+            concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id)
+            FROM clinical_event_data ced
+            RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+            JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+            JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
             <where>
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    cancer_study_identifier IN
+                    cs_ce.cancer_study_identifier IN
                     <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                         #{studyId}
                     </foreach>
                     AND
                 </if>
-                lower(event_type) = 'treatment'
-                AND `key` = 'AGENT'
+                lower(ce.event_type) = 'treatment'
+                AND ced.`key` = 'AGENT'
                 AND
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id) in (
+                    SELECT patient_unique_id
+                    FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                    <where>
+                        sample_unique_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+                    </where>
+                )
             </where>
             )
         </where>
@@ -59,42 +77,54 @@
 
     <select id="getTotalSampleTreatmentCounts" resultType="int">
         SELECT
-        count(distinct ced.value) AS totalSamples
-        FROM clinical_event_derived ced
+        count(distinct ced_outer.value) AS totalSamples
+        FROM clinical_event_data ced_outer
+        RIGHT JOIN clinical_event ce_outer ON ced_outer.clinical_event_id = ce_outer.clinical_event_id
+        JOIN patient p_outer ON ce_outer.patient_id = p_outer.internal_id
+        JOIN cancer_study cs_outer ON p_outer.cancer_study_id = cs_outer.cancer_study_id
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                cancer_study_identifier IN
+                cs_outer.cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
                 AND
             </if>
-            (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
-            AND `key` = 'SAMPLE_ID'
+            (LOWER(ce_outer.event_type) = 'sample acquisition' OR LOWER(ce_outer.event_type) = 'specimen')
+            AND ced_outer.`key` = 'SAMPLE_ID'
             AND
-            concat(ced.cancer_study_identifier, '_', ced.value) IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            concat(cs_outer.cancer_study_identifier, '_', ced_outer.value) IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
             AND
-            patient_unique_id IN (
-            SELECT
-            patient_unique_id
-            FROM clinical_event_derived
+            concat(cs_outer.cancer_study_identifier, '_', p_outer.stable_id) IN (
+            SELECT DISTINCT
+            concat(cs_inner.cancer_study_identifier, '_', p_inner.stable_id)
+            FROM clinical_event_data ced_inner
+            RIGHT JOIN clinical_event ce_inner ON ced_inner.clinical_event_id = ce_inner.clinical_event_id
+            JOIN patient p_inner ON ce_inner.patient_id = p_inner.internal_id
+            JOIN cancer_study cs_inner ON p_inner.cancer_study_id = cs_inner.cancer_study_id
             <where>
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    cancer_study_identifier IN
+                    cs_inner.cancer_study_identifier IN
                     <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                         #{studyId}
                     </foreach>
                     AND
                 </if>
-                lower(event_type) = 'treatment'
-                AND `key` = 'AGENT'
+                lower(ce_inner.event_type) = 'treatment'
+                AND ced_inner.`key` = 'AGENT'
                 AND
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                concat(cs_inner.cancer_study_identifier, '_', p_inner.stable_id) in (
+                    SELECT patient_unique_id
+                    FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                    <where>
+                        sample_unique_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+                    </where>
+                )
             </where>
             )
         </where>
     </select>
-    
+
     <resultMap id="SampleTreatmentCount" type="org.cbioportal.legacy.model.SampleTreatment">
         <constructor>
             <arg column="treatment" javaType="String"/>
@@ -104,48 +134,54 @@
             <arg column="postSamples" javaType="java.util.List" typeHandler="org.cbioportal.legacy.persistence.mybatis.typehandler.ClinicalEventSampleTypeHandler" />
         </constructor>
     </resultMap>
-    
+
     <sql id="sampleAcquisitionEvents">
         SELECT
             ced.value AS sample_id,
-            ced.patient_unique_id,
-            min(ced.start_date) AS time_taken,
-            ced.cancer_study_identifier AS cancer_study_identifier
-        FROM clinical_event_derived ced
+            concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id) AS patient_unique_id,
+            min(ce.start_date) AS time_taken,
+            cs_ce.cancer_study_identifier AS cancer_study_identifier
+        FROM clinical_event_data ced
+        RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+        JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+        JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                cancer_study_identifier IN
+                cs_ce.cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
                 AND
             </if>
-            (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
-            AND `key` = 'SAMPLE_ID'
+            (LOWER(ce.event_type) = 'sample acquisition' OR LOWER(ce.event_type) = 'specimen')
+            AND ced.`key` = 'SAMPLE_ID'
         </where>
-        GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+        GROUP BY patient_unique_id, ced.value, cs_ce.cancer_study_identifier
     </sql>
-    
+
     <sql id="treatments">
         SELECT
-            patient_unique_id,
-            value AS treatment,
-            MIN(start_date) AS treatment_time_taken
-        FROM clinical_event_derived
+            concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id) AS patient_unique_id,
+            ced.value AS treatment,
+            MIN(ce.start_date) AS treatment_time_taken
+        FROM clinical_event_data ced
+        RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+        JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+        JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                cancer_study_identifier IN
+                cs_ce.cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}
                 </foreach>
                 AND
             </if>
-            lower(event_type) = 'treatment'
-            AND `key` = 'AGENT'
+            lower(ce.event_type) = 'treatment'
+            AND ced.`key` = 'AGENT'
         </where>
-        GROUP BY patient_unique_id, value
+        GROUP BY patient_unique_id, ced.value
     </sql>
-    
+
     <!-- Count (Pre/Post) Sample Acquisition Events for every Treatment per Patient -->
     <select id="getSampleTreatmentCounts" resultMap="SampleTreatmentCount">
         <!-- Nested sub query to grab minimum sample acquisition event  and also filter out duplicates -->

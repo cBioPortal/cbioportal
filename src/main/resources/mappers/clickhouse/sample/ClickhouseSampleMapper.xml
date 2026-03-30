@@ -3,13 +3,65 @@
 
 <mapper
         namespace="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper">
+
+    <!-- Inline replacement for sample_derived: sample + patient + cancer_study base tables.
+         Produces all columns except sequenced/copy_number_segment_present (use sampleDerivedDetailedInline for those). -->
+    <sql id="sampleDerivedInline">
+        (SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+                TO_BASE64(s.stable_id) AS sample_unique_id_base64,
+                s.stable_id AS sample_stable_id,
+                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                TO_BASE64(p.stable_id) AS patient_unique_id_base64,
+                p.stable_id AS patient_stable_id,
+                cs.cancer_study_identifier AS cancer_study_identifier,
+                s.internal_id AS internal_id,
+                s.patient_id AS patient_internal_id,
+                s.sample_type AS sample_type
+         FROM sample s
+         INNER JOIN patient p ON s.patient_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id)
+    </sql>
+
+    <!-- Detailed version with sequenced + copy_number_segment_present computed columns -->
+    <sql id="sampleDerivedDetailedInline">
+        (SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+                TO_BASE64(s.stable_id) AS sample_unique_id_base64,
+                s.stable_id AS sample_stable_id,
+                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                TO_BASE64(p.stable_id) AS patient_unique_id_base64,
+                p.stable_id AS patient_stable_id,
+                cs.cancer_study_identifier AS cancer_study_identifier,
+                s.internal_id AS internal_id,
+                s.patient_id AS patient_internal_id,
+                s.sample_type AS sample_type,
+                IF(s.stable_id IN (
+                    SELECT sample.stable_id
+                    FROM sample_list_list
+                    INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                    INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
+                    INNER JOIN patient ON sample.patient_id = patient.internal_id
+                    INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+                    WHERE sample_list.stable_id = concat(cancer_study.cancer_study_identifier, '_sequenced')
+                ), 1, 0) AS sequenced,
+                IF(concat(cs.cancer_study_identifier, '_', s.stable_id) IN (
+                    SELECT concat(cancer_study.cancer_study_identifier, '_', sample.stable_id)
+                    FROM copy_number_seg
+                    INNER JOIN cancer_study ON copy_number_seg.cancer_study_id = cancer_study.cancer_study_id
+                    INNER JOIN sample ON copy_number_seg.sample_id = sample.internal_id
+                    INNER JOIN patient ON sample.patient_id = patient.internal_id
+                ), 1, 0) AS copy_number_segment_present
+         FROM sample s
+         INNER JOIN patient p ON s.patient_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id)
+    </sql>
+
     <select id="getFilteredSamples" resultMap="SampleResultMap">
         SELECT
         internal_id as internalId,
         patient_stable_id as patientStableId,
         sample_stable_id as stableId,
         cancer_study_identifier as cancerStudyIdentifier
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
@@ -93,7 +145,7 @@
 
     <sql id="getFilteredSampleCount">
         SELECT count(distinct sample_unique_id) as count
-        FROM sample_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
@@ -102,7 +154,7 @@
     <select id="getSamples" resultMap="SampleResultMap">
         SELECT
             <include refid="sampleColumnsId" />
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterByCaseAndStudy" />
         <include refid="sortAndLimit">
             <property name="projection" value="ID"/>
@@ -112,7 +164,7 @@
     <select id="getSummarySamples" resultMap="SummarySampleResultMap">
         SELECT
             <include refid="sampleColumnsSummary" />
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterByCaseAndStudy" />
         <include refid="sortAndLimit">
             <property name="projection" value="SUMMARY"/>
@@ -132,14 +184,14 @@
     <select id="getSamplesBySampleListIds" resultMap="SampleResultMap">
         SELECT
             <include refid="sampleColumnsId" />
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterBySampleListId" />
     </select>
 
     <select id="getSummarySamplesBySampleListIds" resultMap="SummarySampleResultMap">
         SELECT
             <include refid="sampleColumnsSummary" />
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterBySampleListId" />
     </select>
 
@@ -153,14 +205,14 @@
     <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
             COUNT(*) as totalCount
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterByCaseAndStudy"/>
     </select>
 
     <select id="getMetaSamplesBySampleListIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
             COUNT(*) as totalCount
-        FROM sample_derived
+        FROM <include refid="sampleDerivedInline"/> sample_derived
         <include refid="filterBySampleListId" />
     </select>
 
@@ -209,9 +261,8 @@
     </sql>
     
     <sql id="fromJoinedTable">
-        FROM sample_derived
-            INNER JOIN patient AS p ON patient_internal_id = p.internal_id
-            INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+        FROM <include refid="sampleDerivedDetailedInline"/> sample_derived
+            INNER JOIN cancer_study AS cs ON sample_derived.cancer_study_identifier = cs.cancer_study_identifier
             INNER JOIN reference_genome AS rg ON cs.reference_genome_id = rg.reference_genome_id
     </sql>
 

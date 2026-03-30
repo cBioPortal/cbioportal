@@ -1,11 +1,11 @@
 package org.cbioportal.legacy.persistence.mybatis.typehandler;
 
-import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
@@ -22,34 +22,43 @@ public class ClinicalEventSampleTypeHandler extends BaseTypeHandler<List<Clinica
   @Override
   public List<ClinicalEventSample> getNullableResult(ResultSet rs, String columnName)
       throws SQLException {
-    Array sqlArray = rs.getArray(columnName);
-    return convertClickhouseArrayToSamples(sqlArray);
+    String value = rs.getString(columnName);
+    return parseSamplesString(value);
   }
 
   @Override
   public List<ClinicalEventSample> getNullableResult(ResultSet rs, int columnIndex)
       throws SQLException {
-    Array sqlArray = rs.getArray(columnIndex);
-    return convertClickhouseArrayToSamples(sqlArray);
+    String value = rs.getString(columnIndex);
+    return parseSamplesString(value);
   }
 
   @Override
   public List<ClinicalEventSample> getNullableResult(CallableStatement cs, int columnIndex)
       throws SQLException {
-    Array sqlArray = cs.getArray(columnIndex);
-    return convertClickhouseArrayToSamples(sqlArray);
+    String value = cs.getString(columnIndex);
+    return parseSamplesString(value);
   }
 
-  private List<ClinicalEventSample> convertClickhouseArrayToSamples(Array sqlArray)
-      throws SQLException {
-    return Arrays.stream((Object[]) sqlArray.getArray())
+  /**
+   * Parses a semicolon-separated string of pipe-delimited sample records. Format:
+   * "sampleId|patientUniqueId|timeTaken|studyId;sampleId|..." This is produced by
+   * GROUP_CONCAT(...SEPARATOR ';') in the SQL query.
+   */
+  private List<ClinicalEventSample> parseSamplesString(String value) {
+    if (value == null || value.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return Arrays.stream(value.split(";"))
+        .filter(s -> !s.isEmpty())
         .map(
-            obj -> {
-              List<Object> fields = (List<Object>) obj;
-              String sampleId = (String) fields.get(0);
-              String uniqPatientId = (String) fields.get(1);
-              Integer timeTaken = (Integer) fields.get(2);
-              String studyId = (String) fields.get(3);
+            entry -> {
+              String[] fields = entry.split("\\|", -1);
+              String sampleId = fields[0];
+              String uniqPatientId = fields.length > 1 ? fields[1] : "";
+              Integer timeTaken =
+                  fields.length > 2 && !fields[2].isEmpty() ? Integer.parseInt(fields[2]) : null;
+              String studyId = fields.length > 3 ? fields[3] : "";
               String patientId = uniqPatientId.replaceFirst(studyId + "_", "");
 
               ClinicalEventSample sample = new ClinicalEventSample();

@@ -33,11 +33,11 @@
             mutation_event.protein_pos_start AS "proteinPosStart",
             mutation_event.protein_pos_end AS "proteinPosEnd",
             mutation_event.keyword AS "keyword",
-            mutation.annotation_json AS "annotationJSON",
-            alteration_driver_annotation.driver_filter AS "driverFilter",
-            alteration_driver_annotation.driver_filter_annotation AS "driverFilterAnnotation",
-            alteration_driver_annotation.driver_tiers_filter AS "driverTiersFilter",
-            alteration_driver_annotation.driver_tiers_filter_annotation AS "driverTiersFilterAnnotation"
+            NULLIF(mutation.annotation_json, 'N') AS "annotationJSON",
+            NULLIF(alteration_driver_annotation.driver_filter, 'N') AS "driverFilter",
+            NULLIF(alteration_driver_annotation.driver_filter_annotation, 'N') AS "driverFilterAnnotation",
+            NULLIF(alteration_driver_annotation.driver_tiers_filter, 'N') AS "driverTiersFilter",
+            NULLIF(alteration_driver_annotation.driver_tiers_filter_annotation, 'N') AS "driverTiersFilterAnnotation"
         </if>
         <if test="projection == 'DETAILED'">
             ,

@@ -27,23 +27,25 @@
         ),
         treatment AS (
             SELECT
-                COUNT(DISTINCT patient_unique_id) as count,
-                cancer_study_identifier
-            FROM clinical_event_derived
+                COUNT(DISTINCT concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id)) as count,
+                cs_ce.cancer_study_identifier
+            FROM clinical_event ce
+            JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+            JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
             <where>
-                event_type IN ('Treatment', 'TREATMENT')
+                ce.event_type IN ('Treatment', 'TREATMENT')
             </where>
-            GROUP BY cancer_study_identifier 
+            GROUP BY cs_ce.cancer_study_identifier
         ),
         sv AS (
             SELECT
-                COUNT(DISTINCT sample_unique_id) as count,
-                cancer_study_identifier as cancer_study_identifier
-            FROM genomic_event_derived
-            <where>
-                variant_type = 'structural_variant'
-            </where>
-            GROUP BY cancer_study_identifier 
+                COUNT(DISTINCT concat(cs.cancer_study_identifier, '_', s.stable_id)) as count,
+                cs.cancer_study_identifier as cancer_study_identifier
+            FROM structural_variant sv
+            JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
+            JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+            JOIN sample s ON sv.sample_id = s.internal_id
+            GROUP BY cs.cancer_study_identifier
         )
         SELECT
             cs.cancer_study_id AS cancerStudyId,
@@ -52,8 +54,8 @@
             cs.name AS name,
             cs.description AS description,
             cs.public AS publicStudy,
-            cs.pmid AS pmid,
-            cs.citation AS citation,
+            NULLIF(cs.pmid, 'N') AS pmid,
+            NULLIF(cs.citation, 'N') AS citation,
             cs.`groups` AS `groups`,
             cs.status AS status,
             cs.import_date AS importDate,
@@ -238,7 +240,7 @@
     <select id="getFilteredStudyIds" resultType="string">
         SELECT
         DISTINCT cancer_study_identifier
-        FROM sample_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
         <where>
             sample_unique_id IN ( <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
         </where>

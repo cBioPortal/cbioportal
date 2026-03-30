@@ -3,6 +3,34 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper">
 
+    <!-- Inline replacement for clinical_data_derived: UNION ALL of sample + patient clinical attributes
+         joined directly to base tables (clinical_sample/clinical_patient + sample + patient + cancer_study). -->
+    <sql id="clinicalDataDerivedInline">
+        (SELECT s.internal_id AS internal_id,
+                concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                csamp.attr_id AS attribute_name,
+                IFNULL(csamp.attr_value, '') AS attribute_value,
+                cs.cancer_study_identifier AS cancer_study_identifier,
+                'sample' AS type
+         FROM clinical_sample csamp
+         INNER JOIN sample s ON csamp.internal_id = s.internal_id
+         INNER JOIN patient p ON s.patient_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+         UNION ALL
+         SELECT p.internal_id AS internal_id,
+                '' AS sample_unique_id,
+                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                clinpat.attr_id AS attribute_name,
+                IFNULL(clinpat.attr_value, '') AS attribute_value,
+                cs.cancer_study_identifier AS cancer_study_identifier,
+                'patient' AS type
+         FROM clinical_patient clinpat
+         INNER JOIN patient p ON clinpat.internal_id = p.internal_id
+         INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id)
+    </sql>
+
+
     <select id="getSampleClinicalDataFromStudyViewFilter" resultMap="clinicalDataSummaryResultMap">
         SELECT
             internal_id as internalId,
@@ -11,7 +39,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM clinical_data_derived
+        FROM <include refid="clinicalDataDerivedInline"/> clinical_data_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>
@@ -38,7 +66,7 @@
             attribute_name as attrId,
             attribute_value as attrValue,
             cancer_study_identifier as studyId
-        FROM clinical_data_derived
+        FROM <include refid="clinicalDataDerivedInline"/> clinical_data_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
         </where>
@@ -69,7 +97,7 @@
             REPLACE(cd.patient_unique_id, concat(cd.cancer_study_identifier, '_'), '') as patientId,
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId
-        FROM clinical_data_derived cd
+        FROM <include refid="clinicalDataDerivedInline"/> cd
         <include refid="fetchClinicalDataWhereClause" />
     </select>
 
@@ -86,7 +114,7 @@
             cd.cancer_study_identifier as studyId,
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue
-        FROM clinical_data_derived cd
+        FROM <include refid="clinicalDataDerivedInline"/> cd
         <include refid="fetchClinicalDataWhereClause" />
     </select>
 
@@ -111,7 +139,7 @@
             cam.priority as priority,
             cam.cancer_study_id as cancerStudyId,
             cd.cancer_study_identifier as cancerStudyIdentifier
-        FROM clinical_data_derived cd
+        FROM <include refid="clinicalDataDerivedInline"/> cd
         LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
         LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
         <include refid="fetchClinicalDataWhereClause" />
@@ -150,7 +178,7 @@
     <!-- Get Clinical Data Count for Meta -->
     <select id="fetchClinicalDataMeta" resultType="java.lang.Integer">
         SELECT COUNT(*)
-        FROM clinical_data_derived cd
+        FROM <include refid="clinicalDataDerivedInline"/> cd
         WHERE cd.type = #{clinicalDataType}
         <if test="studyIds != null and !studyIds.isEmpty()">
             AND cd.cancer_study_identifier IN
@@ -211,17 +239,23 @@
         </if>
     </select>
 
+    <!-- CTE wrapper: filtered_sample_ids is computed once and reused for both
+         the clinical data filter and the NA-count denominator.  StarRocks
+         materializes it via cbo_cte_reuse, eliminating the duplicate INTERSECT. -->
     <sql id="getClinicalDataCountsQuery">
         (
-        WITH clinical_data_query AS (
+        WITH filtered_sample_ids AS (
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+        ),
+        clinical_data_query AS (
         SELECT
             attribute_name AS attributeId,
             attribute_value AS value,
             cast(count(*) AS INTEGER) as count
-        FROM clinical_data_derived cdd
+        FROM <include refid="clinicalDataDerivedInline"/> cdd
         <if test="'${isConflicting}' == 'true'">
             <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
-            LEFT JOIN sample_derived sd ON cdd.patient_unique_id = sd.patient_unique_id
+            LEFT JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd ON cdd.patient_unique_id = sd.patient_unique_id
         </if>
         <where>
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
@@ -238,10 +272,13 @@
             AND
             <choose>
                 <when test="'${type}' == 'sample'">
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+                    cdd.sample_unique_id IN (SELECT sample_unique_id FROM filtered_sample_ids)
                 </when>
                 <otherwise>
-                    <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
+                    cdd.patient_unique_id IN (
+                        SELECT patient_unique_id FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                        WHERE sample_unique_id IN (SELECT sample_unique_id FROM filtered_sample_ids)
+                    )
                 </otherwise>
             </choose>
             AND attribute_name IN
@@ -259,13 +296,12 @@
         ((
         <choose>
             <when test="'${type}' == 'sample' or '${isConflicting}' == 'true'">
-                <!-- Use sample count for:
-                    1. Pure sample attributes (type='sample')
-                    2. Conflicting attributes (already mapped to sample-level via JOIN) -->
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>
+                SELECT count(distinct sample_unique_id) FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                WHERE sample_unique_id IN (SELECT sample_unique_id FROM filtered_sample_ids)
             </when>
             <otherwise>
-                <include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>
+                SELECT count(distinct patient_unique_id) FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                WHERE sample_unique_id IN (SELECT sample_unique_id FROM filtered_sample_ids)
             </otherwise>
         </choose>
         ) - clinical_data_sum.sum) AS na_count

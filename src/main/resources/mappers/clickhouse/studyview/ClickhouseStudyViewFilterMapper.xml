@@ -7,7 +7,7 @@
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}
@@ -23,7 +23,7 @@
                     <foreach item="listGroup" collection="studyViewFilterContext.caseLists" separator="INTERSECT">
                         SELECT sample_unique_id
                         FROM sample_list_list sll
-                        LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
+                        LEFT JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> s ON sll.sample_id=s.internal_id
                         LEFT JOIN sample_list sl on sll.list_id=sl.list_id
                         WHERE
                         <foreach item="list" collection="listGroup" separator="OR">
@@ -41,7 +41,7 @@
                     FROM sample_profile GYMP
                     JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
                     JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
-                    JOIN sample_derived on sample_profile.sample_id = sample_derived.internal_id
+                    JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived on sample_profile.sample_id = sample_derived.internal_id
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                         <where>
                             sample_derived.cancer_study_identifier IN
@@ -64,7 +64,7 @@
             <if test="filteredSampleIdentifiers != null and filteredSampleIdentifiers.length > 0">
             INTERSECT
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE sample_unique_id IN
                 (
                     <foreach collection="filteredSampleIdentifiers" item="id" separator=",">#{id}</foreach>
@@ -73,7 +73,7 @@
             <if test="studyViewFilterContext.customDataFilters != null and !studyViewFilterContext.customDataFilters.isEmpty() and studyViewFilterContext.customSampleIdentifiers != null">
                 INTERSECT
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE
                 <trim prefix="" prefixOverrides="AND">
                     <!-- filter for samples that pass all customDataFilters (using AND logic on samples passing each filter) -->
@@ -113,19 +113,19 @@
             <if test="studyViewFilterContext.geneFilters != null and !studyViewFilterContext.geneFilters.isEmpty()">
                 <foreach item="profileGroup" collection="studyViewFilterContext.geneFilters">
                     <foreach item="geneFilterQueryList" collection="profileGroup.getGeneQueries()" open="INTERSECT" separator="INTERSECT">
-                        SELECT sample_unique_id
-                        FROM genomic_event_derived
+                        SELECT ged.sample_unique_id
+                        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genomicEventFullSubquery"/> ged
                         <where>
-                            genetic_profile_stable_id IN
+                            ged.genetic_profile_stable_id IN
                             <foreach item="molecularProfileId" collection="profileGroup.getMolecularProfileIds()" open="(" separator="," close=")">
                                 #{molecularProfileId}
                             </foreach>
 
                             <foreach item="geneFilterQuery" collection="geneFilterQueryList" open=" AND ((" separator=") OR (" close="))">
-                                hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
+                                ged.hugo_gene_symbol = #{geneFilterQuery.hugoGeneSymbol}
                                 <if test="geneFilterQuery.getAlterations() != null">
                                     <foreach item="alteration" collection="geneFilterQuery.getAlterations()" open="AND (" separator=") OR (" close=")">
-                                        cna_alteration = #{alteration.code}
+                                        ged.cna_alteration = #{alteration.code}
                                     </foreach>
                                 </if>
                             </foreach>
@@ -184,42 +184,48 @@
             FROM (
             <!-- Nested sub query to grab minimum sample acquisition event -->
                 SELECT
-                    ced.value AS sample_id,
-                    ced.patient_unique_id AS patient_unique_id,
-                    min(ced.start_date) AS time_taken,
-                    ced.cancer_study_identifier AS cancer_study_identifier
-                FROM clinical_event_derived ced
+                    ced_inner.value AS sample_id,
+                    concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id) AS patient_unique_id,
+                    min(ce.start_date) AS time_taken,
+                    cs_ce.cancer_study_identifier AS cancer_study_identifier
+                FROM clinical_event_data ced_inner
+                RIGHT JOIN clinical_event ce ON ced_inner.clinical_event_id = ce.clinical_event_id
+                JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+                JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                        cancer_study_identifier IN
+                        cs_ce.cancer_study_identifier IN
                         <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
                         AND
                     </if>
-                    (LOWER(event_type) = 'sample acquisition' OR LOWER(event_type) = 'specimen')
-                    AND `key` = 'SAMPLE_ID'
+                    (LOWER(ce.event_type) = 'sample acquisition' OR LOWER(ce.event_type) = 'specimen')
+                    AND ced_inner.`key` = 'SAMPLE_ID'
                 </where>
-                GROUP BY patient_unique_id, ced.value, cancer_study_identifier
+                GROUP BY patient_unique_id, ced_inner.value, cs_ce.cancer_study_identifier
             ) ced
             INNER JOIN (
             <!-- Nested sub query to grab all treatments group by patients-->
                 SELECT
-                    patient_unique_id,
-                    value AS treatment,
-                    MIN(start_date) AS treatment_time_taken
-                FROM clinical_event_derived
+                    concat(cs_ce2.cancer_study_identifier, '_', p_ce2.stable_id) AS patient_unique_id,
+                    ced2.value AS treatment,
+                    MIN(ce2.start_date) AS treatment_time_taken
+                FROM clinical_event_data ced2
+                RIGHT JOIN clinical_event ce2 ON ced2.clinical_event_id = ce2.clinical_event_id
+                JOIN patient p_ce2 ON ce2.patient_id = p_ce2.internal_id
+                JOIN cancer_study cs_ce2 ON p_ce2.cancer_study_id = cs_ce2.cancer_study_id
                 WHERE
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                        cancer_study_identifier IN
+                        cs_ce2.cancer_study_identifier IN
                         <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
                         AND
                     </if>
-                    lower(event_type) = 'treatment'
-                    AND `key` = 'AGENT'
-                GROUP BY patient_unique_id, value
+                    lower(ce2.event_type) = 'treatment'
+                    AND ced2.`key` = 'AGENT'
+                GROUP BY patient_unique_id, ced2.value
             ) ced_inner ON ced_inner.patient_unique_id = ced.patient_unique_id
             <where>
                 <foreach item="sampleTreatmentFilter" collection="andedSampleTreatmentFilters.getFilters()" open="AND ((" separator=") OR (" close="))">
@@ -242,20 +248,22 @@
         <foreach item="clinicalEventFilter" collection="studyViewFilterContext.clinicalEventFilters" open="INTERSECT"
                  separator="INTERSECT">
             SELECT sample_unique_id
-            FROM sample_derived
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
             WHERE patient_unique_id in (
-            SELECT patient_unique_id
-            FROM clinical_event_derived
+            SELECT DISTINCT concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id)
+            FROM clinical_event ce
+                JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+                JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                        cancer_study_identifier IN
+                        cs_ce.cancer_study_identifier IN
                         <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
                         AND
                     </if>
                     <foreach item="dataFilterValue" collection="clinicalEventFilter.values" open="((" separator=") OR (" close="))">
-                        event_type = #{dataFilterValue.value}
+                        ce.event_type = #{dataFilterValue.value}
                     </foreach>
                 </where>
             )
@@ -267,26 +275,29 @@
                  collection="studyViewFilterContext.patientTreatmentFilters.getFilters()" open="INTERSECT"
                  separator="INTERSECT">
             SELECT sample_unique_id
-            FROM sample_derived
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
             WHERE patient_unique_id in (
-            SELECT patient_unique_id
-            FROM clinical_event_derived
+            SELECT DISTINCT concat(cs_ce.cancer_study_identifier, '_', p_ce.stable_id)
+            FROM clinical_event_data ced
+            RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+            JOIN patient p_ce ON ce.patient_id = p_ce.internal_id
+            JOIN cancer_study cs_ce ON p_ce.cancer_study_id = cs_ce.cancer_study_id
                 <where>
                     <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                        cancer_study_identifier IN
+                        cs_ce.cancer_study_identifier IN
                         <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                             #{studyId}
                         </foreach>
                         AND
                     </if>
-                    <foreach 
+                    <foreach
                         item="patientTreatmentFilter"
                         collection="andedPatientTreatmentFilters.getFilters()"
                         open="((" separator=") OR (" close="))"
                     >
-                        lower(event_type) = 'treatment'
-                        AND `key` = 'AGENT'
-                        AND value = #{patientTreatmentFilter.treatment}
+                        lower(ce.event_type) = 'treatment'
+                        AND ced.`key` = 'AGENT'
+                        AND ced.value = #{patientTreatmentFilter.treatment}
                     </foreach>
                 </where>
             )
@@ -377,14 +388,12 @@
                     <when test="isCategoricalFilter">
                         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.categoricalClinicalDataCountFilter">
                             <property name="unique_id" value="sample_unique_id"/>
-                            <property name="table_name" value="clinical_data_derived"/>
                             <property name="type" value="sample"/>
                         </include> 
                     </when>
                     <otherwise>
                         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.numericalClinicalDataCountFilter">
                             <property name="unique_id" value="sample_unique_id"/>
-                            <property name="table_name" value="clinical_data_derived"/>
                             <property name="type" value="sample"/>
                         </include>
                     </otherwise>
@@ -392,20 +401,18 @@
 
             UNION DISTINCT
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE patient_unique_id in (
                     <choose>
                         <when test="isCategoricalFilter">
                             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.categoricalClinicalDataCountFilter">
                                 <property name="unique_id" value="patient_unique_id" />
-                                <property name="table_name" value="clinical_data_derived" />
                                 <property name="type" value="patient" />
                             </include>
                         </when>
                         <otherwise>
                             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.numericalClinicalDataCountFilter">
                                 <property name="unique_id" value="patient_unique_id" />
-                                <property name="table_name" value="clinical_data_derived" />
                                 <property name="type" value="patient" />
                             </include>
                         </otherwise>
@@ -451,7 +458,7 @@
         <if test="userSelectsNA">
             (
             SELECT DISTINCT sd.${unique_id}
-            FROM sample_derived sd
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
             INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
@@ -485,7 +492,7 @@
         <!-- if non-NA is selected, prepare non-NA samples/patients -->
         <if test="userSelectsNumericalValue">
             SELECT cdd.${unique_id}
-            FROM ${table_name} cdd
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper.clinicalDataDerivedInline"/> cdd
             INNER JOIN study_attribute_levels sal ON cdd.cancer_study_identifier = sal.cancer_study_identifier
             WHERE cdd.attribute_name = #{clinicalDataFilter.attributeId}
             AND cdd.type='${type}'
@@ -500,7 +507,7 @@
 
     <sql id="selectAllClinicalDataByAttribute">
         SELECT sample_unique_id, patient_unique_id, attribute_value
-        FROM clinical_data_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseClinicalDataMapper.clinicalDataDerivedInline"/> clinical_data_derived
         WHERE attribute_name = #{clinicalDataFilter.attributeId} AND type='${type}'
         <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
             AND cancer_study_identifier IN
@@ -538,7 +545,7 @@
 
     <sql id="samplesFromStudiesWithoutAttributeAsNA">
         SELECT DISTINCT sd.${unique_id}
-        FROM sample_derived sd
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
         INNER JOIN study_without_attribute swa ON sd.cancer_study_identifier = swa.cancer_study_identifier
     </sql>
 
@@ -568,7 +575,7 @@
         )
 
         SELECT sd.${unique_id}
-        FROM sample_derived sd
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
         INNER JOIN study_attribute_levels sal ON sd.cancer_study_identifier = sal.cancer_study_identifier
         LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllClinicalDataByAttribute"/>) AS categorical_clinical_data
             ON
@@ -623,7 +630,7 @@
         <!-- if 'NA' is selected, prepare NA samples -->
         <if test="userSelectsNA">
             SELECT DISTINCT sd.sample_unique_id
-            FROM sample_derived sd
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
                 LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllNumericalGeneticAlterations"/>) AS genomic_numerical_query ON sd.sample_unique_id = genomic_numerical_query.sample_unique_id
             WHERE alteration_value IS null
         </if>
@@ -712,7 +719,7 @@
         <!-- if 'NA' is selected, prepare NA samples -->
         <if test="userSelectsNA">
             SELECT DISTINCT sd.sample_unique_id
-            FROM sample_derived sd
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
                 LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllGenericAssays"/>) AS generic_numerical_query ON sd.sample_unique_id = generic_numerical_query.sample_unique_id
             WHERE datatype = 'LIMIT-VALUE'
             AND `value` IS null OR
@@ -744,7 +751,7 @@
     
     <sql id="categoricalGenericAssayDataCountFilter">
         SELECT sample_unique_id
-        FROM sample_derived sd
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
             LEFT JOIN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectAllGenericAssays"/>) AS generic_assay_query
             ON
             <choose>
@@ -778,7 +785,7 @@
         <if test="mutationDataFilter.categorization == @org.cbioportal.legacy.web.parameter.MutationOption@MUTATED">
             WITH all_samples AS (
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE cancer_study_identifier IN
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
                     <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
@@ -788,11 +795,11 @@
             ),
             profiled_samples AS (
                 SELECT DISTINCT sgp.sample_unique_id
-                FROM sample_to_gene_panel_derived sgp
-                    JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.sampleToGenePanelInline"/> sgp
+                    JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genePanelToGeneInline"/> gpg ON sgp.gene_panel_id = gpg.gene_panel_id
                 WHERE
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    cancer_study_identifier IN
+                    sgp.cancer_study_identifier IN
                     <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                         #{studyId}
                     </foreach>
@@ -802,18 +809,21 @@
                   AND sgp.alteration_type = 'MUTATION_EXTENDED'
             ),
             mutated_samples AS (
-                SELECT DISTINCT sample_unique_id
-                FROM genomic_event_derived
+                SELECT DISTINCT ged.sample_unique_id
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genomicEventFullSubquery"/> ged
                 WHERE
                 <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                    cancer_study_identifier IN
-                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
-                        #{studyId}
-                    </foreach>
+                    ged.sample_unique_id IN (
+                        SELECT sample_unique_id FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
+                        WHERE cancer_study_identifier IN
+                        <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                            #{studyId}
+                        </foreach>
+                    )
                   AND
                 </if>
-                    hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
-                  AND variant_type = 'mutation'
+                    ged.hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                  AND ged.variant_type = 'mutation'
             )
             SELECT DISTINCT sample_unique_id
             FROM
@@ -837,11 +847,11 @@
         <if
                 test="mutationDataFilter.categorization == @org.cbioportal.legacy.web.parameter.MutationOption@MUTATION_TYPE">
             <foreach item="dataFilterValues" collection="mutationDataFilter.values" separator="INTERSECT">
-                SELECT DISTINCT sample_unique_id
-                FROM genomic_event_derived
-                WHERE hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
-                    AND variant_type = 'mutation'
-                    AND mutation_type IN
+                SELECT DISTINCT ged.sample_unique_id
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genomicEventFullSubquery"/> ged
+                WHERE ged.hugo_gene_symbol = #{mutationDataFilter.hugoGeneSymbol}
+                    AND ged.variant_type = 'mutation'
+                    AND ged.mutation_type IN
                     <foreach item="dataFilterValue" collection="dataFilterValues" open="(" separator="," close=")">
                         #{dataFilterValue.value}
                     </foreach>
@@ -865,7 +875,7 @@
         )
         SELECT DISTINCT sd.sample_unique_id
         <!-- join with sample table to get all 'NA' samples -->
-        FROM sample_derived sd
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
             LEFT JOIN cna_query ON sd.sample_unique_id = cna_query.sampleUniqueId
         WHERE
         <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
@@ -918,7 +928,7 @@
     <sql id="applyStudyViewFilterUsingPatientId">
         patient_unique_id in (
         SELECT patient_unique_id
-        FROM sample_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
         <where>
             sample_unique_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
         </where>
@@ -927,5 +937,19 @@
 
     <sql id="applyStudyViewFilterUsingSampleId">
         sample_unique_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+    </sql>
+
+    <!-- Integer sample_id filter: maps filtered sample_unique_ids to internal_id.
+         Use this when querying base tables (mutation, sample_cna_event) instead of views. -->
+    <sql id="filteredSampleInternalIds">
+        SELECT sd.internal_id
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
+        WHERE sd.sample_unique_id IN (
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+        )
+    </sql>
+
+    <sql id="applyStudyViewFilterUsingInternalId">
+        sample_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.filteredSampleInternalIds"/>)
     </sql>
 </mapper>

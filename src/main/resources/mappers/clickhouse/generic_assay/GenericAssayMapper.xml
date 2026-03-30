@@ -15,8 +15,8 @@
             genetic_profile.description AS "description",
             genetic_profile.show_profile_in_analysis_tab AS "showProfileInAnalysisTab",
             genetic_profile.pivot_threshold AS "pivotThreshold",
-            genetic_profile.sort_order AS "sortOrder",
-            genetic_profile.generic_assay_type AS "genericAssayType",
+            NULLIF(genetic_profile.sort_order, 'N') AS "sortOrder",
+            NULLIF(genetic_profile.generic_assay_type, 'N') AS "genericAssayType",
             genetic_profile.patient_level AS "patientLevel"
         FROM genetic_profile
                  INNER JOIN cancer_study ON genetic_profile.cancer_study_id = cancer_study.cancer_study_id
@@ -28,7 +28,7 @@
         WITH unique_study_ids AS (
         SELECT
         DISTINCT cancer_study_identifier
-        FROM sample_derived
+        FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
         <where>
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
         </where>

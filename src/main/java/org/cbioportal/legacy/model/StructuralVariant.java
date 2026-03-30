@@ -453,6 +453,9 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
   }
 
   public void setAnnotationJson(String annotationJson) {
-    this.annotationJson = annotationJson;
+    this.annotationJson =
+        (annotationJson != null && annotationJson.length() == 1 && "N".equals(annotationJson))
+            ? null
+            : annotationJson;
   }
 }

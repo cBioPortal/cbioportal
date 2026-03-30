@@ -18,7 +18,7 @@
             tumorRefCount,
             normalAltCount,
             normalRefCount,
-            aminoAcidChange,
+            NULLIF(aminoAcidChange, 'N') AS aminoAcidChange,
             chr,
             startPosition,
             endPosition,
@@ -32,17 +32,17 @@
             proteinPosStart,
             proteinPosEnd,
             keyword,
-            annotationJSON,
-            driverFilter,
-            driverFilterAnnotation,
-            driverTiersFilter,
-            driverTiersFilterAnnotation
+            NULLIF(annotationJSON, 'N') AS annotationJSON,
+            NULLIF(driverFilter, 'N') AS driverFilter,
+            NULLIF(driverFilterAnnotation, 'N') AS driverFilterAnnotation,
+            NULLIF(driverTiersFilter, 'N') AS driverTiersFilter,
+            NULLIF(driverTiersFilterAnnotation, 'N') AS driverTiersFilterAnnotation
         </if>
         <if test="projection == 'DETAILED'">
             ,
-            gene_entrezGeneId,
-            gene_hugoGeneSymbol,
-            gene_type,
+            gene_entrezGeneId AS "gene.entrezGeneId",
+            gene_hugoGeneSymbol AS "gene.hugoGeneSymbol",
+            gene_type AS "gene.type",
             <include refid="getAlleleSpecificCopyNumber"/>
         </if>
     </sql>
@@ -235,14 +235,14 @@
     </sql>
 
     <sql id="getAlleleSpecificCopyNumber">
-        ascn_integerCopyNumber,
-        ascn_method,
-        ascn_ccfExpectedCopiesUpper,
-        ascn_ccfExpectedCopies,
-        ascn_clonal,
-        ascn_minorCopyNumber,
-        ascn_expectedAltCopies,
-        ascn_totalCopyNumber
+        ascn_integerCopyNumber AS "alleleSpecificCopyNumber.ascnIntegerCopyNumber",
+        ascn_method AS "alleleSpecificCopyNumber.ascnMethod",
+        ascn_ccfExpectedCopiesUpper AS "alleleSpecificCopyNumber.ccfExpectedCopiesUpper",
+        ascn_ccfExpectedCopies AS "alleleSpecificCopyNumber.ccfExpectedCopies",
+        ascn_clonal AS "alleleSpecificCopyNumber.clonal",
+        ascn_minorCopyNumber AS "alleleSpecificCopyNumber.minorCopyNumber",
+        ascn_expectedAltCopies AS "alleleSpecificCopyNumber.expectedAltCopies",
+        ascn_totalCopyNumber AS "alleleSpecificCopyNumber.totalCopyNumber"
     </sql>
 
     <sql id="includeAlleleSpecificCopyNumber">

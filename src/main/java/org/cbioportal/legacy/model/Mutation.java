@@ -214,6 +214,9 @@ public class Mutation extends Alteration implements Serializable {
   }
 
   public void setAnnotationJSON(String annotationJSON) {
-    this.annotationJSON = annotationJSON;
+    this.annotationJSON =
+        (annotationJSON != null && annotationJSON.length() == 1 && "N".equals(annotationJSON))
+            ? null
+            : annotationJSON;
   }
 }

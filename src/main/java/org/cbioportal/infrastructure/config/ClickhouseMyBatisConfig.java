@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.config;
 
 import java.io.IOException;
 import javax.sql.DataSource;
+import org.apache.ibatis.session.AutoMappingBehavior;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.persistence.mybatis.typehandler.SampleTypeTypeHandler;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -26,6 +27,7 @@ public class ClickhouseMyBatisConfig {
     return new ConfigurationCustomizer() {
       @Override
       public void customize(org.apache.ibatis.session.Configuration configuration) {
+        configuration.setAutoMappingBehavior(AutoMappingBehavior.FULL);
         configuration
             .getTypeHandlerRegistry()
             .register(Sample.SampleType.class, new SampleTypeTypeHandler());
@@ -38,6 +40,14 @@ public class ClickhouseMyBatisConfig {
       DataSource dataSource, ApplicationContext applicationContext) throws IOException {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
     sessionFactory.setDataSource(dataSource);
+
+    org.apache.ibatis.session.Configuration mybatisConfig =
+        new org.apache.ibatis.session.Configuration();
+    mybatisConfig.setAutoMappingBehavior(AutoMappingBehavior.FULL);
+    mybatisConfig
+        .getTypeHandlerRegistry()
+        .register(Sample.SampleType.class, new SampleTypeTypeHandler());
+    sessionFactory.setConfiguration(mybatisConfig);
 
     // Include both legacy and clickhouse mapper XML locations
     sessionFactory.addMapperLocations(

@@ -12,8 +12,8 @@
             ANY_VALUE(cancer_study.name) AS "${prefix}name",
             ANY_VALUE(cancer_study.description) AS "${prefix}description",
             ANY_VALUE(cancer_study.public) AS "${prefix}publicStudy",
-            ANY_VALUE(cancer_study.pmid) AS "${prefix}pmid",
-            ANY_VALUE(cancer_study.citation) AS "${prefix}citation",
+            NULLIF(ANY_VALUE(cancer_study.pmid), 'N') AS "${prefix}pmid",
+            NULLIF(ANY_VALUE(cancer_study.citation), 'N') AS "${prefix}citation",
             ANY_VALUE(cancer_study.`groups`) AS "${prefix}groups",
             ANY_VALUE(cancer_study.status) AS "${prefix}status",
             ANY_VALUE(cancer_study.import_date) AS "${prefix}importDate",
@@ -141,9 +141,7 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            <!--TODO : FIX-->
-            <!--COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount-->
-            1 AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>
@@ -183,9 +181,7 @@
         </include>
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             ,
-            <!--We are not going to fix this because this has been reimplemented for the new clickhouse mappers -->
-            <!--COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount-->
-            1 AS allSampleCount
+            COUNT(CASE WHEN sample_list.stable_id = CONCAT(cancer_study.cancer_study_identifier,'_all') THEN 1 ELSE NULL END) AS allSampleCount
         </if>
         <if test="projection == 'DETAILED'">
             <include refid="selectDetailed"/>

@@ -71,7 +71,10 @@
     <select id="getGeneMolecularAlterations" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
             gene.entrez_gene_id AS "entrezGeneId",
-            genetic_alteration.`values` AS "values"
+            genetic_alteration.`values` AS "values",
+            gene.entrez_gene_id AS "gene.entrezGeneId",
+            gene.hugo_gene_symbol AS "gene.hugoGeneSymbol",
+            NULLIF(gene.type, 'N') AS "gene.type"
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
@@ -81,7 +84,10 @@
     <select id="getGeneMolecularAlterationsIter" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
             gene.entrez_gene_id AS "entrezGeneId",
-            genetic_alteration.`values` AS "values"
+            genetic_alteration.`values` AS "values",
+            gene.entrez_gene_id AS "gene.entrezGeneId",
+            gene.hugo_gene_symbol AS "gene.hugoGeneSymbol",
+            NULLIF(gene.type, 'N') AS "gene.type"
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
@@ -91,7 +97,10 @@
     <select id="getGeneMolecularAlterationsIterFast" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
         SELECT
             gene.entrez_gene_id AS "entrezGeneId",
-            genetic_alteration.`values` AS "values"
+            genetic_alteration.`values` AS "values",
+            gene.entrez_gene_id AS "gene.entrezGeneId",
+            gene.hugo_gene_symbol AS "gene.hugoGeneSymbol",
+            NULLIF(gene.type, 'N') AS "gene.type"
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
@@ -104,7 +113,10 @@
         SELECT
             gene.entrez_gene_id AS "entrezGeneId",
             genetic_alteration.`values` AS "values",
-            genetic_profile.stable_id AS "molecularProfileId"
+            genetic_profile.stable_id AS "molecularProfileId",
+            gene.entrez_gene_id AS "gene.entrezGeneId",
+            gene.hugo_gene_symbol AS "gene.hugoGeneSymbol",
+            NULLIF(gene.type, 'N') AS "gene.type"
         FROM genetic_alteration
         INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
         INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id

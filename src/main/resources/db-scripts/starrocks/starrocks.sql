@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS reference_genome (
     name                 VARCHAR(255) NULL,
     build_name           VARCHAR(255) NULL,
     genome_size          BIGINT       NULL,
-    url                  VARCHAR(1024) NULL,
+    url                  VARCHAR(65533) NULL,
     release_date         DATETIME     NULL
 ) ENGINE=OLAP
 PRIMARY KEY (reference_genome_id)
@@ -45,12 +45,12 @@ CREATE TABLE IF NOT EXISTS cancer_study (
     cancer_study_id         BIGINT        NOT NULL,
     cancer_study_identifier VARCHAR(255)  NULL,
     type_of_cancer_id       VARCHAR(255)  NULL,
-    name                    VARCHAR(1024) NULL,
+    name                    VARCHAR(65533) NULL,
     description             STRING        NULL,
     public                  INT           NULL,
     pmid                    VARCHAR(255)  NULL,
-    citation                VARCHAR(1024) NULL,
-    `groups`                VARCHAR(1024) NULL,
+    citation                VARCHAR(65533) NULL,
+    `groups`                VARCHAR(65533) NULL,
     status                  BIGINT        NULL,
     import_date             DATETIME      NULL,
     reference_genome_id     BIGINT        NULL
@@ -119,7 +119,8 @@ CREATE TABLE IF NOT EXISTS reference_genome_gene (
     chr                 VARCHAR(16)  NULL,
     cytoband            VARCHAR(64)  NULL,
     `start`             BIGINT       NULL,
-    `end`               BIGINT       NULL
+    `end`               BIGINT       NULL,
+    ensembl_gene_id     VARCHAR(64)  NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (entrez_gene_id, reference_genome_id)
 DISTRIBUTED BY HASH(entrez_gene_id) BUCKETS 4
@@ -132,7 +133,7 @@ CREATE TABLE IF NOT EXISTS genetic_profile (
     genetic_alteration_type       VARCHAR(255)  NULL,
     generic_assay_type            VARCHAR(255)  NULL,
     datatype                      VARCHAR(64)   NULL,
-    name                          VARCHAR(1024) NULL,
+    name                          VARCHAR(65533) NULL,
     description                   STRING        NULL,
     show_profile_in_analysis_tab  INT           NULL,
     pivot_threshold               DOUBLE        NULL,
@@ -154,7 +155,7 @@ PROPERTIES ("replication_num" = "1");
 
 CREATE TABLE IF NOT EXISTS genetic_profile_samples (
     genetic_profile_id  BIGINT NULL,
-    ordered_sample_list TEXT NULL
+    ordered_sample_list STRING NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (genetic_profile_id)
 DISTRIBUTED BY HASH(genetic_profile_id) BUCKETS 4
@@ -191,7 +192,7 @@ CREATE TABLE IF NOT EXISTS sample_list (
     stable_id       VARCHAR(255)  NULL,
     category        VARCHAR(255)  NULL,
     cancer_study_id BIGINT        NULL,
-    name            VARCHAR(1024) NULL,
+    name            VARCHAR(65533) NULL,
     description     STRING        NULL
 ) ENGINE=OLAP
 PRIMARY KEY (list_id)
@@ -209,7 +210,7 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS clinical_attribute_meta (
     attr_id           VARCHAR(255) NULL,
     cancer_study_id   BIGINT       NULL,
-    display_name      VARCHAR(1024) NULL,
+    display_name      VARCHAR(65533) NULL,
     description       STRING       NULL,
     datatype          VARCHAR(64)  NULL,
     patient_attribute INT          NULL,
@@ -223,9 +224,9 @@ CREATE TABLE IF NOT EXISTS geneset (
     id                BIGINT        NOT NULL,
     genetic_entity_id BIGINT        NULL,
     external_id       VARCHAR(255)  NULL,
-    name              VARCHAR(1024) NULL,
+    name              VARCHAR(65533) NULL,
     description       STRING        NULL,
-    ref_link          VARCHAR(1024) NULL
+    ref_link          VARCHAR(65533) NULL
 ) ENGINE=OLAP
 PRIMARY KEY (id)
 DISTRIBUTED BY HASH(id) BUCKETS 4
@@ -241,7 +242,7 @@ PROPERTIES ("replication_num" = "1");
 
 CREATE TABLE IF NOT EXISTS geneset_hierarchy_node (
     node_id   BIGINT        NULL,
-    node_name VARCHAR(1024) NULL,
+    node_name VARCHAR(65533) NULL,
     parent_id BIGINT        NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (node_id)
@@ -294,7 +295,7 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS resource_definition (
     resource_id     VARCHAR(255)  NULL,
     cancer_study_id BIGINT        NULL,
-    display_name    VARCHAR(1024) NULL,
+    display_name    VARCHAR(65533) NULL,
     description     STRING        NULL,
     resource_type   VARCHAR(64)   NULL,
     open_by_default INT           NULL,
@@ -308,7 +309,7 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS resource_patient (
     internal_id BIGINT       NULL,
     resource_id VARCHAR(255) NULL,
-    url         VARCHAR(1024) NULL
+    url         VARCHAR(65533) NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (internal_id, resource_id)
 DISTRIBUTED BY HASH(internal_id) BUCKETS 4
@@ -317,7 +318,7 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS resource_sample (
     internal_id BIGINT       NULL,
     resource_id VARCHAR(255) NULL,
-    url         VARCHAR(1024) NULL
+    url         VARCHAR(65533) NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (internal_id, resource_id)
 DISTRIBUTED BY HASH(internal_id) BUCKETS 4
@@ -326,7 +327,7 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS resource_study (
     internal_id BIGINT       NULL,
     resource_id VARCHAR(255) NULL,
-    url         VARCHAR(1024) NULL
+    url         VARCHAR(65533) NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (internal_id, resource_id)
 DISTRIBUTED BY HASH(internal_id) BUCKETS 4
@@ -351,7 +352,7 @@ DISTRIBUTED BY HASH(email) BUCKETS 4
 PROPERTIES ("replication_num" = "1");
 
 CREATE TABLE IF NOT EXISTS data_access_tokens (
-    token      VARCHAR(1024) NULL,
+    token      VARCHAR(65533) NULL,
     username   VARCHAR(255)  NULL,
     expiration DATETIME      NULL,
     creation   DATETIME      NULL
@@ -444,7 +445,7 @@ CREATE TABLE IF NOT EXISTS copy_number_seg_file (
     cancer_study_id     BIGINT       NULL,
     reference_genome_id VARCHAR(64)  NULL,
     description         STRING       NULL,
-    filename            VARCHAR(1024) NULL
+    filename            VARCHAR(65533) NULL
 ) ENGINE=OLAP
 DUPLICATE KEY (seg_file_id)
 DISTRIBUTED BY HASH(cancer_study_id) BUCKETS 4
@@ -460,8 +461,8 @@ CREATE TABLE IF NOT EXISTS mutation_event (
     chr                 VARCHAR(16)  NULL,
     start_position      BIGINT       NULL,
     end_position        BIGINT       NULL,
-    reference_allele    VARCHAR(1024) NULL,
-    tumor_seq_allele    VARCHAR(1024) NULL,
+    reference_allele    VARCHAR(65533) NULL,
+    tumor_seq_allele    VARCHAR(65533) NULL,
     protein_change      VARCHAR(255) NULL,
     mutation_type       VARCHAR(255) NULL,
     ncbi_build          VARCHAR(16)  NULL,
@@ -470,7 +471,7 @@ CREATE TABLE IF NOT EXISTS mutation_event (
     db_snp_rs           VARCHAR(64)  NULL,
     db_snp_val_status   VARCHAR(64)  NULL,
     refseq_mrna_id      VARCHAR(255) NULL,
-    codon_change        VARCHAR(1024) NULL,
+    codon_change        VARCHAR(65533) NULL,
     uniprot_accession   VARCHAR(64)  NULL,
     protein_pos_start   BIGINT       NULL,
     protein_pos_end     BIGINT       NULL,
@@ -490,21 +491,21 @@ CREATE TABLE IF NOT EXISTS mutation (
     sequencer                      VARCHAR(255) NULL,
     mutation_status                VARCHAR(64)  NULL,
     validation_status              VARCHAR(64)  NULL,
-    tumor_seq_allele1              VARCHAR(1024) NULL,
-    tumor_seq_allele2              VARCHAR(1024) NULL,
+    tumor_seq_allele1              VARCHAR(65533) NULL,
+    tumor_seq_allele2              VARCHAR(65533) NULL,
     matched_norm_sample_barcode    VARCHAR(255) NULL,
-    match_norm_seq_allele1         VARCHAR(1024) NULL,
-    match_norm_seq_allele2         VARCHAR(1024) NULL,
-    tumor_validation_allele1       VARCHAR(1024) NULL,
-    tumor_validation_allele2       VARCHAR(1024) NULL,
-    match_norm_validation_allele1  VARCHAR(1024) NULL,
-    match_norm_validation_allele2  VARCHAR(1024) NULL,
+    match_norm_seq_allele1         VARCHAR(65533) NULL,
+    match_norm_seq_allele2         VARCHAR(65533) NULL,
+    tumor_validation_allele1       VARCHAR(65533) NULL,
+    tumor_validation_allele2       VARCHAR(65533) NULL,
+    match_norm_validation_allele1  VARCHAR(65533) NULL,
+    match_norm_validation_allele2  VARCHAR(65533) NULL,
     verification_status            VARCHAR(64)  NULL,
     sequencing_phase               VARCHAR(64)  NULL,
     sequence_source                VARCHAR(255) NULL,
     validation_method              VARCHAR(255) NULL,
     score                          VARCHAR(64)  NULL,
-    bam_file                       VARCHAR(1024) NULL,
+    bam_file                       VARCHAR(65533) NULL,
     tumor_alt_count                BIGINT       NULL,
     tumor_ref_count                BIGINT       NULL,
     normal_alt_count               BIGINT       NULL,
@@ -585,9 +586,9 @@ CREATE TABLE IF NOT EXISTS mutation_derived (
     molecularProfileId              VARCHAR(255) NOT NULL,
     sampleId                        VARCHAR(255) NOT NULL,
     entrezGeneId                    BIGINT       NOT NULL,
-    sampleInternalId                BIGINT       NOT NULL,
-    patientId                       VARCHAR(255) NOT NULL,
-    studyId                         VARCHAR(255) NOT NULL,
+    sampleInternalId                BIGINT       NULL,
+    patientId                       VARCHAR(255) NULL,
+    studyId                         VARCHAR(255) NULL,
     center                          VARCHAR(255) NULL,
     mutationStatus                  VARCHAR(64)  NULL,
     validationStatus                VARCHAR(64)  NULL,
@@ -599,8 +600,8 @@ CREATE TABLE IF NOT EXISTS mutation_derived (
     chr                             VARCHAR(16)  NULL,
     startPosition                   BIGINT       NULL,
     endPosition                     BIGINT       NULL,
-    referenceAllele                 VARCHAR(1024) NULL,
-    tumorSeqAllele                  VARCHAR(1024) NULL,
+    referenceAllele                 VARCHAR(65533) NULL,
+    tumorSeqAllele                  VARCHAR(65533) NULL,
     proteinChange                   VARCHAR(255) NULL,
     mutationType                    VARCHAR(255) NULL,
     ncbiBuild                       VARCHAR(16)  NULL,
@@ -638,10 +639,65 @@ PROPERTIES ("replication_num" = "1");
 CREATE TABLE IF NOT EXISTS genetic_alteration (
     genetic_profile_id  BIGINT  NOT NULL,
     genetic_entity_id   BIGINT  NOT NULL,
-    `values`            TEXT    NULL
+    `values`            STRING  NULL
 ) ENGINE=OLAP
 DUPLICATE KEY(genetic_profile_id, genetic_entity_id)
 DISTRIBUTED BY HASH(genetic_profile_id) BUCKETS 16
+PROPERTIES ("replication_num" = "1");
+
+CREATE TABLE IF NOT EXISTS structural_variant (
+    internal_id                    BIGINT        NOT NULL,
+    genetic_profile_id             BIGINT        NOT NULL,
+    sample_id                      BIGINT        NOT NULL,
+    site1_entrez_gene_id           BIGINT        NULL,
+    site1_ensembl_transcript_id    VARCHAR(25)   NULL,
+    site1_chromosome               VARCHAR(5)    NULL,
+    site1_region                   VARCHAR(25)   NULL,
+    site1_region_number            INT           NULL,
+    site1_contig                   VARCHAR(100)  NULL,
+    site1_position                 INT           NULL,
+    site1_description              VARCHAR(255)  NULL,
+    site2_entrez_gene_id           BIGINT        NULL,
+    site2_ensembl_transcript_id    VARCHAR(25)   NULL,
+    site2_chromosome               VARCHAR(5)    NULL,
+    site2_region                   VARCHAR(25)   NULL,
+    site2_region_number            INT           NULL,
+    site2_contig                   VARCHAR(100)  NULL,
+    site2_position                 INT           NULL,
+    site2_description              VARCHAR(255)  NULL,
+    site2_effect_on_frame          VARCHAR(25)   NULL,
+    ncbi_build                     VARCHAR(10)   NULL,
+    dna_support                    VARCHAR(3)    NULL,
+    rna_support                    VARCHAR(3)    NULL,
+    normal_read_count              INT           NULL,
+    tumor_read_count               INT           NULL,
+    normal_variant_count           INT           NULL,
+    tumor_variant_count            INT           NULL,
+    normal_paired_end_read_count   INT           NULL,
+    tumor_paired_end_read_count    INT           NULL,
+    normal_split_read_count        INT           NULL,
+    tumor_split_read_count         INT           NULL,
+    annotation                     VARCHAR(255)  NULL,
+    breakpoint_type                VARCHAR(25)   NULL,
+    connection_type                VARCHAR(25)   NULL,
+    event_info                     VARCHAR(255)  NULL,
+    class                          VARCHAR(25)   NULL,
+    length                         INT           NULL,
+    comments                       VARCHAR(255)  NULL,
+    sv_status                      VARCHAR(25)   NOT NULL,
+    annotation_json                JSON          NULL
+) ENGINE=OLAP
+DUPLICATE KEY (internal_id)
+DISTRIBUTED BY HASH(sample_id) BUCKETS 16
+PROPERTIES ("replication_num" = "1");
+
+CREATE TABLE IF NOT EXISTS users (
+    email   VARCHAR(128) NOT NULL,
+    name    VARCHAR(255) NOT NULL,
+    enabled BOOLEAN      NOT NULL
+) ENGINE=OLAP
+DUPLICATE KEY (email)
+DISTRIBUTED BY HASH(email) BUCKETS 4
 PROPERTIES ("replication_num" = "1");
 
 -- ============================================================

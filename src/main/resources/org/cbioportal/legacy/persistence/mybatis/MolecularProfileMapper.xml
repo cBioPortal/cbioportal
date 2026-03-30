@@ -16,8 +16,8 @@
             genetic_profile.description AS "${prefix}description",
             genetic_profile.show_profile_in_analysis_tab AS "${prefix}showProfileInAnalysisTab",
             genetic_profile.pivot_threshold AS "${prefix}pivotThreshold",
-            genetic_profile.sort_order AS "${prefix}sortOrder",
-            genetic_profile.generic_assay_type AS "${prefix}genericAssayType",
+            NULLIF(genetic_profile.sort_order, 'N') AS "${prefix}sortOrder",
+            NULLIF(genetic_profile.generic_assay_type, 'N') AS "${prefix}genericAssayType",
             genetic_profile.patient_level AS "${prefix}patientLevel"
         </if>
         <if test="projection == 'DETAILED'">

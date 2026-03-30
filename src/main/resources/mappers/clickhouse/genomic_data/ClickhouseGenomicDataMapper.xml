@@ -12,7 +12,7 @@
         genetic_profile.name AS label,
         count(sample_profile.genetic_profile_id) AS count
         FROM sample_profile
-        LEFT JOIN sample_derived ON sample_profile.sample_id=sample_derived.internal_id
+        LEFT JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived ON sample_profile.sample_id=sample_derived.internal_id
         LEFT JOIN genetic_profile on sample_profile.genetic_profile_id = genetic_profile.genetic_profile_id
         <where>
             <include
@@ -136,7 +136,7 @@
             <if test="includeSampleIds">
                 all_samples AS (
                 SELECT sample_unique_id
-                FROM sample_derived
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE cancer_study_identifier IN
                 <foreach collection="studyViewFilterContext.studyIds" item="studyId" open="(" separator="," close=")">
                     #{studyId}
@@ -145,20 +145,20 @@
             </if>
             mutated_samples AS (
                 SELECT
-                sample_unique_id,
-                hugo_gene_symbol,
-                mutation_type
-                FROM genomic_event_derived
+                ged.sample_unique_id,
+                ged.hugo_gene_symbol,
+                ged.mutation_type
+                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genomicEventFullSubquery"/> ged
                 <where>
-                    <include
-                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-                    AND variant_type = 'mutation'
+                    ged.sample_unique_id IN (<include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+                    AND ged.variant_type = 'mutation'
                     <if test="includeSampleIds">
-                        AND hugo_gene_symbol = #{hugoGeneSymbol}
+                        AND ged.hugo_gene_symbol = #{hugoGeneSymbol}
                     </if>
                     <if test="!includeSampleIds">
                         <foreach item="genomicDataFilter" collection="genomicDataFilters" open=" AND (" separator=" OR " close=")">
-                            hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+                            ged.hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
                         </foreach>
                     </if>
                 </where>
@@ -167,11 +167,11 @@
             ,
             profiled_samples as (
             SELECT DISTINCT sgp.sample_unique_id
-            FROM sample_to_gene_panel_derived sgp
-            JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.sampleToGenePanelInline"/> sgp
+            JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genePanelToGeneInline"/> gpg ON sgp.gene_panel_id = gpg.gene_panel_id
             WHERE
-            <include
-                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            sgp.sample_unique_id IN (<include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
             AND gpg.gene = #{hugoGeneSymbol}
             AND sgp.alteration_type = 'MUTATION_EXTENDED'
             )
@@ -241,22 +241,22 @@
     <select id="getMutationCounts">
         WITH profiled_count as (
             SELECT count(distinct sgp.sample_unique_id)
-            FROM sample_to_gene_panel_derived sgp
-            JOIN gene_panel_to_gene_derived gpg ON sgp.gene_panel_id = gpg.gene_panel_id
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.sampleToGenePanelInline"/> sgp
+            JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genePanelToGeneInline"/> gpg ON sgp.gene_panel_id = gpg.gene_panel_id
             WHERE
-            <include
-                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            sgp.sample_unique_id IN (<include
+                refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
             AND gpg.gene = #{genomicDataFilter.hugoGeneSymbol}
             AND sgp.alteration_type = 'MUTATION_EXTENDED'
         ),
         mutated_count as (
-            SELECT count(distinct sample_unique_id)
-            FROM genomic_event_derived
+            SELECT count(distinct ged.sample_unique_id)
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper.genomicEventFullSubquery"/> ged
             WHERE
-            <include
-                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-            AND hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
-            AND variant_type = 'mutation'
+            ged.sample_unique_id IN (<include
+                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>)
+            AND ged.hugo_gene_symbol = #{genomicDataFilter.hugoGeneSymbol}
+            AND ged.variant_type = 'mutation'
         )
         SELECT
         cast((SELECT * FROM mutated_count) as INTEGER) as mutatedCount,

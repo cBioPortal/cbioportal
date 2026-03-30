@@ -222,6 +222,7 @@ totalProfiled Count per gene in java.
             tcg.numberOfAlteredCases as numberOfAlteredCases,
             tcg.numberOfAlteredCasesOnPanel as numberOfAlteredCasesOnPanel
         FROM total_count_by_genes tcg
+        ORDER BY hugoGeneSymbol ASC
     </sql>
 
     <select

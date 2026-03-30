@@ -1,0 +1,22 @@
+{
+  "attributes": [
+    { "attributeId": "GRADE" }
+  ],
+  "studyViewFilter": {
+    "sampleIdentifiers": [
+      { "studyId": "blca_tcga", "sampleId": "TCGA-2F-A9KO-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-2F-A9KP-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-2F-A9KQ-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-2F-A9KR-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-2F-A9KT-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-CF-A3MF-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-CF-A3MG-01" },
+      { "studyId": "blca_tcga", "sampleId": "TCGA-CF-A3MH-01" },
+      { "studyId": "blca_bgi", "sampleId": "B100" },
+      { "studyId": "blca_bgi", "sampleId": "B101" },
+      { "studyId": "blca_bgi", "sampleId": "B102" },
+      { "studyId": "blca_bgi", "sampleId": "B10" },
+      { "studyId": "blca_bgi", "sampleId": "B104" }
+    ]
+  }
+}

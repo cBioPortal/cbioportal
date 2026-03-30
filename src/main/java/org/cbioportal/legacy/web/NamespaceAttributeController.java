@@ -15,6 +15,7 @@ import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,6 +34,8 @@ public class NamespaceAttributeController {
     this.namespaceAttributeService = namespaceAttributeService;
   }
 
+  @PreAuthorize(
+      "hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(path = "/namespace-attributes/fetch", method = RequestMethod.POST)
   @Operation(description = "Fetch namespace attributes")
   @ApiResponse(

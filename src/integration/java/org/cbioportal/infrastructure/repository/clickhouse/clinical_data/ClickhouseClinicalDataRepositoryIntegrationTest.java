@@ -6,8 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.cbioportal.AbstractClickhouseIntegrationTest;
 import org.cbioportal.domain.clinical_data.ClinicalData;
@@ -19,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
+class ClickhouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
 
   private ClickhouseClinicalDataRepository repository;
 
@@ -27,28 +25,28 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   private ClickhouseClinicalDataMapper mapper;
 
   // Test data based on actual cBioPortal public dataset
-  private static final List<String> TEST_STUDY_IDS = Arrays.asList(
+  private static final List<String> TEST_STUDY_IDS = List.of(
       "acc_tcga_pan_can_atlas_2018"
   );
-      
-  private static final List<String> TEST_SAMPLE_UNIQUE_IDS = Arrays.asList(
+
+  private static final List<String> TEST_SAMPLE_UNIQUE_IDS = List.of(
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01",
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J3-01"
   );
 
-  private static final List<String> TEST_PATIENT_UNIQUE_IDS = Arrays.asList(
+  private static final List<String> TEST_PATIENT_UNIQUE_IDS = List.of(
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1",
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2",
       "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J3"
   );
 
-  private static final List<String> COMMON_SAMPLE_ATTRIBUTES = Arrays.asList(
+  private static final List<String> COMMON_SAMPLE_ATTRIBUTES = List.of(
       "SAMPLE_TYPE",
       "ANEUPLOIDY_SCORE"
   );
 
-  private static final List<String> COMMON_PATIENT_ATTRIBUTES = Arrays.asList(
+  private static final List<String> COMMON_PATIENT_ATTRIBUTES = List.of(
       "AGE",
       "SEX",
       "PRIOR_DX"
@@ -59,8 +57,10 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     repository = new ClickhouseClinicalDataRepository(mapper);
   }
 
+  // ID projection tests
+
   @Test
-  void testFetchClinicalDataId_WithSampleData() {
+  void shouldReturnOnlyIdsAndAttributeIdsForIdProjection() {
     List<ClinicalData> result = repository.fetchClinicalDataId(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
@@ -69,7 +69,6 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     );
 
     assertFalse(result.isEmpty());
-
     result.forEach(clinicalData -> {
       assertNotNull(clinicalData.internalId());
       assertNotNull(clinicalData.sampleId());
@@ -81,7 +80,21 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   }
 
   @Test
-  void testFetchClinicalDataSummary_WithPatientData() {
+  void shouldReturnEmptyListForIdProjectionWhenNoIdsProvided() {
+    List<ClinicalData> result = repository.fetchClinicalDataId(
+        List.of(),
+        COMMON_SAMPLE_ATTRIBUTES,
+        List.of(),
+        ClinicalDataType.SAMPLE
+    );
+
+    assertTrue(result.isEmpty());
+  }
+
+  // SUMMARY projection tests
+
+  @Test
+  void shouldIncludeAttributeValuesForSummaryProjection() {
     List<ClinicalData> result = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
@@ -90,7 +103,6 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     );
 
     assertFalse(result.isEmpty());
-
     result.forEach(clinicalData -> {
       assertNotNull(clinicalData.internalId());
       assertNotNull(clinicalData.patientId());
@@ -101,23 +113,22 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     });
   }
 
+  // DETAILED projection tests
+
   @Test
-  void testFetchClinicalDataDetailed_WithSpecificValues() {
-    // When - get detailed data for specific samples we know the values for
+  void shouldReturnCorrectAttributeValuesForDetailedProjection() {
     List<ClinicalData> result = repository.fetchClinicalDataDetailed(
-        Arrays.asList(
+        List.of(
             "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
             "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
         ),
-        Arrays.asList("ANEUPLOIDY_SCORE", "SAMPLE_TYPE"),
+        List.of("ANEUPLOIDY_SCORE", "SAMPLE_TYPE"),
         TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
-    // Then - verify we get the expected values from real data
     assertFalse(result.isEmpty(), "Should return data for valid sample IDs");
 
-    // Verify specific known values
     boolean foundJ1Aneuploidy = false;
     boolean foundJ2Aneuploidy = false;
     boolean foundSampleType = false;
@@ -136,7 +147,6 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
         foundSampleType = true;
       }
 
-      // Verify DETAILED projection includes clinical attribute metadata
       assertNotNull(data.clinicalAttribute(), "DETAILED projection should include clinical attribute");
       assertEquals(data.attrId(), data.clinicalAttribute().attrId(), "Attribute IDs should match");
     }
@@ -146,8 +156,10 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     assertTrue(foundSampleType, "Should find SAMPLE_TYPE data");
   }
 
+  // META projection tests
+
   @Test
-  void testFetchClinicalDataMeta_WithSampleData() {
+  void shouldReturnCorrectCountForMetaProjection() {
     Integer count = repository.fetchClinicalDataMeta(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
@@ -156,7 +168,7 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
     );
 
     assertNotNull(count);
-    assertEquals(6, count.intValue());
+    assertEquals(6, count);
 
     List<ClinicalData> actualData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
@@ -164,41 +176,26 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
         TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
-    assertEquals(actualData.size(), count.intValue());
+    assertEquals(actualData.size(), count);
   }
 
   @Test
-  void testFetchClinicalDataId_WithEmptyInput() {
-    // When
-    List<ClinicalData> result = repository.fetchClinicalDataId(
-        List.of(),
-        COMMON_SAMPLE_ATTRIBUTES,
-        Collections.emptyList(),
-        ClinicalDataType.SAMPLE
-    );
-
-    // Then
-    assertTrue(result.isEmpty(), "Should return empty list for empty input");
-  }
-
-  @Test
-  void testFetchClinicalDataMeta_WithEmptyInput() {
-    // When
+  void shouldReturnZeroCountForMetaProjectionWhenNoIdsProvided() {
     Integer count = repository.fetchClinicalDataMeta(
         List.of(),
         COMMON_SAMPLE_ATTRIBUTES,
-        Collections.emptyList(),
+        List.of(),
         ClinicalDataType.SAMPLE
     );
 
-    // Then
-    assertEquals(0, count.intValue(), "Should return 0 count for empty input");
+    assertEquals(0, count, "Should return 0 count for empty input");
   }
 
+  // Projection consistency tests
+
   @Test
-  void testProjectionConsistency_SameEntitiesReturned() {
-    // When - get data with different projections using subset for focused test
-    List<String> testIds = Arrays.asList(
+  void shouldReturnSameEntitiesAcrossDifferentProjections() {
+    List<String> testIds = List.of(
         "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
         "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
     );
@@ -212,12 +209,10 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
         testIds, testAttrs, TEST_STUDY_IDS, ClinicalDataType.SAMPLE
     );
 
-    // Then - should return same entities with different levels of detail
     assertEquals(2, idResults.size(), "Should return 2 records for 2 samples with SAMPLE_TYPE");
     assertEquals(idResults.size(), summaryResults.size(),
         "Different projections should return same number of entities");
 
-    // Verify entities match (same internal IDs and attribute IDs)
     for (int i = 0; i < idResults.size(); i++) {
       ClinicalData idData = idResults.get(i);
       ClinicalData summaryData = summaryResults.get(i);
@@ -229,15 +224,15 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
       assertEquals(idData.sampleId(), summaryData.sampleId(),
           "Sample ID should match across projections");
 
-      // Verify projection differences
       assertNull(idData.attrValue(), "ID projection should not have attribute value");
       assertEquals("Primary", summaryData.attrValue(), "SUMMARY projection should have attribute value");
     }
   }
 
+  // Clinical data type tests
+
   @Test
-  void testClinicalDataType_PatientVsSample() {
-    // When
+  void shouldReturnSampleIdForSampleTypeClinicalData() {
     List<ClinicalData> sampleData = repository.fetchClinicalDataSummary(
         TEST_SAMPLE_UNIQUE_IDS,
         COMMON_SAMPLE_ATTRIBUTES,
@@ -245,18 +240,20 @@ class ClickHouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
         ClinicalDataType.SAMPLE
     );
 
+    sampleData.forEach(data -> {
+      assertNotNull(data.sampleId());
+      assertNotNull(data.patientId());
+    });
+  }
+
+  @Test
+  void shouldReturnPatientIdForPatientTypeClinicalData() {
     List<ClinicalData> patientData = repository.fetchClinicalDataSummary(
         TEST_PATIENT_UNIQUE_IDS,
         COMMON_PATIENT_ATTRIBUTES,
         TEST_STUDY_IDS,
         ClinicalDataType.PATIENT
     );
-
-    // Then - verify correct data type returned
-    sampleData.forEach(data -> {
-      assertNotNull(data.sampleId(), "Sample data should have sample ID");
-      assertNotNull(data.patientId(), "Sample data should also have patient ID");
-    });
 
     patientData.forEach(data -> {
       assertNotNull(data.patientId(), "Patient data should have patient ID");

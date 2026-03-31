@@ -64,16 +64,26 @@
             </if>
             <if test="sampleIds != null">
                 <choose>
-                    <when test="studyIds.stream().distinct().count() == 1">
+                    <when test="studyIds.stream().distinct().count() == 1 and sampleIds.size() &lt;= 50000">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         sample.stable_id IN (
                             <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
-                    <otherwise>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        <!-- Too many IDs for IN clause; study filter alone is equivalent -->
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="sampleIds.size() &lt;= 50000">
                         <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
                             <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        <!-- Too many IDs for IN clause; filter by distinct studies only -->
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="studyIds.stream().distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
                         )
                     </otherwise>
                 </choose>
@@ -92,16 +102,24 @@
             </if>
             <if test="patientIds != null">
                 <choose>
-                    <when test="studyIds.stream().distinct().count() == 1">
+                    <when test="studyIds.stream().distinct().count() == 1 and patientIds.size() &lt;= 50000">
                         cancer_study.cancer_study_identifier = #{studyIds[0]} AND
                         patient.stable_id IN (
                             <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
                         )
                     </when>
-                    <otherwise>
+                    <when test="studyIds.stream().distinct().count() == 1">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="patientIds.size() &lt;= 50000">
                         <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
                         CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
                             <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="studyIds.stream().distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
                         )
                     </otherwise>
                 </choose>

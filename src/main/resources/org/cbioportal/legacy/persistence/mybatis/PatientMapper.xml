@@ -107,19 +107,29 @@
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN reference_genome ON cancer_study.reference_genome_id = reference_genome.reference_genome_id
         WHERE
-        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-            cancer_study.cancer_study_identifier = #{studyIds[0]} AND
-            sample.stable_id IN
-                <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
-        </if>
-        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-            <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
-            CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
-            )
-        </if>
-        <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">
-            FALSE
-        </if>
+        <choose>
+            <when test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 0">
+                FALSE
+            </when>
+            <when test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1 and sampleIds.size() &lt;= 50000">
+                cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                sample.stable_id IN
+                    <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
+            </when>
+            <when test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                cancer_study.cancer_study_identifier = #{studyIds[0]}
+            </when>
+            <when test="sampleIds.size() &lt;= 50000">
+                <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
+                CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
+                    <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
+                )
+            </when>
+            <otherwise>
+                cancer_study.cancer_study_identifier IN (
+                    <foreach collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                )
+            </otherwise>
+        </choose>
     </select>
 </mapper>

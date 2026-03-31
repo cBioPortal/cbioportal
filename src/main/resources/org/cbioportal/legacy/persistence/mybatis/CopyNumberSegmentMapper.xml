@@ -26,10 +26,20 @@
     <sql id="where">
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
-                <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
-                CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                    <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
-                )
+                <choose>
+                    <when test="sampleIds.size() &lt;= 50000">
+                        <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
+                        CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
+                            <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        <!-- Too many IDs for IN clause; filter by distinct studies only -->
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="studyIds.stream().distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                        )
+                    </otherwise>
+                </choose>
             </if>
         </where>
     </sql>

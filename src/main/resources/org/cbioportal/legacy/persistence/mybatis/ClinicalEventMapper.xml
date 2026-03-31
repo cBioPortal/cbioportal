@@ -114,18 +114,28 @@
                     <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="sampleIds != null">
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
-                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
-                    sample.stable_id IN (
-                        <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
-                    )
-                </if>
-                <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
-                    <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
-                    CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
-                        <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
-                    )
-                </if>
+                <choose>
+                    <when test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1 and sampleIds.size() &lt;= 50000">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                        sample.stable_id IN (
+                            <foreach collection="sampleIds" item="id" separator=",">#{id}</foreach>
+                        )
+                    </when>
+                    <when test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="sampleIds.size() &lt;= 50000">
+                        <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
+                        CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
+                            <foreach collection="sampleUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                        )
+                    </otherwise>
+                </choose>
             </if>
         </where>
     </select>
@@ -143,18 +153,28 @@
                     <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="patientIds != null">
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
-                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
-                    patient.stable_id IN (
-                        <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
-                    )
-                </if>
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
-                    <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
-                    CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
-                        <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
-                    )
-                </if>
+                <choose>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1 and patientIds.size() &lt;= 50000">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                        patient.stable_id IN (
+                            <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
+                        )
+                    </when>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="patientIds.size() &lt;= 50000">
+                        <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, patientIds)" />
+                        CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                            <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                        )
+                    </otherwise>
+                </choose>
             </if>
             <if test="!clinicalEvents.isEmpty()">
                 AND
@@ -191,18 +211,28 @@
                 <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="patientIds != null">
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
-                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
-                    patient.stable_id IN (
-                        <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
-                    )
-                </if>
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
-                    <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
-                    CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
-                        <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
-                    )
-                </if>
+                <choose>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1 and patientIds.size() &lt;= 50000">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                        patient.stable_id IN (
+                            <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
+                        )
+                    </when>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="patientIds.size() &lt;= 50000">
+                        <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
+                        CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                            <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                        )
+                    </otherwise>
+                </choose>
             </if>
             <if test="!clinicalEvents.isEmpty()">
                 AND
@@ -247,18 +277,28 @@
                 <if test="!studyIds.isEmpty()"><foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach></if>
             </if>
             <if test="patientIds != null">
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
-                    cancer_study.cancer_study_identifier = #{studyIds[0]} AND
-                    patient.stable_id IN (
-                        <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
-                    )
-                </if>
-                <if test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() > 1">
-                    <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
-                    CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
-                        <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
-                    )
-                </if>
+                <choose>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1 and patientIds.size() &lt;= 50000">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]} AND
+                        patient.stable_id IN (
+                            <foreach collection="patientIds" item="id" separator=",">#{id}</foreach>
+                        )
+                    </when>
+                    <when test="@java.util.Arrays@stream(patientIds.toArray()).distinct().count() == 1">
+                        cancer_study.cancer_study_identifier = #{studyIds[0]}
+                    </when>
+                    <when test="patientIds.size() &lt;= 50000">
+                        <bind name="patientUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndPatientIds(studyIds, patientIds)" />
+                        CONCAT(cancer_study.cancer_study_identifier, ':', patient.stable_id) IN (
+                            <foreach collection="patientUniqueKeys" item="key" separator=",">#{key}</foreach>
+                        )
+                    </when>
+                    <otherwise>
+                        cancer_study.cancer_study_identifier IN (
+                            <foreach collection="@java.util.Arrays@stream(studyIds.toArray()).distinct().toArray()" item="sid" separator=",">#{sid}</foreach>
+                        )
+                    </otherwise>
+                </choose>
             </if>
             <if test="!clinicalEvents.isEmpty()">
                 AND

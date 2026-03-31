@@ -4,10 +4,12 @@
 <mapper  namespace="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper">
     <sql id="sampleUniqueIdsFromStudyViewFilter">
         <trim prefixOverrides="INTERSECT">
+            <!-- Base universe: all sample_unique_ids from the relevant studies (or all studies when unfiltered).
+                 This ensures the INTERSECT chain always starts with a valid SELECT, avoiding empty IN (). -->
+            INTERSECT
+            SELECT sample_unique_id
+            FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
             <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
-                INTERSECT
-                SELECT sample_unique_id
-                FROM <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sample_derived
                 WHERE cancer_study_identifier IN
                 <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
                     #{studyId}

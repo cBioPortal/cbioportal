@@ -464,7 +464,7 @@ totalProfiled Count per gene in java.
               AND cov.gene_id = sv.site2_entrez_gene_id
          WHERE sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
             OR sv.site1_entrez_gene_id IS NULL
-        ) genomic_event_derived
+        )
     </sql>
 
     <sql id="getAlterationCountByGeneGiven">

@@ -8,34 +8,35 @@
          alteration filter fragments (mutationAlterationFilter, cnaAlterationFilter,
          whereCustomAnnotations, whereMutationStatus) resolve unchanged. -->
 
-    <!-- Mutation base: mutation + mutation_event + off_panel + driver annotations.
-         Filter on integer sample_id is pushed inside for early pruning. -->
+    <!-- Mutation base: uses pre-joined mutation_derived table, only adding
+         sample_derived for internal_id + gene_panel joins for off_panel.
+         Eliminates mutation_event, alteration_driver_annotation, and gene joins. -->
     <sql id="mutationDirectSubquery">
-        (SELECT m.entrez_gene_id,
-                m.sample_id,
-                m.mutation_status,
-                me.mutation_type,
-                ada.driver_filter,
-                ada.driver_tiers_filter,
+        (SELECT md.gene_entrezGeneId AS entrez_gene_id,
+                sd.internal_id AS sample_id,
+                md.mutationStatus AS mutation_status,
+                md.mutationType AS mutation_type,
+                md.driverFilter AS driver_filter,
+                md.driverTiersFilter AS driver_tiers_filter,
                 CASE WHEN panel.stable_id IS NOT NULL AND cov.gene_id IS NULL
                      THEN 1 ELSE 0 END AS off_panel
-         FROM mutation m
-         JOIN mutation_event me ON m.mutation_event_id = me.mutation_event_id
-         JOIN sample_profile sp ON m.sample_id = sp.sample_id
-                                AND m.genetic_profile_id = sp.genetic_profile_id
+         FROM mutation_derived md
+         JOIN <include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.sampleDerivedInline"/> sd
+              ON sd.sample_unique_id = CONCAT(md.studyId, '_', md.sampleId)
+         JOIN genetic_profile gp ON md.molecularProfileId = gp.stable_id
+         JOIN sample_profile sp ON sd.internal_id = sp.sample_id
+                                AND gp.genetic_profile_id = sp.genetic_profile_id
          LEFT JOIN gene_panel panel ON sp.panel_id = panel.internal_id
-         LEFT JOIN alteration_driver_annotation ada
-                ON m.genetic_profile_id = ada.genetic_profile_id
-               AND m.sample_id = ada.sample_id
-               AND m.mutation_event_id = ada.alteration_event_id
          LEFT JOIN (
              SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
              FROM gene_panel_list gpl
              JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
          ) cov ON cov.panel_stable_id = panel.stable_id
-              AND cov.gene_id = m.entrez_gene_id
-         WHERE m.mutation_status != 'UNCALLED'
-           AND m.sample_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.filteredSampleInternalIds"/>)
+              AND cov.gene_id = md.gene_entrezGeneId
+         WHERE md.mutationStatus != 'UNCALLED'
+           AND sd.sample_unique_id IN (
+               <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+           )
         ) genomic_event_derived
     </sql>
 

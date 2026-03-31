@@ -1710,7 +1710,7 @@ Several new features, including:
 *   Redesigned and streamlined user interface, based on user feedback and usability testing.
 *   Advanced support for gene-specific alterations. For example, users can now view mutations within TP53, and ignore copy number alterations, or only view amplifications of EGFR, and ignore deletions.
 *   Improved performance.
-*   [Frequently Asked Questions](FAQ) document released.
+*   [Frequently Asked Questions](user-guide/faq.md) document released.
 *   Updated ~~Video Tutorial~~ (update: old link no longer functional. Now see: [YouTube](https://www.youtube.com/results?search_query=cbioportal)
 
 ## November 4, 2010

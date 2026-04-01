@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.exception.DuplicateVirtualStudyException;
+import org.cbioportal.legacy.service.exception.InvalidVirtualStudyDataException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
@@ -15,6 +16,7 @@ import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
+import org.cbioportal.legacy.web.validation.VirtualStudyValidationMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -146,6 +148,7 @@ public class VirtualStudyService {
       storedVirtualStudyData.setUsers(Set.of(ALL_USERS));
       sessionServiceRequestHandler.updateVirtualStudy(virtualStudyDataToPublish);
     } else {
+      validateResolvableVirtualStudyData(virtualStudyData);
       updateStudyMetadataFieldsIfSpecified(virtualStudyData, typeOfCancerId, pmid);
       virtualStudyData.setUsers(Set.of(ALL_USERS));
       try {
@@ -159,6 +162,19 @@ public class VirtualStudyService {
             "The study with id={} does not exist, proceeding to create a new virtual study.", id);
       }
       sessionServiceRequestHandler.createVirtualStudy(id, virtualStudyData);
+    }
+  }
+
+  private void validateResolvableVirtualStudyData(VirtualStudyData virtualStudyData) {
+    List<SampleIdentifier> sampleIdentifiers;
+    try {
+      sampleIdentifiers = studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter());
+    } catch (Exception e) {
+      LOG.error("Error while validating virtual study data", e);
+      throw new InvalidVirtualStudyDataException(VirtualStudyValidationMessages.INVALID_FILTERS);
+    }
+    if (sampleIdentifiers.isEmpty()) {
+      throw new InvalidVirtualStudyDataException(VirtualStudyValidationMessages.NO_FILTER_RESULTS);
     }
   }
 

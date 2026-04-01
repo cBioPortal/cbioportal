@@ -3,6 +3,7 @@ package org.cbioportal.legacy.web;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.legacy.service.VirtualStudyService;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
@@ -61,7 +62,7 @@ public class PublicVirtualStudiesController {
       @RequestHeader(value = "X-PUBLISHER-API-KEY") String providedPublisherApiKey,
       @RequestParam(required = false) String typeOfCancerId,
       @RequestParam(required = false) String pmid,
-      @RequestBody(required = false) VirtualStudyData virtualStudyData) {
+      @Valid @RequestBody(required = false) VirtualStudyData virtualStudyData) {
     ensureProvidedPublisherApiKeyCorrect(providedPublisherApiKey);
     virtualStudyService.publishVirtualStudy(id, typeOfCancerId, pmid, virtualStudyData);
     return ResponseEntity.ok().build();

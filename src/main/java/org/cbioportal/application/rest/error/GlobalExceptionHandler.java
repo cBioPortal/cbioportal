@@ -18,6 +18,7 @@ import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.service.exception.GeneWithMultipleEntrezIdsException;
 import org.cbioportal.legacy.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
+import org.cbioportal.legacy.service.exception.InvalidVirtualStudyDataException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.ResourceDefinitionNotFoundException;
@@ -181,6 +182,12 @@ public class GlobalExceptionHandler {
     return new ResponseEntity<>(
         new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
         HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidVirtualStudyDataException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidVirtualStudyData(
+      InvalidVirtualStudyDataException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(AccessDeniedException.class)

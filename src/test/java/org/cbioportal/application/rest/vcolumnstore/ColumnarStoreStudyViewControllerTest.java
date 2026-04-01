@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
@@ -40,19 +40,19 @@ public class ColumnarStoreStudyViewControllerTest {
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
-  @MockBean private StudyViewService studyViewService;
+  @MockitoBean private StudyViewService studyViewService;
 
-  @MockBean private BasicDataBinner basicDataBinner;
+  @MockitoBean private BasicDataBinner basicDataBinner;
 
-  @MockBean private ClinicalDataBinner clinicalDataBinner;
+  @MockitoBean private ClinicalDataBinner clinicalDataBinner;
 
-  @MockBean private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
+  @MockitoBean private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
 
-  @MockBean private ViolinPlotService violinPlotService;
+  @MockitoBean private ViolinPlotService violinPlotService;
 
-  @MockBean private CustomDataService customDataService;
+  @MockitoBean private CustomDataService customDataService;
 
-  @MockBean private CustomDataFilterUtil customDataFilterUtil;
+  @MockitoBean private CustomDataFilterUtil customDataFilterUtil;
 
   private static final String TEST_STUDY_ID = "test_study";
 

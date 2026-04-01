@@ -329,10 +329,13 @@ totalProfiled Count per gene in java.
     </select>
 
     <!-- Full genomic event UNION ALL subquery for getAlterationCountByGeneGiven.
-         Produces the same columns as genomic_event_derived so filter fragments resolve unchanged.
          Uses internal_ids for COUNT DISTINCT (avoids computed concat columns).
-         Sample/profile filters are pushed INTO each branch so StarRocks can use
-         index-based access on fact tables instead of post-join filtering on concat(). -->
+         Sample filters pushed INTO each branch for index-based access.
+         Mutation branch is always present (most common); CNA and SV branches are
+         conditionally included based on the alteration filter to avoid unnecessary
+         planning and execution of disabled alteration types.
+         mutation_status != 'UNCALLED' is pushed into the mutation branch so
+         StarRocks can filter at scan time rather than after the UNION ALL. -->
     <sql id="genomicEventFullSubquery">
         (SELECT g.hugo_gene_symbol,
                 m.entrez_gene_id,
@@ -362,9 +365,11 @@ totalProfiled Count per gene in java.
                AND m.mutation_event_id = ada.alteration_event_id
          LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = m.entrez_gene_id
+         WHERE m.mutation_status != 'UNCALLED'
          <if test="samples != null">
-         WHERE m.sample_id IN (SELECT sample_internal_id FROM sample_ids)
+           AND m.sample_id IN (SELECT sample_internal_id FROM sample_ids)
          </if>
+         <if test="!alterationFilterHelper.disableCna()">
          UNION ALL
          SELECT g.hugo_gene_symbol,
                 ce.entrez_gene_id,
@@ -397,6 +402,8 @@ totalProfiled Count per gene in java.
          <if test="samples != null">
          WHERE sce.sample_id IN (SELECT sample_internal_id FROM sample_ids)
          </if>
+         </if>
+         <if test="!alterationFilterHelper.disableStructuralVariants()">
          UNION ALL
          SELECT g.hugo_gene_symbol,
                 g.entrez_gene_id,
@@ -461,6 +468,7 @@ totalProfiled Count per gene in java.
          <if test="samples != null">
            AND sv.sample_id IN (SELECT sample_internal_id FROM sample_ids)
          </if>
+         </if>
         )
     </sql>
 
@@ -481,7 +489,8 @@ totalProfiled Count per gene in java.
         COUNT(DISTINCT ged.${count_id}) as numberOfAlteredCases,
         COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ged.${count_id} END) as numberOfAlteredCasesOnPanel
         FROM <include refid="genomicEventFullSubquery"/> ged
-            <where>ged.mutation_status != 'UNCALLED'
+            <where>
+                1 = 1
                 <if test="molecularProfiles != null">
                     AND ged.genetic_profile_stable_id IN (<foreach collection="molecularProfiles" item="id" separator=",">#{id}</foreach>)
                 </if>
@@ -494,9 +503,6 @@ totalProfiled Count per gene in java.
                 test="alterationFilterHelper.shouldApplyCnaAlterationFilter()"
             >
                     <include refid="cnaAlterationFilter" />
-                </if>
-                <if test="alterationFilterHelper.disableStructuralVariants()">
-                    AND ged.variant_type != 'structural_variant'
                 </if>
             </where>
             GROUP BY ged.entrez_gene_id, ged.hugo_gene_symbol

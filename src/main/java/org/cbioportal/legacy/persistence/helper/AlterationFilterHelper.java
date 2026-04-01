@@ -159,4 +159,12 @@ public final class AlterationFilterHelper {
     return !Objects.isNull(alterationFilter.getStructuralVariants())
         && !alterationFilter.getStructuralVariants();
   }
+
+  public boolean disableMutations() {
+    return mappedMutationTypes.hasNone();
+  }
+
+  public boolean disableCna() {
+    return mappedCnaTypes.hasNone();
+  }
 }

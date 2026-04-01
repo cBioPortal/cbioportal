@@ -3,6 +3,17 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.alteration.ClickhouseAlterationMapper">
 
+    <!-- CTE for gene-panel coverage lookup, used by off_panel calculation.
+         Extracted so StarRocks CBO plans/executes it once and multicasts the
+         result to every UNION ALL branch that references it. -->
+    <sql id="genePanelCovCTE">
+        gene_panel_cov AS (
+            SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
+            FROM gene_panel_list gpl
+            JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
+        )
+    </sql>
+
     <!-- Reusable join fragments for direct base-table queries.
          Subqueries are aliased AS genomic_event_derived so the shared
          alteration filter fragments (mutationAlterationFilter, cnaAlterationFilter,
@@ -27,11 +38,7 @@
          JOIN sample_profile sp ON sd.internal_id = sp.sample_id
                                 AND gp.genetic_profile_id = sp.genetic_profile_id
          LEFT JOIN gene_panel panel ON sp.panel_id = panel.internal_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = md.gene_entrezGeneId
          WHERE md.mutationStatus != 'UNCALLED'
            AND sd.sample_unique_id IN (
@@ -63,11 +70,7 @@
                 ON sce.genetic_profile_id = ada.genetic_profile_id
                AND sce.sample_id = ada.sample_id
                AND sce.cna_event_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = ce.entrez_gene_id
          WHERE sce.sample_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.filteredSampleInternalIds"/>)
         ) genomic_event_derived
@@ -95,11 +98,7 @@
                 ON sv.genetic_profile_id = ada.genetic_profile_id
                AND sv.sample_id = ada.sample_id
                AND sv.internal_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = sv.site1_entrez_gene_id
          WHERE sv.sample_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.filteredSampleInternalIds"/>)
          UNION ALL
@@ -122,11 +121,7 @@
                 ON sv.genetic_profile_id = ada.genetic_profile_id
                AND sv.sample_id = ada.sample_id
                AND sv.internal_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = sv.site2_entrez_gene_id
          WHERE (sv.site2_entrez_gene_id != sv.site1_entrez_gene_id OR sv.site1_entrez_gene_id IS NULL)
            AND sv.sample_id IN (<include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.filteredSampleInternalIds"/>)
@@ -163,6 +158,7 @@
         id="getMutatedGenes"
         resultType="org.cbioportal.legacy.model.AlterationCountByGene"
     >
+        WITH <include refid="genePanelCovCTE"/>
         SELECT
         g.hugo_gene_symbol as hugoGeneSymbol,
         genomic_event_derived.entrez_gene_id as entrezGeneId,
@@ -188,6 +184,7 @@
         id="getCnaGenes"
         resultType="org.cbioportal.legacy.model.CopyNumberCountByGene"
     >
+        WITH <include refid="genePanelCovCTE"/>
         SELECT
         g.hugo_gene_symbol as hugoGeneSymbol,
         genomic_event_derived.entrez_gene_id as entrezGeneId,
@@ -213,6 +210,7 @@
         id="getStructuralVariantGenes"
         resultType="org.cbioportal.legacy.model.AlterationCountByGene"
     >
+        WITH <include refid="genePanelCovCTE"/>
         SELECT
         genomic_event_derived.hugo_gene_symbol as hugoGeneSymbol,
         genomic_event_derived.entrez_gene_id as entrezGeneId,
@@ -332,12 +330,14 @@ totalProfiled Count per gene in java.
 
     <!-- Full genomic event UNION ALL subquery for getAlterationCountByGeneGiven.
          Produces the same columns as genomic_event_derived so filter fragments resolve unchanged.
-         Uses sample_unique_id/patient_unique_id for compatibility with both sample and patient level queries. -->
+         Uses internal_ids for COUNT DISTINCT (avoids computed concat columns).
+         Sample/profile filters are pushed INTO each branch so StarRocks can use
+         index-based access on fact tables instead of post-join filtering on concat(). -->
     <sql id="genomicEventFullSubquery">
         (SELECT g.hugo_gene_symbol,
                 m.entrez_gene_id,
-                concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                s.internal_id AS sample_internal_id,
+                p.internal_id AS patient_internal_id,
                 gp.stable_id AS genetic_profile_stable_id,
                 'mutation' AS variant_type,
                 me.mutation_type,
@@ -360,17 +360,16 @@ totalProfiled Count per gene in java.
                 ON m.genetic_profile_id = ada.genetic_profile_id
                AND m.sample_id = ada.sample_id
                AND m.mutation_event_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = m.entrez_gene_id
+         <if test="samples != null">
+         WHERE m.sample_id IN (SELECT sample_internal_id FROM sample_ids)
+         </if>
          UNION ALL
          SELECT g.hugo_gene_symbol,
                 ce.entrez_gene_id,
-                concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                s.internal_id AS sample_internal_id,
+                p.internal_id AS patient_internal_id,
                 gp.stable_id AS genetic_profile_stable_id,
                 'cna' AS variant_type,
                 'NA' AS mutation_type,
@@ -393,17 +392,16 @@ totalProfiled Count per gene in java.
                 ON sce.genetic_profile_id = ada.genetic_profile_id
                AND sce.sample_id = ada.sample_id
                AND sce.cna_event_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = ce.entrez_gene_id
+         <if test="samples != null">
+         WHERE sce.sample_id IN (SELECT sample_internal_id FROM sample_ids)
+         </if>
          UNION ALL
          SELECT g.hugo_gene_symbol,
                 g.entrez_gene_id,
-                concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                s.internal_id AS sample_internal_id,
+                p.internal_id AS patient_internal_id,
                 gp.stable_id AS genetic_profile_stable_id,
                 'structural_variant' AS variant_type,
                 'NA' AS mutation_type,
@@ -425,17 +423,16 @@ totalProfiled Count per gene in java.
                 ON sv.genetic_profile_id = ada.genetic_profile_id
                AND sv.sample_id = ada.sample_id
                AND sv.internal_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = sv.site1_entrez_gene_id
+         <if test="samples != null">
+         WHERE sv.sample_id IN (SELECT sample_internal_id FROM sample_ids)
+         </if>
          UNION ALL
          SELECT g.hugo_gene_symbol,
                 g.entrez_gene_id,
-                concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
-                concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+                s.internal_id AS sample_internal_id,
+                p.internal_id AS patient_internal_id,
                 gp.stable_id AS genetic_profile_stable_id,
                 'structural_variant' AS variant_type,
                 'NA' AS mutation_type,
@@ -457,31 +454,36 @@ totalProfiled Count per gene in java.
                 ON sv.genetic_profile_id = ada.genetic_profile_id
                AND sv.sample_id = ada.sample_id
                AND sv.internal_id = ada.alteration_event_id
-         LEFT JOIN (
-             SELECT DISTINCT gpl.gene_id, gp2.stable_id AS panel_stable_id
-             FROM gene_panel_list gpl
-             JOIN gene_panel gp2 ON gpl.internal_id = gp2.internal_id
-         ) cov ON cov.panel_stable_id = panel.stable_id
+         LEFT JOIN gene_panel_cov cov ON cov.panel_stable_id = panel.stable_id
               AND cov.gene_id = sv.site2_entrez_gene_id
-         WHERE sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
-            OR sv.site1_entrez_gene_id IS NULL
+         WHERE (sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
+            OR sv.site1_entrez_gene_id IS NULL)
+         <if test="samples != null">
+           AND sv.sample_id IN (SELECT sample_internal_id FROM sample_ids)
+         </if>
         )
     </sql>
 
     <sql id="getAlterationCountByGeneGiven">
-        WITH total_count_by_genes AS (
+        WITH <include refid="genePanelCovCTE"/>
+        <if test="samples != null">
+        , sample_ids AS (
+            SELECT s.internal_id AS sample_internal_id
+            FROM sample s
+            JOIN patient p ON s.patient_id = p.internal_id
+            JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+            WHERE concat(cs.cancer_study_identifier, '_', ${id_stable_id}) IN (<foreach collection="samples" item="id" separator=",">#{id}</foreach>)
+        )
+        </if>
+        , total_count_by_genes AS (
         SELECT ged.hugo_gene_symbol AS hugoGeneSymbol,
         ged.entrez_gene_id as entrezGeneId,
-        COUNT(DISTINCT ${unique_id}) as numberOfAlteredCases,
-        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ${unique_id} END) as numberOfAlteredCasesOnPanel
+        COUNT(DISTINCT ged.${count_id}) as numberOfAlteredCases,
+        COUNT(DISTINCT CASE WHEN off_panel = 0 THEN ged.${count_id} END) as numberOfAlteredCasesOnPanel
         FROM <include refid="genomicEventFullSubquery"/> ged
             <where>ged.mutation_status != 'UNCALLED'
-                <if test="
-            molecularProfiles != null ">
+                <if test="molecularProfiles != null">
                     AND ged.genetic_profile_stable_id IN (<foreach collection="molecularProfiles" item="id" separator=",">#{id}</foreach>)
-                </if>
-                <if test="samples != null">
-                    AND ${unique_id} IN (<foreach collection="samples" item="id" separator=",">#{id}</foreach>)
                 </if>
                 <if
                 test="alterationFilterHelper.shouldApplyMutationAlterationFilter()"
@@ -512,7 +514,8 @@ totalProfiled Count per gene in java.
         resultType="org.cbioportal.legacy.model.AlterationCountByGene"
     >
         <include refid="getAlterationCountByGeneGiven">
-            <property name="unique_id" value="sample_unique_id" />
+            <property name="count_id" value="sample_internal_id" />
+            <property name="id_stable_id" value="s.stable_id" />
         </include>
     </select>
 
@@ -521,7 +524,8 @@ totalProfiled Count per gene in java.
         resultType="org.cbioportal.legacy.model.AlterationCountByGene"
     >
         <include refid="getAlterationCountByGeneGiven">
-            <property name="unique_id" value="patient_unique_id" />
+            <property name="count_id" value="patient_internal_id" />
+            <property name="id_stable_id" value="p.stable_id" />
         </include>
     </select>
 

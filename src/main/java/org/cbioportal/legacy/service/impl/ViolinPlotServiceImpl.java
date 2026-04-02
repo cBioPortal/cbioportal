@@ -100,10 +100,10 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     // For large datasets, sample down per-category data before computation to reduce work.
     int totalDataPoints = groupedDetailedData.values().stream().mapToInt(List::size).sum();
     boolean isLargeDataset = totalDataPoints >= LARGE_DATASET_TOTAL_POINTS_THRESHOLD;
-    if (isLargeDataset) {
-      groupedDetailedData =
-          sampleCategoriesForLargeDataset(groupedDetailedData, LARGE_DATASET_TOTAL_SAMPLE_MAX);
-    }
+    Map<String, List<ClinicalData>> groupedDetailedDataForComputation =
+        isLargeDataset
+            ? sampleCategoriesForLargeDataset(groupedDetailedData, LARGE_DATASET_TOTAL_SAMPLE_MAX)
+            : groupedDetailedData;
 
     // Reduce curve resolution for large datasets.
     int effectiveCurvePoints =
@@ -117,7 +117,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     Map<String, ClinicalViolinPlotBoxData> boxData = new HashMap<>();
     Map<String, List<ClinicalData>> nonOutliers = new HashMap<>();
     Map<String, List<ClinicalData>> outliers = new HashMap<>();
-    groupedDetailedData.forEach(
+    groupedDetailedDataForComputation.forEach(
         (category, data) -> {
           Percentile percentile = new Percentile();
           // fill double[] to pass into Percentile
@@ -152,7 +152,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
 
           List<ClinicalData> _outliers = new ArrayList<>();
           List<ClinicalData> _nonOutliers = new ArrayList<>();
-          List<ClinicalData> detailedData = groupedDetailedData.get(category);
+          List<ClinicalData> detailedData = data;
           int numSuspectedOutliers = 0;
           for (ClinicalData d : detailedData) {
             if (NumberUtils.isCreatable(d.getAttrValue())) {
@@ -214,8 +214,10 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     double sigma = sigmaMultiplier.doubleValue() * stepSize;
     List<ClinicalViolinPlotRowData> rows = result.getRows();
     final int[] remainingIndividualPointsBudget = new int[] {MAX_TOTAL_INDIVIDUAL_POINTS};
-    nonOutliers.forEach(
-        (category, data) -> {
+    // Iterate in sorted category order to ensure deterministic individual-point allocation
+    nonOutliers.keySet().stream().sorted().forEach(
+        category -> {
+          List<ClinicalData> data = nonOutliers.get(category);
           ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
           row.setCategory(category);
           row.setNumSamples(trueNumSamplesByCategory.getOrDefault(category, 0));
@@ -308,7 +310,10 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     }
 
     int categoryCount = groupedData.size();
-    int effectiveMaxTotalSamples = Math.max(maxTotalSamples, categoryCount);
+    // Use maxTotalSamples as the strict upper bound; enforce "at least 1 per category"
+    // only through Math.max(1, ...) in allocation, which means with very many categories
+    // we may allocate slightly more. This is acceptable for maintaining semantic correctness.
+    int effectiveMaxTotalSamples = maxTotalSamples;
     double scale = (double) effectiveMaxTotalSamples / totalDataPoints;
 
     Map<String, Integer> samplesByCategory = new HashMap<>();
@@ -335,7 +340,15 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     if (allocatedSamples < effectiveMaxTotalSamples) {
       List<String> categoriesByRemainderDesc =
           remainderByCategory.entrySet().stream()
-              .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+              .sorted(
+                  (a, b) -> {
+                    int cmp = Double.compare(b.getValue(), a.getValue());
+                    if (cmp != 0) {
+                      return cmp;
+                    }
+                    // Deterministic tie-breaking by category name for reproducibility
+                    return a.getKey().compareTo(b.getKey());
+                  })
               .map(Map.Entry::getKey)
               .collect(Collectors.toList());
       int budgetLeft = effectiveMaxTotalSamples - allocatedSamples;

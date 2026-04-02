@@ -155,77 +155,77 @@ public class ViolinPlotServiceImplTest {
         result.toString());
   }
 
-    @Test
-    public void getClinicalViolinPlotDataLargeDatasetIsBoundedAndKeepsCounts() {
-        final int categoryCount = 120;
-        final int samplesPerCategory = 250;
+  @Test
+  public void getClinicalViolinPlotDataLargeDatasetIsBoundedAndKeepsCounts() {
+    final int categoryCount = 120;
+    final int samplesPerCategory = 250;
 
-        List<ClinicalData> sampleClinicalData = new ArrayList<>();
-        List<Sample> filteredSamples = new ArrayList<>();
+    List<ClinicalData> sampleClinicalData = new ArrayList<>();
+    List<Sample> filteredSamples = new ArrayList<>();
 
-        int internalIdCounter = 1;
-        for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
-            String category = "cancer_type_" + categoryIndex;
-            for (int sampleIndex = 0; sampleIndex < samplesPerCategory; sampleIndex++) {
-                String sampleId = "sample_" + categoryIndex + "_" + sampleIndex;
+    int internalIdCounter = 1;
+    for (int categoryIndex = 0; categoryIndex < categoryCount; categoryIndex++) {
+      String category = "cancer_type_" + categoryIndex;
+      for (int sampleIndex = 0; sampleIndex < samplesPerCategory; sampleIndex++) {
+        String sampleId = "sample_" + categoryIndex + "_" + sampleIndex;
 
-                ClinicalData num = new ClinicalData();
-                num.setInternalId(internalIdCounter);
-                num.setAttrId("FRACTION_GENOME_ALTERED");
-                if (sampleIndex % 50 == 0) {
-                    num.setAttrValue(String.valueOf(10 + sampleIndex));
-                } else {
-                    num.setAttrValue(String.valueOf((sampleIndex % 40) * 0.01));
-                }
-                num.setStudyId("test_study_id");
-                num.setSampleId(sampleId);
-                num.setUniqueSampleKey(sampleId);
-                sampleClinicalData.add(num);
-
-                ClinicalData cat = new ClinicalData();
-                cat.setInternalId(internalIdCounter);
-                cat.setAttrId("CANCER_TYPE_DETAILED");
-                cat.setAttrValue(category);
-                cat.setStudyId("test_study_id");
-                cat.setSampleId(sampleId);
-                cat.setUniqueSampleKey(sampleId);
-                sampleClinicalData.add(cat);
-
-                Sample s = new Sample();
-                s.setInternalId(internalIdCounter);
-                s.setUniqueSampleKey(sampleId);
-                filteredSamples.add(s);
-
-                internalIdCounter += 1;
-            }
+        ClinicalData num = new ClinicalData();
+        num.setInternalId(internalIdCounter);
+        num.setAttrId("FRACTION_GENOME_ALTERED");
+        if (sampleIndex % 50 == 0) {
+          num.setAttrValue(String.valueOf(10 + sampleIndex));
+        } else {
+          num.setAttrValue(String.valueOf((sampleIndex % 40) * 0.01));
         }
+        num.setStudyId("test_study_id");
+        num.setSampleId(sampleId);
+        num.setUniqueSampleKey(sampleId);
+        sampleClinicalData.add(num);
 
-        Set<Integer> sampleIdsSet =
-                filteredSamples.stream().map(Sample::getInternalId).collect(toSet());
+        ClinicalData cat = new ClinicalData();
+        cat.setInternalId(internalIdCounter);
+        cat.setAttrId("CANCER_TYPE_DETAILED");
+        cat.setAttrValue(category);
+        cat.setStudyId("test_study_id");
+        cat.setSampleId(sampleId);
+        cat.setUniqueSampleKey(sampleId);
+        sampleClinicalData.add(cat);
 
-        ClinicalViolinPlotData result =
-                violinPlotService.getClinicalViolinPlotData(
-                        sampleClinicalData,
-                        sampleIdsSet,
-                        new BigDecimal(0),
-                        new BigDecimal(12),
-                        new BigDecimal(100),
-                        false,
-                        new BigDecimal(1),
-                        new StudyViewFilter());
+        Sample s = new Sample();
+        s.setInternalId(internalIdCounter);
+        s.setUniqueSampleKey(sampleId);
+        filteredSamples.add(s);
 
-        Assert.assertEquals(categoryCount, result.getRows().size());
-
-        int totalIndividualPoints = 0;
-        for (ClinicalViolinPlotRowData row : result.getRows()) {
-            Assert.assertEquals(Integer.valueOf(samplesPerCategory), row.getNumSamples());
-            Assert.assertEquals(
-                    ViolinPlotServiceImpl.LARGE_DATASET_CURVE_POINTS, row.getCurveData().size());
-            Assert.assertTrue(
-                    row.getIndividualPoints().size() <= ViolinPlotServiceImpl.MAX_INDIVIDUAL_POINTS_PER_ROW);
-            totalIndividualPoints += row.getIndividualPoints().size();
-        }
-
-        Assert.assertTrue(totalIndividualPoints <= ViolinPlotServiceImpl.MAX_TOTAL_INDIVIDUAL_POINTS);
+        internalIdCounter += 1;
+      }
     }
+
+    Set<Integer> sampleIdsSet =
+        filteredSamples.stream().map(Sample::getInternalId).collect(toSet());
+
+    ClinicalViolinPlotData result =
+        violinPlotService.getClinicalViolinPlotData(
+            sampleClinicalData,
+            sampleIdsSet,
+            new BigDecimal(0),
+            new BigDecimal(12),
+            new BigDecimal(100),
+            false,
+            new BigDecimal(1),
+            new StudyViewFilter());
+
+    Assert.assertEquals(categoryCount, result.getRows().size());
+
+    int totalIndividualPoints = 0;
+    for (ClinicalViolinPlotRowData row : result.getRows()) {
+      Assert.assertEquals(Integer.valueOf(samplesPerCategory), row.getNumSamples());
+      Assert.assertEquals(
+          ViolinPlotServiceImpl.LARGE_DATASET_CURVE_POINTS, row.getCurveData().size());
+      Assert.assertTrue(
+          row.getIndividualPoints().size() <= ViolinPlotServiceImpl.MAX_INDIVIDUAL_POINTS_PER_ROW);
+      totalIndividualPoints += row.getIndividualPoints().size();
+    }
+
+    Assert.assertTrue(totalIndividualPoints <= ViolinPlotServiceImpl.MAX_TOTAL_INDIVIDUAL_POINTS);
+  }
 }

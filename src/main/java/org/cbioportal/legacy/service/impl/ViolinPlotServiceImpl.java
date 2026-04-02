@@ -27,6 +27,14 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
   // If a row has less than this many points, do not compute a
   //  violin, because it doesn't make sense.
   static final int SHOW_ONLY_POINTS_THRESHOLD = 7;
+  // For large datasets, cap the total number of points used for violin computation.
+  static final int LARGE_DATASET_TOTAL_POINTS_THRESHOLD = 20000;
+  static final int LARGE_DATASET_TOTAL_SAMPLE_MAX = 5000;
+  // Reduce curve resolution for large plots: 50 points cuts Gaussian work by 50% vs 100.
+  static final int LARGE_DATASET_CURVE_POINTS = 50;
+  // Keep individual points payload bounded to avoid browser overload.
+  static final int MAX_INDIVIDUAL_POINTS_PER_ROW = 100;
+  static final int MAX_TOTAL_INDIVIDUAL_POINTS = 5000;
 
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
@@ -81,6 +89,29 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     if (groupedDetailedData.isEmpty()) {
       return result;
     }
+
+    // Preserve unsampled counts for display and filtering semantics.
+    Map<String, Integer> trueNumSamplesByCategory = new HashMap<>();
+    groupedDetailedData.forEach(
+        (category, data) ->
+            trueNumSamplesByCategory.put(
+                category, countFilteredSamples(samplesForSampleCountsIds, data)));
+
+    // For large datasets, sample down per-category data before computation to reduce work.
+    int totalDataPoints = groupedDetailedData.values().stream().mapToInt(List::size).sum();
+    boolean isLargeDataset = totalDataPoints >= LARGE_DATASET_TOTAL_POINTS_THRESHOLD;
+    if (isLargeDataset) {
+      groupedDetailedData =
+          sampleCategoriesForLargeDataset(groupedDetailedData, LARGE_DATASET_TOTAL_SAMPLE_MAX);
+    }
+
+    // Reduce curve resolution for large datasets.
+    int effectiveCurvePoints =
+        Math.max(
+            2,
+            isLargeDataset
+                ? Math.min(LARGE_DATASET_CURVE_POINTS, numCurvePoints.intValue())
+                : numCurvePoints.intValue());
 
     // Calculate boxes, outliers, and data bounds
     Map<String, ClinicalViolinPlotBoxData> boxData = new HashMap<>();
@@ -176,27 +207,27 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     // By this point, we know the axis bounds
     List<Double> curvePoints = new ArrayList<>();
     Double stepSize =
-        (result.getAxisEnd() - result.getAxisStart()) / (numCurvePoints.doubleValue() - 1);
-    for (int i = 0; i < numCurvePoints.intValue(); i++) {
+        (result.getAxisEnd() - result.getAxisStart()) / (effectiveCurvePoints - 1);
+    for (int i = 0; i < effectiveCurvePoints; i++) {
       curvePoints.add(result.getAxisStart() + i * stepSize);
     }
     double sigma = sigmaMultiplier.doubleValue() * stepSize;
     List<ClinicalViolinPlotRowData> rows = result.getRows();
+    final int[] remainingIndividualPointsBudget = new int[] {MAX_TOTAL_INDIVIDUAL_POINTS};
     nonOutliers.forEach(
         (category, data) -> {
           ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
           row.setCategory(category);
-          row.setNumSamples(
-              countFilteredSamples(samplesForSampleCountsIds, data, outliers.get(category)));
+          row.setNumSamples(trueNumSamplesByCategory.getOrDefault(category, 0));
           row.setBoxData(boxData.get(category).limitWhiskers(result));
 
-          List<ClinicalData> _individualPoints = new ArrayList<>();
+          List<ClinicalData> rowPointsToRender = new ArrayList<>();
 
           if (data.size() + outliers.get(category).size() <= SHOW_ONLY_POINTS_THRESHOLD) {
             // show only individual points when data is small
             row.setCurveData(new ArrayList<>());
-            _individualPoints.addAll(data);
-            _individualPoints.addAll(outliers.get(category));
+            rowPointsToRender.addAll(data);
+            rowPointsToRender.addAll(outliers.get(category));
           } else {
             // build violin only based on non-outliers
             List<Gaussian> gaussians = new ArrayList<>();
@@ -221,11 +252,19 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
                     .collect(Collectors.toList()));
 
             // render outliers as individual points
-            _individualPoints = outliers.get(category);
+            rowPointsToRender = outliers.get(category);
+          }
+
+          int allowedForRow =
+              Math.min(MAX_INDIVIDUAL_POINTS_PER_ROW, remainingIndividualPointsBudget[0]);
+          List<ClinicalData> individualPointsToRender = new ArrayList<>();
+          if (allowedForRow > 0) {
+            individualPointsToRender = sampleEvenly(rowPointsToRender, allowedForRow);
+            remainingIndividualPointsBudget[0] -= individualPointsToRender.size();
           }
 
           List<ClinicalViolinPlotIndividualPoint> individualPoints = new ArrayList<>();
-          for (ClinicalData d : _individualPoints) {
+          for (ClinicalData d : individualPointsToRender) {
             ClinicalViolinPlotIndividualPoint p = new ClinicalViolinPlotIndividualPoint();
             p.setSampleId(d.getSampleId());
             p.setStudyId(d.getStudyId());
@@ -256,5 +295,85 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
 
   private static double logScale(double val) {
     return Math.log(1 + val);
+  }
+
+  /**
+   * For large datasets, sample each category proportionally to keep total computation bounded.
+   */
+  private static Map<String, List<ClinicalData>> sampleCategoriesForLargeDataset(
+      Map<String, List<ClinicalData>> groupedData, int maxTotalSamples) {
+    int totalDataPoints = groupedData.values().stream().mapToInt(List::size).sum();
+    if (totalDataPoints <= maxTotalSamples) {
+      return groupedData;
+    }
+
+    int categoryCount = groupedData.size();
+    int effectiveMaxTotalSamples = Math.max(maxTotalSamples, categoryCount);
+    double scale = (double) effectiveMaxTotalSamples / totalDataPoints;
+
+    Map<String, Integer> samplesByCategory = new HashMap<>();
+    Map<String, Double> remainderByCategory = new HashMap<>();
+    int allocatedSamples = 0;
+
+    for (Map.Entry<String, List<ClinicalData>> entry : groupedData.entrySet()) {
+      int categorySize = entry.getValue().size();
+      if (categorySize == 0) {
+        samplesByCategory.put(entry.getKey(), 0);
+        remainderByCategory.put(entry.getKey(), 0.0);
+        continue;
+      }
+
+      double scaledSize = categorySize * scale;
+      int allocated = Math.max(1, (int) Math.floor(scaledSize));
+      allocated = Math.min(allocated, categorySize);
+
+      samplesByCategory.put(entry.getKey(), allocated);
+      remainderByCategory.put(entry.getKey(), scaledSize - Math.floor(scaledSize));
+      allocatedSamples += allocated;
+    }
+
+    if (allocatedSamples < effectiveMaxTotalSamples) {
+      List<String> categoriesByRemainderDesc =
+          remainderByCategory.entrySet().stream()
+              .sorted((a, b) -> Double.compare(b.getValue(), a.getValue()))
+              .map(Map.Entry::getKey)
+              .collect(Collectors.toList());
+      int budgetLeft = effectiveMaxTotalSamples - allocatedSamples;
+      for (String category : categoriesByRemainderDesc) {
+        if (budgetLeft == 0) {
+          break;
+        }
+        int allocated = samplesByCategory.get(category);
+        int categorySize = groupedData.get(category).size();
+        if (allocated < categorySize) {
+          samplesByCategory.put(category, allocated + 1);
+          budgetLeft -= 1;
+        }
+      }
+    }
+
+    Map<String, List<ClinicalData>> sampled = new HashMap<>();
+    for (Map.Entry<String, List<ClinicalData>> entry : groupedData.entrySet()) {
+      sampled.put(
+          entry.getKey(), sampleEvenly(entry.getValue(), samplesByCategory.get(entry.getKey())));
+    }
+    return sampled;
+  }
+
+  private static List<ClinicalData> sampleEvenly(List<ClinicalData> data, int maxSize) {
+    if (data == null || maxSize <= 0) {
+      return new ArrayList<>();
+    }
+    if (data.size() <= maxSize) {
+      return data;
+    }
+
+    List<ClinicalData> sampled = new ArrayList<>(maxSize);
+    double step = (double) data.size() / maxSize;
+    for (int i = 0; i < maxSize; i++) {
+      int index = Math.min((int) Math.floor(i * step), data.size() - 1);
+      sampled.add(data.get(index));
+    }
+    return sampled;
   }
 }

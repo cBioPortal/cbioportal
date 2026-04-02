@@ -206,8 +206,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     // Create curves
     // By this point, we know the axis bounds
     List<Double> curvePoints = new ArrayList<>();
-    Double stepSize =
-        (result.getAxisEnd() - result.getAxisStart()) / (effectiveCurvePoints - 1);
+    Double stepSize = (result.getAxisEnd() - result.getAxisStart()) / (effectiveCurvePoints - 1);
     for (int i = 0; i < effectiveCurvePoints; i++) {
       curvePoints.add(result.getAxisStart() + i * stepSize);
     }
@@ -215,70 +214,72 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     List<ClinicalViolinPlotRowData> rows = result.getRows();
     final int[] remainingIndividualPointsBudget = new int[] {MAX_TOTAL_INDIVIDUAL_POINTS};
     // Iterate in sorted category order to ensure deterministic individual-point allocation
-    nonOutliers.keySet().stream().sorted().forEach(
-        category -> {
-          List<ClinicalData> data = nonOutliers.get(category);
-          ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
-          row.setCategory(category);
-          row.setNumSamples(trueNumSamplesByCategory.getOrDefault(category, 0));
-          row.setBoxData(boxData.get(category).limitWhiskers(result));
+    nonOutliers.keySet().stream()
+        .sorted()
+        .forEach(
+            category -> {
+              List<ClinicalData> data = nonOutliers.get(category);
+              ClinicalViolinPlotRowData row = new ClinicalViolinPlotRowData();
+              row.setCategory(category);
+              row.setNumSamples(trueNumSamplesByCategory.getOrDefault(category, 0));
+              row.setBoxData(boxData.get(category).limitWhiskers(result));
 
-          List<ClinicalData> rowPointsToRender = new ArrayList<>();
+              List<ClinicalData> rowPointsToRender = new ArrayList<>();
 
-          if (data.size() + outliers.get(category).size() <= SHOW_ONLY_POINTS_THRESHOLD) {
-            // show only individual points when data is small
-            row.setCurveData(new ArrayList<>());
-            rowPointsToRender.addAll(data);
-            rowPointsToRender.addAll(outliers.get(category));
-          } else {
-            // build violin only based on non-outliers
-            List<Gaussian> gaussians = new ArrayList<>();
-            for (ClinicalData d : data) {
-              Double value =
-                  useLogScale
-                      ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue()))
-                      : Double.parseDouble(d.getAttrValue());
-              gaussians.add(new Gaussian(value, sigma));
-            }
+              if (data.size() + outliers.get(category).size() <= SHOW_ONLY_POINTS_THRESHOLD) {
+                // show only individual points when data is small
+                row.setCurveData(new ArrayList<>());
+                rowPointsToRender.addAll(data);
+                rowPointsToRender.addAll(outliers.get(category));
+              } else {
+                // build violin only based on non-outliers
+                List<Gaussian> gaussians = new ArrayList<>();
+                for (ClinicalData d : data) {
+                  Double value =
+                      useLogScale
+                          ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue()))
+                          : Double.parseDouble(d.getAttrValue());
+                  gaussians.add(new Gaussian(value, sigma));
+                }
 
-            row.setCurveData(
-                curvePoints.parallelStream()
-                    .map(
-                        p -> {
-                          BigDecimal sum = new BigDecimal(0);
-                          for (Gaussian g : gaussians) {
-                            sum = sum.add(BigDecimal.valueOf(g.value(p)));
-                          }
-                          return sum.doubleValue();
-                        })
-                    .collect(Collectors.toList()));
+                row.setCurveData(
+                    curvePoints.parallelStream()
+                        .map(
+                            p -> {
+                              BigDecimal sum = new BigDecimal(0);
+                              for (Gaussian g : gaussians) {
+                                sum = sum.add(BigDecimal.valueOf(g.value(p)));
+                              }
+                              return sum.doubleValue();
+                            })
+                        .collect(Collectors.toList()));
 
-            // render outliers as individual points
-            rowPointsToRender = outliers.get(category);
-          }
+                // render outliers as individual points
+                rowPointsToRender = outliers.get(category);
+              }
 
-          int allowedForRow =
-              Math.min(MAX_INDIVIDUAL_POINTS_PER_ROW, remainingIndividualPointsBudget[0]);
-          List<ClinicalData> individualPointsToRender = new ArrayList<>();
-          if (allowedForRow > 0) {
-            individualPointsToRender = sampleEvenly(rowPointsToRender, allowedForRow);
-            remainingIndividualPointsBudget[0] -= individualPointsToRender.size();
-          }
+              int allowedForRow =
+                  Math.min(MAX_INDIVIDUAL_POINTS_PER_ROW, remainingIndividualPointsBudget[0]);
+              List<ClinicalData> individualPointsToRender = new ArrayList<>();
+              if (allowedForRow > 0) {
+                individualPointsToRender = sampleEvenly(rowPointsToRender, allowedForRow);
+                remainingIndividualPointsBudget[0] -= individualPointsToRender.size();
+              }
 
-          List<ClinicalViolinPlotIndividualPoint> individualPoints = new ArrayList<>();
-          for (ClinicalData d : individualPointsToRender) {
-            ClinicalViolinPlotIndividualPoint p = new ClinicalViolinPlotIndividualPoint();
-            p.setSampleId(d.getSampleId());
-            p.setStudyId(d.getStudyId());
-            p.setValue(
-                useLogScale
-                    ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue()))
-                    : Double.parseDouble(d.getAttrValue()));
-            individualPoints.add(p);
-          }
-          row.setIndividualPoints(individualPoints);
-          rows.add(row);
-        });
+              List<ClinicalViolinPlotIndividualPoint> individualPoints = new ArrayList<>();
+              for (ClinicalData d : individualPointsToRender) {
+                ClinicalViolinPlotIndividualPoint p = new ClinicalViolinPlotIndividualPoint();
+                p.setSampleId(d.getSampleId());
+                p.setStudyId(d.getStudyId());
+                p.setValue(
+                    useLogScale
+                        ? ViolinPlotServiceImpl.logScale(Double.parseDouble(d.getAttrValue()))
+                        : Double.parseDouble(d.getAttrValue()));
+                individualPoints.add(p);
+              }
+              row.setIndividualPoints(individualPoints);
+              rows.add(row);
+            });
 
     // put everything into bins and then do one gaussian per bin, weighted by bin size
     return result;

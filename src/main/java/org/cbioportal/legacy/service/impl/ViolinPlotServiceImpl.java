@@ -300,9 +300,7 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
     return Math.log(1 + val);
   }
 
-  /**
-   * For large datasets, sample each category proportionally to keep total computation bounded.
-   */
+  /** For large datasets, sample each category proportionally to keep total computation bounded. */
   private static Map<String, List<ClinicalData>> sampleCategoriesForLargeDataset(
       Map<String, List<ClinicalData>> groupedData, int maxTotalSamples) {
     int totalDataPoints = groupedData.values().stream().mapToInt(List::size).sum();

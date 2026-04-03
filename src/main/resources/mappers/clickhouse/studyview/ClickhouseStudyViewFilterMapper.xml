@@ -336,13 +336,13 @@
                     We need to make sure to treat these values as numerical for filtering purposes.
                 -->
                 <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND REGEXP_LIKE(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND ${attribute_value} REGEXP '^>?=?[-+]?[0-9]*[.,]?[0-9]+$'
                 </if>
                 <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND REGEXP_LIKE(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND ${attribute_value} REGEXP '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$'
                 </if>
                 <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND REGEXP_LIKE(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND ${attribute_value} REGEXP '^[-+]?[0-9]*[.,]?[0-9]+$'
                 </if>
                 <!--
                     Actual filtering of values that fall within the range of (start, end].
@@ -901,7 +901,7 @@
     <sql id="castStringValueToFloat">
         CASE
             -- This condition is to prevent casting non numerical values to float
-            WHEN NOT REGEXP_LIKE(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$') THEN NULL
+            WHEN NOT (${attribute_value} REGEXP '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$') THEN NULL
             WHEN (${attribute_value} LIKE '&lt;=%' OR ${attribute_value} LIKE '>=%%') THEN cast(substr(${attribute_value}, 3) as float)
             WHEN ${attribute_value} LIKE '&lt;%' THEN cast(substr(${attribute_value}, 2) as float) - exp(-10)
             WHEN ${attribute_value} LIKE '>%' THEN cast(substr(${attribute_value}, 2) as float) + exp(-10)

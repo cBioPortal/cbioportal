@@ -179,7 +179,8 @@ public class GenericAssayDataController {
           Projection projection)
       throws MolecularProfileNotFoundException {
 
-    if (!hasValidMultipleStudyFilter(interceptedGenericAssayDataMultipleStudyFilter)) {
+    if (!hasValidGenericAssayDataMultipleStudyFilter(
+        interceptedGenericAssayDataMultipleStudyFilter)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
@@ -235,7 +236,7 @@ public class GenericAssayDataController {
         .collect(Collectors.toList());
   }
 
-  private boolean hasValidMultipleStudyFilter(
+  private boolean hasValidGenericAssayDataMultipleStudyFilter(
       GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter) {
     if (genericAssayDataMultipleStudyFilter == null) {
       return false;

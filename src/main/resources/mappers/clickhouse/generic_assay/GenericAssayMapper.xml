@@ -160,6 +160,8 @@
         FROM generic_assay_profile_entity_derived
         WHERE profile_stable_id IN
             <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+        <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
+        ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
     </select>
 
     <resultMap id="GenericAssayMetaResultMap" type="org.cbioportal.legacy.model.meta.GenericAssayMeta">
@@ -177,6 +179,8 @@
         FROM generic_assay_meta_derived
         WHERE entity_stable_id IN
             <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+        <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
+        ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
     </select>
 
     <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
@@ -195,6 +199,8 @@
             AND gam.entity_stable_id IN
                 <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
+        <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
+        ORDER BY toUInt32OrZero(extract(gam.entity_stable_id, '^[0-9]+')) ASC, gam.entity_stable_id ASC
     </select>
 
 </mapper>

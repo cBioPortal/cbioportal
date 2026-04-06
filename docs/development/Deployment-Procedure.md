@@ -150,7 +150,7 @@ The following steps are used during releases/updates to build new importers with
 
 6. Merge this change into cmo-pipelines/master
 
-7. Run the deployment wrapper script. See details [here](/Deployment-Procedure.md#deployment-script).  
+7. Run the deployment wrapper script. See details [here](#deployment-script).  
 
 8. Verify new importers/data fetchers have been placed in `/data/portal-cron/lib` by checking timestamps.
 ```

@@ -38,6 +38,9 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
     if (value instanceof List) {
       List list = (List) value;
       for (Object object : list) {
+        if (object == null) {
+          continue;
+        }
         if (object instanceof Alteration) {
           Alteration alteration = (Alteration) object;
           alteration.setUniqueSampleKey(

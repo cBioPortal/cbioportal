@@ -310,4 +310,58 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(STUDY_ID, resultGenePanelData2.getStudyId());
     Assert.assertEquals(true, resultGenePanelData2.getProfiled());
   }
+
+  @Test
+  public void fetchGenePanelDataInMultipleMolecularProfilesWithDuplicateEntries() throws Exception {
+
+    List<GenePanelData> genePanelDataList = new ArrayList<>();
+    GenePanelData genePanelData = new GenePanelData();
+    genePanelData.setGenePanelId(GENE_PANEL_ID);
+    genePanelData.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+    genePanelData.setSampleId(SAMPLE_ID1);
+    genePanelData.setPatientId(PATIENT_ID_1);
+    genePanelData.setStudyId(STUDY_ID);
+    genePanelData.setProfiled(true);
+    genePanelDataList.add(genePanelData);
+
+    // Simulate duplicate entries for the same (profile, sample) pair — can occur when
+    // many genes/pathways are queried and the frontend sends one entry per gene
+    List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers = new ArrayList<>();
+    MolecularProfileCaseIdentifier profileCaseIdentifier = new MolecularProfileCaseIdentifier();
+    profileCaseIdentifier.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+    profileCaseIdentifier.setCaseId(SAMPLE_ID1);
+    molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
+
+    // Add duplicate entry for the same profile + sample
+    MolecularProfileCaseIdentifier duplicateCaseIdentifier =
+        new MolecularProfileCaseIdentifier();
+    duplicateCaseIdentifier.setMolecularProfileId(MOLECULAR_PROFILE_ID);
+    duplicateCaseIdentifier.setCaseId(SAMPLE_ID1);
+    molecularProfileSampleIdentifiers.add(duplicateCaseIdentifier);
+
+    MolecularProfile molecularProfile = new MolecularProfile();
+    molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+    molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+    molecularProfile.setMolecularAlterationType(
+        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+
+    Mockito.when(
+            molecularProfileService.getMolecularProfiles(
+                Collections.singleton(MOLECULAR_PROFILE_ID), "SUMMARY"))
+        .thenReturn(Arrays.asList(molecularProfile));
+
+    Mockito.when(
+            genePanelRepository.fetchGenePanelDataByMolecularProfileIds(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
+        .thenReturn(genePanelDataList);
+
+    // Should not throw IllegalStateException due to duplicate keys
+    List<GenePanelData> result =
+        genePanelService.fetchGenePanelDataInMultipleMolecularProfiles(
+            molecularProfileSampleIdentifiers);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(SAMPLE_ID1, result.get(0).getSampleId());
+    Assert.assertEquals(MOLECULAR_PROFILE_ID, result.get(0).getMolecularProfileId());
+  }
 }

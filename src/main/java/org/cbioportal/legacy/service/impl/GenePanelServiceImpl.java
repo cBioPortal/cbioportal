@@ -139,6 +139,10 @@ public class GenePanelServiceImpl implements GenePanelService {
     Set<String> uniqueMolecularProfileIds =
         molecularProfiles.stream().map(MolecularProfile::getStableId).collect(toSet());
 
+    if (uniqueMolecularProfileIds.isEmpty()) {
+      return Collections.emptyList();
+    }
+
     List<GenePanelData> allGenePanelData =
         genePanelRepository.fetchGenePanelDataByMolecularProfileIds(uniqueMolecularProfileIds);
 
@@ -189,7 +193,9 @@ public class GenePanelServiceImpl implements GenePanelService {
         molecularProfileCaseIdentifiers.stream()
             .collect(
                 Collectors.toMap(
-                    datum -> datum.getMolecularProfileId() + datum.getCaseId(), datum -> true));
+                    datum -> datum.getMolecularProfileId() + datum.getCaseId(),
+                    datum -> true,
+                    (existing, replacement) -> existing));
 
     return fetchGenePanelDataByMolecularProfileIds(molecularProfileIds).stream()
         .filter(

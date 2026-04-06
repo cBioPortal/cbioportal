@@ -4,10 +4,7 @@
 set -e
 
 echo "Importing of the test study with API validation..."
-# --update_generic_assay_entity True: force update of entity properties even when entities already
-# exist in the DB (they may exist in the seed without the test-study-specific properties).
-metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_es_0_import_export/ \
-  --update_generic_assay_entity True
+metaImport.py -v -u http://cbioportal-container:8080 -o -s /cbioportal/test/test_data/study_es_0_import_export/
 
 # After importing, rebuild ClickHouse derived tables so the export endpoint can query them.
 # This is the required post-import step in the ClickHouse-native import workflow: the importer

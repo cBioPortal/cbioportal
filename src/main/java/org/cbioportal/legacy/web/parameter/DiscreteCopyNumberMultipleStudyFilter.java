@@ -13,10 +13,12 @@ public class DiscreteCopyNumberMultipleStudyFilter implements Serializable {
   @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
   private List<String> molecularProfileIds;
 
-  @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
+  @Size(min = 1, max = DiscreteCopyNumberFilter.DISCRETE_COPY_NUMBER_MAX_PAGE_SIZE)
   private List<Integer> entrezGeneIds;
 
-  @AssertTrue
+  @AssertTrue(
+      message =
+          "Exactly one of molecularProfileIds or sampleMolecularIdentifiers must be provided, and not both")
   private boolean isEitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent() {
     return molecularProfileIds != null ^ sampleMolecularIdentifiers != null;
   }

@@ -2,6 +2,7 @@ package org.cbioportal.application.file.export.exporters;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.SequencedSet;
 import java.util.Set;
 import org.cbioportal.application.file.export.services.CancerStudyMetadataService;
 import org.cbioportal.application.file.model.CancerType;
@@ -12,7 +13,6 @@ import org.cbioportal.application.file.utils.CloseableIterator;
 
 public class CancerTypeDataTypeExporter
     extends DataTypeExporter<ClinicalAttributesMetadata, Table> {
-
   private final CancerStudyMetadataService cancerStudyMetadataService;
 
   public CancerTypeDataTypeExporter(CancerStudyMetadataService cancerStudyMetadataService) {
@@ -43,7 +43,8 @@ public class CancerTypeDataTypeExporter
         new CloseableIterator<>() {
           @Override
           public void close() {
-            // This method is intentionally left empty because the iterator does not require any
+            // This method is intentionally left empty because the iterator does not require
+            // any
             // resources to be closed.
           }
 
@@ -56,6 +57,7 @@ public class CancerTypeDataTypeExporter
           public TableRow next() {
             return iterator.next();
           }
-        });
+        },
+        CancerType.getHeader());
   }
 }

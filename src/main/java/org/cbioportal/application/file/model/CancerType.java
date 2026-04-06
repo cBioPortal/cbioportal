@@ -1,7 +1,10 @@
 package org.cbioportal.application.file.model;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.SequencedMap;
+import java.util.SequencedSet;
+import java.util.function.Function;
 
 public class CancerType implements TableRow {
   private String typeOfCancerId;
@@ -50,13 +53,24 @@ public class CancerType implements TableRow {
     this.typeOfCancerId = typeOfCancerId;
   }
 
+  private static final LinkedHashMap<String, Function<CancerType, String>> ROW = new LinkedHashMap<>();
+
+  static {
+    ROW.put("TYPE_OF_CANCER_ID", CancerType::getTypeOfCancerId);
+    ROW.put("NAME", CancerType::getName);
+    ROW.put("DEDICATED_COLOR", CancerType::getDedicatedColor);
+    ROW.put("PARENT", CancerType::getParent);
+    ROW.put("SHORT_NAME", CancerType::getShortName);
+  }
+
+  public static SequencedSet<String> getHeader() {
+    return new LinkedHashSet<>(ROW.sequencedKeySet());
+  }
+
   @Override
   public SequencedMap<String, String> toRow() {
-    var row = new LinkedHashMap<String, String>();
-    row.put("TYPE_OF_CANCER_ID", typeOfCancerId);
-    row.put("NAME", name);
-    row.put("DEDICATED_COLOR", dedicatedColor);
-    row.put("PARENT", parent);
+    LinkedHashMap<String, String> row = new LinkedHashMap<>();
+    ROW.forEach((key, value) -> row.put(key, value.apply(this)));
     return row;
   }
 }

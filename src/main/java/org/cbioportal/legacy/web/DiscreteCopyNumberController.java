@@ -206,7 +206,8 @@ public class DiscreteCopyNumberController {
               @RequestAttribute(
                   required = false,
                   value = "interceptedDiscreteCopyNumberMultipleStudyFilter")
-              DiscreteCopyNumberMultipleStudyFilter interceptedDiscreteCopyNumberMultipleStudyFilter,
+              DiscreteCopyNumberMultipleStudyFilter
+                  interceptedDiscreteCopyNumberMultipleStudyFilter,
           @Parameter(
                   required = true,
                   description =
@@ -222,34 +223,37 @@ public class DiscreteCopyNumberController {
               @RequestParam(defaultValue = "SUMMARY")
               Projection projection) {
 
-    List<DiscreteCopyNumberData> result;
+    List<String> molecularProfileIds;
+    List<String> sampleIds = null;
     if (interceptedDiscreteCopyNumberMultipleStudyFilter.getMolecularProfileIds() != null) {
-      result =
-          discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-              interceptedDiscreteCopyNumberMultipleStudyFilter.getMolecularProfileIds(),
-              null,
-              interceptedDiscreteCopyNumberMultipleStudyFilter.getEntrezGeneIds(),
-              discreteCopyNumberEventType.getAlterationTypes(),
-              projection.name());
+      molecularProfileIds =
+          interceptedDiscreteCopyNumberMultipleStudyFilter.getMolecularProfileIds();
     } else {
-      List<String> molecularProfileIds = new ArrayList<>();
-      List<String> sampleIds = new ArrayList<>();
+      molecularProfileIds = new ArrayList<>();
+      sampleIds = new ArrayList<>();
       extractMolecularProfileAndSampleIds(
           interceptedDiscreteCopyNumberMultipleStudyFilter, molecularProfileIds, sampleIds);
-      result =
-          discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-              molecularProfileIds,
-              sampleIds,
-              interceptedDiscreteCopyNumberMultipleStudyFilter.getEntrezGeneIds(),
-              discreteCopyNumberEventType.getAlterationTypes(),
-              projection.name());
     }
 
     if (projection == Projection.META) {
+      BaseMeta baseMeta =
+          discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+              molecularProfileIds,
+              sampleIds,
+              interceptedDiscreteCopyNumberMultipleStudyFilter.getEntrezGeneIds(),
+              discreteCopyNumberEventType.getAlterationTypes());
       HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(result.size()));
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     }
+
+    List<DiscreteCopyNumberData> result =
+        discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+            molecularProfileIds,
+            sampleIds,
+            interceptedDiscreteCopyNumberMultipleStudyFilter.getEntrezGeneIds(),
+            discreteCopyNumberEventType.getAlterationTypes(),
+            projection.name());
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 

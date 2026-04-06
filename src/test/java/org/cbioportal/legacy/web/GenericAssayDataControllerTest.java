@@ -148,6 +148,22 @@ public class GenericAssayDataControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].value").value(VALUE_2));
   }
 
+  @Test
+  public void testGenericAssayDataFetchInMultipleMolecularProfilesInvalidFilter() throws Exception {
+    GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
+        new GenericAssayDataMultipleStudyFilter();
+    genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(
+        createSampleMolecularIdentifiers());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+  }
+
   public void testGenericAssayDataGet() throws Exception {
     List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
     Mockito.when(

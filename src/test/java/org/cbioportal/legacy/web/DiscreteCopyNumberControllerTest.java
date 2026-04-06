@@ -409,16 +409,13 @@ public class DiscreteCopyNumberControllerTest {
   @WithMockUser
   public void fetchDiscreteCopyNumbersInMultipleMolecularProfilesMetaProjection() throws Exception {
 
-    List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(2);
 
     Mockito.when(
-            discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
-                Mockito.anyList(),
-                Mockito.anyList(),
-                Mockito.anyList(),
-                Mockito.anyList(),
-                Mockito.anyString()))
-        .thenReturn(discreteCopyNumberDataList);
+            discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+                Mockito.anyList(), Mockito.anyList(), Mockito.anyList(), Mockito.anyList()))
+        .thenReturn(baseMeta);
 
     DiscreteCopyNumberMultipleStudyFilter discreteCopyNumberMultipleStudyFilter =
         new DiscreteCopyNumberMultipleStudyFilter();

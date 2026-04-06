@@ -142,6 +142,53 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void getMetaDiscreteCopyNumbersInMultipleMolecularProfilesHomdelOrAmp() {
+    List<String> profiles = Arrays.asList("profile1", "profile2");
+    List<String> samples = Arrays.asList("sample1", "sample2");
+    List<Integer> geneIds = Arrays.asList(0, 1);
+    List<Integer> alterationTypes = Arrays.asList(-2, 2);
+    BaseMeta expectedMeta = new BaseMeta();
+    expectedMeta.setTotalCount(3);
+
+    Mockito.when(
+            discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles, samples, geneIds, alterationTypes))
+        .thenReturn(expectedMeta);
+
+    BaseMeta actual =
+        discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes);
+
+    Assert.assertEquals(expectedMeta.getTotalCount(), actual.getTotalCount());
+  }
+
+  @Test
+  public void getMetaDiscreteCopyNumbersInMultipleMolecularProfilesAllAlterationTypes() {
+    List<String> profiles = Arrays.asList("profile1", "profile2");
+    List<String> samples = Arrays.asList("sample1", "sample2");
+    List<Integer> geneIds = Arrays.asList(0, 1);
+    List<Integer> alterationTypes = Arrays.asList(-2, -1, 0, 1, 2);
+    List<GeneMolecularData> returned =
+        Arrays.asList(
+            geneMolecularData("sample1", "study1", "-2"),
+            geneMolecularData("sample2", "study1", "-1"),
+            geneMolecularData("sample3", "study1", "0"),
+            geneMolecularData("sample4", "study1", "1"),
+            geneMolecularData("sample5", "study2", "2"));
+
+    Mockito.when(
+            molecularDataService.getMolecularDataInMultipleMolecularProfiles(
+                profiles, samples, geneIds, "ID"))
+        .thenReturn(returned);
+
+    BaseMeta actual =
+        discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes);
+
+    Assert.assertEquals((Integer) 5, actual.getTotalCount());
+  }
+
+  @Test
   public void getDiscreteCopyNumbersInMultipleMolecularProfilesEmptyAlterationTypes() {
     List<GeneMolecularData> returned =
         Arrays.asList(

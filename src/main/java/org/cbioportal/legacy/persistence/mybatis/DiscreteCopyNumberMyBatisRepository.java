@@ -61,6 +61,16 @@ public class DiscreteCopyNumberMyBatisRepository implements DiscreteCopyNumberRe
   }
 
   @Override
+  public BaseMeta getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      List<Integer> alterationTypes) {
+    return discreteCopyNumberMapper.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+        molecularProfileIds, sampleIds, entrezGeneIds, alterationTypes);
+  }
+
+  @Override
   public List<DiscreteCopyNumberData>
       getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
           List<String> molecularProfileIds,

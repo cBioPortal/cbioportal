@@ -333,8 +333,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     molecularProfileSampleIdentifiers.add(profileCaseIdentifier);
 
     // Add duplicate entry for the same profile + sample
-    MolecularProfileCaseIdentifier duplicateCaseIdentifier =
-        new MolecularProfileCaseIdentifier();
+    MolecularProfileCaseIdentifier duplicateCaseIdentifier = new MolecularProfileCaseIdentifier();
     duplicateCaseIdentifier.setMolecularProfileId(MOLECULAR_PROFILE_ID);
     duplicateCaseIdentifier.setCaseId(SAMPLE_ID1);
     molecularProfileSampleIdentifiers.add(duplicateCaseIdentifier);

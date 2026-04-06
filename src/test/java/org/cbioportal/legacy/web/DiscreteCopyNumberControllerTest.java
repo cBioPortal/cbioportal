@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Gene;
@@ -12,7 +13,10 @@ import org.cbioportal.legacy.service.DiscreteCopyNumberService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
+import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
+import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -352,6 +356,88 @@ public class DiscreteCopyNumberControllerTest {
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
   }
 
+  @Test
+  @WithMockUser
+  public void fetchDiscreteCopyNumbersInMultipleMolecularProfiles() throws Exception {
+
+    List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
+
+    Mockito.when(
+            discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                Mockito.anyList(),
+                Mockito.isNull(),
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyString()))
+        .thenReturn(discreteCopyNumberDataList);
+
+    DiscreteCopyNumberMultipleStudyFilter discreteCopyNumberMultipleStudyFilter =
+        new DiscreteCopyNumberMultipleStudyFilter();
+    discreteCopyNumberMultipleStudyFilter.setMolecularProfileIds(
+        Arrays.asList(TEST_MOLECULAR_PROFILE_STABLE_ID_1, TEST_MOLECULAR_PROFILE_STABLE_ID_2));
+    discreteCopyNumberMultipleStudyFilter.setEntrezGeneIds(
+        Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/discrete-copy-number/fetch")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberMultipleStudyFilter)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[0].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(TEST_SAMPLE_STABLE_ID_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].entrezGeneId").value(TEST_ENTREZ_GENE_ID_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].alteration").value(TEST_ALTERATION_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].gene").doesNotExist())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[1].molecularProfileId")
+                .value(TEST_MOLECULAR_PROFILE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(TEST_SAMPLE_STABLE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].entrezGeneId").value(TEST_ENTREZ_GENE_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].alteration").value(TEST_ALTERATION_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].gene").doesNotExist());
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchDiscreteCopyNumbersInMultipleMolecularProfilesMetaProjection() throws Exception {
+
+    List<DiscreteCopyNumberData> discreteCopyNumberDataList = createExampleDiscreteCopyNumberData();
+
+    Mockito.when(
+            discreteCopyNumberService.getDiscreteCopyNumbersInMultipleMolecularProfiles(
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyList(),
+                Mockito.anyString()))
+        .thenReturn(discreteCopyNumberDataList);
+
+    DiscreteCopyNumberMultipleStudyFilter discreteCopyNumberMultipleStudyFilter =
+        new DiscreteCopyNumberMultipleStudyFilter();
+    discreteCopyNumberMultipleStudyFilter.setSampleMolecularIdentifiers(
+        createSampleMolecularIdentifiers());
+    discreteCopyNumberMultipleStudyFilter.setEntrezGeneIds(
+        Arrays.asList(TEST_ENTREZ_GENE_ID_1, TEST_ENTREZ_GENE_ID_2));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/discrete-copy-number/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(discreteCopyNumberMultipleStudyFilter))
+                .param("projection", Projection.META.name()))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+  }
+
   private DiscreteCopyNumberFilter createDiscreteCopyNumberFilter() {
 
     List<String> sampleIds = new ArrayList<>();
@@ -401,5 +487,21 @@ public class DiscreteCopyNumberControllerTest {
     gene2.setType(TEST_TYPE_2);
     discreteCopyNumberDataList.get(1).setGene(gene2);
     return discreteCopyNumberDataList;
+  }
+
+  private List<SampleMolecularIdentifier> createSampleMolecularIdentifiers() {
+    List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
+
+    SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
+    sampleMolecularIdentifier1.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
+    sampleMolecularIdentifier1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
+    sampleMolecularIdentifiers.add(sampleMolecularIdentifier1);
+
+    SampleMolecularIdentifier sampleMolecularIdentifier2 = new SampleMolecularIdentifier();
+    sampleMolecularIdentifier2.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_2);
+    sampleMolecularIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
+    sampleMolecularIdentifiers.add(sampleMolecularIdentifier2);
+
+    return sampleMolecularIdentifiers;
   }
 }

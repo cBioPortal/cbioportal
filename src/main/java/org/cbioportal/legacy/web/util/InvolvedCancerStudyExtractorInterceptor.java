@@ -54,6 +54,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalEventAttributeRequest;
+import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
@@ -99,6 +100,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   public static final String CLINICAL_DATA_FETCH_PATH = "/clinical-data/fetch";
   public static final String GENE_PANEL_DATA_FETCH_PATH = "/gene-panel-data/fetch";
   public static final String MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH = "/molecular-data/fetch";
+  public static final String DISCRETE_COPY_NUMBER_MULTIPLE_STUDY_FETCH_PATH =
+      "/discrete-copy-number/fetch";
   public static final String MUTATION_MULTIPLE_STUDY_FETCH_PATH = "/mutations/fetch";
   public static final String COPY_NUMBER_SEG_FETCH_PATH = "/copy-number-segments/fetch";
   public static final String STUDY_VIEW_CLINICAL_DATA_BIN_COUNTS_PATH =
@@ -187,6 +190,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       return extractAttributesFromGenePanelDataMultipleStudyFilter(request);
     } else if (requestPathInfo.equals(MOLECULAR_DATA_MULTIPLE_STUDY_FETCH_PATH)) {
       return extractAttributesFromMolecularDataMultipleStudyFilter(request);
+    } else if (requestPathInfo.equals(DISCRETE_COPY_NUMBER_MULTIPLE_STUDY_FETCH_PATH)) {
+      return extractAttributesFromDiscreteCopyNumberMultipleStudyFilter(request);
     } else if (requestPathInfo.equals(MUTATION_MULTIPLE_STUDY_FETCH_PATH)) {
       return extractAttributesFromMutationMultipleStudyFilter(request);
     } else if (requestPathInfo.equals(COPY_NUMBER_SEG_FETCH_PATH)) {
@@ -535,6 +540,50 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     } else {
       extractCancerStudyIdsFromSampleMolecularIdentifiers(
           molecularDataMultipleStudyFilter.getSampleMolecularIdentifiers(), studyIdSet);
+    }
+    return studyIdSet;
+  }
+
+  private boolean extractAttributesFromDiscreteCopyNumberMultipleStudyFilter(
+      HttpServletRequest request) {
+    try {
+      DiscreteCopyNumberMultipleStudyFilter discreteCopyNumberMultipleStudyFilter =
+          objectMapper.readValue(
+              request.getInputStream(), DiscreteCopyNumberMultipleStudyFilter.class);
+      LOG.debug(
+          "extracted discreteCopyNumberMultipleStudyFilter: {}",
+          discreteCopyNumberMultipleStudyFilter);
+      LOG.debug(
+          "setting interceptedDiscreteCopyNumberMultipleStudyFilter to {}",
+          discreteCopyNumberMultipleStudyFilter);
+      request.setAttribute(
+          "interceptedDiscreteCopyNumberMultipleStudyFilter",
+          discreteCopyNumberMultipleStudyFilter);
+      if (cacheMapUtil.hasCacheEnabled()) {
+        Collection<String> cancerStudyIdCollection =
+            extractCancerStudyIdsFromDiscreteCopyNumberMultipleStudyFilter(
+                discreteCopyNumberMultipleStudyFilter);
+        LOG.debug("setting involvedCancerStudies to {}", cancerStudyIdCollection);
+        request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+      }
+    } catch (Exception e) {
+      LOG.error(
+          "exception thrown during extraction of discreteCopyNumberMultipleStudyFilter: {}",
+          e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  private Collection<String> extractCancerStudyIdsFromDiscreteCopyNumberMultipleStudyFilter(
+      DiscreteCopyNumberMultipleStudyFilter discreteCopyNumberMultipleStudyFilter) {
+    Set<String> studyIdSet = new HashSet<>();
+    if (discreteCopyNumberMultipleStudyFilter.getMolecularProfileIds() != null) {
+      extractCancerStudyIdsFromMolecularProfileIds(
+          discreteCopyNumberMultipleStudyFilter.getMolecularProfileIds(), studyIdSet);
+    } else {
+      extractCancerStudyIdsFromSampleMolecularIdentifiers(
+          discreteCopyNumberMultipleStudyFilter.getSampleMolecularIdentifiers(), studyIdSet);
     }
     return studyIdSet;
   }

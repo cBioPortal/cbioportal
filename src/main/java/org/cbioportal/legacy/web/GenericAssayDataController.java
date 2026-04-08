@@ -185,7 +185,8 @@ public class GenericAssayDataController {
     }
 
     List<GenericAssayData> result;
-    if (interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+    if (!CollectionUtils.isEmpty(
+        interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds())) {
       result =
           filterEmptyGenericAssayData(
               genericAssayService.fetchGenericAssayData(
@@ -237,13 +238,14 @@ public class GenericAssayDataController {
 
   private boolean hasValidGenericAssayDataMultipleStudyFilter(
       GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter) {
-    boolean hasGenericAssayStableIds =
-        !CollectionUtils.isEmpty(genericAssayDataMultipleStudyFilter.getGenericAssayStableIds());
+    if (genericAssayDataMultipleStudyFilter == null) {
+      return false;
+    }
     boolean hasMolecularProfileIds =
         !CollectionUtils.isEmpty(genericAssayDataMultipleStudyFilter.getMolecularProfileIds());
     boolean hasSampleMolecularIdentifiers =
         !CollectionUtils.isEmpty(
             genericAssayDataMultipleStudyFilter.getSampleMolecularIdentifiers());
-    return hasGenericAssayStableIds && (hasMolecularProfileIds ^ hasSampleMolecularIdentifiers);
+    return hasMolecularProfileIds ^ hasSampleMolecularIdentifiers;
   }
 }

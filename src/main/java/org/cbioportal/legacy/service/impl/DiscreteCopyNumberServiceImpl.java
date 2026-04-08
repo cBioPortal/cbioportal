@@ -131,23 +131,8 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
       List<String> sampleIds,
       List<Integer> entrezGeneIds,
       List<Integer> alterationTypes) {
-
-    if (isHomdelOrAmpOnly(alterationTypes)) {
-      return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
-          molecularProfileIds, sampleIds, entrezGeneIds, alterationTypes);
-    }
-
-    long totalCount =
-        molecularDataService
-            .getMolecularDataInMultipleMolecularProfiles(
-                molecularProfileIds, sampleIds, entrezGeneIds, "ID")
-            .stream()
-            .filter(g -> isValidAlteration(alterationTypes, g))
-            .count();
-
-    BaseMeta baseMeta = new BaseMeta();
-    baseMeta.setTotalCount(Math.toIntExact(totalCount));
-    return baseMeta;
+    return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+        molecularProfileIds, sampleIds, entrezGeneIds, alterationTypes);
   }
 
   @Override

@@ -8,6 +8,7 @@ class ClinicalTrackConfig implements Serializable {
   private String stableId;
   private String sortOrder;
   private Boolean gapOn;
+  private String gapMode;
 
   public String getStableId() {
     return stableId;
@@ -31,5 +32,13 @@ class ClinicalTrackConfig implements Serializable {
 
   public void setGapOn(Boolean gapOn) {
     this.gapOn = gapOn;
+  }
+
+  public String getGapMode() {
+    return gapMode;
+  }
+
+  public void setGapMode(String gapMode) {
+    this.gapMode = gapMode;
   }
 }

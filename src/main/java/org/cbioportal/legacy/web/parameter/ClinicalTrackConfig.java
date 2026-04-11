@@ -1,8 +1,10 @@
 package org.cbioportal.legacy.web.parameter;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.ALWAYS)
 class ClinicalTrackConfig implements Serializable {
   private String stableId;

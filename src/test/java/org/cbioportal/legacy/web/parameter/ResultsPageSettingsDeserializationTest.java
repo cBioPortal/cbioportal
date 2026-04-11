@@ -23,7 +23,8 @@ public class ResultsPageSettingsDeserializationTest {
               "stableId": "SUBTYPE",
               "sortOrder": "ASC",
               "gapOn": true,
-              "gapMode": "HIDE_GAPS"
+              "gapMode": "HIDE_GAPS",
+              "futureField": "ignored"
             }
           ]
         }

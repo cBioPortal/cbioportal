@@ -1,3 +1,6 @@
+## April 13, 2026
+*   **New Feature:** Mutations can now be annotated with **clonality** status — distinguishing **clonal** (truncal) mutations, present in all cancer cells, from **subclonal** mutations, present only in a fraction of tumor cells. When clonality data is available in a study, the Mutations tab displays a new Clonality column and users can filter mutations by clonal or subclonal status. Understanding clonality helps identify early cancer driver events versus later, potentially targetable, subclonal alterations. See the [Cancer Drivers Revisited](https://cancerai.substack.com/p/cancer-drivers-revisited) article for background.
+
 ## March 17, 2026
 *   **Added data** consisting of 58,007 samples from 18 studies:
     * [MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://www.cbioportal.org/study/summary?id=msk_impact_50k_2026) *54331 samples*

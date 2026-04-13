@@ -224,6 +224,47 @@ export interface CoExpression {
 }
 
 /**
+ * ClinicalAttribute - Clinical attribute metadata
+ * Source: https://www.cbioportal.org/api/v3/api-docs/internal (ClinicalDataEnrichment schema)
+ */
+export interface ClinicalAttribute {
+  /** Clinical attribute identifier (e.g. "TUMOR_STAGE") */
+  clinicalAttributeId: string;
+  /** Human-readable display name */
+  displayName: string;
+  /** Attribute description */
+  description: string;
+  /** Data type: "STRING" or "NUMBER" */
+  datatype: string;
+  /** True if attribute belongs to patient level, false if sample level */
+  patientAttribute: boolean;
+  /** Priority for display ordering */
+  priority: string;
+  /** Internal cancer study ID */
+  cancerStudyId: number;
+  /** String cancer study identifier */
+  cancerStudyIdentifier: string;
+}
+
+/**
+ * ClinicalDataEnrichment - Enrichment analysis result for a clinical attribute
+ * Source: https://www.cbioportal.org/api/v3/api-docs/internal (ClinicalDataEnrichment schema)
+ * Required fields: clinicalAttribute, score, method, pValue
+ */
+export interface ClinicalDataEnrichment {
+  /** The clinical attribute being tested */
+  clinicalAttribute: ClinicalAttribute;
+  /** Chi-squared or Kruskal-Wallis test statistic */
+  score: number;
+  /** Statistical test method used: "Chi-squared Test", "Wilcoxon Test", or "Kruskal Wallis Test" */
+  method: string;
+  /** Statistical significance p-value */
+  pValue: number;
+  /** Benjamini-Hochberg adjusted p-value (null until all enrichments are computed) */
+  qValue: number | null;
+}
+
+/**
  * Projection types for API requests
  */
 export enum ProjectionType {
@@ -231,4 +272,28 @@ export enum ProjectionType {
   SUMMARY = 'SUMMARY',
   DETAILED = 'DETAILED',
   META = 'META'
+}
+
+/**
+ * ClinicalDataCount - A single value/count pair for a clinical attribute
+ * Source: https://www.cbioportal.org/api/v3/api-docs/internal (ClinicalDataCount schema)
+ * Required fields: value, count
+ */
+export interface ClinicalDataCount {
+  /** The clinical attribute value (e.g. "High Grade", "Lung", "BJ") */
+  value: string;
+  /** Number of samples/patients with this value */
+  count: number;
+}
+
+/**
+ * ClinicalDataCountItem - Count breakdown for one clinical attribute across all values
+ * Source: https://www.cbioportal.org/api/v3/api-docs/internal (ClinicalDataCountItem schema)
+ * Required fields: attributeId, counts
+ */
+export interface ClinicalDataCountItem {
+  /** The clinical attribute identifier (e.g. "TISSUE_SOURCE_SITE") */
+  attributeId: string;
+  /** Array of value/count pairs for this attribute */
+  counts: ClinicalDataCount[];
 }

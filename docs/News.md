@@ -1,5 +1,6 @@
 ## March 17, 2026
-*   **Added data** consisting of 3,676 samples from 17 studies:
+*   **Added data** consisting of 58,007 samples from 18 studies:
+    * [MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://www.cbioportal.org/study/summary?id=msk_impact_50k_2026) *54331 samples*
     * [Renal Cell Carcinoma (St. James, Clin Cancer Res 2023)](https://www.cbioportal.org/study/summary?id=ccrcc_sjuh_2023) *943 samples*
 	* [Acute Myeloid Leukemia (St. Jude, Nat Genet 2024)](https://www.cbioportal.org/study/summary?id=aml_stjude_2024) *887 samples*
     * [Metastatic Bladder Urothelial Carcinoma (IMvigor210 Phase II Trial, ESMO Open. 2024) - iAtlas Harmonized](https://www.cbioportal.org/study/summary?id=blca_iatlas_imvigor210_2017) *347 samples*
@@ -1710,7 +1711,7 @@ Several new features, including:
 *   Redesigned and streamlined user interface, based on user feedback and usability testing.
 *   Advanced support for gene-specific alterations. For example, users can now view mutations within TP53, and ignore copy number alterations, or only view amplifications of EGFR, and ignore deletions.
 *   Improved performance.
-*   [Frequently Asked Questions](FAQ) document released.
+*   [Frequently Asked Questions](user-guide/faq.md) document released.
 *   Updated ~~Video Tutorial~~ (update: old link no longer functional. Now see: [YouTube](https://www.youtube.com/results?search_query=cbioportal)
 
 ## November 4, 2010

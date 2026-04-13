@@ -18,6 +18,7 @@ import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.service.exception.GeneWithMultipleEntrezIdsException;
 import org.cbioportal.legacy.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
+import org.cbioportal.legacy.service.exception.InvalidVirtualStudyDataException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.ResourceDefinitionNotFoundException;
@@ -34,6 +35,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -178,9 +180,27 @@ public class GlobalExceptionHandler {
       MethodArgumentNotValidException ex) {
 
     FieldError fieldError = ex.getBindingResult().getFieldError();
+    if (fieldError != null) {
+      return new ResponseEntity<>(
+          new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
+          HttpStatus.BAD_REQUEST);
+    }
+
+    ObjectError globalError = ex.getBindingResult().getGlobalError();
+    if (globalError != null) {
+      return new ResponseEntity<>(
+          new ErrorResponse(globalError.getObjectName() + " " + globalError.getDefaultMessage()),
+          HttpStatus.BAD_REQUEST);
+    }
+
     return new ResponseEntity<>(
-        new ErrorResponse(fieldError.getField() + " " + fieldError.getDefaultMessage()),
-        HttpStatus.BAD_REQUEST);
+        new ErrorResponse("Request payload failed validation"), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidVirtualStudyDataException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidVirtualStudyData(
+      InvalidVirtualStudyDataException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(AccessDeniedException.class)

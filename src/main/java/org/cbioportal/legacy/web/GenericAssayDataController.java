@@ -11,7 +11,9 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.model.GenericAssayData;
@@ -195,7 +197,8 @@ public class GenericAssayDataController {
                   interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(),
                   projection.name()));
     } else {
-
+      List<SampleMolecularIdentifier> sampleMolecularIdentifiers =
+          interceptedGenericAssayDataMultipleStudyFilter.getSampleMolecularIdentifiers();
       List<String> molecularProfileIds = new ArrayList<>();
       List<String> sampleIds = new ArrayList<>();
       extractMolecularProfileAndSampleIds(
@@ -207,6 +210,7 @@ public class GenericAssayDataController {
                   sampleIds,
                   interceptedGenericAssayDataMultipleStudyFilter.getGenericAssayStableIds(),
                   projection.name()));
+      result = filterToRequestedSampleMolecularIdentifiers(result, sampleMolecularIdentifiers);
     }
 
     if (projection == Projection.META) {
@@ -248,5 +252,25 @@ public class GenericAssayDataController {
         !CollectionUtils.isEmpty(
             genericAssayDataMultipleStudyFilter.getSampleMolecularIdentifiers());
     return hasMolecularProfileIds ^ hasSampleMolecularIdentifiers;
+  }
+
+  private List<GenericAssayData> filterToRequestedSampleMolecularIdentifiers(
+      List<GenericAssayData> genericAssayDataList,
+      List<SampleMolecularIdentifier> sampleMolecularIdentifiers) {
+    Set<String> requestedPairs =
+        sampleMolecularIdentifiers.stream()
+            .map(
+                sampleMolecularIdentifier ->
+                    sampleMolecularIdentifier.getMolecularProfileId()
+                        + "::"
+                        + sampleMolecularIdentifier.getSampleId())
+            .collect(Collectors.toCollection(HashSet::new));
+
+    return genericAssayDataList.stream()
+        .filter(
+            genericAssayData ->
+                requestedPairs.contains(
+                    genericAssayData.getMolecularProfileId() + "::" + genericAssayData.getSampleId()))
+        .collect(Collectors.toList());
   }
 }

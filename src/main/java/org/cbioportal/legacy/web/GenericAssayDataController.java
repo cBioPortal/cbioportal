@@ -270,7 +270,9 @@ public class GenericAssayDataController {
         .filter(
             genericAssayData ->
                 requestedPairs.contains(
-                    genericAssayData.getMolecularProfileId() + "::" + genericAssayData.getSampleId()))
+                    genericAssayData.getMolecularProfileId()
+                        + "::"
+                        + genericAssayData.getSampleId()))
         .collect(Collectors.toList());
   }
 }

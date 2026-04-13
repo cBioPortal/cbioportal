@@ -222,6 +222,7 @@ public class GenericAssayDataControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_ID_2));
   }
 
+  @Test
   public void testGenericAssayDataGet() throws Exception {
     List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
     Mockito.when(

@@ -358,9 +358,9 @@ SELECT sm.internal_id             AS internal_id,
 FROM sample_derived AS sm
          INNER JOIN cancer_study AS cs
                     ON sm.cancer_study_identifier = cs.cancer_study_identifier
-         FULL OUTER JOIN clinical_attribute_meta AS cam
+         INNER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN clinical_sample AS csamp
+         LEFT JOIN clinical_sample AS csamp
                          ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 0;
 
@@ -375,9 +375,9 @@ SELECT p.internal_id                                        AS internal_id,
        'patient'                                            AS type
 FROM patient AS p
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
-         FULL OUTER JOIN clinical_attribute_meta AS cam
+         INNER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN clinical_patient AS clinpat
+         LEFT JOIN clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 

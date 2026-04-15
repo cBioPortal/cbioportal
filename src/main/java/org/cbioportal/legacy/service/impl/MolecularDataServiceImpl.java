@@ -225,18 +225,16 @@ public class MolecularDataServiceImpl implements MolecularDataService {
       samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
     }
 
-    // query each entrezGeneId separately so they can be cached
+    // Query all requested entrez gene ids in a single call instead of per-gene queries.
+    // Doing so reduces query overhead and avoids N+1 query patterns, which are a
+    // significant performance problem when using high-latency backends such as ClickHouse.
+    if (entrezGeneIds == null || entrezGeneIds.isEmpty()) {
+      return molecularDataList;
+    }
+
     List<GeneMolecularAlteration> molecularAlterations =
-        entrezGeneIds.stream()
-            .flatMap(
-                gene ->
-                    molecularDataRepository
-                        .getGeneMolecularAlterationsInMultipleMolecularProfiles(
-                            distinctMolecularProfileIds,
-                            Collections.singletonList(gene),
-                            projection)
-                        .stream())
-            .collect(Collectors.toList());
+      molecularDataRepository.getGeneMolecularAlterationsInMultipleMolecularProfiles(
+        distinctMolecularProfileIds, entrezGeneIds, projection);
     Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap =
         molecularAlterations.stream()
             .collect(groupingBy(GeneMolecularAlteration::getMolecularProfileId));

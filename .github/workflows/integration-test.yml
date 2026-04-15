@@ -1,0 +1,121 @@
+name: Integration tests
+on: [push, pull_request_target]
+jobs:
+  build:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    env:
+      PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
+      PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
+      PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
+      # Branch of cbioportal-core that contains ClickHouse-native import support
+      CBIOPORTAL_CORE_BRANCH: rfc100-import-to-clickhouse-rc
+    steps:
+      - name: 'Checkout cbioportal repo'
+        uses: actions/checkout@v4
+        with:
+          path: ./cbioportal
+      - name: 'Set up JDK 21'
+        uses: oracle-actions/setup-java@v1
+        with:
+          website: oracle.com
+          release: 21
+      - name: 'Cache Maven packages'
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: 'Copy application.properties'
+        working-directory: ./cbioportal
+        run: |
+          cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+      - name: 'Build cbioportal'
+        working-directory: ./cbioportal
+        run: |
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+          mvn --settings settings.xml -DskipTests clean install
+      - name: 'Checkout cbioportal-docker-compose repo'
+        uses: actions/checkout@master
+        with:
+          repository: cbioportal/cbioportal-docker-compose
+          ref: clickhouse-only-support
+          path: ./cbioportal-docker-compose
+      - name: 'Checkout and build cbioportal-core'
+        working-directory: ./
+        run: |
+          git clone https://github.com/cBioPortal/cbioportal-core.git cbioportal-core
+          cd cbioportal-core && git checkout ${{ env.CBIOPORTAL_CORE_BRANCH }}
+          echo "<settings><servers><server><id>github</id><username>${{ github.actor }}</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > settings.xml
+          mvn --settings settings.xml -DskipTests package
+          # The maven shade plugin outputs the final jar at the project root as core-<version>.jar
+          # (not in target/ and not named cbioportal-core-*.jar)
+          CORE_JAR=$(ls $GITHUB_WORKSPACE/cbioportal-core/core-*.jar 2>/dev/null | head -1)
+          if [ -z "${CORE_JAR}" ]; then
+            echo "ERROR: cbioportal-core jar not found after build!"
+            echo "Project root:"; ls -la $GITHUB_WORKSPACE/cbioportal-core/ || true
+            echo "target/:";      ls -la $GITHUB_WORKSPACE/cbioportal-core/target/ || true
+            exit 1
+          fi
+          echo "CORE_JAR_PATH=${CORE_JAR}" >> $GITHUB_ENV
+          echo "Built core jar: ${CORE_JAR}"
+      - name: 'Initialize cbioportal-docker-compose'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          cd ./data && ./init.sh && rm -rf ./studies/* && cd ../config && \
+          cat $PORTAL_SOURCE_DIR/src/main/resources/application.properties | \
+              sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:ch://cbioportal-clickhouse-database:8123/cbioportal|' | \
+              sed 's|spring.datasource.username=.*|spring.datasource.username=cbio_user|' | \
+              sed 's|spring.datasource.password=.*|spring.datasource.password=somepassword|' | \
+              sed 's|spring.datasource.driver-class-name=.*|spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver|' | \
+              sed 's|session.service.url=.*|session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/|' | \
+              sed 's|feature.study.export=.*|feature.study.export=true|' | \
+              sed 's|#\?session.endpoint.publisher-api-key=.*|session.endpoint.publisher-api-key=TEST|' | \
+              sed 's|db.suppress_schema_version_mismatch_errors=.*|db.suppress_schema_version_mismatch_errors=true|' \
+              > application.properties && \
+          : > maven.properties && \
+          echo "application.properties =>" && cat application.properties | grep -E "spring.datasource|session.service|feature.study|suppress_schema"
+      - name: 'Dump Properties'
+        working-directory: ./cbioportal-docker-compose
+        run: cat config/application.properties
+      - name: 'Start cbioportal-docker-compose'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          docker compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+      - name: 'Wait for cbioportal to initialize ...'
+        id: startup
+        uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://localhost:8080/api/health'
+          responseCode: 200
+          timeout: 900000
+          interval: 30000
+      - name: Log cBioPortal Service
+        if: ${{ failure() && steps.startup.conclusion == 'failure' }}
+        working-directory: ./cbioportal-docker-compose
+        run: docker compose logs cbioportal
+      - name: 'TEST - Validate and load study_es_0'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_load_study.sh
+      - name: 'TEST - Import and Export of study_es_0_import_export'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_import_export.sh
+      - name: 'TEST - Publish virtual study'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_publish_vs.sh
+      - name: 'TEST - Add OncoKB annotations to study'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_integration_test_oncokb_import.sh
+      - name: 'TEST - Update OncoKB annotations'
+        if: steps.startup.conclusion == 'success'
+        working-directory: ./cbioportal-docker-compose
+        run: |
+          $PORTAL_SOURCE_DIR/test/integration/test_update_oncokb.sh

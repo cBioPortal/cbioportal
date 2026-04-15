@@ -14,6 +14,13 @@ DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
 DROP TABLE IF EXISTS mutation_derived;
 
+-- Force deduplication of ReplacingMergeTree source tables before building derived tables
+OPTIMIZE TABLE clinical_patient FINAL;
+OPTIMIZE TABLE clinical_sample FINAL;
+OPTIMIZE TABLE genetic_alteration FINAL;
+OPTIMIZE TABLE genetic_profile_samples FINAL;
+OPTIMIZE TABLE sample_profile FINAL;
+
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
 -- this MUST BE RUN prior to creation of any derived table which relies on sample_profile table
@@ -51,6 +58,9 @@ FROM
     missing_samples ms
         JOIN genetic_profile gp ON ms.stable_id=gp.stable_id
         JOIN cancer_study cs ON cs.cancer_study_id=gp.cancer_study_id;
+
+-- Re-optimize the sample_profile table after writing to it since it is backed by ReplacingMergeTree
+OPTIMIZE TABLE sample_profile FINAL;
 
 CREATE TABLE sample_to_gene_panel_derived
 (

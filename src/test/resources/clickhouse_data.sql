@@ -626,7 +626,8 @@ insert into gistic_to_gene (gistic_roi_id,entrez_gene_id) values (3,208);
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (1,1,123,0,'status');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (2,2,233,345,'SPECIMEN');
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (3,2,213,445,'Treatment');
-insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (4,2,211,441,'Seqencing');
+insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (4,2,211,441,'Sequencing');
+insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type) values (5,1,500,600,'IMAGING');
 
 insert into clinical_event_data (clinical_event_id,key,value) values (1,'status','radiographic_progression');
 insert into clinical_event_data (clinical_event_id,key,value) values (1,'SAMPLE_ID','tcga-a1-a0sb-01');

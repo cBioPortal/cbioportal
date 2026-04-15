@@ -4,6 +4,7 @@ import java.util.List;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GeneMolecularAlteration;
 import org.cbioportal.legacy.model.GeneMolecularData;
+import org.cbioportal.legacy.model.MolecularDataCountItem;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 
@@ -50,5 +51,8 @@ public interface MolecularDataService {
       String projection);
 
   BaseMeta getMetaMolecularDataInMultipleMolecularProfiles(
+      List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds);
+
+  List<MolecularDataCountItem> fetchMolecularDataCountsInMultipleMolecularProfiles(
       List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds);
 }

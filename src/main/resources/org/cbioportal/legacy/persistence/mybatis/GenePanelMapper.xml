@@ -17,7 +17,7 @@
         patient.stable_id AS "patientId",
         cancer_study.cancer_study_identifier AS "studyId",
         genetic_profile.stable_id AS "molecularProfileId",
-        sample_profile.genetic_profile_id IS NOT NULL AS "profiled"
+        sample_profile.genetic_profile_id != 0 AS "profiled"
     </sql>
 
     <sql id="fromGenePanelData">

@@ -464,8 +464,7 @@
                     sd.patient_unique_id = categorical_clinical_data.patient_unique_id
                 </otherwise>
             </choose>
-            WHERE (categorical_clinical_data.attribute_value IS NULL
-                OR empty(categorical_clinical_data.attribute_value)
+            WHERE (empty(categorical_clinical_data.attribute_value)
                 OR
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                     <property name="attribute_value" value="categorical_clinical_data.attribute_value"/>

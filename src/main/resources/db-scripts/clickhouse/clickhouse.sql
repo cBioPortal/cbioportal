@@ -634,7 +634,7 @@ SELECT
     gene.hugo_gene_symbol AS `GENE.hugoGeneSymbol`,
     gene.type AS `GENE.type`,
     allele_specific_copy_number.ascn_integer_copy_number AS `alleleSpecificCopyNumber.ascnIntegerCopyNumber`,
-    allele_specific_copy_number.ascn_method AS `alleleSpecificCopyNumber.ascnMethod`,
+    nullIf(allele_specific_copy_number.ascn_method, '') AS `alleleSpecificCopyNumber.ascnMethod`,
     allele_specific_copy_number.ccf_expected_copies_upper AS `alleleSpecificCopyNumber.ccfExpectedCopiesUpper`,
     allele_specific_copy_number.ccf_expected_copies AS `alleleSpecificCopyNumber.ccfExpectedCopies`,
     allele_specific_copy_number.clonal AS `alleleSpecificCopyNumber.clonal`,

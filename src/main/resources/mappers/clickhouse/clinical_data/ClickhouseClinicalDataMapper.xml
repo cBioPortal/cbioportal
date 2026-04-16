@@ -191,12 +191,12 @@
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue,
             cd.attribute_name as attributeName,
-            cam.display_name as displayName,
-            cam.description as description,
-            cam.datatype as datatype,
-            cam.patient_attribute as patientAttribute,
-            cam.priority as priority,
-            cam.cancer_study_id as cancerStudyId,
+            if(cam.cancer_study_id = 0, NULL, cam.display_name) as displayName,
+            if(cam.cancer_study_id = 0, NULL, cam.description) as description,
+            if(cam.cancer_study_id = 0, NULL, cam.datatype) as datatype,
+            if(cam.cancer_study_id = 0, NULL, cam.patient_attribute) as patientAttribute,
+            if(cam.cancer_study_id = 0, NULL, cam.priority) as priority,
+            if(cam.cancer_study_id = 0, NULL, cam.cancer_study_id) as cancerStudyId,
             cd.cancer_study_identifier as cancerStudyIdentifier
         FROM clinical_data_derived cd
         LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier

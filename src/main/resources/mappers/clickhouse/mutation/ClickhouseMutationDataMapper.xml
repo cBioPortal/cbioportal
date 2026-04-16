@@ -53,7 +53,7 @@
 
     <sql id="getAlleleSpecificCopyNumber">
         allele_specific_copy_number.ascn_integer_copy_number AS "${prefix}ascnIntegerCopyNumber",
-        allele_specific_copy_number.ascn_method AS "${prefix}ascnMethod",
+        nullIf(allele_specific_copy_number.ascn_method, '') AS "${prefix}ascnMethod",
         allele_specific_copy_number.ccf_expected_copies_upper AS "${prefix}ccfExpectedCopiesUpper",
         allele_specific_copy_number.ccf_expected_copies AS "${prefix}ccfExpectedCopies",
         allele_specific_copy_number.clonal AS "${prefix}clonal",

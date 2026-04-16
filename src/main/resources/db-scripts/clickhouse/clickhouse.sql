@@ -1,4 +1,4 @@
--- version 1.0.9 of derived table schema and data definition
+-- version 1.0.10 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -13,6 +13,13 @@ DROP TABLE IF EXISTS clinical_event_data_derived;
 DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
 DROP TABLE IF EXISTS mutation_derived;
+
+-- Force deduplication of ReplacingMergeTree source tables before building derived tables
+OPTIMIZE TABLE clinical_patient FINAL;
+OPTIMIZE TABLE clinical_sample FINAL;
+OPTIMIZE TABLE genetic_alteration FINAL;
+OPTIMIZE TABLE genetic_profile_samples FINAL;
+OPTIMIZE TABLE sample_profile FINAL;
 
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
@@ -52,6 +59,9 @@ FROM
         JOIN genetic_profile gp ON ms.stable_id=gp.stable_id
         JOIN cancer_study cs ON cs.cancer_study_id=gp.cancer_study_id;
 
+-- Re-optimize the sample_profile table after writing to it since it is backed by ReplacingMergeTree
+OPTIMIZE TABLE sample_profile FINAL;
+
 CREATE TABLE sample_to_gene_panel_derived
 (
     sample_unique_id String,
@@ -67,7 +77,7 @@ SELECT
     concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
     genetic_alteration_type AS alteration_type,
     -- If a mutation is found in a gene that is not in a gene panel we assume Whole Exome Sequencing WES
-    ifnull(gene_panel.stable_id, 'WES') AS gene_panel_id,
+    if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id) AS gene_panel_id,
     cs.cancer_study_identifier AS cancer_study_identifier,
     gp.stable_id AS genetic_profile_id
 FROM sample_profile sp
@@ -184,7 +194,7 @@ INSERT INTO genomic_event_derived
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
        gene.entrez_gene_id                                       AS entrez_gene_id,
-       ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
+       if(gp.stable_id = '', 'WES', gp.stable_id)                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
        'mutation'                                                AS variant_type,
@@ -220,7 +230,7 @@ INSERT INTO genomic_event_derived
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
        gene.entrez_gene_id                                       AS entrez_gene_id,
-       ifNull(gp.stable_id, 'WES')                               AS gene_panel_stable_id,
+       if(gp.stable_id = '', 'WES', gp.stable_id)                  AS gene_panel_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        g.stable_id                                               AS genetic_profile_stable_id,
        'cna'                                                     AS variant_type,
@@ -257,7 +267,7 @@ INSERT INTO genomic_event_derived
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
        gene.entrez_gene_id                                  AS entrez_gene_id,
-       ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
+       if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id)  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,
        'structural_variant'                                 AS variant_type,
@@ -291,7 +301,7 @@ INSERT INTO genomic_event_derived
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
        gene.entrez_gene_id                                  AS entrez_gene_id,
-       ifNull(gene_panel.stable_id, 'WES')                  AS gene_panel_stable_id,
+       if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id)  AS gene_panel_stable_id,
        cs.cancer_study_identifier                           AS cancer_study_identifier,
        gp.stable_id                                         AS genetic_profile_stable_id,
        'structural_variant'                                 AS variant_type,
@@ -348,9 +358,9 @@ SELECT sm.internal_id             AS internal_id,
 FROM sample_derived AS sm
          INNER JOIN cancer_study AS cs
                     ON sm.cancer_study_identifier = cs.cancer_study_identifier
-         FULL OUTER JOIN clinical_attribute_meta AS cam
+         INNER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN clinical_sample AS csamp
+         LEFT JOIN clinical_sample AS csamp
                          ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 0;
 
@@ -365,9 +375,9 @@ SELECT p.internal_id                                        AS internal_id,
        'patient'                                            AS type
 FROM patient AS p
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
-         FULL OUTER JOIN clinical_attribute_meta AS cam
+         INNER JOIN clinical_attribute_meta AS cam
                          ON cs.cancer_study_id = cam.cancer_study_id
-         FULL OUTER JOIN clinical_patient AS clinpat
+         LEFT JOIN clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
 WHERE cam.patient_attribute = 1;
 
@@ -624,7 +634,7 @@ SELECT
     gene.hugo_gene_symbol AS `GENE.hugoGeneSymbol`,
     gene.type AS `GENE.type`,
     allele_specific_copy_number.ascn_integer_copy_number AS `alleleSpecificCopyNumber.ascnIntegerCopyNumber`,
-    allele_specific_copy_number.ascn_method AS `alleleSpecificCopyNumber.ascnMethod`,
+    nullIf(allele_specific_copy_number.ascn_method, '') AS `alleleSpecificCopyNumber.ascnMethod`,
     allele_specific_copy_number.ccf_expected_copies_upper AS `alleleSpecificCopyNumber.ccfExpectedCopiesUpper`,
     allele_specific_copy_number.ccf_expected_copies AS `alleleSpecificCopyNumber.ccfExpectedCopies`,
     allele_specific_copy_number.clonal AS `alleleSpecificCopyNumber.clonal`,
@@ -640,98 +650,6 @@ FROM mutation
          INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
          INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
          LEFT JOIN allele_specific_copy_number ON (mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id) AND (mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id) AND (mutation.sample_id = allele_specific_copy_number.sample_id);
-
--- START: PRIMARY KEY ADDITIONS
--- THE FOLLOWING SCRIPTS EXIST TO ADD PRIMARY KEYS TO LEGACY TABLES THAT ARE MISSING THEM.  YOU
--- CANNOT CHANGE THE PRIMARY KEY ON A TABLE IN CLICKHOUSE, SO WE NEED TO CREATE A NEW TABLE WITH THE
--- PRIMARY KEY AND THEN COPY THE DATA OVER.
-
---Adds primary key to the sample_cna_event table for Clickhouse-only
-DROP TABLE IF EXISTS sample_cna_event_BACKUP;
-CREATE TABLE sample_cna_event_BACKUP
-(
-    `cna_event_id` Int64 COMMENT 'References cna_event.cna_event_id.',
-    `sample_id` Int64 COMMENT 'References sample.internal_id.',
-    `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
-    `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotation details.'
-)
-    ENGINE = MergeTree()
-PRIMARY KEY (genetic_profile_id, cna_event_id, sample_id)
-ORDER BY (genetic_profile_id, cna_event_id, sample_id)
-SETTINGS index_granularity = 8192
-COMMENT 'Observed CNA events per sample and profile. References cna_event, sample, and genetic_profile.';
-
--- Copy the data
-INSERT INTO sample_cna_event_BACKUP
-SELECT * FROM sample_cna_event;
-
--- SWITCH THE TABLES
-EXCHANGE TABLES sample_cna_event_BACKUP AND sample_cna_event;
-
-DROP TABLE IF EXISTS mutation_BACKUP;
-CREATE TABLE mutation_BACKUP
-(
-    `mutation_event_id` Int64 COMMENT 'References mutation_event.mutation_event_id.',
-    `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
-    `sample_id` Int64 COMMENT 'References sample.internal_id.',
-    `entrez_gene_id` Int64 COMMENT 'References gene.entrez_gene_id.',
-    `center` Nullable(String) COMMENT 'Center where sequencing was performed.',
-    `sequencer` Nullable(String) COMMENT 'Sequencing platform used.',
-    `mutation_status` Nullable(String) COMMENT 'Mutation status: Germline, Somatic, or LOH.',
-    `validation_status` Nullable(String) COMMENT 'Validation status.',
-    `tumor_seq_allele1` Nullable(String) COMMENT 'Tumor allele 1 sequence.',
-    `tumor_seq_allele2` Nullable(String) COMMENT 'Tumor allele 2 sequence.',
-    `matched_norm_sample_barcode` Nullable(String) COMMENT 'Matched normal sample barcode.',
-    `match_norm_seq_allele1` Nullable(String) COMMENT 'Matched normal allele 1 sequence.',
-    `match_norm_seq_allele2` Nullable(String) COMMENT 'Matched normal allele 2 sequence.',
-    `tumor_validation_allele1` Nullable(String) COMMENT 'Tumor validation allele 1 sequence.',
-    `tumor_validation_allele2` Nullable(String) COMMENT 'Tumor validation allele 2 sequence.',
-    `match_norm_validation_allele1` Nullable(String) COMMENT 'Matched normal validation allele 1.',
-    `match_norm_validation_allele2` Nullable(String) COMMENT 'Matched normal validation allele 2.',
-    `verification_status` Nullable(String) COMMENT 'Verification status.',
-    `sequencing_phase` Nullable(String) COMMENT 'Sequencing phase.',
-    `sequence_source` Nullable(String) COMMENT 'Source of sequencing data.',
-    `validation_method` Nullable(String) COMMENT 'Validation method used.',
-    `score` Nullable(String) COMMENT 'Score or quality metric.',
-    `bam_file` Nullable(String) COMMENT 'Associated BAM file.',
-    `tumor_alt_count` Nullable(Int64) COMMENT 'Tumor alternate allele count.',
-    `tumor_ref_count` Nullable(Int64) COMMENT 'Tumor reference allele count.',
-    `normal_alt_count` Nullable(Int64) COMMENT 'Normal alternate allele count.',
-    `normal_ref_count` Nullable(Int64) COMMENT 'Normal reference allele count.',
-    `amino_acid_change` Nullable(String) COMMENT 'Amino acid change from mutation.',
-    `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotations.'
-)
-    ENGINE = MergeTree()
-ORDER BY (genetic_profile_id,entrez_gene_id)
-COMMENT 'Mutation observations in specific samples and profiles. References mutation_event, gene, genetic_profile, and sample.';
-
--- copy data into new table
-INSERT INTO mutation_BACKUP
-SELECT * FROM mutation;
-
--- switch the tables
-EXCHANGE TABLES mutation_BACKUP AND mutation;
-
--- Adds primary key genetic_alteration table for Clickhouse-only
-DROP TABLE IF EXISTS genetic_alteration_BACKUP;
-CREATE TABLE genetic_alteration_BACKUP
-(
-    `genetic_profile_id` Int64,
-    `genetic_entity_id` Int64,
-    `values` String
-)
-    ENGINE = MergeTree()
-        ORDER BY (genetic_profile_id, genetic_entity_id);
-
--- Copy the data
-INSERT INTO genetic_alteration_BACKUP
-SELECT * FROM genetic_alteration;
-
--- SWITCH THE TABLES
-EXCHANGE TABLES genetic_alteration_BACKUP AND genetic_alteration;
-
---END: PRIMARY KEY ADDITIONS
-
 
 DROP TABLE IF EXISTS generic_assay_profile_entity_derived;
 CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived
@@ -764,7 +682,7 @@ SELECT
     ge.stable_id AS entity_stable_id,
     ge.entity_type AS entity_type,
     CAST(
-        (groupArray(gep.name), groupArray(gep.value))
+        (groupArrayIf(gep.name, gep.id != 0), groupArrayIf(gep.value, gep.id != 0))
         AS Map(String, String)
     ) AS properties
 FROM genetic_entity ge

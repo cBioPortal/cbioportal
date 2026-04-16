@@ -12,7 +12,7 @@
     </sql>
 
     <sql id="selectGenePanelData">
-        gene_panel.stable_id AS "genePanelId",
+        nullIf(gene_panel.stable_id, '') AS "genePanelId",
         sample.stable_id AS "sampleId",
         patient.stable_id AS "patientId",
         cancer_study.cancer_study_identifier AS "studyId",

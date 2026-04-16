@@ -77,7 +77,7 @@ SELECT
     concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
     genetic_alteration_type AS alteration_type,
     -- If a mutation is found in a gene that is not in a gene panel we assume Whole Exome Sequencing WES
-    ifnull(gene_panel.stable_id, 'WES') AS gene_panel_id,
+    if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id) AS gene_panel_id,
     cs.cancer_study_identifier AS cancer_study_identifier,
     gp.stable_id AS genetic_profile_id
 FROM sample_profile sp

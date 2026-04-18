@@ -6,6 +6,7 @@ This document records dependency-license findings for the relicensing investigat
 
 - Backend dependencies from `pom.xml`
 - E2E JavaScript dependencies from `src/e2e/js/package.json`
+- `cbioportal-frontend` dependencies at tag `v7.0.0-rc.2` (matching `<frontend.version>` in `pom.xml`)
 
 ## How this was checked
 
@@ -15,6 +16,7 @@ This document records dependency-license findings for the relicensing investigat
 2. Generated effective POM:
    - `mvn -q help:effective-pom -Doutput=/tmp/cbioportal-effective-pom.xml`
 3. Queried dependency POM metadata from Maven Central (`repo1.maven.org`) to inspect declared licenses.
+4. Queried `cbioportal-frontend` package metadata and npm registry license fields for `dependencies` and `devDependencies`.
 
 ## Findings
 
@@ -34,6 +36,13 @@ These are often consumable under permissive terms (depending on the selected lic
 
 `/src/e2e/js/package.json` declares package license `ISC`; dependencies are common permissive packages (`axios`, `lodash`, `chai`, `mocha`, etc.). No immediate Apache-2.0 compatibility concern was identified in this subset.
 
+### 4) cbioportal-frontend repository audit (tag `v7.0.0-rc.2`)
+
+- `cbioportal-frontend` itself declares **`AGPL-3.0-or-later`** (in `LICENSE` and root `package.json`).
+- This is a direct incompatibility for an Apache-2.0-only relicensing target unless the frontend is relicensed or strictly separated from Apache-2.0 distribution scope.
+- The frontend dependency scan found multiple copyleft-licensed packages (notably AGPL/GPL-family internal cBioPortal/OncoKB packages and a few GPL-licensed npm dependencies such as `react-column-resizer`, `react-json-to-table`, and dual-licensed `jszip`).
+- A few dependencies are git/url based and require manual license confirmation (`svg2pdf.js`, `swagger-js-codegen`, `webpack-raphael`).
+
 ## Environment limitation during audit
 
 Full Maven dependency resolution in this environment is currently blocked by unreachable Shibboleth-hosted OpenSAML artifact metadata (`build.shibboleth.net`).
@@ -50,3 +59,4 @@ Because of that, this audit is based on:
    - make it externally provided with clear distribution boundaries.
 2. Run a complete SBOM/license scan in CI from a network environment that can fully resolve all artifacts.
 3. Have legal counsel review dual-licensed transitive dependencies and document accepted license choices.
+4. For `cbioportal-frontend`, define relicensing strategy (relicense, dependency replacement, or distribution boundary) before any Apache-2.0 migration decision.

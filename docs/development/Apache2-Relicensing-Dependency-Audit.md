@@ -4,8 +4,8 @@ This document records dependency-license findings for the relicensing investigat
 
 ## Scope
 
-- Backend dependencies from `/home/runner/work/cbioportal/cbioportal/pom.xml`
-- E2E JavaScript dependencies from `/home/runner/work/cbioportal/cbioportal/src/e2e/js/package.json`
+- Backend dependencies from `pom.xml`
+- E2E JavaScript dependencies from `src/e2e/js/package.json`
 
 ## How this was checked
 

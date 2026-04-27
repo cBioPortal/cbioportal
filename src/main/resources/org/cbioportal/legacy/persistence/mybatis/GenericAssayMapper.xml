@@ -14,6 +14,36 @@
         </where>
     </select>
 
+    <select id="getPageableGenericAssayMeta" resultType="org.cbioportal.legacy.model.meta.GenericAssayMeta">
+        SELECT DISTINCT genetic_entity.stable_id as stableId,
+        genetic_entity.entity_type as entityType
+        FROM genetic_entity
+        <if test="keyword != null and keyword != ''">
+            LEFT JOIN generic_entity_properties ON genetic_entity.id = generic_entity_properties.genetic_entity_id
+        </if>
+        <where>
+            <if test="stableIds != null and stableIds.size() > 0">
+                genetic_entity.stable_id IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND (genetic_entity.stable_id LIKE CONCAT('%',#{keyword},'%') OR generic_entity_properties.value LIKE CONCAT('%',#{keyword},'%'))
+            </if>
+        </where>
+        <if test="sortBy != null and sortBy != ''">
+            ORDER BY ${sortBy} 
+            <if test="direction != null and direction != ''">
+                ${direction}
+            </if>
+        </if>
+        <if test="limit != null">
+            LIMIT #{limit}
+            <if test="offset != null">
+                OFFSET #{offset}
+            </if>
+        </if>
+    </select>
+
     <select id="getGenericAssayAdditionalproperties" resultType="org.cbioportal.legacy.model.GenericAssayAdditionalProperty">
         SELECT generic_entity_properties.name as name,
         generic_entity_properties.value as value,

@@ -1,3 +1,8 @@
+## April 10, 2026
+*   **New Feature:** Clonality and Cancer Cell Fraction (CCF) are available now as a data option in the Plots tab, allowing visualization of clonality across samples. [Example: PIK3CA mutations in breast and lung cancer cases in the MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://bit.ly/4tIcxcu)
+
+    <img src="https://github.com/user-attachments/assets/655d156b-f265-4a4f-9be1-73f4308b7406" width="700" />
+
 ## March 17, 2026
 *   **Added data** consisting of 58,007 samples from 18 studies:
     * [MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://www.cbioportal.org/study/summary?id=msk_impact_50k_2026) *54331 samples*

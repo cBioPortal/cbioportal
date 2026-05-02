@@ -44,9 +44,9 @@ public class FetchGenericAssayDataMatrixUseCaseTest {
   @Mock private GenericAssayService genericAssayService;
 
   /**
-   * Builds the same flat data that the legacy service would return — 6 rows
-   * (3 samples × 2 entities), each carrying the full metadata fields that the
-   * old endpoint repeats in every JSON object.
+   * Builds the same flat data that the legacy service would return — 6 rows (3 samples × 2
+   * entities), each carrying the full metadata fields that the old endpoint repeats in every JSON
+   * object.
    */
   private List<GenericAssayData> buildFlatData() {
     List<GenericAssayData> data = new ArrayList<>();
@@ -90,9 +90,7 @@ public class FetchGenericAssayDataMatrixUseCaseTest {
     GenericAssayDataMatrixDTO matrix = useCase.execute(PROFILE_ID, filter);
 
     Assert.assertEquals(
-        "sampleIds must contain exactly 3 entries",
-        3,
-        matrix.getSampleIds().size());
+        "sampleIds must contain exactly 3 entries", 3, matrix.getSampleIds().size());
     Assert.assertEquals(SAMPLE1, matrix.getSampleIds().get(0));
     Assert.assertEquals(SAMPLE2, matrix.getSampleIds().get(1));
     Assert.assertEquals(SAMPLE3, matrix.getSampleIds().get(2));
@@ -167,8 +165,7 @@ public class FetchGenericAssayDataMatrixUseCaseTest {
     for (Map.Entry<String, List<Object>> entry : matrix.getEntries().entrySet()) {
       for (Object val : entry.getValue()) {
         Assert.assertTrue(
-            "Values must be plain strings, not objects with metadata",
-            val instanceof String);
+            "Values must be plain strings, not objects with metadata", val instanceof String);
       }
     }
   }
@@ -239,8 +236,7 @@ public class FetchGenericAssayDataMatrixUseCaseTest {
     System.out.println("Old rows: " + flat.size());
     System.out.println("New JSON: " + newJson);
 
-    Assert.assertTrue(
-        "Matrix response must be smaller than flat response", newSize < oldSize);
+    Assert.assertTrue("Matrix response must be smaller than flat response", newSize < oldSize);
   }
 
   @Test
@@ -260,8 +256,7 @@ public class FetchGenericAssayDataMatrixUseCaseTest {
   }
 
   @Test
-  public void sampleListIdPathCallsCorrectServiceMethod()
-      throws MolecularProfileNotFoundException {
+  public void sampleListIdPathCallsCorrectServiceMethod() throws MolecularProfileNotFoundException {
     List<GenericAssayData> flat = buildFlatData();
     String sampleListId = "study_tcga_pub_all";
     List<String> stableIds = Arrays.asList(SIG1, SIG2);

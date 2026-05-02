@@ -11,14 +11,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
+
+import org.cbioportal.application.rest.response.GenericAssayDataMatrixDTO;
+import org.cbioportal.domain.generic_assay.usecase.FetchGenericAssayDataMatrixUseCase;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.legacy.web.parameter.GenericAssayFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,12 +45,24 @@ public class ColumnStoreGenericAssayController {
 
   private final GetGenericAssayMetaUseCase getGenericAssayMetaUseCase;
   private final ObjectMapper objectMapper;
+  private final FetchGenericAssayDataMatrixUseCase fetchGenericAssayDataMatrixUseCase;
 
   public ColumnStoreGenericAssayController(
-      GetGenericAssayMetaUseCase getGenericAssayMetaUseCase, ObjectMapper objectMapper) {
+      GetGenericAssayMetaUseCase getGenericAssayMetaUseCase, ObjectMapper objectMapper,FetchGenericAssayDataMatrixUseCase fetchGenericAssayDataMatrixUseCase) {
     this.getGenericAssayMetaUseCase = getGenericAssayMetaUseCase;
     this.objectMapper = objectMapper;
+    this.fetchGenericAssayDataMatrixUseCase = fetchGenericAssayDataMatrixUseCase;
   }
+
+  @PostMapping("/{molecularProfileId}/fetch-matrix")
+  @Operation(summary = "Fetch generic assay data in a compact matrix format to prevent payload bloat")
+  public ResponseEntity<GenericAssayDataMatrixDTO> fetchGenericAssayDataMatrix(
+        @Parameter(description = "Molecular Profile ID", required = true) @PathVariable String molecularProfileId,
+        @RequestBody GenericAssayFilter filter
+  ) throws Exception {
+        GenericAssayDataMatrixDTO matrix = fetchGenericAssayDataMatrixUseCase.execute(molecularProfileId, filter);
+        return ResponseEntity.ok(matrix);
+   }
 
   // PreAuthorize is removed for performance reason
   @RequestMapping(

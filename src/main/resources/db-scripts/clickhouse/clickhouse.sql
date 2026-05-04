@@ -682,7 +682,7 @@ SELECT
     ge.stable_id AS entity_stable_id,
     ge.entity_type AS entity_type,
     CAST(
-        (groupArrayIf(gep.name, gep.id != 0), groupArrayIf(gep.value, gep.id != 0))
+        (groupArrayIf(gep.name, (gep.id != 0 OR gep.name != '') AND gep.value != ''), groupArrayIf(gep.value, (gep.id != 0 OR gep.name != '') AND gep.value != ''))
         AS Map(String, String)
     ) AS properties
 FROM genetic_entity ge

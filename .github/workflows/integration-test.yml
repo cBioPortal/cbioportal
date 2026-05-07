@@ -9,7 +9,7 @@ jobs:
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
       # Branch of cbioportal-core that contains ClickHouse-native import support
-      CBIOPORTAL_CORE_BRANCH: rfc100-import-to-clickhouse-rc
+      CBIOPORTAL_CORE_BRANCH: rfc100-rc
     steps:
       - name: 'Checkout cbioportal repo'
         uses: actions/checkout@v4

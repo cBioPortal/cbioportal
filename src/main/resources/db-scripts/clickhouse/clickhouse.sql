@@ -1,4 +1,4 @@
--- version 1.0.10 of derived table schema and data definition
+-- version 1.0.11 of derived table schema and data definition
 -- when making updates:
 --     increment the version number here
 --     update pom.xml with the new version number
@@ -436,7 +436,8 @@ SELECT
 FROM clinical_event_data ced
     RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
     INNER JOIN patient p ON ce.patient_id = p.internal_id
-    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+SETTINGS join_algorithm = 'partial_merge';
 
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (

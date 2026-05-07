@@ -126,7 +126,7 @@ jobs:
             command: |
               cd cbioportal-frontend
               echo "Concatenate all source files to use as hash key."
-              cat yarn.lock $(find src/ -type f | sort) webpack.config.js vendor-bundles.webpack.config.js > has_source_changed
+              cat yarn.lock $(find src/ -type f | sort) $(ls webpack.config.js vendor-bundles.webpack.config.js 2>/dev/null) > has_source_changed
         - restore_cache:
             keys:
               - v5-dependencies-plus-dist-{{ checksum "cbioportal-frontend/has_source_changed" }}

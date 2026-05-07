@@ -126,19 +126,23 @@ jobs:
             command: |
               cd cbioportal-frontend
               echo "Concatenate all source files to use as hash key."
-              cat yarn.lock $(find src/ -type f | sort) webpack.config.js vendor-bundles.webpack.config.js > has_source_changed
+              cat pnpm-lock.yaml $(find src/ -type f | sort) rspack.config.js > has_source_changed
         - restore_cache:
             keys:
-              - v5-dependencies-plus-dist-{{ checksum "cbioportal-frontend/has_source_changed" }}
-              - v5-dependencies-{{ checksum "cbioportal-frontend/yarn.lock" }}
+              - v6-dependencies-plus-dist-{{ checksum "cbioportal-frontend/has_source_changed" }}
+              - v6-dependencies-{{ checksum "cbioportal-frontend/pnpm-lock.yaml" }}
+        - run:
+            name: Enable corepack and install pnpm
+            command: |
+              corepack enable
         - run:
             name: Download dependencies
             command: |
               cd cbioportal-frontend
-              yarn
+              pnpm install --frozen-lockfile
         - save_cache:
             name: Save dependency cache
-            key: v5-dependencies-{{ checksum "cbioportal-frontend/yarn.lock" }}
+            key: v6-dependencies-{{ checksum "cbioportal-frontend/pnpm-lock.yaml" }}
             paths:
               - cbioportal-frontend/node_modules
         - run:
@@ -148,15 +152,15 @@ jobs:
               NO_PARALLEL: true
             command: |
               cd cbioportal-frontend
-              ls dist || yarn run build
+              ls dist || pnpm run build
         - run:
             name: Build frontend tests
             command: |
               cd cbioportal-frontend/end-to-end-test
-              ls node_modules || yarn install --frozen-lockfile --ignore-engines
+              ls node_modules || pnpm install --frozen-lockfile
         - save_cache:
             name: Save dependency plus dist cache
-            key: v5-dependencies-plus-dist-{{ checksum "cbioportal-frontend/has_source_changed" }}
+            key: v6-dependencies-plus-dist-{{ checksum "cbioportal-frontend/has_source_changed" }}
             paths:
               - cbioportal-frontend/node_modules
               - cbioportal-frontend/dist

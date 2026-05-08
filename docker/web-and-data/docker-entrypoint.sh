@@ -115,15 +115,25 @@ migrate_db() {
     fi
 }
 
+is_clickhouse_datasource() {
+    local url=""
+    if [[ -f "$CUSTOM_PROPERTIES_FILE" ]]; then
+        url=$(grep -v '^#' "$CUSTOM_PROPERTIES_FILE" | grep '^spring.datasource.url=' | head -1 | cut -d= -f2-)
+    else
+        url=$(grep -v '^#' "$BAKED_IN_WAR_CONFIG_FILE" 2>/dev/null | grep '^spring.datasource.url=' | head -1 | cut -d= -f2-)
+    fi
+    [[ "$url" == jdbc:ch://* ]]
+}
+
 _main() {
     # when running the webapp, check db and do migration first
     # check if command is something like "java -jar webapp-runner.jar"
-    
+
     # Define the regex pattern
     pattern1='(java)*(org\.cbioportal\.PortalApplication)'
     pattern2='(java)*(-jar)*(cbioportal-exec.jar)'
     found=false
-    
+
     # Loop through all arguments
     for arg in "$@"; do
         if [[ "$arg" =~ $pattern1 ]] || [[ "$arg" =~ $pattern2 ]]; then
@@ -131,20 +141,24 @@ _main() {
             break
         fi
     done
-    
+
     # Check if the application is found in the arguments
     if [ "$found" = true ]; then
-        echo "Running Migrate DB Script"
-        # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
-        # Parse database config. Use command line parameters (e.g. -Ddb.host) if
-        # available, otherwise use application.properties
-        if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
-            echo "Using database config:"
-            parse_db_params_from_config_and_command_line $@
-        fi
+        if is_clickhouse_datasource; then
+            echo "Using ClickHouse datasource, skipping MySQL connectivity check and migration"
+        else
+            echo "Running Migrate DB Script"
+            # Custom logic to handle the case when "org.cbioportal.PortalApplication" is present
+            # Parse database config. Use command line parameters (e.g. -Ddb.host) if
+            # available, otherwise use application.properties
+            if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
+                echo "Using database config:"
+                parse_db_params_from_config_and_command_line $@
+            fi
 
-        check_db_connection $@
-        migrate_db $@
+            check_db_connection $@
+            migrate_db $@
+        fi
 
         if [ -n "$SHOW_DEBUG_INFO" ] && [ "$SHOW_DEBUG_INFO" != "false" ]; then
             echo Running: "$@"

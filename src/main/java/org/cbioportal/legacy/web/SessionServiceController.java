@@ -327,10 +327,10 @@ public class SessionServiceController {
       @Size(min = 0, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
       throws IOException {
 
-    if (studyIds.isEmpty()) {
-      return new ResponseEntity<>(List.of(), HttpStatus.OK);
-    }
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
+      if (studyIds.isEmpty()) {
+        return new ResponseEntity<>(List.of(), HttpStatus.OK);
+      }
       List<VirtualStudy> virtualStudyList =
           sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
       return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
@@ -434,10 +434,10 @@ public class SessionServiceController {
       @Size(min = 0, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
       throws IOException {
 
-    if (studyIds.isEmpty()) {
-      return new ResponseEntity<>(List.of(), HttpStatus.OK);
-    }
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
+      if (studyIds.isEmpty()) {
+        return new ResponseEntity<>(List.of(), HttpStatus.OK);
+      }
       List<CustomDataSession> customDataSessionList =
           sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);
       return new ResponseEntity<>(customDataSessionList, HttpStatus.OK);

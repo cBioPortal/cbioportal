@@ -194,6 +194,12 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     try {
       Collection<CancerStudy> cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
+      if (cancerStudies.isEmpty()) {
+        if (log.isDebugEnabled()) {
+          log.debug("hasPermission(), no cancer studies resolved from target, returning false");
+        }
+        return false;
+      }
       for (CancerStudy cs : cancerStudies) {
         if (cs == null || !hasAccessToCancerStudy(authentication, cs, (AccessLevel) permission)) {
           return false;

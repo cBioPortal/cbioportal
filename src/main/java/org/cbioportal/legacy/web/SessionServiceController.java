@@ -324,9 +324,12 @@ public class SessionServiceController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
   public ResponseEntity<List<VirtualStudy>> fetchUserGroups(
-      @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
+      @Size(min = 0, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
       throws IOException {
 
+    if (studyIds.isEmpty()) {
+      return new ResponseEntity<>(List.of(), HttpStatus.OK);
+    }
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       List<VirtualStudy> virtualStudyList =
           sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
@@ -428,9 +431,12 @@ public class SessionServiceController {
           @Content(
               array = @ArraySchema(schema = @Schema(implementation = CustomDataSession.class))))
   public ResponseEntity<List<CustomDataSession>> fetchCustomProperties(
-      @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
+      @Size(min = 0, max = PagingConstants.MAX_PAGE_SIZE) @RequestBody List<String> studyIds)
       throws IOException {
 
+    if (studyIds.isEmpty()) {
+      return new ResponseEntity<>(List.of(), HttpStatus.OK);
+    }
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       List<CustomDataSession> customDataSessionList =
           sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);

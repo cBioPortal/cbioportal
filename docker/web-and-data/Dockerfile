@@ -14,7 +14,6 @@
 ARG CORE_BRANCH=rfc100-rc
 
 FROM maven:3-eclipse-temurin-21 as build
-ARG CORE_BRANCH
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/
@@ -30,17 +29,19 @@ RUN touch /cbioportal/src/main/resources/application.properties
 RUN mvn install package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
-# Clone and build cbioportal-core for scripts and requirements
-RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core
-RUN touch /cbioportal-core/src/main/resources/application.properties
-RUN mvn -f /cbioportal-core/pom.xml clean install -DskipTests
-RUN mkdir -p /core-files && cd /core-files && jar -xf /cbioportal-core/core-*.jar scripts/ requirements.txt
+FROM maven:3-eclipse-temurin-21 as build-core
+ARG CORE_BRANCH
+RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
+    && touch /cbioportal-core/src/main/resources/application.properties \
+    && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
+    && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt
 
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
+        curl \
         python3 \
         python3-setuptools \
         python3-dev \
@@ -48,20 +49,20 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
         unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# copy over core files and data-related scripts
-RUN mkdir -p /cbioportal
+# install clickhouse
+RUN mkdir -p /tmp && cd /tmp && curl https://clickhouse.com/ | sh && \
+    ./clickhouse install --noninteractive;
 
 # copy over core files (scripts, requirements) built from cbioportal-core
-COPY --from=build /core-files/scripts /core/scripts
-COPY --from=build /core-files/requirements.txt /core/requirements.txt
+COPY --from=build-core /core/scripts /core/scripts
+COPY --from=build-core /core/requirements.txt /core/requirements.txt
+COPY --from=build-core /core/core-*.jar /core/core-IMPORTER.jar
 RUN chmod -R a+x /core/scripts/
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0
 
-# install build and runtime dependencies
-# ignore update failure980[1298[01 w2308s
-RUN  pip3 install --break-system-packages -r /core/requirements.txt
+RUN pip3 install --break-system-packages -r /core/requirements.txt
 
 # add importer scripts to PATH for easy running in containers
 RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin

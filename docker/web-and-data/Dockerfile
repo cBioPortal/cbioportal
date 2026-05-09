@@ -11,7 +11,10 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
+ARG CORE_BRANCH=rfc100-rc
+
 FROM maven:3-eclipse-temurin-21 as build
+ARG CORE_BRANCH
 
 # download maven dependencies first to take advantage of docker caching
 COPY pom.xml                                        /cbioportal/
@@ -23,16 +26,21 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
+RUN touch /cbioportal/src/main/resources/application.properties
+RUN mvn install package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
+
+# Clone and build cbioportal-core for scripts and requirements
+RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core
+RUN touch /cbioportal-core/src/main/resources/application.properties
+RUN mvn -f /cbioportal-core/pom.xml clean install -DskipTests
+RUN mkdir -p /core-files && cd /core-files && jar -xf /cbioportal-core/core-*.jar scripts/ requirements.txt
 
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
-        default-mysql-client \
-        default-libmysqlclient-dev \
         python3 \
         python3-setuptools \
         python3-dev \
@@ -43,9 +51,10 @@ RUN apt-get update; apt-get install -y --no-install-recommends \
 # copy over core files and data-related scripts
 RUN mkdir -p /cbioportal
 
-#Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.16/core-1.0.16.jar -P core/ ; cd core ; jar -xf core-1.0.16.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
-
+# copy over core files (scripts, requirements) built from cbioportal-core
+COPY --from=build /core-files/scripts /core/scripts
+COPY --from=build /core-files/requirements.txt /core/requirements.txt
+RUN chmod -R a+x /core/scripts/
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0
@@ -72,6 +81,4 @@ COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/MET
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
 
 # add entrypoint
-COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
-ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.application.PortalApplication $(echo $WEBAPP_OPTS)"]

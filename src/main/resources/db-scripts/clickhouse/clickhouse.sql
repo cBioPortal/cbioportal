@@ -16,10 +16,20 @@ DROP TABLE IF EXISTS mutation_derived;
 
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 OPTIMIZE TABLE clinical_sample FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 OPTIMIZE TABLE genetic_alteration FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 OPTIMIZE TABLE genetic_profile_samples FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 OPTIMIZE TABLE sample_profile FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
@@ -61,6 +71,8 @@ FROM
 
 -- Re-optimize the sample_profile table after writing to it since it is backed by ReplacingMergeTree
 OPTIMIZE TABLE sample_profile FINAL;
+SELECT sleepEachRow(1) FROM numbers({optimize_final_wait_secs:UInt64}) FORMAT Null
+SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
 
 CREATE TABLE sample_to_gene_panel_derived
 (

@@ -14,22 +14,19 @@ DROP TABLE IF EXISTS genetic_alteration_derived;
 DROP TABLE IF EXISTS generic_assay_data_derived;
 DROP TABLE IF EXISTS mutation_derived;
 
+SET function_sleep_max_microseconds_per_block = 3600000000;
+
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 OPTIMIZE TABLE clinical_sample FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 OPTIMIZE TABLE genetic_alteration FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 OPTIMIZE TABLE genetic_profile_samples FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 OPTIMIZE TABLE sample_profile FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
@@ -71,8 +68,7 @@ FROM
 
 -- Re-optimize the sample_profile table after writing to it since it is backed by ReplacingMergeTree
 OPTIMIZE TABLE sample_profile FINAL;
-SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null
-SETTINGS function_sleep_max_microseconds_per_block = 3600000000;
+SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 
 CREATE TABLE sample_to_gene_panel_derived
 (

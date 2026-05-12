@@ -64,9 +64,6 @@ public class ColumnStoreStudyController {
    * through the projection parameter, and sorting the results by a specified property and
    * direction.
    *
-   * <p><b>Note:</b> This endpoint is marked as {@link Hidden} and will not be exposed in the API
-   * documentation.
-   *
    * @param keyword the search keyword that applies to the name and cancer type of the studies. This
    *     parameter is optional.
    * @param projection the level of detail of the response. Defaults to {@link

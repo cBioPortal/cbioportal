@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.831553724298">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.831911738978">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,11 +36,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.9.0.831553724298" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.9.0.831911738978" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.831553724298" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.831911738978" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.831553724298" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.831911738978" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -586,7 +586,13 @@ TP53: AMP GAIN HOMDEL EXP &gt; 1.5 EXP &lt; -1.5</code></pre>
 </figure>
 </p>
 <p><a href="https://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e">https://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e</a></p>
-<p>It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.</p>
+<p>It is possible to include OQL for specific alterations in merged gene tracks (use a semicolon &#x27;;&#x27; to separate each gene+OQL), as well as querying a combination of single and merged gene tracks. For example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">[&quot;EGFR FAMILY&quot; EGFR ERBB2 ERBB3 ERBB4]
+[&quot;KINASE DOMAIN DRIVERS&quot; EGFR: MUT = (712-979)_DRIVER; ERBB2: MUT = (719-987)_DRIVER; ERBB3: MUT = (721-989)_DRIVER; ERBB4: MUT = (721-989)_DRIVER]
+KRAS
+BRAF</code></pre>
+</doc-codeblock></div>
 <p>Note that merged gene tracks only appear in OncoPrint. All other pages show the individual genes.</p>
 <doc-anchor-target id="example-rb-pathway-alterations">
     <h2>

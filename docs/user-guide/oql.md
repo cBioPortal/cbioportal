@@ -228,7 +228,13 @@ The resulting merged gene track will be visible in OncoPrint and can be expanded
 
 <https://www.cbioportal.org/results/oncoprint?session_id=5c1966e2e4b05228701f958e>
 
-It is possible to include OQL for specific alterations in merged gene tracks, as well as querying a combination of single and merged gene tracks.
+It is possible to include OQL for specific alterations in merged gene tracks (use a semicolon ';' to separate each gene+OQL), as well as querying a combination of single and merged gene tracks. For example:
+```
+["EGFR FAMILY" EGFR ERBB2 ERBB3 ERBB4]
+["KINASE DOMAIN DRIVERS" EGFR: MUT = (712-979)_DRIVER; ERBB2: MUT = (719-987)_DRIVER; ERBB3: MUT = (721-989)_DRIVER; ERBB4: MUT = (721-989)_DRIVER]
+KRAS
+BRAF
+```
 
 Note that merged gene tracks only appear in OncoPrint. All other pages show the individual genes.
 

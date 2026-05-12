@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -52,7 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @see ClinicalDataDTO
  */
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreClinicalDataController {
 
   private final FetchClinicalDataMetaUseCase fetchClinicalDataMetaUseCase;
@@ -99,7 +98,6 @@ public class ColumnStoreClinicalDataController {
    * @return ResponseEntity containing list of clinical data DTOs, or empty body with count header
    *     for META projection
    */
-  @Hidden
   @PreAuthorize(
       "hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(

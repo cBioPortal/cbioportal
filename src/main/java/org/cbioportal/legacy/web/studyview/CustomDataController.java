@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web.studyview;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -50,10 +51,11 @@ public class CustomDataController {
   @Autowired private CustomDataService customDataService;
   @Autowired private PatientService patientService;
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/custom-data-counts/fetch",
+      value = "/legacy/custom-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

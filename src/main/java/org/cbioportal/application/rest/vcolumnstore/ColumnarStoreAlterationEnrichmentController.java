@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnarStoreAlterationEnrichmentController {
 
   private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;

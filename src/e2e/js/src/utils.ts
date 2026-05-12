@@ -16,7 +16,7 @@ export class TestUtils {
     testData: any,
     enrichmentType: EnrichmentType = EnrichmentType.SAMPLE
   ): Promise<AlterationEnrichment[]> {
-    const url = `${config.serverUrl}/api/column-store/alteration-enrichments/fetch?enrichmentType=${enrichmentType}`;
+    const url = `${config.serverUrl}/api/alteration-enrichments/fetch?enrichmentType=${enrichmentType}`;
 
     const response: AxiosResponse<AlterationEnrichment[]> = await axios.post(
       url,
@@ -47,7 +47,7 @@ export class TestUtils {
   static async callClinicalDataEnrichmentEndpoint(
     groupFilter: any
   ): Promise<ClinicalDataEnrichment[]> {
-    const url = `${config.serverUrl}/api/column-store/clinical-data-enrichments/fetch`;
+    const url = `${config.serverUrl}/api/clinical-data-enrichments/fetch`;
 
     const response: AxiosResponse<ClinicalDataEnrichment[]> = await axios.post(
       url,
@@ -78,7 +78,7 @@ export class TestUtils {
   static async callClinicalDataCountsEndpoint(
     filter: any
   ): Promise<ClinicalDataCountItem[]> {
-    const url = `${config.serverUrl}/api/column-store/clinical-data-counts/fetch`;
+    const url = `${config.serverUrl}/api/clinical-data-counts/fetch`;
 
     const response: AxiosResponse<ClinicalDataCountItem[]> = await axios.post(
       url,

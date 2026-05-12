@@ -136,7 +136,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -155,7 +155,7 @@ public class ClinicalDataEnrichmentControllerTest {
     // "groups[0].sampleIdentifiers size must be between 1 and 10000000"
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -165,7 +165,7 @@ public class ClinicalDataEnrichmentControllerTest {
     // "groups size must be between 2 and 2147483647"
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -182,7 +182,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -199,7 +199,7 @@ public class ClinicalDataEnrichmentControllerTest {
     // when all are invalid samples
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -253,7 +253,7 @@ public class ClinicalDataEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-enrichments/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)

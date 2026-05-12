@@ -77,7 +77,7 @@ public class CoExpressionControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/molecular-profiles/co-expressions/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/molecular-profiles/co-expressions/fetch")
                 .with(csrf())
                 .param("molecularProfileIdA", "test_molecular_profile_id")
                 .param("molecularProfileIdB", "test_molecular_profile_id")

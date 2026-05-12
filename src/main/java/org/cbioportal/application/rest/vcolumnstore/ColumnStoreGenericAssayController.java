@@ -1,7 +1,6 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -32,9 +31,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
  * <p>Provides endpoints to fetch generic assay meta data by molecular profile ID or stable ID,
  * leveraging the {@link GetGenericAssayMetaUseCase} for the core logic.
  */
-@Hidden
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 @Validated
 public class ColumnStoreGenericAssayController {
 

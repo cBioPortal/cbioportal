@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -31,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * (Chi-squared) statistical tests.
  */
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreClinicalDataEnrichmentController {
 
   private final FetchClinicalDataEnrichmentsUseCase fetchClinicalDataEnrichmentsUseCase;
@@ -65,7 +64,6 @@ public class ColumnStoreClinicalDataEnrichmentController {
    * @param groupFilter filter containing multiple groups of sample identifiers
    * @return list of clinical data enrichments with p-values and test statistics
    */
-  @Hidden
   @PreAuthorize(
       "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(

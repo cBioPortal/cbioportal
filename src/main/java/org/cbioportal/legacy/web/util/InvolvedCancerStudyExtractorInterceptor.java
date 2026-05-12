@@ -170,7 +170,7 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
     String requestPathInfo =
         request.getPathInfo() == null ? request.getServletPath() : request.getPathInfo();
     requestPathInfo = requestPathInfo.replaceFirst("^/api", "");
-    // requestPathInfo = StringUtils.removeStart(requestPathInfo, "/column-store");
+    requestPathInfo = requestPathInfo.replaceFirst("^/legacy", "");
     if (requestPathInfo.equals(PATIENT_FETCH_PATH)) {
       return extractAttributesFromPatientFilter(request);
     } else if (requestPathInfo.equals(SAMPLE_FETCH_PATH)) {

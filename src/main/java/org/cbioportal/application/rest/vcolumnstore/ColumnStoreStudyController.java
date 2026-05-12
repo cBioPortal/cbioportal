@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -41,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @see Direction
  */
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreStudyController {
 
   private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
@@ -81,7 +80,6 @@ public class ColumnStoreStudyController {
    * @see StudySortBy
    * @see Direction
    */
-  @Hidden
   @GetMapping(value = "/studies", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
@@ -134,7 +132,6 @@ public class ColumnStoreStudyController {
     return ResponseEntity.ok().headers(headers).body(responseBody);
   }
 
-  @Hidden
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @GetMapping(value = "/studies/{studyId}", produces = MediaType.APPLICATION_JSON_VALUE)

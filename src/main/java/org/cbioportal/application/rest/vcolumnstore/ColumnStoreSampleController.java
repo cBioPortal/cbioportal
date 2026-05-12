@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 @Validated
 public class ColumnStoreSampleController {
   public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;

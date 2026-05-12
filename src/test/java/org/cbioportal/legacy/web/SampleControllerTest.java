@@ -73,7 +73,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id/samples")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id/samples")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -112,7 +112,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id/samples")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id/samples")
                 .param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -127,7 +127,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id/samples/test_sample_id")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isNotFound())
         .andExpect(
@@ -152,7 +152,7 @@ public class SampleControllerTest {
         .thenReturn(samples);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/samples").accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.get("/api/legacy/samples").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -196,7 +196,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id/samples/test_sample_id")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id/samples/test_sample_id")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -232,7 +232,7 @@ public class SampleControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    "/api/studies/test_study_id/patients/test_patient_id/samples")
+                    "/api/legacy/studies/test_study_id/patients/test_patient_id/samples")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -274,7 +274,7 @@ public class SampleControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    "/api/studies/test_study_id/patients/test_patient_id/samples")
+                    "/api/legacy/studies/test_study_id/patients/test_patient_id/samples")
                 .param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
@@ -304,7 +304,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -353,7 +353,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -408,7 +408,7 @@ public class SampleControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/samples/fetch")
                 .with(csrf())
                 .param("projection", "META")
                 .contentType(MediaType.APPLICATION_JSON)

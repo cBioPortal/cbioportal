@@ -571,7 +571,7 @@ public class MutationControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/mutations/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/mutations/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

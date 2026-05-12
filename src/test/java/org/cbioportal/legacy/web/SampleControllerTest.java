@@ -152,7 +152,8 @@ public class SampleControllerTest {
         .thenReturn(samples);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/legacy/samples").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/samples").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

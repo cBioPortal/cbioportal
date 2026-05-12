@@ -99,7 +99,8 @@ public class StudyControllerTest {
         .thenReturn(cancerStudyList);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -150,7 +151,8 @@ public class StudyControllerTest {
         .thenReturn(new ArrayList<>());
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk());
   }
 
@@ -174,7 +176,8 @@ public class StudyControllerTest {
         .thenReturn(new ArrayList<>());
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
     ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);

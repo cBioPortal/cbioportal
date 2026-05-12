@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -28,8 +29,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @PublicApi
+@Hidden
 @RestController()
-@RequestMapping("/api")
+@RequestMapping("/api/legacy")
 @Validated
 @Tag(name = PublicApiTags.GENERIC_ASSAYS, description = " ")
 public class GenericAssayController {

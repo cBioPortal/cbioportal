@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -43,7 +42,7 @@ import org.springframework.web.bind.annotation.*;
  * @see MutationDTO
  */
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreMutationController {
   private final MutationUseCases mutationUseCases;
 
@@ -68,7 +67,6 @@ public class ColumnStoreMutationController {
    * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
    *     for META projection
    */
-  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(

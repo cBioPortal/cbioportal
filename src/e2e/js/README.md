@@ -87,4 +87,4 @@ The test suite includes the following test cases:
 
 - Tests require a running cBioPortal instance
 - Default timeout is set to 30 seconds per test
-- Tests use the `/api/column-store/alteration-enrichments/fetch` endpoint
+- Tests use the `/api/alteration-enrichments/fetch` endpoint

@@ -1,6 +1,5 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 @Validated
 public class ColumnStoreCoExpressionController {
 
@@ -31,7 +30,6 @@ public class ColumnStoreCoExpressionController {
     this.fetchCoExpressionsUseCase = fetchCoExpressionsUseCase;
   }
 
-  @Hidden
   @PreAuthorize(
       "hasPermission(#molecularProfileIdA, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) and hasPermission(#molecularProfileIdB, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @PostMapping(

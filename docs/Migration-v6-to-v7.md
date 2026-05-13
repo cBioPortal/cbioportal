@@ -21,7 +21,7 @@ If you no longer have the original study files for some studies, you can use the
 
 ### Step 1: Initialize a New ClickHouse Database
 
-Follow the [ClickHouse Setup Guide](deployment/clickhouse/README.md#3-initializing-the-database) to:
+Follow the [ClickHouse Setup Guide](deployment/clickhouse/README.md#3-docker-compose-setup) to:
 
 1. Create a ClickHouse database and user.
 2. Load the cBioPortal schema (`clickhouse.sql`).

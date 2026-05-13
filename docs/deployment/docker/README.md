@@ -36,6 +36,8 @@ Then run the init script to download seed data, example config, and example stud
 ./init.sh
 ```
 
+> **Note:** If `.env` does not exist yet, `./init.sh` will prompt you to create one or generate it automatically. After the first run, edit `.env` to customize passwords, image versions, and database connection settings.
+
 Review the generated files in `config/`, `data/`, and `study/` to confirm everything looks correct for your setup. Then start all services:
 
 ```
@@ -80,7 +82,7 @@ docker compose down
 To import a study, run:
 
 ```
-docker compose exec metaImport.py -s study/msk_impact_2017/ -o  # Replace with your study directory name
+docker compose exec cbioportal metaImport.py -s study/msk_impact_2017/ -o  # Replace with your study directory name
 ```
 
 This will import the [msk_impact_2017 study](https://www.cbioportal.org/study/summary?id=msk_impact_2017) into your local database. It will take a few minutes.

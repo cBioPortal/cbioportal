@@ -5,7 +5,7 @@ Use this command to import a gene panel. Specify the gene panel file by replacin
 gene panel files in `./study` which is mounted inside the container on `/study/.
 
 ```shell
-docker compose exec \
+docker compose run \
     -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
     cbioportal \
     bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
@@ -19,7 +19,7 @@ the study in its associated database. Make sure to replace `<path_to_report_fold
 the absolute path were the html report of the validation will be saved.
 
 ```shell
-docker compose exec \
+docker compose run \
     -v "<path_to_report_folder>:/report" \
     cbioportal \
     metaImport.py -s /study/name_of_study --html=/report/report.html
@@ -70,7 +70,7 @@ docker compose exec cbioportal metaImport.py derive-tables
 In some setups the data validation step may not have direct access to the web API, for instance when the web API is only accessible to authenticated browser sessions. You can use this command to generate a cached folder of files that the validation script can use instead. Make sure to replace `<path_to_portalinfo>` with the absolute path where the cached folder is going to be generated.
 
 ```shell
-docker compose exec \
+docker compose run \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo" \
     -w /core/scripts/ \
     cbioportal \
@@ -80,7 +80,7 @@ docker compose exec \
 Then, grant the validation/loading command access to this folder and tell the script to use it instead of the API:
 
 ```shell
-docker compose exec \
+docker compose run \
     -v "<path_to_report_folder>:/report" \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
     cbioportal \
@@ -91,7 +91,7 @@ docker compose exec \
 
 ```shell
 docker compose exec cbioportal_database \
-    sh -c 'clickhouse-client -hcbioportal_database -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --query="SHOW DATABASES"'
+    sh -c 'clickhouse client -hcbioportal_database -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --query="SHOW DATABASES"'
 ```
 
 ### Deleting a study ###

@@ -102,7 +102,7 @@ When batch-importing multiple studies, you can skip the derived table rebuild af
 ./metaImport.py -s /path/to/study --no-derive-tables
 ```
 
-Then rebuild derived tables once after all studies have been importer:
+Then rebuild derived tables once after all studies have been imported:
 
 ```bash
 ./metaImport.py derive-tables
@@ -110,7 +110,7 @@ Then rebuild derived tables once after all studies have been importer:
 
 This can save a lot of time when many different studies are being imported in sequence.
 
-> **Important:** Always rebuild derived tables before using the portal in production. Without them, the cBioPortal web app will cannot function properly.
+> **Important:** Always rebuild derived tables before using the portal in production. Without them, the cBioPortal web app will not function properly.
 
 ## Development / debugging mode
 

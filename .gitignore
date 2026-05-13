@@ -111,3 +111,4 @@ security.properties
 *.key
 *~
 docs/.obsidian/
+.hermes/

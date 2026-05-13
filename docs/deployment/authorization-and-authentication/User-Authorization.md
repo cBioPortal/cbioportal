@@ -100,18 +100,10 @@ clickhouse> select cancer_study_id, cancer_study_identifier, groups from cancer_
 |              94 | brca_tcga               |             |
 +-----------------+-------------------------+-------------+
 ```
-2- Update the `GROUPS` field, adding your "TEST_GROUP1" to it. :warning: This is a `;` separated column, so if you want a study to be part of multiple groups, separate them with `;`.  
-```
-clickhouse> update cancer_study set groups='TEST_GROUP1' where cancer_study_id = 94;
-```
-<< TODO: Verify ClickHouse syntax — ClickHouse uses ALTER TABLE ... UPDATE col=val WHERE ... for mutations >>
+2- Update the `groups` field in the `cancer_study` table, adding your "TEST_GROUP1" to it. :warning: This is a `;` separated column, so if you want a study to be part of multiple groups, separate them with `;`.
 
 
-If `GROUPS` already has a value (like for study 93 in example above) then add ";TEST_GROUP1" to ensure existing groups are not ovewritten.
-```
-clickhouse> update cancer_study set groups=concat(groups,';TEST_GROUP1') where cancer_study_id = 93;
-```
-<< TODO: Verify ClickHouse syntax — ClickHouse uses ALTER TABLE ... UPDATE col=val WHERE ... for mutations >>
+If `groups` already has a value (like for study 93 in example above) then add ";TEST_GROUP1" to ensure existing groups are not ovewritten.
 
 3- Check the result:
 ```

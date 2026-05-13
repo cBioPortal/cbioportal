@@ -46,13 +46,7 @@ After all imports complete, verify your data:
 2. Check that all expected studies appear on the homepage.
 3. Spot-check a few studies — verify patient counts, sample counts, and that mutation/copy-number data loads correctly in the UI.
 
-You can also query ClickHouse directly to confirm study counts:
-
-```sql
-SELECT cancer_study_identifier, name, import_date
-FROM cbioportal.cancer_study
-ORDER BY cancer_study_identifier;
-```
+You can also use the ClickHouse CLI to inspect the `cancer_study` table and confirm that all expected studies are present with recent import dates.
 
 ## Existing MySQL Deployments
 

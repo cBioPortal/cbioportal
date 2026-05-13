@@ -32,4 +32,4 @@ TCGA Provisional studies often contain many different data types. These are exce
 
 #### Seed Database
 
-The seed database is a ClickHouse-compatible dataset for seeding a new instance of cBioPortal. Instructions for loading the seed database can be found [here](/deployment/deploy-without-docker/Import-the-Seed-Database.md). The seed database for the human genome can be downloaded from [the cBioPortal repo](https://github.com/cBioPortal/cbioportal/tree/master/src/main/resources/db-scripts/clickhouse/init).
+The seed database is a ClickHouse-compatible dataset for seeding a new instance of cBioPortal. Instructions for loading the seed database can be found [here](/deployment/clickhouse/README.md). The seed database for the human genome can be downloaded from [the cBioPortal repo](https://github.com/cBioPortal/cbioportal/tree/master/src/main/resources/db-scripts/clickhouse/init).

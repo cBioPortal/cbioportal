@@ -46,11 +46,11 @@ spring.security.oauth2.client.provider.keycloak.user-name-attribute=email
 persistence.cache_type=no-cache
 session.service.url=http://localhost:5000/api/sessions/my_portal/
 
-spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal?useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.url=jdbc:ch://localhost:8123/cbioportal
 spring.datasource.username=cbio_user
 spring.datasource.password=somepassword
-spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
-spring.datasource.driver-class-name=com.mysql.jdbc.Driver
+spring.jpa.database-platform=org.hibernate.dialect.ClickHouseDialect
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 4. Start cBioPortal application on port 8080. The login credentials are `testuser:P@assword1`.

@@ -27,13 +27,13 @@
 
 # Introduction
 
-This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading.md#preparing-study-data).
+This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](data-loading/README.md#preparing-study-data).
 
 # Formats
 
 ## Cancer Study
 
-As described in the [Data Loading tool](Data-Loading.md) page, the following file is needed to describe the cancer study:
+As described in the [Data Loading tool](data-loading/README.md) page, the following file is needed to describe the cancer study:
 
 ### Meta file
 This file contains metadata about the cancer study. The file contains the following fields:

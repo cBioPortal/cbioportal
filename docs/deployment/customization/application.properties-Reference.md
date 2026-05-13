@@ -4,34 +4,125 @@ This page describes the main properties within application.properties. Note that
 
 ## Database Settings
 
-```
-db.user=
-db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
-```
+cBioPortal connects to ClickHouse via Spring Boot's standard datasource properties. Configure these in `application.properties`:
 
-The format of the `db.connection_string` is:
-```
-jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```properties
+spring.datasource.url=jdbc:ch://<host>:<port>/<database>
+spring.datasource.username=<your-db-user>
+spring.datasource.password=<your-db-password>
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 For example:
 
-```
-jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
+```properties
+spring.datasource.url=jdbc:ch://localhost:8123/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
-:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
-the `db.connection_string` instead.
+### Legacy `db.*` Properties (Deprecated)
 
-`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
+The following `db.*` properties are deprecated and should be migrated to `spring.datasource.*`:
 
-```
-db.tomcat_resource_name=jdbc/cbioportal
-```
+| Deprecated | Replacement |
+|---|---|
+| `db.user` | `spring.datasource.username` |
+| `db.password` | `spring.datasource.password` |
+| `db.connection_string` | `spring.datasource.url` |
+| `db.driver` | `spring.datasource.driver-class-name` |
+
+> **Note:** Spring Boot automatically migrates legacy `db.*` properties to `spring.datasource.*` at startup, but using the standard `spring.datasource.*` properties is recommended.
 
 ## cBioPortal Customization
+
+### Logging
+
+```properties
+# Root logging level (INFO, DEBUG, WARN, ERROR)
+logging.level.root=INFO
+```
+
+### Cache Configuration
+
+```properties
+# Cache type: ehcache-heap, ehcache-disk, ehcache-hybrid, redis, or no-cache
+persistence.cache_type=no-cache
+
+# Enable cache statistics endpoint
+# cache.statistics_endpoint_enabled=false
+
+# Enable cache management endpoint
+# cache.endpoint.enabled=true
+
+# API key for cache management endpoint access
+# cache.endpoint.api-key=<uuid>
+```
+
+### OncoKB
+
+```properties
+# Enable OncoKB annotations
+show.oncokb=true
+
+# OncoKB public API URL
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB token (required for therapeutic data)
+oncokb.token=
+```
+
+### Genome Nexus
+
+```properties
+# Show Genome Nexus annotation columns in mutation table
+# show.genomenexus.annotation_sources=mutation_assessor
+
+# Default isoform override source (uniprot or mskcc)
+# genomenexus.isoform_override_source=mskcc
+```
+
+### Session Service
+
+```properties
+# URL for session service (used for saving/sharing queries)
+session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
+
+# Optional basic auth for session service
+# session.service.user=
+# session.service.password=
+```
+
+### Server Configuration
+
+```properties
+# Connection timeout in ms
+server.tomcat.connection-timeout=20000
+
+# Max HTTP response header size
+server.tomcat.max-http-response-header-size=16384
+
+# Max HTTP request header size
+server.max-http-request-header-size=16384
+
+# Enable response compression
+server.compression.enabled=true
+```
+
+### Swagger / API Docs
+
+```properties
+# Swagger UI path
+# springdoc.swagger-ui.path=/api/swagger-ui
+
+# API docs path
+# springdoc.api-docs.path=/api/v2/api-docs
+```
+
+### Full Reference
+
+For a complete list of all available properties, see the [application.properties.EXAMPLE](https://github.com/cBioPortal/cbioportal/blob/master/src/main/resources/application.properties.EXAMPLE) file in the cbioportal repository.
 
 ### Hide tabs (pages)
 

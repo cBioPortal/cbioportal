@@ -36,7 +36,7 @@ Users who cannot migrate immediately to v7 should remain on the latest v6 mainte
 
 - **New deployments**: Use **v6** until the first stabilized v7 released
 - **Existing v6 deployments**:
-    - Stay on v6 short-term
+    - May stay on v6 short-term
     - Plan migration to v7
 - **Development and contributions**:
     - Target `master` (v7)

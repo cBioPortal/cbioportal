@@ -9,7 +9,7 @@ Two tables need to be populated in order to support user authorization.
 This table contains all the users that have authorized access to the instance of the portal.  The table requires a user's email address, name, and integer flag indicating if the account is enabled.
 
 ```
-mysql> describe users;
+clickhouse> describe users;
 +---------+--------------+------+-----+---------+-------+
 | Field   | Type         | Null | Key | Default | Extra |
 +---------+--------------+------+-----+---------+-------+
@@ -23,7 +23,7 @@ mysql> describe users;
 An example entry would be:
 
 ```
-mysql> select * from users where email = "john.smith@gmail.com";
+clickhouse> select * from users where email = "john.smith@gmail.com";
 +--------------------------+----------------+---------+
 | EMAIL                    | NAME           | ENABLED |
 +--------------------------+----------------+---------+
@@ -34,7 +34,7 @@ mysql> select * from users where email = "john.smith@gmail.com";
 
 Note, if the ENABLED value is set to 0, the user will be able to login to the portal, but will see no studies.
 
-You need to add users via MySQL directly.  For example:
+You need to add users via the database directly.  For example:
 
 ```
 INSERT INTO cbioportal.users (EMAIL, NAME, ENABLED) 
@@ -46,7 +46,7 @@ INSERT INTO cbioportal.users (EMAIL, NAME, ENABLED)
 This table contains the list of cancer studies that each user is authorized to view.  The table requires a user email address and an authority (e.g. cancer study) granted to the user.
 
 ```
-mysql> describe authorities;
+clickhouse> describe authorities;
 +-----------+--------------+------+-----+---------+-------+
 | Field     | Type         | Null | Key | Default | Extra |
 +-----------+--------------+------+-----+---------+-------+
@@ -59,7 +59,7 @@ mysql> describe authorities;
 Some example entries would be:
 
 ```
-mysql> select * from authorities where email = "john.smith@gmail.com";
+clickhouse> select * from authorities where email = "john.smith@gmail.com";
 +--------------------------+---------------------------+
 | EMAIL                    | AUTHORITY                 |
 +--------------------------+---------------------------+
@@ -78,10 +78,10 @@ The value in the AUTHORITY column is made of two parts:
 
 **If the user has rights to all available cancer studies, a single entry with the keyword `app.name:` + "ALL" is sufficient (so e.g. "cbioportal:ALL").**
 
-You need to add users via MySQL directly.  For example:
+You need to add users via the database directly.  For example:
 
 ```
-mysql> INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+clickhouse> INSERT INTO cbioportal.authorities (email, authority) VALUES
     ('john.smith@gmail.com', 'cbioportal:CANCER_STUDY_1');
 ```
 **Important Note:**  The cancer study identifier is *not* CASE sEnsitive. So it can be UPPER CASE, or just how it is stored in the `cancer_study` table.
@@ -97,9 +97,9 @@ We want to create the group "TEST_GROUP1" and assign two existing studies to it 
 
 1- Find your studies in table `cancer_study`
 ```
-mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
+clickhouse> select cancer_study_id, cancer_study_identifier, groups from cancer_study where cancer_study_id in (93,94);
 +-----------------+-------------------------+-------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS      |
+| cancer_study_id | cancer_study_identifier | groups      |
 +-----------------+-------------------------+-------------+
 |              93 | acc_tcga                | GROUPB      |
 |              94 | brca_tcga               |             |
@@ -107,18 +107,18 @@ mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study 
 ```
 2- Update the `GROUPS` field, adding your "TEST_GROUP1" to it. :warning: This is a `;` separated column, so if you want a study to be part of multiple groups, separate them with `;`.  
 ```
-mysql> update cancer_study set GROUPS='TEST_GROUP1' where CANCER_STUDY_ID = 94;
+clickhouse> update cancer_study set groups='TEST_GROUP1' where cancer_study_id = 94;
 ```
 
 If `GROUPS` already has a value (like for study 93 in example above) then add ";TEST_GROUP1" to ensure existing groups are not ovewritten.
 ```
-mysql> update cancer_study set GROUPS=concat(GROUPS,';TEST_GROUP1') where CANCER_STUDY_ID = 93;
+clickhouse> update cancer_study set groups=concat(groups,';TEST_GROUP1') where cancer_study_id = 93;
 ```
 3- Check the result:
 ```
-mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
+clickhouse> select cancer_study_id, cancer_study_identifier, groups from cancer_study where cancer_study_id in (93,94);
 +-----------------+-------------------------+--------------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
+| cancer_study_id | cancer_study_identifier | groups             |
 +-----------------+-------------------------+--------------------+
 |              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
 |              94 | brca_tcga               | TEST_GROUP1        |
@@ -126,7 +126,7 @@ mysql> select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study 
 ```
 4- Add the group to user 'john.smith@gmail.com', using `app.name:` + "TEST_GROUP1" like so:
 ```
-mysql> INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+clickhouse> INSERT INTO cbioportal.authorities (email, authority) VALUES
     ('john.smith@gmail.com', 'cbioportal:TEST_GROUP1');
 ```
 
@@ -149,7 +149,7 @@ To reuse the example table above, let's assume the property `always_show_study_g
 
 ```
 +-----------------+-------------------------+--------------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
+| cancer_study_id | cancer_study_identifier | groups             |
 +-----------------+-------------------------+--------------------+
 |              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
 |              94 | brca_tcga               | TEST_GROUP1;PUBLIC |

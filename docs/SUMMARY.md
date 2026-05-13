@@ -50,7 +50,7 @@
   * [Integration with Other Webservices]()
     * [OncoKB Data Access](deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
     * [UptimeRobot Integration](deployment/integration-with-other-webservices/UptimeRobot-Integration.md)
-  * [Data Loading Overview](Data-Loading.md)
+  * [Data Loading Overview](data-loading/README.md)
     * [Downloads](Downloads.md)
     * [Using the Dataset Validator](Using-the-dataset-validator.md)
     * [Using the metaImport Script](Using-the-metaImport-script.md)

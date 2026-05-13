@@ -7,7 +7,7 @@ respective data files of a study prior to import into the database. This page de
 as custom driver annotations. It assumes the following requirements have been satisfied:
 
 1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
-2. The user is able to successfully import a [study into the database](/Data-Loading.md).
+2. The user is able to successfully import a [study into the database](data-loading/README.md).
 3. The study subjected to OncoKB import is [confirmed to be valid](/Data-Loading.md#validating-your-study-data)
 
 ## Import of OncoKB annotations when loading a study
@@ -16,7 +16,7 @@ OncoKB annotations can be added automatically to the study files when the study 
 `--import_oncokb` parameter to the [metaImport.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/metaImport.py) script like so:
 
 ```
-python metaImport.py --import_oncokb -u http://cbioportal:8080 -s study/lgg_ucsf_2014/
+python metaImport.py --import_oncokb -s study/lgg_ucsf_2014/
 ```
 
 This will add OncoKB data to the mutation and discrete CNA files of a study, revalidate the results and load the study
@@ -36,7 +36,7 @@ Where `-s` is the path to the directory of the MAF file and `-u` is the URL to
 a cBioPortal instance (needed for resolution of gene identifiers).
 
 [importOncokbMutation.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/importOncokbMutation.py) will add OncoKB annotations as
-[custom driver annotation columns](/File-Formats.md#custom-driver-annotations) in the MAF file. The unmodified MAF file
+[custom driver annotation columns](../File-Formats.md#custom-driver-annotations) in the MAF file. The unmodified MAF file
 will be stored in the study directory with the _ONCOKB_IMPORT_BACKUP__ prefix.
 
 
@@ -51,7 +51,7 @@ python importOncokbDiscreteCNA.py -s /tmp/study -u https://cbioportal.org
 Where `-s` is the path to the directory of the iscrete Copy Number data file and `-u` is the URL to 
 a cBioPortal instance (needed for resolution of gene identifiers).
 
-[importOncokbDiscreteCNA.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/importOncokbMutation.py) will create a [custom driver annotation file](File-Formats.md#custom-driver-annotations-file)
+[importOncokbDiscreteCNA.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/importOncokbMutation.py) will create a [custom driver annotation file](../File-Formats.md#custom-driver-annotations-file)
 with name _data_cna_pd_annotation.txt_ in the study directory. It will add a field `pd_annotations_filename` field in the 
 CNA meta file that references the newly created custom driver annotation file. The unmodified CNA meta file will be stored
 in the study directory with the _ONCOKB_IMPORT_BACKUP__ prefix.

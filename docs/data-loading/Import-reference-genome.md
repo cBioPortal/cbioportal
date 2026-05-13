@@ -38,7 +38,7 @@ $ ./importReferenceGenome.pl --ref-genome ~/myspace/cbioportal/core/src/test/res
    Reading reference genome from:  /Users/kelsyzhu/myspace/cbioportal/core/src/test/resources/reference_genomes.txt
     --> total number of lines:  3
    
-   Done. Restart tomcat to make sure the cache is replaced with the new data.
+   Done. Restart the portal to make sure the cache is replaced with the new data.
    
    Warnings / Errors:
    -------------------

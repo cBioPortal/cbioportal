@@ -15,6 +15,7 @@ usage: metaImport.py [-h] [-s STUDY_DIRECTORY | -d DATA_DIRECTORY]
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                      [-jar JAR_PATH] [-html HTML_TABLE]
                      [-v] [-o] [-r] [-m]
+                     [--no-derive-tables]
 
 cBioPortal meta Importer
 
@@ -47,6 +48,8 @@ optional arguments:
   -m, --strict_maf_checks
                         Option to enable strict mode for validator when
                         validating mutation data
+  --no-derive-tables    Skip rebuilding derived tables after import (useful
+                        when batch-importing multiple studies)
 ```
 
 #### Example of Importing a study
@@ -79,5 +82,36 @@ It should contain complete information about entries you want to add or update.
 Please note that some data types like study are not supported and must not be present in the data directory.
 [Here](./Incremental-Data-Loading.md) you can find more details.
 
+#### Derived Tables
+
+After each import (incremental or otherwise), `metaImport.py` automatically rebuilds **derived tables** — ClickHouse tables that pre-join and denormalize data for fast Study View queries. See the [ClickHouse Setup Guide](../deployment/clickhouse/README.md#5-derived-tables) for details on what derived tables are and why they matter.
+#### Rebuilding Derived Tables Only
+
+You can rebuild derived tables without importing any studies by running:
+
+```
+./metaImport.py derive-tables
+```
+
+This command executes the derived table SQL scripts against your ClickHouse database without performing any study validation or import. It is useful after batch imports, study deletions, or whenever you need to refresh precomputed query structures.
+##### Skipping Derived Table Rebuild
+
+When batch-importing multiple studies, you can skip the derived table rebuild after each import with `--no-derive-tables`:
+
+```bash
+./metaImport.py -s /path/to/study --no-derive-tables
+```
+
+Then rebuild derived tables once after all studies have been importer:
+
+```bash
+./metaImport.py derive-tables
+```
+
+This can save a lot of time when many different studies are being imported in sequence.
+
+> **Important:** Always rebuild derived tables before using the portal in production. Without them, the cBioPortal web app will cannot function properly.
+
 ## Development / debugging mode
+
 For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Data-Loading-For-Developers.md) page for more information on how to use it.

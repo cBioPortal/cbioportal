@@ -16,10 +16,10 @@ Download `Mus_musculus.gene_info.gz` from
 ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz
 Unzip the downloaded file with the command `gunzip Mus_musculus.gene_info.gz`
 
-## MySQL steps
+## Database steps
 Execute these steps in case you want to reset your database to the most recent genes list from NCBI.
 
-1- Start a new MySQL database with the previous seed database, which can be found on cBioPortal Datahub for [human](https://github.com/cBioPortal/datahub/tree/master/seedDB) and [mouse](https://github.com/cBioPortal/datahub/tree/master/seedDB_mouse).
+1- Start a new ClickHouse database with the previous seed database. The seed database has been relocated to the [cbioportal repository](https://github.com/cBioPortal/cbioportal/tree/master/src/main/resources/db-scripts/clickhouse/init). For reference, older versions can also be found on cBioPortal Datahub for [human](https://github.com/cBioPortal/datahub/tree/master/seedDB) and [mouse](https://github.com/cBioPortal/datahub/tree/master/seedDB_mouse).
 
 2- If DB engine supports foreign key (FK) constraints, e.g. InnoDB, drop constraints:
 ```sql

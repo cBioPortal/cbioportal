@@ -10,7 +10,7 @@ Getting your study data into cBioPortal requires four steps:
 3. [Validating your study data](#validating-your-study-data)
 4. [Loading your study data](#loading-data)
 
-If using a ClickHouse OLAP database in conjunction with the MySQL OLTP database, additional steps will be needed after completing the steps above. For guidance, see these [tools](https://github.com/cBioPortal/cbioportal-core/blob/main/scripts/clickhouse_import_support/README.md) in the cbioportal-core repository. These are available as a Docker image (used during a [Docker Compose launch](https://github.com/cBioPortal/cbioportal-docker-compose?tab=readme-ov-file#clickhouse-mode) of a ClickHouse Mode portal.)
+ClickHouse is the sole database used by cBioPortal v7. The `metaImport.py` script (see [Using the metaImport script](./Using-the-metaImport-script.md)) handles all data loading, including import into ClickHouse. For additional ClickHouse setup and import utilities, see the [tools](https://github.com/cBioPortal/cbioportal-core/blob/main/scripts/clickhouse_import_support/README.md) in the cbioportal-core repository and the [ClickHouse setup guide](../deployment/clickhouse/README.md).
 
 ## Setting up the validator
 ### Installation
@@ -31,7 +31,7 @@ $ sudo python3 -m pip install Jinja2
 
 ## Preparing Study Data 
 A study to be loaded in cBioPortal can basically consist of a directory where all the data files are located. 
-Each *data* file needs a *meta* file that refers to it and both files need to comply to the format required for the specific data type. The format and fields expected for each file are documented in the [File Formats page](File-Formats.md). Below is an example of the files in such a directory.
+Each *data* file needs a *meta* file that refers to it and both files need to comply to the format required for the specific data type. The format and fields expected for each file are documented in the [File Formats page](../File-Formats.md). Below is an example of the files in such a directory.
 
 ```
 dir
@@ -48,7 +48,7 @@ There are just a few rules to follow:
 - data files can be named anything and are referenced by a property `data_filename` set in the meta file. 
 
 ## Validating your study data
-Once all files are in place and follow the proper format, you can [validate your files using the dataset validator script](/Using-the-dataset-validator.md). 
+Once all files are in place and follow the proper format, you can [validate your files using the dataset validator script](Using-the-dataset-validator.md). 
 
 The validation can be run standalone, but it is also integrated into the [metaImport script](./Using-the-metaImport-script.md), which validates the data and then loads it if validation succeeds. 
 
@@ -68,7 +68,7 @@ To do this, you have to specify `--data_directory` (or `-d`) instead of `--study
 To remove a study, the [cbioportalImporter script](/Data-Loading-Maintaining-Studies.md#deleting-a-study) can be used.
 
 ## Example studies
-Examples for the different types of data are available on the [File Formats](/File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](https://www.cbioportal.org/datasets) are complete studies that can be used as reference when creating data files.
+Examples for the different types of data are available on the [File Formats](../File-Formats.md) page. The Provisional TCGA studies, downloadable from the [Data Sets section](https://www.cbioportal.org/datasets) are complete studies that can be used as reference when creating data files.
 
 ## Public Virtual Studies
 If your new study data is a subset or a combination of existing studies in the system, consider using [Public Virtual Studies](./Create-And-Publish-Virtual-Study.md) instead of duplicating data. 

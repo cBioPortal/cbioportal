@@ -5,7 +5,7 @@ Use this command to import a gene panel. Specify the gene panel file by replacin
 gene panel files in `./study` which is mounted inside the container on `/study/.
 
 ```shell
-docker compose run \
+docker compose exec \
     -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
     cbioportal \
     bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
@@ -19,10 +19,10 @@ the study in its associated database. Make sure to replace `<path_to_report_fold
 the absolute path were the html report of the validation will be saved.
 
 ```shell
-docker compose run \
+docker compose exec \
     -v "<path_to_report_folder>:/report" \
     cbioportal \
-    metaImport.py -u http://cbioportal:8080 -s /study/name_of_study --html=/report/report.html
+    metaImport.py -s /study/name_of_study --html=/report/report.html
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker compose restart cbioportal`.
@@ -30,12 +30,47 @@ to see the study on the home page. Run `docker compose restart cbioportal`.
 To load data incrementally, specify `-d` instead of `-s` option.
 For more details on incremental data loading, see [this page](/Incremental-Data-Loading.md).
 
+### Incremental Import
+
+To add or update data in an existing study without re-importing the entire study:
+
+```shell
+docker compose exec \
+    cbioportal \
+    metaImport.py -d /study/name_of_study
+```
+
+### Removing Studies, Samples, and Patients
+
+```shell
+# Remove a study entirely
+docker compose exec \
+    cbioportal \
+    cbioportalImporter.py -c remove-study -id study_id
+
+# Remove specific samples from a study
+docker compose exec \
+    cbioportal \
+    cbioportalImporter.py -c remove-samples --study-id study_id --samples SAMPLE1,SAMPLE2
+
+# Remove specific patients and all their data
+docker compose exec \
+    cbioportal \
+    cbioportalImporter.py -c remove-patients --study-id study_id --patients PATIENT1,PATIENT2
+```
+
+After any removal operation, rebuild derived tables:
+
+```shell
+docker compose exec cbioportal metaImport.py derive-tables
+```
+
 #### Using cached portal side-data ####
 
 In some setups the data validation step may not have direct access to the web API, for instance when the web API is only accessible to authenticated browser sessions. You can use this command to generate a cached folder of files that the validation script can use instead. Make sure to replace `<path_to_portalinfo>` with the absolute path where the cached folder is going to be generated.
 
 ```shell
-docker compose run \
+docker compose exec \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo" \
     -w /core/scripts/ \
     cbioportal \
@@ -45,7 +80,7 @@ docker compose run \
 Then, grant the validation/loading command access to this folder and tell the script to use it instead of the API:
 
 ```shell
-docker compose run \
+docker compose exec \
     -v "<path_to_report_folder>:/report" \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
     cbioportal \
@@ -55,8 +90,8 @@ docker compose run \
 ### Inspecting or adjusting the database ###
 
 ```shell
-docker compose run cbioportal_database \
-    sh -c 'mysql -hcbioportal_database -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"'
+docker compose exec cbioportal_database \
+    sh -c 'clickhouse-client -hcbioportal_database -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --query="SHOW DATABASES"'
 ```
 
 ### Deleting a study ###
@@ -64,7 +99,7 @@ docker compose run cbioportal_database \
 To remove a study, run:
 
 ```shell
-docker compose run \
+docker compose exec \
     cbioportal \
     cbioportalImporter.py -c remove-study -id study_id
 ```

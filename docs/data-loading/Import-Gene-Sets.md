@@ -30,8 +30,8 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 	--data ../../test/resources/genesets/study_es_0_tree.yaml
 ```
 
-4. Restart Tomcat if you have it running or call the `/api/cache` endpoint with a `DELETE` http-request
-   (see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+4. Restart the portal if you have it running or call the `/api/cache` endpoint with a `DELETE` http-request
+   (see [here](../deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
 
 
 5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):
@@ -53,7 +53,7 @@ Updating the database is described [here](https://github.com/cBioPortal/cbioport
 ## Import Gene Sets
 
 ### File formats
-Once you have initialized MySQL with cBioPortal database, it is possible to import gene sets. The format of the gene set data file is [the Gene Matrix Transposed file format (.gmt)](https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29). This format is also used by the [MSigDB](#references), which hosts several collections of gene sets on: [https://software.broadinstitute.org/gsea/msigdb/](https://software.broadinstitute.org/gsea/msigdb/)
+Once you have initialized your cBioPortal database, it is possible to import gene sets. The format of the gene set data file is [the Gene Matrix Transposed file format (.gmt)](https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29). This format is also used by the [MSigDB](#references), which hosts several collections of gene sets on: [https://software.broadinstitute.org/gsea/msigdb/](https://software.broadinstitute.org/gsea/msigdb/)
 
 Sample of .gmt file:
 
@@ -131,7 +131,7 @@ required:     --data <data_file.yaml>
 ## Import a study with gene set data
 
 Gene set data can be added to a study folder and subsequently import the whole study with `metaImport.py`. cBioPortal supports GSVA Scores and p-values (from bootstrapping) calculated using Gene Set Variation Analysis (GSVA, [Hänzelmann, 2013](#references)).
-A description of GSVA study data can be found in the [cBioPortal File Formats documentation](File-Formats.md#gene-set-data).
+A description of GSVA study data can be found in the [cBioPortal File Formats documentation](../File-Formats.md#gene-set-data).
 
 ## References
 **GSVA: gene set variation analysis for microarray and RNA-Seq data**<br>

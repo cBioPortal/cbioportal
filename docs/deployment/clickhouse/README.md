@@ -71,11 +71,11 @@ See [Docker Compose Setup](#3-docker-compose-setup) below.
 - **Pros:** No server maintenance, elastic scaling, built-in backups.
 - **Cons:** Can be expensive for large databases. Network latency if not in the same region as your cBioPortal instance.
 
-#### Notes on internal deployment
+#### How MSK hosts ClickHouse
 
 MSK uses ClickHouse Cloud for backing its own cBioPortal instances at cbioportal.org and genie.cbioportal.org. We benefit from being able to adjust the amount of RAM/compute each instance is using, since importing large studies can cause very high memory usage. We also have our own blue-green deployment architecture that enables us to swap between new copies of the data seamlessly.
 
-If you want to get ClickHouse Cloud working with your own setup, you can try removing the `cbioportal-database` container from the Docker Compose file and adjusting the ClickHouse settings in `.env` to point to your ClickHouse Cloud instance. However, this has not been tested.
+If you want to get ClickHouse Cloud working with your own setup, you can try removing the `cbioportal-database` container from the Docker Compose file and adjusting the ClickHouse settings in `.env` to point to your ClickHouse Cloud instance. However, this method is not documented extensively yet because we are prioritizing Docker Compose as the official, community-supported method of deployment. If you need help getting ClickHouse Cloud set up and it is mission-critical for your deployment, please reach out to the cBioPortal team.
 
 ---
 
@@ -99,6 +99,8 @@ After running the `init.sh` script from the Docker Compose steps above, you will
 ## 5. Data Loading
 
 See [Data Loading](/data-loading/README.md).
+
+Note that cBioPortal study files themselves are backwards-compatible -- there is no change in their file format required when transitioning from a legacy MySQL cBioPortal installation to a ClickHouse-based one.
 
 ---
 

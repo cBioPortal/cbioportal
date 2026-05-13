@@ -25,7 +25,10 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN touch /cbioportal/src/main/resources/application.properties
+# Copy the example application.properties and build the JAR with it
+# Later, the user will change these application.properties and the new set of properties
+# will be injected via spring.config.location (see the cbioportal-docker-compose repo)
+RUN cp /cbioportal/src/main/resources/application.properties.EXAMPLE /cbioportal/src/main/resources/application.properties
 RUN mvn install package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
 
@@ -33,6 +36,8 @@ FROM maven:3-eclipse-temurin-21 as build-core
 ARG CORE_BRANCH
 # This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
 ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
+# We touch application.properties here just to get cbioportal-core building
+# Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
 RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
     && touch /cbioportal-core/src/main/resources/application.properties \
     && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \

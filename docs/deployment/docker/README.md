@@ -36,8 +36,6 @@ Then run the init script to download seed data, example config, and example stud
 ./init.sh
 ```
 
-> **Note:** If `.env` does not exist yet, `./init.sh` will prompt you to create one or generate it automatically. After the first run, edit `.env` to customize passwords, image versions, and database connection settings.
-
 Review the generated files in `config/`, `data/`, and `study/` to confirm everything looks correct for your setup. Then start all services:
 
 ```
@@ -59,7 +57,7 @@ docker compose up -d
 In detached mode, check logs per container:
 
 ```
-docker logs -f cbioportal_container
+docker compose logs <container>
 ```
 
 List all containers on your system:
@@ -71,8 +69,8 @@ docker ps -a
 Shut down all services:
 
 ```
-docker compose down
-# or docker compose down -v to remove volumes too
+docker compose down -v
+# -v removes volume data, such as that of the clickhouse container
 ```
 
 > **Tip:** If you are using [Docker Desktop](https://www.docker.com/products/docker-desktop/), detached mode is preferred — the app provides a UI for managing containers and viewing logs.

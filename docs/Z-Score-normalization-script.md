@@ -74,23 +74,14 @@ Note: this implies that your full dataset does not have average=0, std=1
 
 ### Running the script
 
-
-To run the script type the following commands when in the folder `<cbioportal_source_folder>/core/src/main/scripts`:
-
-```
-export PORTAL_HOME=<cbioportal_configuration_folder>
-```
-
-and then 
-
-```
-./convertExpressionZscores.pl <copy_number_file> <expression_file> <output_file> <normal_sample_suffix> <[min_number_of_diploids]>
+```bash
+docker compose exec cbioportal convertExpressionZscores.pl <copy_number_file> <expression_file> <output_file> <normal_sample_suffix> <[min_number_of_diploids]>
 ```
 
 #### Example:
 
-```
-./convertExpressionZscores.pl  ../../test/scripts/test_data/study_es_0/data_CNA.txt ../../test/scripts/test_data/study_es_0/data_expression_median.txt data_expression_ZSCORES.txt NONE
+```bash
+docker compose exec cbioportal convertExpressionZscores.pl /study/study_es_0/data_CNA.txt /study/study_es_0/data_expression_median.txt data_expression_ZSCORES.txt NONE
 ```
 ## NormalizeExpressionLevels_allsampleref method
 Given the expression data for a set of samples, generate normalized expression values with the reference population of all samples independent of sample diploid status.

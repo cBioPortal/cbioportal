@@ -7,39 +7,30 @@ Before loading a study with gene set data, gene set definitions have to be added
 ## Quick example
 This example shows how the process of importing gene set data using test data.
 
-1. Navigate to scripts folder:
-
-```
-cd <cbioportal_source_folder>/core/src/main/scripts
-```
-
-2. Import gene sets and supplementary data:
+1. Import gene sets and supplementary data:
 Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
-```
-./importGenesetData.pl \
-	--data ../../test/resources/genesets/study_es_0_genesets.gmt \
+```bash
+docker compose exec cbioportal importGenesetData.pl \
+	--data /study/study_es_0_genesets.gmt \
 	--new-version msigdb_6.1 \
-	--supp ../../test/resources/genesets/study_es_0_supp-genesets.txt
+	--supp /study/study_es_0_supp-genesets.txt
 ```
 
-3. Import gene set hierarchy data:
+2. Import gene set hierarchy data:
 
+```bash
+docker compose exec cbioportal importGenesetHierarchy.pl \
+	--data /study/study_es_0_tree.yaml
 ```
-./importGenesetHierarchy.pl \
-	--data ../../test/resources/genesets/study_es_0_tree.yaml
-```
 
-4. Restart the portal if you have it running.
+3. Restart the portal if you have it running.
 
+4. Import study:
 
-5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):
-
-```
-./importer/metaImport.py \
-	-s ../../test/scripts/test_data/study_es_0 \
-	-u http://cbioportal:8080/cbioportal \
-	-html report_study_es_0.html \
+```bash
+docker compose exec cbioportal metaImport.py \
+	-s /study/study_es_0 \
 	-v \
 	-o
 ```
@@ -77,13 +68,11 @@ E2F1_UP.V1_DN<TAB>E2F1 upregulated v1 down genes<TAB>Identification of E2F1-regu
 ### Run the gene set importer
 The importer for gene sets can be run with a perl wrapper, which is located at the following location and requires the following arguments:
 
-```
-cd <cbioportal_source_folder>/core/src/main/scripts
-perl importGenesetData.pl
-
-required:     --data <data_file.gmt>
-              --new-version <Version> OR --update-info
-optional:     --supp <supp_file.txt>
+```bash
+docker compose exec cbioportal importGenesetData.pl \
+    --data <data_file.gmt> \
+    --new-version <Version>     # OR --update-info
+    [--supp <supp_file.txt>]
 ```
 The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `msigdb_6.1` or `Oncogenic_2017`. Running the script with `--new-version` **removes all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
 
@@ -120,11 +109,8 @@ Cancer Gene sets from Broad:
 To make your own hierarchy, make sure every branchname ends with `:`. Every branch can contain new branches (which can be considered subcategories) or gene sets (which are designated by the `Gene sets:` statement). The gene set names are the `stable ids` imported by `ImportGenesetData.java` and should start with `-`.
 
 ### Running the gene set hierarchy importer
-```
-cd <cbioportal_source_folder>/core/src/main/scripts
-perl importGenesetHierarchy.pl
-
-required:     --data <data_file.yaml>
+```bash
+docker compose exec cbioportal importGenesetHierarchy.pl --data <data_file.yaml>
 ```
 
 ## Import a study with gene set data

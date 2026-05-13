@@ -4,11 +4,8 @@ To facilitate the loading of new studies into its database, cBioPortal [provides
 
 ## Running the validator
 
-To run the validator first go to the importer folder
-`<cbioportal_source_folder>/core/src/main/scripts/importer`
-and then run the following command:
 ```bash
-./validateData.py --help
+docker compose exec cbioportal validateData.py --help
 ```
 This will tell you the parameters you can use: 
 ```console
@@ -61,7 +58,7 @@ when the validator encounters these validation checks it will report them as an 
 ### Example 1: test study_es_0
 As an example, you can try the validator with one of the test studies found in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
@@ -278,7 +275,7 @@ When using the `-html` option, a report will be generated, which looks like this
 ### Example 2: test study_es_1
 More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080 -v
+docker compose exec cbioportal validateData.py -s /study/study_es_1/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
@@ -342,14 +339,14 @@ The validation script can be used offline, without connecting to a cBioPortal se
 ### Example 3: validation with a portal info folder ###
 To run the validator with a folder of portal information files, add the `-p/--portal_info_dir` option to the command line, followed by the path to the folder:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -p ../../../test/scripts/test_data/api_json_system_tests/ -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -p /study/api_json_system_tests/ -v
 ```
 ```console
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/cancer-types.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genes.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets_version.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/gene-panels.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/cancer-types.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genes.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genesets.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genesets_version.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/gene-panels.json
 
 DEBUG: meta_cancer_type.txt: Starting validation of meta file
 INFO: meta_cancer_type.txt: Validation of meta file complete
@@ -551,18 +548,16 @@ Validation of study succeeded.
 ```
 
 ### Example 4: generating the portal info folder ###
-The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<cbioportal_source_folder>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
+The portal information files can be generated inside the running container using the dumpPortalInfo script. The output directory is written inside the container.
 ```bash
-export JAVA_HOME='/usr/lib/jvm/default-java'
-export PORTAL_HOME=<cbioportal_configuration_folder>
-./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
+docker compose exec cbioportal dumpPortalInfo.pl /portalinfo
 ```
 
 ### Example 5: validating without portal-specific information ###
 Alternatively, you can run the validation script with the `-n/--no_portal_checks` flag to entirely skip checks relating to installation-specific metadata. Be warned that files succeeding this validation may still fail to load (correctly).
 
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -n -v
 ```
 ```console
 WARNING: -: Skipping validations relating to cancer types defined in the portal
@@ -776,7 +771,7 @@ cBioPortal is gradually introducing support for mouse. If you want to load mouse
 
 As an example, the command for the mouse example using the three parameters is given:
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/application.properties -u http://localhost:8080 -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -P ../../../../../src/main/resources/application.properties -u http://localhost:8080 -v
 ```
 
 ## Running the validator for multiple studies

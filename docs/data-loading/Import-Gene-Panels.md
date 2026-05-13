@@ -1,10 +1,6 @@
 # Import Gene Panels
 
-This page describes how to import a gene panel into the cBioPortal database.  It assumes the following requirements have been satisfied:
-
-1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
-2. The gene panel to import is in the proper file format. See [Gene Panel File format](#gene-panel-file-format) for more information.
-3. The `PORTAL_HOME` environment variable has been properly defined.  See [Loading a Sample Study](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md#set-the-portal_home-environment-variable) for more information.
+This page describes how to import a gene panel into the cBioPortal database. The gene panel to import must be in the proper file format — see [Gene Panel File format](#gene-panel-file-format) for more information.
 
 ## Gene panel file format
 The gene panel file follows the format of a meta file with the following fields:
@@ -23,10 +19,9 @@ gene_list: ABL1    ACVR1   AKT1    AKT3 ...
 
 In this example, we are loading the example gene panels which resides in the sample dataset `study_es_0`.
 
-```
-cd <cbioportal_source_folder>/core/src/main/scripts
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
-./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
+```bash
+docker compose exec cbioportal importGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel1.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
 After loading gene panels into the database, please restart the portal to see updates.
@@ -37,7 +32,6 @@ If a gene panel exists in the database with the same name as the one being impor
 
 If the incoming gene panel is the same as the original gene panel, whether through importing or updating, then no changes shall be made to the gene panel.  If the incoming gene panel is empty, then the script will abort.  Genes in the incoming gene panel that were not in the original shall be added to the existing gene panel. Conversely, genes not in the incoming gene panel that were in the original shall be removed from the existing gene panel.  The UpdateGenePanel command will prompt twice to confirm changes made to the gene panel, such as genes to be added or removed.  
 
-```
-cd <cbioportal_source_folder>/core/src/main/scripts
-./updateGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel1.txt
+```bash
+docker compose exec cbioportal updateGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel1.txt
 ```

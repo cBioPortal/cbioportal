@@ -16,13 +16,13 @@ These are the commands for importing `study_es_0` gene panels (`data_gene_panel_
 ```shell
 docker compose exec \
     cbioportal \
-    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel1.txt'
+    importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel1.txt
 ```
 
 ```shell
 docker compose exec \
     cbioportal \
-    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel2.txt'
+    importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
 #### Step 2 - Import data

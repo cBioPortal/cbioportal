@@ -27,23 +27,6 @@ human	hg38	GRCh38	3049315783	https://hgdownload.cse.ucsc.edu/goldenPath/hg38	201
 mouse	mm10	GRCm38	2652783500	https://hgdownload.cse.ucsc.edu/goldenPath/mm10	2011-12-01
 ```
 ### 2. Using import script to load reference genome(s) data to the database:
-```
- cd <your_cbioportal_dir>/core/src/main/scripts
- export PORTAL_HOME=<your_cbioportal_dir>
-./importReferenceGenome.pl --ref-genome <your_reference_genome_file>
-```
-### 3. output of the script runs successfully
-```
-$ ./importReferenceGenome.pl --ref-genome ~/myspace/cbioportal/core/src/test/resources/reference_genomes.txt
-   Reading reference genome from:  /Users/kelsyzhu/myspace/cbioportal/core/src/test/resources/reference_genomes.txt
-    --> total number of lines:  3
-   
-   Done. Restart the portal to make sure the cache is replaced with the new data.
-   
-   Warnings / Errors:
-   -------------------
-   0.  New reference genome added; 3x
-   Done.
-   Total time:  3432 ms
-
+```bash
+docker compose exec cbioportal importReferenceGenome.pl --ref-genome /study/reference_genomes.txt
 ```

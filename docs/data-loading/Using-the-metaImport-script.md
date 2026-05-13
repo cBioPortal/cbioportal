@@ -2,15 +2,12 @@
 The metaImport script should be used to automate the process of validating and loading datasets. It also has some nice features like an extra option to only load datasets that completely pass validation (i.e. with no errors, while warnings can be explicitly allowed by the user). 
 
 #### Running the metaImport Script
-To run the metaImport script first go to the importer folder
-`<your_cbioportal_dir>/core/src/main/scripts/importer` 
-and then run the following command:
-```
-./metaImport.py -h
+```bash
+docker compose exec cbioportal metaImport.py -h
 ```
 This will tell you the parameters you can use:
 ```
-$./metaImport.py -h
+$ docker compose exec cbioportal metaImport.py -h
 usage: metaImport.py [-h] [-s STUDY_DIRECTORY | -d DATA_DIRECTORY]
                      [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
                      [-jar JAR_PATH] [-html HTML_TABLE]
@@ -53,25 +50,12 @@ optional arguments:
 ```
 
 #### Example of Importing a study
-Export `PORTAL_HOME` as explained [here](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md), e.g.
 
-```
-export PORTAL_HOME=<cbioportal_configuration_folder>
-```
-
-and then run (this simple command only works if your cBioPortal is running at http://localhost/cbioportal - if this is not the case, follow the advanced example):
-
-```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/
+```bash
+docker compose exec cbioportal metaImport.py -s /study/study_es_0/
 ```
 
-#### Advanced Example
-This example imports the study to the localhost, creates an html report and shows status messages.
-```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -html myReport.html -v
-```
-
-By adding `-o`, warnings will be overridden and import will start after validation.
+Adding `-v` shows status messages; adding `-o` overrides warnings and continues importing.
 
 #### Incremental Upload
 
@@ -89,8 +73,8 @@ After each import (incremental or otherwise), `metaImport.py` automatically rebu
 
 You can rebuild derived tables without importing any studies by running:
 
-```
-./metaImport.py derive-tables
+```bash
+docker compose exec cbioportal metaImport.py derive-tables
 ```
 
 This command executes the derived table SQL scripts against your ClickHouse database without performing any study validation or import. It is useful after batch imports, study deletions, or whenever you need to refresh precomputed query structures.
@@ -99,13 +83,13 @@ This command executes the derived table SQL scripts against your ClickHouse data
 When batch-importing multiple studies, you can skip the derived table rebuild after each import with `--no-derive-tables`:
 
 ```bash
-./metaImport.py -s /path/to/study --no-derive-tables
+docker compose exec cbioportal metaImport.py -s /study/your_study --no-derive-tables
 ```
 
 Then rebuild derived tables once after all studies have been imported:
 
 ```bash
-./metaImport.py derive-tables
+docker compose exec cbioportal metaImport.py derive-tables
 ```
 
 This can save a lot of time when many different studies are being imported in sequence.

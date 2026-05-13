@@ -10,14 +10,12 @@ This table contains all the users that have authorized access to the instance of
 
 ```
 clickhouse> describe users;
-+---------+--------------+------+-----+---------+-------+
-| Field   | Type         | Null | Key | Default | Extra |
-+---------+--------------+------+-----+---------+-------+
-| EMAIL   | varchar(128) | NO   | PRI | NULL    |       |
-| NAME    | varchar(255) | NO   |     | NULL    |       |
-| ENABLED | tinyint(1)   | NO   |     | NULL    |       |
-+---------+--------------+------+-----+---------+-------+
-3 rows in set (0.00 sec)
+┌─name──────┬─type───────────┬─default_type─┬─default_expression─┬─comment─┬─codec_expression─┬─ttl_expression─┐
+│ EMAIL     │ String         │              │                    │         │                  │                │
+│ NAME      │ String         │              │                    │         │                  │                │
+│ ENABLED   │ Bool           │              │                    │         │                  │                │
+│ ROLE      │ String         │              │                    │         │                  │                │
+└───────────┴────────────────┴──────────────┴────────────────────┴─────────┴──────────────────┴────────────────┘
 ```
 
 An example entry would be:
@@ -47,13 +45,10 @@ This table contains the list of cancer studies that each user is authorized to v
 
 ```
 clickhouse> describe authorities;
-+-----------+--------------+------+-----+---------+-------+
-| Field     | Type         | Null | Key | Default | Extra |
-+-----------+--------------+------+-----+---------+-------+
-| EMAIL     | varchar(128) | NO   |     | NULL    |       | 
-| AUTHORITY | varchar(50)  | NO   |     | NULL    |       | 
-+-----------+--------------+------+-----+---------+-------+
-2 rows in set (0.00 sec)
+┌─name───────┬─type───────────┬─default_type─┬─default_expression─┬─comment─┬─codec_expression─┬─ttl_expression─┐
+│ EMAIL      │ String         │              │                    │         │                  │                │
+│ AUTHORITY  │ String         │              │                    │         │                  │                │
+└────────────┴────────────────┴──────────────┴────────────────────┴─────────┴──────────────────┴────────────────┘
 ```
 
 Some example entries would be:
@@ -109,11 +104,15 @@ clickhouse> select cancer_study_id, cancer_study_identifier, groups from cancer_
 ```
 clickhouse> update cancer_study set groups='TEST_GROUP1' where cancer_study_id = 94;
 ```
+<< TODO: Verify ClickHouse syntax — ClickHouse uses ALTER TABLE ... UPDATE col=val WHERE ... for mutations >>
+
 
 If `GROUPS` already has a value (like for study 93 in example above) then add ";TEST_GROUP1" to ensure existing groups are not ovewritten.
 ```
 clickhouse> update cancer_study set groups=concat(groups,';TEST_GROUP1') where cancer_study_id = 93;
 ```
+<< TODO: Verify ClickHouse syntax — ClickHouse uses ALTER TABLE ... UPDATE col=val WHERE ... for mutations >>
+
 3- Check the result:
 ```
 clickhouse> select cancer_study_id, cancer_study_identifier, groups from cancer_study where cancer_study_id in (93,94);

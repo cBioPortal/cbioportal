@@ -17,14 +17,16 @@ ftp://ftp.ncbi.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz
 Unzip the downloaded file with the command `gunzip Mus_musculus.gene_info.gz`
 
 ## Database steps
+
+> **⚠️ Not yet updated for ClickHouse:** The SQL commands below were written for MySQL and have not been updated for ClickHouse. The general approach (download gene info, load tables, update aliases) is correct, but the specific SQL syntax (foreign keys, AUTO_INCREMENT, SET SQL_SAFE_UPDATES) is MySQL-specific and will fail on ClickHouse. This guide will be updated in a future PR.
+
 Execute these steps in case you want to reset your database to the most recent genes list from NCBI.
 
 1- Start a new ClickHouse database with the previous seed database. The seed database has been relocated to the [cbioportal repository](https://github.com/cBioPortal/cbioportal/tree/master/src/main/resources/db-scripts/clickhouse/init). For reference, older versions can also be found on cBioPortal Datahub for [human](https://github.com/cBioPortal/datahub/tree/master/seedDB) and [mouse](https://github.com/cBioPortal/datahub/tree/master/seedDB_mouse).
 
 2- If DB engine supports foreign key (FK) constraints, e.g. InnoDB, drop constraints:
 ```sql
-ALTER TABLE uniprot_id_mapping
-  DROP FOREIGN KEY uniprot_id_mapping_ibfk_1;
+<< TODO: Update for ClickHouse — ClickHouse does not use foreign keys >>
 ```
 
 3- Empty tables `gene` and `gene_alias`
@@ -32,9 +34,7 @@ ALTER TABLE uniprot_id_mapping
 TRUNCATE TABLE gene_alias;
 DELETE from genetic_entity;
 DELETE from geneset_hierarchy_node;
-ALTER TABLE `genetic_entity` AUTO_INCREMENT = 1;
-ALTER TABLE `geneset_hierarchy_node` AUTO_INCREMENT = 1;
-ALTER TABLE `geneset` AUTO_INCREMENT = 1;
+<< TODO: Update for ClickHouse — AUTO_INCREMENT is MySQL-specific >>
 ```
 
 4- Restart cBioPortal (restart webserver)  or call the `/api/cache` endpoint with a `DELETE` http-request
@@ -55,7 +55,7 @@ export JAVA_HOME=<jre_installation_folder>
 ./importGenes.pl --genes <Mus_musculus.gene_info.gz> --gtf <gencode.v25.annotation.gtf> --genome-build <GRCh37>
 ```
 **IMPORTANT NOTE**: 
-1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](import-reference-genome.md). 
+1. The **reference_genome** table needs to be populated before updating the **gene** table. Further details can be found in [this document](data-loading/Import-reference-genome.md). 
 2. Use **--species** option when importing genes for a species other than human
 3. Use the **gene** table if you query information such as hugo symbols, types of the gene 
 4. Use **reference_genome_gene** table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene
@@ -80,22 +80,21 @@ SELECT count(*) FROM cbioportal.gene_alias;
 
 8- Clean-up old data:
 ```sql
-SET SQL_SAFE_UPDATES = 0;
+<< TODO: Update for ClickHouse — SQL_SAFE_UPDATES is MySQL-specific >>
 DELETE FROM sanger_cancer_census where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM uniprot_id_mapping where ENTREZ_GENE_ID not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM interaction where GENE_A not in (SELECT ENTREZ_GENE_ID from gene) or GENE_B not in (SELECT ENTREZ_GENE_ID from gene);
 DELETE FROM drug_interaction where target not in (SELECT ENTREZ_GENE_ID from gene);
-SET SQL_SAFE_UPDATES = 1;
+<< TODO: Update for ClickHouse — SQL_SAFE_UPDATES is MySQL-specific >>
 commit;
 ```
 
 9- If DB engine supports FK constraints, e.g. InnoDB, restore constraints:
 ```sql
-ALTER TABLE uniprot_id_mapping
-  ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);
+<< TODO: Update for ClickHouse — ClickHouse does not use foreign keys >>
 ```
 
-10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
+10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See [Import-Gene-Sets.md](data-loading/Import-Gene-Sets.md) and [File-Formats.md#gene-set-data](File-Formats.md#gene-set-data).
 
 For example, run in folder `<cbioportal_source_folder>/core/src/main/scripts`:
 ```bash

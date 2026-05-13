@@ -43,7 +43,7 @@ Once you have your ClickHouse database set up, you can connect to it with the Cl
 clickhouse client --host localhost --port 9000 --user cbio_user --password 'your-password'
 ```
 
-**Connecting to a remote instance (eg. ClickHouse Cloud):**
+**Connecting to a remote instance (e.g., ClickHouse Cloud):**
 
 ```bash
 clickhouse client --host <hostname> --port 9000 --user <user> --password '<password>' --database cbioportal
@@ -75,7 +75,7 @@ See [Docker Compose Setup](#3-docker-compose-setup) below.
 
 MSK uses ClickHouse Cloud for backing its own cBioPortal instances at cbioportal.org and genie.cbioportal.org. We benefit from being able to adjust the amount of RAM/compute each instance is using, since importing large studies can cause very high memory usage. We also have our own blue-green deployment architecture that enables us to swap between new copies of the data seamlessly.
 
-If you want to try getting ClickHouse Cloud working with your own setup, you can try removing the `cbioportal-database` container from the Docker Compose file and adjusting the ClickHouse settings in `.env` to point to your ClickHouse Cloud instance. However, this has not been tested.
+If you want to get ClickHouse Cloud working with your own setup, you can try removing the `cbioportal-database` container from the Docker Compose file and adjusting the ClickHouse settings in `.env` to point to your ClickHouse Cloud instance. However, this has not been tested.
 
 ---
 

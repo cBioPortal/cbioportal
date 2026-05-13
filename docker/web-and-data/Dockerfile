@@ -11,6 +11,8 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
+ARG CORE_BRANCH=rfc100-rc
+
 FROM maven:3-eclipse-temurin-21 as build
 
 # download maven dependencies first to take advantage of docker caching
@@ -23,41 +25,50 @@ WORKDIR /cbioportal
 RUN mvn dependency:go-offline --fail-never
 
 COPY $PWD /cbioportal
-RUN mvn install package -DskipTests -q
+RUN touch /cbioportal/src/main/resources/application.properties
+RUN mvn install package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*-exec.jar)
+
+FROM maven:3-eclipse-temurin-21 as build-core
+ARG CORE_BRANCH
+# This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
+ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
+RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
+    && touch /cbioportal-core/src/main/resources/application.properties \
+    && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
+    && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt
 
 FROM eclipse-temurin:21
 
 # download system dependencies first to take advantage of docker caching
 RUN apt-get update; apt-get install -y --no-install-recommends \
         build-essential \
-        default-mysql-client \
-        default-libmysqlclient-dev \
+        curl \
         python3 \
         python3-setuptools \
         python3-dev \
         python3-pip \
         unzip \
+        perl \
     && rm -rf /var/lib/apt/lists/*
 
-# copy over core files and data-related scripts
-RUN mkdir -p /cbioportal
+# install clickhouse
+RUN mkdir -p /tmp && cd /tmp && curl https://clickhouse.com/ | sh && \
+    ./clickhouse install --noninteractive;
 
-#Download core files
-RUN wget https://github.com/cBioPortal/cbioportal-core/releases/download/v1.0.16/core-1.0.16.jar -P core/ ; cd core ; jar -xf core-1.0.16.jar scripts/ requirements.txt ; chmod -R a+x scripts/ ; cd ..;
-
+# copy over core files (scripts, requirements) built from cbioportal-core
+COPY --from=build-core /core/scripts /core/scripts
+COPY --from=build-core /core/requirements.txt /core/requirements.txt
+COPY --from=build-core /core/core-*.jar /core/core-IMPORTER.jar
+RUN chmod -R a+x /core/scripts/
 
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/test/test_data/study_es_0 /cbioportal/test/study_es_0
 
-# install build and runtime dependencies
-# ignore update failure980[1298[01 w2308s
-RUN  pip3 install --break-system-packages -r /core/requirements.txt
-
-# add importer scripts to PATH for easy running in containers
-RUN find /core/scripts/ -type f -executable \! -name '*.pl' -print0 | xargs -0 -- ln -st /usr/local/bin
+RUN pip3 install --break-system-packages -r /core/requirements.txt
 
 # put config files in this folder if you want to override config
+ENV PATH="/core/scripts:/core/scripts/importer:/core/scripts/clickhouse_import_support:$PATH"
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 ENV PORTAL_HOME=/cbioportal
 ENV JAVA_OPTS="-Xms2G -Xmx8G"
@@ -71,7 +82,4 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/lib                $PORTAL_WEB_HOME/lib
 COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/META-INF/
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes             $PORTAL_WEB_HOME/
 
-# add entrypoint
-COPY --from=build /cbioportal/docker/web-and-data/docker-entrypoint.sh /usr/local/bin/
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.application.PortalApplication $(echo $WEBAPP_OPTS)"]
+CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.application.PortalApplication $(echo $WEBAPP_OPTS)"] 

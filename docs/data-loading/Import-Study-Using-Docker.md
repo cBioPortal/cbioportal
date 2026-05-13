@@ -1,7 +1,6 @@
 # Import Study Using Docker
 
-:warning: Every time you add/remove/overwrite a study please restart the Docker container, or 
-call the `/api/cache` endpoint with a `DELETE` http-request (see [here](../deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+:warning: Every time you add/remove/overwrite a study please restart the Docker container with `docker compose restart cbioportal`.
 
 ## Adding a Study
 
@@ -40,12 +39,4 @@ After importing, restart the cBioPortal web container to see the new study:
 
 ```bash
 docker compose restart cbioportal
-```
-
-Alternatively, call the cache eviction API (requires the API key configured in `application.properties`):
-
-> ⚠️ During import operations, cBioPortal directly manipulates the Redis cache. The `/api/cache` DELETE endpoint may not be sufficient in all cases. If you encounter issues, restart the portal container instead: `docker compose restart cbioportal`.
-
-```bash
-curl -X DELETE -H "X-API-KEY: my-secret-api-key-value" http://localhost:8080/api/cache
 ```

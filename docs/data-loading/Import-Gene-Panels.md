@@ -29,8 +29,7 @@ cd <cbioportal_source_folder>/core/src/main/scripts
 ./importGenePanel.pl --data ../../test/scripts/test_data/study_es_0/data_gene_panel_testpanel2.txt
 ```
 
-After loading gene panels into the database, please restart the portal or call the `/api/cache` endpoint with a `DELETE` http-request
-(see [here](../deployment/customization/application.properties-Reference.md#cache-settings) for more information). Note: if the cache endpoint is not configured, restart the cBioPortal service instead. 
+After loading gene panels into the database, please restart the portal to see updates.
 
 #### Update existing gene panel
 

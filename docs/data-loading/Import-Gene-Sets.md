@@ -30,8 +30,7 @@ Note: This removes existing gene set, gene set hierarchy and gene set genetic pr
 	--data ../../test/resources/genesets/study_es_0_tree.yaml
 ```
 
-4. Restart the portal if you have it running or call the `/api/cache` endpoint with a `DELETE` http-request
-   (see [here](../deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information).
+4. Restart the portal if you have it running.
 
 
 5. Import study (replace argument after `-u` with local cBioPortal and `-html` with preferred location for html report):

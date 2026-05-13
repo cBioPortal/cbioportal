@@ -95,14 +95,6 @@ After importing, the cBioPortal web app cache must be cleared for the new study 
 docker compose restart cbioportal
 ```
 
-Or call the cache eviction API endpoint directly (no restart required):
-
-```
-curl -X DELETE -H "X-API-KEY: my-secret-api-key-value" http://localhost:8080/api/cache
-```
-
-The API key value is configured in `application.properties`. See [evicting caches with the /api/cache endpoint](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more details.
-
 ## Configuration
 
 The main configuration file is `config/application.properties`, generated when you ran `./init.sh`.

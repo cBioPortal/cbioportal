@@ -1,6 +1,7 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.domain.coexpression.usecase.FetchCoExpressionsUseCase;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Co-Expressions", description = " ")
 @RestController
 @RequestMapping("/api")
 @Validated

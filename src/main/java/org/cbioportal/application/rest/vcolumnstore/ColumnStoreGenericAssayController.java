@@ -7,11 +7,14 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.http.MediaType;
@@ -31,6 +34,8 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
  * <p>Provides endpoints to fetch generic assay meta data by molecular profile ID or stable ID,
  * leveraging the {@link GetGenericAssayMetaUseCase} for the core logic.
  */
+@PublicApi
+@Tag(name = PublicApiTags.GENERIC_ASSAYS, description = " ")
 @RestController
 @RequestMapping("/api")
 @Validated

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataMapper;
@@ -14,6 +15,8 @@ import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataMetaUseCase;
 import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.shared.enums.ProjectionType;
@@ -50,6 +53,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @see FetchClinicalDataMetaUseCase
  * @see ClinicalDataDTO
  */
+@PublicApi
+@Tag(name = PublicApiTags.CLINICAL_DATA, description = " ")
 @RestController
 @RequestMapping("/api")
 public class ColumnStoreClinicalDataController {

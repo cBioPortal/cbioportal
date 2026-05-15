@@ -8,6 +8,7 @@ import org.cbioportal.domain.coexpression.usecase.FetchCoExpressionsUseCase;
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@InternalApi
 @Tag(name = "Co-Expressions", description = " ")
 @RestController
 @RequestMapping("/api")

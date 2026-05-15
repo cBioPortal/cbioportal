@@ -30,6 +30,18 @@ $ sudo python3 -m pip install Jinja2
 ```
 
 ## Preparing Study Data 
+
+When running cBioPortal via Docker Compose, study data must be placed inside the `/study` directory, which is a special directory mounted into the `cbioportal` container as a Docker volume. Both your study data and any required reference data (e.g. gene panels) must live under this path so that the importer can access them. On your host machine, this corresponds to the `./study` folder inside your `cbioportal-docker-compose` clone. Copy the study your would like to load there before importing:
+
+```shell
+cp -r /path/to/your_study ./study/
+docker compose exec cbioportal metaImport.py -s /study/your_study -o
+```
+
+The `-s` flag here refers to the path of the study _as seen inside the Docker container_.
+
+## Study Structure
+
 A study to be loaded in cBioPortal can basically consist of a directory where all the data files are located. 
 Each *data* file needs a *meta* file that refers to it and both files need to comply to the format required for the specific data type. The format and fields expected for each file are documented in the [File Formats page](../File-Formats.md). Below is an example of the files in such a directory.
 

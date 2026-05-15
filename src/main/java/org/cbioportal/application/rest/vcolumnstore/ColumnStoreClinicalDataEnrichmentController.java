@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataEnrichmentMapper;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  * efficient data retrieval and supports both numerical (Kruskal-Wallis) and categorical
  * (Chi-squared) statistical tests.
  */
+@Tag(name = "Clinical Data Enrichments", description = " ")
 @RestController
 @RequestMapping("/api")
 public class ColumnStoreClinicalDataEnrichmentController {

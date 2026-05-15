@@ -13,9 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +32,8 @@ public class ColumnStoreCoExpressionController {
 
   @PreAuthorize(
       "hasPermission(#molecularProfileIdA, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) and hasPermission(#molecularProfileIdB, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @PostMapping(
+  @RequestMapping(
+      method = RequestMethod.POST,
       value = "/molecular-profiles/co-expressions/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

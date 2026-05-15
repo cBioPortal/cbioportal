@@ -12,6 +12,7 @@ import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataEnrichmentMapper;
 import org.cbioportal.application.rest.response.ClinicalDataEnrichmentDTO;
 import org.cbioportal.domain.clinical_data_enrichment.usecase.FetchClinicalDataEnrichmentsUseCase;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * efficient data retrieval and supports both numerical (Kruskal-Wallis) and categorical
  * (Chi-squared) statistical tests.
  */
+@InternalApi
 @Tag(name = "Clinical Data Enrichments", description = " ")
 @RestController
 @RequestMapping("/api")

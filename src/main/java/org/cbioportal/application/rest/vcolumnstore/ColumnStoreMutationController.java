@@ -1,6 +1,7 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -10,6 +11,8 @@ import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.domain.mutation.usecase.MutationUseCases;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 import org.cbioportal.shared.MutationQueryOptions;
@@ -41,6 +44,8 @@ import org.springframework.web.bind.annotation.*;
  *
  * @see MutationDTO
  */
+@PublicApi
+@Tag(name = PublicApiTags.MUTATIONS, description = " ")
 @RestController
 @RequestMapping("/api")
 public class ColumnStoreMutationController {

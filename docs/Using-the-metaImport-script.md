@@ -1,74 +1,82 @@
 ## Importing Data into cBioPortal
-The metaImport script should be used to automate the process of validating and loading datasets. It also has some nice features like an extra option to only load datasets that completely pass validation (i.e. with no errors, while warnings can be explicitly allowed by the user). 
+The metaImport script should be used to automate the process of validating and loading datasets. It also has some nice features like an extra option to only load datasets that completely pass validation (i.e. with no errors, while warnings can be explicitly allowed by the user).
+
+> :information_source: The `metaImport.py` script and its companion data-loading tooling now live in the [`cBioPortal/cbioportal-core`](https://github.com/cBioPortal/cbioportal-core) repository. The script is still bundled into the cBioPortal Docker images, so the docker-based instructions below remain the recommended way to run it.
 
 #### Running the metaImport Script
-To run the metaImport script first go to the importer folder
-`<your_cbioportal_dir>/core/src/main/scripts/importer` 
-and then run the following command:
-```
-./metaImport.py -h
-```
-This will tell you the parameters you can use:
-```
-$./metaImport.py -h
-usage: metaImport.py [-h] [-s STUDY_DIRECTORY | -d DATA_DIRECTORY]
-                     [-u URL_SERVER | -p PORTAL_INFO_DIR | -n]
-                     [-jar JAR_PATH] [-html HTML_TABLE]
-                     [-v] [-o] [-r] [-m]
 
-cBioPortal meta Importer
+There are two common ways to invoke the importer:
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -s STUDY_DIRECTORY, --study_directory STUDY_DIRECTORY
-                        path to directory.
-  -d DATA_DIRECTORY, --data_directory DATA_DIRECTORY
-                        path to data directory for incremental upload.
-  -u URL_SERVER, --url_server URL_SERVER
-                        URL to cBioPortal server. You can set this if your URL
-                        is not http://localhost/cbioportal
-  -p PORTAL_INFO_DIR, --portal_info_dir PORTAL_INFO_DIR
-                        Path to a directory of cBioPortal info files to be
-                        used instead of contacting the web API
-  -n, --no_portal_checks
-                        Skip tests requiring information from the cBioPortal
-                        installation
-  -jar JAR_PATH, --jar_path JAR_PATH
-                        Path to scripts JAR file (default: locate it relative
-                        to the import script)
-  -html HTML_TABLE, --html_table HTML_TABLE
-                        path to html report
-  -v, --verbose         report status info messages while validating
-  -o, --override_warning
-                        override warnings and continue importing
-  -r, --relaxed_clinical_definitions
-                        Option to enable relaxed mode for validator when
-                        validating clinical data without header definitions
-  -m, --strict_maf_checks
-                        Option to enable strict mode for validator when
-                        validating mutation data
+##### Option 1: Run it inside the cBioPortal Docker container (recommended)
+
+`metaImport.py` is on the `PATH` of the cBioPortal web-and-data image, so you can call it directly. For a `docker compose` deployment:
+```bash
+docker compose run cbioportal metaImport.py -h
 ```
+
+Or, against a running container:
+```bash
+docker exec -it ${CBIOPORTAL_CONTAINER_NAME} metaImport.py -h
+```
+
+See [Import Study Using Docker](Import-Study-Using-Docker.md) and [Import data with Docker](deployment/docker/import_data.md) for end-to-end examples.
+
+##### Option 2: Run it from a local checkout of `cbioportal-core`
+
+```bash
+git clone https://github.com/cBioPortal/cbioportal-core.git
+cd cbioportal-core
+python scripts/importer/metaImport.py -h
+```
+
+The [`cbioportal-core` README](https://github.com/cBioPortal/cbioportal-core/blob/main/README.md) describes the additional Python/Perl/JDK prerequisites and how to build the loader jar that `metaImport.py` invokes.
+
+In either form `metaImport.py -h` prints the up-to-date list of command-line options. The most commonly used ones are:
+
+| Option | Purpose |
+| --- | --- |
+| `-s STUDY_DIRECTORY` / `--study_directory` | Path to the study directory to validate and load. |
+| `-d DATA_DIRECTORY` / `--data_directory` | Path to a data directory for [incremental upload](Incremental-Data-Loading.md). |
+| `-u URL_SERVER` / `--url_server` | URL of the cBioPortal server (default: `http://localhost/cbioportal`). |
+| `-p PORTAL_INFO_DIR` / `--portal_info_dir` | Use a local dump of portal info instead of the web API. |
+| `-n` / `--no_portal_checks` | Skip checks that require information from a running cBioPortal installation. |
+| `-html HTML_TABLE` / `--html_table` | Write an HTML validation report to the given path. |
+| `-v` / `--verbose` | Verbose status output during validation. |
+| `-o` / `--override_warning` | Continue importing even when the validator only emits warnings. |
+| `-r` / `--relaxed_clinical_definitions` | Relax clinical-data header validation. |
+| `-m` / `--strict_maf_checks` | Enable strict validation of mutation (MAF) data. |
+
+Refer to `metaImport.py -h` for the complete and authoritative list, which also includes options for OncoKB annotation and skipping the database import step.
 
 #### Example of Importing a study
-Export `PORTAL_HOME` as explained [here](/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md), e.g.
 
-```
+Set `PORTAL_HOME` as explained in [Loading a Sample Cancer Study](deployment/deploy-without-docker/Load-Sample-Cancer-Study.md):
+
+```bash
 export PORTAL_HOME=<cbioportal_configuration_folder>
 ```
 
-and then run (this simple command only works if your cBioPortal is running at http://localhost/cbioportal - if this is not the case, follow the advanced example):
+Then validate and load a study against a portal running at `http://localhost/cbioportal`:
 
+```bash
+python scripts/importer/metaImport.py -s tests/test_data/study_es_0/
 ```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/
-```
+
+(Paths are shown relative to a `cbioportal-core` checkout; adjust them for your environment.)
 
 #### Advanced Example
-This example imports the study to the localhost, creates an html report and shows status messages.
-```
-./metaImport.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -html myReport.html -v
+
+Import a study into a portal on a non-default URL, write an HTML report, and show verbose status messages:
+
+```bash
+python scripts/importer/metaImport.py \
+    -s tests/test_data/study_es_0/ \
+    -u http://localhost:8080 \
+    -html myReport.html \
+    -v
 ```
 
-By adding `-o`, warnings will be overridden and import will start after validation.
+Add `-o` to override validator warnings and continue importing after validation.
 
 #### Incremental Upload
 
@@ -80,4 +88,4 @@ Please note that some data types like study are not supported and must not be pr
 [Here](./Incremental-Data-Loading.md) you can find more details.
 
 ## Development / debugging mode
-For developers and specific testing purposes, an extra script, cbioportalImporter.py, is available which imports data regardless of validation results. Check [this](Data-Loading-For-Developers.md) page for more information on how to use it.
+For developers and specific testing purposes, an extra script, `cbioportalImporter.py` (also shipped from [`cbioportal-core`](https://github.com/cBioPortal/cbioportal-core)), is available which imports data regardless of validation results. Check [this](Data-Loading-For-Developers.md) page for more information on how to use it.

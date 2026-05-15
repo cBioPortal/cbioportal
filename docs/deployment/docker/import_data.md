@@ -9,7 +9,7 @@ This is an example to import a sample study: `study_es_0`. When trying to import
 
 #### Step 1 - Import gene panels
 
-To import gene panels for your study, please reference the example commands in [this file](example\_commands.md#importing-gene-panel)
+To import gene panels for your study, please reference the example commands in [this file](example_commands.md#importing-gene-panel)
 
 These are the commands for importing `study_es_0` gene panels (`data_gene_panel_testpanel1` and `data_gene_panel_testpanel2`):
 
@@ -27,7 +27,7 @@ docker compose exec \
 
 #### Step 2 - Import data
 
-To import data for your study, please reference the example commands in [this file](example\_commands.md#importing-data)
+To import data for your study, please reference the example commands in [this file](example_commands.md#importing-data)
 
 Command for importing `study_es_0` data:
 

@@ -174,7 +174,7 @@ default_cross_cancer_study_list_name=
 
 ### Quick Search (BETA)
 
-![Quick search example](/images/previews/quick\_search\_example.png)
+![Quick search example](/images/previews/quick_search_example.png)
 
 Enable or disable the quick search with the following:
 
@@ -368,7 +368,7 @@ survival.show_p_q_values_in_survival_type_table=
 
 ### Set the initial x-axis limit for the survival plot
 
-By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival\_x\_axis\_limit.png)
+By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival_x_axis_limit.png)
 
 ```
 # Set initial x-axis limit for survival plot (by default, initial limit will be the latest event in the data)

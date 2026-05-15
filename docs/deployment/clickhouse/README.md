@@ -21,10 +21,15 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 
 The ClickHouse command-line client is useful for inspecting data, running ad-hoc queries, and debugging.
 
+> **Note:** It is not strictly necessary to install the ClickHouse CLI on your local machine, as it comes pre-installed inside the Docker container. However, it can be more convenient for database access. See [Deploy with Docker](/deployment/docker/README.md) for more information.
+
 **Linux / macOS:**
 
 ```bash
 curl https://clickhouse.com/ | sh && ./clickhouse install
+
+# If running inside of an automated script, do: 
+curl https://clickhouse.com/ | sh && ./clickhouse install --noninteractive
 ```
 
 **Verify installation:**
@@ -62,7 +67,7 @@ The simplest way to get started. The [cBioPortal Docker Compose](https://github.
 - **Pros:** Zero configuration, easy to tear down, great for evaluation and development.
 - **Cons:** Limited by your machine's resources. Not suitable for large production datasets.
 
-See [Docker Compose Setup](#3-docker-compose-setup) below.
+See [Deploy with Docker](/deployment/docker/README.md) for more information.
 
 ### ClickHouse Cloud
 
@@ -121,9 +126,9 @@ By default, `metaImport.py` **automatically rebuilds derived tables** after ever
 The `derive-tables` command recreates all derived table structures based on all study data in the database. Normally, it's not necessary to run since `metaImport.py` will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/study1 --no-derive-tables
-docker compose exec cbioportal metaImport.py -s /study/study2 --no-derive-tables
-docker compose exec cbioportal metaImport.py -s /study/study3 --no-derive-tables
+docker compose exec cbioportal metaImport.py -s /study/study1 --no-derive-tables -o
+docker compose exec cbioportal metaImport.py -s /study/study2 --no-derive-tables -o
+docker compose exec cbioportal metaImport.py -s /study/study3 --no-derive-tables -o
 # ...
 # Rebuild derived tables only once at the end
 docker compose exec cbioportal metaImport.py derive-tables
@@ -156,7 +161,7 @@ The derived table scripts perform large joins and aggregations that can consume 
    CLICKHOUSE_OPTIMIZE_BACKOFF_SECS=90
    ```
 
-   This adds a delay between merge operations, reducing peak memory usage during imports. Increase this value if you continue to see memory pressure.
+This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak memory usage during imports. Increase this value if you continue to see memory pressure.
 
 ### General Recommendations for Large Datasets
 
@@ -173,16 +178,10 @@ The derived table scripts perform large joins and aggregations that can consume 
 **Recommended Practices for Deployment Stability:**
 
 - Maintain backup copies of all study files.
-- Run imports on a staging/test database before production.
-- Use the blue/green deployment strategy for production databases — import into the inactive database, then switch.
-- Consider taking a ClickHouse snapshot or backup before large import operations:
+- Consider using a blue/green deployment strategy for production databases — import into the inactive database, then switch.
+- Consider taking a ClickHouse snapshot or backup before large import operations.
 
-> ⚠️ **Note:** ClickHouse backup commands require special privileges that are **not enabled by default on ClickHouse Cloud**. You must request these privileges from your ClickHouse Cloud administrator before using backup features. For self-hosted ClickHouse, the following backup command may work if you have the necessary privileges:
-
-  ```sql
-  -- For self-hosted ClickHouse:
-  BACKUP DATABASE cbioportal TO Disk('backups', 'pre-import-backup.zip');
-  ```
+> ⚠️ **Note:** ClickHouse backup commands require special privileges that are **not enabled by default on ClickHouse Cloud**. You must request these privileges from your ClickHouse Cloud administrator before using backup features.
 
 ---
 
@@ -202,6 +201,6 @@ If you upgrade to a newer version of cBioPortal that includes schema changes, yo
 
 1. Export your study data (study files).
 2. Initialize a fresh ClickHouse database with the new schema.
-3. Re-import all studies using `metaImport.py -s`.
+3. Re-import all studies using `metaImport.py -s ... -o`.
 
 This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
@@ -86,11 +87,10 @@ public class ColumnStoreMutationController {
       @Parameter(
               hidden =
                   true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for now but was needed previously for @PreAuthorize .
-          @Valid
-          @RequestBody(required = false)
-          MutationMultipleStudyFilter
-              interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this
+          // attribute is set by InvolvedCancerStudyExtractorInterceptor and used as the primary
+          // source; @RequestBody is kept as fallback in case the attribute is not present.
+          @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
+          MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
       @Parameter(
               required = true,
               description =
@@ -117,12 +117,17 @@ public class ColumnStoreMutationController {
       @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
           Direction direction) {
 
+    MutationMultipleStudyFilter effectiveFilter =
+        interceptedMutationMultipleStudyFilter != null
+            ? interceptedMutationMultipleStudyFilter
+            : mutationMultipleStudyFilter;
+    if (effectiveFilter == null) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     if (projection == ProjectionType.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       MutationMeta mutationMeta =
-          mutationUseCases
-              .fetchMetaMutationsUseCase()
-              .execute(interceptedMutationMultipleStudyFilter);
+          mutationUseCases.fetchMetaMutationsUseCase().execute(effectiveFilter);
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
@@ -139,7 +144,7 @@ public class ColumnStoreMutationController {
         MutationMapper.INSTANCE.toDTOs(
             mutationUseCases
                 .fetchAllMutationsInProfileUseCase()
-                .execute(interceptedMutationMultipleStudyFilter, mutationQueryOptions));
+                .execute(effectiveFilter, mutationQueryOptions));
     return ResponseEntity.ok(mutations);
   }
 }

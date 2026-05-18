@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.SampleMapper;
 import org.cbioportal.application.rest.response.SampleDTO;
@@ -39,6 +40,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -149,6 +151,9 @@ public class ColumnStoreSampleController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
   public ResponseEntity<List<SampleDTO>> fetchSamples(
+      @Parameter(hidden = true)
+          @RequestAttribute(required = false, value = "interceptedSampleFilter")
+          SampleFilter interceptedSampleFilter,
       @Parameter(required = true, description = "List of sample identifiers")
           @Valid
           @RequestBody(required = false)
@@ -156,11 +161,16 @@ public class ColumnStoreSampleController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection) {
+    SampleFilter effectiveFilter = sampleFilter != null ? sampleFilter : interceptedSampleFilter;
+    if (effectiveFilter == null) {
+      return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    }
     if (projection == ProjectionType.META) {
-      HttpHeaders responseHeaders = fetchMetaSamplesHeaders(sampleFilter);
+      HttpHeaders responseHeaders = fetchMetaSamplesHeaders(effectiveFilter);
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
-      List<Sample> samples = sampleUseCases.fetchSamplesUseCase().execute(sampleFilter, projection);
+      List<Sample> samples =
+          sampleUseCases.fetchSamplesUseCase().execute(effectiveFilter, projection);
       return new ResponseEntity<>(SampleMapper.INSTANCE.toDtos(samples), HttpStatus.OK);
     }
   }

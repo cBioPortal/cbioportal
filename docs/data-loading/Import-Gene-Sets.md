@@ -5,28 +5,38 @@ Gene sets are collections of genes that are grouped together based on higher lev
 Before loading a study with gene set data, gene set definitions have to be added to the database. These can be custom user-defined sets, or sets downloaded from external sources such as [MSigDB](#references). Additionally, a gene set hierarchy can be imported which is used on the cBioPortal Query page for selecting gene sets.
 
 ## Quick example
-This example shows how the process of importing gene set data using test data.
+This example shows the process of importing gene set data using the `study_es_0` test dataset, which covers a broad range of cBioPortal data types and is useful for evaluation and troubleshooting.
+
+Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) should be placed in the `./study/reference_data/` directory on the host, which is mounted as `/study/reference_data/` inside the container.
+
+> **Warning:** Step 1 below **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended not to import `study_es_0` into a production database with other important studies.
 
 1. Import gene sets and supplementary data:
-Note: This removes existing gene set, gene set hierarchy and gene set genetic profile data.
 
 ```bash
 docker compose exec cbioportal importGenesetData.pl \
-	--data /study/study_es_0_genesets.gmt \
+	--data /study/reference_data/study_es_0_genesets.gmt \
 	--new-version msigdb_6.1 \
-	--supp /study/study_es_0_supp-genesets.txt
+	--supp /study/reference_data/study_es_0_supp-genesets.txt
 ```
 
 2. Import gene set hierarchy data:
 
 ```bash
 docker compose exec cbioportal importGenesetHierarchy.pl \
-	--data /study/study_es_0_tree.yaml
+	--data /study/reference_data/study_es_0_tree.yaml
 ```
 
-3. Restart the portal if you have it running.
+3. Import gene panels (required by `study_es_0`):
 
-4. Import study:
+```bash
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel1.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel2.txt
+```
+
+4. Restart the portal if you have it running.
+
+5. Import study:
 
 ```bash
 docker compose exec cbioportal metaImport.py \

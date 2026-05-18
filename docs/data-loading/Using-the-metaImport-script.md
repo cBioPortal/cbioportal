@@ -51,6 +51,10 @@ optional arguments:
 
 #### Example of Importing a study
 
+The example below uses `study_es_0`, a **testing and evaluation dataset** that covers a broad range of cBioPortal data types. It is useful for determining whether import errors are caused by problems with your own data or with the cBioPortal importer itself.
+
+> **Note:** Before importing `study_es_0`, you must first import the gene set definitions (see [Import Gene Sets](./Import-Gene-Sets.md)) and gene panels (see [Import Gene Panels](./Import-Gene-Panels.md)). Importing gene sets **removes all existing geneset data** from the database — it is recommended to start with a fresh database instance.
+
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/study_es_0/
 ```

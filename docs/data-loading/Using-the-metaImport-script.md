@@ -52,10 +52,10 @@ optional arguments:
 #### Example of Importing a study
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/study_es_0/ -o
+docker compose exec cbioportal metaImport.py -s /study/study_es_0/
 ```
 
-Adding `-v` shows status messages; `-o` overrides warnings and continues importing.
+Adding `-v` shows status messages.
 
 #### Incremental Upload
 

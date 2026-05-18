@@ -32,7 +32,7 @@ To import data for your study, please reference the example commands in [this fi
 Command for importing `study_es_0` data:
 
 ```shell
-docker compose exec cbioportal metaImport.py -s /cbioportal/test/study_es_0 -o
+docker compose exec cbioportal metaImport.py -s /cbioportal/test/study_es_0
 ```
 
 :warning: after importing a study, remember to restart `cbioportal` to see the study on the home page. Run `docker compose restart cbioportal`.

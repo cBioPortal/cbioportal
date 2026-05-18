@@ -126,9 +126,9 @@ By default, `metaImport.py` **automatically rebuilds derived tables** after ever
 The `derive-tables` command recreates all derived table structures based on all study data in the database. Normally, it's not necessary to run since `metaImport.py` will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/study1 --no-derive-tables -o
-docker compose exec cbioportal metaImport.py -s /study/study2 --no-derive-tables -o
-docker compose exec cbioportal metaImport.py -s /study/study3 --no-derive-tables -o
+docker compose exec cbioportal metaImport.py -s /study/study1 --no-derive-tables
+docker compose exec cbioportal metaImport.py -s /study/study2 --no-derive-tables
+docker compose exec cbioportal metaImport.py -s /study/study3 --no-derive-tables
 # ...
 # Rebuild derived tables only once at the end
 docker compose exec cbioportal metaImport.py derive-tables
@@ -201,6 +201,6 @@ If you upgrade to a newer version of cBioPortal that includes schema changes, yo
 
 1. Export your study data (study files).
 2. Initialize a fresh ClickHouse database with the new schema.
-3. Re-import all studies using `metaImport.py -s ... -o`.
+3. Re-import all studies using `metaImport.py -s ...`.
 
 This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.

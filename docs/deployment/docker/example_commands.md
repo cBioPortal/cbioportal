@@ -22,7 +22,7 @@ the absolute path were the html report of the validation will be saved.
 docker compose run --rm \
     -v "<path_to_report_folder>:/report" \
     cbioportal \
-    metaImport.py -s /study/name_of_study --html=/report/report.html -u http://cbioportal:8080 -o
+    metaImport.py -s /study/name_of_study --html=/report/report.html -u http://cbioportal:8080
 ```
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker compose restart cbioportal`.
@@ -37,7 +37,7 @@ To add or update data in an existing study without re-importing the entire study
 ```shell
 docker compose exec \
     cbioportal \
-    metaImport.py -d /study/name_of_study -o
+    metaImport.py -d /study/name_of_study
 ```
 
 ### Removing Studies, Samples, and Patients
@@ -84,7 +84,7 @@ docker compose run --rm \
     -v "<path_to_report_folder>:/report" \
     -v "<path_to_portalinfo>/portalinfo:/portalinfo:ro" \
     cbioportal \
-    metaImport.py -p /portalinfo -s /study/name_of_study --html=/report/report.html -u http://cbioportal:8080 -o
+    metaImport.py -p /portalinfo -s /study/name_of_study --html=/report/report.html -u http://cbioportal:8080
 ```
 
 ### Inspecting or adjusting the database ###

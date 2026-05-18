@@ -16,7 +16,7 @@ OncoKB annotations can be added automatically to the study files when the study 
 `--import_oncokb` parameter to the [metaImport.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/metaImport.py) script like so:
 
 ```
-python metaImport.py --import_oncokb -s study/lgg_ucsf_2014/ -o
+python metaImport.py --import_oncokb -s study/lgg_ucsf_2014/
 ```
 
 This will add OncoKB data to the mutation and discrete CNA files of a study, revalidate the results and load the study

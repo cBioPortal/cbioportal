@@ -17,12 +17,14 @@ gene_list: ABL1    ACVR1   AKT1    AKT3 ...
 
 #### Import command
 
-In this example, we are loading the example gene panels which resides in the sample dataset `study_es_0`.
+In this example, we are loading the example gene panels which reside in the sample dataset `study_es_0`.
 
 ```bash
-docker compose exec cbioportal importGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel1.txt
-docker compose exec cbioportal importGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel2.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel1.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel2.txt
 ```
+
+For gene panels that are not bundled with a study (i.e. standalone reference panels), place the panel files in the `./study/reference_data/` directory on the host and reference them as `/study/reference_data/<your_panel.txt>` inside the container.
 
 After loading gene panels into the database, please restart the portal to see updates.
 
@@ -33,5 +35,5 @@ If a gene panel exists in the database with the same name as the one being impor
 If the incoming gene panel is the same as the original gene panel, whether through importing or updating, then no changes shall be made to the gene panel.  If the incoming gene panel is empty, then the script will abort.  Genes in the incoming gene panel that were not in the original shall be added to the existing gene panel. Conversely, genes not in the incoming gene panel that were in the original shall be removed from the existing gene panel.  The UpdateGenePanel command will prompt twice to confirm changes made to the gene panel, such as genes to be added or removed.  
 
 ```bash
-docker compose exec cbioportal updateGenePanel.pl --data /study/study_es_0/data_gene_panel_testpanel1.txt
+docker compose exec cbioportal updateGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel1.txt
 ```

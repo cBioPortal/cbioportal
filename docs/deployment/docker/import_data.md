@@ -2,42 +2,59 @@
 
 ### Import data instructions
 
-This is an example to import a sample study: `study_es_0`. When trying to import other studies, please follow the same routine:
+This is an example to import the sample study `study_es_0`. `study_es_0` is a **testing and evaluation dataset** that covers a broad range of cBioPortal data types. When trying to import other studies, please follow the same routine:
 
-1. import gene panels (if applicable, studies without gene panels are assumed to be whole exome/genome)
-2. import study data
+1. import gene sets (if applicable)
+2. import gene panels (if applicable, studies without gene panels are assumed to be whole exome/genome)
+3. import study data
 
-#### Step 1 - Import gene panels
+> **Warning:** Importing gene sets (Step 1) **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended to do this on a fresh database instance rather than one that already contains geneset data you want to keep.
 
-To import gene panels for your study, please reference the example commands in [this file](example\_commands.md#importing-gene-panel)
+#### Step 1 - Import gene sets
+
+`study_es_0` relies on gene set data, so gene set definitions must be loaded before the study. Place the required reference files in the `./study/reference_data/` directory on the host (mounted as `/study/reference_data/` inside the container), then run:
+
+```shell
+docker compose exec cbioportal importGenesetData.pl \
+    --data /study/reference_data/study_es_0_genesets.gmt \
+    --new-version msigdb_6.1 \
+    --supp /study/reference_data/study_es_0_supp-genesets.txt
+```
+
+```shell
+docker compose exec cbioportal importGenesetHierarchy.pl \
+    --data /study/reference_data/study_es_0_tree.yaml
+```
+
+For studies that do not include gene set data, skip this step.
+
+#### Step 2 - Import gene panels
+
+To import gene panels for your study, please reference the example commands in [this file](example_commands.md#importing-gene-panel)
 
 These are the commands for importing `study_es_0` gene panels (`data_gene_panel_testpanel1` and `data_gene_panel_testpanel2`):
 
 ```shell
-docker compose exec \
-    cbioportal \
-    importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel1.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel1.txt
 ```
 
 ```shell
-docker compose exec \
-    cbioportal \
-    importGenePanel.pl --data /cbioportal/test/study_es_0/data_gene_panel_testpanel2.txt
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel2.txt
 ```
 
-#### Step 2 - Import data
+#### Step 3 - Import data
 
-To import data for your study, please reference the example commands in [this file](example\_commands.md#importing-data)
+To import data for your study, please reference the example commands in [this file](example_commands.md#importing-data)
 
 Command for importing `study_es_0` data:
 
 ```shell
-docker compose exec cbioportal metaImport.py -s /cbioportal/test/study_es_0 -o
+docker compose exec cbioportal metaImport.py -s /study/study_es_0
 ```
 
 :warning: after importing a study, remember to restart `cbioportal` to see the study on the home page. Run `docker compose restart cbioportal`.
 
-You have now imported the test study `study_es_0`. Note that this study is included inside the cbioportal container. The process for adding a study that is outside of the container is similar. Just make sure to add the data files in the `./study` folder. This folder is mounted as `/study/` inside of the container.
+You have now imported the test study `study_es_0`. The process for adding a study that is outside of the container is similar — place the data files in the `./study` folder on the host, which is mounted as `/study/` inside the container.
 
 ### Frequently Asked Questions
 
@@ -46,7 +63,7 @@ You have now imported the test study `study_es_0`. Note that this study is inclu
 If you see an error like this when you importing the data:\
 `ERROR: data_gene_panel_matrix.txt: lines [2, 3, 4, (10 more)]: Gene panel ID is not in database. Please import this gene panel before loading study data.; values encountered: ['TESTPANEL1', 'TESTPANEL2']`
 
-please follow the first step to import gene panels (e.g. import `data_gene_panel_testpanel1` and `data_gene_panel_testpanel2` for `study_es_0`), then try to import the data again.
+please follow Step 2 to import gene panels (e.g. import `data_gene_panel_testpanel1` and `data_gene_panel_testpanel2` for `study_es_0`), then try to import the data again.
 
 #### Error occurred during validation step
 

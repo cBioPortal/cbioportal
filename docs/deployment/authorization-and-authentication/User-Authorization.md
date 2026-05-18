@@ -13,7 +13,6 @@ This table contains all the users that have authorized access to the instance of
 | email | String |
 | name | String |
 | enabled | Bool |
-| role | String |
 
 An example entry would be: `email = john.smith@gmail.com`, `name = John Smith`, `enabled = true`.
 
@@ -37,9 +36,11 @@ This table contains the list of cancer studies that each user is authorized to v
 
 Some example entries would be:
 
-- `john.smith@gmail.com | cbioportal:CANCER_STUDY_1`
-- `john.smith@gmail.com | cbioportal:CANCER_STUDY_2`
-- `john.smith@gmail.com | cbioportal:CANCER_STUDY_3`
+| email | authority |
+|-------|-----------|
+| john.smith@gmail.com | cbioportal:CANCER_STUDY_1 |
+| john.smith@gmail.com | cbioportal:CANCER_STUDY_2 |
+| john.smith@gmail.com | cbioportal:CANCER_STUDY_3 |
 
 The value in the EMAIL column should be the same email address contained in the USER table.  
 
@@ -73,6 +74,7 @@ We want to create the group "TEST_GROUP1" and assign two existing studies to it 
 |-----------------|-------------------------|--------|
 | 93 | acc_tcga | GROUPB |
 | 94 | brca_tcga | |
+
 2- Update the `groups` field in the `cancer_study` table, adding your "TEST_GROUP1" to it. :warning: This is a `;` separated column, so if you want a study to be part of multiple groups, separate them with `;`.
 
 
@@ -84,7 +86,9 @@ If `groups` already has a value (like for study 93 in example above) then add ";
 |-----------------|-------------------------|--------|
 | 93 | acc_tcga | GROUPB;TEST_GROUP1 |
 | 94 | brca_tcga | TEST_GROUP1 |
+
 4- Add the group to user 'john.smith@gmail.com', using `app.name:` + "TEST_GROUP1" like so:
+
 ```sql
 INSERT INTO cbioportal.authorities (email, authority) VALUES
     ('john.smith@gmail.com', 'cbioportal:TEST_GROUP1');

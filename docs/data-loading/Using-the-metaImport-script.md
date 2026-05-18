@@ -51,11 +51,15 @@ optional arguments:
 
 #### Example of Importing a study
 
+The example below uses `study_es_0`, a **testing and evaluation dataset** that covers a broad range of cBioPortal data types. It is useful for determining whether import errors are caused by problems with your own data or with the cBioPortal importer itself.
+
+> **Note:** Before importing `study_es_0`, you must first import the gene set definitions (see [Import Gene Sets](./Import-Gene-Sets.md)) and gene panels (see [Import Gene Panels](./Import-Gene-Panels.md)). Importing gene sets **removes all existing geneset data** from the database — it is recommended to start with a fresh database instance.
+
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/study_es_0/
 ```
 
-Adding `-v` shows status messages; adding `-o` overrides warnings and continues importing.
+Adding `-v` shows status messages.
 
 #### Incremental Upload
 
@@ -69,6 +73,7 @@ Please note that some data types like study are not supported and must not be pr
 #### Derived Tables
 
 After each import (incremental or otherwise), `metaImport.py` automatically rebuilds **derived tables** — ClickHouse tables that pre-join and denormalize data for fast Study View queries. See the [ClickHouse Setup Guide](../deployment/clickhouse/README.md#5-derived-tables) for details on what derived tables are and why they matter.
+
 #### Rebuilding Derived Tables Only
 
 You can rebuild derived tables without importing any studies by running:
@@ -78,6 +83,7 @@ docker compose exec cbioportal metaImport.py derive-tables
 ```
 
 This command executes the derived table SQL scripts against your ClickHouse database without performing any study validation or import. It is useful after batch imports, study deletions, or whenever you need to refresh precomputed query structures.
+
 ##### Skipping Derived Table Rebuild
 
 When batch-importing multiple studies, you can skip the derived table rebuild after each import with `--no-derive-tables`:

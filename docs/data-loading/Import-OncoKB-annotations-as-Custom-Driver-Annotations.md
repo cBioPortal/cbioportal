@@ -6,8 +6,8 @@ mutations and discrete copy number alteration in Study View and Group Comparison
 respective data files of a study prior to import into the database. This page describes how to import OncoKB annotations 
 as custom driver annotations. It assumes the following requirements have been satisfied:
 
-1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
-2. The user is able to successfully import a [study into the database](data-loading/README.md).
+1. The cBioPortal software has been correctly built from source.
+2. The user is able to successfully import a [study into the database](README.md).
 3. The study subjected to OncoKB import is [confirmed to be valid](README.md)
 
 ## Import of OncoKB annotations when loading a study

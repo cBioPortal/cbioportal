@@ -38,6 +38,8 @@ cp -r /path/to/your_study ./study/
 docker compose exec cbioportal metaImport.py -s /study/your_study -o
 ```
 
+> **Note:** `-o` overrides validation warnings and proceeds with the import. If you are confident your data will pass all validation checks without warnings, you can drop `-o`.
+
 The `-s` flag here refers to the path of the study _as seen inside the Docker container_.
 
 ## Study Structure

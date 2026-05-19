@@ -33,7 +33,7 @@ Follow the [ClickHouse Setup Guide](deployment/clickhouse/README.md#3-docker-com
 For each study, run a full import using `metaImport.py`:
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/your_study
+docker compose exec cbioportal metaImport.py -s /study/your_study -o
 ```
 
 Repeat for every study that was in your MySQL database. Study order does not matter.

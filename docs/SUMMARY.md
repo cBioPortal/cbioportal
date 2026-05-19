@@ -20,7 +20,7 @@
   * [Architecture overview](Architecture-Overview.md)
   * [Hardware Requirements](Hardware-Requirements.md)
   * [Deploy with Docker (Recommended)](deployment/docker/README.md)
-    * [Import data with Docker](deployment/docker/import_data.md)
+    * [Import test data with Docker](deployment/docker/import_test_data.md)
     * [Example Commands](deployment/docker/example_commands.md)
     * [Authenticating and Authorizing Users using Keycloak in Docker](deployment/docker/using-keycloak.md)
     * [ClickHouse Setup](deployment/clickhouse/README.md)

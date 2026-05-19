@@ -1,14 +1,14 @@
-# Import data with Docker
+# Importing test data with Docker
 
-### Import data instructions
+### Instructions
 
-This is an example to import the sample study `study_es_0`. `study_es_0` is a **testing and evaluation dataset** that covers a broad range of cBioPortal data types. When trying to import other studies, please follow the same routine:
+This is an example to import the sample study `study_es_0`. `study_es_0` is a **testing and evaluation dataset** that covers a broad range of cBioPortal data types. It is intended to help ensure that your cBioPortal importer is correctly handling all supported data types. We will follow this flow:
 
 1. import gene sets (if applicable)
 2. import gene panels (if applicable, studies without gene panels are assumed to be whole exome/genome)
 3. import study data
 
-> **Warning:** Importing gene sets (Step 1) **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended to do this on a fresh database instance rather than one that already contains geneset data you want to keep.
+> **Warning:** Importing gene sets (Step 1) **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended to do this on a fresh database instance rather than one that already contains geneset data you want to keep. Importing other studies may not work after importing `study_es_0` and will require a fresh database to be loaded.
 
 #### Step 1 - Import gene sets
 

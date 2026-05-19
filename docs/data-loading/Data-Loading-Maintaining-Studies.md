@@ -15,12 +15,10 @@ To import a study without validation, run:
 docker compose exec cbioportal cbioportalImporter.py -s <path to study directory>
 ```
 
-For example, to import `study_es_0` (a testing and evaluation dataset covering a broad range of data types):
-
-> **Note:** `study_es_0` requires gene set definitions and gene panels to be imported first. See [Import Gene Sets](./Import-Gene-Sets.md) and [Import Gene Panels](./Import-Gene-Panels.md). Importing gene sets **removes all existing geneset data** — start with a fresh database instance if this matters.
+For example:
 
 ```
-docker compose exec cbioportal cbioportalImporter.py -s /study/study_es_0/
+docker compose exec cbioportal cbioportalImporter.py -s /study/lgg_ucsf_2014
 ```
 
 ## Importing part of the data

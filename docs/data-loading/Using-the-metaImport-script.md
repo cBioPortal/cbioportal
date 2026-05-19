@@ -56,8 +56,10 @@ The example below uses `study_es_0`, a **testing and evaluation dataset** that c
 > **Note:** Before importing `study_es_0`, you must first import the gene set definitions (see [Import Gene Sets](./Import-Gene-Sets.md)) and gene panels (see [Import Gene Panels](./Import-Gene-Panels.md)). Importing gene sets **removes all existing geneset data** from the database — it is recommended to start with a fresh database instance.
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/study_es_0/
+docker compose exec cbioportal metaImport.py -s /study/study_es_0/ -o
 ```
+
+> **Note:** `-o` overrides validation warnings and proceeds with the import. If you are confident your data will pass all validation checks without warnings, you can drop `-o`.
 
 Adding `-v` shows status messages.
 
@@ -89,7 +91,7 @@ This command executes the derived table SQL scripts against your ClickHouse data
 When batch-importing multiple studies, you can skip the derived table rebuild after each import with `--no-derive-tables`:
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/your_study --no-derive-tables
+docker compose exec cbioportal metaImport.py -s /study/your_study -o --no-derive-tables
 ```
 
 Then rebuild derived tables once after all studies have been imported:

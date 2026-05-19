@@ -52,7 +52,7 @@ Then start all services:
 docker compose up -d
 
 # Import an example study
-docker compose exec cbioportal metaImport.py -s study/lgg_ucsf_2014
+docker compose exec cbioportal metaImport.py -s study/lgg_ucsf_2014 -o
 ```
 
 > **IMPORTANT:** Please import at least one sample study before you attempt to view the portal. The website will not load if there are no studies present in the database. If you see an error like "studyIds should be a number between 1 and ...", that means the database is empty.
@@ -111,7 +111,7 @@ cp -r /path/to/your_study /path/to/cbioportal-docker-compose/study/
 Next, run the following command to actually import your study. The `-s` path specifies the path to the study _as seen within the Docker container_.
 
 ```
-docker compose exec cbioportal metaImport.py -s study/your_study
+docker compose exec cbioportal metaImport.py -s study/your_study -o
 ```
 
 When this command executes -- it does so from the path `/` within the container. Then `study/your_study` resolves to the path `/study/your_study`, which is mounted to the `cbioportal-docker-compose/study` volume outside of the container.

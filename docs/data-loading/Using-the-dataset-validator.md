@@ -763,7 +763,7 @@ Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--port
 === Validating study /study/study_es_0
 Result: VALID (WITH WARNINGS)
 
-=== Validating study /study/study_es_1
+=== Validating study /study/lgg_ucsf_2014
 Result: INVALID
 
 === Validating study /study/study_es_invalid
@@ -781,17 +781,17 @@ docker compose exec cbioportal validateStudies.py -d /study/
 ### Example 2: List of studies parameter
 Validation can also be run for specific studies by using the `--list-of-studies` parameter. The paths to the different studies can be defined and seperated by a comma:
 ```bash
-docker compose exec cbioportal validateStudies.py -l /study/study_es_0,/study/study_es_1
+docker compose exec cbioportal validateStudies.py -l /study/study_es_0,/study/lgg_ucsf_2014
 ```
 
 ### Example 3: Combination root directory and list of studies parameter
 Validation can also be run on specific studies in a certain directory by combining the `--root-directory` and `--list-of-studies` parameter:
 ```bash
-docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,study_es_1
+docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,lgg_ucsf_2014
 ```
 
 ### Example 4: HTML folder parameter
 When HTML validation reports are desired, an output folder for these HTML files can be specified. This folder does not have to exist, the script can create the folder. The HTML validation reports will get the following name: `<study_name>-validation.html`. To create HTML validation reports for each study the `--html-folder` parameter needs to be defined:
 ```bash
-docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,study_es_1 -html /study/reports/report.html
+docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,lgg_ucsf_2014 -html /study/reports/report.html
 ```

@@ -8,6 +8,7 @@ import java.util.List;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
@@ -18,7 +19,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -129,6 +132,18 @@ public class ColumnStoreStudyController {
             : CancerStudyMetadataMapper.INSTANCE.toDtos(studies);
 
     return ResponseEntity.ok().headers(headers).body(responseBody);
+  }
+
+  @Hidden
+  @PreAuthorize(
+      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @GetMapping(value = "/studies/{studyId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
+      throws StudyNotFoundException {
+    var study = getCancerStudyMetadataUseCase.getStudy(studyId);
+    // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
+    var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
+    return ResponseEntity.ok(dto);
   }
 
   /**

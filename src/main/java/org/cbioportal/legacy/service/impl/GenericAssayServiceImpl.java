@@ -34,6 +34,8 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
   @Autowired private SampleListRepository sampleListRepository;
 
+  // TODO: When fully migrated to column-store, replace this method body with a delegation to
+  //       GetGenericAssayMetaUseCase.execute(stableIds, molecularProfileIds, projection).
   @Override
   public List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(
       List<String> stableIds, List<String> molecularProfileIds, String projection) {
@@ -43,7 +45,7 @@ public class GenericAssayServiceImpl implements GenericAssayService {
       List<String> distinctMolecularProfileIds =
           molecularProfileIds.stream().distinct().sorted().collect(Collectors.toList());
       if (distinctMolecularProfileIds.size() > 0) {
-        // fetch one profile at a time to improve cache performace for multiple profiles query
+        // fetch one profile at a time to improve cache performance for multiple profiles query
         for (String distinctMolecularProfileId : distinctMolecularProfileIds) {
           allStableIds.addAll(
               genericAssayRepository.getGenericAssayStableIdsByMolecularIds(
@@ -55,7 +57,6 @@ public class GenericAssayServiceImpl implements GenericAssayService {
         Map<String, String> allStableIdMap =
             allStableIds.stream()
                 .collect(Collectors.toMap(stableId -> stableId, stableId -> stableId));
-
         allStableIds =
             stableIds.stream()
                 .filter(stableId -> allStableIdMap.containsKey(stableId))
@@ -69,7 +70,6 @@ public class GenericAssayServiceImpl implements GenericAssayService {
     }
     List<String> distinctStableIds = new ArrayList<String>(allStableIds);
     List<GenericAssayMeta> metaResults = new ArrayList<GenericAssayMeta>();
-    // TODO: move below logic to sql query
     if (distinctStableIds.size() > 0) {
       List<GenericAssayMeta> metaData =
           genericAssayRepository.getGenericAssayMeta(distinctStableIds);

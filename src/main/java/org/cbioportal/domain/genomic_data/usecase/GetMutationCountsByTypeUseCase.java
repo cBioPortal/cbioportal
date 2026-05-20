@@ -31,10 +31,26 @@ public class GetMutationCountsByTypeUseCase {
    *
    * @param studyViewFilterContext the context of the study view filter to apply
    * @param genomicDataFilters a list of genomic data filters to apply
+   * @param includeSampleIds flag to include sample ids
    * @return a list of {@link GenomicDataCountItem} representing the mutation counts by type
    */
   public List<GenomicDataCountItem> execute(
-      StudyViewFilterContext studyViewFilterContext, List<GenomicDataFilter> genomicDataFilters) {
-    return repository.getMutationCountsByType(studyViewFilterContext, genomicDataFilters);
+      StudyViewFilterContext studyViewFilterContext,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds) {
+    String hugoGeneSymbol = null;
+    // This is to enforce data accuracy and to avoid sending a list of genomicDataFilters when
+    // including sample id == true
+    if (includeSampleIds) {
+      if (genomicDataFilters == null || genomicDataFilters.size() != 1) {
+        throw new IllegalArgumentException(
+            "Only one gene allowed in GenomicDataFilter list when includeSampleIds is true");
+      }
+
+      hugoGeneSymbol = genomicDataFilters.getFirst().getHugoGeneSymbol();
+    }
+
+    return repository.getMutationCountsByType(
+        studyViewFilterContext, genomicDataFilters, includeSampleIds, hugoGeneSymbol);
   }
 }

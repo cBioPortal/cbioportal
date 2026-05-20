@@ -474,6 +474,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     Set<String> groups =
         Arrays.stream(cancerStudy.getGroups().split(";"))
             .filter(g -> !g.isEmpty())
+            .map(String::toUpperCase)
             .collect(Collectors.toSet());
     if (!Collections.disjoint(groups, grantedAuthorities)) {
       if (log.isDebugEnabled()) {

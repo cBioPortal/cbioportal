@@ -2,17 +2,25 @@ package org.cbioportal.legacy.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.legacy.service.exception.InvalidVirtualStudyDataException;
+import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.impl.BaseServiceImplTest;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.parameter.VirtualStudy;
 import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.cbioportal.legacy.web.parameter.VirtualStudySamples;
 import org.cbioportal.legacy.web.util.StudyViewFilterApplier;
+import org.cbioportal.legacy.web.validation.VirtualStudyValidationMessages;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -27,6 +35,8 @@ public class VirtualStudyServiceTest extends BaseServiceImplTest {
 
   @Mock SessionServiceRequestHandler sessionServiceRequestHandler;
   @Mock StudyViewFilterApplier studyViewFilterApplier;
+  @Mock CancerTypeService cancerTypeService;
+  @Mock StudyService studyService;
 
   SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
 
@@ -82,5 +92,68 @@ public class VirtualStudyServiceTest extends BaseServiceImplTest {
         virtualStudy.getData().getStudies().stream()
             .map(VirtualStudySamples::getId)
             .collect(Collectors.toSet()));
+  }
+
+  @Test(expected = InvalidVirtualStudyDataException.class)
+  public void publishVirtualStudyShouldRejectFilterErrors() {
+    VirtualStudyData virtualStudyData = createPublishableVirtualStudyData();
+
+    Mockito.when(studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter()))
+        .thenThrow(new RuntimeException("boom"));
+
+    try {
+      virtualStudyService.publishVirtualStudy("virtual-study", null, null, virtualStudyData);
+    } catch (InvalidVirtualStudyDataException e) {
+      assertEquals(VirtualStudyValidationMessages.INVALID_FILTERS, e.getMessage());
+      verify(sessionServiceRequestHandler, never()).createVirtualStudy(any(), any());
+      throw e;
+    }
+  }
+
+  @Test(expected = InvalidVirtualStudyDataException.class)
+  public void publishVirtualStudyShouldRejectEmptyFilterResults() {
+    VirtualStudyData virtualStudyData = createPublishableVirtualStudyData();
+
+    Mockito.when(studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter()))
+        .thenReturn(List.of());
+
+    try {
+      virtualStudyService.publishVirtualStudy("virtual-study", null, null, virtualStudyData);
+    } catch (InvalidVirtualStudyDataException e) {
+      assertEquals(VirtualStudyValidationMessages.NO_FILTER_RESULTS, e.getMessage());
+      verify(sessionServiceRequestHandler, never()).createVirtualStudy(any(), any());
+      throw e;
+    }
+  }
+
+  @Test
+  public void publishVirtualStudyShouldCreateStudyWhenFilterResolvesSamples() throws Exception {
+    VirtualStudyData virtualStudyData = createPublishableVirtualStudyData();
+
+    Mockito.when(studyViewFilterApplier.apply(virtualStudyData.getStudyViewFilter()))
+        .thenReturn(List.of(sampleIdentifier1));
+    Mockito.when(studyService.getStudy("virtual-study"))
+        .thenThrow(new StudyNotFoundException("virtual-study"));
+
+    virtualStudyService.publishVirtualStudy("virtual-study", null, null, virtualStudyData);
+
+    verify(sessionServiceRequestHandler)
+        .createVirtualStudy(eq("virtual-study"), eq(virtualStudyData));
+  }
+
+  private VirtualStudyData createPublishableVirtualStudyData() {
+    VirtualStudyData virtualStudyData = new VirtualStudyData();
+    virtualStudyData.setName("Test");
+    virtualStudyData.setDynamic(true);
+
+    VirtualStudySamples virtualStudySamples = new VirtualStudySamples();
+    virtualStudySamples.setId("study_1");
+    virtualStudyData.setStudies(Set.of(virtualStudySamples));
+
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of("study_1"));
+    virtualStudyData.setStudyViewFilter(studyViewFilter);
+
+    return virtualStudyData;
   }
 }

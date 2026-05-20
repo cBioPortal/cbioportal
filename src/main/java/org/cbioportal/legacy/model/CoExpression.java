@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -9,8 +10,12 @@ public class CoExpression implements Serializable {
 
   @NotNull private String geneticEntityId;
   @NotNull private EntityType geneticEntityType;
-  @NotNull private BigDecimal spearmansCorrelation;
-  @NotNull private BigDecimal pValue;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  private BigDecimal spearmansCorrelation;
+
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  private BigDecimal pValue;
 
   public String getGeneticEntityId() {
     return geneticEntityId;

@@ -57,6 +57,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
   @InjectMocks private GenericAssayServiceImpl genericAssayService;
 
   @Mock private GenericAssayRepository genericAssayRepository;
+
   @Mock private SampleService sampleService;
   @Mock private MolecularProfileService geneticProfileService;
   @Mock private MolecularDataRepository geneticDataRepository;
@@ -65,7 +66,6 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
    * This is executed n times, for each of the n test methods below:
    *
    * @throws Exception
-   * @throws DaoException
    */
   @Before
   public void setUp() throws Exception {
@@ -206,22 +206,6 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
             Arrays.asList(STABLE_ID_1, STABLE_ID_2),
             PersistenceConstants.SUMMARY_PROJECTION);
 
-    // what we expect: 2 molecular profiles x 2 samples x 2 generic assay items = 8 GenericAssayData
-    // items:
-    // MOLECULAR_PROFILE_1:
-    //     SAMPLE_1:
-    //         generic assay1 value: 0.2
-    //         generic assay2 value: 0.89
-    //     SAMPLE_2:
-    //         generic assay1 value: 0.499
-    //         generic assay2 value: -0.509
-    // MOLECULAR_PROFILE_2:
-    //     SAMPLE_1:
-    //         generic assay1 value: 0.2
-    //         generic assay2 value: 0.89
-    //     SAMPLE_2:
-    //         generic assay1 value: 0.499
-    //         generic assay2 value: -0.509
     Assert.assertEquals(8, result.size());
     GenericAssayData item1 = result.get(0);
     Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
@@ -255,13 +239,6 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
             Arrays.asList(STABLE_ID_1, STABLE_ID_2),
             PersistenceConstants.SUMMARY_PROJECTION);
 
-    // what we expect: 2 samples x 2 generic assay items = 4 GenericAssayData items:
-    // SAMPLE_1:
-    //   generic assay1 value: 0.2
-    //   generic assay2 value: 0.89
-    // SAMPLE_2:
-    //   generic assay1 value: 0.499
-    //   generic assay2 value: -0.509
     Assert.assertEquals(4, result.size());
     GenericAssayData item1 = result.get(0);
     Assert.assertEquals(item1.getSampleId(), SAMPLE_ID1);
@@ -298,10 +275,8 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
   public void getGenericAssayMetaByStableIdsAndMolecularIds() throws GenericAssayNotFoundException {
     Mockito.when(genericAssayRepository.getGenericAssayMeta(idList))
         .thenReturn(mockGenericAssayMetaList);
-
     Mockito.when(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(PROFILE_ID_LIST))
         .thenReturn(idList);
-
     Mockito.when(genericAssayRepository.getGenericAssayAdditionalproperties(idList))
         .thenReturn(mockGenericAssayAdditionalPropertyList);
 
@@ -315,7 +290,6 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
     Assert.assertEquals(
         mockGenericAssayMetaList.get(0).getGenericEntityMetaProperties(),
         meta1.getGenericEntityMetaProperties());
-
     Assert.assertEquals(mockGenericAssayMetaList.get(1).getEntityType(), meta2.getEntityType());
     Assert.assertEquals(mockGenericAssayMetaList.get(1).getStableId(), meta2.getStableId());
     Assert.assertEquals(

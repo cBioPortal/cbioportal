@@ -10,39 +10,99 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.springframework.stereotype.Repository;
 
+/**
+ * ClickHouse implementation of the ClinicalDataRepository interface.
+ *
+ * <p>This repository provides access to clinical data stored in ClickHouse column store, optimized
+ * for analytical queries. It delegates to MyBatis mappers for SQL query execution and handles
+ * empty-collection edge cases to prevent unnecessary database calls.
+ *
+ * @see ClinicalDataRepository
+ * @see ClickhouseClinicalDataMapper
+ */
 @Repository
 public class ClickhouseClinicalDataRepository implements ClinicalDataRepository {
 
   private final ClickhouseClinicalDataMapper mapper;
 
+  /**
+   * Constructor for dependency injection.
+   *
+   * @param mapper MyBatis mapper for executing ClickHouse queries
+   */
   public ClickhouseClinicalDataRepository(ClickhouseClinicalDataMapper mapper) {
     this.mapper = mapper;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Delegates to MyBatis mapper to execute optimized ClickHouse query with study view filters.
+   */
   @Override
   public List<ClinicalData> getPatientClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return mapper.getPatientClinicalDataFromStudyViewFilter(
+    return mapper.getPatientClinicalDataByStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Delegates to MyBatis mapper to execute optimized ClickHouse query with study view filters.
+   */
   @Override
   public List<ClinicalData> getSampleClinicalData(
       StudyViewFilterContext studyViewFilterContext, List<String> filteredAttributes) {
-    return mapper.getSampleClinicalDataFromStudyViewFilter(
+    return mapper.getSampleClinicalDataByStudyViewFilter(
         studyViewFilterContext, filteredAttributes);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Delegates to MyBatis mapper to execute count aggregation query with study view filters.
+   */
   @Override
   public List<ClinicalDataCountItem> getClinicalDataCounts(
       StudyViewFilterContext studyViewFilterContext,
       List<String> sampleAttributeIds,
       List<String> patientAttributeIds,
       List<String> conflictingAttributeIds) {
-    return mapper.getClinicalDataCounts(
+    return mapper.getClinicalDataCountsByStudyViewFilter(
         studyViewFilterContext, sampleAttributeIds, patientAttributeIds, conflictingAttributeIds);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This overload is optimized for enrichment analysis by accepting pre-computed unique IDs to
+   * avoid additional ID resolution queries. Delegates to MyBatis mapper for efficient batch
+   * aggregation.
+   */
+  @Override
+  public List<ClinicalDataCountItem> getClinicalDataCountsForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds) {
+    if (CollectionUtils.isEmpty(sampleUniqueIds) && CollectionUtils.isEmpty(patientUniqueIds)) {
+      return Collections.emptyList();
+    }
+    return mapper.getClinicalDataCountsForEnrichments(
+        sampleUniqueIds,
+        patientUniqueIds,
+        sampleAttributeIds,
+        patientAttributeIds,
+        conflictingAttributeIds);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Returns early with empty list if no unique IDs provided to avoid unnecessary database call.
+   */
   @Override
   public List<ClinicalData> fetchClinicalDataId(
       List<String> uniqueIds,
@@ -56,6 +116,11 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
         uniqueIds, attributeIds, studyIds, clinicalDataType.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Returns early with empty list if no unique IDs provided to avoid unnecessary database call.
+   */
   @Override
   public List<ClinicalData> fetchClinicalDataSummary(
       List<String> uniqueIds,
@@ -69,6 +134,36 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
         uniqueIds, attributeIds, studyIds, clinicalDataType.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This overload is optimized for enrichment analysis by accepting pre-computed unique IDs and
+   * categorized attributes. Executes a single optimized query that unions sample-level,
+   * patient-level, and conflicting attribute data.
+   */
+  @Override
+  public List<ClinicalData> fetchClinicalDataSummaryForEnrichments(
+      List<String> sampleUniqueIds,
+      List<String> patientUniqueIds,
+      List<String> sampleAttributeIds,
+      List<String> patientAttributeIds,
+      List<String> conflictingAttributeIds) {
+    if (CollectionUtils.isEmpty(sampleUniqueIds) && CollectionUtils.isEmpty(patientUniqueIds)) {
+      return Collections.emptyList();
+    }
+    return mapper.fetchClinicalDataSummaryForEnrichments(
+        sampleUniqueIds,
+        patientUniqueIds,
+        sampleAttributeIds,
+        patientAttributeIds,
+        conflictingAttributeIds);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Returns early with empty list if no unique IDs provided to avoid unnecessary database call.
+   */
   @Override
   public List<ClinicalData> fetchClinicalDataDetailed(
       List<String> uniqueIds,
@@ -82,6 +177,11 @@ public class ClickhouseClinicalDataRepository implements ClinicalDataRepository 
         uniqueIds, attributeIds, studyIds, clinicalDataType.toString());
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Returns 0 if no unique IDs provided or if count result is null from the database.
+   */
   @Override
   public Integer fetchClinicalDataMeta(
       List<String> uniqueIds,

@@ -7,6 +7,7 @@ import org.cbioportal.application.file.export.services.ZipOutputStreamWriterServ
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +25,8 @@ public class ExportController {
     this.exportService = exportService;
   }
 
+  @PreAuthorize(
+      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @GetMapping("/export/study/{studyId}.zip")
   public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) {
     if (!exportService.isStudyExportable(studyId)) {

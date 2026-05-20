@@ -23,6 +23,7 @@
     "@types/node": "^20.10.5",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
+    "mocha-junit-reporter": "^2.2.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },

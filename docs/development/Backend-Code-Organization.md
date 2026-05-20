@@ -72,7 +72,7 @@ modeled types such as VirtualStudy and Session
 
 ### cBioPortal Module Dependencies
 
-![Module Dependencies](images/maven-module-dependencies.png)
+![Module Dependencies](../images/maven-module-dependencies.png)
 
 _A module is directly dependent on all modules which touch it from below (touching only at a corner
 does not count). Dependencies are transitive : web is dependent on service, service

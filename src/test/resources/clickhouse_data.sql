@@ -43,6 +43,9 @@ insert into genetic_entity (id,entity_type,stable_id) values (28,'generic_assay'
 insert into genetic_entity (id,entity_type,stable_id) values (29,'generic_assay','mean_2');
 insert into genetic_entity (id,entity_type,stable_id) values (30,'GENERIC_ASSAY','1p_status');
 insert into genetic_entity (id,entity_type,stable_id) values (31,'GENERIC_ASSAY','DMETS_DX_ADRENAL');
+insert into genetic_entity (id,entity_type,stable_id) values (32,'GENERIC_ASSAY','2p_status');
+insert into genetic_entity (id,entity_type,stable_id) values (33,'GENERIC_ASSAY','9p_status');
+insert into genetic_entity (id,entity_type,stable_id) values (34,'GENERIC_ASSAY','10p_status');
 
 -- hugo_gene_symbol should be UPPERCASE
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(207,'AKT1',1,'protein-coding');
@@ -582,6 +585,13 @@ insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummuta
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-1,2,0,1,-2,2,-1,0,1,-2,2,0,1,-1,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (4,2,'1.4146,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1146,0.3498,0.0349,0.4927,-0.8665,-0.4754,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,2,'-0.8097,0.7360,-1.0225,-0.8922,0.7247,0.3537,1.2702,-0.1419,');
+-- co-expression test data for study_tcga_pub_mrna (profile 3, samples: 2,3,6,8,9,10,12,13)
+-- AKT1: all 8 samples have valid expression values
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,1,'0.5210,-0.3140,1.1550,0.2890,-0.8670,0.4230,-1.3640,0.7120,');
+-- BRAF: samples 6 and 10 (positions 3 and 6) have NA — tests missing-value handling
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,6,'0.3450,-0.2180,NA,0.8910,-0.5670,NA,1.2340,-0.4560,');
+-- KRAS: all samples have the same constant value — tests constant-gene filter (should be excluded)
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (3,10,'0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (9,17,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (9,18,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (11,19,'-0.0670,-0.6270,-1.2266,-1.2079,-1.2262,0.6962,-0.3338,-0.1260,0.7559,-1.1267,-0.5893,-1.1506,-1.0027,-1.3157,');
@@ -591,6 +601,9 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Loss,Gain,Unchanged,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (19,31,'No,NA,NA,NA,NA,NA,No,NA,NA,NA,No,No,NA,NA,NA,NA,NA,No,NA,No,No,NA,No,No,Yes,NA,No,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);

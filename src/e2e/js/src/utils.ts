@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { AlterationEnrichment, EnrichmentType } from './types';
+import { AlterationEnrichment, ClinicalDataCountItem, ClinicalDataEnrichment, EnrichmentType } from './types';
 import { config } from './config';
 
 export class TestUtils {
@@ -21,6 +21,68 @@ export class TestUtils {
     const response: AxiosResponse<AlterationEnrichment[]> = await axios.post(
       url,
       testData,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error(`Expected status 200 but got ${response.status}`);
+    }
+
+    if (!response.data) {
+      throw new Error('Response body is empty');
+    }
+
+    return response.data;
+  }
+
+  /**
+   * Calls the clinical data enrichments API endpoint (column-store version)
+   * @param groupFilter - The request payload with groups of sample identifiers
+   * @returns Promise containing array of clinical data enrichments
+   */
+  static async callClinicalDataEnrichmentEndpoint(
+    groupFilter: any
+  ): Promise<ClinicalDataEnrichment[]> {
+    const url = `${config.serverUrl}/api/column-store/clinical-data-enrichments/fetch`;
+
+    const response: AxiosResponse<ClinicalDataEnrichment[]> = await axios.post(
+      url,
+      groupFilter,
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.status !== 200) {
+      throw new Error(`Expected status 200 but got ${response.status}`);
+    }
+
+    if (!response.data) {
+      throw new Error('Response body is empty');
+    }
+
+    return response.data;
+  }
+
+  /**
+   * Calls the clinical data counts API endpoint (column-store version)
+   * @param filter - The request payload with attributes and studyViewFilter
+   * @returns Promise containing array of clinical data count items
+   */
+  static async callClinicalDataCountsEndpoint(
+    filter: any
+  ): Promise<ClinicalDataCountItem[]> {
+    const url = `${config.serverUrl}/api/column-store/clinical-data-counts/fetch`;
+
+    const response: AxiosResponse<ClinicalDataCountItem[]> = await axios.post(
+      url,
+      filter,
       {
         headers: {
           'Content-Type': 'application/json'

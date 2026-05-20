@@ -190,6 +190,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="whereBySampleListId"/>
+        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
     </select>
 
     <select id="getMetaDiscreteCopyNumbersBySampleListId" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
@@ -207,6 +208,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="where"/>
+        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
     </select>
 
     <select id="getDiscreteCopyNumbersInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.DiscreteCopyNumberData">
@@ -217,6 +219,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
+        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
     </select>
 
     <select id="getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries" resultType="org.cbioportal.legacy.model.DiscreteCopyNumberData">
@@ -227,6 +230,7 @@
             INNER JOIN gene ON cna_event.entrez_gene_id = gene.entrez_gene_id
         </if>
         <include refid="whereInMultipleMolecularProfiles"/>
+        ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
     </select>
 
     <select id="getMetaDiscreteCopyNumbersBySampleIds" resultType="org.cbioportal.legacy.model.meta.BaseMeta">

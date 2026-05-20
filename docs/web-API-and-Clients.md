@@ -1,12 +1,12 @@
 # API and API Clients
 
-cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visalizations/reports.
+cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visualizations/reports.
 
 Please see the full reference documentation for the API [here](https://www.cbioportal.org/api/swagger-ui/index.html).
 
 ## API Clients
 
-The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for dowloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. https://swagger.io/tools/swagger-codegen/). Do reach out if you'd like us to add a language.
+The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for downloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. https://swagger.io/tools/swagger-codegen/). Do reach out if you'd like us to add a language.
 
 ### R clients
 

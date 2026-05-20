@@ -263,11 +263,11 @@ RNASeqV2 from TCGA is processed and normalized using [RSEM](https://bmcbioinform
 #### Is there microRNA data?
 We have microRNA data for only a few studies and they are not up to date. To download more updated miRNA data, please go to either [Broad Firehose](https://gdac.broadinstitute.org/), or [GDC](https://portal.gdc.cancer.gov/).
 #### How can I query microRNAs in the portal?
-You can input either precursor or mature miRNA IDs. Since one precursor ID may correspond to multiple mature IDs and vise versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After entering a precursor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.
+You can input either precursor or mature miRNA IDs. Since one precursor ID may correspond to multiple mature IDs and vice versa, the portal creates one internal ID for each pair of precursor ID and mature ID mapping. For example, an internal ID of MIR-29B-1/29B stands for precursor microRNA hsa-mir-29b-1 and mature microRNA hsa-miR-29b. After entering a precursor or mature ID, you will be asked to select one internal ID for query and that internal ID will also be displayed in the Oncoprint.
 
 ### Protein
 #### How can I query phosphoprotein levels in the portal?
-You need to input special IDs for each phosphoprotein/phopshosite such as AKT1_pS473 (which means AKT1 protein phosphorylated at serine residue at position 473). You could also input aliases such as phosphoAKT1 or phosphoprotein, and the portal will ask you to select the phosphoprotein/phosphosite of your interest. Note that phosphoprotein data is only available for select studies and for a limited number of proteins / phosphorylation sites.
+You need to input special IDs for each phosphoprotein/phosphosite such as AKT1_pS473 (which means AKT1 protein phosphorylated at serine residue at position 473). You could also input aliases such as phosphoAKT1 or phosphoprotein, and the portal will ask you to select the phosphoprotein/phosphosite of your interest. Note that phosphoprotein data is only available for select studies and for a limited number of proteins / phosphorylation sites.
 #### Why isn’t there protein data for my gene of interest?
 Most of the protein expression data in cBioPortal comes from assays like RPPA which only interrogate a subset of all proteins. TCGA ovarian, breast, and colorectal firehose legacy studies also have mass-spectrometry-based proteomics data from [CPTAC](https://proteomics.cancer.gov/programs/cptac) which cover more genes/proteins.
 ### DNA Methylation

@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestAttribute;
@@ -178,8 +179,14 @@ public class GenericAssayDataController {
           Projection projection)
       throws MolecularProfileNotFoundException {
 
+    if (!hasValidGenericAssayDataMultipleStudyFilter(
+        interceptedGenericAssayDataMultipleStudyFilter)) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     List<GenericAssayData> result;
-    if (interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+    if (!CollectionUtils.isEmpty(
+        interceptedGenericAssayDataMultipleStudyFilter.getMolecularProfileIds())) {
       result =
           filterEmptyGenericAssayData(
               genericAssayService.fetchGenericAssayData(
@@ -227,5 +234,19 @@ public class GenericAssayDataController {
     return genericAssayDataList.stream()
         .filter(g -> StringUtils.isNotEmpty(g.getValue()) && !g.getValue().equals("NA"))
         .collect(Collectors.toList());
+  }
+
+  private boolean hasValidGenericAssayDataMultipleStudyFilter(
+      GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter) {
+    if (genericAssayDataMultipleStudyFilter == null) {
+      return false;
+    }
+
+    boolean hasMolecularProfileIds =
+        !CollectionUtils.isEmpty(genericAssayDataMultipleStudyFilter.getMolecularProfileIds());
+    boolean hasSampleMolecularIdentifiers =
+        !CollectionUtils.isEmpty(
+            genericAssayDataMultipleStudyFilter.getSampleMolecularIdentifiers());
+    return hasMolecularProfileIds ^ hasSampleMolecularIdentifiers;
   }
 }

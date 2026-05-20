@@ -28,7 +28,7 @@ docker compose run \
 to see the study on the home page. Run `docker compose restart cbioportal`.
 
 To load data incrementally, specify `-d` instead of `-s` option.
-For more details on incremental data loading, see [this page](./Incremental-Data-Loading.md).
+For more details on incremental data loading, see [this page](/Incremental-Data-Loading.md).
 
 #### Using cached portal side-data ####
 

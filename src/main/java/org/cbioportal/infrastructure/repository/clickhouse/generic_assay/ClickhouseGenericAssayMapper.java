@@ -1,10 +1,12 @@
 package org.cbioportal.infrastructure.repository.clickhouse.generic_assay;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 
@@ -56,4 +58,33 @@ public interface ClickhouseGenericAssayMapper {
   List<GenericAssayDataCountItem> getGenericAssayDataCounts(
       StudyViewFilterContext studyViewFilterContext,
       List<GenericAssayDataFilter> genericAssayDataFilters);
+
+  /**
+   * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
+   * IDs.
+   *
+   * @param molecularProfileIds the list of molecular profile stable IDs
+   * @return a list of distinct entity stable IDs
+   */
+  List<String> getGenericAssayStableIdsByProfileIds(List<String> molecularProfileIds);
+
+  /**
+   * Retrieves generic assay meta data (with pre-aggregated properties) for the given entity stable
+   * IDs from the generic_assay_meta_derived table.
+   *
+   * @param stableIds the list of entity stable IDs
+   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   */
+  List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
+
+  /**
+   * Resolves profile IDs → entity stable IDs via generic_assay_profile_entity_derived and joins
+   * with generic_assay_meta_derived in a single query.
+   *
+   * @param profileIds the list of molecular profile stable IDs
+   * @param stableIds optional additional stable ID filter; {@code null} means no filter
+   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   */
+  List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
+      @Param("profileIds") List<String> profileIds, @Param("stableIds") List<String> stableIds);
 }

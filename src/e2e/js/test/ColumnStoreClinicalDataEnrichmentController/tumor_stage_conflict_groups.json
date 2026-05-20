@@ -1,0 +1,32 @@
+{
+  "groups": [
+    {
+      "name": "Early Stage (1a/1b)",
+      "sampleIdentifiers": [
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0006-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0007-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0008-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0012-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0014-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0002-R1" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC4T" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC2T" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC8T" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC32T" }
+      ]
+    },
+    {
+      "name": "Late Stage (3a/3b + Stage II)",
+      "sampleIdentifiers": [
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0003-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0005-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0010-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0013-R1" },
+        { "studyId": "nsclc_tracerx_2017", "sampleId": "CRUK0022-R1" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC5T" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC9T" },
+        { "studyId": "acbc_mskcc_2015", "sampleId": "AdCC6T" }
+      ]
+    }
+  ]
+}

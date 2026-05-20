@@ -55,7 +55,7 @@ After you have local cBioPortal instance running, you can use cURL to test sessi
 
 ```
 curl 'http://localhost:8080/api/session/custom_gene_list' \
-  -H 'Cookie: COOCKIE_COPIED_FROM_BROWSER_REQUEST'
+  -H 'Cookie: COOKIE_COPIED_FROM_BROWSER_REQUEST'
 ```
 
 ```
@@ -69,7 +69,7 @@ curl 'http://localhost:8080/api/session/custom_gene_list' \
 curl 'http://localhost:8080/api/session/custom_gene_list/save' \
   -H 'Content-Type: application/json' \
   -H 'Accept: */*' \
-  -H 'Cookie: COOCKIE_COPIED_FROM_BROWSER_REQUEST' \
+  -H 'Cookie: COOKIE_COPIED_FROM_BROWSER_REQUEST' \
   --data-raw '{"name":"test","description":"test description","geneList":["GENE1","GENE2"]}'
 ```
 

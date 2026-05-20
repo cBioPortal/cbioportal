@@ -17,8 +17,6 @@ import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.GENERIC_ASSAYS, description = " ")
 public class GenericAssayController {
 
-  @Autowired private GenericAssayService genericAssayService;
+  private final GenericAssayService genericAssayService;
+
+  public GenericAssayController(GenericAssayService genericAssayService) {
+    this.genericAssayService = genericAssayService;
+  }
 
   // PreAuthorize is removed for performance reason
   @RequestMapping(
@@ -76,7 +78,7 @@ public class GenericAssayController {
               genericAssayMetaFilter.getMolecularProfileIds(),
               projection.name());
     }
-    return new ResponseEntity<>(result, HttpStatus.OK);
+    return streamJson(result);
   }
 
   // PreAuthorize is removed for performance reason
@@ -97,13 +99,9 @@ public class GenericAssayController {
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws GenericAssayNotFoundException {
-    List<GenericAssayMeta> result;
-
-    result =
+    return streamJson(
         genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-            null, Arrays.asList(molecularProfileId), projection.name());
-
-    return new ResponseEntity<>(result, HttpStatus.OK);
+            null, Arrays.asList(molecularProfileId), projection.name()));
   }
 
   @RequestMapping(
@@ -116,18 +114,19 @@ public class GenericAssayController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
-  public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta_ga(
+  public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMetaByStableId(
       @Parameter(required = false, description = "Generic Assay stable ID") @PathVariable
           String genericAssayStableId,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws GenericAssayNotFoundException {
-    List<GenericAssayMeta> result;
-    result =
+    return streamJson(
         genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-            Arrays.asList(genericAssayStableId), null, projection.name());
+            Arrays.asList(genericAssayStableId), null, projection.name()));
+  }
 
-    return new ResponseEntity<>(result, HttpStatus.OK);
+  private ResponseEntity<List<GenericAssayMeta>> streamJson(List<GenericAssayMeta> data) {
+    return ResponseEntity.ok(data);
   }
 }

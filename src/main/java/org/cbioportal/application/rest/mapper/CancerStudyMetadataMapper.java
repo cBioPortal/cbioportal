@@ -19,5 +19,15 @@ public interface CancerStudyMetadataMapper {
   @Mapping(target = "readPermission", source = "publicStudy")
   CancerStudyMetadataDTO toDto(CancerStudyMetadata cancerStudyMetadata);
 
+  @Mapping(
+      target = "importDate",
+      source = "cancerStudyMetadata.importDate",
+      dateFormat = "yyyy-MM-dd HH:mm:ss")
+  @Mapping(target = "studyId", source = "cancerStudyMetadata.cancerStudyIdentifier")
+  @Mapping(target = "cancerTypeId", source = "cancerStudyMetadata.typeOfCancerId")
+  @Mapping(target = "cancerType", source = "cancerStudyMetadata.typeOfCancer")
+  @Mapping(target = "readPermission", source = "readPermission")
+  CancerStudyMetadataDTO toDto(CancerStudyMetadata cancerStudyMetadata, boolean readPermission);
+
   List<CancerStudyMetadataDTO> toDtos(List<CancerStudyMetadata> cancerStudyMetadataList);
 }

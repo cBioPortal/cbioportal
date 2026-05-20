@@ -20,7 +20,7 @@ For more information about the `application.properties` file, see the [reference
 
 ## Run the cbioportal backend
 
-To run the backend execute the following commabd
+To run the backend execute the following command
 
 ```
 java -jar target/cbioportal-exec.jar

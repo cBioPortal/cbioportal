@@ -8,16 +8,16 @@
             clinical_event_data.value as treatment,
             patient.stable_id as patientId,
             cancer_study.cancer_study_identifier as studyId,
-            clinical_event.start_date as start,
-            clinical_event.stop_date as stop
+            clinical_event_derived.start_date as start,
+            clinical_event_derived.stop_date as stop
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            clinical_event_derived
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-        AND clinical_event.event_type ILIKE 'TREATMENT'
+        AND clinical_event_derived.event_type ILIKE 'TREATMENT'
         AND clinical_event_data.key ILIKE #{key}
     </select>
 
@@ -26,16 +26,16 @@
             sample.stable_id as sampleId,
             patient.stable_id as patientId,
             cancer_study.cancer_study_identifier as studyId,
-            clinical_event.start_date as timeTaken
+            clinical_event_derived.start_date as timeTaken
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            clinical_event_derived
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
             AND clinical_event_data.key ILIKE 'SAMPLE_ID'
-            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN')
+            AND (clinical_event_derived.event_type ILIKE 'Sample Acquisition' OR clinical_event_derived.event_type ILIKE 'SPECIMEN')
     </select>
 
     <select id="getAllShallowSamples" resultType="org.cbioportal.legacy.model.ClinicalEventSample">
@@ -54,13 +54,13 @@
         SELECT EXISTS(SELECT  
             *
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            clinical_event_derived
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
             INNER JOIN sample ON patient.internal_id = sample.patient_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
-            AND clinical_event.event_type ILIKE 'TREATMENT'
+            AND clinical_event_derived.event_type ILIKE 'TREATMENT'
             AND clinical_event_data.key ILIKE #{key} LIMIT 1
         )
     </select>
@@ -69,14 +69,14 @@
         SELECT EXISTS(SELECT
             *
         FROM
-            clinical_event
-            INNER JOIN clinical_event_data ON clinical_event.clinical_event_id = clinical_event_data.clinical_event_id
-            INNER JOIN patient ON clinical_event.patient_id = patient.internal_id
+            clinical_event_derived
+            INNER JOIN clinical_event_data ON clinical_event_derived.clinical_event_id = clinical_event_data.clinical_event_id
+            INNER JOIN patient ON clinical_event_derived.patient_id = patient.internal_id
             INNER JOIN sample ON clinical_event_data.value = sample.stable_id
             INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <include refid="where"/>
             AND clinical_event_data.key ILIKE 'SAMPLE_ID'
-            AND (clinical_event.event_type ILIKE 'Sample Acquisition' OR clinical_event.event_type ILIKE 'SPECIMEN') LIMIT 1)
+            AND (clinical_event_derived.event_type ILIKE 'Sample Acquisition' OR clinical_event_derived.event_type ILIKE 'SPECIMEN') LIMIT 1)
     </select>
 
     <sql id="where">

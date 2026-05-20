@@ -41,7 +41,7 @@ This page describes various changes deployers will need to make as they deploy n
 
 - Remove `db.host` and `db.portal_db_name` and `db.use_ssl` properties from the _portal.properties_ file or JVM
   parameters. Update property `db.connection_string` to encode the hostname, port, database and other parameters
-  according to [Database Settings](deployment/customization/portal.properties-Reference.md#Database-Settings) documentation and pass via
+  according to [Database Settings](deployment/customization/application.properties-Reference.md#database-settings) documentation and pass via
   _portal.properties_ file or as JVM parameter.
 
 ## v4 -> v5

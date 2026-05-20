@@ -62,9 +62,22 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   }
 
   /**
-   * @param studyViewFilterContext
-   * @return
+   * Retrieves detailed metadata for a single cancer study by its identifier.
+   *
+   * @param studyId the cancer study identifier to look up
+   * @return the {@link CancerStudyMetadata} for the study, or {@code null} if not found
    */
+  @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
+  public CancerStudyMetadata getCancerStudyMetadata(String studyId) {
+    List<CancerStudyMetadata> results =
+        cancerStudyMapper.getCancerStudiesMetadata(
+            new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
+    return results.isEmpty() ? null : results.getFirst();
+  }
+
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",

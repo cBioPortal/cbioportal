@@ -68,5 +68,7 @@ public interface CancerStudyRepository {
 
   List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext);
 
+  CancerStudyMetadata getCancerStudyMetadata(String studyId);
+
   List<ResourceCount> getResourceCountsForAllStudies();
 }

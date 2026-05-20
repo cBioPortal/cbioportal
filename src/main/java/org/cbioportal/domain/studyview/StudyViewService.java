@@ -32,6 +32,7 @@ import org.cbioportal.legacy.model.PatientTreatmentReport;
 import org.cbioportal.legacy.model.SampleTreatmentReport;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.service.util.ClinicalAttributeUtil;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
 import org.cbioportal.legacy.web.parameter.ClinicalDataType;
@@ -224,7 +225,8 @@ public class StudyViewService {
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<ClinicalAttribute> getClinicalAttributesForStudies(List<String> studyIds) {
-    return getClinicalAttributesForStudiesUseCase.execute(studyIds);
+    return ClinicalAttributeUtil.convertToLegacyClinicalAttributeList(
+        getClinicalAttributesForStudiesUseCase.execute(studyIds));
   }
 
   @Cacheable(
@@ -304,10 +306,13 @@ public class StudyViewService {
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<GenomicDataCountItem> getMutationTypeCountsByGeneSpecific(
-      StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
+      StudyViewFilter studyViewFilter,
+      List<GenomicDataFilter> genomicDataFilters,
+      boolean includeSampleIds) {
     return genomicDataUseCases
         .getMutationCountsByTypeUseCase()
-        .execute(buildStudyViewFilterContext(studyViewFilter), genomicDataFilters);
+        .execute(
+            buildStudyViewFilterContext(studyViewFilter), genomicDataFilters, includeSampleIds);
   }
 
   @Cacheable(

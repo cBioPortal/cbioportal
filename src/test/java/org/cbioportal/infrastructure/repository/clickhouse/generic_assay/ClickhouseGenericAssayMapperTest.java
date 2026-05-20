@@ -8,6 +8,7 @@ import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainer
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
+import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -30,6 +31,7 @@ public class ClickhouseGenericAssayMapperTest {
 
   private static final String ACC_TCGA = "acc_tcga";
   private static final String STUDY_GENIE_PUB = "study_genie_pub";
+  private static final String ACC_TCGA_ARMLEVEL_CNA_PROFILE = "acc_tcga_armlevel_cna";
 
   @Autowired private ClickhouseGenericAssayMapper mapper;
 
@@ -86,5 +88,82 @@ public class ClickhouseGenericAssayMapperTest {
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
         .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getGenericAssayStableIdsByProfileIds_returnsEntityStableIds() {
+    List<String> stableIds =
+        mapper.getGenericAssayStableIdsByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE));
+
+    assertThat(stableIds).isNotEmpty().contains("1p_status");
+  }
+
+  @Test
+  public void getGenericAssayStableIdsByProfileIds_sortsNumerically() {
+    // Lexicographic order would be: 10p_status, 1p_status, 2p_status, 9p_status
+    // Numeric-aware order should be: 1p_status, 2p_status, 9p_status, 10p_status
+    List<String> stableIds =
+        mapper.getGenericAssayStableIdsByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE));
+
+    assertThat(stableIds).containsExactly("1p_status", "2p_status", "9p_status", "10p_status");
+  }
+
+  @Test
+  public void getGenericAssayMetaByStableIds_returnsMetaWithProperties() {
+    List<GenericAssayMeta> result = mapper.getGenericAssayMetaByStableIds(List.of("1p_status"));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getStableId()).isEqualTo("1p_status");
+    assertThat(result.get(0).getEntityType()).isEqualTo("GENERIC_ASSAY");
+    assertThat(result.get(0).getGenericEntityMetaProperties()).isNotNull();
+  }
+
+  @Test
+  public void getGenericAssayMetaByStableIds_sortsNumerically() {
+    // Input in reverse/lexicographic order; result should be numerically ordered
+    // Lexicographic order would be: 10p_status, 1p_status, 2p_status, 9p_status
+    // Numeric-aware order should be: 1p_status, 2p_status, 9p_status, 10p_status
+    List<GenericAssayMeta> result =
+        mapper.getGenericAssayMetaByStableIds(
+            List.of("10p_status", "9p_status", "2p_status", "1p_status"));
+
+    assertThat(result)
+        .extracting(GenericAssayMeta::getStableId)
+        .containsExactly("1p_status", "2p_status", "9p_status", "10p_status");
+  }
+
+  @Test
+  public void getGenericAssayMetaByProfileIds_noStableIdsFilter_returnsAllEntities() {
+    List<GenericAssayMeta> result =
+        mapper.getGenericAssayMetaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
+
+    assertThat(result)
+        .isNotEmpty()
+        .allMatch(m -> m.getEntityType() != null)
+        .allMatch(m -> m.getGenericEntityMetaProperties() != null)
+        .extracting(GenericAssayMeta::getStableId)
+        .contains("1p_status");
+  }
+
+  @Test
+  public void getGenericAssayMetaByProfileIds_sortsNumerically() {
+    // Lexicographic order would be: 10p_status, 1p_status, 2p_status, 9p_status
+    // Numeric-aware order should be: 1p_status, 2p_status, 9p_status, 10p_status
+    List<GenericAssayMeta> result =
+        mapper.getGenericAssayMetaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
+
+    assertThat(result)
+        .extracting(GenericAssayMeta::getStableId)
+        .containsExactly("1p_status", "2p_status", "9p_status", "10p_status");
+  }
+
+  @Test
+  public void getGenericAssayMetaByProfileIds_withStableIdsFilter_returnsOnlyMatchingEntities() {
+    List<GenericAssayMeta> result =
+        mapper.getGenericAssayMetaByProfileIds(
+            List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), List.of("1p_status"));
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getStableId()).isEqualTo("1p_status");
   }
 }

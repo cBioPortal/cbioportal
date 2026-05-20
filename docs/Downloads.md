@@ -8,7 +8,7 @@ There are several ways in which one can download data from cBioPortal including 
 
 #### Datasets Page
 
-A zip file for each study on [cbioportal.org](https://www.cbioportal.org) can be download from the [Datasets Page](https://www.cbioportal.org/datasets). One can also use the R client [cBioPortalData](/API-and-API-Clients.md#r-client) to programmatically download all of these files.
+A zip file for each study on [cbioportal.org](https://www.cbioportal.org) can be download from the [Datasets Page](https://www.cbioportal.org/datasets). One can also use the R client [cBioPortalData](/web-API-and-Clients.md#r-clients) to programmatically download all of these files.
 
 #### Datahub
 
@@ -16,7 +16,7 @@ The files for each study are also available from our [datahub repository](https:
 
 #### API and API Clients
 
-Besides downloading all the study data one can also request slices of the data using the API. A slice of the data could e.g. be "give me all the mutation data for one patient" or "get me all EGFR mutations for a particular group of samples". There are API clients available in a variety of languages including bash, R and Python. See for more information the [API documentation](/API-and-API-Clients.md#api-and-api-clients).
+Besides downloading all the study data one can also request slices of the data using the API. A slice of the data could e.g. be "give me all the mutation data for one patient" or "get me all EGFR mutations for a particular group of samples". There are API clients available in a variety of languages including bash, R and Python. See for more information the [API documentation](/web-API-and-Clients.md#api-and-api-clients).
 
 ### Instance Maintainer Downloads
 

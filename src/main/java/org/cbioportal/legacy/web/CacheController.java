@@ -67,7 +67,7 @@ public class CacheController {
   }
 
   @RequestMapping(
-      value = "/cache/{studyId}",
+      value = "/api/cache/{studyId}",
       method = RequestMethod.DELETE,
       produces = MediaType.TEXT_PLAIN_VALUE)
   @Operation(summary = "Clear and reinitialize caches after import/removal/update of a study")

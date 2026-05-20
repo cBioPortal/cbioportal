@@ -126,6 +126,16 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
   }
 
   @Override
+  public BaseMeta getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      List<Integer> alterationTypes) {
+    return discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+        molecularProfileIds, sampleIds, entrezGeneIds, alterationTypes);
+  }
+
+  @Override
   public List<DiscreteCopyNumberData>
       getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
           List<String> molecularProfileIds,

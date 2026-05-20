@@ -59,6 +59,16 @@ docker compose exec cbioportal metaImport.py -s /study/lgg_ucsf_2014 -o
 
 Adding `-v` shows status messages.
 
+#### Generating an HTML Validation Report
+
+```bash
+# From the cbioportal-docker-compose repo
+mkdir -p study/reports
+docker compose exec cbioportal metaImport.py -s /study/my_study -o --html=/study/reports/report.html
+```
+
+The HTML report is written to the mounted `cbioportal-docker-compose/study/reports` directory on your host and can be opened directly.
+
 #### Incremental Upload
 
 You have to specify `--data_directory` (or `-d`) instead of `--study_directory` (or `-s`) option to load data incrementally.

@@ -56,6 +56,8 @@ clickhouse client --host <hostname> --port 9000 --user <user> --password '<passw
 
 For HTTP access (port 8123), use `curl` or the ClickHouse HTTP interface directly.
 
+If you are having trouble installing the ClickHouse CLI on your host machine, it is also possible to connect to the ClickHouse database through Docker. See [Docker Compose Setup](#3-docker-compose-setup).
+
 ---
 
 ## 2. Hosting Options
@@ -87,6 +89,24 @@ If you want to get ClickHouse Cloud working with your own setup, you can try rem
 ## 3. Docker Compose Setup
 
 For instructions on running cBioPortal with ClickHouse via Docker Compose, see the [Docker deployment guide](/deployment/docker/README.md).
+
+### Connecting to ClickHouse from Docker
+
+Once you have followed the steps in the Docker Compose guide, it is also possible to connect to the ClickHouse database without having the ClickHouse CLI installed on your host machine.
+
+First, ensure that the cBioPortal containers are running (if not, run `docker compose up -d`). Then, run this command from the root of the `cbioportal-docker-compose` repo:
+
+```shell
+# Set the appropriate variables first
+CLICKHOUSE_USER=<your_clickhouse_user>
+CLICKHOUSE_PASSWORD=<your_clickhouse_password>
+CLICKHOUSE_DB=<your_clickhouse_db_name>
+
+docker compose exec cbioportal-database \
+    sh -c 'clickhouse client -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --database="$CLICKHOUSE_DB"'
+```
+
+This will use the ClickHouse CLI that is embedded in the `cbioportal-database` container in order to connect.
 
 ---
 

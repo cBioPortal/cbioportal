@@ -10,7 +10,7 @@ Getting your study data into cBioPortal requires four steps:
 3. [Validating your study data](#validating-your-study-data)
 4. [Loading your study data](#loading-data)
 
-ClickHouse is the sole database used by cBioPortal v7. The `metaImport.py` script (see [Using the metaImport script](./Using-the-metaImport-script.md)) handles all data loading, including import into ClickHouse. For additional ClickHouse setup and import utilities, see the [tools](https://github.com/cBioPortal/cbioportal-core/blob/main/scripts/clickhouse_import_support/README.md) in the cbioportal-core repository and the [ClickHouse setup guide](../deployment/clickhouse/README.md).
+ClickHouse is the main database used by cBioPortal v7. The `metaImport.py` script (see [Using the metaImport script](./Using-the-metaImport-script.md)) handles all data loading, including import into ClickHouse. For additional ClickHouse setup and import utilities, see the [tools](https://github.com/cBioPortal/cbioportal-core/blob/main/scripts/clickhouse_import_support/README.md) in the cbioportal-core repository and the [ClickHouse setup guide](../deployment/clickhouse/README.md).
 
 ## Setting up the validator
 ### Installation
@@ -31,16 +31,36 @@ $ sudo python3 -m pip install Jinja2
 
 ## Preparing Study Data 
 
-When running cBioPortal via Docker Compose, study data must be placed inside the `/study` directory, which is a special directory mounted into the `cbioportal` container as a Docker volume. Both your study data and any required reference data (e.g. gene panels) must live under this path so that the importer can access them. On your host machine, this corresponds to the `./study` folder inside your `cbioportal-docker-compose` clone. Copy the study your would like to load there before importing:
+When running cBioPortal via Docker Compose, it expects to find study data in the `cbioportal-docker-compose/study` directory. This is mounted to the path `/study` _inside the Docker container_. Both your study data and any required reference data (e.g. gene panels) must live under this path so that the importer can access them. Copy the study you would like to load there before importing:
 
 ```shell
-cp -r /path/to/your_study ./study/
+cp -r /path/to/your_study cbioportal-docker-compose/study/
 docker compose exec cbioportal metaImport.py -s /study/your_study -o
 ```
 
 > **Note:** `-o` overrides validation warnings and proceeds with the import. If you are confident your data will pass all validation checks without warnings, you can drop `-o`.
+>
+> Note that `-o` only overrides validation _warnings_-- if there are validation errors, then the importer still won't run.
 
 The `-s` flag here refers to the path of the study _as seen inside the Docker container_.
+
+## Understanding Derived Tables
+
+cBioPortal v7 uses a two-stage data loading approach:
+
+1. **Base tables** — These store your study data as imported (genetic profiles, samples, patients, clinical data, etc.)
+2. **Derived tables** — These are precomputed, denormalized tables built from the base tables to accelerate Study View queries.
+
+Derived tables are standalone tables (analogous to materialized views) that collapse joins across multiple base tables. They make Study View queries much faster but have no automatic refresh mechanism — they must be rebuilt explicitly.
+
+### Key facts
+
+- `metaImport.py` automatically rebuilds derived tables after every successful import
+- You can use `--no-derive-tables` to skip this step when importing multiple studies in a batch, then run `metaImport.py derive-tables` once at the end
+- After any base table changes (imports, deletions, updates), derived tables **must be rebuilt** for data consistency — the website will display stale or inaccurate data otherwise
+- Derived tables **cannot be incrementally updated** — they are always fully rebuilt from scratch
+
+For a complete list of derived tables and technical details, see the [ClickHouse Setup Guide](../deployment/clickhouse/README.md).
 
 ## Study Structure
 

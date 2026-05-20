@@ -1,4 +1,4 @@
-> *Note:* This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> ⚠️ **Outdated Documentation:** The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
 
 # Deploy Standalone Isolated Version
 

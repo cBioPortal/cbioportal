@@ -548,10 +548,14 @@ Validation of study succeeded.
 ```
 
 ### Example 4: generating the portal info folder ###
-The portal information files can be generated inside the running container using the dumpPortalInfo script. The output directory is written inside the container.
+The portal information files can be generated using the dumpPortalInfo script:
 ```bash
-docker compose exec cbioportal dumpPortalInfo.pl /portalinfo
+# From the cbioportal-docker-compose repo
+mkdir -p study/portalinfo
+docker compose exec cbioportal dumpPortalInfo.pl /study/portalinfo
 ```
+
+The output files are written to the mounted `cbioportal-docker-compose/study/portalinfo` directory on your host.
 
 ### Example 5: validating without portal-specific information ###
 Alternatively, you can run the validation script with the `-n/--no_portal_checks` flag to entirely skip checks relating to installation-specific metadata. Be warned that files succeeding this validation may still fail to load (correctly).

@@ -51,7 +51,8 @@ clickhouse client --host localhost --port 9000 --user cbio_user --password 'your
 **Connecting to a remote instance (e.g., ClickHouse Cloud):**
 
 ```bash
-clickhouse client --host <hostname> --port 9000 --user <user> --password '<password>' --database cbioportal
+# Note: the default native port for ClickHouse Cloud is 9440
+clickhouse client --host <hostname> --port <port> --user <user> --password '<password>' --database cbioportal
 ```
 
 For HTTP access (port 8123), use `curl` or the ClickHouse HTTP interface directly.

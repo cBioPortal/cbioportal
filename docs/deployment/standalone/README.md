@@ -1,3 +1,5 @@
+> ⚠️ **Outdated Documentation:** The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
+
 # Deploy Standalone Isolated Version
 
 ## Overview
@@ -134,7 +136,7 @@ services:
       - APPLICATION_REDIS_ENABLED=false
       - SPRING_DATASOURCE_URL=jdbc:mysql://oncokb-transcript-mysql:3306/oncokb_transcript?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
       - SPRING_DATASOURCE_USERNAME=oncokb_user
-      - SPRING_DATASOURCE_PASSWORD=somepassword
+      - SPRING_DATASOURCE_PASSWORD=***
     depends_on:
       - "oncokb-transcript-mysql"
     networks:
@@ -458,4 +460,3 @@ Build
 ```
 docker build -t ksg/cancerhotspots -f docker/Dockerfile .
 ```
-

@@ -110,3 +110,6 @@ security.properties
 *.crt
 *.key
 *~
+docs/.obsidian/
+.hermes/
+docker-test-checklist.md

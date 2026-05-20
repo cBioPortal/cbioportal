@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 :warning:  ***Warning: this way of loading data is deprecated. See [Data loading](Data-Loading.md) for the recommended method.***
 
 The page describes how to import data into the cBioPortal using Python scripts found in our [scripts](https://github.com/cBioPortal/cbioportal/tree/stable/core/src/main/scripts) directory.  The follow assumptions have been made:

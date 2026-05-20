@@ -43,17 +43,14 @@ docker compose exec \
 # Remove a study entirely
 docker compose exec \
     cbioportal \
-    cbioportalImporter.py -c remove-study -id study_id
+    cbioportalImporter.py remove-study -id study_id
 
 # Remove specific samples from a study
-docker compose exec \
-    cbioportal \
-    cbioportalImporter.py -c remove-samples --study-id study_id --samples SAMPLE1,SAMPLE2
+docker compose exec cbioportal cbioportalImporter.py remove-samples --study_ids <study_id> --sample_ids SAMPLE1,SAMPLE2
+
 
 # Remove specific patients and all their data
-docker compose exec \
-    cbioportal \
-    cbioportalImporter.py -c remove-patients --study-id study_id --patients PATIENT1,PATIENT2
+docker compose exec cbioportal cbioportalImporter.py remove-patients --study_ids <study_id> --patient_ids PATIENT1,PATIENT2
 ```
 
 After any removal operation, rebuild derived tables:

@@ -16,7 +16,7 @@ Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) in the `c
 ```bash
 docker compose exec cbioportal importGenesetData.pl \
 	--data /study/reference_data/study_es_0_genesets.gmt \
-	--new-version msigdb_6.1 \
+	--new-version msigdb_7.5.1 \
 	--supp /study/reference_data/study_es_0_supp-genesets.txt
 ```
 
@@ -86,7 +86,7 @@ docker compose exec cbioportal importGenesetData.pl \
     --new-version <Version>     # OR --update-info
     [--supp <supp_file.txt>]
 ```
-The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `msigdb_6.1` or `Oncogenic_2017`. Running the script with `--new-version` **removes all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
+The `--new-version` argument with a `<Version>` parameter is used for loading new gene set definitions. It is not possible to add new gene sets or change the genes of current gene sets, without removing the old gene sets first. This is to prevent the user from having gene sets from different definitions and data from older definitions. The user can choose the name or number of the `<Version>` as he likes, e.g. `msigdb_7.5.1` or `Oncogenic_2017`. Running the script with `--new-version` **removes all previous gene sets, gene set hierarchy and gene set genetic profiles.** A prompt is given to make sure the user wants to do this. Note that it is possible enter the same version as the previous version, but previous data is removed nevertheless.
 
 The `--update info` can be used only to update only the long name, description and reference URL.
 

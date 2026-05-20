@@ -29,7 +29,7 @@ The addition of mutation and discrete CNA files is explained in detail below.
 OncoKB annotations can be added to the MAF file by running [importOncokbMutation.py](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer/importOncokbMutation.py) like so:
 
 ```
-python importOncokbMutation.py -s study/lgg_ucsf_2014/ -u https://cbioportal.org
+docker compose exec cbioportal importOncokbMutation.py -s study/lgg_ucsf_2014/ -u https://cbioportal.org
 ```
 
 Where `-s` is the path to the directory of the MAF file and `-u` is the URL to 
@@ -45,7 +45,7 @@ will be stored in the study directory with the _ONCOKB_IMPORT_BACKUP__ prefix.
 OncoKB annotations can be added to the Discrete Copy Number data by running [importOncokbDiscreteCNA.py](https://github.com/cBioPortal/cbioportal/tree/master/core/src/main/scripts/importer/importOncokbDiscreteCNA.py) like so:
 
 ```
-python importOncokbDiscreteCNA.py -s /tmp/study -u https://cbioportal.org
+docker compose exec cbioportal importOncokbDiscreteCNA.py -s /tmp/study -u https://cbioportal.org
 ```
 
 Where `-s` is the path to the directory of the iscrete Copy Number data file and `-u` is the URL to 

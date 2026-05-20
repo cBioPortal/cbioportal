@@ -1,25 +1,28 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataEnrichmentMapper;
 import org.cbioportal.application.rest.response.ClinicalDataEnrichmentDTO;
 import org.cbioportal.domain.clinical_data_enrichment.usecase.FetchClinicalDataEnrichmentsUseCase;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,8 +33,10 @@ import org.springframework.web.bind.annotation.RestController;
  * efficient data retrieval and supports both numerical (Kruskal-Wallis) and categorical
  * (Chi-squared) statistical tests.
  */
+@InternalApi
+@Tag(name = "Clinical Data Enrichments", description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreClinicalDataEnrichmentController {
 
   private final FetchClinicalDataEnrichmentsUseCase fetchClinicalDataEnrichmentsUseCase;
@@ -65,10 +70,10 @@ public class ColumnStoreClinicalDataEnrichmentController {
    * @param groupFilter filter containing multiple groups of sample identifiers
    * @return list of clinical data enrichments with p-values and test statistics
    */
-  @Hidden
   @PreAuthorize(
       "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @PostMapping(
+  @RequestMapping(
+      method = RequestMethod.POST,
       value = "/clinical-data-enrichments/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -81,14 +86,21 @@ public class ColumnStoreClinicalDataEnrichmentController {
               array =
                   @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichmentDTO.class))))
   public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
+      @Parameter(hidden = true)
+          @RequestAttribute(required = false, value = "interceptedGroupFilter")
+          GroupFilter interceptedGroupFilter,
       @Parameter(required = true, description = "Group filter with sample identifiers")
           @Valid
-          @RequestBody
+          @RequestBody(required = false)
           GroupFilter groupFilter) {
 
+    GroupFilter effectiveFilter = groupFilter != null ? groupFilter : interceptedGroupFilter;
+    if (effectiveFilter == null) {
+      return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    }
     return new ResponseEntity<>(
         ClinicalDataEnrichmentMapper.INSTANCE.toDTOs(
-            fetchClinicalDataEnrichmentsUseCase.execute(groupFilter)),
+            fetchClinicalDataEnrichmentsUseCase.execute(effectiveFilter)),
         HttpStatus.OK);
   }
 }

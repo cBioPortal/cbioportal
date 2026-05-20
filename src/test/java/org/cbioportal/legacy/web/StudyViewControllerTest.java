@@ -297,7 +297,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -443,7 +443,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/mutated-genes/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/mutated-genes/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -499,7 +499,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/structuralvariant-genes/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/structuralvariant-genes/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -557,7 +557,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/cna-genes/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/cna-genes/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -613,7 +613,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -664,7 +664,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/molecular-profile-sample-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/molecular-profile-sample-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -741,7 +741,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/genomic-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/genomic-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1059,7 +1059,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/generic-assay-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1136,7 +1136,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/clinical-event-type-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/clinical-event-type-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1187,7 +1187,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1220,7 +1220,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1253,7 +1253,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1284,7 +1284,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1316,7 +1316,7 @@ public class StudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/filtered-samples/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/filtered-samples/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1385,7 +1385,7 @@ public class StudyViewControllerTest {
 
     ResultActions result1 =
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/mutation-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/mutation-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1419,7 +1419,7 @@ public class StudyViewControllerTest {
 
     ResultActions result2 =
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/api/mutation-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/mutation-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

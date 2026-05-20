@@ -160,8 +160,6 @@ DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
 
 ### Web-only image
 
-> :warning: The web-only Docker image has not been tested yet and is included here for reference only. Do not use it in a production or development environment until this notice is removed.
-
 The above builds the app as loose files (`web-and-data` variant). To build a single executable `app.jar` instead, use the `web` Dockerfile:
 
 ```

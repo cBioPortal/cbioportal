@@ -24,18 +24,18 @@ docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html 
 :warning: after importing a study, remember to restart the `cbioportal` container
 to see the study on the home page. Run `docker compose restart cbioportal`.
 
-To load data incrementally, specify `-d` instead of `-s` option.
-For more details on incremental data loading, see [this page](/data-loading/Incremental-Data-Loading.md).
 
 ### Incremental Import
 
-To add or update data in an existing study without re-importing the entire study:
+To add or update data in an existing study without importing the entire study, you can use the new incremental import functionality. Point the importer to a folder containing a "delta" of study data you would like to add. To load data incrementally, you will specify the `-d` instead of the `-s` option.
 
 ```shell
 docker compose exec \
     cbioportal \
-    metaImport.py -d /study/name_of_study -o
+    metaImport.py -d /study/<study_delta> -o
 ```
+
+For more details on incremental data loading, see [this page](/data-loading/Incremental-Data-Loading.md).
 
 ### Removing Studies, Samples, and Patients
 

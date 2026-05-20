@@ -25,6 +25,7 @@ jobs:
         with:
           images: |
             cbioportal/cbioportal
+          sep-tags: ","
           # The latest tag will also be generated on tag event with a valid semver tag
           tags: |
             type=ref,event=branch
@@ -45,15 +46,15 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Publish Docker Image on Tag
-        uses: docker/build-push-action@v6
+        uses: whoan/docker-build-with-cache-action@34edef5583fa265f0a1b6ad4b0aa800580168f7c # v5
         with:
+          username: "${{ secrets.DOCKER_USERNAME }}"
+          password: "${{ secrets.DOCKER_PASSWORD }}"
+          image_name: cbioportal/cbioportal
+          image_tag: ${{ steps.meta.outputs.tag-names }}
           context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          platforms: linux/amd64,linux/arm64
-          file: docker/web-and-data/Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha
+          dockerfile: docker/web-and-data/Dockerfile
+          build_extra_args: --platform linux/amd64,linux/arm64
 
   build_and_publish_web:
       if: github.repository == 'cBioPortal/cbioportal'
@@ -70,6 +71,7 @@ jobs:
           with:
             images: |
               cbioportal/cbioportal
+            sep-tags: ","
             # Do not generate latest tag
             flavor: |
               latest=false
@@ -93,15 +95,15 @@ jobs:
           uses: docker/setup-buildx-action@v3
 
         - name: Publish Docker Image on Tag
-          uses: docker/build-push-action@v6
+          uses: whoan/docker-build-with-cache-action@34edef5583fa265f0a1b6ad4b0aa800580168f7c # v5
           with:
+            username: "${{ secrets.DOCKER_USERNAME }}"
+            password: "${{ secrets.DOCKER_PASSWORD }}"
+            image_name: cbioportal/cbioportal
+            image_tag: ${{ steps.meta.outputs.tag-names }}
             context: .
-            push: true
-            tags: ${{ steps.meta.outputs.tags }}
-            platforms: linux/amd64,linux/arm64
-            file: docker/web/Dockerfile
-            cache-from: type=gha
-            cache-to: type=gha
+            dockerfile: docker/web/Dockerfile
+            build_extra_args: --platform linux/amd64,linux/arm64
 
   update_dependency_graph:
       needs: build_and_publish_web

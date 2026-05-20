@@ -158,6 +158,8 @@ Then update the `DOCKER_IMAGE_CBIOPORTAL` variable in the [cbioportal-docker-com
 DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
 ```
 
+### Web-only image
+
 The above builds the app as loose files (`web-and-data` variant). To build a single executable `app.jar` instead, use the `web` Dockerfile:
 
 ```
@@ -170,8 +172,8 @@ This variant does not include the importer script and may require a different Co
 java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...
 ```
 
-A pre-configured [`docker-compose.web.yml`](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.web.yml) may be available for this variant:
+A pre-configured [`docker-compose.web.yml`](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/dev/docker-compose.web.yml) may be available for this variant:
 
 ```
-docker compose -f docker-compose.web.yml up -d
+docker compose -f docker-compose.yml -f dev/docker-compose.web.yml up -d
 ```

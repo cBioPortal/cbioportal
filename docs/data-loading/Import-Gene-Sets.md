@@ -7,7 +7,9 @@ Before loading a study with gene set data, gene set definitions have to be added
 ## Quick example
 This example shows the process of importing gene set data using the `study_es_0` test dataset, which covers a broad range of cBioPortal data types and is useful for evaluation and troubleshooting.
 
-Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) should be placed in the `./study/reference_data/` directory on the host, which is mounted as `/study/reference_data/` inside the container.
+Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) should be placed in the `cbioportal-docker-compose/study/reference_data/` directory on the host, which is mounted as `/study/reference_data/` inside the container.
+
+> **Note:** The `init.sh` script in `cbioportal-docker-compose` handles downloading and placing reference genome, gene panel, and other reference files in the `study/reference_data/` directory. Run it first before following these import steps.
 
 > **Warning:** Step 1 below **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended not to import `study_es_0` into a production database with other important studies.
 

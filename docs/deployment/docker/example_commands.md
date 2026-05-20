@@ -27,6 +27,8 @@ docker compose run --rm \
 :warning: after importing a study, remember to restart `cbioportal-container`
 to see the study on the home page. Run `docker compose restart cbioportal`.
 
+> **Note:** The `-u http://cbioportal:8080` flag tells the validator which cBioPortal instance URL to use for fetching database-specific resources (e.g., available gene panels). Inside Docker Compose, the `cbioportal` service name resolves to the `cbioportal` container.
+
 To load data incrementally, specify `-d` instead of `-s` option.
 For more details on incremental data loading, see [this page](/data-loading/Incremental-Data-Loading.md).
 

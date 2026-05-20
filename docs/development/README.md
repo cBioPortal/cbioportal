@@ -13,3 +13,5 @@ Note that cBioPortal is split into a backend project (api) and a frontend projec
   (Java, Spring, MySQL, MongoDB)
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbioportal.org or reach out on https://slack.cbioportal.org.
+
+- [Apache 2.0 Relicensing Dependency Audit (RFC86)](./Apache2-Relicensing-Dependency-Audit.md)

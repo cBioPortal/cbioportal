@@ -116,7 +116,7 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 ).result()
 ```
 
-For a portal that requires authentication one can use (see [Data Access Using Tokens](/deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)):
+For a portal that requires authentication one can use (see [Data Access Using Tokens](deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)):
 
 ```
 from bravado.client import SwaggerClient

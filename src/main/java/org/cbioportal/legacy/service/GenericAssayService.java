@@ -10,6 +10,9 @@ public interface GenericAssayService {
   List<GenericAssayMeta> getGenericAssayMetaByStableIdsAndMolecularIds(
       List<String> stableIds, List<String> molecularProfileIds, String projection);
 
+  List<GenericAssayMeta> getGenericAssayMeta(
+      org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter filter, String projection);
+
   List<GenericAssayData> getGenericAssayData(
       String molecularProfileId,
       String sampleListId,

@@ -15,6 +15,7 @@ import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
+import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.http.MediaType;
@@ -61,23 +62,8 @@ public class GenericAssayController {
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws GenericAssayNotFoundException {
-    List<GenericAssayMeta> result;
-
-    if (genericAssayMetaFilter.getGenericAssayStableIds() == null) {
-      result =
-          genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-              null, genericAssayMetaFilter.getMolecularProfileIds(), projection.name());
-    } else if (genericAssayMetaFilter.getMolecularProfileIds() == null) {
-      result =
-          genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-              genericAssayMetaFilter.getGenericAssayStableIds(), null, projection.name());
-    } else {
-      result =
-          genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-              genericAssayMetaFilter.getGenericAssayStableIds(),
-              genericAssayMetaFilter.getMolecularProfileIds(),
-              projection.name());
-    }
+    List<GenericAssayMeta> result =
+        genericAssayService.getGenericAssayMeta(genericAssayMetaFilter, projection.name());
     return streamJson(result);
   }
 
@@ -95,13 +81,25 @@ public class GenericAssayController {
   public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMeta(
       @Parameter(required = true, description = "Molecular Profile ID") @PathVariable
           String molecularProfileId,
+      @Parameter(description = "Keyword for search") @RequestParam(required = false) String keyword,
+      @Parameter(description = "Limit") @RequestParam(required = false) Integer limit,
+      @Parameter(description = "Offset") @RequestParam(required = false) Integer offset,
+      @Parameter(description = "Sort By") @RequestParam(required = false) String sortBy,
+      @Parameter(description = "Direction") @RequestParam(required = false) Direction direction,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws GenericAssayNotFoundException {
-    return streamJson(
-        genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-            null, Arrays.asList(molecularProfileId), projection.name()));
+
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setMolecularProfileIds(Arrays.asList(molecularProfileId));
+    filter.setKeyword(keyword);
+    filter.setLimit(limit);
+    filter.setOffset(offset);
+    filter.setSortBy(sortBy);
+    filter.setDirection(direction);
+
+    return streamJson(genericAssayService.getGenericAssayMeta(filter, projection.name()));
   }
 
   @RequestMapping(
@@ -117,13 +115,25 @@ public class GenericAssayController {
   public ResponseEntity<List<GenericAssayMeta>> getGenericAssayMetaByStableId(
       @Parameter(required = false, description = "Generic Assay stable ID") @PathVariable
           String genericAssayStableId,
+      @Parameter(description = "Keyword for search") @RequestParam(required = false) String keyword,
+      @Parameter(description = "Limit") @RequestParam(required = false) Integer limit,
+      @Parameter(description = "Offset") @RequestParam(required = false) Integer offset,
+      @Parameter(description = "Sort By") @RequestParam(required = false) String sortBy,
+      @Parameter(description = "Direction") @RequestParam(required = false) Direction direction,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws GenericAssayNotFoundException {
-    return streamJson(
-        genericAssayService.getGenericAssayMetaByStableIdsAndMolecularIds(
-            Arrays.asList(genericAssayStableId), null, projection.name()));
+
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setGenericAssayStableIds(Arrays.asList(genericAssayStableId));
+    filter.setKeyword(keyword);
+    filter.setLimit(limit);
+    filter.setOffset(offset);
+    filter.setSortBy(sortBy);
+    filter.setDirection(direction);
+
+    return streamJson(genericAssayService.getGenericAssayMeta(filter, projection.name()));
   }
 
   private ResponseEntity<List<GenericAssayMeta>> streamJson(List<GenericAssayMeta> data) {

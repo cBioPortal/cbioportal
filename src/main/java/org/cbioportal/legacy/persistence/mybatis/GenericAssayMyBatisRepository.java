@@ -31,6 +31,22 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
+  public List<GenericAssayMeta> getPageableGenericAssayMeta(
+      List<String> stableIds,
+      String keyword,
+      Integer limit,
+      Integer offset,
+      String sortBy,
+      String direction) {
+
+    return genericAssayMapper.getPageableGenericAssayMeta(
+        stableIds, keyword, limit, offset, sortBy, direction);
+  }
+
+  @Override
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   public List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(
       List<String> stableIds) {
     return genericAssayMapper.getGenericAssayAdditionalproperties(stableIds);

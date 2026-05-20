@@ -19,7 +19,7 @@ the study in its associated database.
 ```shell
 # From the cbioportal-docker-compose repo
 mkdir -p study/reports
-docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o --html=/study/reports/report.html
+docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html /study/reports/report.html
 ```
 :warning: after importing a study, remember to restart the `cbioportal` container
 to see the study on the home page. Run `docker compose restart cbioportal`.
@@ -77,7 +77,7 @@ Then, tell the script to use the cached folder instead of the API:
 ```shell
 # From the cbioportal-docker-compose repo
 mkdir -p study/reports
-docker compose exec cbioportal metaImport.py -p /study/portalinfo -s /study/name_of_study -o --html=/study/reports/report.html
+docker compose exec cbioportal metaImport.py -p /study/portalinfo -s /study/name_of_study -o -html /study/reports/report.html
 ```
 
 ### Inspecting or adjusting the database ###

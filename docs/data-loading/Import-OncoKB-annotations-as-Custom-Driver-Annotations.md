@@ -8,7 +8,7 @@ as custom driver annotations. It assumes the following requirements have been sa
 
 1. The cBioPortal software has been correctly built from source.
 2. The user is able to successfully import a [study into the database](README.md).
-3. The study subjected to OncoKB import is [confirmed to be valid](README.md)
+3. The study subjected to OncoKB import is [confirmed to be valid](README.md#validating-your-study-data)
 
 ## Import of OncoKB annotations when loading a study
 

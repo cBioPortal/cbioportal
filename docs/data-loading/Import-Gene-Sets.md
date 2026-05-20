@@ -39,10 +39,12 @@ docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/d
 5. Import study:
 
 ```bash
+mkdir -p study/reports
 docker compose exec cbioportal metaImport.py \
 	-s /study/study_es_0 \
 	-v \
-	-o
+	-o \
+	-html /study/reports/report.html
 ```
 
 ## Requirements for gene sets in cBioPortal

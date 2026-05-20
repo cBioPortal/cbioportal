@@ -22,19 +22,6 @@ spring.datasource.password=somepassword
 spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
-### Legacy `db.*` Properties (Deprecated)
-
-The following `db.*` properties are deprecated and should be migrated to `spring.datasource.*`:
-
-| Deprecated | Replacement |
-|---|---|
-| `db.user` | `spring.datasource.username` |
-| `db.password` | `spring.datasource.password` |
-| `db.connection_string` | `spring.datasource.url` |
-| `db.driver` | `spring.datasource.driver-class-name` |
-
-> **Note:** Spring Boot automatically migrates legacy `db.*` properties to `spring.datasource.*` at startup, but using the standard `spring.datasource.*` properties is recommended.
-
 ## cBioPortal Customization
 
 ### Logging

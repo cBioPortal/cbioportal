@@ -1,4 +1,4 @@
-> *Note:* This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 
 # cBioPortal Development Guidelines
 

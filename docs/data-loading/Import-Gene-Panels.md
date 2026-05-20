@@ -24,7 +24,7 @@ docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/d
 docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/data_gene_panel_testpanel2.txt
 ```
 
-For gene panels that are not bundled with a study (i.e. standalone reference panels), place the panel files in the `./study/reference_data/` directory on the host and reference them as `/study/reference_data/<your_panel.txt>` inside the container.
+For gene panels that are not bundled with a study (i.e. standalone reference panels), place the panel files in the `cbioportal-docker-compose/study/reference_data/` directory on the host. They will be mounted as `/study/reference_data/<your_panel.txt>` inside the container through a Docker volume.
 
 After loading gene panels into the database, please restart the portal to see updates.
 

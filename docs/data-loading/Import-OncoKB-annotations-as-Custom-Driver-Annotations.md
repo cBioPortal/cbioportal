@@ -8,15 +8,15 @@ as custom driver annotations. It assumes the following requirements have been sa
 
 1. The cBioPortal software has been correctly built from source.
 2. The user is able to successfully import a [study into the database](README.md).
-3. The study subjected to OncoKB import is [confirmed to be valid](README.md)
+3. The study subjected to OncoKB import is [confirmed to be valid](README.md#validating-your-study-data)
 
 ## Import of OncoKB annotations when loading a study
 
 OncoKB annotations can be added automatically to the study files when the study is loaded into the database by adding the
 `--import_oncokb` parameter to the [metaImport.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/metaImport.py) script like so:
 
-```
-python metaImport.py --import_oncokb -s study/lgg_ucsf_2014/ -o
+```bash
+docker compose exec cbioportal metaImport.py --import_oncokb -s /study/lgg_ucsf_2014 -o
 ```
 
 This will add OncoKB data to the mutation and discrete CNA files of a study, revalidate the results and load the study

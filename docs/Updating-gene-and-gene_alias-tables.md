@@ -1,4 +1,4 @@
-> *Note:* This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 
 # Updating the gene names and aliases tables
 This manual is intended for users that have knowledge about the structure of the cBioPortal seed database.

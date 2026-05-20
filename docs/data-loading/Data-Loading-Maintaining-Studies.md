@@ -9,10 +9,21 @@ This script can also be used to delete studies.
 - [Deleting patients](#deleting-patients)
 - [Deleting samples](#deleting-samples)
 
-## Importing a study without validation 
-To import a study without validation, run: 
+## Requirements
+
+Make sure that you have followed the instructions in the [Docker Compose setup guide](../deployment/docker/README.md).
+
+## Importing a study without validation
+
+First, copy the study on your host machine into the `study/` directory under `cbioportal-docker-compose`:
+
 ```
-docker compose exec cbioportal cbioportalImporter.py -s <path to study directory>
+cp -r /path/to/your_study <cbioportal-docker-compose repo>/study/your_study
+```
+
+To import a study without validation, run this from the root of the `cbioportal-docker-compose` repo: 
+```
+docker compose exec cbioportal cbioportalImporter.py -s /study/your_study
 ```
 
 For example:

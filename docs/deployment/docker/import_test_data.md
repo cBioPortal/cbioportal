@@ -17,7 +17,7 @@ This is an example to import the sample study `study_es_0`. `study_es_0` is a **
 ```shell
 docker compose exec cbioportal importGenesetData.pl \
     --data /study/reference_data/study_es_0_genesets.gmt \
-    --new-version msigdb_6.1 \
+    --new-version msigdb_7.5.1 \
     --supp /study/reference_data/study_es_0_supp-genesets.txt
 ```
 

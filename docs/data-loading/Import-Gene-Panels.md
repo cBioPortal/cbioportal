@@ -30,6 +30,8 @@ After loading gene panels into the database, please restart the portal to see up
 
 #### Update existing gene panel
 
+> **Note:** The documentation in this section is outdated-- there is no longer an `updateGenePanel.pl` script. If you want to re-import a gene panel that is referred to by an existing study, it is recommended to clear the database of that study first and then run `importGenePanel.pl`.
+
 If a gene panel exists in the database with the same name as the one being imported, and there exists cancer study data that refers to this gene panel, the ImportGenePanel command will abort.  In order to reimport the gene panel in this situation, run the UpdateGenePanel command.  
 
 If the incoming gene panel is the same as the original gene panel, whether through importing or updating, then no changes shall be made to the gene panel.  If the incoming gene panel is empty, then the script will abort.  Genes in the incoming gene panel that were not in the original shall be added to the existing gene panel. Conversely, genes not in the incoming gene panel that were in the original shall be removed from the existing gene panel.  The UpdateGenePanel command will prompt twice to confirm changes made to the gene panel, such as genes to be added or removed.  

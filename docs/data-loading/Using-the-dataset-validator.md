@@ -1,14 +1,11 @@
 # Using the dataset validator
 
-To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](/File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
+To facilitate the loading of new studies into its database, cBioPortal [provides a set of staging files formats](../File-Formats.md) for the various data types. To validate your files you can use the dataset validator script. 
 
 ## Running the validator
 
-To run the validator first go to the importer folder
-`<cbioportal_source_folder>/core/src/main/scripts/importer`
-and then run the following command:
 ```bash
-./validateData.py --help
+docker compose exec cbioportal validateData.py --help
 ```
 This will tell you the parameters you can use: 
 ```console
@@ -61,7 +58,7 @@ when the validator encounters these validation checks it will report them as an 
 ### Example 1: test study_es_0
 As an example, you can try the validator with one of the test studies found in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option to also see the progress:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -u http://localhost:8080 -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -u http://localhost:8080 -v
 ```
 Results in:
 ```console
@@ -275,81 +272,23 @@ Validation of study succeeded.
 When using the `-html` option, a report will be generated, which looks like this for the previous example:
 ![Screenshot of a successful validation report](images/scripts/report.png)
 
-### Example 2: test study_es_1
-More test studies for trying the validator (`study_es_1` and `study_es_3`) are available in  `<cbioportal_source_folder>/core/src/test/scripts/test_data`. Example, assuming port 8080 and using -v option:
-```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_1/ -u http://localhost:8080 -v
-```
-Results in:
-```console
-DEBUG: -: Requesting info from portal at 'http://localhost:8081'
-DEBUG: -: Requesting cancer-types from portal at 'http://localhost:8081'
-DEBUG: -: Requesting genes from portal at 'http://localhost:8081'
-DEBUG: -: Requesting genesets from portal at 'http://localhost:8081'
-DEBUG: -: Requesting genesets_version from portal at 'http://localhost:8081'
-DEBUG: -: Requesting gene-panels from portal at 'http://localhost:8081'
-
-DEBUG: meta_expression_median.txt: Starting validation of meta file
-ERROR: meta_expression_median.txt: Invalid stable id for genetic_alteration_type 'MRNA_EXPRESSION', data_type 'Z-SCORE'; expected one of [mrna_U133_Zscores, rna_seq_mrna_median_Zscores, mrna_median_Zscores, rna_seq_v2_mrna_median_Zscores, rna_seq_v2_mrna_median_normals_Zscores, mirna_median_Zscores, mrna_merged_median_Zscores, mrna_zbynorm, mrna_seq_tpm_Zscores, mrna_seq_cpm_Zscores, rna_seq_mrna_capture_Zscores, mrna_seq_fpkm_capture_Zscores, mrna_seq_fpkm_polya_Zscores, mrna_U133_all_sample_Zscores, mrna_all_sample_Zscores, rna_seq_mrna_median_all_sample_Zscores, mrna_median_all_sample_Zscores, rna_seq_v2_mrna_median_all_sample_Zscores, rna_seq_v2_mrna_median_all_sample_ref_normal_Zscores, mrna_seq_cpm_all_sample_Zscores, mrna_seq_tpm_all_sample_Zscores, rna_seq_mrna_capture_all_sample_Zscores, mrna_seq_fpkm_capture_all_sample_Zscores, mrna_seq_fpkm_polya_all_sample_Zscores]; value encountered: 'mrna'
-
-DEBUG: meta_samples.txt: Starting validation of meta file
-WARNING: meta_samples.txt: Unrecognized field in meta file; values encountered: ['show_profile_in_analysis_tab', 'profile_description', 'profile_name']
-INFO: meta_samples.txt: Validation of meta file complete
-
-DEBUG: meta_study.txt: Starting validation of meta file
-INFO: meta_study.txt: Validation of meta file complete
-INFO: meta_study.txt: No reference genome specified -- using default (hg19)
-
-DEBUG: meta_treatment_ec50.txt: Starting validation of meta file
-INFO: meta_treatment_ec50.txt: Validation of meta file complete
-
-DEBUG: meta_treatment_ic50.txt: Starting validation of meta file
-INFO: meta_treatment_ic50.txt: Validation of meta file complete
-
-DEBUG: data_samples.txt: Starting validation of file
-INFO: data_samples.txt: Validation of file complete
-INFO: data_samples.txt: Read 831 lines. Lines with warning: 0. Lines with error: 0
-
-DEBUG: -: Validating case lists
-
-DEBUG: case_lists/cases_all.txt: Starting validation of meta file
-INFO: case_lists/cases_all.txt: Validation of meta file complete
-ERROR: case_lists/cases_all.txt: Sample ID not defined in clinical file; value encountered: 'INVALID-A2-A0T2-01'
-
-INFO: -: Validation of case list folder complete
-
-DEBUG: data_treatment_ec50.txt: Starting validation of file
-ERROR: data_treatment_ec50.txt: line 2: column 1: Do not use space in the stable id; value encountered: '17 AAG'
-ERROR: data_treatment_ec50.txt: line 7: column 5: Blank cell found in column; value encountered: ''' (in column 'TCGA-A1-A0SB-01')'
-INFO: data_treatment_ec50.txt: Validation of file complete
-INFO: data_treatment_ec50.txt: Read 11 lines. Lines with warning: 0. Lines with error: 2
-
-DEBUG: data_treatment_ic50.txt: Starting validation of file
-ERROR: data_treatment_ic50.txt: line 7: column 5: Blank cell found in column; value encountered: ''' (in column 'TCGA-A1-A0SB-01')'
-INFO: data_treatment_ic50.txt: Validation of file complete
-INFO: data_treatment_ic50.txt: Read 10 lines. Lines with warning: 0. Lines with error: 1
-
-INFO: -: Validation complete
-Validation of study failed.
-```
-
-And respective HTML report:
+Here is an example of an HTML report for unsuccessful validation:
 ![Screenshot of an unsuccessful validation report](images/scripts/report1.png)
 
 ## Offline validation ##
 The validation script can be used offline, without connecting to a cBioPortal server. The tests that depend on information specific to the portal (which clinical attributes and cancer types have been previously defined, and which Entrez gene identifiers and corresponding symbols are supported), will instead be read from a folder with .json files generated from the portal.
 
-### Example 3: validation with a portal info folder ###
+### Example 2: validation with a portal info folder ###
 To run the validator with a folder of portal information files, add the `-p/--portal_info_dir` option to the command line, followed by the path to the folder:
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -p ../../../test/scripts/test_data/api_json_system_tests/ -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -p /study/api_json_system_tests/ -v
 ```
 ```console
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/cancer-types.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genes.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/genesets_version.json
-DEBUG: -: Reading portal information from ../../../test/scripts/test_data/api_json_system_tests/gene-panels.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/cancer-types.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genes.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genesets.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/genesets_version.json
+DEBUG: -: Reading portal information from /study/api_json_system_tests/gene-panels.json
 
 DEBUG: meta_cancer_type.txt: Starting validation of meta file
 INFO: meta_cancer_type.txt: Validation of meta file complete
@@ -550,19 +489,21 @@ INFO: -: Validation complete
 Validation of study succeeded.
 ```
 
-### Example 4: generating the portal info folder ###
-The portal information files can be generated on the server, using the dumpPortalInfo script. Go to `<cbioportal_source_folder>/core/src/main/scripts`, make sure the environment variables `$JAVA_HOME` and `$PORTAL_HOME` are set, and run dumpPortalInfo.pl with the name of the directory you want to create:
+### Example 3: generating the portal info folder ###
+The portal information files can be generated using the dumpPortalInfo script:
 ```bash
-export JAVA_HOME='/usr/lib/jvm/default-java'
-export PORTAL_HOME=<cbioportal_configuration_folder>
-./dumpPortalInfo.pl /home/johndoe/my_portal_info_folder/
+# From the cbioportal-docker-compose repo
+mkdir -p study/portalinfo
+docker compose exec cbioportal dumpPortalInfo.pl /study/portalinfo
 ```
 
-### Example 5: validating without portal-specific information ###
+The output files are written to the mounted `cbioportal-docker-compose/study/portalinfo` directory on your host.
+
+### Example 4: validating without portal-specific information ###
 Alternatively, you can run the validation script with the `-n/--no_portal_checks` flag to entirely skip checks relating to installation-specific metadata. Be warned that files succeeding this validation may still fail to load (correctly).
 
 ```bash
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -n -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -n -v
 ```
 ```console
 WARNING: -: Skipping validations relating to cancer types defined in the portal
@@ -776,13 +717,13 @@ cBioPortal is gradually introducing support for mouse. If you want to load mouse
 
 As an example, the command for the mouse example using the three parameters is given:
 ```
-./validateData.py -s ../../../test/scripts/test_data/study_es_0/ -P ../../../../../src/main/resources/application.properties -u http://localhost:8080 -v
+docker compose exec cbioportal validateData.py -s /study/study_es_0/ -P /cbioportal-webapp/application.properties -u http://localhost:8080 -v
 ```
 
 ## Running the validator for multiple studies
 The importer folder `<cbioportal_source_folder>/core/src/main/scripts/importer` also contains a script for running the validator for multiple studies:
 ```bash
-./validateStudies.py --help
+docker compose exec cbioportal validateStudies.py --help
 ```
 The following parameters can be used:
 ```console
@@ -819,14 +760,14 @@ optional arguments:
 Parameters `--url_server`, `--portal_info_dir`, `--no_portal_checks` and `--portal_properties` are equal to the parameters with the same name in `validateData.py`. The script will save a log file with validation output (`log-validate-studies.txt`) and output the validation status from the input studies:
 
 ```console
-=== Validating study ../../../test/scripts/test_data/study_es_0
+=== Validating study /study/study_es_0
 Result: VALID (WITH WARNINGS)
 
-=== Validating study ../../../test/scripts/test_data/study_es_1
+=== Validating study /study/lgg_ucsf_2014
 Result: INVALID
 
-=== Validating study ../../../test/scripts/test_data/study_es_invalid
-directory cannot be found: ../../../test/scripts/test_data/study_es_invalid
+=== Validating study /study/study_es_invalid
+directory cannot be found: /study/study_es_invalid
 Result: INVALID (PROBLEMS OCCURRED)
 
 ```
@@ -834,23 +775,23 @@ Result: INVALID (PROBLEMS OCCURRED)
 ### Example 1: Root directory parameter
 Validation can be run for all studies in a certain directory by using the `--root-directory` parameter. The script will append each folder in the root directory to the study list to validate:
 ```bash
-./validateStudies.py -d ../../../test/scripts/test_data/
+docker compose exec cbioportal validateStudies.py -d /study/
 ```
 
 ### Example 2: List of studies parameter
 Validation can also be run for specific studies by using the `--list-of-studies` parameter. The paths to the different studies can be defined and seperated by a comma:
 ```bash
-./validateStudies.py -l ../../../test/scripts/test_data/study_es_0,../../../test/scripts/test_data/study_es_1
+docker compose exec cbioportal validateStudies.py -l /study/study_es_0,/study/lgg_ucsf_2014
 ```
 
 ### Example 3: Combination root directory and list of studies parameter
 Validation can also be run on specific studies in a certain directory by combining the `--root-directory` and `--list-of-studies` parameter:
 ```bash
-./validateStudies.py -d ../../../test/scripts/test_data/ -l study_es_0,study_es_1
+docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,lgg_ucsf_2014
 ```
 
 ### Example 4: HTML folder parameter
 When HTML validation reports are desired, an output folder for these HTML files can be specified. This folder does not have to exist, the script can create the folder. The HTML validation reports will get the following name: `<study_name>-validation.html`. To create HTML validation reports for each study the `--html-folder` parameter needs to be defined:
 ```bash
-./validateStudies.py -d ../../../test/scripts/test_data/ -l study_es_0,study_es_1 -html ../../../test/scripts/test_data/validation-reports
+docker compose exec cbioportal validateStudies.py -d /study/ -l study_es_0,lgg_ucsf_2014 -html /study/reports/report.html
 ```

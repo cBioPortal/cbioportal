@@ -2,6 +2,9 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+## v6.4 -> v7.0
+- Please see [v6 to v7 Migration](Migration-v6-to-v7.md)
+
 ## v6.3 -> v6.4
 - The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading.
 

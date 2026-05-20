@@ -4,34 +4,112 @@ This page describes the main properties within application.properties. Note that
 
 ## Database Settings
 
-```
-db.user=
-db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
-```
+cBioPortal connects to ClickHouse via Spring Boot's standard datasource properties. Configure these in `application.properties`:
 
-The format of the `db.connection_string` is:
-```
-jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```properties
+spring.datasource.url=jdbc:ch://<host>:<port>/<database>
+spring.datasource.username=<your-db-user>
+spring.datasource.password=<your-db-password>
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 For example:
 
-```
-jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
-```
-
-:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
-the `db.connection_string` instead.
-
-`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
-
-```
-db.tomcat_resource_name=jdbc/cbioportal
+```properties
+spring.datasource.url=jdbc:ch://localhost:8123/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 ## cBioPortal Customization
+
+### Logging
+
+```properties
+# Root logging level (INFO, DEBUG, WARN, ERROR)
+logging.level.root=INFO
+```
+
+### Cache Configuration
+
+```properties
+# Cache type: ehcache-heap, ehcache-disk, ehcache-hybrid, redis, or no-cache
+persistence.cache_type=no-cache
+
+# Enable cache statistics endpoint
+# cache.statistics_endpoint_enabled=false
+
+# Enable cache management endpoint
+# cache.endpoint.enabled=true
+
+# API key for cache management endpoint access
+# cache.endpoint.api-key=<uuid>
+```
+
+### OncoKB
+
+```properties
+# Enable OncoKB annotations
+show.oncokb=true
+
+# OncoKB public API URL
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB token (required for therapeutic data)
+oncokb.token=
+```
+
+### Genome Nexus
+
+```properties
+# Show Genome Nexus annotation columns in mutation table
+# show.genomenexus.annotation_sources=mutation_assessor
+
+# Default isoform override source (uniprot or mskcc)
+# genomenexus.isoform_override_source=mskcc
+```
+
+### Session Service
+
+```properties
+# URL for session service (used for saving/sharing queries)
+session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
+
+# Optional basic auth for session service
+# session.service.user=
+# session.service.password=
+```
+
+### Server Configuration
+
+```properties
+# Connection timeout in ms
+server.tomcat.connection-timeout=20000
+
+# Max HTTP response header size
+server.tomcat.max-http-response-header-size=16384
+
+# Max HTTP request header size
+server.max-http-request-header-size=16384
+
+# Enable response compression
+server.compression.enabled=true
+```
+
+### Swagger / API Docs
+
+```properties
+# Swagger UI path
+# springdoc.swagger-ui.path=/api/swagger-ui
+
+# API docs path
+# springdoc.api-docs.path=/api/v2/api-docs
+```
+
+### Full Reference
+
+For a complete list of all available properties, see the [application.properties.EXAMPLE](https://github.com/cBioPortal/cbioportal/blob/master/src/main/resources/application.properties.EXAMPLE) file in the cbioportal repository.
 
 ### Hide tabs (pages)
 
@@ -83,7 +161,7 @@ default_cross_cancer_study_list_name=
 
 ### Quick Search (BETA)
 
-![Quick search example](/images/previews/quick\_search\_example.png)
+![Quick search example](/images/previews/quick_search_example.png)
 
 Enable or disable the quick search with the following:
 
@@ -277,7 +355,7 @@ survival.show_p_q_values_in_survival_type_table=
 
 ### Set the initial x-axis limit for the survival plot
 
-By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival\_x\_axis\_limit.png)
+By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival_x_axis_limit.png)
 
 ```
 # Set initial x-axis limit for survival plot (by default, initial limit will be the latest event in the data)

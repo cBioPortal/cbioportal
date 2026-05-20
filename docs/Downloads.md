@@ -24,16 +24,12 @@ As an instance maintainer of cBioPortal there are a variety of files that might 
 
 #### Study staging files
 
-Staging files for the studies on cbioportal.org can be download from the [Datasets Page](https://www.cbioportal.org/datasets). These studies can be validated and loaded in a local cBioPortal instances using the [validator and importer](Data-Loading.md). Any issues with a downloaded study can be reported on [cBioPortal DataHub](https://github.com/cBioPortal/datahub/).
+Staging files for the studies on cbioportal.org can be download from the [Datasets Page](https://www.cbioportal.org/datasets). These studies can be validated and loaded in a local cBioPortal instances using the [validator and importer](data-loading/README.md). Any issues with a downloaded study can be reported on [cBioPortal DataHub](https://github.com/cBioPortal/datahub/).
 
 **Example studies**
 
 TCGA Provisional studies often contain many different data types. These are excellent examples to use as reference when creating your own staging files. A detailed description on supported data types can be found in the [File Formats documentation](/File-Formats.md).
 
-#### Complete cBioPortal database
-
-A MySQL database dump of the complete cbioportal.org database can be found here: https://public-db-dump.assets.cbioportal.org/
-
 #### Seed Database
 
-The seed database is a MySQL dump for seeding a new instance of the cBioPortal. Instructions for loading the seed database can be found [here](/deployment/deploy-without-docker/Import-the-Seed-Database.md). The seed database for human can be downloaded from [cBioPortal Datahub](https://github.com/cBioPortal/datahub/tree/master/seedDB). A mouse version can be found [here](https://github.com/cBioPortal/datahub/tree/master/seedDB\_mouse).
+The seed database is a ClickHouse-compatible dataset for seeding a new instance of cBioPortal. Instructions for loading the seed database can be found [here](/deployment/clickhouse/README.md). The seed database for the human genome can be downloaded from [the cBioPortal repo](https://github.com/cBioPortal/cbioportal/tree/master/src/main/resources/db-scripts/clickhouse/init).

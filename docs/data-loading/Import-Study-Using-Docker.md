@@ -7,24 +7,26 @@
 First, make sure that the study has been placed in the `study/` directory under the `cbioportal-docker-compose` repo. Then open a terminal in the repo root and run:
 
 ```bash
-docker compose exec cbioportal metaImport.py -s /study/${STUDY_DIRECTORY} -o
+docker compose exec cbioportal metaImport.py -s /study/<your_study> -o
 ```
 
 Where:
-- **`${STUDY_DIRECTORY}`**: A subdirectory of `./study/` containing the study's meta and data files.
+- **`<your_study>`**: Replace with the subdirectory name in `cbioportal-docker-compose/study/` containing the study's meta and data files.
 
-For example, to import a study placed in `./study/my_study/`:
+For example, to import a study placed in `cbioportal-docker-compose/study/my_study/`:
 
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/my_study/ -o
 ```
 
-### Skipping Derived Table Rebuild
+### Importing Multiple Studies
 
 If importing multiple studies in a batch, skip the derived table rebuild after each import to save time:
 
 ```bash
-docker compose exec cbioportal metaImport.py --no-derive-tables -s /study/my_study/ -o
+docker compose exec cbioportal metaImport.py --no-derive-tables -s /study/my_study1/ -o
+docker compose exec cbioportal metaImport.py --no-derive-tables -s /study/my_study2/ -o
+docker compose exec cbioportal metaImport.py --no-derive-tables -s /study/my_study3/ -o
 ```
 
 After all imports are complete, rebuild derived tables just once:

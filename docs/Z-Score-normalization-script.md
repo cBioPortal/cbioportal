@@ -81,7 +81,7 @@ docker compose exec cbioportal convertExpressionZscores.pl <copy_number_file> <e
 #### Example:
 
 ```bash
-docker compose exec cbioportal convertExpressionZscores.pl /study/study_es_0/data_CNA.txt /study/study_es_0/data_expression_median.txt data_expression_ZSCORES.txt NONE
+docker compose exec cbioportal convertExpressionZscores.pl /study/study_es_0/data_CNA.txt /study/study_es_0/data_expression_median.txt /study/study_es_0/data_expression_ZSCORES.txt NONE
 ```
 ## NormalizeExpressionLevels_allsampleref method
 Given the expression data for a set of samples, generate normalized expression values with the reference population of all samples independent of sample diploid status.

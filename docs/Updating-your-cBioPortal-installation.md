@@ -1,4 +1,6 @@
-> *Note:* This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+>
+> For information on migrating from cBioPortal v6 to cBioPortal v7+, see the migration guide [here](Migration-v6-to-v7.md).
 
 # Updating your cBioPortal installation
 

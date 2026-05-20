@@ -5,11 +5,9 @@ Gene sets are collections of genes that are grouped together based on higher lev
 Before loading a study with gene set data, gene set definitions have to be added to the database. These can be custom user-defined sets, or sets downloaded from external sources such as [MSigDB](#references). Additionally, a gene set hierarchy can be imported which is used on the cBioPortal Query page for selecting gene sets.
 
 ## Quick example
-This example shows the process of importing gene set data using the `study_es_0` test dataset, which covers a broad range of cBioPortal data types and is useful for evaluation and troubleshooting.
+This example shows the process of importing gene set data using the `study_es_0` test dataset, which covers a broad range of cBioPortal data types and is useful for evaluation and troubleshooting. It is assumed that you have already followed the instructions for [deploying with Docker Compose](../deployment/docker/README.md).
 
-Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) should be placed in the `cbioportal-docker-compose/study/reference_data/` directory on the host, which is mounted as `/study/reference_data/` inside the container.
-
-> **Note:** The `init.sh` script in `cbioportal-docker-compose` handles downloading and placing reference genome, gene panel, and other reference files in the `study/reference_data/` directory. Run it first before following these import steps.
+Reference data files (`.gmt`, supplementary `.txt`, hierarchy `.yaml`) in the `cbioportal-docker-compose/study/reference_data/` directory on the host, which is mounted as `/study/reference_data/` inside the container. Example reference data should be added here when you first run `init.sh` from the root of `cbioportal-docker-compose` repo.
 
 > **Warning:** Step 1 below **removes all existing gene set, gene set hierarchy, and gene set genetic profile data** from the database. It is strongly recommended not to import `study_es_0` into a production database with other important studies.
 

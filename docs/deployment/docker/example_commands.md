@@ -2,29 +2,29 @@
 
 Use this command to import a gene panel. Specify the gene panel file by replacing 
 `<path_to_genepanel_file>` with the absolute path to the gene panel file. Another option is to add the 
-gene panel files in `./study` which is mounted inside the container on `/study/.
+gene panel files in `cbioportal-docker-compose/study/reference_data` which is mounted inside the container on `/study/reference_data/`.
 
 ```shell
-docker compose run --rm \
-    -v <path_to_genepanel_file>:/gene_panels/gene_panel.txt:ro \
-    cbioportal \
-    bash -c 'cd /core/scripts/ && ./importGenePanel.pl --data /gene_panels/gene_panel.txt'
+mkdir -p <cbioportal-docker-compose repo>/study/reference_data/
+cp /path/to/your_gene_panel.txt <cbioportal-docker-compose repo>/study/reference_data/
+docker compose exec cbioportal importGenePanel.pl --data /study/reference_data/your_gene_panel.txt
 ```
 
 ### Importing data ###
 
-Use this command to validate a dataset. Add the study to the `./study` folder. The
+Use this command to validate a dataset. Add the study to the `cbioportal-docker-compose/study` folder. The
 command will connect to the web API of the container `cbioportal-container`, and import 
 the study in its associated database. Make sure to replace `<path_to_report_folder>` with 
-the absolute path were the html report of the validation will be saved.
+the absolute path were the html report of the validation will be saved on the host.
 
 ```shell
+mkdir -p <path_to_report_folder>
 docker compose run --rm \
     -v "<path_to_report_folder>:/report" \
     cbioportal \
-    metaImport.py -s /study/name_of_study -o --html=/report/report.html -u http://cbioportal:8080
+    metaImport.py -s /study/<name_of_study> -o --html=/report/report.html -u http://cbioportal:8080
 ```
-:warning: after importing a study, remember to restart `cbioportal-container`
+:warning: after importing a study, remember to restart the `cbioportal` container
 to see the study on the home page. Run `docker compose restart cbioportal`.
 
 > **Note:** The `-u http://cbioportal:8080` flag tells the validator which cBioPortal instance URL to use for fetching database-specific resources (e.g., available gene panels). Inside Docker Compose, the `cbioportal` service name resolves to the `cbioportal` container.
@@ -92,8 +92,13 @@ docker compose run --rm \
 ### Inspecting or adjusting the database ###
 
 ```shell
+# Set the appropriate variables first
+CLICKHOUSE_USER=<your_clickhouse_user>
+CLICKHOUSE_PASSWORD=<your_clickhouse_password>
+CLICKHOUSE_DB=<your_clickhouse_db_name>
+
 docker compose exec cbioportal-database \
-    sh -c 'clickhouse client -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --query="SHOW DATABASES"'
+    sh -c 'clickhouse client -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --database="$CLICKHOUSE_DB"'
 ```
 
 ### Deleting a study ###

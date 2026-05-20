@@ -55,6 +55,9 @@ public class GenePanelMyBatisRepository implements GenePanelRepository {
   @Override
   public List<GenePanelData> fetchGenePanelDataByMolecularProfileIds(
       Set<String> molecularProfileIds) {
+    if (molecularProfileIds == null || molecularProfileIds.isEmpty()) {
+      return Collections.emptyList();
+    }
     return genePanelMapper.fetchGenePanelDataByMolecularProfileIds(molecularProfileIds);
   }
 

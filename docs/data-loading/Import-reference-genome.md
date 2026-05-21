@@ -31,5 +31,5 @@ mouse	mm10	GRCm38	2652783500	https://hgdownload.cse.ucsc.edu/goldenPath/mm10	201
 Place the reference genome file in the `cbioportal-docker-compose/study/reference_data/` directory on the host (mounted as `/study/reference_data/` inside the container), then run:
 
 ```bash
-docker compose exec cbioportal importReferenceGenome.pl --ref-genome /study/reference_data/reference_genomes.txt
+docker compose exec -e PORTAL_DATA_HOME=/study/reference_data cbioportal importReferenceGenome.pl --ref-genome /study/reference_data/reference_genomes.txt
 ```

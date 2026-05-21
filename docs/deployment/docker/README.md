@@ -175,7 +175,10 @@ For cBioPortal instances with large cohorts (>100K samples), we developed a "Cli
     ```
 
 ### Clickhouse Cloud
-The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, you can set up a Clickhouse database using [Clickhouse Cloud](https://clickhouse.com/cloud) and update the clickhouse database credentials in the [.env](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to match your database credentials. For the clickhouse sync step to work properly, your credentials should have both `read` and `write` permissions.
+
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse" height="40" /></a>
+
+The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, we recommend running Clickhouse as a managed service via [Clickhouse Cloud](https://clickhouse.com/cloud) — it removes the operational overhead of running and scaling Clickhouse yourself. Update the clickhouse database credentials in the [.env](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to match your Clickhouse Cloud database credentials. For the clickhouse sync step to work properly, your credentials should have both `read` and `write` permissions.
 
 ## More commands ##
 For documentation on how to import a study, see [this tutorial](import_data.md)

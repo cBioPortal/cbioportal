@@ -12,6 +12,7 @@ import java.util.List;
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.service.CoExpressionService;
+import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController()
 @RequestMapping("/api")
 @Validated
+@ConditionalOnProperty(name = "coexpression_enabled", havingValue = "true")
 @Tag(name = "Co-Expressions", description = " ")
 public class CoExpressionController {
 

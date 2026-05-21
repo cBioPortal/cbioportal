@@ -21,9 +21,13 @@ the study in its associated database.
 mkdir -p study/reports
 docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html /study/reports/report.html
 ```
-:warning: after importing a study, remember to restart the `cbioportal` container
-to see the study on the home page. Run `docker compose restart cbioportal`.
+> :warning: After importing a study, remember to restart the `cbioportal` container to see the study on the home page. Run `docker compose restart cbioportal`.
 
+> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
+>
+> ```
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
+> ```
 
 ### Incremental Import
 

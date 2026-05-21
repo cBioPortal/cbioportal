@@ -118,6 +118,13 @@ When this command executes -- it does so from the path `/` within the container.
 
 > **Note:** If the validator detects any critical errors with the data, those must be fixed before the study can be imported.
 
+> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
+>
+> ```
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
+> ```
+
+
 All public studies can be downloaded from [cbioportal.org/datasets](https://www.cbioportal.org/datasets) or [github.com/cBioPortal/datahub](https://github.com/cBioPortal/datahub). Add any study to the `./study` folder and import it. The `./study/init.sh` script can download multiple studies at once — set `DATAHUB_STUDIES` to any public study ID (e.g. `lgg_ucsf_2014`) and run `./init.sh`.
 
 ### Clearing the cache after import
@@ -158,22 +165,3 @@ Then update the `DOCKER_IMAGE_CBIOPORTAL` variable in the [cbioportal-docker-com
 DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image
 ```
 
-### Web-only image
-
-The above builds the app as loose files (`web-and-data` variant). To build a single executable `app.jar` instead, use the `web` Dockerfile:
-
-```
-docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web/Dockerfile .
-```
-
-This variant does not include the importer script and may require a different Compose file. If you see an error about a missing `PortalApplication`, configure the launch command to use `app.jar`:
-
-```
-java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...
-```
-
-A pre-configured [`docker-compose.web.yml`](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/dev/docker-compose.web.yml) may be available for this variant:
-
-```
-docker compose -f docker-compose.yml -f dev/docker-compose.web.yml up -d
-```

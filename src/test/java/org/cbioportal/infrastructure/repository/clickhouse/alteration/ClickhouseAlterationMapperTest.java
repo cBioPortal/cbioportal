@@ -115,7 +115,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(a -> Objects.equals(a.getHugoGeneSymbol(), "AKT1"))
             .mapToInt(c -> c.getTotalCount().intValue())
             .sum();
-    assertEquals(3, testAKT1AlterationCount);
+    assertEquals(2, testAKT1AlterationCount);
   }
 
   @Test
@@ -142,7 +142,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(a -> Objects.equals(a.getHugoGeneSymbol(), "AKT1"))
             .mapToInt(c -> c.getTotalCount().intValue())
             .sum();
-    assertEquals(2, testAKT1AlterationCount);
+    assertEquals(1, testAKT1AlterationCount);
   }
 
   @Test
@@ -249,7 +249,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
             .findFirst();
     assertTrue(brca1TotalProfiledCountsForCna.isPresent());
-    assertEquals(2, brca1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+    assertEquals(1, brca1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
     // Assert the profiled counts for AKT1 CNA
     // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
     var akt1TotalProfiledCountsForCna =

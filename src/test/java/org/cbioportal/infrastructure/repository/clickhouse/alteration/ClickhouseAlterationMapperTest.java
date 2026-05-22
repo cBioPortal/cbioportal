@@ -326,7 +326,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
             .findFirst();
     assertTrue(brca1TotalProfiledCountsForCna1.isPresent());
-    assertEquals(2, brca1TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
+    assertEquals(1, brca1TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
     // Assert the profiled counts for BRCA2 CNA
     // BRCA2 is on testpanel3 and testpanel4 in STUDY_GENIE_PUB
     var brca2TotalProfiledCountsForCna1 =

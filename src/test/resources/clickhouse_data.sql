@@ -256,7 +256,7 @@ insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,2,1
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,3,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,4,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,2);
-insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,1);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (11,6,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,7,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,2);

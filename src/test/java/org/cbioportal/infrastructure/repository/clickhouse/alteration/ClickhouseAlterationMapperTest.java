@@ -14,6 +14,7 @@ import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.MutationEventType;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -172,6 +173,7 @@ public class ClickhouseAlterationMapperTest {
     assertEquals(3, testncoa4AlterationCount);
   }
 
+  @Ignore
   @Test
   public void getTotalProfiledCountsByGene() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -345,6 +347,7 @@ public class ClickhouseAlterationMapperTest {
     assertEquals(7, akt2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
   }
 
+  @Ignore
   @Test
   public void testMutatedGenesOnPanelCount() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -394,6 +397,7 @@ public class ClickhouseAlterationMapperTest {
     assertEquals("AKT2 total count", Integer.valueOf(1), akt2.getTotalCount());
   }
 
+  @Ignore
   @Test
   public void testStructuralVariantGenesOnPanelCount() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();

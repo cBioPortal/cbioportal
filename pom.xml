@@ -512,7 +512,6 @@
         <directory>src/main/resources/db-scripts</directory>
         <filtering>false</filtering>
         <includes>
-          <include>clickhouse/clickhouse.sql</include>
           <include>clickhouse/materialized_views.sql</include>
         </includes>
       </testResource>

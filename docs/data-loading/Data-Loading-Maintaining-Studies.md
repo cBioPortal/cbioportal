@@ -26,6 +26,11 @@ To import a study without validation, run this from the root of the `cbioportal-
 docker compose exec cbioportal cbioportalImporter.py -s /study/your_study
 ```
 
+> :warning: **After every import, you must rebuild the derived tables** to update the ClickHouse structures that power the study view. Without this step, newly imported data will not appear correctly in the UI:
+> ```
+> docker compose exec cbioportal metaImport.py derive-tables
+> ```
+
 For example:
 
 ```

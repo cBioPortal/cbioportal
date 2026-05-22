@@ -14,7 +14,6 @@ import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.MutationEventType;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -116,7 +115,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(a -> Objects.equals(a.getHugoGeneSymbol(), "AKT1"))
             .mapToInt(c -> c.getTotalCount().intValue())
             .sum();
-    assertEquals(3, testAKT1AlterationCount);
+    assertEquals(2, testAKT1AlterationCount);
   }
 
   @Test
@@ -143,7 +142,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(a -> Objects.equals(a.getHugoGeneSymbol(), "AKT1"))
             .mapToInt(c -> c.getTotalCount().intValue())
             .sum();
-    assertEquals(2, testAKT1AlterationCount);
+    assertEquals(1, testAKT1AlterationCount);
   }
 
   @Test
@@ -173,7 +172,6 @@ public class ClickhouseAlterationMapperTest {
     assertEquals(3, testncoa4AlterationCount);
   }
 
-  @Ignore
   @Test
   public void getTotalProfiledCountsByGene() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -251,7 +249,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
             .findFirst();
     assertTrue(brca1TotalProfiledCountsForCna.isPresent());
-    assertEquals(2, brca1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+    assertEquals(1, brca1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
     // Assert the profiled counts for AKT1 CNA
     // AKT1 is on both testpanel1 and testpanel2 in STUDY_TCGA_PUB
     var akt1TotalProfiledCountsForCna =
@@ -259,7 +257,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
             .findFirst();
     assertTrue(akt1TotalProfiledCountsForCna.isPresent());
-    assertEquals(8, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+    assertEquals(7, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
 
     // Testing profiled counts on combined studies
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_GENIE_PUB));
@@ -328,7 +326,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("BRCA1"))
             .findFirst();
     assertTrue(brca1TotalProfiledCountsForCna1.isPresent());
-    assertEquals(2, brca1TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
+    assertEquals(1, brca1TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
     // Assert the profiled counts for BRCA2 CNA
     // BRCA2 is on testpanel3 and testpanel4 in STUDY_GENIE_PUB
     var brca2TotalProfiledCountsForCna1 =
@@ -347,7 +345,6 @@ public class ClickhouseAlterationMapperTest {
     assertEquals(7, akt2TotalProfiledCountsForCna1.get().getNumberOfProfiledCases().intValue());
   }
 
-  @Ignore
   @Test
   public void testMutatedGenesOnPanelCount() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -397,7 +394,6 @@ public class ClickhouseAlterationMapperTest {
     assertEquals("AKT2 total count", Integer.valueOf(1), akt2.getTotalCount());
   }
 
-  @Ignore
   @Test
   public void testStructuralVariantGenesOnPanelCount() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();

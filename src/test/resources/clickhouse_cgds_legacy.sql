@@ -234,7 +234,7 @@ ORDER BY genetic_profile_id;
 
 CREATE TABLE gene_panel (
   internal_id Int32,
-  stable_id Nullable(String),
+  stable_id String,
   description Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY internal_id;

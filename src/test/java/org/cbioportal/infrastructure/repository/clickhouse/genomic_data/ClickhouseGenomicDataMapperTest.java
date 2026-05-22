@@ -18,7 +18,6 @@ import org.cbioportal.legacy.web.parameter.DataFilterValue;
 import org.cbioportal.legacy.web.parameter.GenomicDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +91,6 @@ public class ClickhouseGenomicDataMapperTest {
         .isEqualTo(expectedCountsGISTIC);
   }
 
-  @Ignore
   @Test
   public void getMutationCounts() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
@@ -139,7 +137,6 @@ public class ClickhouseGenomicDataMapperTest {
         .isEqualTo(expectedMutationCountsByType);
   }
 
-  @Ignore
   @Test
   public void getMutationCountsByTypeAddSampleId() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();

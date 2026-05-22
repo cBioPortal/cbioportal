@@ -18,6 +18,7 @@ public abstract class AbstractLegacyTestcontainers {
           .withUsername("cbio_user")
           .withPassword("P@ssword1")
           .withUrlParam("use_server_time_zone", "false")
+          .withEnv("CLICKHOUSE_PARAM_optimize_backoff_secs", "0")
           .withClasspathResourceMapping(
               "clickhouse_cgds_legacy.sql",
               "/docker-entrypoint-initdb.d/a_schema.sql",

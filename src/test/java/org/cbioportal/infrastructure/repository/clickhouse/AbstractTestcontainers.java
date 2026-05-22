@@ -17,6 +17,7 @@ public abstract class AbstractTestcontainers {
       new ClickHouseContainer("clickhouse/clickhouse-server:24.5")
           .withUsername("cbio_user")
           .withPassword("P@ssword1")
+          .withEnv("CLICKHOUSE_PARAM_optimize_backoff_secs", "0")
           .withClasspathResourceMapping(
               "clickhouse_cgds.sql", "/docker-entrypoint-initdb.d/a_schema.sql", BindMode.READ_ONLY)
           .withClasspathResourceMapping(

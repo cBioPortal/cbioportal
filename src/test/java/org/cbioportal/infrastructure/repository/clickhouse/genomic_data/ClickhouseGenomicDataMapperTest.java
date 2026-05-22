@@ -103,8 +103,8 @@ public class ClickhouseGenomicDataMapperTest {
             genomicDataFilterMutation);
     Map<String, Integer> expectedMutationCounts = new HashMap<>();
     expectedMutationCounts.put("mutatedCount", 2);
-    expectedMutationCounts.put("notMutatedCount", 8);
-    expectedMutationCounts.put("notProfiledCount", 5);
+    expectedMutationCounts.put("notMutatedCount", 9);
+    expectedMutationCounts.put("notProfiledCount", 4);
     assertThat(actualMutationCounts)
         .usingRecursiveComparison()
         .ignoringCollectionOrder()

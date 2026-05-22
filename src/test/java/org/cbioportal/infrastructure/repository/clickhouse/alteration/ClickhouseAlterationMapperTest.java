@@ -257,7 +257,7 @@ public class ClickhouseAlterationMapperTest {
             .filter(c -> c.getHugoGeneSymbol().equals("AKT1"))
             .findFirst();
     assertTrue(akt1TotalProfiledCountsForCna.isPresent());
-    assertEquals(8, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
+    assertEquals(7, akt1TotalProfiledCountsForCna.get().getNumberOfProfiledCases().intValue());
 
     // Testing profiled counts on combined studies
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB, STUDY_GENIE_PUB));

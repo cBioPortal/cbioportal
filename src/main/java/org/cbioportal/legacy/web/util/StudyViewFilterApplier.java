@@ -1536,7 +1536,7 @@ public class StudyViewFilterApplier {
     }
 
     List<GenePanelData> genePanelData =
-        genePanelDataList.stream().filter(GenePanelData::getProfiled).toList();
+        genePanelDataList.stream().filter(d -> Boolean.TRUE.equals(d.getProfiled())).toList();
 
     Set<SampleIdentifier> profiledCases =
         genePanelData.stream()

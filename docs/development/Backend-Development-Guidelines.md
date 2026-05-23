@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 # cBioPortal Development Guidelines
 
 TODO: these guidelines are out of date, see https://github.com/cBioPortal/cbioportal/issues/11403

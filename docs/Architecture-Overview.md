@@ -2,10 +2,9 @@
 cBioPortal consists of the following components:
 
 - [backend](https://github.com/cBioPortal/cbioportal)
-    - MySQL OLTP database
+    - ClickHouse database
     - REST API written in Java Spring
     - Optional components for performance enhancements:
-        - Clickhouse OLAP database for large cohorts (see [clickhouse mode](https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode))
         - Redis cache for storing study view initial load and other frequent queries and pages
 - [validator](https://github.com/cBioPortal/cbioportal-core/tree/main/scripts/importer)
   checks file formats before importing data into the database
@@ -20,7 +19,7 @@ cBioPortal consists of the following components:
 ## Backend
 
 The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
-connects to a MySQL database to serve a REST API following the OpenAPI
+connects to a ClickHouse database to serve a REST API following the OpenAPI
 specification (https://www.cbioportal.org/api). Note that the repo where this
 lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator. The backend can be configured to
@@ -66,7 +65,7 @@ For privacy concerns see the section: [A note on privacy](#a-note-on-privacy).
 ### OncoKB
 [OncoKB](https://www.oncokb.org) is a precision oncology knowledge base that
 contains information about the effects and treatment implications of specific
-cancer gene alterations. See the section [OncoKB Data Access](/deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
+cancer gene alterations. See the section [OncoKB Data Access](deployment/integration-with-other-webservices/OncoKB-Data-Access.md)
 for how to configure external OncoKB service.
 
 ### CIVIC
@@ -76,7 +75,7 @@ relevance of variants (or biomarker alterations) in cancer. For information on
 how to deploy this service yourself see:
 https://github.com/griffithlab/civic-server. It is also possible to disable
 showing CIVIC in cBioPortal by setting `show.civic=false` in the
-`application.properties` (See [application.properties reference](/deployment/customization/application.properties-Reference.md#civic-integration)).
+`application.properties` (See [application.properties reference](deployment/customization/application.properties-Reference.md#civic-integration)).
 
 ### Genome Nexus
 [Genome Nexus](https://www.genomenexus.org) is a comprehensive one-stop

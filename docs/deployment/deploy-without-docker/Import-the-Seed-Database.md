@@ -1,3 +1,5 @@
+> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](../README.md).
+
 # Importing the Seed Database
 
 The next step is to populate your cBioPortal instance with all the required background data sets. This includes for example gene data, ID mappings, and network interactions. Rather than importing each of these data sets individually, we have provided a simple "seed" database that you can import directly.

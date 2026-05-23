@@ -116,7 +116,7 @@ running on HTTPS directly from Tomcat, then you need to import your certificate 
 See [this Tomcat documentation page](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html) for more details.
 
 :warning: An extra warning for when configuring HTTPS for Tomcat: use the same password for 
-both keystore and secure-key. This seems to be an extra restriction by Tomcat.
+both keystore and secure-key.
 
 
 ## Modifying configuration

@@ -10,6 +10,6 @@ Note that cBioPortal is split into a backend project (api) and a frontend projec
 - [Frontend](http://www.github.com/cbioportal/cbioportal-frontend)
   (Typescript, React, Mobx)
 - [Backend](http://www.github.com/cbioportal/cbioportal)
-  (Java, Spring, MySQL, MongoDB)
+  (Java, Spring, ClickHouse, MongoDB)
 
 If you are interested in coordinating the development of new features, please contact cbioportal@cbioportal.org or reach out on https://slack.cbioportal.org.

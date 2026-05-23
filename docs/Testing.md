@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 # Introduction
 
 This page is about how to run and debug, in an IDE agnostic way, any test classes added to the backend (Java layer).
@@ -70,9 +72,9 @@ SET SESSION sql_mode = 'ANSI_QUOTES';
 ```shell
  docker run -ti --rm \
   --name testdb \
-  --env MYSQL_ROOT_PASSWORD=root \
+  --env MYSQL_ROOT_PASSWORD=*** \
   --env MYSQL_USER=cbio_user \
-  --env MYSQL_PASSWORD=somepassword \
+  --env MYSQL_PASSWORD=*** \
   --env MYSQL_DATABASE=cgds_test \
   -v <path-to-file>/init.sql:/docker-entrypoint-initdb.d/first_file.sql \
   -v <path-to-file>/cgds-test.sql:/docker-entrypoint-initdb.d/second_file.sql \

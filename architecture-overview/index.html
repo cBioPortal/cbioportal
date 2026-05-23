@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -268,11 +268,10 @@
 <ul>
 <li><a href="https://github.com/cBioPortal/cbioportal">backend</a>
 <ul>
-<li>MySQL OLTP database</li>
+<li>ClickHouse database</li>
 <li>REST API written in Java Spring</li>
 <li>Optional components for performance enhancements:
 <ul>
-<li>Clickhouse OLAP database for large cohorts (see <a href="https://github.com/cbioPortal/cbioportal-docker-compose#clickhouse-mode">clickhouse mode</a>)</li>
 <li>Redis cache for storing study view initial load and other frequent queries and pages</li>
 </ul>
 </li>
@@ -298,7 +297,7 @@ user saved data such as virtual studies and groups
     </h2>
 </doc-anchor-target>
 <p>The <a href="https://github.com/cBioPortal/cbioportal">backend</a> is written in Java and
-connects to a MySQL database to serve a REST API following the OpenAPI
+connects to a ClickHouse database to serve a REST API following the OpenAPI
 specification (<a href="https://www.cbioportal.org/api">https://www.cbioportal.org/api</a>). Note that the repo where this
 lives in (<a href="https://github.com/cBioPortal/cbioportal">https://github.com/cBioPortal/cbioportal</a>) also contains Java classes
 to import data as well as the validator. The backend can be configured to

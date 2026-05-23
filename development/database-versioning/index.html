@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,12 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.9.0.832696313819" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -267,60 +266,24 @@
 </doc-anchor-target>
 <p>We follow the following logic when deciding how/when to increment the version of cBioPortal database. It&#x27;s a complete modification of semantic versioning (MAJOR.MINOR.PATCH) more suitable for our purposes:</p>
 <p><strong>MAJOR</strong> : A non-backward compatible significant change in the database. Which requires the maintainer to reload and re-import all studies in the database entirely.</p>
-<p><strong>MINOR</strong> : Including deleting, renaming tables or columns, or changing constraints</p>
-<p>Delete a table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">DROP TABLE t ;</code></pre>
-</doc-codeblock></div>
-<p>Drop column c from the table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t DROP COLUMN c ;</code></pre>
-</doc-codeblock></div>
-<p>Add a constraint</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t ADD constraint;</code></pre>
-</doc-codeblock></div>
-<p>Drop a constraint</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t DROP constraint;</code></pre>
-</doc-codeblock></div>
-<p>Rename a table from t1 to t2</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t1 RENAME TO t2;</code></pre>
-</doc-codeblock></div>
-<p>Rename column c1 to c2</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t1 RENAME c1 TO c2 ;</code></pre>
-</doc-codeblock></div>
+<p><strong>MINOR</strong> : Triggered by any of the following changes:</p>
+<ul>
+<li>Deleting a table</li>
+<li>Dropping a column</li>
+<li>Adding a constraint</li>
+<li>Dropping a constraint</li>
+<li>Renaming a table</li>
+<li>Renaming a column</li>
+</ul>
 <p><strong>PATCH</strong> : Changes that don&#x27;t change existing database schemes but add new tables or columns, manipulating data.</p>
-<p>Create a new table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">CREATE TABLE t (
-     id INT PRIMARY KEY,
-);</code></pre>
-</doc-codeblock></div>
-<p>Add a new column to the table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE t ADD column;</code></pre>
-</doc-codeblock></div>
-<p>Remove all data in a table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">TRUNCATE TABLE t;</code></pre>
-</doc-codeblock></div>
-<p>Delete data from a table:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">DELETE from TABLE t;</code></pre>
-</doc-codeblock></div>
-<p>Update data in a table:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">UPDATE TABLE t SET ...;</code></pre>
-</doc-codeblock></div>
-<p>Insert multiple rows into a table</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-sql"><code v-pre class="language-sql">INSERT INTO t(column_list)
-VALUES (value_list), 
-       (value_list), …;</code></pre>
-</doc-codeblock></div>
+<ul>
+<li>Creating a new table</li>
+<li>Adding a new column</li>
+<li>Removing all data from a table (truncate)</li>
+<li>Deleting rows from a table</li>
+<li>Updating data in a table</li>
+<li>Inserting rows into a table</li>
+</ul>
 
                                 
                                 <!-- Required only on API pages -->
@@ -393,6 +356,6 @@ VALUES (value_list),
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "cBioPortal Database Versioning", level: 2, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "cBioPortal Database Versioning", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

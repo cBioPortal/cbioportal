@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -36,12 +36,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.832696313819" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.832822753797" defer></script>
     <link href="../../../resources/css/katex.css?v=3.9.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=3.9.0" defer></script>
 
@@ -276,25 +276,19 @@
         <span>Database Settings</span>
     </h2>
 </doc-anchor-target>
+<p>cBioPortal connects to ClickHouse via Spring Boot&#x27;s standard datasource properties. Configure these in <code v-pre>application.properties</code>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">db.user=
-db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]</code></pre>
-</doc-codeblock></div>
-<p>The format of the <code v-pre>db.connection_string</code> is:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">jdbc:mysql://&lt;host&gt;:&lt;port&gt;/&lt;database name&gt;?&lt;parameter1&gt;&amp;&lt;parameter2&gt;&amp;&lt;parameter...&gt;</code></pre>
+<pre class="language-properties"><code v-pre class="language-properties">spring.datasource.url=jdbc:ch://&lt;host&gt;:&lt;port&gt;/&lt;database&gt;
+spring.datasource.username=&lt;your-db-user&gt;
+spring.datasource.password=&lt;your-db-password&gt;
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver</code></pre>
 </doc-codeblock></div>
 <p>For example:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&amp;useSSL=false</code></pre>
-</doc-codeblock></div>
-<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> The fields <code v-pre>db.host</code> and <code v-pre>db.portal_db_name</code> and <code v-pre>db.use_ssl</code> are deprecated. It is required to configure the database connection using
-the <code v-pre>db.connection_string</code> instead.</p>
-<p><code v-pre>db.tomcat_resource_name</code> is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">db.tomcat_resource_name=jdbc/cbioportal</code></pre>
+<pre class="language-properties"><code v-pre class="language-properties">spring.datasource.url=jdbc:ch://localhost:8123/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="cbioportal-customization">
     <h2>
@@ -302,6 +296,117 @@ the <code v-pre>db.connection_string</code> instead.</p>
         <span>cBioPortal Customization</span>
     </h2>
 </doc-anchor-target>
+<doc-anchor-target id="logging">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#logging">#</doc-anchor-trigger>
+        <span>Logging</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Root logging level (INFO, DEBUG, WARN, ERROR)
+logging.level.root=INFO</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="cache-configuration">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#cache-configuration">#</doc-anchor-trigger>
+        <span>Cache Configuration</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Cache type: ehcache-heap, ehcache-disk, ehcache-hybrid, redis, or no-cache
+persistence.cache_type=no-cache
+
+# Enable cache statistics endpoint
+# cache.statistics_endpoint_enabled=false
+
+# Enable cache management endpoint
+# cache.endpoint.enabled=true
+
+# API key for cache management endpoint access
+# cache.endpoint.api-key=&lt;uuid&gt;</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="oncokb">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#oncokb">#</doc-anchor-trigger>
+        <span>OncoKB</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Enable OncoKB annotations
+show.oncokb=true
+
+# OncoKB public API URL
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB token (required for therapeutic data)
+oncokb.token=</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="genome-nexus">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#genome-nexus">#</doc-anchor-trigger>
+        <span>Genome Nexus</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Show Genome Nexus annotation columns in mutation table
+# show.genomenexus.annotation_sources=mutation_assessor
+
+# Default isoform override source (uniprot or mskcc)
+# genomenexus.isoform_override_source=mskcc</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="session-service">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#session-service">#</doc-anchor-trigger>
+        <span>Session Service</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># URL for session service (used for saving/sharing queries)
+session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
+
+# Optional basic auth for session service
+# session.service.user=
+# session.service.password=</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="server-configuration">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#server-configuration">#</doc-anchor-trigger>
+        <span>Server Configuration</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Connection timeout in ms
+server.tomcat.connection-timeout=20000
+
+# Max HTTP response header size
+server.tomcat.max-http-response-header-size=16384
+
+# Max HTTP request header size
+server.max-http-request-header-size=16384
+
+# Enable response compression
+server.compression.enabled=true</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="swagger--api-docs">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#swagger--api-docs">#</doc-anchor-trigger>
+        <span>Swagger / API Docs</span>
+    </h3>
+</doc-anchor-target>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-properties"><code v-pre class="language-properties"># Swagger UI path
+# springdoc.swagger-ui.path=/api/swagger-ui
+
+# API docs path
+# springdoc.api-docs.path=/api/v2/api-docs</code></pre>
+</doc-codeblock></div>
+<doc-anchor-target id="full-reference">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#full-reference">#</doc-anchor-trigger>
+        <span>Full Reference</span>
+    </h3>
+</doc-anchor-target>
+<p>For a complete list of all available properties, see the <a href="https://github.com/cBioPortal/cbioportal/blob/master/src/main/resources/application.properties.EXAMPLE">application.properties.EXAMPLE</a> file in the cbioportal repository.</p>
 <doc-anchor-target id="hide-tabs-pages">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#hide-tabs-pages">#</doc-anchor-trigger>

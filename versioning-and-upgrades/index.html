@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -339,7 +339,7 @@
 <li><strong>New deployments</strong>: Use <strong>v6</strong> until the first stabilized v7 released</li>
 <li><strong>Existing v6 deployments</strong>:
 <ul>
-<li>Stay on v6 short-term</li>
+<li>May stay on v6 short-term</li>
 <li>Plan migration to v7</li>
 </ul>
 </li>
@@ -350,6 +350,21 @@
 </ul>
 </li>
 </ul>
+<doc-anchor-target id="migrating-from-v6-to-v7">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#migrating-from-v6-to-v7">#</doc-anchor-trigger>
+        <span>Migrating from v6 to v7</span>
+    </h3>
+</doc-anchor-target>
+<blockquote>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Important:</strong> cBioPortal v7 uses ClickHouse as its database, which has a fundamentally different schema from the v6 MySQL database. <strong>There is no in-place upgrade path from v6 to v7.</strong> Existing v6 deployments must:</p>
+</blockquote>
+<ol>
+<li>Set up a new v7 deployment using <a href="../deployment/docker/readme.md">Docker Compose</a></li>
+<li><strong>Reimport all studies</strong> into the new v7 database using <code v-pre>metaImport.py</code></li>
+<li>Rebuild derived tables after all imports are complete</li>
+</ol>
+<p>See the full <a href="../migration-v6-to-v7.md">v6 to v7 Migration Guide</a> for step-by-step instructions.</p>
 <doc-anchor-target id="migration-notes">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#migration-notes">#</doc-anchor-trigger>

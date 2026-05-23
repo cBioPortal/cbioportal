@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.832822753797" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -272,32 +273,36 @@
         <span>Table:  users</span>
     </h2>
 </doc-anchor-target>
-<p>This table contains all the users that have authorized access to the instance of the portal.  The table requires a user&#x27;s email address, name, and integer flag indicating if the account is enabled.</p>
+<p>This table contains all the users that have authorized access to the instance of the portal.</p>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>column</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>String</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+</tr>
+<tr>
+<td>enabled</td>
+<td>Bool</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>An example entry would be: <code v-pre>email = john.smith@gmail.com</code>, <code v-pre>name = John Smith</code>, <code v-pre>enabled = true</code>.</p>
+<p>Note, if the <code v-pre>enabled</code> value is set to 0, the user will be able to login to the portal, but will see no studies.</p>
+<p>You need to add users via the database directly.  For example:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; describe users;
-+---------+--------------+------+-----+---------+-------+
-| Field   | Type         | Null | Key | Default | Extra |
-+---------+--------------+------+-----+---------+-------+
-| EMAIL   | varchar(128) | NO   | PRI | NULL    |       |
-| NAME    | varchar(255) | NO   |     | NULL    |       |
-| ENABLED | tinyint(1)   | NO   |     | NULL    |       |
-+---------+--------------+------+-----+---------+-------+
-3 rows in set (0.00 sec)</code></pre>
-</doc-codeblock></div>
-<p>An example entry would be:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; select * from users where email = &quot;john.smith@gmail.com&quot;;
-+--------------------------+----------------+---------+
-| EMAIL                    | NAME           | ENABLED |
-+--------------------------+----------------+---------+
-| john.smith@gmail.com     | John Smith     |       1 | 
-+--------------------------+----------------+---------+
-1 row in set (0.00 sec)</code></pre>
-</doc-codeblock></div>
-<p>Note, if the ENABLED value is set to 0, the user will be able to login to the portal, but will see no studies.</p>
-<p>You need to add users via MySQL directly.  For example:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">INSERT INTO cbioportal.users (EMAIL, NAME, ENABLED) 
+<pre class="language-none"><code v-pre class="language-none">INSERT INTO cbioportal.users (email, name, enabled) 
     VALUES ('john.smith@gmail.com', 'John Smith', 1);</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="table--authorities">
@@ -307,28 +312,51 @@
     </h2>
 </doc-anchor-target>
 <p>This table contains the list of cancer studies that each user is authorized to view.  The table requires a user email address and an authority (e.g. cancer study) granted to the user.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; describe authorities;
-+-----------+--------------+------+-----+---------+-------+
-| Field     | Type         | Null | Key | Default | Extra |
-+-----------+--------------+------+-----+---------+-------+
-| EMAIL     | varchar(128) | NO   |     | NULL    |       | 
-| AUTHORITY | varchar(50)  | NO   |     | NULL    |       | 
-+-----------+--------------+------+-----+---------+-------+
-2 rows in set (0.00 sec)</code></pre>
-</doc-codeblock></div>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>column</th>
+<th>type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>email</td>
+<td>String</td>
+</tr>
+<tr>
+<td>authority</td>
+<td>String</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>Some example entries would be:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; select * from authorities where email = &quot;john.smith@gmail.com&quot;;
-+--------------------------+---------------------------+
-| EMAIL                    | AUTHORITY                 |
-+--------------------------+---------------------------+
-| john.smith@gmail.com     | cbioportal:CANCER_STUDY_1 | 
-| john.smith@gmail.com     | cbioportal:CANCER_STUDY_2 | 
-| john.smith@gmail.com     | cbioportal:CANCER_STUDY_3 | 
-+--------------------------+---------------------------+
-5 rows in set (0.00 sec)</code></pre>
-</doc-codeblock></div>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>email</th>
+<th>authority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="mailto:john.smith@gmail.com">john.smith@gmail.com</a></td>
+<td>cbioportal:CANCER_STUDY_1</td>
+</tr>
+<tr>
+<td><a href="mailto:john.smith@gmail.com">john.smith@gmail.com</a></td>
+<td>cbioportal:CANCER_STUDY_2</td>
+</tr>
+<tr>
+<td><a href="mailto:john.smith@gmail.com">john.smith@gmail.com</a></td>
+<td>cbioportal:CANCER_STUDY_3</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>The value in the EMAIL column should be the same email address contained in the USER table.</p>
 <p>The value in the AUTHORITY column is made of two parts:</p>
 <ul>
@@ -336,9 +364,9 @@
 <li>Following a colon delimiter, the second part is the <a href="../../../file-formats/#cancer-study">cancer_study_identifier</a> of the cancer study this user has rights to access.</li>
 </ul>
 <p><strong>If the user has rights to all available cancer studies, a single entry with the keyword <code v-pre>app.name:</code> + &quot;ALL&quot; is sufficient (so e.g. &quot;cbioportal:ALL&quot;).</strong></p>
-<p>You need to add users via MySQL directly.  For example:</p>
+<p>You need to add users via the database directly.  For example:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+<pre class="language-sql"><code v-pre class="language-sql">INSERT INTO cbioportal.authorities (email, authority) VALUES
     ('john.smith@gmail.com', 'cbioportal:CANCER_STUDY_1');</code></pre>
 </doc-codeblock></div>
 <p><strong>Important Note:</strong>  The cancer study identifier is <em>not</em> CASE sEnsitive. So it can be UPPER CASE, or just how it is stored in the <code v-pre>cancer_study</code> table.
@@ -358,36 +386,58 @@ Changes to these tables become effective the <em>next</em> time the user logs in
 </doc-anchor-target>
 <p>We want to create the group &quot;TEST_GROUP1&quot; and assign two existing studies to it and give our user <a href="mailto:%27john.smith@gmail.com">&#x27;john.smith@gmail.com</a>&#x27; access to this group of studies. Steps:</p>
 <p>1- Find your studies in table <code v-pre>cancer_study</code></p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
-+-----------------+-------------------------+-------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS      |
-+-----------------+-------------------------+-------------+
-|              93 | acc_tcga                | GROUPB      |
-|              94 | brca_tcga               |             |
-+-----------------+-------------------------+-------------+</code></pre>
-</doc-codeblock></div>
-<p>2- Update the <code v-pre>GROUPS</code> field, adding your &quot;TEST_GROUP1&quot; to it. <span class="docs-emoji">&#x26A0;&#xFE0F;</span> This is a <code v-pre>;</code> separated column, so if you want a study to be part of multiple groups, separate them with <code v-pre>;</code>.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; update cancer_study set GROUPS='TEST_GROUP1' where CANCER_STUDY_ID = 94;</code></pre>
-</doc-codeblock></div>
-<p>If <code v-pre>GROUPS</code> already has a value (like for study 93 in example above) then add &quot;;TEST_GROUP1&quot; to ensure existing groups are not ovewritten.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; update cancer_study set GROUPS=concat(GROUPS,';TEST_GROUP1') where CANCER_STUDY_ID = 93;</code></pre>
-</doc-codeblock></div>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>cancer_study_id</th>
+<th>cancer_study_identifier</th>
+<th>groups</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>93</td>
+<td>acc_tcga</td>
+<td>GROUPB</td>
+</tr>
+<tr>
+<td>94</td>
+<td>brca_tcga</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>2- Update the <code v-pre>groups</code> field in the <code v-pre>cancer_study</code> table, adding your &quot;TEST_GROUP1&quot; to it. <span class="docs-emoji">&#x26A0;&#xFE0F;</span> This is a <code v-pre>;</code> separated column, so if you want a study to be part of multiple groups, separate them with <code v-pre>;</code>.</p>
+<p>If <code v-pre>groups</code> already has a value (like for study 93 in example above) then add &quot;;TEST_GROUP1&quot; to ensure existing groups are not ovewritten.</p>
 <p>3- Check the result:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; select CANCER_STUDY_ID, CANCER_STUDY_IDENTIFIER,GROUPS from cancer_study where CANCER_STUDY_ID in (93,94);
-+-----------------+-------------------------+--------------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
-+-----------------+-------------------------+--------------------+
-|              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
-|              94 | brca_tcga               | TEST_GROUP1        |
-+-----------------+-------------------------+--------------------+</code></pre>
-</doc-codeblock></div>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>cancer_study_id</th>
+<th>cancer_study_identifier</th>
+<th>groups</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>93</td>
+<td>acc_tcga</td>
+<td>GROUPB;TEST_GROUP1</td>
+</tr>
+<tr>
+<td>94</td>
+<td>brca_tcga</td>
+<td>TEST_GROUP1</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>4- Add the group to user <a href="mailto:%27john.smith@gmail.com">&#x27;john.smith@gmail.com</a>&#x27;, using <code v-pre>app.name:</code> + &quot;TEST_GROUP1&quot; like so:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">mysql&gt; INSERT INTO cbioportal.authorities (EMAIL, AUTHORITY) VALUES
+<pre class="language-sql"><code v-pre class="language-sql">INSERT INTO cbioportal.authorities (email, authority) VALUES
     ('john.smith@gmail.com', 'cbioportal:TEST_GROUP1');</code></pre>
 </doc-codeblock></div>
 <p>After <strong>next login</strong>, the user <a href="mailto:%27john.smith@gmail.com">&#x27;john.smith@gmail.com</a>&#x27; will have access to these two studies.</p>
@@ -409,14 +459,29 @@ Changes to these tables become effective the <em>next</em> time the user logs in
     </h3>
 </doc-anchor-target>
 <p>To reuse the example table above, let&#x27;s assume the property <code v-pre>always_show_study_group</code> is set as indicated above and the <code v-pre>cancer_study</code> table contents are set to the following:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">+-----------------+-------------------------+--------------------+
-| CANCER_STUDY_ID | CANCER_STUDY_IDENTIFIER | GROUPS             |
-+-----------------+-------------------------+--------------------+
-|              93 | acc_tcga                | GROUPB;TEST_GROUP1 |
-|              94 | brca_tcga               | TEST_GROUP1;PUBLIC |
-+-----------------+-------------------------+--------------------+</code></pre>
-</doc-codeblock></div>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>cancer_study_id</th>
+<th>cancer_study_identifier</th>
+<th>groups</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>93</td>
+<td>acc_tcga</td>
+<td>GROUPB;TEST_GROUP1</td>
+</tr>
+<tr>
+<td>94</td>
+<td>brca_tcga</td>
+<td>TEST_GROUP1;PUBLIC</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p>In this case, the study <code v-pre>brca_tcga</code> will be visible to <em>any authenticated user</em> while the study <code v-pre>acc_tcga</code> will be visible only to users configured to be part of <code v-pre>GROUPB</code> or <code v-pre>TEST_GROUP1</code></p>
 
                                 
@@ -490,6 +555,6 @@ Changes to these tables become effective the <em>next</em> time the user logs in
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "User Authorization", level: 3, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "User Authorization", level: 3, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -14,7 +14,7 @@
     <!-- Primary Meta Tags -->
     <title>Updating the gene names and aliases tables</title>
     <meta name="title" content="Updating the gene names and aliases tables">
-    <meta name="description" content="This manual is intended for users that have knowledge about the structure of the cBioPortal seed database.">
+    <meta name="description" content="Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/updating-gene-and-gene_alias-tables/">
@@ -23,23 +23,23 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/updating-gene-and-gene_alias-tables/">
     <meta property="og:title" content="Updating the gene names and aliases tables">
-    <meta property="og:description" content="This manual is intended for users that have knowledge about the structure of the cBioPortal seed database.">
+    <meta property="og:description" content="Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/updating-gene-and-gene_alias-tables/">
     <meta property="twitter:title" content="Updating the gene names and aliases tables">
-    <meta property="twitter:description" content="This manual is intended for users that have knowledge about the structure of the cBioPortal seed database.">
+    <meta property="twitter:description" content="Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.">
 
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.832696313819" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.832822753797" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -259,6 +259,9 @@
                                 <!-- Rendered if sidebar right is enabled -->
                                 <div id="docs-sidebar-right-toggle"></div>
                                 <!-- Page content  -->
+<blockquote>
+<p><strong>Note:</strong> This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.</p>
+</blockquote>
 <doc-anchor-target id="updating-the-gene-names-and-aliases-tables" class="break-words">
     <h1>
         <doc-anchor-trigger class="header-anchor-trigger" to="#updating-the-gene-names-and-aliases-tables">#</doc-anchor-trigger>
@@ -341,7 +344,7 @@ export JAVA_HOME=&lt;jre_installation_folder&gt;
 </doc-codeblock></div>
 <p><strong>IMPORTANT NOTE</strong>:</p>
 <ol>
-<li>The <strong>reference_genome</strong> table needs to be populated before updating the <strong>gene</strong> table. Further details can be found in <a href="../import-reference-genome/">this document</a>.</li>
+<li>The <strong>reference_genome</strong> table needs to be populated before updating the <strong>gene</strong> table. Further details can be found in <a href="import-reference-genome.md">this document</a>.</li>
 <li>Use <strong>--species</strong> option when importing genes for a species other than human</li>
 <li>Use the <strong>gene</strong> table if you query information such as hugo symbols, types of the gene</li>
 <li>Use <strong>reference_genome_gene</strong> table if you query information such as chromosome, cytoband, exonic length, or the start or end of the gene</li>
@@ -389,7 +392,7 @@ commit;</code></pre>
 <pre class="language-sql"><code v-pre class="language-sql">ALTER TABLE uniprot_id_mapping
   ADD CONSTRAINT uniprot_id_mapping_ibfk_1 FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`);</code></pre>
 </doc-codeblock></div>
-<p>10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See <a href="../import-gene-sets/">Import-Gene-Sets.md</a> and <a href="../file-formats/#gene-set-data">File-Formats.md#gene-set-data</a>.</p>
+<p>10- You can import new gene sets using the gene set importer. These gene sets are currently only used for gene set scoring. See <a href="import-gene-sets.md">Import-Gene-Sets.md</a> and <a href="../file-formats/#gene-set-data">File-Formats.md#gene-set-data</a>.</p>
 <p>For example, run in folder <code v-pre>&lt;cbioportal_source_folder&gt;/core/src/main/scripts</code>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-bash"><code v-pre class="language-bash">./importGenesetData.pl --data ~/Desktop/msigdb.v6.1.entrez.gmt --new-version msigdb_6.1</code></pre>
@@ -410,11 +413,11 @@ commit;</code></pre>
                             
                                 <nav class="print:hidden flex mt-14">
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../updating-your-cbioportal-installation/">
+                                        <a class="px-5 py-4 h-full flex items-center break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-l-lg transition-colors duration-150 relative hover:z-5" href="../deployment/customization/studyview/">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="mr-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19 11H7.41l5.29-5.29a.996.996 0 10-1.41-1.41l-7 7a1 1 0 000 1.42l7 7a1.024 1.024 0 001.42-.01.996.996 0 000-1.41L7.41 13H19c.55 0 1-.45 1-1s-.45-1-1-1z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                             <span>
                                                 <span class="block text-xs font-normal text-gray-400 dark:text-dark-400">Previous</span>
-                                                <span class="block mt-1">Updating your c​Bio​Portal installation</span>
+                                                <span class="block mt-1">Study View Customization</span>
                                             </span>
                                         </a>
                                     </div>

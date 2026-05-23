@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -34,11 +34,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../images/cbio-logo.png" rel="icon">
-    <link href="../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=3.9.0.832822753797" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -368,13 +369,8 @@ Please keep in mind that the z-scores are calculated using only patient data. He
         <span>Running the script</span>
     </h3>
 </doc-anchor-target>
-<p>To run the script type the following commands when in the folder <code v-pre>&lt;cbioportal_source_folder&gt;/core/src/main/scripts</code>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">export PORTAL_HOME=&lt;cbioportal_configuration_folder&gt;</code></pre>
-</doc-codeblock></div>
-<p>and then</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">./convertExpressionZscores.pl &lt;copy_number_file&gt; &lt;expression_file&gt; &lt;output_file&gt; &lt;normal_sample_suffix&gt; &lt;[min_number_of_diploids]&gt;</code></pre>
+<pre class="language-bash"><code v-pre class="language-bash">docker compose exec cbioportal convertExpressionZscores.pl &lt;copy_number_file&gt; &lt;expression_file&gt; &lt;output_file&gt; &lt;normal_sample_suffix&gt; &lt;[min_number_of_diploids]&gt;</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="example">
     <h4>
@@ -383,7 +379,7 @@ Please keep in mind that the z-scores are calculated using only patient data. He
     </h4>
 </doc-anchor-target>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">./convertExpressionZscores.pl  ../../test/scripts/test_data/study_es_0/data_CNA.txt ../../test/scripts/test_data/study_es_0/data_expression_median.txt data_expression_ZSCORES.txt NONE</code></pre>
+<pre class="language-bash"><code v-pre class="language-bash">docker compose exec cbioportal convertExpressionZscores.pl /study/study_es_0/data_CNA.txt /study/study_es_0/data_expression_median.txt /study/study_es_0/data_expression_ZSCORES.txt NONE</code></pre>
 </doc-codeblock></div>
 <doc-anchor-target id="normalizeexpressionlevels_allsampleref-method">
     <h2>
@@ -540,6 +536,6 @@ example, if raw value is -1, the log transform would be log(0+1)
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Z Score normalization script", level: 1, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Z Score normalization script", level: 1, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

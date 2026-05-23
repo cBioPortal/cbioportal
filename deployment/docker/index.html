@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832696313819">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -14,7 +14,7 @@
     <!-- Primary Meta Tags -->
     <title>Deploy with Docker</title>
     <meta name="title" content="Deploy with Docker">
-    <meta name="description" content="Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.">
+    <meta name="description" content="This guide covers deploying cBioPortal using Docker Compose, which orchestrates all required services together. The deployment includes:">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/deployment/docker/">
@@ -23,23 +23,22 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/deployment/docker/">
     <meta property="og:title" content="Deploy with Docker">
-    <meta property="og:description" content="Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.">
+    <meta property="og:description" content="This guide covers deploying cBioPortal using Docker Compose, which orchestrates all required services together. The deployment includes:">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/deployment/docker/">
     <meta property="twitter:title" content="Deploy with Docker">
-    <meta property="twitter:description" content="Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.">
+    <meta property="twitter:description" content="This guide covers deploying cBioPortal using Docker Compose, which orchestrates all required services together. The deployment includes:">
 
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../images/cbio-logo.png" rel="icon">
-    <link href="../../resources/css/retype.css?v=3.9.0.832696313819" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.832696313819" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=3.9.0.832696313819" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -265,245 +264,174 @@
         <span>Deploy with Docker</span>
     </h1>
 </doc-anchor-target>
+<doc-anchor-target id="overview">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#overview">#</doc-anchor-trigger>
+        <span>Overview</span>
+    </h2>
+</doc-anchor-target>
+<p>This guide covers deploying cBioPortal using <a href="https://docs.docker.com/compose/">Docker Compose</a>, which orchestrates all required services together. The deployment includes:</p>
+<ul>
+<li><strong>ClickHouse</strong> — the primary database for cancer study and reference data</li>
+<li><strong>cBioPortal web app</strong> — serves the React frontend and REST API</li>
+<li><strong>Session service</strong> — stores session data (active queries, saved cohorts) via a REST API</li>
+<li><strong>MongoDB</strong> — persists session service data</li>
+</ul>
+<p>Some data (e.g. OncoKB annotations) is fetched from external services at runtime.</p>
 <doc-anchor-target id="prerequisites">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#prerequisites">#</doc-anchor-trigger>
         <span>Prerequisites</span>
     </h2>
 </doc-anchor-target>
-<p>Docker provides a way to run applications securely isolated in a container, packaged with all its dependencies and libraries.
-To learn more on Docker, please see <a href="https://docs.docker.com/engine/docker-overview/">Docker overview</a>.</p>
-<p>Make sure that you have the latest version of Docker installed on your machine. <a href="https://www.docker.com/products/overview#/install_the_platform">Get latest version</a></p>
+<ul>
+<li><a href="https://www.docker.com/products/overview#/install_the_platform">Docker</a> (latest version)</li>
+</ul>
 <blockquote>
-<p><strong>WSL</strong>: Make sure to use <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop for Windows</a>. Installing Docker in Ubuntu will not work.</p>
+<p><strong>Windows (WSL):</strong> Use <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop for Windows</a> and run commands from the WSL2 terminal — not PowerShell or Git Bash. Installing Docker inside Ubuntu will not work.</p>
 </blockquote>
-<p><a href="notes-for-non-linux/">Notes for non-Linux systems</a></p>
-<doc-anchor-target id="usage-instructions">
+<p>For additional notes on macOS and Windows, see <a href="notes-for-non-linux/">Notes for non-Linux systems</a>.</p>
+<doc-anchor-target id="getting-started">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#usage-instructions">#</doc-anchor-trigger>
-        <span>Usage instructions</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#getting-started">#</doc-anchor-trigger>
+        <span>Getting Started</span>
     </h2>
 </doc-anchor-target>
-<p>In this example we use <a href="https://docs.docker.com/compose/">Docker Compose</a> to spin up all the different required containers/services for cBioPortal.</p>
-<doc-anchor-target id="quick-start">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#quick-start">#</doc-anchor-trigger>
-        <span>Quick Start</span>
-    </h3>
-</doc-anchor-target>
-<p>Important when using Windows:<br/>
-Please use the WSL input window (WSL2 Terminal) directly and not &quot;Windows PowerShell&quot; or &quot;Git Bash&quot;.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">git clone https://github.com/cBioPortal/cbioportal-docker-compose.git
-cd cbioportal-docker-compose
-./init.sh
-docker compose up</code></pre>
-</doc-codeblock></div>
-<p>You should now be able to see the cBioPortal website at http://localhost:8080</p>
-<p>Import studies with:<br/>(Hint: Don&#x27;t close the current terminal but open a second terminal and change the path to &quot;/cbioportal-docker-compose&quot;)</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/lgg_ucsf_2014/ -o</code></pre>
-</doc-codeblock></div>
-<p>Clear persistent data volumes with:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose down -v</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="comprehensive-start">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#comprehensive-start">#</doc-anchor-trigger>
-        <span>Comprehensive Start</span>
-    </h3>
-</doc-anchor-target>
-<doc-anchor-target id="step-1---run-docker-compose">
-    <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#step-1---run-docker-compose">#</doc-anchor-trigger>
-        <span>Step 1 - Run Docker Compose</span>
-    </h4>
-</doc-anchor-target>
-<p>Download the git repo that has the Docker compose file and go to the root of that folder:</p>
+<blockquote>
+<p><strong>Important:</strong> Before starting, clear all existing Docker images, containers, and volumes from your system. This ensures that you aren&#x27;t using an old Docker image by accident.</p>
+</blockquote>
+<p>Clone the cBioPortal Docker Compose repository:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">git clone https://github.com/cBioPortal/cbioportal-docker-compose.git
 cd cbioportal-docker-compose</code></pre>
 </doc-codeblock></div>
-<p>Then download all necessary files (seed data, example config and example study from datahub) with the init script:</p>
+<p>Edit the <code v-pre>.env</code> file to configure your environment — set passwords, choose the cBioPortal image version, and configure ClickHouse connection settings.</p>
+<p>Then run the init script to download seed data, example configuration, and example studies:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">./init.sh</code></pre>
 </doc-codeblock></div>
-<p>Then run:</p>
+<p>Review the generated files in <code v-pre>config/</code>, <code v-pre>data/</code>, and <code v-pre>study/</code> to confirm everything looks correct for your setup.</p>
+<p>Next, make sure that the Docker daemon is up and running:</p>
+<ul>
+<li><strong>macOS/Windows:</strong> Start Docker Desktop.</li>
+<li><strong>Linux:</strong> Run <code v-pre>sudo systemctl start docker</code>.</li>
+</ul>
+<p>Then start all services:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none"># -d = detached mode, return control to the console
+docker compose up -d
+
+# Import an example study
+docker compose exec cbioportal metaImport.py -s study/lgg_ucsf_2014 -o</code></pre>
+</doc-codeblock></div>
+<blockquote>
+<p><strong>IMPORTANT:</strong> Please import at least one sample study before you attempt to view the portal. The website will not load if there are no studies present in the database. If you see an error like &quot;studyIds should be a number between 1 and ...&quot;, that means the database is empty.</p>
+</blockquote>
+<blockquote>
+<p><strong>Note:</strong> If the study references gene panels that are not loaded in the database, you will need to load them before the study will import properly. See <a href="../../data-loading/import-gene-panels/">Importing Gene Panels</a> for more information.</p>
+</blockquote>
+<p>The first run will take a few minutes to import the seed database and run any necessary migrations. Each container writes logs to the terminal, prefixed with its container name (e.g. <code v-pre>cbioportal-container</code>). Some warnings are expected and can be ignored.</p>
+<p>Once everything is running, visit <a href="http://localhost:8080">http://localhost:8080</a> — cBioPortal will be preloaded with the recommended gene panels.</p>
+<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://github.com/user-attachments/assets/296e1224-d390-45de-b1d1-6c8ec859e0e1">
+<doc-anchor-target id="managing-the-deployment">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#managing-the-deployment">#</doc-anchor-trigger>
+        <span>Managing the Deployment</span>
+    </h2>
+</doc-anchor-target>
+<p>To start all services and view log output:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker compose up</code></pre>
 </doc-codeblock></div>
-<p>This will start all four containers (services) defined <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml">here</a>. That is:</p>
-<ul>
-<li>the mysql database, which holds most of the cBioPortal data</li>
-<li>the cBioPortal Java web app, this serves the React frontend as well as the REST API</li>
-<li>the session service Java web app. This service has a REST API and stores session information (e.g. what genes are being queried) and user specific data (e.g. saved cohorts) in a separate mongo database</li>
-<li>the mongo database that persists the data for the session service</li>
-</ul>
-<p>It will take a few minutes the first time to import the seed database and perform migrations if necessary. Each container outputs logs to the terminal. For each log you&#x27;ll see the name of the container that outputs it (e.g. <code v-pre>cbioportal_container</code> or <code v-pre>cbioportal_session_database_container</code>). If all is well you won&#x27;t see any significant errors (maybe some warnings, that&#x27;s fine to ignore). If all went well you should be able to visit the cBioPortal homepage on http://localhost:8080. You&#x27;ll notice that cBioPortal already comes preloaded with a small <code v-pre>Low-Grade Gliomas (UCSF, Science 2014)</code> study and the recommended gene panels:</p>
-<img width="1414" alt="Screen Shot 2022-01-24 at 2 10 10 PM" src="https://github.com/user-attachments/assets/296e1224-d390-45de-b1d1-6c8ec859e0e1">
-<p>Go to the next step to see how to import other studies.</p>
-<doc-anchor-target id="notes-on-detached-mode">
-    <h5>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#notes-on-detached-mode">#</doc-anchor-trigger>
-        <span>Notes on detached mode</span>
-    </h5>
-</doc-anchor-target>
-<p>If you prefer to run the services in detached mode (i.e. not logging everything to your terminal), you can run</p>
+<p>To run in detached mode (background, no terminal output):</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker compose up -d</code></pre>
 </doc-codeblock></div>
-<p>In this mode, you&#x27;ll have to check the logs of each container manually using e.g.:</p>
+<blockquote>
+<p><strong>Tip:</strong> If you are using <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>, detached mode is preferred — the app provides a UI for managing containers and viewing logs.</p>
+</blockquote>
+<p>In detached mode, check logs per container:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker logs -f cbioportal_container</code></pre>
+<pre class="language-none"><code v-pre class="language-none">docker compose logs &lt;container&gt;</code></pre>
 </doc-codeblock></div>
-<p>You can list all containers running on your system with</p>
+<p>List all containers on your system:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker ps -a</code></pre>
 </doc-codeblock></div>
-<p>To shut down the containers:</p>
+<p>Shut down all services:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose down</code></pre>
+<pre class="language-none"><code v-pre class="language-none"># -v removes volume data, such as that of the clickhouse container
+docker compose down -v</code></pre>
 </doc-codeblock></div>
-<blockquote>
-<p><strong>Tip:</strong> If you are using <a href="https://www.docker.com/products/docker-desktop/">Docker Desktop</a>, detached mode is
-the preferred way to run as it provides a UI for listing the containers and interfacing with them.</p>
-</blockquote>
-<doc-anchor-target id="step-2---import-studies">
-    <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#step-2---import-studies">#</doc-anchor-trigger>
-        <span>Step 2 - Import Studies</span>
-    </h4>
+<doc-anchor-target id="importing-studies">
+    <h2>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#importing-studies">#</doc-anchor-trigger>
+        <span>Importing Studies</span>
+    </h2>
 </doc-anchor-target>
-<p>To import studies you can run:</p>
+<p>First, copy your study data into the <code v-pre>study/</code> directory under <code v-pre>cbioportal-docker-compose</code>. The <code v-pre>study/</code> directory is mounted as a volume within the Docker container, which gives the cBioPortal importer access to it.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose run cbioportal metaImport.py -u http://cbioportal:8080 -s study/msk_impact_2017/ -o
-
-## Sync clickhouse (ONLY for clickhouse mode, see below)
-docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh</code></pre>
+<pre class="language-none"><code v-pre class="language-none">cp -r /path/to/your_study /path/to/cbioportal-docker-compose/study/</code></pre>
 </doc-codeblock></div>
-<p>This will import the <a href="https://www.cbioportal.org/study/summary?id=msk_impact_2017">msk_impact_2017 study</a> into your local database. It will take a few minutes to import.</p>
-<p>If you are running cBioPortal in <doc-anchor-trigger to="#clickhouse-mode">Clickhouse Mode</doc-anchor-trigger>, run the following command to sync databases.</p>
+<p>Next, run the following command to actually import your study. The <code v-pre>-s</code> path specifies the path to the study <em>as seen within the Docker container</em>.</p>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">docker compose exec cbioportal-clickhouse-importer bash /workdir/sync-databases.sh</code></pre>
+<pre class="language-none"><code v-pre class="language-none">docker compose exec cbioportal metaImport.py -s study/your_study -o</code></pre>
 </doc-codeblock></div>
-<p>After importing and syncing, restart the cbioportal web container:</p>
+<p>When this command executes -- it does so from the path <code v-pre>/</code> within the container. Then <code v-pre>study/your_study</code> resolves to the path <code v-pre>/study/your_study</code>, which is mounted to the <code v-pre>cbioportal-docker-compose/study</code> volume outside of the container.</p>
+<blockquote>
+<p><strong>Note:</strong> If the validator detects any critical errors with the data, those must be fixed before the study can be imported.</p>
+</blockquote>
+<blockquote>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Warning:</strong> When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo &quot;-Xms16g -Xmx96g&quot;</code></pre>
+</doc-codeblock></div>
+</blockquote>
+<p>All public studies can be downloaded from <a href="https://www.cbioportal.org/datasets">cbioportal.org/datasets</a> or <a href="https://github.com/cBioPortal/datahub">github.com/cBioPortal/datahub</a>. Add any study to the <code v-pre>./study</code> folder and import it. The <code v-pre>./study/init.sh</code> script can download multiple studies at once — set <code v-pre>DATAHUB_STUDIES</code> to any public study ID (e.g. <code v-pre>lgg_ucsf_2014</code>) and run <code v-pre>./init.sh</code>.</p>
+<doc-anchor-target id="clearing-the-cache-after-import">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#clearing-the-cache-after-import">#</doc-anchor-trigger>
+        <span>Clearing the cache after import</span>
+    </h3>
+</doc-anchor-target>
+<p>After importing, the cBioPortal web app cache must be cleared for the new study to appear. You can do this by restarting the container:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker compose restart cbioportal</code></pre>
 </doc-codeblock></div>
-<p>or</p>
-<p>All public studies can be downloaded from <a href="https://www.cbioportal.org/datasets">https://www.cbioportal.org/datasets</a>, or <a href="https://github.com/cBioPortal/datahub/">https://github.com/cBioPortal/datahub/</a>. You can add any of them to the <code v-pre>./study</code> folder and import them. There&#x27;s also a script (<code v-pre>./study/init.sh</code>) to download multiple studies. You can set <code v-pre>DATAHUB_STUDIES</code> to any public study id (e.g. <code v-pre>lgg_ucsf_2014</code>) and run <code v-pre>./init.sh</code>.</p>
-<doc-anchor-target id="notes-on-restarting">
-    <h5>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#notes-on-restarting">#</doc-anchor-trigger>
-        <span>Notes on restarting</span>
-    </h5>
-</doc-anchor-target>
-<p>To avoid having to restart one can alternatively hit an API endpoint. To do so, call the <code v-pre>/api/cache</code> endpoint with a <code v-pre>DELETE</code> http-request (see <a href="../customization/application.properties-reference/#evict-caches-with-the-apicache-endpoint">here</a> for more information):</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">curl -x DELETE -H &quot;X-API-KEY: my-secret-api-key-value&quot; http://localhost:8080/api/cache</code></pre>
-</doc-codeblock></div>
-<p>The value of the API key is configured in the <em>application.properties</em> file. You can visit http://localhost:8080 again and you should be able to see the new study.</p>
-<doc-anchor-target id="step-3---customize-your-applicationproperties-file">
-    <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#step-3---customize-your-applicationproperties-file">#</doc-anchor-trigger>
-        <span>Step 3 - Customize your application.properties file</span>
-    </h4>
-</doc-anchor-target>
-<p>The properties file can be found in <code v-pre>./config/application.properties</code>. Which was set up when running <code v-pre>init.sh</code>.</p>
-<p>This properties file allows you to customize your instance of cBioPortal with e.g. custom logos, or point the cBioPortal container to e.g. use an external mysql database. See the <a href="../customization/customizing-your-instance-of-cbioportal/">properties</a> documentation for a comprehensive overview.</p>
-<p>If you would like to enable OncoKB see <a href="../integration-with-other-webservices/oncokb-data-access/">OncoKB data access</a> for
-how to obtain a data access token. After obtaining a valid token use:</p>
-<doc-anchor-target id="step-4---customize-cbioportal-setup">
-    <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#step-4---customize-cbioportal-setup">#</doc-anchor-trigger>
-        <span>Step 4 - Customize cBioPortal setup</span>
-    </h4>
-</doc-anchor-target>
-<p>To read more about the various ways to use authentication and parameters for running the cBioPortal web app see the relevant <a href="../customization/customizing-your-instance-of-cbioportal/">backend deployment documentation</a>.</p>
-<p>On server systems that can easily spare 4 GiB or more of memory, set the <code v-pre>-Xms</code>
-and <code v-pre>-Xmx</code> options to the same number. This should increase performance of
-certain memory-intensive web services such as computing the data for the
-co-expression tab. If you are using MacOS or Windows, make sure to take a look
-at <a href="notes-for-non-linux/">these notes</a> to allocate more memory for the
-virtual machine in which all Docker processes are running.</p>
-<doc-anchor-target id="clickhouse-mode">
+<doc-anchor-target id="configuration">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#clickhouse-mode">#</doc-anchor-trigger>
-        <span>Clickhouse Mode</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#configuration">#</doc-anchor-trigger>
+        <span>Configuration</span>
     </h2>
 </doc-anchor-target>
-<p>For cBioPortal instances with large cohorts (&gt;100K samples), we developed a &quot;Clickhouse mode&quot; of the Study View. This mode uses Clickhouse as an additional database next to MySQL for 10x faster querying (see <a href="https://www.youtube.com/watch?v=8PAJRCeycU4">video</a>). The mode is experimental and is currently used only by the public-facing <a href="https://genie.cbioportal.org">GENIE instance</a>. We plan to roll it out to other portals later this year (see <a href="https://github.com/orgs/cBioPortal/projects/16?query=sort%3Aupdated-desc+is%3Aopen&amp;pane=issue&amp;itemId=92222076&amp;issue=cBioPortal%7Croadmap%7C1">roadmap ticket</a>). Follow the steps below to run cBioPortal Docker Compose in clickhouse mode.</p>
-<ol>
-<li>Modify <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">.env</a> to use release &gt;= 6.0.27 of cBioPortal.
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">...
-DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:6.0.27
-...</code></pre>
-</doc-codeblock></div>
-</li>
-<li>Run init script
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">./init.sh</code></pre>
-</doc-codeblock></div>
-</li>
-<li>Start cBioPortal with clickhouse
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-bash"><code v-pre class="language-bash">docker compose -f docker-compose.yml -f addon/clickhouse/docker-compose.clickhouse.yml up</code></pre>
-</doc-codeblock></div>
-</li>
-</ol>
-<doc-anchor-target id="clickhouse-cloud">
-    <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#clickhouse-cloud">#</doc-anchor-trigger>
-        <span>Clickhouse Cloud</span>
-    </h3>
-</doc-anchor-target>
-<p>The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, you can set up a Clickhouse database using <a href="https://clickhouse.com/cloud">Clickhouse Cloud</a> and update the clickhouse database credentials in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">.env</a> to match your database credentials. For the clickhouse sync step to work properly, your credentials should have both <code v-pre>read</code> and <code v-pre>write</code> permissions.</p>
-<doc-anchor-target id="more-commands">
+<p>The main configuration file for the cBioPortal web application is <code v-pre>config/application.properties</code>, generated when you run <code v-pre>./init.sh</code>.</p>
+<p>For a full overview of available properties — custom logos, external databases, authentication, and more — see the <a href="../customization/customizing-your-instance-of-cbioportal/">customization documentation</a>.</p>
+<p><strong>Memory:</strong> On systems with 4 GiB or more to spare, set <code v-pre>-Xms</code> and <code v-pre>-Xmx</code> to the same value in <code v-pre>docker-compose.yml</code> to improve performance of memory-intensive features (e.g. the co-expression tab). If you are on macOS or Windows, see <a href="notes-for-non-linux/">Notes for non-Linux systems</a> for how to increase memory allocated to the Docker VM.</p>
+<p><strong>OncoKB:</strong> To enable OncoKB annotations, obtain a data access token via <a href="../integration-with-other-webservices/oncokb-data-access/">OncoKB Data Access</a> and add it to <code v-pre>application.properties</code>.</p>
+<doc-anchor-target id="further-reading">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#more-commands">#</doc-anchor-trigger>
-        <span>More commands</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#further-reading">#</doc-anchor-trigger>
+        <span>Further Reading</span>
     </h2>
 </doc-anchor-target>
-<p>For documentation on how to import a study, see <a href="import_data/">this tutorial</a>
-For more uses of the cBioPortal image, see <a href="example_commands/">this file</a></p>
-<p>To Dockerize a Keycloak authentication service alongside cBioPortal,
-see <a href="using-keycloak/">this file</a>.</p>
-<doc-anchor-target id="building-cbioportal">
+<ul>
+<li><a href="import_test_data/">Importing test data</a> — detailed import tutorial</li>
+<li><a href="example_commands/">Example commands</a> — additional uses of the cBioPortal image</li>
+<li><a href="using-keycloak/">Keycloak authentication</a> — Dockerizing Keycloak alongside cBioPortal</li>
+</ul>
+<doc-anchor-target id="building-the-image">
     <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#building-cbioportal">#</doc-anchor-trigger>
-        <span>Building cBioPortal</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#building-the-image">#</doc-anchor-trigger>
+        <span>Building the Image</span>
     </h2>
 </doc-anchor-target>
-<p>If you need to build the cBioPortal backend to a docker image, you can use the following command from the cbioportal repo.</p>
+<p>If you need to build the cBioPortal image locally (e.g. for development), run the following from the root of the cbioportal repository:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web-and-data/Dockerfile .</code></pre>
 </doc-codeblock></div>
-<p>Change the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">env file</a> in the cbioportal-docker-compose repo to reference your image.</p>
+<p>Then update the <code v-pre>DOCKER_IMAGE_CBIOPORTAL</code> variable in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">cbioportal-docker-compose <code v-pre>.env</code> file</a>:</p>
 <div class="codeblock-wrapper"><doc-codeblock>
 <pre class="language-none"><code v-pre class="language-none">DOCKER_IMAGE_CBIOPORTAL=cbioportal/cbioportal:my-dev-cbioportal-image</code></pre>
-</doc-codeblock></div>
-<p>Note that the above command will deploy the repo as loose files. If you would like to build to a single executable app.jar, you can use the <strong>web</strong> configuration:</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker build -t cbioportal/cbioportal:my-dev-cbioportal-image -f docker/web/Dockerfile .</code></pre>
-</doc-codeblock></div>
-<p>In this case, the default <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.yml">docker-compose.yml</a> may not work. If you get an error about missing <em>PortalApplication</em>, it must be configured to launch the app.jar instead.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">java -Xms2g -Xmx4g -jar /cbioportal-webapp/app.jar -spring...</code></pre>
-</doc-codeblock></div>
-<p>There may be a <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/docker-compose.web.yml">docker-compose.web.yml</a> you can use instead of modifying the above.</p>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose -f docker-compose.web.yml up -d</code></pre>
-</doc-codeblock></div>
-<doc-anchor-target id="uninstalling-cbioportal">
-    <h2>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#uninstalling-cbioportal">#</doc-anchor-trigger>
-        <span>Uninstalling cBioPortal</span>
-    </h2>
-</doc-anchor-target>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">docker compose down -v --rmi all</code></pre>
 </doc-codeblock></div>
 
                                 
@@ -530,10 +458,10 @@ see <a href="using-keycloak/">this file</a>.</p>
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../deployment/docker/import_data/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../deployment/docker/import_test_data/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
-                                                <span class="block mt-1">Import data with Docker</span>
+                                                <span class="block mt-1">Importing test data with Docker</span>
                                             </span>
                                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                                         </a>
@@ -577,6 +505,6 @@ see <a href="using-keycloak/">this file</a>.</p>
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploy with Docker", level: 2, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Deploy with Docker", level: 2, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

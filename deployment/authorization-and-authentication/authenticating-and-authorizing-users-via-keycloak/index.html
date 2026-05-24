@@ -6,7 +6,7 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832822753797">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="3.9.0.832947026112">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 3.9.0">
@@ -14,7 +14,7 @@
     <!-- Primary Meta Tags -->
     <title>Authenticating and Authorizing Users via Keycloak</title>
     <meta name="title" content="Authenticating and Authorizing Users via Keycloak">
-    <meta name="description" content="⚠️ This documentation is for keycloak <v20, see related ticket ⚠️">
+    <meta name="description" content="This documentation is for keycloak v26.2.4">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">
@@ -23,25 +23,24 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">
     <meta property="og:title" content="Authenticating and Authorizing Users via Keycloak">
-    <meta property="og:description" content="⚠️ This documentation is for keycloak <v20, see related ticket ⚠️">
-    <meta property="og:image" content="https://docs.cbioportal.org/images/previews/add-realm.png">
+    <meta property="og:description" content="This documentation is for keycloak v26.2.4">
+    <meta property="og:image" content="https://docs.cbioportal.org/images/previews/create-realm.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/">
     <meta property="twitter:title" content="Authenticating and Authorizing Users via Keycloak">
-    <meta property="twitter:description" content="⚠️ This documentation is for keycloak <v20, see related ticket ⚠️">
-    <meta property="twitter:image" content="https://docs.cbioportal.org/images/previews/add-realm.png">
+    <meta property="twitter:description" content="This documentation is for keycloak v26.2.4">
+    <meta property="twitter:image" content="https://docs.cbioportal.org/images/previews/create-realm.png">
 
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link href="../../../images/cbio-logo.png" rel="icon">
-    <link href="../../../resources/css/retype.css?v=3.9.0.832822753797" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=3.9.0.832947026112" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=3.9.0.832947026112" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=3.9.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832822753797" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=3.9.0.832822753797" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=3.9.0.832947026112" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -267,7 +266,7 @@
         <span>Authenticating and Authorizing Users via Keycloak</span>
     </h1>
 </doc-anchor-target>
-<p><strong><span class="docs-emoji">&#x26A0;&#xFE0F;</span> This documentation is for keycloak &lt;v20, see related <a href="https://github.com/cBioPortal/cbioportal/issues/10360">ticket</a> <span class="docs-emoji">&#x26A0;&#xFE0F;</span></strong></p>
+<p><strong>This documentation is for keycloak v26.2.4</strong></p>
 <doc-anchor-target id="introduction">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#introduction">#</doc-anchor-trigger>
@@ -315,48 +314,89 @@ SAML (Security Assertion Markup Language).</p>
 </doc-anchor-target>
 <ol>
 <li>Log in to your Keycloak Identity Provider, e.g. <a href="http://localhost:8080/auth">http://localhost:8080/auth</a>, as an admin user. <span class="docs-emoji">&#x26A0;&#xFE0F;</span> when setting this up on something else than localhost (e.g. production), you will need to use/enable https on your Keycloak server. For simplicity, the rest of the documentation below continues on http://localhost.</li>
-<li>Hover over the top-left–corner drop down menu (titled ‘<strong>Master</strong>’) to create a new realm.
+<li>Click on the Navigation <strong>Manage realms</strong> on the left and create a new realm with the <strong>Create realm</strong> button.
 <figure class="content-center">
-    <img src="../../../images/previews/add-realm.png" alt="" />
+    <img src="../../../images/previews/create-realm.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
-Please note if you are logged in the master realm, this drop-down menu lists all the realms created. The last entry of this drop-down menu is always <strong>Add Realm</strong>. Click this to add a realm. Then type &#x27;<em>cbioportal</em>&#x27; in the name field and click the <strong>Create</strong> button.</li>
-<li>To create a SAML client, go to the <strong>Clients</strong> item in the left menu. On this page, click the <strong>Create</strong> button on the right. This will bring you to the <strong>Add Client</strong> page.
+Then type &#x27;<em>cbioportal</em>&#x27; in the name field and click the <strong>Create</strong> button.</li>
+<li>To create a SAML client, go to the <strong>Clients</strong> item in the left menu. On this page, click the <strong>Create</strong> button. This will bring you to the <strong>Add Client</strong> page.
 <ul>
-<li>Enter a <strong>Client ID</strong> for the client, e.g. &#x27;<em>cbioportal</em>&#x27;, this will be the expected <code v-pre>issuer</code> value in SAML requests sent by the application.</li>
 <li>Select <em>saml</em> in the <strong>Client Protocol</strong> drop down box.</li>
-<li>Enter <code v-pre>http://localhost:8081/saml</code> in the <strong>Client SAML Endpoint</strong> textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the <strong>Save</strong> button; this will take you to the client page below.</li>
+<li>Enter a <strong>Client ID</strong> for the client, e.g. &#x27;<em>cbioportal</em>&#x27;, this will be the expected <code v-pre>issuer</code> value in SAML requests sent by the application.</li>
+<li>click <strong>next</strong>.</li>
+<li>Enter a pattern for <strong>Valid Redirect URIs</strong> that Keycloak can use upon a successful authentication, e.g. <code v-pre>http://localhost:8081/*</code>. <span class="docs-emoji">&#x2139;&#xFE0F;</span> notice that you can add multiple URLs in this field. You could use this in some cases to support
+the URLs with and without port (e.g. if tomcat is running on port <code v-pre>80</code> and you want to allow both <code v-pre>http://localhost:80/*</code> and <code v-pre>http://localhost/*</code> as redirect URLs).</li>
+<li>Enter <code v-pre>http://localhost:8081/login/saml2/sso/cbio-saml-idp</code> in the <strong>Master SAML Processing URL</strong> textbox, this is the URL that the Keycloak server will send SAML requests and responses to. Then click the <strong>Save</strong> button; this will take you to the client page below.</li>
+<li>click <strong>Create</strong>.</li>
 </ul>
 </li>
 </ol>
 <p><figure class="content-center">
-    <img src="../../../images/previews/edit-client.png" alt="" />
+    <img src="../../../images/previews/create-client.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<p><figure class="content-center">
+    <img src="../../../images/previews/create-client-login-settings.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
 <ol start="4">
-<li>Choose <em>email</em> as your <strong>Name ID Format</strong>.</li>
-<li>Next, enter a pattern for <strong>Valid Redirect URIs</strong> that Keycloak can use upon a successful authentication, e.g. <code v-pre>http://localhost:8081/*</code>. <span class="docs-emoji">&#x2139;&#xFE0F;</span> notice that you can add multiple URLs in this field. You could use this in some cases to support
-the URLs with and without port (e.g. if tomcat is running on port <code v-pre>80</code> and you want to allow both <code v-pre>http://localhost:80/*</code> and <code v-pre>http://localhost/*</code> as redirect URLs).</li>
-<li>Set <strong>Force POST Binding</strong> and <strong>Front Channel Logout</strong> to <em>OFF</em> and <strong>Force Name ID Format</strong> to <em>ON</em>.</li>
-<li>Expand the subsection <strong>Fine Grain SAML Endpoint Configuration</strong> and set <strong>Logout Service POST Binding URL</strong> to <code v-pre>http://localhost:8081/saml/logout</code>.</li>
-<li>Leave everything else as it is and click <strong>Save</strong>.</li>
+<li><p>Scroll down to <strong>SAML capabilities</strong> Choose <em>email</em> as your <strong>Name ID Format</strong>.</p>
+</li>
+<li><p>Set <strong>Force Name ID Format</strong> to <em>ON</em> and <strong>Force POST Binding</strong> to <em>OFF</em>.</p>
+</li>
+<li><p>Set  <strong>Front Channel Logout</strong> in the Logout settings at the end of the page to <em>OFF</em>.</p>
+</li>
+<li><p>Go to Advanced and under <strong>Fine Grain SAML Endpoint Configuration</strong> set <strong>Logout Service POST Binding URL</strong> to <code v-pre>http://localhost:8081/j_spring_security_logout</code>.</p>
+</li>
+<li><p>Leave everything else as it is and click <strong>Save</strong>.</p>
+</li>
 </ol>
+<p><figure class="content-center">
+    <img src="../../../images/previews/saml-capabilities.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
 <doc-anchor-target id="map-saml-assertion-attributes">
     <h3>
         <doc-anchor-trigger class="header-anchor-trigger" to="#map-saml-assertion-attributes">#</doc-anchor-trigger>
         <span>Map SAML Assertion Attributes</span>
     </h3>
 </doc-anchor-target>
-<p>To specify attributes included in the SAML assertion, simply click on the <strong>Mappers</strong> tab, and add mappers using the <strong>Add Builtin</strong> and <strong>Create</strong> buttons.
+<p>To specify attributes included in the SAML assertion, click on the <strong>client-scopes</strong> tab, and select cbioportal-dedicated. Under the <strong>Mappers</strong> Tab ad mappers using the <strong>Add mapper</strong> Button.
 Make sure you add at least:</p>
+<ul>
+<li>From the predefined Mappers:
 <ul>
 <li>the built-in User Property mapper named <em>X500 email</em> and</li>
 <li>a <em>Role list</em>-type attribute (keep the default word <em>Role</em> as its <strong>Role attribute name</strong>).</li>
-<li>a <em>User Property</em>-type attribute with the name <em>username</em>. Use <em>username</em> for the attributes <strong>Property</strong>, <strong>Name</strong>, and <strong>SAML Attribute Name</strong>.</li>
+</ul>
+</li>
+<li>By configuration
+<ul>
+<li>a <em>User Property</em>-type attribute with the name <em>username</em>. Use <em>username</em> for the attributes <strong>Property</strong>, <strong>Name</strong>. Use the selectable <em>urn:oid:1.2.840.113549.1.9.1</em> as <strong>SAML Attribute Name</strong>.</li>
+</ul>
+</li>
 </ul>
 <p><figure class="content-center">
+    <img src="../../images/previews/client-scopes.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<p><figure class="content-center">
     <img src="../../../images/previews/add-mappers.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<p><figure class="content-center">
+    <img src="../../../images/previews/add-username-mapper.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<p><figure class="content-center">
+    <img src="../../../images/previews/mapper-rename-saml-attribute-name.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -366,7 +406,7 @@ Make sure you add at least:</p>
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
-<p>Finally, head to the <strong>Scope</strong> tab for the client and switch off
+<p>Finally, head to the <strong>Scope</strong> tab and switch off
 <strong>Full Scope Allowed</strong>, to ensure that only those roles relevant to a
 particular cBioPortal instance are listed in assertions sent to the
 instance, and not any other roles tracked in Keycloak.</p>
@@ -399,22 +439,32 @@ instance, and not any other roles tracked in Keycloak.</p>
     </h4>
 </doc-anchor-target>
 <ol>
-<li>Next, navigate to the <strong>Installation</strong> tab for the same client.</li>
+<li>Next, navigate to the <strong>Realm settings</strong> tab.</li>
 <li>Select <em>SAML Metadata IDPSSODescriptor</em> as the Format Option and click the <strong>Download</strong> button.
-<span class="docs-emoji">&#x26A0;&#xFE0F;</span> This GUI option has been removed from the newer versions of Keycloak.
+<span class="docs-emoji">&#x26A0;&#xFE0F;</span> This GUI option has been removed from the newer versions of Keycloak. But there is a link to show the content in the browser.
 <figure class="content-center">
-    <img src="../../../images/previews/download-idpssodescriptor-file.png" alt="" />
+    <img src="../../../images/previews/export-idp-metadata-option.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </li>
 </ol>
-<p>After you&#x27;ve downloaded the XML file with one of the above ways, move it to <code v-pre>portal/src/main/resources/</code> if you&#x27;re compiling cBioPortal yourself or if you&#x27;re using the Docker container, mount the file in the <code v-pre>/cbioportal-webapp</code> folder with <code v-pre>-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml</code>.</p>
+<p>After you&#x27;ve downloaded the XML file with one of the above ways, move it to <code v-pre>portal/src/main/resources/</code> if you&#x27;re compiling cBioPortal yourself or if you&#x27;re using the Docker container, mount the file in the <code v-pre>/cbioportal-webapp</code> folder with <code v-pre>-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml</code>.
+** Note:** It may occur that the XML-file is not properly formatted. Please use a XML-formatting tool to repair the file in this case. It&#x27;s also possible to use the security property with the url from Keycloak. With that no download of the Metadata is needed, but it may happen, that the file that cbioportal gets is also not well formatted and might not work. Also cBioPortal needs a way to make a network request to Keycloak.</p>
 <doc-anchor-target id="create-a-signing-key-for-cbioportal">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#create-a-signing-key-for-cbioportal">#</doc-anchor-trigger>
         <span>Create a signing key for cBioPortal</span>
     </h2>
 </doc-anchor-target>
+<p><strong>Note:</strong> This part needs further validation. At our instance the key is the generated one from keycloak and included in the metadata xml file. We have local keys and certs but they are not in keycloak but this still works.
+There are two ways to Create a signing key for cBioPortal 1. with Keystore 2. with certificate and key.</p>
+<doc-anchor-target id="keystore">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#keystore">#</doc-anchor-trigger>
+        <span>Keystore:</span>
+    </h3>
+</doc-anchor-target>
+<p><strong>Note</strong> this version was not verified, so it could be deprecated.</p>
 <p>Use the Java &#x27;<code v-pre>keytool</code>&#x27; command to generate keystore, as described
 <a href="../authenticating-users-via-saml/#creating-a-keystore">here</a>
 on the page about SAML in cBioPortal:</p>
@@ -438,6 +488,23 @@ needs to know the certificate)</li>
 <p><strong>Important:</strong> Keycloak may not give an indication of successful
 completion, but when navigating to the <strong>SAML Keys</strong> tab again you
 should now see the certificate and no private key.</p>
+<doc-anchor-target id="certificate-and-keyfile">
+    <h3>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#certificate-and-keyfile">#</doc-anchor-trigger>
+        <span>Certificate and Keyfile:</span>
+    </h3>
+</doc-anchor-target>
+<p>As Specified in <a href="../../customization/security.properties-reference/#saml-configuration">security properties</a> you can create a Signing Key and Certificate by using:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">    openssl req -newkey rsa:2048 -nodes -keyout local.key -x509 -days 365 -out local.crt</code></pre>
+</doc-codeblock></div>
+<p>Install the generated certificate and key files to <code v-pre>portal/src/main/resources/</code> if you&#x27;re compiling cBioPortal yourself or if you&#x27;re using the Docker container, mount the file in the <code v-pre>/cbioportal-webapp</code> folder with <code v-pre>-v /path/to/localsaml.crt:/cbioportal-webapp/WEB-INF/classes/localsaml.crt</code>.
+Then add them in the security properties.</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre class="language-none"><code v-pre class="language-none">spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].certificate-location=classpath:/localsaml.crt
+spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].private-key-location=classpath:/localsaml.key</code></pre>
+</doc-codeblock></div>
+<p>In Keycloak go to the cioportal client and in the Keys menu aktivate <strong>Client signature required</strong> and import the created Certificat (not the key) in the window below.</p>
 <doc-anchor-target id="modifying-configuration">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#modifying-configuration">#</doc-anchor-trigger>
@@ -445,35 +512,15 @@ should now see the certificate and no private key.</p>
     </h2>
 </doc-anchor-target>
 <ol>
-<li>Within the application.properties file , make sure that this line is present:</li>
+<li>Within the application.properties file , make sure that these lines are present:</li>
 </ol>
 <div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-none"><code v-pre class="language-none">    app.name=cbioportal</code></pre>
+<pre class="language-none"><code v-pre class="language-none">    app.name=cbioportal
+    filter_groups_by_appname</code></pre>
 </doc-codeblock></div>
 <ol start="2">
-<li>Then, modify the properties under the comment <code v-pre># authentication</code>. In particular, see the options listed in the example below:</li>
+<li>Then, add the security properties for SAML authentification as described in the SAML Configuration section of the <a href="../../customization/security.properties-reference/#saml-configuration">Security Properties</a>.</li>
 </ol>
-<div class="codeblock-wrapper"><doc-codeblock>
-<pre class="language-properties"><code v-pre class="language-properties">    filter_groups_by_appname=false
-    saml.sp.metadata.entityid=cbioportal
-    saml.sp.metadata.wantassertionsigned=true
-    saml.idp.metadata.location=classpath:/client-tailored-saml-idp-metadata.xml
-    saml.idp.metadata.entityid=http://localhost:8080/auth/realms/cbioportal
-    saml.keystore.location=classpath:/samlKeystore.jks
-    saml.keystore.password=apollo1
-    saml.keystore.private-key.key=secure-key
-    saml.keystore.private-key.password=apollo2
-    saml.keystore.default-key=secure-key
-    saml.idp.comm.binding.settings=defaultBinding
-    saml.idp.comm.binding.type=
-    saml.idp.metadata.attribute.email=email
-    saml.idp.metadata.attribute.userName=username
-    saml.idp.metadata.attribute.role=Role
-    saml.custom.userservice.class=org.cbioportal.security.spring.authentication.keycloak.SAMLUserDetailsServiceImpl
-    # global logout (as opposed to local logout):
-    saml.logout.local=false
-    saml.logout.url=/</code></pre>
-</doc-codeblock></div>
 <doc-anchor-target id="obtain-user-identities">
     <h2>
         <doc-anchor-trigger class="header-anchor-trigger" to="#obtain-user-identities">#</doc-anchor-trigger>
@@ -491,7 +538,7 @@ option brings you to the user list page. On the right side of the
 empty user list, you should see an <strong>Add User</strong> button. Click that to
 start creating your new user.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/add-user.png" alt="" />
+    <img src="../../../images/previews/create-user.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -564,7 +611,7 @@ the link of the same name in the left sidebar.  Click the <strong>Add
 Role</strong> button. Enter a name (e.g.  <code v-pre>brca_tcga_pub</code>) and description
 for the role and hit the <strong>Save</strong> button.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/add-role-for-study.png" alt="" />
+    <img src="../../../images/previews/create-role.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -601,7 +648,7 @@ open the <strong>Role Mappings</strong> tab for that user. Select the
 the <strong>Available Roles</strong> selection and its <strong>Add selected</strong> button to
 assign client roles to this user.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/assign-role-to-user.png" alt="" />
+    <img src="../../../images/previews/assign-user-role.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -631,22 +678,22 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
     </h3>
 </doc-anchor-target>
 <p>With cBioPortal instances that require user authentication the API can be queried when including a data access token in the request header (see <a href="../authenticating-users-via-tokens/">Authenticating Users via Tokens</a>). KeyCloak can be configured as an OAuth2 authentication provider that distributes data access tokens to users and validates these tokens when used while querying the API. This feature is enabled by creating a <code v-pre>cbioportal_api</code> OpenID Connect client that has access to the user roles defined in the <code v-pre>cbioportal</code> SAML client.</p>
-<p>The step below were verified to work with Keycloak versions 4.8.3.Final and 8.0.2.</p>
+<p>The step below were verified to work with Keycloak version 26.4.2.</p>
 <ol>
 <li>Create a client with name <code v-pre>cbioportal_api</code>. Set <em>Client Protocol</em> to <code v-pre>openid-connect</code>.</li>
 </ol>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_1.png" alt="" />
+    <img src="../../../images/previews/create-api-client.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
 <ol start="2">
 <li>On the configuration page of <code v-pre>cbioportal_api</code> client apply the following settings:</li>
 </ol>
-<doc-anchor-target id="settings-tab">
+<doc-anchor-target id="general-settings">
     <h4>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#settings-tab">#</doc-anchor-trigger>
-        <span>Settings tab</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#general-settings">#</doc-anchor-trigger>
+        <span>General Settings:</span>
     </h4>
 </doc-anchor-target>
 <div class="table-wrapper scrollbar overflow-hidden">
@@ -660,60 +707,98 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </thead>
 <tbody>
 <tr>
-<td>Access Type</td>
-<td style="text-align: center;">confidential</td>
-<td style="text-align: right;"></td>
-</tr>
-<tr>
-<td>Standard Flow Enabled</td>
-<td style="text-align: center;">ON</td>
-<td style="text-align: right;">(default value)</td>
-</tr>
-<tr>
-<td>Enabled</td>
-<td style="text-align: center;">ON</td>
-<td style="text-align: right;">(default value)</td>
-</tr>
-<tr>
-<td>Consent Required</td>
-<td style="text-align: center;">OFF</td>
-<td style="text-align: right;">(default value)</td>
-</tr>
-<tr>
-<td>Client Protocol</td>
+<td>Client type</td>
 <td style="text-align: center;">openid-connect</td>
 <td style="text-align: right;">(default value)</td>
 </tr>
+</tbody>
+</table>
+</div>
+<doc-anchor-target id="capability-settings">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#capability-settings">#</doc-anchor-trigger>
+        <span>Capability Settings:</span>
+    </h4>
+</doc-anchor-target>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
 <tr>
-<td>Access Type</td>
-<td style="text-align: center;">confidential</td>
+<th>parameter</th>
+<th style="text-align: center;">value</th>
+<th style="text-align: right;">comment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client authentication</td>
+<td style="text-align: center;">on</td>
+<td style="text-align: right;"></td>
+</tr>
+<tr>
+<td>Authorization</td>
+<td style="text-align: center;">OFF</td>
 <td style="text-align: right;">(default value)</td>
 </tr>
 <tr>
-<td>Standard Flow Enabled</td>
+<td>Standard Flow</td>
 <td style="text-align: center;">ON</td>
 <td style="text-align: right;">(default value)</td>
 </tr>
 <tr>
-<td>Implicit Flow Enabled</td>
+<td>Implicit Flow</td>
 <td style="text-align: center;">OFF</td>
 <td style="text-align: right;">(default value)</td>
 </tr>
 <tr>
-<td>Direct Access Grants Enabled</td>
+<td>Standard Token Exchange</td>
+<td style="text-align: center;">OFF</td>
+<td style="text-align: right;">(default value)</td>
+</tr>
+<tr>
+<td>OAuth 2.0 Device Authorization Grant</td>
+<td style="text-align: center;">off</td>
+<td style="text-align: right;">(default value)</td>
+</tr>
+<tr>
+<td>OIDC CIBA Grant</td>
+<td style="text-align: center;">OFF</td>
+<td style="text-align: right;">(default value)</td>
+</tr>
+<tr>
+<td>Direct Access Grants</td>
 <td style="text-align: center;">OFF</td>
 <td style="text-align: right;"></td>
 </tr>
 <tr>
-<td>Service Accounts Enabled</td>
-<td style="text-align: center;">OFF</td>
-<td style="text-align: right;">(default value)</td>
+<td>Service Accounts roles</td>
+<td style="text-align: center;">ON</td>
+<td style="text-align: right;"></td>
 </tr>
+</tbody>
+</table>
+</div>
+<p><figure class="content-center">
+    <img src="../../../images/previews/create-api-client-step2.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
+<doc-anchor-target id="login-settings">
+    <h4>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#login-settings">#</doc-anchor-trigger>
+        <span>Login settings:</span>
+    </h4>
+</doc-anchor-target>
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
 <tr>
-<td>Authorization Enabled</td>
-<td style="text-align: center;">OFF</td>
-<td style="text-align: right;">(default value)</td>
+<th>parameter</th>
+<th style="text-align: center;">value</th>
+<th style="text-align: right;">comment</th>
 </tr>
+</thead>
+<tbody>
 <tr>
 <td>Valid Redirect URIs</td>
 <td style="text-align: center;"><em>url</em>/api/data-access-token/oauth2</td>
@@ -723,7 +808,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_3.png" alt="" />
+    <img src="../../../images/previews/create-api-client-step3.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -733,7 +818,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
         <span>Credentials tab</span>
     </h4>
 </doc-anchor-target>
-<p>Select <code v-pre>Client Id and Secret</code>. Take notice of the value of <em>Secret</em> the secret field. This secret should be added to <code v-pre>application.properties</code> file of the cBioPortal backend.</p>
+<p>Select <code v-pre>Client Id and Secret</code>. Take notice of the value of <em>Secret</em> the secret field. This secret should be added to <code v-pre>security.properties</code> file of the cBioPortal backend.</p>
 <div class="table-wrapper scrollbar overflow-hidden">
 <table class="comfortable">
 <thead>
@@ -753,7 +838,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_6.png" alt="" />
+    <img src="../../../images/previews/api-client-credentials.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -765,7 +850,7 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </doc-anchor-target>
 <p>Keep only scopes <code v-pre>roles</code> and <code v-pre>offline_access</code> (remove all others).</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_2.png" alt="" />
+    <img src="../../../images/previews/api-client-client-scopes-tab.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -775,7 +860,13 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
         <span>Mapper tab</span>
     </h4>
 </doc-anchor-target>
-<p>Create a new <em>Audience</em> mapper with name <code v-pre>cbioportal_api_audience</code>. This value will be used by the cBioPortal backend during validation of access tokens.</p>
+<p>Select cbioportal-api-dedicated and Create a new <em>Audience</em> mapper with name <code v-pre>cbioportal_api_audience</code>. This value will be used by the cBioPortal backend during validation of access tokens.
+Create the Mapper with <strong>configure new mapper</strong>.</p>
+<p><figure class="content-center">
+    <img src="../../../images/previews/api-client-mappers-tab.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+</p>
 <div class="table-wrapper scrollbar overflow-hidden">
 <table class="comfortable">
 <thead>
@@ -815,7 +906,12 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_4.png" alt="" />
+    <img src="../../../images/previews/api-create-audience-mapper.png" alt="" />
+    <figcaption class="caption"></figcaption>
+</figure>
+Since newer Keycloak versions dont send the subject in the Access token also add the predefined SUB Mapper to the client.
+<figure class="content-center">
+    <img src="../../images/previews/api-client-add-sub-mapper" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -845,12 +941,12 @@ steps</a> using <code v-pre>authenticate=saml</code>.</p>
 </table>
 </div>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_5.png" alt="" />
+    <img src="../../../images/previews/api-mapper-scope.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
 <ol start="3">
-<li>Add these parameters to <code v-pre>application.properties</code> of the cBioPortal backend.</li>
+<li>Add these parameters to <code v-pre>security.properties</code> of the cbioportal backend as specified in <a href="../../customization/security.properties-reference/#data-access-token-settings">Data Access Token Settings</a></li>
 </ol>
 <div class="table-wrapper scrollbar overflow-hidden">
 <table class="comfortable">
@@ -934,9 +1030,9 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
     </h4>
 </doc-anchor-target>
 <p>By default user-roles are extracted from path <code v-pre>resource_access::cbioportal::roles</code> in the JWT json. Changes to the configuration of roles at the realm and client level in Keycloak instance can alter this path and must be set acordingly with the <code v-pre>dat.oauth2.jwtRolesPath</code> property in the <code v-pre>application.properties</code> file.</p>
-<p>To check the the roles path, go into the <code v-pre>Client Scopes</code> tab inside KeyCloak. Enter the <code v-pre>Evaluate</code> section, select a test user, and click <code v-pre>Evaluate</code>. In the section below, select the <code v-pre>Generated Access Token</code> tab to examine the JWT structure.</p>
+<p>To check the the roles path, go into the <code v-pre>Client Scopes</code> tab inside KeyCloak. Enter the <code v-pre>Evaluate</code> section and select a test user. In the section below, select the <code v-pre>Generated Access Token</code> tab to examine the JWT structure.</p>
 <p><figure class="content-center">
-    <img src="../../../images/previews/oauth2_client_7.png" alt="" />
+    <img src="../../../images/previews/api-client-evaluate-scope.png" alt="" />
     <figcaption class="caption"></figcaption>
 </figure>
 </p>
@@ -959,7 +1055,7 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
   &quot;scope&quot;: &quot;openid&quot;
 }</code></pre>
 </doc-codeblock></div>
-<p>The <code v-pre>jwtRolesPath</code> in this case would be <code v-pre>realm_access::roles</code>. Double check this against the <code v-pre>jwtRolesPath</code> value set in <code v-pre>application.properties</code>.</p>
+<p>The <code v-pre>jwtRolesPath</code> in this case would be <code v-pre>realm_access::roles</code>. Double check this against the <code v-pre>jwtRolesPath</code> value set in <code v-pre>security.properties</code>.</p>
 
                                 
                                 <!-- Required only on API pages -->
@@ -1032,6 +1128,6 @@ This can be done via <code v-pre>src/main/resources/logback.xml</code>. See <a h
 
     <div id="docs-overlay-target"></div>
 
-    <script data-cfasync="false">window.__DOCS__ = { "title": "Authenticating and Authorizing Users via Keycloak", level: 3, icon: "file", hasPrism: true, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
+    <script data-cfasync="false">window.__DOCS__ = { "title": "Authenticating and Authorizing Users via Keycloak", level: 3, icon: "file", hasPrism: false, hasMermaid: false, hasMath: false, tocDepth: 23 }</script>
 </body>
 </html>

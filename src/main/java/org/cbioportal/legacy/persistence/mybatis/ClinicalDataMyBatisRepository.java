@@ -43,7 +43,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         pageSize,
         PaginationCalculator.offset(pageSize, pageNumber),
         sortBy,
-        direction);
+        direction,
+        true);
   }
 
   @Override
@@ -73,7 +74,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         pageSize,
         PaginationCalculator.offset(pageSize, pageNumber),
         sortBy,
-        direction);
+        direction,
+        true);
   }
 
   @Override
@@ -104,7 +106,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
           pageSize,
           PaginationCalculator.offset(pageSize, pageNumber),
           sortBy,
-          direction);
+          direction,
+          true);
     } else {
       return clinicalDataMapper.getPatientClinicalData(
           Arrays.asList(studyId),
@@ -114,7 +117,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
           pageSize,
           PaginationCalculator.offset(pageSize, pageNumber),
           sortBy,
-          direction);
+          direction,
+          true);
     }
   }
 
@@ -155,10 +159,10 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
 
     if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
       return clinicalDataMapper.getSampleClinicalData(
-          Arrays.asList(studyId), ids, attributeIds, projection, 0, 0, null, null);
+          Arrays.asList(studyId), ids, attributeIds, projection, 0, 0, null, null, true);
     } else {
       return clinicalDataMapper.getPatientClinicalData(
-          Arrays.asList(studyId), ids, attributeIds, projection, 0, 0, null, null);
+          Arrays.asList(studyId), ids, attributeIds, projection, 0, 0, null, null, true);
     }
   }
 
@@ -195,10 +199,10 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
     if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
       return clinicalDataMapper.getSampleClinicalData(
-          studyIds, ids, attributeIds, projection, 0, 0, null, null);
+          studyIds, ids, attributeIds, projection, 0, 0, null, null, true);
     } else {
       return clinicalDataMapper.getPatientClinicalData(
-          studyIds, ids, attributeIds, projection, 0, 0, null, null);
+          studyIds, ids, attributeIds, projection, 0, 0, null, null, true);
     }
   }
 

@@ -150,7 +150,7 @@
             <include refid="sampleColumnsDetailed" />
         <include refid="fromJoinedTable" />
         <include refid="filterBySampleListId" />
-        ORDER BY cancer_study_identifier ASC, sample_stable_id ASC
+        ORDER BY sample_derived.cancer_study_identifier ASC, sample_stable_id ASC
     </select>
 
     <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">

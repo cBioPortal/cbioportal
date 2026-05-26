@@ -19,7 +19,10 @@ public interface ClinicalDataMapper {
       boolean excludeEmptyValues);
 
   BaseMeta getMetaSampleClinicalData(
-      List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
+      List<String> studyIds,
+      List<String> sampleIds,
+      List<String> attributeIds,
+      boolean excludeEmptyValues);
 
   List<ClinicalData> getPatientClinicalData(
       List<String> studyIds,
@@ -53,7 +56,10 @@ public interface ClinicalDataMapper {
       String direction);
 
   BaseMeta getMetaPatientClinicalData(
-      List<String> studyIds, List<String> patientIds, List<String> attributeIds);
+      List<String> studyIds,
+      List<String> patientIds,
+      List<String> attributeIds,
+      boolean excludeEmptyValues);
 
   List<ClinicalDataCount> fetchSampleClinicalDataCounts(
       List<String> studyIds, List<String> sampleIds, List<String> attributeIds);

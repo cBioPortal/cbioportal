@@ -52,7 +52,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     return clinicalDataMapper.getMetaSampleClinicalData(
         Arrays.asList(studyId),
         Arrays.asList(sampleId),
-        attributeId != null ? Arrays.asList(attributeId) : null);
+        attributeId != null ? Arrays.asList(attributeId) : null,
+        true);
   }
 
   @Override
@@ -83,7 +84,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     return clinicalDataMapper.getMetaPatientClinicalData(
         Arrays.asList(studyId),
         Arrays.asList(patientId),
-        attributeId != null ? Arrays.asList(attributeId) : null);
+        attributeId != null ? Arrays.asList(attributeId) : null,
+        true);
   }
 
   @Override
@@ -134,7 +136,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
               .getMetaSampleClinicalData(
                   Arrays.asList(studyId),
                   null,
-                  attributeId != null ? Arrays.asList(attributeId) : null)
+                  attributeId != null ? Arrays.asList(attributeId) : null,
+                  true)
               .getTotalCount());
     } else {
       baseMeta.setTotalCount(
@@ -142,7 +145,8 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
               .getMetaPatientClinicalData(
                   Arrays.asList(studyId),
                   null,
-                  attributeId != null ? Arrays.asList(attributeId) : null)
+                  attributeId != null ? Arrays.asList(attributeId) : null,
+                  true)
               .getTotalCount());
     }
 
@@ -175,12 +179,12 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
       baseMeta.setTotalCount(
           clinicalDataMapper
-              .getMetaSampleClinicalData(Arrays.asList(studyId), ids, attributeIds)
+              .getMetaSampleClinicalData(Arrays.asList(studyId), ids, attributeIds, true)
               .getTotalCount());
     } else {
       baseMeta.setTotalCount(
           clinicalDataMapper
-              .getMetaPatientClinicalData(Arrays.asList(studyId), ids, attributeIds)
+              .getMetaPatientClinicalData(Arrays.asList(studyId), ids, attributeIds, true)
               .getTotalCount());
     }
 
@@ -274,12 +278,12 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
       baseMeta.setTotalCount(
           clinicalDataMapper
-              .getMetaSampleClinicalData(studyIds, ids, attributeIds)
+              .getMetaSampleClinicalData(studyIds, ids, attributeIds, true)
               .getTotalCount());
     } else {
       baseMeta.setTotalCount(
           clinicalDataMapper
-              .getMetaPatientClinicalData(studyIds, ids, attributeIds)
+              .getMetaPatientClinicalData(studyIds, ids, attributeIds, true)
               .getTotalCount());
     }
 

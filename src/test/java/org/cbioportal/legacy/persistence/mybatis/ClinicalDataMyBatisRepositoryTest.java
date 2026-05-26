@@ -700,45 +700,60 @@ public class ClinicalDataMyBatisRepositoryTest {
     Assert.assertEquals(0, result.size());
   }
 
+  // TCGA-EMPTY-VAL-PT (acc_tcga) has OTHER_PATIENT_ID='EMPTY-VAL-PATIENT' and
+  // FORM_COMPLETION_DATE=''; its sample TCGA-EMPTY-VAL-PT-01 has OTHER_SAMPLE_ID='EMPTY-VAL-SAMPLE'
+  // and DAYS_TO_COLLECTION=''. The v7 ClickHouse import stores blank clinical cells as empty
+  // strings; the legacy clinical-data reads must skip them so missing values are reported as
+  // absent rows (otherwise the group comparison clinical bar chart shows an unlabeled "NA"
+  // segment instead of folding those samples into the synthesized "NA" category).
+
   @Test
   public void getAllClinicalDataOfPatientInStudyExcludesEmptyValues() {
-    // GENIE-TEST-312 has center='' and dead='' (blank) plus age='77'. The v7 ClickHouse import
-    // stores blank clinical cells as empty strings; they must not be returned as clinical data
-    // rows, otherwise missing values stop being reported as absent (e.g. unlabeled "NA" segments
-    // in the group comparison clinical bar chart).
     List<ClinicalData> result =
         clinicalDataMyBatisRepository.getAllClinicalDataOfPatientInStudy(
-            "study_genie_pub", "GENIE-TEST-312", null, "SUMMARY", null, null, null, null);
+            "acc_tcga", "TCGA-EMPTY-VAL-PT", null, "SUMMARY", null, null, null, null);
 
     Assert.assertEquals(1, result.size());
-    Assert.assertEquals("age", result.get(0).getAttrId());
-    Assert.assertEquals("77", result.get(0).getAttrValue());
+    Assert.assertEquals("OTHER_PATIENT_ID", result.get(0).getAttrId());
+    Assert.assertEquals("EMPTY-VAL-PATIENT", result.get(0).getAttrValue());
     Assert.assertTrue(result.stream().noneMatch(r -> r.getAttrValue().isEmpty()));
   }
 
   @Test
   public void getAllClinicalDataOfSampleInStudyExcludesEmptyValues() {
-    // GENIE-TEST-312-01's only sample attribute (mutation_count) is blank, so nothing is returned.
     List<ClinicalData> result =
         clinicalDataMyBatisRepository.getAllClinicalDataOfSampleInStudy(
-            "study_genie_pub", "GENIE-TEST-312-01", null, "SUMMARY", null, null, null, null);
+            "acc_tcga", "TCGA-EMPTY-VAL-PT-01", null, "SUMMARY", null, null, null, null);
 
-    Assert.assertEquals(0, result.size());
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals("OTHER_SAMPLE_ID", result.get(0).getAttrId());
+    Assert.assertEquals("EMPTY-VAL-SAMPLE", result.get(0).getAttrValue());
+    Assert.assertTrue(result.stream().noneMatch(r -> r.getAttrValue().isEmpty()));
   }
 
   @Test
   public void fetchClinicalDataExcludesEmptyValues() {
     List<ClinicalData> result =
         clinicalDataMyBatisRepository.fetchClinicalData(
-            Arrays.asList("study_genie_pub"),
-            Arrays.asList("GENIE-TEST-312"),
+            Arrays.asList("acc_tcga"),
+            Arrays.asList("TCGA-EMPTY-VAL-PT"),
             null,
             "PATIENT",
             "SUMMARY");
 
     Assert.assertEquals(1, result.size());
-    Assert.assertEquals("age", result.get(0).getAttrId());
+    Assert.assertEquals("OTHER_PATIENT_ID", result.get(0).getAttrId());
     Assert.assertTrue(result.stream().noneMatch(r -> r.getAttrValue().isEmpty()));
+  }
+
+  @Test
+  public void getMetaPatientClinicalDataExcludesEmptyValues() {
+    // totalCount must agree with the rows returned by the fetch/get reads above.
+    BaseMeta result =
+        clinicalDataMyBatisRepository.getMetaPatientClinicalData(
+            "acc_tcga", "TCGA-EMPTY-VAL-PT", null);
+
+    Assert.assertEquals((Integer) 1, result.getTotalCount());
   }
 
   private List<ClinicalDataCount> sortedResult(List<ClinicalDataCount> result) {

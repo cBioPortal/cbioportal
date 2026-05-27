@@ -74,7 +74,7 @@ public class ColumnStoreClinicalDataEnrichmentController {
       "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       method = RequestMethod.POST,
-      value = "/clinical-data-enrichments/fetch",
+      value = "/not-ready-yet/clinical-data-enrichments/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Fetch clinical data enrichments for the sample groups")

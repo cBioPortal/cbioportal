@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -73,10 +74,11 @@ public class ColumnStoreMutationController {
    * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
    *     for META projection
    */
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/mutations/fetch",
+      value = "/not-ready-yet/mutations/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

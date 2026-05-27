@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -105,11 +106,12 @@ public class ColumnStoreClinicalDataController {
    * @return ResponseEntity containing list of clinical data DTOs, or empty body with count header
    *     for META projection
    */
+  @Hidden
   @PreAuthorize(
       "hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       method = RequestMethod.POST,
-      value = "/clinical-data/fetch",
+      value = "/not-ready-yet/clinical-data/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Fetch clinical data by patient IDs or sample IDs (all studies)")

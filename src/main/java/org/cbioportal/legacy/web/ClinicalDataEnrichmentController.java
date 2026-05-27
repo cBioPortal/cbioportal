@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @InternalApi
 @Hidden
 @RestController
-@RequestMapping("/api/legacy")
+@RequestMapping("/api")
 @Validated
 @Tag(name = "Clinical Data Enrichments", description = " ")
 public class ClinicalDataEnrichmentController {

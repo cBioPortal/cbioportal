@@ -2,6 +2,7 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import static java.util.stream.Collectors.toSet;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -595,8 +596,9 @@ public class ColumnarStoreStudyViewController {
         studyViewService.getSampleTreatmentReport(studyViewFilter, projection));
   }
 
+  @Hidden
   @RequestMapping(
-      value = "/custom-data-counts/fetch",
+      value = "/not-ready-yet/custom-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -645,8 +647,9 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @RequestMapping(
-      value = "/custom-data-bin-counts/fetch",
+      value = "/not-ready-yet/custom-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

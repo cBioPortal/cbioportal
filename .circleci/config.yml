@@ -353,9 +353,13 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # CLICKHOUSE_URL/USER/PASSWORD come from the clickhouse-public-staging-ro-user
-              # context (see workflow). The remote-clickhouse override pushes them into the
-              # container, replacing the local .env default.
+              # Public read-only staging ClickHouse. Hardcoded rather than read from the
+              # clickhouse-public-staging-ro-user context because CircleCI does not pass
+              # context env vars to forked-PR builds. The remote-clickhouse override pushes
+              # these into the container, replacing the local .env default.
+              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
+              CLICKHOUSE_USER: "apitests"
+              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah

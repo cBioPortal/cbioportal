@@ -353,12 +353,9 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # Point the portal at the public read-only staging ClickHouse (same
-              # instance the e2e runtime-config/portal.properties uses). The remote
-              # override pushes these into the container, replacing the local .env.
-              CLICKHOUSE_URL: "jdbc:clickhouse:https://mllw215wcr.us-east-2.aws.clickhouse.cloud:8443/cbioportal"
-              CLICKHOUSE_USER: "readonly_user"
-              CLICKHOUSE_PASSWORD: "S@omepassw0rd"
+              # CLICKHOUSE_URL/USER/PASSWORD come from the clickhouse-public-staging-ro-user
+              # context (see workflow). The remote-clickhouse override pushes them into the
+              # container, replacing the local .env default.
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah

@@ -503,6 +503,26 @@ public class StudyViewServiceImpl implements StudyViewService {
     }
 
     List<GenericAssayData> data =
+        fetchGenericAssayData(sampleIds, studyIds, stableIds, profileTypes);
+
+    return aggregateGenericAssayDataCounts(data, sampleIds);
+  }
+
+  @Override
+  public List<GenericAssayDataCountItem> fetchGenericAssayDataCountsByProfileType(
+      List<String> sampleIds, List<String> studyIds, String profileType) {
+    List<GenericAssayData> data =
+        fetchGenericAssayData(sampleIds, studyIds, null, List.of(profileType));
+
+    return aggregateGenericAssayDataCounts(data, sampleIds);
+  }
+
+  private List<GenericAssayData> fetchGenericAssayData(
+      List<String> sampleIds,
+      List<String> studyIds,
+      List<String> stableIds,
+      List<String> profileTypes) {
+    List<GenericAssayData> data =
         profileTypes.stream()
             .flatMap(
                 profileType -> {
@@ -522,6 +542,11 @@ public class StudyViewServiceImpl implements StudyViewService {
                 })
             .toList();
 
+    return data;
+  }
+
+  private List<GenericAssayDataCountItem> aggregateGenericAssayDataCounts(
+      List<GenericAssayData> data, List<String> sampleIds) {
     return data.stream()
         .collect(Collectors.groupingBy(GenericAssayData::getGenericAssayStableId))
         .entrySet()

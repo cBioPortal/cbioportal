@@ -644,6 +644,78 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void fetchGenericAssayDataCountsByProfileType() throws Exception {
+
+    List<String> molecularProfileIds =
+        Collections.nCopies(
+            3, BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
+    List<String> sampleIds =
+        Arrays.asList(
+            BaseServiceImplTest.SAMPLE_ID1,
+            BaseServiceImplTest.SAMPLE_ID2,
+            BaseServiceImplTest.SAMPLE_ID3);
+    List<String> studyIds = Collections.nCopies(3, BaseServiceImplTest.STUDY_ID);
+
+    List<GenericAssayData> gaDataList = new ArrayList<>();
+    GenericAssayData gaData1 = new GenericAssayData();
+    gaData1.setGenericAssayStableId(BaseServiceImplTest.STABLE_ID_1);
+    gaData1.setSampleId(BaseServiceImplTest.SAMPLE_ID1);
+    gaData1.setValue(BaseServiceImplTest.CATEGORY_VALUE_1);
+    gaDataList.add(gaData1);
+
+    GenericAssayData gaData2 = new GenericAssayData();
+    gaData2.setGenericAssayStableId(BaseServiceImplTest.STABLE_ID_1);
+    gaData2.setSampleId(BaseServiceImplTest.SAMPLE_ID2);
+    gaData2.setValue(BaseServiceImplTest.CATEGORY_VALUE_1);
+    gaDataList.add(gaData2);
+
+    GenericAssayData gaData3 = new GenericAssayData();
+    gaData3.setGenericAssayStableId(BaseServiceImplTest.STABLE_ID_2);
+    gaData3.setSampleId(BaseServiceImplTest.SAMPLE_ID1);
+    gaData3.setValue(BaseServiceImplTest.CATEGORY_VALUE_1);
+    gaDataList.add(gaData3);
+
+    Mockito.when(
+            genericAssayService.fetchGenericAssayData(
+                molecularProfileIds, sampleIds, null, "SUMMARY"))
+        .thenReturn(gaDataList);
+
+    List<MolecularProfile> molecularProfiles = new ArrayList<>();
+    MolecularProfile molecularProfile = new MolecularProfile();
+    molecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
+    molecularProfile.setStableId(
+        BaseServiceImplTest.STUDY_ID + "_" + BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
+    molecularProfiles.add(molecularProfile);
+
+    Mockito.when(molecularProfileService.getMolecularProfilesInStudies(studyIds, "SUMMARY"))
+        .thenReturn(molecularProfiles);
+
+    List<GenericAssayDataCountItem> result =
+        studyViewService.fetchGenericAssayDataCountsByProfileType(
+            sampleIds, studyIds, BaseServiceImplTest.MOLECULAR_PROFILE_ID_A);
+
+    Assert.assertEquals(2, result.size());
+    Assert.assertTrue(
+        result.stream()
+            .anyMatch(
+                item ->
+                    item.getStableId().equals(BaseServiceImplTest.STABLE_ID_1)
+                        && item.getCounts().stream()
+                            .anyMatch(
+                                count ->
+                                    count.getValue().equals(BaseServiceImplTest.CATEGORY_VALUE_1)
+                                        && count.getCount().equals(2))));
+    Assert.assertTrue(
+        result.stream()
+            .anyMatch(
+                item ->
+                    item.getStableId().equals(BaseServiceImplTest.STABLE_ID_2)
+                        && item.getCounts().stream()
+                            .anyMatch(
+                                count -> count.getValue().equals("NA") && count.getCount().equals(2))));
+  }
+
+  @Test
   public void fetchNamespaceDataCounts() {
 
     NamespaceAttribute namespaceAttribute1 =

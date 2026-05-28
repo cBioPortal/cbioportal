@@ -19,4 +19,5 @@ public record GenericAssayUseCases(
     GetFilteredMolecularProfilesByAlterationType getFilteredMolecularProfilesByAlterationType,
     GetGenericAssayDataBinCounts getGenericAssayDataBinCounts,
     GetGenericAssayDataCountsUseCase getGenericAssayDataCountsUseCase,
+    GetGenericAssayDataCountsByProfileTypeUseCase getGenericAssayDataCountsByProfileTypeUseCase,
     GetGenericAssayProfilesUseCase getGenericAssayProfilesUseCase) {}

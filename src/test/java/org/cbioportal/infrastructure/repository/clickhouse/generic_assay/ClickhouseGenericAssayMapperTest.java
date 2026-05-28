@@ -91,6 +91,50 @@ public class ClickhouseGenericAssayMapperTest {
   }
 
   @Test
+  public void getSampleCategoricalGenericAssayDataCountsByProfileType() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "armlevel_cna");
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "1p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 1),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "2p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "9p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2))),
+            new GenericAssayDataCountItem(
+                "10p_status",
+                List.of(
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
   public void getGenericAssayStableIdsByProfileIds_returnsEntityStableIds() {
     List<String> stableIds =
         mapper.getGenericAssayStableIdsByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE));

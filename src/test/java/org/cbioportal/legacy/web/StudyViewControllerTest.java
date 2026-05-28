@@ -1080,6 +1080,54 @@ public class StudyViewControllerTest {
 
   @Test
   @WithMockUser
+  public void fetchGenericAssayDataCountsByProfileType() throws Exception {
+
+    List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
+    SampleIdentifier sampleIdentifier = new SampleIdentifier();
+    sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
+    sampleIdentifier.setStudyId(TEST_STUDY_ID);
+    filteredSampleIdentifiers.add(sampleIdentifier);
+    when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
+
+    List<GenericAssayDataCountItem> genericAssayDataCountItems = new ArrayList<>();
+    GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
+    genericAssayDataCountItem.setStableId(TEST_STABLE_ID);
+    List<GenericAssayDataCount> genericAssayDataCounts = new ArrayList<>();
+    GenericAssayDataCount genericAssayDataCount1 = new GenericAssayDataCount();
+    genericAssayDataCount1.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_1);
+    genericAssayDataCount1.setCount(3);
+    genericAssayDataCounts.add(genericAssayDataCount1);
+    genericAssayDataCountItem.setCounts(genericAssayDataCounts);
+    genericAssayDataCountItems.add(genericAssayDataCountItem);
+
+    when(studyViewService.fetchGenericAssayDataCountsByProfileType(anyList(), anyList(), anyString()))
+        .thenReturn(genericAssayDataCountItems);
+
+    GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
+    genericAssayDataCountFilter.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
+    genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[0].counts[0].value")
+                .value(TEST_GENERIC_ASSAY_DATA_VALUE_1))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(3));
+  }
+
+  @Test
+  @WithMockUser
   public void fetchClinicalDataClinicalTable() throws Exception {
     // For this sake of this test the sample clinical data and patient clinical data are identical.
     when(clinicalDataService.fetchSampleClinicalTable(

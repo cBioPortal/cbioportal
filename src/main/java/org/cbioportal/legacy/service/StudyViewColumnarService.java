@@ -62,6 +62,9 @@ public interface StudyViewColumnarService {
   List<GenericAssayDataCountItem> getGenericAssayDataCounts(
       StudyViewFilter studyViewFilter, List<GenericAssayDataFilter> genericAssayDataFilters);
 
+  List<GenericAssayDataCountItem> getGenericAssayDataCounts(
+      StudyViewFilter studyViewFilter, String profileType);
+
   List<GenomicDataCountItem> getMutationCountsByGeneSpecific(
       StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters);
 

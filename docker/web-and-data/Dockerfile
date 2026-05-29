@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage, but excluded 
 # from the final image. No confidential information is exposed.
 # (see: stackoverflow.com/questions/56278325)
-ARG CORE_BRANCH=rfc100-rc
+ARG CORE_BRANCH=demo-bulk-load-fix
 
 FROM maven:3-eclipse-temurin-21 as build
 

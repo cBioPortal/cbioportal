@@ -28,10 +28,9 @@ WORKDIR /cbioportal
 COPY pom.xml version.sh ./
 RUN mvn -q dependency:go-offline --fail-never
 
-# Now copy the source and build. Copying the example application.properties and
-# building the JAR with it; later the user overrides these application.properties
-# and the new set is injected via spring.config.location (see the
-# cbioportal-docker-compose repo).
+# Copy the source and build the JAR with the example application.properties; the
+# user overrides these application.properties at runtime, injected via
+# spring.config.location (see the cbioportal-docker-compose repo).
 COPY . .
 # `package` (not `install`) is enough to produce the executable boot jar and
 # avoids the extra install-to-local-repo step. The exploded jar layout lets the
@@ -53,8 +52,8 @@ RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cb
     && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
     && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt
 
-# JRE (not JDK) runtime: the final image only runs prebuilt jars, so the ~200MB
-# of compiler/dev tooling in the JDK image is not needed at runtime.
+# JRE (not JDK) runtime: the final image only runs prebuilt jars, so the JDK's
+# compiler/dev tooling is not needed.
 FROM eclipse-temurin:21-jre
 
 # Runtime system dependencies. Kept in their own early layer so they stay cached
@@ -70,13 +69,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         perl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install the ClickHouse client, pinned to a stable LTS for reproducible builds.
-# The image only needs the `clickhouse client` subcommand to talk to the
-# (separate) ClickHouse server during data import -- it does not run a server or
-# clickhouse-local here. The previous `curl https://clickhouse.com/ | sh` pulled
-# an unpinned ~1.5GB *master* nightly (a different, untested binary on every
-# cache miss); installing the pinned static binary is reproducible, cross-arch
-# (amd64/arm64), and roughly half the on-disk size.
+# Install the ClickHouse client, pinned to a stable LTS. Only the
+# `clickhouse client` subcommand is needed (to talk to the separate ClickHouse
+# server during data import); no server or clickhouse-local runs in this image.
+# The pinned static binary keeps the build reproducible and works on amd64/arm64.
 ARG CLICKHOUSE_VERSION=25.8.24.21
 RUN ARCH="$(dpkg --print-architecture)" \
     && curl -fsSL "https://packages.clickhouse.com/tgz/lts/clickhouse-common-static-${CLICKHOUSE_VERSION}-${ARCH}.tgz" -o /tmp/clickhouse.tgz \
@@ -89,10 +85,10 @@ COPY --from=build-core /core/scripts /core/scripts
 COPY --from=build-core /core/core-*.jar /core/core-IMPORTER.jar
 RUN chmod -R a+x /core/scripts/
 
-# Install the Python import dependencies. build-essential + python3-dev are
-# needed only to compile any sdist wheels during pip install, so they are
-# installed and purged within this single layer -- keeping the compiler toolchain
-# out of the final image (~250MB saved) while guaranteeing pip behaves identically.
+# Install the Python import dependencies. build-essential + python3-dev are only
+# needed to compile any sdist wheels during pip install, so they are installed
+# and purged within this single layer -- the compiler toolchain never lands in
+# the final image.
 COPY --from=build-core /core/requirements.txt /core/requirements.txt
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential python3-dev \
@@ -118,9 +114,6 @@ COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scrip
 COPY --from=build /cbioportal/test/test_data/study_es_0     /cbioportal/test/study_es_0
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes            $PORTAL_WEB_HOME/
 
-# Launch via the exploded classpath + the boot jar's real Start-Class. NOTE: the
-# previous CMD referenced org.cbioportal.application.PortalApplication, which does
-# not exist in this build (the class is org.cbioportal.PortalApplication, per the
-# jar's MANIFEST Start-Class), so `docker run` of the image failed with
-# ClassNotFoundException.
+# Launch via the exploded classpath using the boot jar's Start-Class
+# (org.cbioportal.PortalApplication, per the jar's MANIFEST).
 CMD ["sh", "-c", "java $(echo $JAVA_OPTS) -cp /cbioportal-webapp:/cbioportal-webapp/lib/* org.cbioportal.PortalApplication $(echo $WEBAPP_OPTS)"]

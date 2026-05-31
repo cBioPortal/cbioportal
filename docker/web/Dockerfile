@@ -20,25 +20,22 @@ WORKDIR /cbioportal
 COPY pom.xml version.sh ./
 RUN mvn -q dependency:go-offline --fail-never
 
-# Build the executable boot jar. `package` is enough (no `install`/`clean` needed
-# in a fresh build stage). The example application.properties is copied into place
-# first so the build is self-contained: previously this image only built if the
-# caller (the dockerimage.yml CI workflow) created application.properties
-# beforehand, so a plain `docker build` failed in maven-resources-plugin.
+# Build the executable boot jar (`package`; no `install`/`clean` needed in a
+# fresh build stage). The example application.properties is put in place first so
+# the build is self-contained: maven-resources-plugin reads it, and the user
+# overrides it at runtime via spring.config.location.
 ARG MAVEN_OPTS=-DskipTests
 COPY . .
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
     && mvn ${MAVEN_OPTS} -q package
 
 # JRE (not JDK) runtime: this image only runs the prebuilt jar, so the JDK's
-# compiler/dev tooling is not needed and just adds ~200MB. Shenandoah GC is
-# included in the standard Temurin JRE.
+# compiler/dev tooling is not needed. Shenandoah GC is included in the standard
+# Temurin JRE.
 FROM eclipse-temurin:21-jre
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 RUN mkdir -p $PORTAL_WEB_HOME
 COPY --from=build /cbioportal/target/*-exec.jar ${PORTAL_WEB_HOME}/app.jar
-# Shell form so $JAVA_OPTS is expanded at runtime. The previous exec-form CMD
-# (["java ${JAVA_OPTS}", ...]) did not expand the variable and treated
-# "java ${JAVA_OPTS}" as a single executable name, so the container failed to start.
+# Shell form so $JAVA_OPTS / $WEBAPP_OPTS are expanded at runtime.
 CMD ["sh", "-c", "java $JAVA_OPTS -jar $PORTAL_WEB_HOME/app.jar $WEBAPP_OPTS"]

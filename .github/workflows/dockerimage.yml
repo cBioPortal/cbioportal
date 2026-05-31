@@ -16,10 +16,9 @@ jobs:
   # ---------------------------------------------------------------------------
   # web-and-data image
   #
-  # Each architecture is built on its own NATIVE runner (no QEMU emulation) and
-  # pushed to the registry by digest; the merge job below then assembles the
-  # multi-arch manifest list. Building amd64 and arm64 in parallel on native
-  # hardware avoids the slow emulated arm64 Maven compile.
+  # Each architecture builds on its own native runner and is pushed to the
+  # registry by digest; the merge job below assembles the multi-arch manifest
+  # list. amd64 and arm64 build in parallel.
   # See: https://docs.docker.com/build/ci/github-actions/multi-platform/
   # ---------------------------------------------------------------------------
   build_web_and_data:

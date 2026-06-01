@@ -47,7 +47,7 @@ export class TestUtils {
   static async callClinicalDataEnrichmentEndpoint(
     groupFilter: any
   ): Promise<ClinicalDataEnrichment[]> {
-    const url = `${config.serverUrl}/api/clinical-data-enrichments/fetch`;
+    const url = `${config.serverUrl}/api/not-ready-yet/clinical-data-enrichments/fetch`;
 
     const response: AxiosResponse<ClinicalDataEnrichment[]> = await axios.post(
       url,

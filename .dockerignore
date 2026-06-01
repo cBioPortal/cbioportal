@@ -1,11 +1,29 @@
+# IDE / OS cruft
 .project
 .pydevproject
 .classpath
 .DS_Store
+.idea
+.vscode
+*.iml
+
+# CI / docs / build output (not needed in the build context)
 .github
 target
 docs
 */target/*
+OPEN-SOURCE-DOCUMENTATION
+
+# The docker/ dir itself is not part of the build context...
 docker
-# don't ignore entrypoint scripts
+# ...but the web-and-data entrypoint script must still be sent.
 !docker/web-and-data/docker-entrypoint.sh
+
+# Only test/test_data/study_es_0 is copied into the image; the rest of test/
+# (e2e suites, integration tests) is not needed to build it.
+test/api-e2e
+test/integration
+test/test_db_version.sh
+
+# NOTE: .git is intentionally NOT ignored -- the git-commit-id Maven plugin
+# reads it during the build to stamp the build with the commit hash.

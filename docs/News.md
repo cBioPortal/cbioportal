@@ -1,5 +1,5 @@
 ## May 26, 2026
-*   **v7.0.0 Release:** MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal.
+*   **v7.0.0 Release:** MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal. This release was made possible through a partnership with [ClickHouse](https://clickhouse.com/) — read the [case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) to learn how ClickHouse accelerates cancer research at MSK.
 *   **Seed database relocated:** The seed database has been moved and reorganized for ClickHouse compatibility. See the [Migration Guide](Migration-v6-to-v7.md) for details on upgrading from v6.x.
 
 ## April 10, 2026

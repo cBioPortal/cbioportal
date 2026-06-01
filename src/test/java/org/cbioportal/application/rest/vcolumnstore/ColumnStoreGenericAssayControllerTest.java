@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.cbioportal.domain.generic_assay.usecase.FetchGenericAssayDataMatrixUseCase;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -49,6 +50,7 @@ public class ColumnStoreGenericAssayControllerTest {
       };
 
   @MockitoBean private GetGenericAssayMetaUseCase getGenericAssayMetaUseCase;
+  @MockitoBean private FetchGenericAssayDataMatrixUseCase fetchGenericAssayDataMatrixUseCase;
 
   @Autowired private MockMvc mockMvc;
 

@@ -1100,7 +1100,8 @@ public class StudyViewControllerTest {
     genericAssayDataCountItem.setCounts(genericAssayDataCounts);
     genericAssayDataCountItems.add(genericAssayDataCountItem);
 
-    when(studyViewService.fetchGenericAssayDataCountsByProfileType(anyList(), anyList(), anyString()))
+    when(studyViewService.fetchGenericAssayDataCountsByProfileType(
+            anyList(), anyList(), anyString()))
         .thenReturn(genericAssayDataCountItems);
 
     GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();

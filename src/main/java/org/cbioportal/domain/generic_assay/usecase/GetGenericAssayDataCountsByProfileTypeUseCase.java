@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 public class GetGenericAssayDataCountsByProfileTypeUseCase {
   private final GenericAssayRepository genericAssayRepository;
 
-  public GetGenericAssayDataCountsByProfileTypeUseCase(GenericAssayRepository genericAssayRepository) {
+  public GetGenericAssayDataCountsByProfileTypeUseCase(
+      GenericAssayRepository genericAssayRepository) {
     this.genericAssayRepository = genericAssayRepository;
   }
 

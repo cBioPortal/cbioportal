@@ -712,7 +712,8 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
                     item.getStableId().equals(BaseServiceImplTest.STABLE_ID_2)
                         && item.getCounts().stream()
                             .anyMatch(
-                                count -> count.getValue().equals("NA") && count.getCount().equals(2))));
+                                count ->
+                                    count.getValue().equals("NA") && count.getCount().equals(2))));
   }
 
   @Test

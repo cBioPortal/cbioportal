@@ -32,6 +32,7 @@
 
 package org.cbioportal.legacy.persistence.cachemaputil;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
@@ -68,6 +69,11 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   static Map<String, SampleList> sampleListCache;
   static Map<String, CancerStudy> cancerStudyCache;
 
+  @PostConstruct
+  private void init() {
+    initializeCacheMemory();
+  }
+
   public synchronized void initializeCacheMemory() {
     LOG.debug("creating cache maps for authorization");
     molecularProfileCache = cacheMapBuilder.buildMolecularProfileMap();
@@ -77,45 +83,21 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
   @Override
   public Map<String, MolecularProfile> getMolecularProfileMap() {
-    initializeMolecularProfileCacheMemoryIfNeeded();
     return molecularProfileCache;
   }
 
   @Override
   public Map<String, SampleList> getSampleListMap() {
-    initializeSampleListCacheMemoryIfNeeded();
     return sampleListCache;
   }
 
   @Override
   public Map<String, CancerStudy> getCancerStudyMap() {
-    initializeCancerStudyCacheMemoryIfNeeded();
     return cancerStudyCache;
   }
 
   @Override
   public boolean hasCacheEnabled() {
     return true;
-  }
-
-  private synchronized void initializeMolecularProfileCacheMemoryIfNeeded() {
-    if (molecularProfileCache == null) {
-      LOG.debug("creating molecular profile cache map for authorization");
-      molecularProfileCache = cacheMapBuilder.buildMolecularProfileMap();
-    }
-  }
-
-  private synchronized void initializeSampleListCacheMemoryIfNeeded() {
-    if (sampleListCache == null) {
-      LOG.debug("creating sample list cache map for authorization");
-      sampleListCache = cacheMapBuilder.buildSampleListMap();
-    }
-  }
-
-  private synchronized void initializeCancerStudyCacheMemoryIfNeeded() {
-    if (cancerStudyCache == null) {
-      LOG.debug("creating cancer study cache map for authorization");
-      cancerStudyCache = cacheMapBuilder.buildCancerStudyMap();
-    }
   }
 }

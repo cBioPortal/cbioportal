@@ -1061,6 +1061,7 @@ public class StudyViewControllerTest {
         .perform(
             MockMvcRequestBuilders.post("/api/legacy/generic-assay-data-counts/fetch")
                 .with(csrf())
+                .requestAttr("involvedCancerStudies", List.of(TEST_STUDY_ID))
                 .requestAttr("interceptedGenericAssayDataCountFilter", genericAssayDataCountFilter)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -1115,6 +1116,7 @@ public class StudyViewControllerTest {
         .perform(
             MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
                 .with(csrf())
+                .requestAttr("involvedCancerStudies", List.of(TEST_STUDY_ID))
                 .requestAttr("interceptedGenericAssayDataCountFilter", genericAssayDataCountFilter)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

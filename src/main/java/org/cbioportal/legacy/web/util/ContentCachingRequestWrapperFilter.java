@@ -64,10 +64,11 @@ public class ContentCachingRequestWrapperFilter implements Filter {
   }
 
   /**
-   * Request wrapper that lazily reads and caches the request body on first access, then replays it on every
-   * {@link #getInputStream()} call. This ensures that both the {@link
-   * InvolvedCancerStudyExtractorInterceptor} (which consumes the body to extract study IDs) and the
-   * downstream controller (which uses {@code @RequestBody}) can each read the body independently.
+   * Request wrapper that lazily reads and caches the request body on first access, then replays it
+   * on every {@link #getInputStream()} call. This ensures that both the {@link
+   * InvolvedCancerStudyExtractorInterceptor} (which consumes the body to extract study IDs) and
+   * the downstream controller (which uses {@code @RequestBody}) can each read the body
+   * independently.
    */
   static class CachedBodyRequestWrapper extends HttpServletRequestWrapper {
     private byte[] cachedBody;

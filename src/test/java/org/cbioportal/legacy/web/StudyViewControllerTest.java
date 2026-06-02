@@ -25,8 +25,6 @@ import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.ClinicalEventTypeCount;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
-import org.cbioportal.legacy.model.GenericAssayDataCount;
-import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.GenomicDataCount;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.NamespaceDataCount;
@@ -60,8 +58,6 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataBinFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
-import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.NamespaceDataCountFilter;
@@ -1020,119 +1016,6 @@ public class StudyViewControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.spearmanCorr").value(1));
   }
 
-  @Test
-  @WithMockUser
-  public void fetchGenericAssayDataCounts() throws Exception {
-
-    List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
-    SampleIdentifier sampleIdentifier = new SampleIdentifier();
-    sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
-    sampleIdentifier.setStudyId(TEST_STUDY_ID);
-    filteredSampleIdentifiers.add(sampleIdentifier);
-    when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
-
-    List<GenericAssayDataCountItem> genericAssayDataCountItems = new ArrayList<>();
-    GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
-    genericAssayDataCountItem.setStableId(TEST_STABLE_ID);
-    List<GenericAssayDataCount> genericAssayDataCounts = new ArrayList<>();
-    GenericAssayDataCount genericAssayDataCount1 = new GenericAssayDataCount();
-    genericAssayDataCount1.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_1);
-    genericAssayDataCount1.setCount(3);
-    genericAssayDataCounts.add(genericAssayDataCount1);
-    GenericAssayDataCount genericAssayDataCount2 = new GenericAssayDataCount();
-    genericAssayDataCount2.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_2);
-    genericAssayDataCount2.setCount(1);
-    genericAssayDataCounts.add(genericAssayDataCount2);
-    genericAssayDataCountItem.setCounts(genericAssayDataCounts);
-    genericAssayDataCountItems.add(genericAssayDataCountItem);
-
-    when(studyViewService.fetchGenericAssayDataCounts(anyList(), anyList(), anyList(), anyList()))
-        .thenReturn(genericAssayDataCountItems);
-
-    GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
-    GenericAssayDataFilter genericAssayDataFilter = new GenericAssayDataFilter();
-    genericAssayDataFilter.setStableId(TEST_STABLE_ID);
-    genericAssayDataCountFilter.setGenericAssayDataFilters(Arrays.asList(genericAssayDataFilter));
-    StudyViewFilter studyViewFilter = new StudyViewFilter();
-    studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
-    genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/legacy/generic-assay-data-counts/fetch")
-                .with(csrf())
-                .requestAttr("involvedCancerStudies", List.of(TEST_STUDY_ID))
-                .requestAttr("interceptedGenericAssayDataCountFilter", genericAssayDataCountFilter)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(
-            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath("$[0].counts[0].value")
-                .value(TEST_GENERIC_ASSAY_DATA_VALUE_1))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(3))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath("$[0].counts[1].value")
-                .value(TEST_GENERIC_ASSAY_DATA_VALUE_2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[1].count").value(1));
-  }
-
-  @Test
-  @WithMockUser
-  public void fetchGenericAssayDataCountsByProfileType() throws Exception {
-
-    List<SampleIdentifier> filteredSampleIdentifiers = new ArrayList<>();
-    SampleIdentifier sampleIdentifier = new SampleIdentifier();
-    sampleIdentifier.setSampleId(TEST_SAMPLE_ID_1);
-    sampleIdentifier.setStudyId(TEST_STUDY_ID);
-    filteredSampleIdentifiers.add(sampleIdentifier);
-    when(studyViewFilterApplier.apply(any())).thenReturn(filteredSampleIdentifiers);
-
-    List<GenericAssayDataCountItem> genericAssayDataCountItems = new ArrayList<>();
-    GenericAssayDataCountItem genericAssayDataCountItem = new GenericAssayDataCountItem();
-    genericAssayDataCountItem.setStableId(TEST_STABLE_ID);
-    List<GenericAssayDataCount> genericAssayDataCounts = new ArrayList<>();
-    GenericAssayDataCount genericAssayDataCount1 = new GenericAssayDataCount();
-    genericAssayDataCount1.setValue(TEST_GENERIC_ASSAY_DATA_VALUE_1);
-    genericAssayDataCount1.setCount(3);
-    genericAssayDataCounts.add(genericAssayDataCount1);
-    genericAssayDataCountItem.setCounts(genericAssayDataCounts);
-    genericAssayDataCountItems.add(genericAssayDataCountItem);
-
-    when(studyViewService.fetchGenericAssayDataCountsByProfileType(
-            anyList(), anyList(), anyString()))
-        .thenReturn(genericAssayDataCountItems);
-
-    GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
-    genericAssayDataCountFilter.setProfileType(TEST_MOLECULAR_PROFILE_TYPE);
-    StudyViewFilter studyViewFilter = new StudyViewFilter();
-    studyViewFilter.setStudyIds(Arrays.asList(TEST_STUDY_ID));
-    genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
-
-    mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
-                .with(csrf())
-                .requestAttr("involvedCancerStudies", List.of(TEST_STUDY_ID))
-                .requestAttr("interceptedGenericAssayDataCountFilter", genericAssayDataCountFilter)
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
-        .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(
-            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].stableId").value(TEST_STABLE_ID))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath("$[0].counts[0].value")
-                .value(TEST_GENERIC_ASSAY_DATA_VALUE_1))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].counts[0].count").value(3));
-  }
-
-  @Test
-  @WithMockUser
   public void fetchClinicalDataClinicalTable() throws Exception {
     // For this sake of this test the sample clinical data and patient clinical data are identical.
     when(clinicalDataService.fetchSampleClinicalTable(

@@ -71,6 +71,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -467,14 +468,24 @@ public class ColumnarStoreStudyViewController {
       @Parameter(required = true, description = "Generic assay data count filter")
           @Valid
           @RequestBody(required = false)
-          GenericAssayDataCountFilter genericAssayDataCountFilter) {
+          GenericAssayDataCountFilter genericAssayDataCountFilter,
+      @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter")
+          GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
+
+    GenericAssayDataCountFilter effectiveGenericAssayDataCountFilter =
+        interceptedGenericAssayDataCountFilter != null
+            ? interceptedGenericAssayDataCountFilter
+            : genericAssayDataCountFilter;
+    if (effectiveGenericAssayDataCountFilter == null) {
+      return ResponseEntity.badRequest().build();
+    }
 
     List<GenericAssayDataFilter> gaFilters =
-        genericAssayDataCountFilter.getGenericAssayDataFilters() == null
+        effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters() == null
             ? new ArrayList<>()
-            : genericAssayDataCountFilter.getGenericAssayDataFilters();
-    String profileType = genericAssayDataCountFilter.getProfileType();
-    StudyViewFilter studyViewFilter = genericAssayDataCountFilter.getStudyViewFilter();
+            : effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters();
+    String profileType = effectiveGenericAssayDataCountFilter.getProfileType();
+    StudyViewFilter studyViewFilter = effectiveGenericAssayDataCountFilter.getStudyViewFilter();
     if (gaFilters.isEmpty() && !StringUtils.hasText(profileType)) {
       return ResponseEntity.badRequest().build();
     }

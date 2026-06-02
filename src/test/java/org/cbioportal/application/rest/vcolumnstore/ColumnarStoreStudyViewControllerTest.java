@@ -96,7 +96,7 @@ public class ColumnarStoreStudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/column-store/generic-assay-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -143,7 +143,7 @@ public class ColumnarStoreStudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/column-store/generic-assay-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -176,7 +176,7 @@ public class ColumnarStoreStudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/column-store/generic-assay-data-counts/fetch")
+            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

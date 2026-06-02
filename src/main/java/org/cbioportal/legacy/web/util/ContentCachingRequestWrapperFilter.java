@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -37,29 +38,47 @@ public class ContentCachingRequestWrapperFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
-    CachedBodyRequestWrapper wrappedRequest =
-        new CachedBodyRequestWrapper((HttpServletRequest) request);
-    LOG.trace("Wrapping request for multiple reads of request body");
+    if (!(request instanceof HttpServletRequest httpRequest) || !shouldWrapRequest(httpRequest)) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
+    CachedBodyRequestWrapper wrappedRequest = new CachedBodyRequestWrapper(httpRequest);
+    LOG.trace("Wrapping JSON POST request for multiple reads of request body");
     filterChain.doFilter(wrappedRequest, response);
   }
 
+  private boolean shouldWrapRequest(HttpServletRequest request) {
+    if (!"POST".equalsIgnoreCase(request.getMethod())) {
+      return false;
+    }
+
+    String contentType = request.getContentType();
+    if (contentType == null) {
+      return false;
+    }
+
+    String normalizedContentType = contentType.toLowerCase(Locale.ROOT);
+    return normalizedContentType.startsWith("application/json")
+        || normalizedContentType.contains("+json");
+  }
+
   /**
-   * Request wrapper that eagerly reads and caches the entire request body, then replays it on every
+   * Request wrapper that lazily reads and caches the request body on first access, then replays it on every
    * {@link #getInputStream()} call. This ensures that both the {@link
    * InvolvedCancerStudyExtractorInterceptor} (which consumes the body to extract study IDs) and the
    * downstream controller (which uses {@code @RequestBody}) can each read the body independently.
    */
   static class CachedBodyRequestWrapper extends HttpServletRequestWrapper {
-    private final byte[] cachedBody;
+    private byte[] cachedBody;
 
-    CachedBodyRequestWrapper(HttpServletRequest request) throws IOException {
+    CachedBodyRequestWrapper(HttpServletRequest request) {
       super(request);
-      this.cachedBody = request.getInputStream().readAllBytes();
     }
 
     @Override
-    public ServletInputStream getInputStream() {
-      ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(this.cachedBody);
+    public ServletInputStream getInputStream() throws IOException {
+      ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(getCachedBody());
       return new ServletInputStream() {
         @Override
         public boolean isFinished() {
@@ -81,6 +100,13 @@ public class ContentCachingRequestWrapperFilter implements Filter {
           return byteArrayInputStream.read();
         }
       };
+    }
+
+    private synchronized byte[] getCachedBody() throws IOException {
+      if (this.cachedBody == null) {
+        this.cachedBody = super.getInputStream().readAllBytes();
+      }
+      return this.cachedBody;
     }
 
     @Override

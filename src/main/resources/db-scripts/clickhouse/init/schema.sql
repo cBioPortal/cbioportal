@@ -91,6 +91,8 @@ DROP TABLE IF EXISTS sample_profile;
 DROP TABLE IF EXISTS structural_variant;
 DROP TABLE IF EXISTS type_of_cancer;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS embeddings;
+DROP TABLE IF EXISTS embedding_data;
 
 CREATE TABLE allele_specific_copy_number (
     `mutation_event_id` Int64,
@@ -545,5 +547,24 @@ CREATE TABLE users (
     `name` String,
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
+
+CREATE TABLE 'embeddings'(
+                             'EMBEDDING_ID' Int32,
+                             'SHORT_NAME' String,
+                             'NAME' String,
+                             'DESCRIPTION' String,
+                             'EMBEDDING_TYPE' String,
+                             'REDUCTION_TECHNIQUE' String
+) ENGINE = MergeTree ORDER BY (EMBEDDING_ID);;
+
+CREATE TABLE 'embedding_data'(
+                                 'EMBEDDING_ID' Int32,
+                                 'PATIENT_ID' String,
+                                 'SAMPLE_ID' Nullable(String),
+                                 'X' Float32,
+                                 'Y' Float32,
+                                 'CUSTOM_ATTRIBUTED' JSON,
+                                 'STUDY_ID' String
+) ENGINE = MergeTree ORDER BY (STUDY_ID, EMBEDDING_ID, PATIENT_ID, SAMPLE_ID);;
 
 INSERT INTO info (`db_schema_version`, `geneset_version`, `derived_table_schema_version`, `gene_table_version`) VALUES ('2.14.5', 'msigdb_v2025.1.Hs', '1.0.9', 'hgnc_v7_2025.10.7');

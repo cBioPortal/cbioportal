@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StaticRefCacheMapUtilTest {
@@ -24,9 +25,9 @@ public class StaticRefCacheMapUtilTest {
 
   @Before
   public void setUp() {
-    StaticRefCacheMapUtil.molecularProfileCache = null;
-    StaticRefCacheMapUtil.sampleListCache = null;
-    StaticRefCacheMapUtil.cancerStudyCache = null;
+    ReflectionTestUtils.setField(StaticRefCacheMapUtil.class, "molecularProfileCache", null);
+    ReflectionTestUtils.setField(StaticRefCacheMapUtil.class, "sampleListCache", null);
+    ReflectionTestUtils.setField(StaticRefCacheMapUtil.class, "cancerStudyCache", null);
   }
 
   @Test

@@ -64,9 +64,9 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   // Fields are static because the proxying mechanism of the CancerStudyPermissionEvaluator
   // appears to perturb the Singleton scope of the CacheMapUtils bean. When debugging
   // two version appeared to exist in context. A mechanism with bean injection did not work here.
-  static Map<String, MolecularProfile> molecularProfileCache;
-  static Map<String, SampleList> sampleListCache;
-  static Map<String, CancerStudy> cancerStudyCache;
+  static volatile Map<String, MolecularProfile> molecularProfileCache;
+  static volatile Map<String, SampleList> sampleListCache;
+  static volatile Map<String, CancerStudy> cancerStudyCache;
 
   public synchronized void initializeCacheMemory() {
     LOG.debug("creating cache maps for authorization");
@@ -77,19 +77,25 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
   @Override
   public Map<String, MolecularProfile> getMolecularProfileMap() {
-    initializeMolecularProfileCacheMemoryIfNeeded();
+    if (molecularProfileCache == null) {
+      initializeMolecularProfileCacheMemoryIfNeeded();
+    }
     return molecularProfileCache;
   }
 
   @Override
   public Map<String, SampleList> getSampleListMap() {
-    initializeSampleListCacheMemoryIfNeeded();
+    if (sampleListCache == null) {
+      initializeSampleListCacheMemoryIfNeeded();
+    }
     return sampleListCache;
   }
 
   @Override
   public Map<String, CancerStudy> getCancerStudyMap() {
-    initializeCancerStudyCacheMemoryIfNeeded();
+    if (cancerStudyCache == null) {
+      initializeCancerStudyCacheMemoryIfNeeded();
+    }
     return cancerStudyCache;
   }
 

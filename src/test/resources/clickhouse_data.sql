@@ -600,9 +600,9 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Unchanged,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,Unchanged,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Gain,Unchanged,Unchanged,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (19,31,'No,NA,NA,NA,NA,NA,No,NA,NA,NA,No,No,NA,NA,NA,NA,NA,No,NA,No,No,NA,No,No,Yes,NA,No,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);

@@ -1364,12 +1364,20 @@ public class StudyViewController {
           @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter")
           GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
 
+    GenericAssayDataCountFilter effectiveGenericAssayDataCountFilter =
+        interceptedGenericAssayDataCountFilter != null
+            ? interceptedGenericAssayDataCountFilter
+            : genericAssayDataCountFilter;
+    if (effectiveGenericAssayDataCountFilter == null) {
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
     List<GenericAssayDataFilter> gaFilters =
-        interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters() == null
+        effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters() == null
             ? new ArrayList<>()
-            : interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
-    String profileType = interceptedGenericAssayDataCountFilter.getProfileType();
-    StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
+            : effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters();
+    String profileType = effectiveGenericAssayDataCountFilter.getProfileType();
+    StudyViewFilter studyViewFilter = effectiveGenericAssayDataCountFilter.getStudyViewFilter();
     if (gaFilters.isEmpty() && !StringUtils.hasText(profileType)) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }

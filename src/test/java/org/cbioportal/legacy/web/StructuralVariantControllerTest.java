@@ -399,7 +399,8 @@ public class StructuralVariantControllerTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.message")
-                .value("interceptedStructuralVariantFilter must be true"));
+                .value(
+                    "eitherMolecularProfileIdsOrSampleMolecularIdentifiersPresent must be true"));
   }
 
   @Test
@@ -489,9 +490,11 @@ public class StructuralVariantControllerTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.message")
+                // gene1 and gene2 are both invalid here; field-error ordering is not deterministic,
+                // so assert on the stable message suffix rather than the specific property path.
                 .value(
-                    "interceptedStructuralVariantFilter "
-                        + "Should contain only one EntrezId, hugoSymbol or specialValue."));
+                    org.hamcrest.Matchers.endsWith(
+                        "Should contain only one EntrezId, hugoSymbol or specialValue.")));
   }
 
   private List<StructuralVariant> createExampleStructuralVariant() {

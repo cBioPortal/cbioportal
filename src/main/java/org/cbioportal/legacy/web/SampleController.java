@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.CancerStudy;
@@ -47,7 +46,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -279,7 +277,7 @@ public class SampleController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#sampleFilter, 'SampleFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/samples/fetch",
       method = RequestMethod.POST,
@@ -291,16 +289,6 @@ public class SampleController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
   public ResponseEntity<List<Sample>> fetchSamples(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedSampleFilter")
-          SampleFilter interceptedSampleFilter,
       @Parameter(required = true, description = "List of sample identifiers")
           @Valid
           @RequestBody(required = false)
@@ -317,14 +305,14 @@ public class SampleController {
       HttpHeaders responseHeaders = new HttpHeaders();
       BaseMeta baseMeta;
 
-      if (interceptedSampleFilter.getSampleListIds() != null) {
-        baseMeta = sampleService.fetchMetaSamples(interceptedSampleFilter.getSampleListIds());
+      if (sampleFilter.getSampleListIds() != null) {
+        baseMeta = sampleService.fetchMetaSamples(sampleFilter.getSampleListIds());
       } else {
-        if (interceptedSampleFilter.getSampleIdentifiers() != null) {
-          extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
+        if (sampleFilter.getSampleIdentifiers() != null) {
+          extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
         } else {
           UniqueKeyExtractor.extractUniqueKeys(
-              interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
+              sampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
         }
         baseMeta = sampleService.fetchMetaSamples(studyIds, sampleIds);
       }
@@ -332,8 +320,8 @@ public class SampleController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       List<Sample> samples;
-      if (interceptedSampleFilter.getSampleListIds() != null) {
-        List<String> sampleListIds = interceptedSampleFilter.getSampleListIds();
+      if (sampleFilter.getSampleListIds() != null) {
+        List<String> sampleListIds = sampleFilter.getSampleListIds();
 
         samples = new ArrayList<Sample>();
 
@@ -351,11 +339,11 @@ public class SampleController {
         // samples = sampleService.fetchSamples(sampleListIds, projection.name());
 
       } else {
-        if (interceptedSampleFilter.getSampleIdentifiers() != null) {
-          extractStudyAndSampleIds(interceptedSampleFilter, studyIds, sampleIds);
+        if (sampleFilter.getSampleIdentifiers() != null) {
+          extractStudyAndSampleIds(sampleFilter, studyIds, sampleIds);
         } else {
           UniqueKeyExtractor.extractUniqueKeys(
-              interceptedSampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
+              sampleFilter.getUniqueSampleKeys(), studyIds, sampleIds);
         }
         samples = sampleService.fetchSamples(studyIds, sampleIds, projection.name());
       }

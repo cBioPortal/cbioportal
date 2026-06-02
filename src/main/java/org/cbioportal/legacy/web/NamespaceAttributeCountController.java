@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.NamespaceAttribute;
 import org.cbioportal.legacy.model.NamespaceAttributeCount;
@@ -24,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +43,7 @@ public class NamespaceAttributeCountController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#namespaceAttributeCountFilter, 'NamespaceAttributeCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       path = "/namespace-attributes/counts/fetch",
       method = RequestMethod.POST,
@@ -62,26 +60,15 @@ public class NamespaceAttributeCountController {
               array =
                   @ArraySchema(schema = @Schema(implementation = NamespaceAttributeCount.class))))
   public ResponseEntity<List<NamespaceAttributeCount>> getNamespaceAttributeCounts(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedNamespaceAttributeCountFilter")
-          NamespaceAttributeCountFilter interceptedNamespaceAttributeCountFilter,
       @Parameter(required = true, description = "List of SampleIdentifiers and NamespaceAttributes")
           @Valid
           @RequestBody(required = false)
           NamespaceAttributeCountFilter namespaceAttributeCountFilter) {
 
     List<NamespaceAttributeCount> namespaceAttributeCountList;
-    List<SampleIdentifier> sampleIdentifiers =
-        interceptedNamespaceAttributeCountFilter.getSampleIdentifiers();
+    List<SampleIdentifier> sampleIdentifiers = namespaceAttributeCountFilter.getSampleIdentifiers();
     List<NamespaceAttribute> namespaceAttributes =
-        interceptedNamespaceAttributeCountFilter.getNamespaceAttributes();
+        namespaceAttributeCountFilter.getNamespaceAttributes();
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
     for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {

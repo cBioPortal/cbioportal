@@ -11,7 +11,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.service.CopyNumberSegmentService;
@@ -33,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -114,7 +112,7 @@ public class CopyNumberSegmentController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#sampleIdentifiers, 'Collection<SampleIdentifier>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/copy-number-segments/fetch",
       method = RequestMethod.POST,
@@ -127,15 +125,6 @@ public class CopyNumberSegmentController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSeg.class))))
   public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @RequestAttribute(required = false, value = "interceptedSampleIdentifiers")
-          List<SampleIdentifier> interceptedSampleIdentifiers,
       @Parameter(required = true, description = "List of sample identifiers")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody(required = false)
@@ -148,7 +137,7 @@ public class CopyNumberSegmentController {
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
 
-    for (SampleIdentifier sampleIdentifier : interceptedSampleIdentifiers) {
+    for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {
       studyIds.add(sampleIdentifier.getStudyId());
       sampleIds.add(sampleIdentifier.getSampleId());
     }

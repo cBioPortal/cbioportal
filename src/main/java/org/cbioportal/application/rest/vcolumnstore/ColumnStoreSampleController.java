@@ -40,7 +40,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -151,9 +150,6 @@ public class ColumnStoreSampleController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
   public ResponseEntity<List<SampleDTO>> fetchSamples(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "interceptedSampleFilter")
-          SampleFilter interceptedSampleFilter,
       @Parameter(required = true, description = "List of sample identifiers")
           @Valid
           @RequestBody(required = false)
@@ -161,7 +157,7 @@ public class ColumnStoreSampleController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection) {
-    SampleFilter effectiveFilter = sampleFilter != null ? sampleFilter : interceptedSampleFilter;
+    SampleFilter effectiveFilter = sampleFilter;
     if (effectiveFilter == null) {
       return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
     }

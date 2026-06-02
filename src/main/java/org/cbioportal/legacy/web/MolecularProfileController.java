@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -33,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -174,7 +172,7 @@ public class MolecularProfileController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#molecularProfileFilter, 'MolecularProfileFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/molecular-profiles/fetch",
       method = RequestMethod.POST,
@@ -187,16 +185,6 @@ public class MolecularProfileController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
   public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedMolecularProfileFilter")
-          MolecularProfileFilter interceptedMolecularProfileFilter,
       @Parameter(
               required = true,
               description = "List of Molecular Profile IDs or List of Study IDs")
@@ -211,27 +199,27 @@ public class MolecularProfileController {
       HttpHeaders responseHeaders = new HttpHeaders();
       BaseMeta baseMeta;
 
-      if (interceptedMolecularProfileFilter.getStudyIds() != null) {
+      if (molecularProfileFilter.getStudyIds() != null) {
         baseMeta =
             molecularProfileService.getMetaMolecularProfilesInStudies(
-                interceptedMolecularProfileFilter.getStudyIds());
+                molecularProfileFilter.getStudyIds());
       } else {
         baseMeta =
             molecularProfileService.getMetaMolecularProfiles(
-                interceptedMolecularProfileFilter.getMolecularProfileIds());
+                molecularProfileFilter.getMolecularProfileIds());
       }
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, baseMeta.getTotalCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       List<MolecularProfile> molecularProfiles;
-      if (interceptedMolecularProfileFilter.getStudyIds() != null) {
+      if (molecularProfileFilter.getStudyIds() != null) {
         molecularProfiles =
             molecularProfileService.getMolecularProfilesInStudies(
-                interceptedMolecularProfileFilter.getStudyIds(), projection.name());
+                molecularProfileFilter.getStudyIds(), projection.name());
       } else {
         molecularProfiles =
             molecularProfileService.getMolecularProfiles(
-                interceptedMolecularProfileFilter.getMolecularProfileIds(), projection.name());
+                molecularProfileFilter.getMolecularProfileIds(), projection.name());
       }
       return new ResponseEntity<>(molecularProfiles, HttpStatus.OK);
     }

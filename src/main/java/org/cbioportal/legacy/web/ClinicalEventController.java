@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.service.ClinicalEventService;
@@ -35,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -164,7 +162,7 @@ public class ClinicalEventController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalEventAttributeRequest, 'ClinicalEventAttributeRequest', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/clinical-events-meta/fetch",
       method = RequestMethod.POST,
@@ -180,20 +178,10 @@ public class ClinicalEventController {
       @Parameter(required = true, description = "clinical events Request")
           @Valid
           @RequestBody(required = false)
-          ClinicalEventAttributeRequest clinicalEventAttributeRequest,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. This
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalEventAttributeRequest")
-          ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
+          ClinicalEventAttributeRequest clinicalEventAttributeRequest) {
 
     return new ResponseEntity<>(
-        cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest), HttpStatus.OK);
+        cachedClinicalEventsMeta(clinicalEventAttributeRequest), HttpStatus.OK);
   }
 
   @Cacheable(

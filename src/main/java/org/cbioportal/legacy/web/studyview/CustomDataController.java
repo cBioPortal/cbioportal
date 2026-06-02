@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -32,7 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -52,7 +50,7 @@ public class CustomDataController {
 
   //  @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/custom-data-counts/fetch",
       method = RequestMethod.POST,
@@ -69,20 +67,10 @@ public class CustomDataController {
       @Parameter(required = true, description = "Custom data count filter")
           @Valid
           @RequestBody(required = false)
-          ClinicalDataCountFilter clinicalDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui
-          // interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui
-          // interface. this attribute is needed for the
-          // @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter")
-          ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+          ClinicalDataCountFilter clinicalDataCountFilter) {
 
-    List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-    StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+    List<ClinicalDataFilter> attributes = clinicalDataCountFilter.getAttributes();
+    StudyViewFilter studyViewFilter = clinicalDataCountFilter.getStudyViewFilter();
     if (attributes.size() == 1) {
       studyViewFilterUtil.removeSelfCustomDataFromFilter(
           attributes.get(0).getAttributeId(), studyViewFilter);

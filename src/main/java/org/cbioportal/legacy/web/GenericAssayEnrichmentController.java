@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +26,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -42,7 +40,7 @@ public class GenericAssayEnrichmentController {
   @Autowired private ExpressionEnrichmentService expressionEnrichmentService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groups, 'Collection<MolecularProfileCasesGroupFilter>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/api/generic-assay-categorical-enrichments/fetch",
       method = RequestMethod.POST,
@@ -60,9 +58,6 @@ public class GenericAssayEnrichmentController {
                       schema = @Schema(implementation = GenericAssayCategoricalEnrichment.class))))
   public ResponseEntity<List<GenericAssayCategoricalEnrichment>>
       fetchGenericAssayCategoricalDataEnrichmentInMultipleMolecularProfiles(
-          @Parameter(hidden = true)
-              @RequestAttribute(required = false, value = "involvedCancerStudies")
-              Collection<String> involvedCancerStudies,
           @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
               @RequestParam(defaultValue = "SAMPLE")
               EnrichmentType enrichmentType,
@@ -72,22 +67,14 @@ public class GenericAssayEnrichmentController {
                       "List of groups containing sample and molecular profile identifiers")
               @Valid
               @RequestBody(required = false)
-              List<MolecularProfileCasesGroupFilter> groups,
-          @Parameter(hidden = true)
-              @Valid
-              @RequestAttribute(
-                  required = false,
-                  value = "interceptedMolecularProfileCasesGroupFilters")
-              List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+              List<MolecularProfileCasesGroupFilter> groups)
           throws MolecularProfileNotFoundException, UnsupportedOperationException {
 
-    return new ResponseEntity<>(
-        fetchExpressionEnrichments(enrichmentType, interceptedMolecularProfileCasesGroupFilters),
-        HttpStatus.OK);
+    return new ResponseEntity<>(fetchExpressionEnrichments(enrichmentType, groups), HttpStatus.OK);
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groups, 'Collection<MolecularProfileCasesGroupFilter>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/api/generic-assay-binary-enrichments/fetch",
       method = RequestMethod.POST,
@@ -104,9 +91,6 @@ public class GenericAssayEnrichmentController {
                       schema = @Schema(implementation = GenericAssayBinaryEnrichment.class))))
   public ResponseEntity<List<GenericAssayBinaryEnrichment>>
       fetchGenericAssayBinaryDataEnrichmentInMultipleMolecularProfiles(
-          @Parameter(hidden = true)
-              @RequestAttribute(required = false, value = "involvedCancerStudies")
-              Collection<String> involvedCancerStudies,
           @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
               @RequestParam(defaultValue = "SAMPLE")
               EnrichmentType enrichmentType,
@@ -116,17 +100,11 @@ public class GenericAssayEnrichmentController {
                       "List of groups containing sample and molecular profile identifiers")
               @Valid
               @RequestBody(required = false)
-              List<MolecularProfileCasesGroupFilter> groups,
-          @Parameter(hidden = true)
-              @Valid
-              @RequestAttribute(
-                  required = false,
-                  value = "interceptedMolecularProfileCasesGroupFilters")
-              List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+              List<MolecularProfileCasesGroupFilter> groups)
           throws MolecularProfileNotFoundException, UnsupportedOperationException {
 
     Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-        interceptedMolecularProfileCasesGroupFilters.stream()
+        groups.stream()
             .collect(
                 Collectors.toMap(
                     MolecularProfileCasesGroupFilter::getName,
@@ -151,11 +129,10 @@ public class GenericAssayEnrichmentController {
   }
 
   private List<GenericAssayCategoricalEnrichment> fetchExpressionEnrichments(
-      EnrichmentType enrichmentType,
-      List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+      EnrichmentType enrichmentType, List<MolecularProfileCasesGroupFilter> groups)
       throws MolecularProfileNotFoundException {
     Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-        interceptedMolecularProfileCasesGroupFilters.stream()
+        groups.stream()
             .collect(
                 Collectors.toMap(
                     MolecularProfileCasesGroupFilter::getName,

@@ -16,7 +16,6 @@ import jakarta.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,7 +97,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -139,7 +137,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/clinical-data-counts/fetch",
       method = RequestMethod.POST,
@@ -156,28 +154,17 @@ public class StudyViewController {
       @Parameter(required = true, description = "Clinical data count filter")
           @Valid
           @RequestBody(required = false)
-          ClinicalDataCountFilter clinicalDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalDataCountFilter")
-          ClinicalDataCountFilter interceptedClinicalDataCountFilter) {
+          ClinicalDataCountFilter clinicalDataCountFilter) {
 
-    List<ClinicalDataFilter> attributes = interceptedClinicalDataCountFilter.getAttributes();
-    StudyViewFilter studyViewFilter = interceptedClinicalDataCountFilter.getStudyViewFilter();
+    List<ClinicalDataFilter> attributes = clinicalDataCountFilter.getAttributes();
+    StudyViewFilter studyViewFilter = clinicalDataCountFilter.getStudyViewFilter();
 
     if (attributes.size() == 1) {
       studyViewFilterUtil.removeSelfFromFilter(attributes.get(0).getAttributeId(), studyViewFilter);
     }
     boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<ClinicalDataCountItem> result =
-        this.getInstance()
-            .cachedClinicalDataCounts(interceptedClinicalDataCountFilter, unfilteredQuery);
+        this.getInstance().cachedClinicalDataCounts(clinicalDataCountFilter, unfilteredQuery);
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
@@ -212,7 +199,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalDataBinCountFilter, 'ClinicalDataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/clinical-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -230,24 +217,14 @@ public class StudyViewController {
       @Parameter(required = true, description = "Clinical data bin count filter")
           @Valid
           @RequestBody(required = false)
-          ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter")
-          ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
+          ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
     StudyViewFilter studyViewFilter =
-        clinicalDataBinUtil.removeSelfFromFilter(interceptedClinicalDataBinCountFilter);
+        clinicalDataBinUtil.removeSelfFromFilter(clinicalDataBinCountFilter);
     boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<ClinicalDataBin> clinicalDataBins =
         this.getInstance()
             .cachableFetchClinicalDataBinCounts(
-                dataBinMethod, interceptedClinicalDataBinCountFilter, unfilteredQuery);
+                dataBinMethod, clinicalDataBinCountFilter, unfilteredQuery);
 
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
@@ -268,7 +245,7 @@ public class StudyViewController {
 
   //  @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalDataBinCountFilter, 'ClinicalDataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/custom-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -286,20 +263,10 @@ public class StudyViewController {
       @Parameter(required = true, description = "Clinical data bin count filter")
           @Valid
           @RequestBody(required = false)
-          ClinicalDataBinCountFilter clinicalDataBinCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalDataBinCountFilter")
-          ClinicalDataBinCountFilter interceptedClinicalDataBinCountFilter) {
+          ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
     // TODO code shared with ClinicalDataController.fetchCustomDataCounts
-    List<ClinicalDataBinFilter> attributes = interceptedClinicalDataBinCountFilter.getAttributes();
-    StudyViewFilter studyViewFilter = interceptedClinicalDataBinCountFilter.getStudyViewFilter();
+    List<ClinicalDataBinFilter> attributes = clinicalDataBinCountFilter.getAttributes();
+    StudyViewFilter studyViewFilter = clinicalDataBinCountFilter.getStudyViewFilter();
     if (attributes.size() == 1) {
       studyViewFilterUtil.removeSelfCustomDataFromFilter(
           attributes.get(0).getAttributeId(), studyViewFilter);
@@ -313,14 +280,14 @@ public class StudyViewController {
 
     final List<ClinicalDataBin> clinicalDataBins =
         clinicalDataBinUtil.fetchCustomDataBinCounts(
-            dataBinMethod, interceptedClinicalDataBinCountFilter, false);
+            dataBinMethod, clinicalDataBinCountFilter, false);
 
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>',T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/mutated-genes/fetch",
       method = RequestMethod.POST,
@@ -337,21 +304,12 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter)
+          StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<AlterationCountByGene> alterationCountByGenes =
-        this.getInstance().cachedFetchMutatedGenes(interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cachedFetchMutatedGenes(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
   }
 
@@ -379,7 +337,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/structuralvariant-genes/fetch",
       method = RequestMethod.POST,
@@ -396,23 +354,13 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. This
-          // attribute is needed for the @PreAuthorize tag above.
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter)
+          StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<AlterationCountByGene> alterationCountByGenes =
-        this.getInstance()
-            .cacheableFetchStructuralVariantGenes(interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cacheableFetchStructuralVariantGenes(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(alterationCountByGenes, HttpStatus.OK);
   }
 
@@ -439,7 +387,7 @@ public class StudyViewController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/structuralvariant-counts/fetch",
       method = RequestMethod.POST,
@@ -458,23 +406,13 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. This
-          // attribute is needed for the @PreAuthorize tag above.
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter)
+          StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<AlterationCountByStructuralVariant> alterationCountByStructuralVariants =
-        this.getInstance()
-            .cacheableFetchStructuralVariantCounts(interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cacheableFetchStructuralVariantCounts(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(alterationCountByStructuralVariants, HttpStatus.OK);
   }
 
@@ -498,7 +436,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/cna-genes/fetch",
       method = RequestMethod.POST,
@@ -515,21 +453,12 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter)
+          StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<CopyNumberCountByGene> copyNumberCountByGenes =
-        this.getInstance().cacheableFetchCNAGenes(interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cacheableFetchCNAGenes(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(copyNumberCountByGenes, HttpStatus.OK);
   }
 
@@ -556,7 +485,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/filtered-samples/fetch",
       method = RequestMethod.POST,
@@ -571,28 +500,17 @@ public class StudyViewController {
       @Parameter(description = "Whether to negate the study view filters")
           @RequestParam(defaultValue = "false")
           boolean negateFilters,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter,
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
           StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
 
     studyViewFilterUtil.extractStudyAndSampleIds(
-        studyViewFilterApplier.apply(interceptedStudyViewFilter, negateFilters),
-        studyIds,
-        sampleIds);
+        studyViewFilterApplier.apply(studyViewFilter, negateFilters), studyIds, sampleIds);
 
     List<Sample> result = new ArrayList<>();
     if (!sampleIds.isEmpty()) {
@@ -603,7 +521,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/molecular-profile-sample-counts/fetch",
       method = RequestMethod.POST,
@@ -619,22 +537,12 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter) {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+          StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<GenomicDataCount> sampleCounts =
         this.getInstance()
-            .cacheableFetchMolecularProfileSampleCounts(
-                interceptedStudyViewFilter, unfilteredQuery);
+            .cacheableFetchMolecularProfileSampleCounts(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(sampleCounts, HttpStatus.OK);
   }
 
@@ -673,7 +581,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/clinical-data-density-plot/fetch",
       method = RequestMethod.POST,
@@ -713,23 +621,14 @@ public class StudyViewController {
           @Parameter(description = "Use log scale for Y axis")
           @RequestParam(required = false, defaultValue = "false")
           Boolean yAxisLogScale,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter,
       @Parameter(required = true, description = "Study view filter") @RequestBody(required = false)
           StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
     studyViewFilterUtil.extractStudyAndSampleIds(
-        studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
+        studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
     DensityPlotData result = new DensityPlotData();
     result.setBins(new ArrayList<>());
     if (sampleIds.isEmpty()) {
@@ -964,7 +863,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/clinical-data-violin-plots/fetch",
       method = RequestMethod.POST,
@@ -1005,20 +904,11 @@ public class StudyViewController {
       @Parameter(description = "Sigma stepsize multiplier")
           @RequestParam(required = false, defaultValue = "1")
           BigDecimal sigmaMultiplier,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter,
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
           StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
     ClinicalViolinPlotData result = new ClinicalViolinPlotData();
 
@@ -1027,7 +917,7 @@ public class StudyViewController {
     // first get samples that are filtered by all current filters - this will give us
     //  the by-row sample counts
     studyViewFilterUtil.extractStudyAndSampleIds(
-        studyViewFilterApplier.apply(interceptedStudyViewFilter), studyIds, sampleIds);
+        studyViewFilterApplier.apply(studyViewFilter), studyIds, sampleIds);
     List<Sample> filteredSamples =
         sampleService.fetchSamples(studyIds, sampleIds, Projection.DETAILED.name());
 
@@ -1035,15 +925,15 @@ public class StudyViewController {
     List<String> sampleIdsWithoutNumericalFilter = new ArrayList<>();
     // next, get samples that are filtered without the numerical filter - this will
     //  give us the violin plot data
-    if (interceptedStudyViewFilter.getClinicalDataFilters() != null) {
+    if (studyViewFilter.getClinicalDataFilters() != null) {
       // Remove numerical clinical data filter, if there is one
-      interceptedStudyViewFilter.getClinicalDataFilters().stream()
+      studyViewFilter.getClinicalDataFilters().stream()
           .filter(f -> f.getAttributeId().equals(numericalAttributeId))
           .findAny()
-          .ifPresent(f -> interceptedStudyViewFilter.getClinicalDataFilters().remove(f));
+          .ifPresent(f -> studyViewFilter.getClinicalDataFilters().remove(f));
     }
     studyViewFilterUtil.extractStudyAndSampleIds(
-        studyViewFilterApplier.apply(interceptedStudyViewFilter),
+        studyViewFilterApplier.apply(studyViewFilter),
         studyIdsWithoutNumericalFilter,
         sampleIdsWithoutNumericalFilter);
 
@@ -1143,14 +1033,14 @@ public class StudyViewController {
             numCurvePoints,
             useLogScale,
             sigmaMultiplier,
-            interceptedStudyViewFilter);
+            studyViewFilter);
 
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/sample-lists-counts/fetch",
       method = RequestMethod.POST,
@@ -1161,22 +1051,13 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter) {
+          StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
 
     List<String> studyIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
     List<SampleIdentifier> filteredSampleIdentifiers =
-        studyViewFilterApplier.apply(interceptedStudyViewFilter);
+        studyViewFilterApplier.apply(studyViewFilter);
     studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
     List<SampleList> sampleLists =
         sampleListService.getAllSampleListsInStudies(studyIds, Projection.DETAILED.name());
@@ -1229,7 +1110,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genomicDataBinCountFilter, 'GenomicDataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/genomic-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -1247,26 +1128,16 @@ public class StudyViewController {
       @Parameter(required = true, description = "Genomic data bin count filter")
           @Valid
           @RequestBody(required = false)
-          GenomicDataBinCountFilter genomicDataBinCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenomicDataBinCountFilter")
-          GenomicDataBinCountFilter interceptedGenomicDataBinCountFilter) {
+          GenomicDataBinCountFilter genomicDataBinCountFilter) {
 
     return new ResponseEntity<>(
-        studyViewFilterApplier.getDataBins(dataBinMethod, interceptedGenomicDataBinCountFilter),
+        studyViewFilterApplier.getDataBins(dataBinMethod, genomicDataBinCountFilter),
         HttpStatus.OK);
   }
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/genomic-data-counts/fetch",
       method = RequestMethod.POST,
@@ -1283,18 +1154,10 @@ public class StudyViewController {
       @Parameter(required = true, description = "Genomic data count filter")
           @Valid
           @RequestBody(required = false)
-          GenomicDataCountFilter genomicDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(required = true, description = "Intercepted Genomic Data Count Filter")
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter")
-          GenomicDataCountFilter interceptedGenomicDataCountFilter)
+          GenomicDataCountFilter genomicDataCountFilter)
       throws StudyNotFoundException {
-    List<GenomicDataFilter> genomicDataFilters =
-        interceptedGenomicDataCountFilter.getGenomicDataFilters();
-    StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+    List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
+    StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -1333,7 +1196,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genericAssayDataCountFilter, 'GenericAssayDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/generic-assay-data-counts/fetch",
       method = RequestMethod.POST,
@@ -1351,21 +1214,11 @@ public class StudyViewController {
       @Parameter(required = true, description = "Generic assay data count filter")
           @Valid
           @RequestBody(required = false)
-          GenericAssayDataCountFilter genericAssayDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter")
-          GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
+          GenericAssayDataCountFilter genericAssayDataCountFilter) {
 
     List<GenericAssayDataFilter> gaFilters =
-        interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
-    StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
+        genericAssayDataCountFilter.getGenericAssayDataFilters();
+    StudyViewFilter studyViewFilter = genericAssayDataCountFilter.getStudyViewFilter();
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -1399,7 +1252,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genericAssayDataBinCountFilter, 'GenericAssayDataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/generic-assay-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -1418,26 +1271,15 @@ public class StudyViewController {
       @Parameter(required = true, description = "Generic assay data bin count filter")
           @Valid
           @RequestBody(required = false)
-          GenericAssayDataBinCountFilter genericAssayDataBinCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenericAssayDataBinCountFilter")
-          GenericAssayDataBinCountFilter interceptedGenericAssayDataBinCountFilter) {
+          GenericAssayDataBinCountFilter genericAssayDataBinCountFilter) {
 
     return new ResponseEntity<>(
-        studyViewFilterApplier.getDataBins(
-            dataBinMethod, interceptedGenericAssayDataBinCountFilter),
+        studyViewFilterApplier.getDataBins(dataBinMethod, genericAssayDataBinCountFilter),
         HttpStatus.OK);
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/clinical-data-table/fetch",
       method = RequestMethod.POST,
@@ -1453,16 +1295,6 @@ public class StudyViewController {
           @Valid
           @RequestBody(required = false)
           StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter,
       @Parameter(description = "Page size of the result list")
           @Max(CLINICAL_TAB_MAX_PAGE_SIZE)
           @Min(PagingConstants.NO_PAGING_PAGE_SIZE)
@@ -1485,10 +1317,10 @@ public class StudyViewController {
       @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
           Direction direction) {
 
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     ImmutablePair<SampleClinicalDataCollection, Integer> sampleClinicalData =
         cachedClinicalDataTableData(
-            interceptedStudyViewFilter,
+            studyViewFilter,
             unfilteredQuery,
             pageNumber,
             pageSize,
@@ -1538,7 +1370,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/clinical-event-type-counts/fetch",
       method = RequestMethod.POST,
@@ -1556,21 +1388,11 @@ public class StudyViewController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter) {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+          StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<ClinicalEventTypeCount> eventTypeCounts =
-        this.getInstance()
-            .cachedClinicalEventTypeCounts(interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cachedClinicalEventTypeCounts(studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(eventTypeCounts, HttpStatus.OK);
   }
 
@@ -1589,7 +1411,7 @@ public class StudyViewController {
 
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/legacy/mutation-data-counts/fetch",
       method = RequestMethod.POST,
@@ -1609,17 +1431,9 @@ public class StudyViewController {
       @Parameter(required = true, description = "Genomic data count filter")
           @Valid
           @RequestBody(required = false)
-          GenomicDataCountFilter genomicDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenomicDataCountFilter")
-          GenomicDataCountFilter interceptedGenomicDataCountFilter) {
-    List<GenomicDataFilter> genomicDataFilters =
-        interceptedGenomicDataCountFilter.getGenomicDataFilters();
-    StudyViewFilter studyViewFilter = interceptedGenomicDataCountFilter.getStudyViewFilter();
+          GenomicDataCountFilter genomicDataCountFilter) {
+    List<GenomicDataFilter> genomicDataFilters = genomicDataCountFilter.getGenomicDataFilters();
+    StudyViewFilter studyViewFilter = genomicDataCountFilter.getStudyViewFilter();
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -1673,7 +1487,7 @@ public class StudyViewController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#namespaceDataCountFilter, 'NamespaceDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/namespace-data-counts/fetch",
       method = RequestMethod.POST,
@@ -1691,18 +1505,10 @@ public class StudyViewController {
       @Parameter(required = true, description = "Namespace data count filter")
           @Valid
           @RequestBody(required = false)
-          NamespaceDataCountFilter namespaceDataCountFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true)
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedNamespaceDataCountFilter")
-          NamespaceDataCountFilter interceptedNamespaceDataCountFilter) {
+          NamespaceDataCountFilter namespaceDataCountFilter) {
 
-    List<NamespaceDataFilter> namespaceDataFilters =
-        interceptedNamespaceDataCountFilter.getAttributes();
-    StudyViewFilter studyViewFilter = interceptedNamespaceDataCountFilter.getStudyViewFilter();
+    List<NamespaceDataFilter> namespaceDataFilters = namespaceDataCountFilter.getAttributes();
+    StudyViewFilter studyViewFilter = namespaceDataCountFilter.getStudyViewFilter();
 
     List<SampleIdentifier> filteredSampleIdentifiers =
         studyViewFilterApplier.apply(studyViewFilter);

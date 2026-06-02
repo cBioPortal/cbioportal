@@ -19,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -86,15 +85,12 @@ public class ColumnStoreClinicalDataEnrichmentController {
               array =
                   @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichmentDTO.class))))
   public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "interceptedGroupFilter")
-          GroupFilter interceptedGroupFilter,
       @Parameter(required = true, description = "Group filter with sample identifiers")
           @Valid
           @RequestBody(required = false)
           GroupFilter groupFilter) {
 
-    GroupFilter effectiveFilter = groupFilter != null ? groupFilter : interceptedGroupFilter;
+    GroupFilter effectiveFilter = groupFilter;
     if (effectiveFilter == null) {
       return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
     }

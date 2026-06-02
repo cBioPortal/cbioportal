@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,13 +50,30 @@ import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.legacy.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalEventAttributeRequest;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
+import org.cbioportal.legacy.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssayDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.GroupFilter;
+import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
+import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
+import org.cbioportal.legacy.web.parameter.MolecularProfileFilter;
+import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
+import org.cbioportal.legacy.web.parameter.NamespaceAttributeCountFilter;
+import org.cbioportal.legacy.web.parameter.NamespaceComparisonFilter;
+import org.cbioportal.legacy.web.parameter.NamespaceDataCountFilter;
+import org.cbioportal.legacy.web.parameter.PatientFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
+import org.cbioportal.legacy.web.parameter.StructuralVariantFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
+import org.cbioportal.legacy.web.parameter.SurvivalRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
@@ -271,6 +289,16 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       return extractCancerStudiesFromIds(studyIds, TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS);
     }
 
+    // Handle lists of domain objects that themselves reference studies (e.g. enrichment group
+    // filters or sample identifiers), as opposed to plain collections of id strings handled below.
+    if (target instanceof List<?> list
+        && !list.isEmpty()
+        && (list.get(0) instanceof MolecularProfileCasesGroupFilter
+            || list.get(0) instanceof SampleIdentifier)) {
+      Set<String> studyIds = extractStudyIdsFromFilter(list);
+      return extractCancerStudiesFromIds(studyIds, TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS);
+    }
+
     // Handle Collections
     if (target instanceof Collection<?> collection) {
       Collection<String> ids = (Collection<String>) collection;
@@ -398,10 +426,63 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .map(m -> m.getCancerStudyIdentifier())
             .collect(Collectors.toSet());
       }
-      default -> {
-        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
-        yield new HashSet<>();
-      }
+      case PatientFilter patientFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromPatientFilter(patientFilter);
+      case MolecularProfileFilter molecularProfileFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromMolecularProfileFilter(
+              molecularProfileFilter, cacheMapUtil);
+      case ClinicalAttributeCountFilter clinicalAttributeCountFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromClinicalAttributeCountFilter(
+              clinicalAttributeCountFilter, cacheMapUtil);
+      case NamespaceAttributeCountFilter namespaceAttributeCountFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromNamespaceAttributeCountFilter(
+              namespaceAttributeCountFilter);
+      case ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromClinicalDataMultiStudyFilter(
+              clinicalDataMultiStudyFilter);
+      case GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromGenePanelDataMultipleStudyFilter(
+              genePanelDataMultipleStudyFilter, cacheMapUtil);
+      case MolecularDataMultipleStudyFilter molecularDataMultipleStudyFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromMolecularDataMultipleStudyFilter(
+              molecularDataMultipleStudyFilter, cacheMapUtil);
+      case GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromGenericAssayDataMultipleStudyFilter(
+              genericAssayDataMultipleStudyFilter, cacheMapUtil);
+      case MutationMultipleStudyFilter mutationMultipleStudyFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromMutationMultipleStudyFilter(
+              mutationMultipleStudyFilter, cacheMapUtil);
+      case StructuralVariantFilter structuralVariantFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromStructuralVariantFilter(
+              structuralVariantFilter, cacheMapUtil);
+      case GroupFilter groupFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromGroupFilter(groupFilter);
+      case SurvivalRequest survivalRequest ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromSurvivalRequest(survivalRequest);
+      case ClinicalEventAttributeRequest clinicalEventAttributeRequest ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromClinicalEventAttributeRequest(
+              clinicalEventAttributeRequest);
+      case NamespaceComparisonFilter namespaceComparisonFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromNamespaceComparisonFilter(
+              namespaceComparisonFilter);
+      case NamespaceDataCountFilter namespaceDataCountFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromNamespaceDataCountFilter(
+              namespaceDataCountFilter);
+      // List bodies whose elements reference studies (enrichment group filters, sample
+      // identifiers).
+      case List<?> list
+          when !list.isEmpty() && list.get(0) instanceof MolecularProfileCasesGroupFilter ->
+          CancerStudyExtractorUtil.extractCancerStudyIdsFromMolecularProfileCasesGroups(
+              (List<MolecularProfileCasesGroupFilter>) (List<?>) list, cacheMapUtil);
+      case List<?> list when !list.isEmpty() && list.get(0) instanceof SampleIdentifier ->
+          new HashSet<>(
+              CancerStudyExtractorUtil.extractCancerStudyIdsFromSampleIdentifiers(
+                  (List<SampleIdentifier>) (List<?>) list));
+      // Fail closed: an unrecognized authorization target must never silently grant access.
+      default ->
+          throw new IllegalArgumentException(
+              "hasPermission(), unsupported authorization target type: "
+                  + filter.getClass().getName());
     };
   }
 

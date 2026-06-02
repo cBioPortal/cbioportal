@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.service.ClinicalEventService;
@@ -23,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,7 +41,7 @@ public class SurvivalController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#survivalRequest, 'SurvivalRequest', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/survival-data/fetch",
       method = RequestMethod.POST,
@@ -59,18 +57,9 @@ public class SurvivalController {
       @Parameter(required = true, description = "Survival Data Request")
           @Valid
           @RequestBody(required = false)
-          SurvivalRequest survivalRequest,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true)
-          // prevent reference to this attribute in the swagger-ui interface. this attribute is
-          // needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedSurvivalRequest")
-          SurvivalRequest interceptedSurvivalRequest) {
+          SurvivalRequest survivalRequest) {
 
-    return new ResponseEntity<>(cachedSurvivalData(interceptedSurvivalRequest), HttpStatus.OK);
+    return new ResponseEntity<>(cachedSurvivalData(survivalRequest), HttpStatus.OK);
   }
 
   @Cacheable(

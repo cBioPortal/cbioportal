@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
@@ -23,7 +22,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,7 +37,7 @@ public class ClinicalAttributeCountController {
   @Autowired private ClinicalAttributeService clinicalAttributeService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalAttributeCountFilter, 'ClinicalAttributeCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/clinical-attributes/counts/fetch",
       method = RequestMethod.POST,
@@ -56,29 +54,19 @@ public class ClinicalAttributeCountController {
               array =
                   @ArraySchema(schema = @Schema(implementation = ClinicalAttributeCount.class))))
   public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalAttributeCountFilter")
-          ClinicalAttributeCountFilter interceptedClinicalAttributeCountFilter,
       @Parameter(required = true, description = "List of SampleIdentifiers or Sample List ID")
           @Valid
           @RequestBody(required = false)
           ClinicalAttributeCountFilter clinicalAttributeCountFilter) {
 
     List<ClinicalAttributeCount> clinicalAttributeCountList;
-    if (interceptedClinicalAttributeCountFilter.getSampleListId() != null) {
+    if (clinicalAttributeCountFilter.getSampleListId() != null) {
       clinicalAttributeCountList =
           clinicalAttributeService.getClinicalAttributeCountsBySampleListId(
-              interceptedClinicalAttributeCountFilter.getSampleListId());
+              clinicalAttributeCountFilter.getSampleListId());
     } else {
       List<SampleIdentifier> sampleIdentifiers =
-          interceptedClinicalAttributeCountFilter.getSampleIdentifiers();
+          clinicalAttributeCountFilter.getSampleIdentifiers();
       List<String> studyIds = new ArrayList<>();
       List<String> sampleIds = new ArrayList<>();
       for (SampleIdentifier sampleIdentifier : sampleIdentifiers) {

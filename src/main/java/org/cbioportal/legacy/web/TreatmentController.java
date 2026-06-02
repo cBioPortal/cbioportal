@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -32,7 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -63,7 +61,7 @@ public class TreatmentController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/treatments/patient",
       method = RequestMethod.POST,
@@ -82,21 +80,11 @@ public class TreatmentController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter) {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+          StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<PatientTreatmentRow> treatments =
-        this.getInstance()
-            .cachableGetAllPatientTreatments(tier, interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cachableGetAllPatientTreatments(tier, studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(treatments, HttpStatus.OK);
   }
 
@@ -117,7 +105,7 @@ public class TreatmentController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/treatments/sample",
       method = RequestMethod.POST,
@@ -137,21 +125,11 @@ public class TreatmentController {
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
-          StudyViewFilter studyViewFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStudyViewFilter")
-          StudyViewFilter interceptedStudyViewFilter) {
-    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(interceptedStudyViewFilter);
+          StudyViewFilter studyViewFilter) {
+    studyViewFilterUtil.applyStudyViewFilterDefaults(studyViewFilter);
+    boolean unfilteredQuery = studyViewFilterUtil.isUnfilteredQuery(studyViewFilter);
     List<SampleTreatmentRow> treatments =
-        this.getInstance()
-            .cacheableGetAllSampleTreatments(tier, interceptedStudyViewFilter, unfilteredQuery);
+        this.getInstance().cacheableGetAllSampleTreatments(tier, studyViewFilter, unfilteredQuery);
     return new ResponseEntity<>(treatments, HttpStatus.OK);
   }
 

@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.MutationMapper;
@@ -66,8 +65,6 @@ public class ColumnStoreMutationController {
    * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or
    * entrezGeneIds
    *
-   * @param interceptedMutationMultipleStudyFilter security-intercepted filter for permission
-   *     validation
    * @param mutationMultipleStudyFilter filter containing patient/sample identifiers and attribute
    *     IDs
    * @param projection level of detail for the response data
@@ -76,23 +73,13 @@ public class ColumnStoreMutationController {
    */
   @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#mutationMultipleStudyFilter, 'MutationMultipleStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/not-ready-yet/mutations/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is set by InvolvedCancerStudyExtractorInterceptor and used as the primary
-          // source; @RequestBody is kept as fallback in case the attribute is not present.
-          @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
-          MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
       @Parameter(
               required = true,
               description =
@@ -119,10 +106,7 @@ public class ColumnStoreMutationController {
       @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
           Direction direction) {
 
-    MutationMultipleStudyFilter effectiveFilter =
-        interceptedMutationMultipleStudyFilter != null
-            ? interceptedMutationMultipleStudyFilter
-            : mutationMultipleStudyFilter;
+    MutationMultipleStudyFilter effectiveFilter = mutationMultipleStudyFilter;
     if (effectiveFilter == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }

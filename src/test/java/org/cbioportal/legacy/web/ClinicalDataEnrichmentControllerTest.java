@@ -144,7 +144,7 @@ public class ClinicalDataEnrichmentControllerTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.message")
-                .value("interceptedGroupFilter size must be between 2 and 2147483647"));
+                .value("groups size must be between 2 and 2147483647"));
 
     Group group1 = new Group();
     group1.setName("1");
@@ -190,7 +190,7 @@ public class ClinicalDataEnrichmentControllerTest {
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(
             MockMvcResultMatchers.jsonPath("$.message")
-                .value("interceptedGroupFilter size must be between 1 and 10000000"));
+                .value("groups[1].sampleIdentifiers size must be between 1 and 10000000"));
 
     group2.setSampleIdentifiers(
         new ArrayList<SampleIdentifier>(

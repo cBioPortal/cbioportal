@@ -26,7 +26,6 @@ import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -66,13 +65,6 @@ public class ColumnarStoreAlterationEnrichmentController {
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
-      @Parameter(hidden = true)
-          @RequestAttribute(
-              required = false,
-              value = "interceptedMolecularProfileCasesGroupFilters")
-          List<MolecularProfileCasesGroupFilter> interceptedGroupFilters,
-      @Parameter(hidden = true) @RequestAttribute(required = false, value = "alterationEventTypes")
-          AlterationFilter interceptedAlterationEventTypes,
       @Parameter(
               required = true,
               description =
@@ -84,11 +76,11 @@ public class ColumnarStoreAlterationEnrichmentController {
     List<MolecularProfileCasesGroupFilter> effectiveGroupFilters =
         groupsAndAlterationTypes != null
             ? groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter()
-            : interceptedGroupFilters;
+            : null;
     AlterationFilter effectiveAlterationFilter =
         groupsAndAlterationTypes != null
             ? groupsAndAlterationTypes.getAlterationEventTypes()
-            : interceptedAlterationEventTypes;
+            : null;
     if (effectiveGroupFilters == null) {
       return ResponseEntity.ok(Collections.emptyList());
     }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.Binnable;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
@@ -251,6 +252,24 @@ public class StudyViewFilterUtil {
 
   public boolean isSingleStudy(StudyViewFilter filter) {
     return filter.getStudyIds() != null && filter.getStudyIds().size() == 1;
+  }
+
+  /**
+   * Applies the backwards-compatible request defaults that {@code
+   * InvolvedCancerStudyExtractorInterceptor} used to set for a submitted StudyViewFilter: an
+   * inactive AlterationFilter and an empty list of structural variant filters are substituted when
+   * absent from the request, so downstream services never receive nulls for these fields.
+   */
+  public void applyStudyViewFilterDefaults(StudyViewFilter filter) {
+    if (filter == null) {
+      return;
+    }
+    if (filter.getAlterationFilter() == null) {
+      filter.setAlterationFilter(new AlterationFilter());
+    }
+    if (filter.getStructuralVariantFilters() == null) {
+      filter.setStructuralVariantFilters(new ArrayList<>());
+    }
   }
 
   public boolean isUnfilteredQuery(StudyViewFilter filter) {

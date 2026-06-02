@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.service.ClinicalDataService;
@@ -37,7 +36,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -296,7 +294,7 @@ public class ClinicalDataController {
 
   // @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#clinicalDataMultiStudyFilter, 'ClinicalDataMultiStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/clinical-data/fetch",
       method = RequestMethod.POST,
@@ -309,16 +307,6 @@ public class ClinicalDataController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
   public ResponseEntity<List<ClinicalData>> fetchClinicalData(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedClinicalDataMultiStudyFilter")
-          ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
       @Parameter(description = "Type of the clinical data") @RequestParam(defaultValue = "SAMPLE")
           ClinicalDataType clinicalDataType,
       @Parameter(
@@ -334,8 +322,7 @@ public class ClinicalDataController {
     List<String> studyIds = new ArrayList<>();
     List<String> ids = new ArrayList<>();
 
-    for (ClinicalDataIdentifier identifier :
-        interceptedClinicalDataMultiStudyFilter.getIdentifiers()) {
+    for (ClinicalDataIdentifier identifier : clinicalDataMultiStudyFilter.getIdentifiers()) {
       studyIds.add(identifier.getStudyId());
       ids.add(identifier.getEntityId());
     }
@@ -348,7 +335,7 @@ public class ClinicalDataController {
               .fetchMetaClinicalData(
                   studyIds,
                   ids,
-                  interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
+                  clinicalDataMultiStudyFilter.getAttributeIds(),
                   clinicalDataType.name())
               .getTotalCount()
               .toString());
@@ -358,7 +345,7 @@ public class ClinicalDataController {
           clinicalDataService.fetchClinicalData(
               studyIds,
               ids,
-              interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
+              clinicalDataMultiStudyFilter.getAttributeIds(),
               clinicalDataType.name(),
               projection.name()),
           HttpStatus.OK);

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +28,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -86,7 +84,7 @@ public class GenePanelDataController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#genePanelDataMultipleStudyFilter, 'GenePanelDataMultipleStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/gene-panel-data/fetch",
       method = RequestMethod.POST,
@@ -99,26 +97,15 @@ public class GenePanelDataController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanelData.class))))
   public ResponseEntity<List<GenePanelData>> fetchGenePanelDataInMultipleMolecularProfiles(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGenePanelDataMultipleStudyFilter")
-          GenePanelDataMultipleStudyFilter interceptedGenePanelDataMultipleStudyFilter,
       @Parameter(required = true, description = "Gene panel data filter object")
           @RequestBody(required = false)
           GenePanelDataMultipleStudyFilter genePanelDataMultipleStudyFilter) {
 
     List<GenePanelData> genePanelDataList;
-    if (CollectionUtils.isEmpty(
-        interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
+    if (CollectionUtils.isEmpty(genePanelDataMultipleStudyFilter.getMolecularProfileIds())) {
 
       List<SampleMolecularIdentifier> molecularSampleIdentifier =
-          interceptedGenePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers();
+          genePanelDataMultipleStudyFilter.getSampleMolecularIdentifiers();
 
       if (molecularSampleIdentifier == null) {
         return ResponseEntity.ok(List.of());
@@ -143,7 +130,7 @@ public class GenePanelDataController {
     } else {
       genePanelDataList =
           genePanelService.fetchGenePanelDataByMolecularProfileIds(
-              new HashSet<>(interceptedGenePanelDataMultipleStudyFilter.getMolecularProfileIds()));
+              new HashSet<>(genePanelDataMultipleStudyFilter.getMolecularProfileIds()));
     }
 
     return ResponseEntity.ok(genePanelDataList);

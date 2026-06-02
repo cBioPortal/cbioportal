@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -45,7 +43,7 @@ public class ExpressionEnrichmentController {
   @Autowired private ExpressionEnrichmentService expressionEnrichmentService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groups, 'Collection<MolecularProfileCasesGroupFilter>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/expression-enrichments/fetch",
       method = RequestMethod.POST,
@@ -59,9 +57,6 @@ public class ExpressionEnrichmentController {
           @Content(
               array = @ArraySchema(schema = @Schema(implementation = GenomicEnrichment.class))))
   public ResponseEntity<List<GenomicEnrichment>> fetchGenomicEnrichments(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
@@ -70,26 +65,15 @@ public class ExpressionEnrichmentController {
               description = "List of groups containing sample and molecular profile identifiers")
           @Valid
           @RequestBody(required = false)
-          List<MolecularProfileCasesGroupFilter> groups,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(
-              required = false,
-              value = "interceptedMolecularProfileCasesGroupFilters")
-          List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+          List<MolecularProfileCasesGroupFilter> groups)
       throws MolecularProfileNotFoundException {
 
     return new ResponseEntity<>(
-        fetchExpressionEnrichments(
-            enrichmentType, interceptedMolecularProfileCasesGroupFilters, false),
-        HttpStatus.OK);
+        fetchExpressionEnrichments(enrichmentType, groups, false), HttpStatus.OK);
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groups, 'Collection<MolecularProfileCasesGroupFilter>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/generic-assay-enrichments/fetch",
       method = RequestMethod.POST,
@@ -104,9 +88,6 @@ public class ExpressionEnrichmentController {
               array =
                   @ArraySchema(schema = @Schema(implementation = GenericAssayEnrichment.class))))
   public ResponseEntity<List<GenericAssayEnrichment>> fetchGenericAssayEnrichments(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
@@ -115,34 +96,23 @@ public class ExpressionEnrichmentController {
               description = "List of groups containing sample and molecular profile identifiers")
           @Valid
           @RequestBody(required = false)
-          List<MolecularProfileCasesGroupFilter> groups,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(
-              required = false,
-              value = "interceptedMolecularProfileCasesGroupFilters")
-          List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters)
+          List<MolecularProfileCasesGroupFilter> groups)
       throws MolecularProfileNotFoundException,
           UnsupportedOperationException,
           GenericAssayNotFoundException {
 
     return new ResponseEntity<>(
-        fetchExpressionEnrichments(
-            enrichmentType, interceptedMolecularProfileCasesGroupFilters, true),
-        HttpStatus.OK);
+        fetchExpressionEnrichments(enrichmentType, groups, true), HttpStatus.OK);
   }
 
   private <S extends ExpressionEnrichment> List<S> fetchExpressionEnrichments(
       EnrichmentType enrichmentType,
-      List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
+      List<MolecularProfileCasesGroupFilter> groups,
       Boolean isRequestForGenericAssayEnrichments)
       throws MolecularProfileNotFoundException {
 
     Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-        interceptedMolecularProfileCasesGroupFilters.stream()
+        groups.stream()
             .collect(
                 Collectors.toMap(
                     MolecularProfileCasesGroupFilter::getName,

@@ -32,7 +32,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.service.StructuralVariantService;
@@ -45,7 +44,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -60,7 +58,7 @@ public class StructuralVariantController {
   @Autowired private StructuralVariantService structuralVariantService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#structuralVariantFilter, 'StructuralVariantFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/structural-variant/fetch",
       method = RequestMethod.POST,
@@ -76,13 +74,6 @@ public class StructuralVariantController {
           @Content(
               array = @ArraySchema(schema = @Schema(implementation = StructuralVariant.class))))
   public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedStructuralVariantFilter")
-          StructuralVariantFilter interceptedStructuralVariantFilter,
       @Parameter(
               required = true,
               description =
@@ -91,11 +82,17 @@ public class StructuralVariantController {
           @RequestBody(required = false)
           StructuralVariantFilter structuralVariantFilter) {
 
+    // Backwards-compatible default previously applied by InvolvedCancerStudyExtractorInterceptor:
+    // an empty set of queries is inferred when absent from the request.
+    if (structuralVariantFilter.getStructuralVariantQueries() == null) {
+      structuralVariantFilter.setStructuralVariantQueries(new ArrayList<>());
+    }
+
     List<String> molecularProfileIds = new ArrayList<>();
     List<String> sampleIds = new ArrayList<>();
 
-    if (interceptedStructuralVariantFilter.getSampleMolecularIdentifiers() != null) {
-      interceptedStructuralVariantFilter
+    if (structuralVariantFilter.getSampleMolecularIdentifiers() != null) {
+      structuralVariantFilter
           .getSampleMolecularIdentifiers()
           .forEach(
               sampleMolecularIdentifier -> {
@@ -103,14 +100,14 @@ public class StructuralVariantController {
                 molecularProfileIds.add(sampleMolecularIdentifier.getMolecularProfileId());
               });
     } else {
-      molecularProfileIds.addAll(interceptedStructuralVariantFilter.getMolecularProfileIds());
+      molecularProfileIds.addAll(structuralVariantFilter.getMolecularProfileIds());
     }
     List<StructuralVariant> structuralVariantList =
         structuralVariantService.fetchStructuralVariants(
             molecularProfileIds,
             sampleIds,
-            interceptedStructuralVariantFilter.getEntrezGeneIds(),
-            interceptedStructuralVariantFilter.getStructuralVariantQueries());
+            structuralVariantFilter.getEntrezGeneIds(),
+            structuralVariantFilter.getStructuralVariantQueries());
 
     return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
   }

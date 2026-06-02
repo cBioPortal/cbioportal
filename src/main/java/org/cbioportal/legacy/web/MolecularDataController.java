@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.cbioportal.legacy.model.GeneMolecularData;
@@ -33,7 +32,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -153,7 +151,7 @@ public class MolecularDataController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#molecularDataMultipleStudyFilter, 'MolecularDataMultipleStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/molecular-data/fetch",
       method = RequestMethod.POST,
@@ -170,19 +168,6 @@ public class MolecularDataController {
   public ResponseEntity<List<NumericGeneMolecularData>>
       fetchMolecularDataInMultipleMolecularProfiles(
           @Parameter(
-                  hidden = true) // prevent reference to this attribute in the swagger-ui interface
-              @RequestAttribute(required = false, value = "involvedCancerStudies")
-              Collection<String> involvedCancerStudies,
-          @Parameter(
-                  hidden =
-                      true) // prevent reference to this attribute in the swagger-ui interface. this
-              // attribute is needed for the @PreAuthorize tag above.
-              @Valid
-              @RequestAttribute(
-                  required = false,
-                  value = "interceptedMolecularDataMultipleStudyFilter")
-              MolecularDataMultipleStudyFilter interceptedMolecularDataMultipleStudyFilter,
-          @Parameter(
                   required = true,
                   description =
                       "List of Molecular Profile ID and Sample ID pairs or List of Molecular"
@@ -195,26 +180,26 @@ public class MolecularDataController {
               Projection projection) {
 
     List<NumericGeneMolecularData> result;
-    if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+    if (molecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
       result =
           filterNonNumberMolecularData(
               molecularDataService.getMolecularDataInMultipleMolecularProfiles(
-                  interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(),
+                  molecularDataMultipleStudyFilter.getMolecularProfileIds(),
                   null,
-                  interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(),
+                  molecularDataMultipleStudyFilter.getEntrezGeneIds(),
                   projection.name()));
     } else {
 
       List<String> molecularProfileIds = new ArrayList<>();
       List<String> sampleIds = new ArrayList<>();
       extractMolecularProfileAndSampleIds(
-          interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+          molecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
       result =
           filterNonNumberMolecularData(
               molecularDataService.getMolecularDataInMultipleMolecularProfiles(
                   molecularProfileIds,
                   sampleIds,
-                  interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds(),
+                  molecularDataMultipleStudyFilter.getEntrezGeneIds(),
                   projection.name()));
     }
 

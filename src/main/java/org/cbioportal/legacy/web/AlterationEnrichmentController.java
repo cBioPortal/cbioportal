@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,7 +44,7 @@ public class AlterationEnrichmentController {
   @Autowired private AlterationEnrichmentService alterationEnrichmentService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groupsAndAlterationTypes, 'MolecularProfileCasesGroupAndAlterationTypeFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/alteration-enrichments/fetch",
       method = RequestMethod.POST,
@@ -60,21 +58,6 @@ public class AlterationEnrichmentController {
           @Content(
               array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))))
   public ResponseEntity<List<AlterationEnrichment>> fetchAlterationEnrichments(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true)
-          // prevent reference to this attribute in the swagger-ui interface. this attribute is
-          // needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(
-              required = false,
-              value = "interceptedMolecularProfileCasesGroupFilters")
-          List<MolecularProfileCasesGroupFilter> interceptedMolecularProfileCasesGroupFilters,
-      @Parameter(hidden = true)
-          @Valid
-          @RequestAttribute(required = false, value = "alterationEventTypes")
-          AlterationFilter alterationEventTypes,
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
@@ -87,8 +70,12 @@ public class AlterationEnrichmentController {
           MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes)
       throws MolecularProfileNotFoundException {
 
+    List<MolecularProfileCasesGroupFilter> molecularProfileCasesGroupFilters =
+        groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter();
+    AlterationFilter alterationEventTypes = groupsAndAlterationTypes.getAlterationEventTypes();
+
     Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-        interceptedMolecularProfileCasesGroupFilters.stream()
+        molecularProfileCasesGroupFilters.stream()
             .collect(
                 Collectors.toMap(
                     MolecularProfileCasesGroupFilter::getName,

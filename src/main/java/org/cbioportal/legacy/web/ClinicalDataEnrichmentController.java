@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,7 +31,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,7 +51,7 @@ public class ClinicalDataEnrichmentController {
   @Autowired private SampleService sampleService;
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/clinical-data-enrichments/fetch",
       method = RequestMethod.POST,
@@ -71,26 +69,16 @@ public class ClinicalDataEnrichmentController {
       @Parameter(required = true, description = "List of altered and unaltered Sample/Patient IDs")
           @Valid
           @RequestBody(required = false)
-          GroupFilter groupFilter,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedGroupFilter")
-          GroupFilter interceptedGroupFilter) {
+          GroupFilter groupFilter) {
 
     List<String> studyIds =
-        interceptedGroupFilter.getGroups().stream()
+        groupFilter.getGroups().stream()
             .flatMap(
                 group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getStudyId))
             .collect(Collectors.toList());
 
     List<String> sampleIds =
-        interceptedGroupFilter.getGroups().stream()
+        groupFilter.getGroups().stream()
             .flatMap(
                 group -> group.getSampleIdentifiers().stream().map(SampleIdentifier::getSampleId))
             .collect(Collectors.toList());
@@ -107,7 +95,7 @@ public class ClinicalDataEnrichmentController {
 
     // samples for each group
     List<List<Sample>> groupedSamples =
-        interceptedGroupFilter.getGroups().stream()
+        groupFilter.getGroups().stream()
             .map(
                 group ->
                     group.getSampleIdentifiers().stream()

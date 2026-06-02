@@ -2,11 +2,8 @@ package org.cbioportal.application;
 
 import java.util.List;
 import org.cbioportal.legacy.web.ExecuterTimeInterceptor;
-import org.cbioportal.legacy.web.util.InvolvedCancerStudyExtractorInterceptor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -71,14 +68,8 @@ public class WebAppConfig implements WebMvcConfigurer {
     endpoints.forEach(route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));
   }
 
-  @Bean
-  public HandlerInterceptor involvedCancerStudyExtractorInterceptor() {
-    return new InvolvedCancerStudyExtractorInterceptor();
-  }
-
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(involvedCancerStudyExtractorInterceptor());
     registry
         .addInterceptor(new WebRequestHandlerInterceptorAdapter(new ExecuterTimeInterceptor()))
         .addPathPatterns("/**");

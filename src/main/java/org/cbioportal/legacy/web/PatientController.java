@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.service.PatientService;
@@ -35,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -177,7 +175,7 @@ public class PatientController {
   }
 
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#patientFilter, 'PatientFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/patients/fetch",
       method = RequestMethod.POST,
@@ -188,16 +186,6 @@ public class PatientController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
   public ResponseEntity<List<Patient>> fetchPatients(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedPatientFilter")
-          PatientFilter interceptedPatientFilter,
       @Parameter(required = true, description = "List of patient identifiers")
           @Valid
           @RequestBody(required = false)
@@ -211,22 +199,22 @@ public class PatientController {
 
     if (projection == Projection.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
-      if (interceptedPatientFilter.getPatientIdentifiers() != null) {
-        extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
+      if (patientFilter.getPatientIdentifiers() != null) {
+        extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
       } else {
         UniqueKeyExtractor.extractUniqueKeys(
-            interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            patientFilter.getUniquePatientKeys(), studyIds, patientIds);
       }
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
           patientService.fetchMetaPatients(studyIds, patientIds).getTotalCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
-      if (interceptedPatientFilter.getPatientIdentifiers() != null) {
-        extractStudyAndPatientIds(interceptedPatientFilter, studyIds, patientIds);
+      if (patientFilter.getPatientIdentifiers() != null) {
+        extractStudyAndPatientIds(patientFilter, studyIds, patientIds);
       } else {
         UniqueKeyExtractor.extractUniqueKeys(
-            interceptedPatientFilter.getUniquePatientKeys(), studyIds, patientIds);
+            patientFilter.getUniquePatientKeys(), studyIds, patientIds);
       }
       // TODO: since we are already extracting the studyIds in the interceptor, we might not need to
       // use the service here

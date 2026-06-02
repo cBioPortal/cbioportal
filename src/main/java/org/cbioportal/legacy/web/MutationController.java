@@ -12,7 +12,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
@@ -36,7 +35,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -213,7 +211,7 @@ public class MutationController {
 
   //  @Hidden
   @PreAuthorize(
-      "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(#mutationMultipleStudyFilter, 'MutationMultipleStudyFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/mutations/fetch",
       method = RequestMethod.POST,
@@ -225,16 +223,6 @@ public class MutationController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
   public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
-          Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for the @PreAuthorize tag above.
-          @Valid
-          @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
-          MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
       @Parameter(
               required = true,
               description =
@@ -265,23 +253,21 @@ public class MutationController {
       HttpHeaders responseHeaders = new HttpHeaders();
       MutationMeta mutationMeta;
 
-      if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+      if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
         mutationMeta =
             mutationService.getMetaMutationsInMultipleMolecularProfiles(
-                interceptedMutationMultipleStudyFilter.getMolecularProfileIds(),
+                mutationMultipleStudyFilter.getMolecularProfileIds(),
                 null,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
+                mutationMultipleStudyFilter.getEntrezGeneIds());
       } else {
 
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         extractMolecularProfileAndSampleIds(
-            interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
+            mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
         mutationMeta =
             mutationService.getMetaMutationsInMultipleMolecularProfiles(
-                molecularProfileIds,
-                sampleIds,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds());
+                molecularProfileIds, sampleIds, mutationMultipleStudyFilter.getEntrezGeneIds());
       }
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
       responseHeaders.add(
@@ -289,12 +275,12 @@ public class MutationController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       List<Mutation> mutations;
-      if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+      if (mutationMultipleStudyFilter.getMolecularProfileIds() != null) {
         mutations =
             mutationService.getMutationsInMultipleMolecularProfiles(
-                interceptedMutationMultipleStudyFilter.getMolecularProfileIds(),
+                mutationMultipleStudyFilter.getMolecularProfileIds(),
                 null,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
+                mutationMultipleStudyFilter.getEntrezGeneIds(),
                 projection.name(),
                 pageSize,
                 pageNumber,
@@ -305,12 +291,12 @@ public class MutationController {
         List<String> molecularProfileIds = new ArrayList<>();
         List<String> sampleIds = new ArrayList<>();
         extractMolecularProfileAndSampleIds(
-            interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
+            mutationMultipleStudyFilter, molecularProfileIds, sampleIds);
         mutations =
             mutationService.getMutationsInMultipleMolecularProfiles(
                 molecularProfileIds,
                 sampleIds,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
+                mutationMultipleStudyFilter.getEntrezGeneIds(),
                 projection.name(),
                 pageSize,
                 pageNumber,

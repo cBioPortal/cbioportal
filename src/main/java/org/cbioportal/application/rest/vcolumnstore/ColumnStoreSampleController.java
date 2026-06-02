@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.SampleMapper;
 import org.cbioportal.application.rest.response.SampleDTO;
@@ -22,6 +24,8 @@ import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
@@ -35,16 +39,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@PublicApi
+@Tag(name = PublicApiTags.SAMPLES, description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 @Validated
 public class ColumnStoreSampleController {
   public static final int SAMPLE_MAX_PAGE_SIZE = 10000000;
@@ -62,7 +68,10 @@ public class ColumnStoreSampleController {
     this.studyService = studyService;
   }
 
-  @GetMapping(value = "/samples", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/samples",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get all samples matching keyword")
   @ApiResponse(
       responseCode = "200",
@@ -142,6 +151,9 @@ public class ColumnStoreSampleController {
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
   public ResponseEntity<List<SampleDTO>> fetchSamples(
+      @Parameter(hidden = true)
+          @RequestAttribute(required = false, value = "interceptedSampleFilter")
+          SampleFilter interceptedSampleFilter,
       @Parameter(required = true, description = "List of sample identifiers")
           @Valid
           @RequestBody(required = false)
@@ -149,18 +161,26 @@ public class ColumnStoreSampleController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection) {
+    SampleFilter effectiveFilter = sampleFilter != null ? sampleFilter : interceptedSampleFilter;
+    if (effectiveFilter == null) {
+      return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+    }
     if (projection == ProjectionType.META) {
-      HttpHeaders responseHeaders = fetchMetaSamplesHeaders(sampleFilter);
+      HttpHeaders responseHeaders = fetchMetaSamplesHeaders(effectiveFilter);
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
-      List<Sample> samples = sampleUseCases.fetchSamplesUseCase().execute(sampleFilter, projection);
+      List<Sample> samples =
+          sampleUseCases.fetchSamplesUseCase().execute(effectiveFilter, projection);
       return new ResponseEntity<>(SampleMapper.INSTANCE.toDtos(samples), HttpStatus.OK);
     }
   }
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @GetMapping(value = "/studies/{studyId}/samples", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/studies/{studyId}/samples",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get all samples in a study")
   @ApiResponse(
       responseCode = "200",
@@ -208,7 +228,8 @@ public class ColumnStoreSampleController {
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @GetMapping(
+  @RequestMapping(
+      method = RequestMethod.GET,
       value = "/studies/{studyId}/samples/{sampleId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get a sample in a study")
@@ -230,7 +251,8 @@ public class ColumnStoreSampleController {
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @GetMapping(
+  @RequestMapping(
+      method = RequestMethod.GET,
       value = "/studies/{studyId}/patients/{patientId}/samples",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get all samples of a patient in a study")

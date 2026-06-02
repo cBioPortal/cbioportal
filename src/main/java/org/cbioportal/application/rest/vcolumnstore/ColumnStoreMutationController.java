@@ -2,15 +2,19 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.domain.mutation.usecase.MutationUseCases;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 import org.cbioportal.shared.MutationQueryOptions;
@@ -42,8 +46,10 @@ import org.springframework.web.bind.annotation.*;
  *
  * @see MutationDTO
  */
+@PublicApi
+@Tag(name = PublicApiTags.MUTATIONS, description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreMutationController {
   private final MutationUseCases mutationUseCases;
 
@@ -72,7 +78,7 @@ public class ColumnStoreMutationController {
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/mutations/fetch",
+      value = "/not-ready-yet/mutations/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -83,11 +89,10 @@ public class ColumnStoreMutationController {
       @Parameter(
               hidden =
                   true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for now but was needed previously for @PreAuthorize .
-          @Valid
-          @RequestBody(required = false)
-          MutationMultipleStudyFilter
-              interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this
+          // attribute is set by InvolvedCancerStudyExtractorInterceptor and used as the primary
+          // source; @RequestBody is kept as fallback in case the attribute is not present.
+          @RequestAttribute(required = false, value = "interceptedMutationMultipleStudyFilter")
+          MutationMultipleStudyFilter interceptedMutationMultipleStudyFilter,
       @Parameter(
               required = true,
               description =
@@ -114,12 +119,17 @@ public class ColumnStoreMutationController {
       @Parameter(description = "Direction of the sort") @RequestParam(defaultValue = "ASC")
           Direction direction) {
 
+    MutationMultipleStudyFilter effectiveFilter =
+        interceptedMutationMultipleStudyFilter != null
+            ? interceptedMutationMultipleStudyFilter
+            : mutationMultipleStudyFilter;
+    if (effectiveFilter == null) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     if (projection == ProjectionType.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       MutationMeta mutationMeta =
-          mutationUseCases
-              .fetchMetaMutationsUseCase()
-              .execute(interceptedMutationMultipleStudyFilter);
+          mutationUseCases.fetchMetaMutationsUseCase().execute(effectiveFilter);
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
@@ -136,7 +146,7 @@ public class ColumnStoreMutationController {
         MutationMapper.INSTANCE.toDTOs(
             mutationUseCases
                 .fetchAllMutationsInProfileUseCase()
-                .execute(interceptedMutationMultipleStudyFilter, mutationQueryOptions));
+                .execute(effectiveFilter, mutationQueryOptions));
     return ResponseEntity.ok(mutations);
   }
 }

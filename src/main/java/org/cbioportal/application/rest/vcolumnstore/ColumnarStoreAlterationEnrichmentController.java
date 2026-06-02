@@ -6,30 +6,37 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.cbioportal.domain.alteration.usecase.GetAlterationEnrichmentsUseCase;
 import org.cbioportal.legacy.model.AlterationEnrichment;
+import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@InternalApi
+@Tag(name = "Alteration Enrichments", description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnarStoreAlterationEnrichmentController {
 
   private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;
@@ -59,6 +66,13 @@ public class ColumnarStoreAlterationEnrichmentController {
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
+      @Parameter(hidden = true)
+          @RequestAttribute(
+              required = false,
+              value = "interceptedMolecularProfileCasesGroupFilters")
+          List<MolecularProfileCasesGroupFilter> interceptedGroupFilters,
+      @Parameter(hidden = true) @RequestAttribute(required = false, value = "alterationEventTypes")
+          AlterationFilter interceptedAlterationEventTypes,
       @Parameter(
               required = true,
               description =
@@ -67,8 +81,19 @@ public class ColumnarStoreAlterationEnrichmentController {
           @RequestBody(required = false)
           MolecularProfileCasesGroupAndAlterationTypeFilter groupsAndAlterationTypes)
       throws MolecularProfileNotFoundException {
+    List<MolecularProfileCasesGroupFilter> effectiveGroupFilters =
+        groupsAndAlterationTypes != null
+            ? groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter()
+            : interceptedGroupFilters;
+    AlterationFilter effectiveAlterationFilter =
+        groupsAndAlterationTypes != null
+            ? groupsAndAlterationTypes.getAlterationEventTypes()
+            : interceptedAlterationEventTypes;
+    if (effectiveGroupFilters == null) {
+      return ResponseEntity.ok(Collections.emptyList());
+    }
     Map<String, List<MolecularProfileCaseIdentifier>> groupCaseIdentifierSet =
-        groupsAndAlterationTypes.getMolecularProfileCasesGroupFilter().stream()
+        effectiveGroupFilters.stream()
             .collect(
                 Collectors.toMap(
                     MolecularProfileCasesGroupFilter::getName,
@@ -76,8 +101,6 @@ public class ColumnarStoreAlterationEnrichmentController {
 
     return ResponseEntity.ok(
         getAlterationEnrichmentsUseCase.execute(
-            groupCaseIdentifierSet,
-            enrichmentType,
-            groupsAndAlterationTypes.getAlterationEventTypes()));
+            groupCaseIdentifierSet, enrichmentType, effectiveAlterationFilter));
   }
 }

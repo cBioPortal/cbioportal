@@ -164,7 +164,7 @@ public class AlterationEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/alteration-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/alteration-enrichments/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -229,7 +229,7 @@ public class AlterationEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/alteration-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/alteration-enrichments/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -294,7 +294,7 @@ public class AlterationEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/alteration-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/alteration-enrichments/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -359,7 +359,7 @@ public class AlterationEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/alteration-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/alteration-enrichments/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -390,7 +390,7 @@ public class AlterationEnrichmentControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/alteration-enrichments/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/alteration-enrichments/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -50,6 +50,7 @@ public class CustomDataController {
   @Autowired private CustomDataService customDataService;
   @Autowired private PatientService patientService;
 
+  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(

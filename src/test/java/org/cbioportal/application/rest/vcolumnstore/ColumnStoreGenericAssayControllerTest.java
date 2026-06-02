@@ -65,7 +65,7 @@ public class ColumnStoreGenericAssayControllerTest {
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.get("/api/column-store/generic-assay-meta/" + PROF_ID)
+                MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.request().asyncStarted())
             .andReturn();
@@ -100,8 +100,7 @@ public class ColumnStoreGenericAssayControllerTest {
         mockMvc
             .perform(
                 MockMvcRequestBuilders.get(
-                        "/api/column-store/generic-assay-meta/generic-assay/"
-                            + GENERIC_ASSAY_STABLE_ID_2)
+                        "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
                     .accept(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.request().asyncStarted())
             .andReturn();
@@ -137,7 +136,7 @@ public class ColumnStoreGenericAssayControllerTest {
     MvcResult mvcResult =
         mockMvc
             .perform(
-                MockMvcRequestBuilders.post("/api/column-store/generic-assay-meta/fetch")
+                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
                     .with(csrf())
                     .accept(MediaType.APPLICATION_JSON)
                     .contentType(MediaType.APPLICATION_JSON)

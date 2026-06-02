@@ -109,7 +109,7 @@ insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) val
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (14,'1,2,3,4,5,6,7,8,9,10,11,12,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (15,'1,2,3,4,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(10,'1,2,3,4,5,6,7,8,9,10,11,');
-insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(18,'15,16,17,19,');
+insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(18,'15,16,17,19,20,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(19,'301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,');
 
 insert into patient (internal_id,stable_id,cancer_study_id) values (1,'tcga-a1-a0sb',1);
@@ -171,6 +171,7 @@ insert into sample (internal_id,stable_id,sample_type,patient_id) values (12,'tc
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (13,'tcga-a1-a0sp-01','primary solid tumor',13);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (14,'tcga-a1-a0sq-01','primary solid tumor',14);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (15,'tcga-a1-b0so-01','primary solid tumor',15);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (20,'tcga-a1-b0so-02','primary solid tumor',15);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (16,'tcga-a1-b0sp-01','primary solid tumor',16);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (17,'tcga-a1-b0sq-01','primary solid tumor',17);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (19,'tcga-a1-a0sb-01','primary solid tumor',18);
@@ -599,10 +600,10 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (12,29,'1.0106,-0.0662,-0.8585,-1.6576,-0.3552,-0.8306,0.8102,0.1106,0.3098,0.0309,0.0927,-0.8665,-0.0750,-0.7221,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Unchanged,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,Unchanged,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Gain,Unchanged,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,Loss,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Unchanged,Unchanged,NA,Loss,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,Unchanged,Loss,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Gain,Unchanged,Unchanged,NA,Gain,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (19,31,'No,NA,NA,NA,NA,NA,No,NA,NA,NA,No,No,NA,NA,NA,NA,NA,No,NA,No,No,NA,No,No,Yes,NA,No,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);

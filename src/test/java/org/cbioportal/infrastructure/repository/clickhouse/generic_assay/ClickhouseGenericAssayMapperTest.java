@@ -52,7 +52,7 @@ public class ClickhouseGenericAssayMapperTest {
             new GenericAssayDataCountItem(
                 "1p_status",
                 List.of(
-                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Loss", 2),
                     new GenericAssayDataCount("Gain", 1),
                     new GenericAssayDataCount("Unchanged", 1),
                     new GenericAssayDataCount("NA", 1))));
@@ -105,28 +105,98 @@ public class ClickhouseGenericAssayMapperTest {
             new GenericAssayDataCountItem(
                 "1p_status",
                 List.of(
-                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Loss", 2),
                     new GenericAssayDataCount("Gain", 1),
                     new GenericAssayDataCount("Unchanged", 1),
                     new GenericAssayDataCount("NA", 1))),
             new GenericAssayDataCountItem(
                 "2p_status",
                 List.of(
-                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Loss", 2),
                     new GenericAssayDataCount("Unchanged", 2),
                     new GenericAssayDataCount("NA", 1))),
             new GenericAssayDataCountItem(
                 "9p_status",
                 List.of(
-                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Loss", 2),
                     new GenericAssayDataCount("Gain", 1),
                     new GenericAssayDataCount("Unchanged", 2))),
             new GenericAssayDataCountItem(
                 "10p_status",
                 List.of(
-                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Gain", 2),
                     new GenericAssayDataCount("Unchanged", 2),
                     new GenericAssayDataCount("NA", 1))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void
+      getSampleCategoricalGenericAssayDataCountsByProfileType_ignoresStudiesWithoutProfile() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA, STUDY_GENIE_PUB));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "armlevel_cna");
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "1p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 2),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 1),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "2p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 2),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "9p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 2),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2))),
+            new GenericAssayDataCountItem(
+                "10p_status",
+                List.of(
+                    new GenericAssayDataCount("Gain", 2),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getPatientCategoricalGenericAssayDataCountsByProfileType() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "distant_mets");
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "DMETS_DX_ADRENAL",
+                List.of(
+                    new GenericAssayDataCount("No", 9),
+                    new GenericAssayDataCount("Yes", 1),
+                    new GenericAssayDataCount("NA", 14))));
 
     assertThat(actualCounts)
         .usingRecursiveComparison()

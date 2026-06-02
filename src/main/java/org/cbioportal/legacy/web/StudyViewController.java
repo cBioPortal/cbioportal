@@ -97,7 +97,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -1364,23 +1363,9 @@ public class StudyViewController {
           @RequestAttribute(required = false, value = "interceptedGenericAssayDataCountFilter")
           GenericAssayDataCountFilter interceptedGenericAssayDataCountFilter) {
 
-    GenericAssayDataCountFilter effectiveGenericAssayDataCountFilter =
-        interceptedGenericAssayDataCountFilter != null
-            ? interceptedGenericAssayDataCountFilter
-            : genericAssayDataCountFilter;
-    if (effectiveGenericAssayDataCountFilter == null) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
-
     List<GenericAssayDataFilter> gaFilters =
-        effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters() == null
-            ? new ArrayList<>()
-            : effectiveGenericAssayDataCountFilter.getGenericAssayDataFilters();
-    String profileType = effectiveGenericAssayDataCountFilter.getProfileType();
-    StudyViewFilter studyViewFilter = effectiveGenericAssayDataCountFilter.getStudyViewFilter();
-    if (gaFilters.isEmpty() && !StringUtils.hasText(profileType)) {
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+        interceptedGenericAssayDataCountFilter.getGenericAssayDataFilters();
+    StudyViewFilter studyViewFilter = interceptedGenericAssayDataCountFilter.getStudyViewFilter();
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -1400,21 +1385,14 @@ public class StudyViewController {
     List<String> sampleIds = new ArrayList<>();
     studyViewFilterUtil.extractStudyAndSampleIds(filteredSampleIdentifiers, studyIds, sampleIds);
 
-    List<GenericAssayDataCountItem> result;
-    if (!gaFilters.isEmpty()) {
-      result =
-          studyViewService.fetchGenericAssayDataCounts(
-              sampleIds,
-              studyIds,
-              gaFilters.stream().map(GenericAssayDataFilter::getStableId).toList(),
-              gaFilters.stream()
-                  .map(GenericAssayDataFilter::getProfileType)
-                  .collect(Collectors.toList()));
-    } else {
-      result =
-          studyViewService.fetchGenericAssayDataCountsByProfileType(
-              sampleIds, studyIds, profileType);
-    }
+    List<GenericAssayDataCountItem> result =
+        studyViewService.fetchGenericAssayDataCounts(
+            sampleIds,
+            studyIds,
+            gaFilters.stream().map(GenericAssayDataFilter::getStableId).toList(),
+            gaFilters.stream()
+                .map(GenericAssayDataFilter::getProfileType)
+                .collect(Collectors.toList()));
 
     return new ResponseEntity<>(result, HttpStatus.OK);
   }

@@ -49,9 +49,6 @@ public interface StudyViewService {
       List<String> stableIds,
       List<String> profileTypes);
 
-  List<GenericAssayDataCountItem> fetchGenericAssayDataCountsByProfileType(
-      List<String> sampleIds, List<String> studyIds, String profileType);
-
   List<NamespaceDataCountItem> fetchNamespaceDataCounts(
       List<String> studyIds, List<String> sampleIds, List<NamespaceAttribute> namespaceAttributes);
 }

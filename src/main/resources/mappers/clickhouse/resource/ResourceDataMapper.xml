@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataMapper">
+
+  <resultMap id="ResourceTableTabResultMap" type="org.cbioportal.domain.resource.ResourceTableTab">
+    <constructor>
+      <arg name="resourceId" column="resourceId" javaType="String"/>
+      <arg name="label" column="label" javaType="String"/>
+      <arg name="totalCount" column="totalCount" javaType="long"/>
+      <arg name="patientCount" column="patientCount" javaType="long"/>
+      <arg name="sampleCount" column="sampleCount" javaType="long"/>
+    </constructor>
+  </resultMap>
+
+  <resultMap id="ResourceTableRowResultMap" type="org.cbioportal.domain.resource.ResourceTableRow">
+    <constructor>
+      <arg name="studyId" column="studyId" javaType="String"/>
+      <arg name="resourceId" column="resourceId" javaType="String"/>
+      <arg name="resourceDisplayName" column="resourceDisplayName" javaType="String"/>
+      <arg name="resourceType" column="resourceType" javaType="String"/>
+      <arg name="patientId" column="patientId" javaType="String"/>
+      <arg name="sampleId" column="sampleId" javaType="String"/>
+      <arg name="url" column="url" javaType="String"/>
+      <arg name="displayName" column="displayName" javaType="String"/>
+      <arg name="type" column="type" javaType="String"/>
+      <arg name="priority" column="priority" javaType="int"/>
+      <arg name="metadata" column="metadata" javaType="java.util.Map"
+           typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
+    </constructor>
+  </resultMap>
+
+  <sql id="ResourceTableFromClause">
+    FROM resource_data rdata
+    INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+    LEFT JOIN resource_definition rdef
+      ON rdef.RESOURCE_ID = rdata.RESOURCE_ID
+     AND rdef.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+  </sql>
+
+  <sql id="ResourceTableBaseFilters">
+    <where>
+      rdata.RESOURCE_ID = #{query.resourceId}
+      AND cs.CANCER_STUDY_IDENTIFIER IN
+      <foreach item="studyId" collection="query.studyIds" open="(" separator="," close=")">
+        #{studyId}
+      </foreach>
+      <if test="query.patientIds != null and !query.patientIds.isEmpty()">
+        AND rdata.PATIENT_ID IN
+        <foreach item="patientId" collection="query.patientIds" open="(" separator="," close=")">
+          #{patientId}
+        </foreach>
+      </if>
+      <if test="query.sampleIds != null and !query.sampleIds.isEmpty()">
+        AND rdata.SAMPLE_ID IN
+        <foreach item="sampleId" collection="query.sampleIds" open="(" separator="," close=")">
+          #{sampleId}
+        </foreach>
+      </if>
+      <if test="query.search != null and query.search != ''">
+        AND (
+          rdata.PATIENT_ID LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.SAMPLE_ID LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.TYPE LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.URL LIKE CONCAT('%', #{query.search}, '%')
+        )
+      </if>
+      <if test="query.filters != null and !query.filters.isEmpty()">
+        <foreach collection="query.filters" item="filter">
+          <if test="filter != null and filter.columnId != null and filter.operator != null">
+            AND
+            <choose>
+              <when test="filter.columnId == 'patientId'">
+                <include refid="ApplyStringFilterOnPatientId"/>
+              </when>
+              <when test="filter.columnId == 'sampleId'">
+                <include refid="ApplyStringFilterOnSampleId"/>
+              </when>
+              <when test="filter.columnId == 'type'">
+                <include refid="ApplyStringFilterOnType"/>
+              </when>
+              <when test="filter.columnId == 'url'">
+                <include refid="ApplyStringFilterOnUrl"/>
+              </when>
+              <when test="filter.columnId == 'displayName'">
+                <include refid="ApplyStringFilterOnDisplayName"/>
+              </when>
+              <when test="filter.columnId != null and filter.columnId.startsWith('metadata:')">
+                <bind name="metadataKey" value="filter.columnId.substring(9)"/>
+                <include refid="ApplyStringFilterOnMetadata"/>
+              </when>
+              <otherwise>
+                1 = 1
+              </otherwise>
+            </choose>
+          </if>
+        </foreach>
+      </if>
+    </where>
+  </sql>
+
+  <sql id="ApplyStringFilterOnPatientId">
+    <include refid="ApplyStringFilterTemplate">
+      <property name="column" value="rdata.PATIENT_ID"/>
+    </include>
+  </sql>
+
+  <sql id="ApplyStringFilterOnSampleId">
+    <include refid="ApplyStringFilterTemplate">
+      <property name="column" value="rdata.SAMPLE_ID"/>
+    </include>
+  </sql>
+
+  <sql id="ApplyStringFilterOnType">
+    <include refid="ApplyStringFilterTemplate">
+      <property name="column" value="rdata.TYPE"/>
+    </include>
+  </sql>
+
+  <sql id="ApplyStringFilterOnUrl">
+    <include refid="ApplyStringFilterTemplate">
+      <property name="column" value="rdata.URL"/>
+    </include>
+  </sql>
+
+  <sql id="ApplyStringFilterOnDisplayName">
+    <include refid="ApplyStringFilterTemplate">
+      <property name="column" value="rdata.DISPLAY_NAME"/>
+    </include>
+  </sql>
+
+  <sql id="ApplyStringFilterOnMetadata">
+    <choose>
+      <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
+        JSONExtractString(rdata.METADATA, #{metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
+      </when>
+      <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
+        JSONExtractString(rdata.METADATA, #{metadataKey}) IN
+        <foreach item="value" collection="filter.values" open="(" separator="," close=")">
+          #{value}
+        </foreach>
+      </when>
+      <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
+        JSONExtractString(rdata.METADATA, #{metadataKey}) != #{filter.values[0]}
+      </when>
+      <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
+        JSONExtractString(rdata.METADATA, #{metadataKey}) NOT IN
+        <foreach item="value" collection="filter.values" open="(" separator="," close=")">
+          #{value}
+        </foreach>
+      </when>
+      <when test="filter.values != null and !filter.values.isEmpty()">
+        JSONExtractString(rdata.METADATA, #{metadataKey}) = #{filter.values[0]}
+      </when>
+      <otherwise>
+        1 = 1
+      </otherwise>
+    </choose>
+  </sql>
+
+  <sql id="ApplyStringFilterTemplate">
+    <choose>
+      <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
+        ${column} LIKE CONCAT('%', #{filter.values[0]}, '%')
+      </when>
+      <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
+        ${column} IN
+        <foreach item="value" collection="filter.values" open="(" separator="," close=")">
+          #{value}
+        </foreach>
+      </when>
+      <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
+        ${column} != #{filter.values[0]}
+      </when>
+      <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
+        ${column} NOT IN
+        <foreach item="value" collection="filter.values" open="(" separator="," close=")">
+          #{value}
+        </foreach>
+      </when>
+      <when test="filter.values != null and !filter.values.isEmpty()">
+        ${column} = #{filter.values[0]}
+      </when>
+      <otherwise>
+        1 = 1
+      </otherwise>
+    </choose>
+  </sql>
+
+  <sql id="ResourceTableOrderBy">
+    <choose>
+      <when test="query.sortBy == 'studyId'">ORDER BY cs.CANCER_STUDY_IDENTIFIER</when>
+      <when test="query.sortBy == 'patientId'">ORDER BY rdata.PATIENT_ID</when>
+      <when test="query.sortBy == 'sampleId'">ORDER BY rdata.SAMPLE_ID</when>
+      <when test="query.sortBy == 'url'">ORDER BY rdata.URL</when>
+      <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME</when>
+      <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE</when>
+      <when test="query.sortBy == 'priority'">ORDER BY rdata.PRIORITY</when>
+      <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.DISPLAY_NAME</when>
+      <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
+        <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
+        ORDER BY JSONExtractString(rdata.METADATA, #{sortMetadataKey})
+      </when>
+      <otherwise>ORDER BY rdata.PRIORITY DESC, rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
+    </choose>
+    <choose>
+      <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
+      <otherwise> ASC </otherwise>
+    </choose>
+  </sql>
+
+  <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">
+    SELECT
+      rdata.RESOURCE_ID AS resourceId,
+      coalesce(any(rdef.DISPLAY_NAME), rdata.RESOURCE_ID) AS label,
+      count(*) AS totalCount,
+      count(DISTINCT if(rdata.PATIENT_ID IS NULL, NULL, rdata.PATIENT_ID)) AS patientCount,
+      count(DISTINCT if(rdata.SAMPLE_ID IS NULL, NULL, rdata.SAMPLE_ID)) AS sampleCount
+    FROM resource_data rdata
+    INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+    LEFT JOIN resource_definition rdef
+      ON rdef.RESOURCE_ID = rdata.RESOURCE_ID
+     AND rdef.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+    <where>
+      cs.CANCER_STUDY_IDENTIFIER IN
+      <foreach item="studyId" collection="request.studyIds" open="(" separator="," close=")">
+        #{studyId}
+      </foreach>
+      <if test="request.patientIds != null and !request.patientIds.isEmpty()">
+        AND rdata.PATIENT_ID IN
+        <foreach item="patientId" collection="request.patientIds" open="(" separator="," close=")">
+          #{patientId}
+        </foreach>
+      </if>
+      <if test="request.sampleIds != null and !request.sampleIds.isEmpty()">
+        AND rdata.SAMPLE_ID IN
+        <foreach item="sampleId" collection="request.sampleIds" open="(" separator="," close=")">
+          #{sampleId}
+        </foreach>
+      </if>
+    </where>
+    GROUP BY rdata.RESOURCE_ID
+    ORDER BY resourceId
+  </select>
+
+  <select id="getResourceTableRows" resultMap="ResourceTableRowResultMap">
+    SELECT
+      cs.CANCER_STUDY_IDENTIFIER AS studyId,
+      rdata.RESOURCE_ID AS resourceId,
+      coalesce(rdef.DISPLAY_NAME, rdata.RESOURCE_ID) AS resourceDisplayName,
+      rdata.ENTITY_TYPE AS resourceType,
+      rdata.PATIENT_ID AS patientId,
+      rdata.SAMPLE_ID AS sampleId,
+      rdata.URL AS url,
+      rdata.DISPLAY_NAME AS displayName,
+      rdata.TYPE AS type,
+      rdata.PRIORITY AS priority,
+      rdata.METADATA AS metadata
+    <include refid="ResourceTableFromClause"/>
+    <include refid="ResourceTableBaseFilters"/>
+    <include refid="ResourceTableOrderBy"/>
+    LIMIT #{query.limit} OFFSET #{query.offset}
+  </select>
+
+  <select id="getResourceTableRowCount" resultType="long">
+    SELECT count(*)
+    <include refid="ResourceTableFromClause"/>
+    <include refid="ResourceTableBaseFilters"/>
+  </select>
+
+  <select id="getResourceTablePatientCount" resultType="long">
+    SELECT count(DISTINCT sub.PATIENT_ID) FROM (
+      SELECT rdata.PATIENT_ID, rdata.ENTITY_TYPE
+      <include refid="ResourceTableFromClause"/>
+      <include refid="ResourceTableBaseFilters"/>
+    ) sub
+    WHERE sub.PATIENT_ID IS NOT NULL AND sub.ENTITY_TYPE IN ('PATIENT', 'SAMPLE')
+  </select>
+
+  <select id="getResourceTableSampleCount" resultType="long">
+    SELECT count(DISTINCT sub.SAMPLE_ID) FROM (
+      SELECT rdata.SAMPLE_ID, rdata.ENTITY_TYPE
+      <include refid="ResourceTableFromClause"/>
+      <include refid="ResourceTableBaseFilters"/>
+    ) sub
+    WHERE sub.SAMPLE_ID IS NOT NULL AND sub.ENTITY_TYPE = 'SAMPLE'
+  </select>
+</mapper>

@@ -65,9 +65,8 @@ public class ColumnStoreMutationController {
    * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or
    * entrezGeneIds
    *
-   * @param mutationMultipleStudyFilterFromBody request body filter used by this hidden endpoint
-   * @param mutationMultipleStudyFilter filter containing patient/sample identifiers and attribute
-   *     IDs
+   * @param interceptedMutationMultipleStudyFilter security-intercepted filter for permission
+   *     validation
    * @param projection level of detail for the response data
    * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
    *     for META projection
@@ -84,18 +83,14 @@ public class ColumnStoreMutationController {
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
-      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
-          @Valid
-          @RequestBody(required = false)
-          MutationMultipleStudyFilter mutationMultipleStudyFilterFromBody,
       @Parameter(
-              required = true,
-              description =
-                  "List of Molecular Profile IDs or List of Molecular Profile ID / Sample ID pairs,"
-                      + " and List of Entrez Gene IDs")
+              hidden =
+                  true) // prevent reference to this attribute in the swagger-ui interface. this
+          // attribute is needed for now but was needed previously for @PreAuthorize .
           @Valid
           @RequestBody(required = false)
-          MutationMultipleStudyFilter mutationMultipleStudyFilter,
+          MutationMultipleStudyFilter
+              interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection,
@@ -117,7 +112,9 @@ public class ColumnStoreMutationController {
     if (projection == ProjectionType.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       MutationMeta mutationMeta =
-          mutationUseCases.fetchMetaMutationsUseCase().execute(mutationMultipleStudyFilterFromBody);
+          mutationUseCases
+              .fetchMetaMutationsUseCase()
+              .execute(interceptedMutationMultipleStudyFilter);
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
@@ -134,7 +131,7 @@ public class ColumnStoreMutationController {
         MutationMapper.INSTANCE.toDTOs(
             mutationUseCases
                 .fetchAllMutationsInProfileUseCase()
-                .execute(mutationMultipleStudyFilterFromBody, mutationQueryOptions));
+                .execute(interceptedMutationMultipleStudyFilter, mutationQueryOptions));
     return ResponseEntity.ok(mutations);
   }
 }

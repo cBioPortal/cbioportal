@@ -79,6 +79,7 @@ import org.cbioportal.legacy.web.parameter.SurvivalRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 public class InvolvedCancerStudyExtractorInterceptor implements HandlerInterceptor {
@@ -89,6 +90,12 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
 
   private static final Logger LOG =
       LoggerFactory.getLogger(InvolvedCancerStudyExtractorInterceptor.class);
+
+  // Column-store (ClickHouse) controllers perform their own authorization and were never subject to
+  // this interceptor before they took over the legacy fetch paths. Skip them to avoid the
+  // unnecessary request-body parsing this interceptor performs.
+  private static final String COLUMN_STORE_CONTROLLER_PACKAGE =
+      "org.cbioportal.application.rest.vcolumnstore";
   public static final String PATIENT_FETCH_PATH = "/patients/fetch";
   public static final String SAMPLE_FETCH_PATH = "/samples/fetch";
   public static final String MOLECULAR_PROFILE_FETCH_PATH = "/molecular-profiles/fetch";
@@ -161,6 +168,14 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
+    if (handler instanceof HandlerMethod
+        && ((HandlerMethod) handler)
+            .getBeanType()
+            .getPackageName()
+            .startsWith(COLUMN_STORE_CONTROLLER_PACKAGE)) {
+      return true; // column-store endpoints handle their own authorization; not subject to this
+      // interceptor
+    }
     if (!request.getMethod().equals("POST")) {
       return true; // no attribute extraction needed because all user supplied filter objects are in
       // POST requests

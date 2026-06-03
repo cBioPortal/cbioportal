@@ -65,8 +65,7 @@ public class ColumnStoreMutationController {
    * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or
    * entrezGeneIds
    *
-   * @param interceptedMutationMultipleStudyFilter security-intercepted filter for permission
-   *     validation
+   * @param mutationMultipleStudyFilterFromBody request body filter used by this hidden endpoint
    * @param mutationMultipleStudyFilter filter containing patient/sample identifiers and attribute
    *     IDs
    * @param projection level of detail for the response data
@@ -85,14 +84,10 @@ public class ColumnStoreMutationController {
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
-      @Parameter(
-              hidden =
-                  true) // prevent reference to this attribute in the swagger-ui interface. this
-          // attribute is needed for now but was needed previously for @PreAuthorize .
+      @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @Valid
           @RequestBody(required = false)
-          MutationMultipleStudyFilter
-              interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this
+          MutationMultipleStudyFilter mutationMultipleStudyFilterFromBody,
       @Parameter(
               required = true,
               description =
@@ -122,9 +117,7 @@ public class ColumnStoreMutationController {
     if (projection == ProjectionType.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       MutationMeta mutationMeta =
-          mutationUseCases
-              .fetchMetaMutationsUseCase()
-              .execute(interceptedMutationMultipleStudyFilter);
+          mutationUseCases.fetchMetaMutationsUseCase().execute(mutationMultipleStudyFilterFromBody);
       responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
@@ -141,7 +134,7 @@ public class ColumnStoreMutationController {
         MutationMapper.INSTANCE.toDTOs(
             mutationUseCases
                 .fetchAllMutationsInProfileUseCase()
-                .execute(interceptedMutationMultipleStudyFilter, mutationQueryOptions));
+                .execute(mutationMultipleStudyFilterFromBody, mutationQueryOptions));
     return ResponseEntity.ok(mutations);
   }
 }

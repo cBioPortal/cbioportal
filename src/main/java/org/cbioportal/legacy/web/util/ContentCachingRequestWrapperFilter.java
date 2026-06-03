@@ -12,7 +12,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
  * Filter that wraps the request in a {@link ContentCachingRequestWrapper} to allow multiple reads
  * of the request body. For controllers that receive study view data filters, the first read is done
  * by {@link InvolvedCancerStudyExtractorInterceptor} security interceptor to extract involved study
- * ids to apply autorization, and the second read will be done by the actual controller.
+ * ids to apply authorization, and the second read will be done by the actual controller.
  *
  * <p>Example of use: For controllers that receive study view data filters, the first read is
  * performed by the {@link InvolvedCancerStudyExtractorInterceptor} security interceptor. This

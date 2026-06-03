@@ -168,8 +168,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
   @Override
   public boolean preHandle(
       HttpServletRequest request, HttpServletResponse response, Object handler) {
-    if (handler instanceof HandlerMethod
-        && ((HandlerMethod) handler)
+    if (handler instanceof HandlerMethod handlerMethod
+        && handlerMethod
             .getBeanType()
             .getPackageName()
             .startsWith(COLUMN_STORE_CONTROLLER_PACKAGE)) {

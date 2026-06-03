@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataMapper;
 import org.cbioportal.application.rest.response.ClinicalDataDTO;
@@ -27,7 +26,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -121,9 +119,6 @@ public class ColumnStoreClinicalDataController {
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
   public ResponseEntity<List<ClinicalDataDTO>> fetchClinicalData(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "interceptedClinicalDataMultiStudyFilter")
-          ClinicalDataMultiStudyFilter interceptedClinicalDataMultiStudyFilter,
       @Parameter(description = "Type of the clinical data") @RequestParam(defaultValue = "SAMPLE")
           ClinicalDataType clinicalDataType,
       @Parameter(
@@ -136,27 +131,18 @@ public class ColumnStoreClinicalDataController {
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection) {
 
-    // Use the filter parsed by InvolvedCancerStudyExtractorInterceptor as fallback when
-    // @RequestBody
-    // is null (e.g. body already consumed by the interceptor before Spring MVC re-reads it).
-    ClinicalDataMultiStudyFilter filter =
-        clinicalDataMultiStudyFilter != null
-            ? clinicalDataMultiStudyFilter
-            : interceptedClinicalDataMultiStudyFilter;
-
-    if (filter == null) {
-      return ResponseEntity.ok(Collections.emptyList());
-    }
-
     if (projection == ProjectionType.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
-          fetchClinicalDataMetaUseCase.execute(filter, clinicalDataType).toString());
+          fetchClinicalDataMetaUseCase
+              .execute(clinicalDataMultiStudyFilter, clinicalDataType)
+              .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     }
     return ResponseEntity.ok(
         ClinicalDataMapper.INSTANCE.toDTOs(
-            fetchClinicalDataUseCase.execute(filter, clinicalDataType, projection)));
+            fetchClinicalDataUseCase.execute(
+                clinicalDataMultiStudyFilter, clinicalDataType, projection)));
   }
 }

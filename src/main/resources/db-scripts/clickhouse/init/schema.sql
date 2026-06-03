@@ -555,7 +555,7 @@ CREATE TABLE 'embeddings'(
                              'DESCRIPTION' String,
                              'EMBEDDING_TYPE' String,
                              'REDUCTION_TECHNIQUE' String
-) ENGINE = MergeTree ORDER BY (EMBEDDING_ID);;
+) ENGINE = MergeTree ORDER BY (EMBEDDING_ID);
 
 CREATE TABLE 'embedding_data'(
                                  'EMBEDDING_ID' Int32,
@@ -565,6 +565,6 @@ CREATE TABLE 'embedding_data'(
                                  'Y' Float32,
                                  'CUSTOM_ATTRIBUTED' JSON,
                                  'STUDY_ID' String
-) ENGINE = MergeTree ORDER BY (STUDY_ID, EMBEDDING_ID, PATIENT_ID, SAMPLE_ID);;
+) ENGINE = MergeTree ORDER BY (STUDY_ID, EMBEDDING_ID, PATIENT_ID, SAMPLE_ID);
 
 INSERT INTO info (`db_schema_version`, `geneset_version`, `derived_table_schema_version`, `gene_table_version`) VALUES ('2.14.5', 'msigdb_v2025.1.Hs', '1.0.9', 'hgnc_v7_2025.10.7');

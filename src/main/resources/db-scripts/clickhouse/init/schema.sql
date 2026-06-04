@@ -548,7 +548,7 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-CREATE TABLE 'embeddings'(
+CREATE TABLE embeddings(
                              'EMBEDDING_ID' Int32,
                              'SHORT_NAME' String,
                              'NAME' String,
@@ -557,7 +557,7 @@ CREATE TABLE 'embeddings'(
                              'REDUCTION_TECHNIQUE' String
 ) ENGINE = MergeTree ORDER BY (EMBEDDING_ID);
 
-CREATE TABLE 'embedding_data'(
+CREATE TABLE embedding_data(
                                  'EMBEDDING_ID' Int32,
                                  'PATIENT_ID' String,
                                  'SAMPLE_ID' Nullable(String),

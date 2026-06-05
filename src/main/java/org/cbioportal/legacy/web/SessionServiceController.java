@@ -237,7 +237,7 @@ public class SessionServiceController {
       @PathVariable String id,
       @PathVariable Operation operation,
       HttpServletResponse response)
-      throws IOException {
+      throws Exception {
 
     if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
       Serializable payload;

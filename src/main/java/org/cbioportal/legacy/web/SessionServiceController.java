@@ -125,6 +125,7 @@ public class SessionServiceController {
         payload = virtualStudyData;
       } else if (type.equals(Session.SessionType.settings)) {
         if (!(isAuthorized())) {
+          LOG.warn("Refusing to create settings session: user is not authenticated");
           return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
         Class<? extends PageSettingsData> pageDataClass =
@@ -148,6 +149,7 @@ public class SessionServiceController {
         payload = customData;
       } else if (type.equals(Session.SessionType.custom_gene_list)) {
         if (!(isAuthorized())) {
+          LOG.warn("Refusing to create custom gene list session: user is not authenticated");
           return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
         }
         CustomGeneListData customGeneListData =
@@ -164,7 +166,7 @@ public class SessionServiceController {
       return sessionServiceRequestHandler.createSession(type, payload);
 
     } catch (IOException e) {
-      LOG.error("Error occurred", e);
+      LOG.error("Failed to create session of type '{}'", type, e);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
@@ -198,10 +200,10 @@ public class SessionServiceController {
       }
       return new ResponseEntity<>(session, HttpStatus.OK);
     } catch (HttpClientErrorException.NotFound exception) {
-      LOG.error("Session not found", exception);
+      LOG.error("Session not found: type='{}', id='{}'", type, id, exception);
       return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     } catch (Exception exception) {
-      LOG.error("Error occurred", exception);
+      LOG.error("Failed to get session: type='{}', id='{}'", type, id, exception);
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -304,6 +306,10 @@ public class SessionServiceController {
 
       response.sendError(HttpStatus.OK.value());
     } else {
+      LOG.warn(
+          "Refusing to update users in session: session service not enabled or user is not authenticated: type='{}', id='{}'",
+          type,
+          id);
       response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
@@ -338,6 +344,7 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
       return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
     }
+    LOG.warn("Refusing to fetch user groups: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -365,10 +372,12 @@ public class SessionServiceController {
         }
         response.setStatus(HttpStatus.OK.value());
       } else {
+        LOG.warn(
+            "Refusing to update page settings: session service not enabled or user is not authenticated");
         response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
       }
     } catch (IOException | ParseException e) {
-      LOG.error("Error occurred", e);
+      LOG.error("Failed to update page settings", e);
       response.setStatus(HttpStatus.BAD_REQUEST.value());
     }
   }
@@ -394,9 +403,14 @@ public class SessionServiceController {
         sessionServiceRequestHandler.updatePageSettings(type, pageSettings.getId(), body);
         response.setStatus(HttpStatus.OK.value());
       } else {
+        LOG.warn(
+            "Refusing to update page settings for session '{}': user '{}' is not the owner or origin does not match",
+            pageSettings.getId(),
+            userName());
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
       }
     } else {
+      LOG.warn("Refusing to update page settings session: user is not authenticated");
       response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
@@ -419,9 +433,11 @@ public class SessionServiceController {
         return new ResponseEntity<>(
             pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
       }
+      LOG.warn(
+          "Refusing to fetch page settings: session service not enabled or user is not authenticated");
       return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
     } catch (Exception e) {
-      LOG.error("Error occurred", e);
+      LOG.error("Failed to fetch page settings", e);
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
@@ -442,6 +458,7 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);
       return new ResponseEntity<>(customDataSessionList, HttpStatus.OK);
     }
+    LOG.warn("Refusing to fetch custom properties: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -469,6 +486,7 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomGeneListsForUser(userName());
       return new ResponseEntity<>(customGeneLists, HttpStatus.OK);
     }
+    LOG.warn("Refusing to fetch custom gene lists: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 }

@@ -195,14 +195,11 @@ public class SessionServiceController {
           @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
   public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
-    if (!sessionServiceRequestHandler.isSessionServiceEnabled()) {
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
+      List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
+      return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
     }
-    if (!isAuthorized()) {
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-    List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
-    return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
+    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
   }
 
   @RequestMapping(value = "/{type}", method = RequestMethod.POST)

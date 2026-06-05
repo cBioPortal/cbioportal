@@ -50,11 +50,9 @@ public class GlobalExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-  @ExceptionHandler(HttpClientErrorException.NotFound.class)
-  public ResponseEntity<ErrorResponse> handleHttpClientErrorNotFound(
-      HttpClientErrorException.NotFound ex) {
-    return new ResponseEntity<>(
-        new ErrorResponse("Requested session not found"), HttpStatus.NOT_FOUND);
+  @ExceptionHandler(HttpClientErrorException.class)
+  public ResponseEntity<ErrorResponse> handleHttpClientError(HttpClientErrorException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), ex.getStatusCode());
   }
 
   @ExceptionHandler(UnsupportedOperationException.class)

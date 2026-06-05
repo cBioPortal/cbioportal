@@ -55,13 +55,13 @@ public class SessionServiceRequestHandler {
   @Value("${session.service.password:}")
   private String sessionServicePassword;
 
-  private Boolean isBasicAuthEnabled() {
+  private boolean isBasicAuthEnabled() {
     return isSessionServiceEnabled()
         && sessionServicePassword != null
         && !sessionServicePassword.equals("");
   }
 
-  public Boolean isSessionServiceEnabled() {
+  public boolean isSessionServiceEnabled() {
     return !StringUtils.isEmpty(sessionServiceURL);
   }
 

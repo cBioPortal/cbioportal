@@ -214,16 +214,22 @@ public class SessionServiceController {
           @Content(array = @ArraySchema(schema = @Schema(implementation = VirtualStudy.class))))
   public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
-    if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-      try {
-        List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
-        return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
-      } catch (Exception exception) {
-        LOG.error("Error occurred", exception);
-        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
+    if (!sessionServiceRequestHandler.isSessionServiceEnabled()) {
+      LOG.error(
+          "Failed to get virtual studies: session service is not enabled (session.service.url is not configured)");
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    if (!isAuthorized()) {
+      LOG.error("Failed to get virtual studies: user is not authenticated");
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    try {
+      List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
+      return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
+    } catch (Exception exception) {
+      LOG.error("Failed to get virtual studies for user '{}'", userName(), exception);
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @RequestMapping(value = "/{type}", method = RequestMethod.POST)

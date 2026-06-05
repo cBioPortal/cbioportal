@@ -344,7 +344,8 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
       return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
     }
-    LOG.warn("Refusing to fetch user groups: session service not enabled or user is not authenticated");
+    LOG.warn(
+        "Refusing to fetch user groups: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -458,7 +459,8 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);
       return new ResponseEntity<>(customDataSessionList, HttpStatus.OK);
     }
-    LOG.warn("Refusing to fetch custom properties: session service not enabled or user is not authenticated");
+    LOG.warn(
+        "Refusing to fetch custom properties: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -486,7 +488,8 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomGeneListsForUser(userName());
       return new ResponseEntity<>(customGeneLists, HttpStatus.OK);
     }
-    LOG.warn("Refusing to fetch custom gene lists: session service not enabled or user is not authenticated");
+    LOG.warn(
+        "Refusing to fetch custom gene lists: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 }

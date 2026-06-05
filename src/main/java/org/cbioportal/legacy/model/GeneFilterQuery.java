@@ -4,14 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.cbioportal.legacy.model.util.Select;
 
 public class GeneFilterQuery extends BaseAlterationFilter implements Serializable {
-
-  private static final String GENE_QUERY_PATTERN =
-      "^(\\w+)[\\s]*?(?:\\:(?:[\\s]*(?:(AMP)|(GAIN)|(DIPLOID)|(HETLOSS)|(HOMDEL))\\b)+)?$";
 
   private String hugoGeneSymbol;
   private Integer entrezGeneId;
@@ -53,16 +48,18 @@ public class GeneFilterQuery extends BaseAlterationFilter implements Serializabl
    */
   @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
   public static GeneFilterQuery fromString(String geneQueryString) {
-    Matcher matcher = Pattern.compile(GENE_QUERY_PATTERN).matcher(geneQueryString.trim());
-    if (!matcher.find()) {
+    String[] parts = geneQueryString.trim().split(":");
+    String hugoGeneSymbol = parts[0].trim();
+    if (hugoGeneSymbol.isEmpty()) {
       throw new IllegalArgumentException(
           "Cannot parse gene query string: '" + geneQueryString + "'");
     }
-    String hugoGeneSymbol = matcher.group(1);
     List<CNA> alterations = new ArrayList<>();
-    for (int i = 2; i <= matcher.groupCount(); i++) {
-      if (matcher.group(i) != null) {
-        alterations.add(CNA.valueOf(matcher.group(i)));
+    for (int i = 1; i < parts.length; i++) {
+      for (String token : parts[i].trim().split("\\s+")) {
+        if (!token.isEmpty()) {
+          alterations.add(CNA.valueOf(token.toUpperCase()));
+        }
       }
     }
     GeneFilterQuery query = new GeneFilterQuery();

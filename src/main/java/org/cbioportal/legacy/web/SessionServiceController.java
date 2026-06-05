@@ -39,8 +39,6 @@ import org.cbioportal.legacy.web.parameter.VirtualStudyData;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -55,8 +53,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 @RequestMapping("/api/session")
 public class SessionServiceController {
-
-  private static final Logger LOG = LoggerFactory.getLogger(SessionServiceController.class);
 
   SessionServiceRequestHandler sessionServiceRequestHandler;
 
@@ -123,7 +119,6 @@ public class SessionServiceController {
       payload = virtualStudyData;
     } else if (type.equals(Session.SessionType.settings)) {
       if (!(isAuthorized())) {
-        LOG.warn("Refusing to create settings session: user is not authenticated");
         return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
       }
       Class<? extends PageSettingsData> pageDataClass =
@@ -147,7 +142,6 @@ public class SessionServiceController {
       payload = customData;
     } else if (type.equals(Session.SessionType.custom_gene_list)) {
       if (!(isAuthorized())) {
-        LOG.warn("Refusing to create custom gene list session: user is not authenticated");
         return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
       }
       CustomGeneListData customGeneListData =
@@ -202,12 +196,9 @@ public class SessionServiceController {
   public ResponseEntity<List<VirtualStudy>> getUserStudies() throws JsonProcessingException {
 
     if (!sessionServiceRequestHandler.isSessionServiceEnabled()) {
-      LOG.error(
-          "Failed to get virtual studies: session service is not enabled (session.service.url is not configured)");
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
     if (!isAuthorized()) {
-      LOG.error("Failed to get virtual studies: user is not authenticated");
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
     List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
@@ -286,10 +277,6 @@ public class SessionServiceController {
 
       response.sendError(HttpStatus.OK.value());
     } else {
-      LOG.warn(
-          "Refusing to update users in session: session service not enabled or user is not authenticated: type='{}', id='{}'",
-          type,
-          id);
       response.sendError(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
@@ -324,8 +311,6 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getVirtualStudiesForUser(userName(), studyIds);
       return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
     }
-    LOG.warn(
-        "Refusing to fetch user groups: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -353,8 +338,6 @@ public class SessionServiceController {
       }
       response.setStatus(HttpStatus.OK.value());
     } else {
-      LOG.warn(
-          "Refusing to update page settings: session service not enabled or user is not authenticated");
       response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
@@ -380,14 +363,9 @@ public class SessionServiceController {
         sessionServiceRequestHandler.updatePageSettings(type, pageSettings.getId(), body);
         response.setStatus(HttpStatus.OK.value());
       } else {
-        LOG.warn(
-            "Refusing to update page settings for session '{}': user '{}' is not the owner or origin does not match",
-            pageSettings.getId(),
-            userName());
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
       }
     } else {
-      LOG.warn("Refusing to update page settings session: user is not authenticated");
       response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
@@ -409,8 +387,6 @@ public class SessionServiceController {
       return new ResponseEntity<>(
           pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
     }
-    LOG.warn(
-        "Refusing to fetch page settings: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -430,8 +406,6 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomDataSessionForUser(userName(), studyIds);
       return new ResponseEntity<>(customDataSessionList, HttpStatus.OK);
     }
-    LOG.warn(
-        "Refusing to fetch custom properties: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
@@ -459,8 +433,6 @@ public class SessionServiceController {
           sessionServiceRequestHandler.getCustomGeneListsForUser(userName());
       return new ResponseEntity<>(customGeneLists, HttpStatus.OK);
     }
-    LOG.warn(
-        "Refusing to fetch custom gene lists: session service not enabled or user is not authenticated");
     return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 }

@@ -51,7 +51,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.client.HttpClientErrorException;
 
 @Controller
 @RequestMapping("/api/session")
@@ -98,77 +97,71 @@ public class SessionServiceController {
   }
 
   private ResponseEntity<Session> addSession(
-      Session.SessionType type, Optional<SessionOperation> operation, JSONObject body) {
-    try {
-      Serializable payload;
-      if (type.equals(Session.SessionType.virtual_study)
-          || type.equals(Session.SessionType.group)) {
-        // JSON from file to Object
-        VirtualStudyData virtualStudyData =
-            sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
-        // TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
+      Session.SessionType type, Optional<SessionOperation> operation, JSONObject body)
+      throws IOException {
+    Serializable payload;
+    if (type.equals(Session.SessionType.virtual_study) || type.equals(Session.SessionType.group)) {
+      // JSON from file to Object
+      VirtualStudyData virtualStudyData =
+          sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
+      // TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
 
-        if (isAuthorized()) {
-          String userName = userName();
-          if (userName.equals(ALL_USERS)) {
-            throw new IllegalStateException(
-                "Illegal username " + ALL_USERS + " for assigning virtual studies.");
-          }
-          virtualStudyData.setOwner(userName);
-          if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
-              || type.equals(Session.SessionType.group)) {
-            virtualStudyData.setUsers(Collections.singleton(userName));
-          }
+      if (isAuthorized()) {
+        String userName = userName();
+        if (userName.equals(ALL_USERS)) {
+          throw new IllegalStateException(
+              "Illegal username " + ALL_USERS + " for assigning virtual studies.");
         }
-
-        // use basic authentication for session service if set
-        payload = virtualStudyData;
-      } else if (type.equals(Session.SessionType.settings)) {
-        if (!(isAuthorized())) {
-          LOG.warn("Refusing to create settings session: user is not authenticated");
-          return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        virtualStudyData.setOwner(userName);
+        if ((operation.isPresent() && operation.get().equals(SessionOperation.save))
+            || type.equals(Session.SessionType.group)) {
+          virtualStudyData.setUsers(Collections.singleton(userName));
         }
-        Class<? extends PageSettingsData> pageDataClass =
-            pageToSettingsDataClass.get(SessionPage.valueOf((String) body.get("page")));
-        PageSettingsData pageSettings =
-            sessionServiceObjectMapper.readValue(body.toString(), pageDataClass);
-        pageSettings.setOwner(userName());
-        payload = pageSettings;
-
-      } else if (type.equals(Session.SessionType.custom_data)) {
-        // JSON from file to Object
-        CustomAttributeWithData customData =
-            sessionServiceObjectMapper.readValue(body.toString(), CustomAttributeWithData.class);
-
-        if (isAuthorized()) {
-          customData.setOwner(userName());
-          customData.setUsers(Collections.singleton(userName()));
-        }
-
-        // use basic authentication for session service if set
-        payload = customData;
-      } else if (type.equals(Session.SessionType.custom_gene_list)) {
-        if (!(isAuthorized())) {
-          LOG.warn("Refusing to create custom gene list session: user is not authenticated");
-          return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-        }
-        CustomGeneListData customGeneListData =
-            sessionServiceObjectMapper.readValue(body.toString(), CustomGeneListData.class);
-        customGeneListData.setUsers(Collections.singleton(userName()));
-        payload = customGeneListData;
-      } else {
-        payload = body;
       }
-      // returns {"id":"5799648eef86c0e807a2e965"}
-      // using HashMap because converter is MappingJackson2HttpMessageConverter
-      // (Jackson 2 is on classpath)
-      // was String when default converter StringHttpMessageConverter was used
-      return sessionServiceRequestHandler.createSession(type, payload);
 
-    } catch (IOException e) {
-      LOG.error("Failed to create session of type '{}'", type, e);
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+      // use basic authentication for session service if set
+      payload = virtualStudyData;
+    } else if (type.equals(Session.SessionType.settings)) {
+      if (!(isAuthorized())) {
+        LOG.warn("Refusing to create settings session: user is not authenticated");
+        return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+      }
+      Class<? extends PageSettingsData> pageDataClass =
+          pageToSettingsDataClass.get(SessionPage.valueOf((String) body.get("page")));
+      PageSettingsData pageSettings =
+          sessionServiceObjectMapper.readValue(body.toString(), pageDataClass);
+      pageSettings.setOwner(userName());
+      payload = pageSettings;
+
+    } else if (type.equals(Session.SessionType.custom_data)) {
+      // JSON from file to Object
+      CustomAttributeWithData customData =
+          sessionServiceObjectMapper.readValue(body.toString(), CustomAttributeWithData.class);
+
+      if (isAuthorized()) {
+        customData.setOwner(userName());
+        customData.setUsers(Collections.singleton(userName()));
+      }
+
+      // use basic authentication for session service if set
+      payload = customData;
+    } else if (type.equals(Session.SessionType.custom_gene_list)) {
+      if (!(isAuthorized())) {
+        LOG.warn("Refusing to create custom gene list session: user is not authenticated");
+        return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+      }
+      CustomGeneListData customGeneListData =
+          sessionServiceObjectMapper.readValue(body.toString(), CustomGeneListData.class);
+      customGeneListData.setUsers(Collections.singleton(userName()));
+      payload = customGeneListData;
+    } else {
+      payload = body;
     }
+    // returns {"id":"5799648eef86c0e807a2e965"}
+    // using HashMap because converter is MappingJackson2HttpMessageConverter
+    // (Jackson 2 is on classpath)
+    // was String when default converter StringHttpMessageConverter was used
+    return sessionServiceRequestHandler.createSession(type, payload);
   }
 
   @RequestMapping(value = "/{type}/{id}", method = RequestMethod.GET)
@@ -177,35 +170,27 @@ public class SessionServiceController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = Session.class)))
   public ResponseEntity<Session> getSession(
-      @PathVariable Session.SessionType type, @PathVariable String id) {
+      @PathVariable Session.SessionType type, @PathVariable String id) throws Exception {
 
-    try {
-      String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
-      Session session;
-      switch (type) {
-        case virtual_study:
-          session = virtualStudyService.getVirtualStudy(id);
-          break;
-        case settings:
-          session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
-          break;
-        case custom_data:
-          session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomDataSession.class);
-          break;
-        case custom_gene_list:
-          session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomGeneList.class);
-          break;
-        default:
-          session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
-      }
-      return new ResponseEntity<>(session, HttpStatus.OK);
-    } catch (HttpClientErrorException.NotFound exception) {
-      LOG.error("Session not found: type='{}', id='{}'", type, id, exception);
-      return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    } catch (Exception exception) {
-      LOG.error("Failed to get session: type='{}', id='{}'", type, id, exception);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    String sessionDataJson = sessionServiceRequestHandler.getSessionDataJson(type, id);
+    Session session;
+    switch (type) {
+      case virtual_study:
+        session = virtualStudyService.getVirtualStudy(id);
+        break;
+      case settings:
+        session = sessionServiceObjectMapper.readValue(sessionDataJson, PageSettings.class);
+        break;
+      case custom_data:
+        session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomDataSession.class);
+        break;
+      case custom_gene_list:
+        session = sessionServiceObjectMapper.readValue(sessionDataJson, CustomGeneList.class);
+        break;
+      default:
+        session = sessionServiceObjectMapper.readValue(sessionDataJson, Session.class);
     }
+    return new ResponseEntity<>(session, HttpStatus.OK);
   }
 
   @RequestMapping(value = "/virtual_study", method = RequestMethod.GET)
@@ -225,13 +210,8 @@ public class SessionServiceController {
       LOG.error("Failed to get virtual studies: user is not authenticated");
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    try {
-      List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
-      return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
-    } catch (Exception exception) {
-      LOG.error("Failed to get virtual studies for user '{}'", userName(), exception);
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    List<VirtualStudy> virtualStudyList = virtualStudyService.getUserVirtualStudies(userName());
+    return new ResponseEntity<>(virtualStudyList, HttpStatus.OK);
   }
 
   @RequestMapping(value = "/{type}", method = RequestMethod.POST)
@@ -351,35 +331,31 @@ public class SessionServiceController {
 
   @RequestMapping(value = "/settings", method = RequestMethod.POST)
   public void updateUserPageSettings(
-      @RequestBody PageSettingsData settingsData, HttpServletResponse response) {
+      @RequestBody PageSettingsData settingsData, HttpServletResponse response)
+      throws IOException, ParseException {
 
-    try {
-      ObjectMapper objectMapper =
-          new ObjectMapper()
-              .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-              .setSerializationInclusion(Include.NON_NULL);
-      if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-        PageSettings pageSettings =
-            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
-                userName(), settingsData.getOrigin(), settingsData.getPage().name());
-        JSONParser parser = new JSONParser();
-        JSONObject jsonObject =
-            (JSONObject) parser.parse(objectMapper.writeValueAsString(settingsData));
+    ObjectMapper objectMapper =
+        new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .setSerializationInclusion(Include.NON_NULL);
+    if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
+      PageSettings pageSettings =
+          sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
+              userName(), settingsData.getOrigin(), settingsData.getPage().name());
+      JSONParser parser = new JSONParser();
+      JSONObject jsonObject =
+          (JSONObject) parser.parse(objectMapper.writeValueAsString(settingsData));
 
-        if (pageSettings == null) {
-          addSession(Session.SessionType.settings, Optional.empty(), jsonObject);
-        } else {
-          updatedPageSettingSession(pageSettings, settingsData, response);
-        }
-        response.setStatus(HttpStatus.OK.value());
+      if (pageSettings == null) {
+        addSession(Session.SessionType.settings, Optional.empty(), jsonObject);
       } else {
-        LOG.warn(
-            "Refusing to update page settings: session service not enabled or user is not authenticated");
-        response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
+        updatedPageSettingSession(pageSettings, settingsData, response);
       }
-    } catch (IOException | ParseException e) {
-      LOG.error("Failed to update page settings", e);
-      response.setStatus(HttpStatus.BAD_REQUEST.value());
+      response.setStatus(HttpStatus.OK.value());
+    } else {
+      LOG.warn(
+          "Refusing to update page settings: session service not enabled or user is not authenticated");
+      response.setStatus(HttpStatus.SERVICE_UNAVAILABLE.value());
     }
   }
 
@@ -424,23 +400,18 @@ public class SessionServiceController {
   public ResponseEntity<PageSettingsData> getPageSettings(
       @RequestBody PageSettingsIdentifier pageSettingsIdentifier) {
 
-    try {
-      if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
-        PageSettings pageSettings =
-            sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
-                userName(),
-                pageSettingsIdentifier.getOrigin(),
-                pageSettingsIdentifier.getPage().name());
-        return new ResponseEntity<>(
-            pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
-      }
-      LOG.warn(
-          "Refusing to fetch page settings: session service not enabled or user is not authenticated");
-      return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
-    } catch (Exception e) {
-      LOG.error("Failed to fetch page settings", e);
-      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    if (sessionServiceRequestHandler.isSessionServiceEnabled() && isAuthorized()) {
+      PageSettings pageSettings =
+          sessionServiceRequestHandler.getRecentlyUpdatePageSettings(
+              userName(),
+              pageSettingsIdentifier.getOrigin(),
+              pageSettingsIdentifier.getPage().name());
+      return new ResponseEntity<>(
+          pageSettings == null ? null : pageSettings.getData(), HttpStatus.OK);
     }
+    LOG.warn(
+        "Refusing to fetch page settings: session service not enabled or user is not authenticated");
+    return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
   }
 
   @RequestMapping(value = "/custom_data/fetch", method = RequestMethod.POST)

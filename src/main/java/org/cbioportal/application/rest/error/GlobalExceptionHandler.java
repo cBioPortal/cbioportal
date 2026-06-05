@@ -40,6 +40,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 
 // TODO
 // - consider extending extends ResponseEntityExceptionHandler
@@ -48,6 +49,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+  @ExceptionHandler(HttpClientErrorException.NotFound.class)
+  public ResponseEntity<ErrorResponse> handleHttpClientErrorNotFound(
+      HttpClientErrorException.NotFound ex) {
+    return new ResponseEntity<>(
+        new ErrorResponse("Requested session not found"), HttpStatus.NOT_FOUND);
+  }
 
   @ExceptionHandler(UnsupportedOperationException.class)
   public ResponseEntity<ErrorResponse> handleUnsupportedOperation() {

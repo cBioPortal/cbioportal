@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import org.cbioportal.legacy.utils.removeme.Session;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,7 +18,7 @@ public class VirtualStudy extends Session {
     try {
       this.data = mapper.readValue(mapper.writeValueAsString(data), VirtualStudyData.class);
     } catch (IOException e) {
-      throw new RuntimeException("Failed to deserialize virtual study data", e);
+      throw new UncheckedIOException("Failed to deserialize virtual study data", e);
     }
   }
 

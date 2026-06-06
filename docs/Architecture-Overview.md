@@ -95,6 +95,6 @@ https://github.com/genome-nexus/g2s.
 
 cBioPortal calls these services with variant information from the cBioPortal
 database. It however does not send over information that links a variant to a
-particular sample or patient. If this is a concern for your use case we recommmend
+particular sample or patient. If this is a concern for your use case we recommend
 to deploy your own versions of these services. See the sections above to
 linkouts for instructions on how to do this.

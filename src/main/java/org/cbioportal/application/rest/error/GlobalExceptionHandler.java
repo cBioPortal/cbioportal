@@ -157,7 +157,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   @Override
   @Nullable
   protected ResponseEntity<Object> handleTypeMismatch(
-      @NonNull TypeMismatchException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
+      @NonNull TypeMismatchException ex,
+      @NonNull HttpHeaders headers,
+      @NonNull HttpStatusCode status,
+      @NonNull WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("Request parameter type mismatch: " + ex.getMostSpecificCause()),
         HttpStatus.BAD_REQUEST);

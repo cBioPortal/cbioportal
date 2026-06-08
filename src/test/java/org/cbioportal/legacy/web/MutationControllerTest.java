@@ -30,6 +30,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -545,17 +546,24 @@ public class MutationControllerTest {
 
     List<Mutation> mutationList = createExampleMutations();
 
-    Mockito.when(
-            mutationService.getMutationsInMultipleMolecularProfiles(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
-        .thenReturn(mutationList);
+    // The endpoint now streams; feed the mutations to the consumer the controller supplies.
+    Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<Mutation> consumer = invocation.getArgument(8);
+              mutationList.forEach(consumer);
+              return null;
+            })
+        .when(mutationService)
+        .streamMutationsInMultipleMolecularProfiles(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any());
 
     List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
     SampleMolecularIdentifier sampleMolecularIdentifier1 = new SampleMolecularIdentifier();
@@ -569,13 +577,19 @@ public class MutationControllerTest {
     MutationMultipleStudyFilter mutationMultipleStudyFilter = new MutationMultipleStudyFilter();
     mutationMultipleStudyFilter.setSampleMolecularIdentifiers(sampleMolecularIdentifiers);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/mutations/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/mutations/fetch")
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(mutationMultipleStudyFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

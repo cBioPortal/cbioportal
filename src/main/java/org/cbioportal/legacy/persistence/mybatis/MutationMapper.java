@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
+import org.apache.ibatis.session.ResultHandler;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.Mutation;
@@ -33,6 +34,23 @@ public interface MutationMapper {
       Integer offset,
       String sortBy,
       String direction);
+
+  /**
+   * Streaming overload of {@link #getMutationsInMultipleMolecularProfiles}: routes to the same SQL
+   * statement (honoring the same projection/paging/sort) but passes each mapped row to {@code
+   * handler} instead of building a list, so a large result set is never materialized in memory.
+   */
+  void getMutationsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      boolean snpOnly,
+      String projection,
+      Integer limit,
+      Integer offset,
+      String sortBy,
+      String direction,
+      ResultHandler<Mutation> handler);
 
   List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(
       List<String> molecularProfileIds,

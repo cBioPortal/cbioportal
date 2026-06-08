@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.Mutation;
@@ -42,6 +43,22 @@ public interface MutationRepository {
       Integer pageNumber,
       String sortBy,
       String direction);
+
+  /**
+   * Streaming counterpart of {@link #getMutationsInMultipleMolecularProfiles}: each mutation is
+   * passed to {@code consumer} as it is read so the full result set is never held in memory. Not
+   * cached.
+   */
+  void streamMutationsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction,
+      Consumer<Mutation> consumer);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

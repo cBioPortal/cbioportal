@@ -427,6 +427,33 @@ public class MutationMyBatisRepositoryTest {
   }
 
   @Test
+  public void streamMutationsInMultipleMolecularProfiles() throws Exception {
+
+    List<String> molecularProfileIds = new ArrayList<>();
+    molecularProfileIds.add("acc_tcga_mutations");
+    molecularProfileIds.add("study_tcga_pub_mutations");
+
+    List<String> sampleIds = new ArrayList<>();
+    sampleIds.add("TCGA-A1-B0SO-01");
+    sampleIds.add("TCGA-A1-A0SH-01");
+
+    // Streaming variant must yield the same rows as getMutationsInMultipleMolecularProfiles.
+    List<Mutation> result = new ArrayList<>();
+    mutationMyBatisRepository.streamMutationsInMultipleMolecularProfiles(
+        molecularProfileIds, sampleIds, null, "SUMMARY", null, null, null, null, result::add);
+
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals(
+        2,
+        result.stream()
+            .filter(
+                r ->
+                    r.getSampleId().equals("TCGA-A1-A0SH-01")
+                        && r.getMolecularProfileId().equals("study_tcga_pub_mutations"))
+            .count());
+  }
+
+  @Test
   public void getMutationsInMultipleMolecularProfilesByGeneQueries() throws Exception {
 
     GeneFilterQuery geneFilterQuery1 =

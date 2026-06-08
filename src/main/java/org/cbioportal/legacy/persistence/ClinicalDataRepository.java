@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -87,6 +88,19 @@ public interface ClinicalDataRepository {
       List<String> attributeIds,
       String clinicalDataType,
       String projection);
+
+  /**
+   * Streaming counterpart of {@link #fetchClinicalData}: each datum is passed to {@code consumer}
+   * as it is read so the full (potentially very large) multi-study result is never held in memory.
+   * Not cached.
+   */
+  void streamClinicalData(
+      List<String> studyIds,
+      List<String> ids,
+      List<String> attributeIds,
+      String clinicalDataType,
+      String projection,
+      Consumer<ClinicalData> consumer);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

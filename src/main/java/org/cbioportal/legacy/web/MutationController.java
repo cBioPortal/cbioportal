@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.web;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @PublicApi
 @RestController()
@@ -51,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MutationController {
 
   @Autowired private MutationService mutationService;
+  @Autowired private ObjectMapper objectMapper;
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -224,7 +230,7 @@ public class MutationController {
       responseCode = "200",
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
-  public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
+  public ResponseEntity<StreamingResponseBody> fetchMutationsInMultipleMolecularProfiles(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -287,39 +293,53 @@ public class MutationController {
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-    } else {
-      List<Mutation> mutations;
-      if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
-        mutations =
-            mutationService.getMutationsInMultipleMolecularProfiles(
-                interceptedMutationMultipleStudyFilter.getMolecularProfileIds(),
-                null,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
-                projection.name(),
-                pageSize,
-                pageNumber,
-                sortBy == null ? null : sortBy.getOriginalValue(),
-                direction.name());
-      } else {
+    }
 
-        List<String> molecularProfileIds = new ArrayList<>();
-        List<String> sampleIds = new ArrayList<>();
-        extractMolecularProfileAndSampleIds(
-            interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
-        mutations =
-            mutationService.getMutationsInMultipleMolecularProfiles(
+    // Resolve the (profileIds, sampleIds) for the chosen branch, then stream the result as a JSON
+    // array so the (potentially very large) mutation result set is never materialized into a list.
+    final List<String> molecularProfileIds;
+    final List<String> sampleIds;
+    if (interceptedMutationMultipleStudyFilter.getMolecularProfileIds() != null) {
+      molecularProfileIds = interceptedMutationMultipleStudyFilter.getMolecularProfileIds();
+      sampleIds = null;
+    } else {
+      molecularProfileIds = new ArrayList<>();
+      sampleIds = new ArrayList<>();
+      extractMolecularProfileAndSampleIds(
+          interceptedMutationMultipleStudyFilter, molecularProfileIds, sampleIds);
+    }
+    final List<Integer> entrezGeneIds = interceptedMutationMultipleStudyFilter.getEntrezGeneIds();
+    final String projectionName = projection.name();
+    final String sortByValue = sortBy == null ? null : sortBy.getOriginalValue();
+    final String directionName = direction.name();
+
+    StreamingResponseBody body =
+        outputStream -> {
+          try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            generator.writeStartArray();
+            mutationService.streamMutationsInMultipleMolecularProfiles(
                 molecularProfileIds,
                 sampleIds,
-                interceptedMutationMultipleStudyFilter.getEntrezGeneIds(),
-                projection.name(),
+                entrezGeneIds,
+                projectionName,
                 pageSize,
                 pageNumber,
-                sortBy == null ? null : sortBy.getOriginalValue(),
-                direction.name());
-      }
-
-      return new ResponseEntity<>(mutations, HttpStatus.OK);
-    }
+                sortByValue,
+                directionName,
+                mutation -> {
+                  try {
+                    generator.writeObject(mutation);
+                  } catch (IOException e) {
+                    // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below
+                    throw new UncheckedIOException(e);
+                  }
+                });
+            generator.writeEndArray();
+          } catch (UncheckedIOException e) {
+            throw e.getCause();
+          }
+        };
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
   }
 
   private void extractMolecularProfileAndSampleIds(

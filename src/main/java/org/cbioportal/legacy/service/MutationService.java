@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.Mutation;
@@ -35,6 +36,17 @@ public interface MutationService {
       Integer pageNumber,
       String sortBy,
       String direction);
+
+  void streamMutationsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction,
+      Consumer<Mutation> consumer);
 
   List<Mutation> getMutationsInMultipleMolecularProfilesByGeneQueries(
       List<String> molecularProfileIds,

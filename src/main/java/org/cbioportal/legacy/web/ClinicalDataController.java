@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.web;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @PublicApi
 @RestController()
@@ -55,6 +60,7 @@ public class ClinicalDataController {
   private static final String CLINICAL_DATA_DEFAULT_PAGE_SIZE = "10000000";
 
   @Autowired private ClinicalDataService clinicalDataService;
+  @Autowired private ObjectMapper objectMapper;
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -308,7 +314,7 @@ public class ClinicalDataController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> fetchClinicalData(
+  public ResponseEntity<StreamingResponseBody> fetchClinicalData(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -353,15 +359,36 @@ public class ClinicalDataController {
               .getTotalCount()
               .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(
-          clinicalDataService.fetchClinicalData(
-              studyIds,
-              ids,
-              interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
-              clinicalDataType.name(),
-              projection.name()),
-          HttpStatus.OK);
     }
+
+    // Stream the clinical data as a JSON array, writing each datum as it is read so the
+    // (potentially very large, multi-study) result set is never materialized into a list.
+    List<String> attributeIds = interceptedClinicalDataMultiStudyFilter.getAttributeIds();
+    String clinicalDataTypeName = clinicalDataType.name();
+    String projectionName = projection.name();
+    StreamingResponseBody body =
+        outputStream -> {
+          try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            generator.writeStartArray();
+            clinicalDataService.streamClinicalData(
+                studyIds,
+                ids,
+                attributeIds,
+                clinicalDataTypeName,
+                projectionName,
+                datum -> {
+                  try {
+                    generator.writeObject(datum);
+                  } catch (IOException e) {
+                    // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below
+                    throw new UncheckedIOException(e);
+                  }
+                });
+            generator.writeEndArray();
+          } catch (UncheckedIOException e) {
+            throw e.getCause();
+          }
+        };
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
   }
 }

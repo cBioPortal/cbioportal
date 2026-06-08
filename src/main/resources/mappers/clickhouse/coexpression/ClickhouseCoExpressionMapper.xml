@@ -34,8 +34,8 @@
             -- The single scan of profile B. We collect each gene's paired (ref, value)
             -- vectors with groupArray so the correlation can be computed afterwards, and
             -- compute the cheap classification aggregates (count / distinct cardinality)
-            -- in the same pass. groupArray preserves row order within the group, so the
-            -- two arrays stay element-aligned.
+            -- in the same pass. The element order is not guaranteed without ORDER BY, but
+            -- correlation is computed over the paired values collected for each sample.
             SELECT
                 g.entrez_gene_id AS entrezGeneId,
                 count(*) AS numSamples,

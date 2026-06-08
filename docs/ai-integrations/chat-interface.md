@@ -42,7 +42,7 @@ You don't need to pick which one you want — the agent decides which tools to c
 - **Ask follow-up questions** — the chat keeps conversation context, so you can refine in sequence.
 - **Try rephrasing** — different angles often surface different views of the same data.
 - **Ask about the schema** — you can ask the agent to explain available fields and tables to help frame more effective queries.
-- **Statistical claims need external tools** — the agent cannot run statistical tests (p-values, hazard ratios, Kaplan-Meier). It will return the summary data you need and point you at cBioPortal's Group Comparison tab, R, or Python to run the test.
+- **Statistical claims need external tools** — the agent can return summary data and generate links (including Kaplan–Meier plots), but it cannot compute statistical test results (p-values, hazard ratios, odds ratios). Use cBioPortal's Group Comparison tab, R, or Python to run the test.
 
 ## Getting started
 

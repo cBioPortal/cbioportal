@@ -58,7 +58,7 @@ The chat interface is actively being developed and improved. Your feedback drive
 - **Use the thumbs up/down buttons** — every chat response has 👍 / 👎 buttons. Please use them to rate quality and accuracy. This feedback directly improves the agent's answers.
 - **Report issues or suggestions** — for anything beyond a quick rating, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
 
-## Technical details
+## Technical Details
 
 ### Architecture
 

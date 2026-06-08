@@ -1,91 +1,73 @@
 # Chat Interface
 
-We're implementing an AI-powered chat interface that allows users to ask questions about cBioPortal data in plain English. We're looking for early test users to provide us with feedback and help guide future development. If that sounds like you, sign up [here](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform).
+We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development. If that sounds like you, sign up [here](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform).
 
 > **Note:** This is a prototype and work in progress. Features and functionality are actively being developed and improved.
 
 ## What is the Chat Interface?
 
-The cBioPortal chat interface is an experimental platform with multiple AI agents currently in development. These early prototypes use Claude, an LLM developed by Anthropic, and are designed for different use cases:
+The cBioPortal chat interface (**cBioPortalChat**) is an experimental platform that lets you ask cBioPortal questions in plain English. It uses [Claude](https://www.anthropic.com/claude) (Anthropic's LLM, provided via Amazon Bedrock) and combines two capabilities in a single agent:
 
-- **cBioDBAgent** - Query the cBioPortal database for information about studies, patients, samples, and treatments
-- **cBioNavigator** - Navigate the cBioPortal web interface
+- **Database queries** — answers about studies, patients, samples, mutations, copy-number changes, clinical attributes, and treatments by querying cBioPortal's underlying database.
+- **Web navigation** — generates direct links into cBioPortal views (study summaries, OncoPrint, patient view, group comparison) when you describe what you want to look at.
 
-We are actively exploring various approaches to make cBioPortal more accessible through natural language interactions. These agents are early prototypes and their capabilities will evolve as we continue development.
+You don't need to pick which one you want — the agent decides which tools to call based on your question.
 
-## Agent-Specific Features
+> **Earlier prototypes:** through 2026-Q2 the platform exposed two separate agents (cBioDBAgent and cBioNavigator) that the user had to choose between. These have been merged into a single cBioPortalChat agent. The combined agent has access to all of the tools the two earlier prototypes had.
 
-### cBioDBAgent
+## What you can ask
 
-Queries the cBioPortal database directly to answer questions about data:
+**Explore data** — find studies, datasets, and available molecular data:
 
-- **Natural Language Queries**: Ask questions in plain English without needing to know the technical details of the database structure
-- **Study Information**: Get quick answers about the number of studies, patients, and samples in cBioPortal
-- **Sample Analysis**: Query specific details about samples, including sample types and patient demographics
-- **Treatment Data**: Explore treatment information across different studies
-- **Data Exploration**: Discover insights from the extensive cancer genomics datasets available in cBioPortal
+- [Which cBioPortal studies include lung adenocarcinoma samples with mutation and copy-number data?](https://chat.cbioportal.org/c/new?q=Which%20cBioPortal%20studies%20include%20lung%20adenocarcinoma%20samples%20with%20mutation%20and%20copy-number%20data%3F&submit=true&spec=cBioPortalChat)
+- [Which studies have RNA expression for renal cancer?](https://chat.cbioportal.org/c/new?q=Which%20studies%20have%20RNA%20expression%20for%20renal%20cancer%3F&submit=true&spec=cBioPortalChat)
+- [How many studies have whole exome sequencing data?](https://chat.cbioportal.org/c/new?q=How%20many%20studies%20have%20whole%20exome%20sequencing%20data%3F&submit=true&spec=cBioPortalChat)
+- [What TCGA data do you have?](https://chat.cbioportal.org/c/new?q=What%20TCGA%20data%20do%20you%20have%3F&submit=true&spec=cBioPortalChat)
 
-**Example Queries:**
-- General Stats
-   - [How many studies are in cBioPortal?](https://chat.cbioportal.org/c/new?q=How%20many%20studies%20are%20there%20in%20cBioPortal?&submit=true&spec=cBioDBAgent)
-- Study-Specific Questions
-    - [How many patients and samples are in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=How%20many%20patients%20and%20samples%20are%20in%20the%20MSK%20CHORD%20Study?&submit=true&spec=cBioDBAgent)
-    - [What treatment did most patients receive in the MSK-CHORD Study?](https://chat.cbioportal.org/c/new?q=What%20treatment%20did%20most%20patients%20recieve%20in%20the%20MSK%20CHORD%20study?&submit=true&spec=cBioDBAgent)
+**Navigate cBioPortal** — generate direct links to views:
 
+- [Give me an OncoPrint for EGFR and KRAS in TCGA lung adenocarcinoma.](https://chat.cbioportal.org/c/new?q=Give%20me%20an%20OncoPrint%20for%20EGFR%20and%20KRAS%20in%20TCGA%20lung%20adenocarcinoma.&submit=true&spec=cBioPortalChat)
+- [Can you create a cohort of metastatic prostate cancer with AR amplification?](https://chat.cbioportal.org/c/new?q=Can%20you%20create%20a%20cohort%20of%20metastatic%20prostate%20cancer%20with%20AR%20amplification%3F&submit=true&spec=cBioPortalChat)
+- [Show me a KM plot of primary vs met prostate cancer in the MSK-IMPACT study.](https://chat.cbioportal.org/c/new?q=Show%20me%20a%20KM%20plot%20of%20primary%20vs%20met%20prostate%20cancer%20in%20the%20MSK-IMPACT%20study.&submit=true&spec=cBioPortalChat)
 
-### cBioNavigator
+**Analyze data** — compare genes, cancer types, profiles, cohorts, and outcomes:
 
-Assists with navigating the cBioPortal web interface:
+- [Show me TP53 mutation frequency across all cancer types.](https://chat.cbioportal.org/c/new?q=Show%20me%20TP53%20mutation%20frequency%20across%20all%20cancer%20types.&submit=true&spec=cBioPortalChat)
+- [What are the most mutated genes in lung cancer?](https://chat.cbioportal.org/c/new?q=What%20are%20the%20most%20mutated%20genes%20in%20lung%20cancer%3F&submit=true&spec=cBioPortalChat)
+- [Compare low grade glioma by molecular subtype.](https://chat.cbioportal.org/c/new?q=Compare%20low%20grade%20glioma%20by%20molecular%20subtype.&submit=true&spec=cBioPortalChat)
 
-- Describe what you want to see in plain English, and get a link to the most relevant cBioPortal page
-- Guidance on navigating through studies and visualizations
-- Support for exploring cBioPortal's web-based tools
+## Tips for using the chat interface
 
-**Example Queries:**
-- [Navigate to the MSK-IMPACT study](https://chat.cbioportal.org/c/new?q=Navigate%20to%20the%20MSK-IMPACT%20study&submit=true&spec=cBioNavigator)
-- [Show me an OncoPrint for BRAF and CDKN2A in melanoma](https://chat.cbioportal.org/c/new?q=Show%20me%20an%20OncoPrint%20for%20BRAF%20and%20CDKN2A%20in%20melanoma&submit=true&spec=cBioNavigator)
-- [Compare low grade glioma by molecular subtype](https://chat.cbioportal.org/c/new?q=Compare%20low%20grade%20glioma%20by%20molecular%20subtype&submit=true&spec=cBioNavigator)
-- [Show me patient view for IDH1 mutant cholangiocarcinoma](https://chat.cbioportal.org/c/new?q=Show%20me%20patient%20view%20for%20IDH1%20mutant%20cholangiocarcinoma&submit=true&spec=cBioNavigator)
+- **Be specific** — include study names, gene symbols (UPPERCASE HUGO format), and data types when possible.
+- **Ask follow-up questions** — the chat keeps conversation context, so you can refine in sequence.
+- **Try rephrasing** — different angles often surface different views of the same data.
+- **Ask about the schema** — you can ask the agent to explain available fields and tables to help frame more effective queries.
+- **Statistical claims need external tools** — the agent cannot run statistical tests (p-values, hazard ratios, Kaplan-Meier). It will return the summary data you need and point you at cBioPortal's Group Comparison tab, R, or Python to run the test.
 
+## Getting started
 
-## Tips for Using the Chat Interface
+1. Fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform) to request access. We onboard new users in groups — we appreciate your patience until we get in touch.
+2. Type your question in the chat input.
+3. Review the AI-generated response.
+4. Ask follow-up questions to dive deeper.
 
-- **Choose the right agent**: Select the agent that best matches your need - data queries (cBioDBAgent) or web navigation (cBioNavigator)
-- **Be specific**: Include study names or specific data types when possible
-- **Ask follow-up questions**: The chat interface maintains context, so you can ask related questions in sequence
-- **Explore different angles**: Try rephrasing questions or asking for different perspectives on the data
-- **Learn about the database structure** (cBioDBAgent): You can ask the LLM to explain the database schema and available fields - this can help you formulate more effective questions
+## Feedback and support
 
-## Getting Started
+The chat interface is actively being developed and improved. Your feedback drives it:
 
-1. Fill out this [form](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform) to request access. We are onboarding new users in groups, so we appreciate your patience until we get in touch.
-2. Type your question in the chat input
-3. Review the AI-generated response
-4. Ask follow-up questions to dive deeper into the data
+- **Use the thumbs up/down buttons** — every chat response has 👍 / 👎 buttons. Please use them to rate quality and accuracy. This feedback directly improves the agent's answers.
+- **Report issues or suggestions** — for anything beyond a quick rating, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
 
-## Feedback and Support
-
-The AI chat interface is actively being developed and improved. Your feedback helps us make it better:
-
-- **Use the thumbs up/down buttons**: Each chat response has thumbs up and thumbs down buttons. Please use them to rate the quality and accuracy of the responses - this feedback directly helps us improve the AI's answers.
-- **Report issues or suggestions**: If you encounter any issues or have suggestions for improvement, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
-
-## Technical Details
+## Technical details
 
 ### Architecture
 
-All agents share a common technical foundation:
+- **User interface:** [LibreChat](https://github.com/danny-avila/LibreChat), an open-source chat front-end.
+- **AI model:** [Claude](https://www.anthropic.com/claude), provided via Amazon Bedrock.
+- **Tooling layer:** the agent calls [Model Context Protocol (MCP)](mcp.md) servers for its data and navigation capabilities:
+  - A **database MCP** (built on cBioPortal's [ClickHouse](https://clickhouse.com/) database) for study, sample, mutation, and clinical-attribute queries.
+  - A **navigator MCP** that converts intent into cBioPortal URLs.
 
-- **User Interface**: Built with [LibreChat](https://github.com/danny-avila/LibreChat), an open-source chat interface
-- **AI Model**: Uses [Claude](https://www.anthropic.com/claude) (provided via Amazon Bedrock), Anthropic's large language model
-
-Each agent has specialized components depending on its function:
-
-**cBioDBAgent:**
-- **MCP Layer**: Model Context Protocol (MCP) servers provide the connection between Claude and cBioPortal data
-- **Database**: Queries are executed against cBioPortal's [ClickHouse](https://clickhouse.com/) database
-
-**cBioNavigator:**
-- **Web Interface Tools**: Uses MCP tools to interact with the cBioPortal website
+A single unified agent has access to all of these tools and decides which to invoke for each turn.
 
 For more information about the MCP servers and how to build your own integrations, see the [Model Context Protocol documentation](mcp.md).

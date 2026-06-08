@@ -102,6 +102,16 @@ public class GetGenericAssayMetaUseCaseTest {
   }
 
   @Test
+  public void execute_profilesWithNullElement_filtersNullsWithoutThrowing() {
+    // A null element previously NPE'd in sorted() -> 500. It must now be filtered out.
+    streamProfileMeta(createMockMetaList());
+
+    collect(null, Arrays.asList(null, PROFILE_ID), PersistenceConstants.SUMMARY_PROJECTION);
+
+    verify(repository).getGenericAssayMetaByProfileIds(eq(PROFILE_ID_LIST), eq(null), any());
+  }
+
+  @Test
   public void execute_profilesOnly_summaryProjection() {
     List<GenericAssayMeta> mockList = createMockMetaList();
     streamProfileMeta(mockList);

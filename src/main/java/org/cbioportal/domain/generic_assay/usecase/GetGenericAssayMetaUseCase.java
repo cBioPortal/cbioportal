@@ -3,6 +3,7 @@ package org.cbioportal.domain.generic_assay.usecase;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
@@ -24,10 +25,13 @@ public class GetGenericAssayMetaUseCase {
 
   /**
    * Executes the use case, streaming each matching {@link GenericAssayMeta} to {@code consumer} as
-   * it is produced. Streaming keeps memory bounded: for large profile sets (e.g. methylation, which
-   * can resolve to hundreds of thousands of entities) the full result is never materialized into a
-   * list. This path is intentionally not cached — the cache key would be unique per study/profile
-   * combination (near-zero hit rate) while pinning the entire result on the heap.
+   * it is produced. For the meta-fetch projections (SUMMARY/DETAILED) the per-entity rows are
+   * streamed straight from the database and never collected into a list, which keeps memory bounded
+   * for large profile sets (e.g. methylation, which can resolve to hundreds of thousands of
+   * entities). The lightweight "ID" projection still resolves the matching stable IDs into a set in
+   * memory (it returns no per-entity properties and issues no meta query). This path is
+   * intentionally not cached — the cache key would be unique per study/profile combination
+   * (near-zero hit rate) while pinning the entire result on the heap.
    *
    * @param stableIds optional list of generic assay stable IDs to filter by
    * @param molecularProfileIds optional list of molecular profile IDs to filter by
@@ -41,7 +45,10 @@ public class GetGenericAssayMetaUseCase {
       Consumer<GenericAssayMeta> consumer) {
 
     if (molecularProfileIds != null) {
-      List<String> sortedProfileIds = molecularProfileIds.stream().distinct().sorted().toList();
+      // Filter nulls so a malformed request (a null element) can't NPE in sorted(); also lets the
+      // empty-check below short-circuit a request that contained only nulls.
+      List<String> sortedProfileIds =
+          molecularProfileIds.stream().filter(Objects::nonNull).distinct().sorted().toList();
       if (sortedProfileIds.isEmpty()) {
         return;
       }
@@ -66,7 +73,11 @@ public class GetGenericAssayMetaUseCase {
       return;
     }
 
-    List<String> distinctStableIds = stableIds.stream().distinct().toList();
+    List<String> distinctStableIds =
+        stableIds.stream().filter(Objects::nonNull).distinct().toList();
+    if (distinctStableIds.isEmpty()) {
+      return;
+    }
 
     if ("ID".equals(projection)) {
       distinctStableIds.forEach(id -> consumer.accept(new GenericAssayMeta(id)));

@@ -2,12 +2,8 @@ package org.cbioportal.legacy.persistence.mybatis.util;
 
 import java.util.*;
 import java.util.function.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LimitedPermissionArrayList<T> extends ArrayList<T> {
-
-  private static final Logger log = LoggerFactory.getLogger(LimitedPermissionArrayList.class);
 
   public boolean addAll(Collection<? extends T> c) {
     throw new UnsupportedOperationException();

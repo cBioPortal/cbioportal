@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.generic_assay;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
@@ -52,13 +53,16 @@ public class ClickhouseGenericAssayRepository implements GenericAssayRepository 
   }
 
   @Override
-  public List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds) {
-    return mapper.getGenericAssayMetaByStableIds(stableIds);
+  public void getGenericAssayMetaByStableIds(
+      List<String> stableIds, Consumer<GenericAssayMeta> consumer) {
+    mapper.getGenericAssayMetaByStableIds(
+        stableIds, context -> consumer.accept(context.getResultObject()));
   }
 
   @Override
-  public List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
-      List<String> profileIds, List<String> stableIds) {
-    return mapper.getGenericAssayMetaByProfileIds(profileIds, stableIds);
+  public void getGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds, Consumer<GenericAssayMeta> consumer) {
+    mapper.getGenericAssayMetaByProfileIds(
+        profileIds, stableIds, context -> consumer.accept(context.getResultObject()));
   }
 }

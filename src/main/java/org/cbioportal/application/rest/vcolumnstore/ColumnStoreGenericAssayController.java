@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -9,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
@@ -70,12 +73,10 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
-    List<GenericAssayMeta> result =
-        getGenericAssayMetaUseCase.execute(
-            genericAssayMetaFilter.getGenericAssayStableIds(),
-            genericAssayMetaFilter.getMolecularProfileIds(),
-            projection.name());
-    return streamJson(result);
+    return streamMeta(
+        genericAssayMetaFilter.getGenericAssayStableIds(),
+        genericAssayMetaFilter.getMolecularProfileIds(),
+        projection.name());
   }
 
   // PreAuthorize is removed for performance reason
@@ -95,9 +96,7 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
-    return streamJson(
-        getGenericAssayMetaUseCase.execute(
-            null, Arrays.asList(molecularProfileId), projection.name()));
+    return streamMeta(null, Arrays.asList(molecularProfileId), projection.name());
   }
 
   @RequestMapping(
@@ -116,14 +115,37 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
-    return streamJson(
-        getGenericAssayMetaUseCase.execute(
-            Arrays.asList(genericAssayStableId), null, projection.name()));
+    return streamMeta(Arrays.asList(genericAssayStableId), null, projection.name());
   }
 
-  private ResponseEntity<StreamingResponseBody> streamJson(List<GenericAssayMeta> data) {
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(outputStream -> objectMapper.writeValue(outputStream, data));
+  /**
+   * Streams the matching {@link GenericAssayMeta} as a JSON array, writing each element to the
+   * response as it is read from the database. The result set is never collected into a list, so
+   * peak heap stays bounded regardless of how many entities the request resolves to.
+   */
+  private ResponseEntity<StreamingResponseBody> streamMeta(
+      List<String> stableIds, List<String> molecularProfileIds, String projection) {
+    StreamingResponseBody body =
+        outputStream -> {
+          try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            generator.writeStartArray();
+            getGenericAssayMetaUseCase.execute(
+                stableIds,
+                molecularProfileIds,
+                projection,
+                meta -> {
+                  try {
+                    generator.writeObject(meta);
+                  } catch (IOException e) {
+                    // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below
+                    throw new UncheckedIOException(e);
+                  }
+                });
+            generator.writeEndArray();
+          } catch (UncheckedIOException e) {
+            throw e.getCause();
+          }
+        };
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
   }
 }

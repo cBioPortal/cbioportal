@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -59,8 +60,7 @@ public class ColumnStoreGenericAssayControllerTest {
   public void testGetGenericAssayMetaByMolecularProfileId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
 
-    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(genericAssayMetaItems);
+    mockExecuteStreaming(genericAssayMetaItems);
 
     MvcResult mvcResult =
         mockMvc
@@ -93,8 +93,7 @@ public class ColumnStoreGenericAssayControllerTest {
   public void testGetGenericAssayMetaByStableId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaSingleItem = createGenericAssayMetaSingleItem();
 
-    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(genericAssayMetaSingleItem);
+    mockExecuteStreaming(genericAssayMetaSingleItem);
 
     MvcResult mvcResult =
         mockMvc
@@ -130,8 +129,7 @@ public class ColumnStoreGenericAssayControllerTest {
     GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
     genericAssayMetaFilter.setGenericAssayStableIds(genericAssayStableIds);
 
-    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(genericAssayMetaItems);
+    mockExecuteStreaming(genericAssayMetaItems);
 
     MvcResult mvcResult =
         mockMvc
@@ -160,6 +158,21 @@ public class ColumnStoreGenericAssayControllerTest {
         .andExpect(
             MockMvcResultMatchers.jsonPath(
                 "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
+  }
+
+  /**
+   * Stubs the streaming use case so that the given items are pushed to the {@link Consumer} the
+   * controller supplies, mirroring how rows are streamed from the database.
+   */
+  private void mockExecuteStreaming(List<GenericAssayMeta> items) {
+    Mockito.doAnswer(
+            invocation -> {
+              Consumer<GenericAssayMeta> consumer = invocation.getArgument(3);
+              items.forEach(consumer);
+              return null;
+            })
+        .when(getGenericAssayMetaUseCase)
+        .execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
   }
 
   private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {

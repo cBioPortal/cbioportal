@@ -1,13 +1,12 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,30 +23,27 @@ public class GetGenericAssayMetaUseCase {
   }
 
   /**
-   * Executes the use case to retrieve generic assay meta data.
+   * Executes the use case, streaming each matching {@link GenericAssayMeta} to {@code consumer} as
+   * it is produced. Streaming keeps memory bounded: for large profile sets (e.g. methylation, which
+   * can resolve to hundreds of thousands of entities) the full result is never materialized into a
+   * list. This path is intentionally not cached — the cache key would be unique per study/profile
+   * combination (near-zero hit rate) while pinning the entire result on the heap.
    *
    * @param stableIds optional list of generic assay stable IDs to filter by
    * @param molecularProfileIds optional list of molecular profile IDs to filter by
    * @param projection projection level (e.g. "ID", "SUMMARY", "DETAILED")
-   * @return a list of {@link GenericAssayMeta}
+   * @param consumer invoked once per matching {@link GenericAssayMeta}
    */
-  // Cache key normalizes input lists into sorted TreeSets so that callers passing
-  // the same IDs in different order share the same cache entry. Null-safe: null
-  // lists produce null keys. Non-null entries are filtered to exclude nulls.
-  @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()",
-      key =
-          "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
-              + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
-              + " #projection}")
-  public List<GenericAssayMeta> execute(
-      List<String> stableIds, List<String> molecularProfileIds, String projection) {
+  public void execute(
+      List<String> stableIds,
+      List<String> molecularProfileIds,
+      String projection,
+      Consumer<GenericAssayMeta> consumer) {
 
     if (molecularProfileIds != null) {
       List<String> sortedProfileIds = molecularProfileIds.stream().distinct().sorted().toList();
       if (sortedProfileIds.isEmpty()) {
-        return Collections.emptyList();
+        return;
       }
 
       if ("ID".equals(projection)) {
@@ -57,23 +53,26 @@ public class GetGenericAssayMetaUseCase {
         if (stableIds != null) {
           resolvedIds.retainAll(new HashSet<>(stableIds));
         }
-        return resolvedIds.stream().map(GenericAssayMeta::new).toList();
+        resolvedIds.forEach(id -> consumer.accept(new GenericAssayMeta(id)));
+        return;
       }
 
       // Single merged query: profile → entity + meta join
-      return repository.getGenericAssayMetaByProfileIds(sortedProfileIds, stableIds);
+      repository.getGenericAssayMetaByProfileIds(sortedProfileIds, stableIds, consumer);
+      return;
     }
 
     if (stableIds == null || stableIds.isEmpty()) {
-      return Collections.emptyList();
+      return;
     }
 
     List<String> distinctStableIds = stableIds.stream().distinct().toList();
 
     if ("ID".equals(projection)) {
-      return distinctStableIds.stream().map(GenericAssayMeta::new).toList();
+      distinctStableIds.forEach(id -> consumer.accept(new GenericAssayMeta(id)));
+      return;
     }
 
-    return repository.getGenericAssayMetaByStableIds(distinctStableIds);
+    repository.getGenericAssayMetaByStableIds(distinctStableIds, consumer);
   }
 }

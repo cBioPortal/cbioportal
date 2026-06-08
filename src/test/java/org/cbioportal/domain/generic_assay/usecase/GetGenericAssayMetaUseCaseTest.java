@@ -1,13 +1,18 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
@@ -50,66 +55,98 @@ public class GetGenericAssayMetaUseCaseTest {
     return Arrays.asList(meta1, meta2);
   }
 
+  /** Collects everything the use case streams to its consumer. */
+  private List<GenericAssayMeta> collect(
+      List<String> stableIds, List<String> molecularProfileIds, String projection) {
+    List<GenericAssayMeta> collected = new ArrayList<>();
+    useCase.execute(stableIds, molecularProfileIds, projection, collected::add);
+    return collected;
+  }
+
+  /** Stubs the repository's profile-based streaming method to emit the given items. */
+  private void streamProfileMeta(List<GenericAssayMeta> items) {
+    doAnswer(
+            invocation -> {
+              Consumer<GenericAssayMeta> consumer = invocation.getArgument(2);
+              items.forEach(consumer);
+              return null;
+            })
+        .when(repository)
+        .getGenericAssayMetaByProfileIds(any(), any(), any());
+  }
+
+  /** Stubs the repository's stable-id-based streaming method to emit the given items. */
+  private void streamStableIdMeta(List<GenericAssayMeta> items) {
+    doAnswer(
+            invocation -> {
+              Consumer<GenericAssayMeta> consumer = invocation.getArgument(1);
+              items.forEach(consumer);
+              return null;
+            })
+        .when(repository)
+        .getGenericAssayMetaByStableIds(any(), any());
+  }
+
   @Test
   public void execute_profilesAndStableIds_summaryProjection() {
     List<GenericAssayMeta> mockList = createMockMetaList();
-    when(repository.getGenericAssayMetaByProfileIds(PROFILE_ID_LIST, ID_LIST)).thenReturn(mockList);
+    streamProfileMeta(mockList);
 
     List<GenericAssayMeta> result =
-        useCase.execute(ID_LIST, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
+        collect(ID_LIST, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(mockList.get(0).getStableId(), result.get(0).getStableId());
     Assert.assertEquals(mockList.get(1).getStableId(), result.get(1).getStableId());
-    verify(repository).getGenericAssayMetaByProfileIds(PROFILE_ID_LIST, ID_LIST);
+    verify(repository).getGenericAssayMetaByProfileIds(eq(PROFILE_ID_LIST), eq(ID_LIST), any());
   }
 
   @Test
   public void execute_profilesOnly_summaryProjection() {
     List<GenericAssayMeta> mockList = createMockMetaList();
-    when(repository.getGenericAssayMetaByProfileIds(PROFILE_ID_LIST, null)).thenReturn(mockList);
+    streamProfileMeta(mockList);
 
     List<GenericAssayMeta> result =
-        useCase.execute(null, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
+        collect(null, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(mockList.get(0).getStableId(), result.get(0).getStableId());
     Assert.assertEquals(mockList.get(1).getStableId(), result.get(1).getStableId());
+    verify(repository).getGenericAssayMetaByProfileIds(eq(PROFILE_ID_LIST), eq(null), any());
   }
 
   @Test
   public void execute_profilesOnly_idProjection() {
     when(repository.getGenericAssayStableIdsByProfileIds(PROFILE_ID_LIST)).thenReturn(ID_LIST);
 
-    List<GenericAssayMeta> result = useCase.execute(null, PROFILE_ID_LIST, "ID");
+    List<GenericAssayMeta> result = collect(null, PROFILE_ID_LIST, "ID");
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(GENERIC_ASSAY_ID_1, result.get(0).getStableId());
     Assert.assertEquals(GENERIC_ASSAY_ID_2, result.get(1).getStableId());
     Assert.assertNull(result.get(0).getEntityType());
     verify(repository).getGenericAssayStableIdsByProfileIds(PROFILE_ID_LIST);
-    verify(repository, org.mockito.Mockito.never())
-        .getGenericAssayMetaByProfileIds(org.mockito.Mockito.any(), org.mockito.Mockito.any());
+    verify(repository, never()).getGenericAssayMetaByProfileIds(any(), any(), any());
   }
 
   @Test
   public void execute_stableIdsOnly_summaryProjection() {
     List<GenericAssayMeta> mockList = createMockMetaList();
-    when(repository.getGenericAssayMetaByStableIds(ID_LIST)).thenReturn(mockList);
+    streamStableIdMeta(mockList);
 
-    List<GenericAssayMeta> result =
-        useCase.execute(ID_LIST, null, PersistenceConstants.SUMMARY_PROJECTION);
+    List<GenericAssayMeta> result = collect(ID_LIST, null, PersistenceConstants.SUMMARY_PROJECTION);
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(mockList.get(0).getStableId(), result.get(0).getStableId());
     Assert.assertEquals(
         mockList.get(0).getGenericEntityMetaProperties(),
         result.get(0).getGenericEntityMetaProperties());
+    verify(repository).getGenericAssayMetaByStableIds(eq(ID_LIST), any());
   }
 
   @Test
   public void execute_stableIdsOnly_idProjection() {
-    List<GenericAssayMeta> result = useCase.execute(ID_LIST, null, "ID");
+    List<GenericAssayMeta> result = collect(ID_LIST, null, "ID");
 
     Assert.assertEquals(2, result.size());
     Assert.assertEquals(GENERIC_ASSAY_ID_1, result.get(0).getStableId());
@@ -119,10 +156,9 @@ public class GetGenericAssayMetaUseCaseTest {
 
   @Test
   public void execute_bothNull_returnsEmpty() {
-    List<GenericAssayMeta> result =
-        useCase.execute(null, null, PersistenceConstants.SUMMARY_PROJECTION);
+    List<GenericAssayMeta> result = collect(null, null, PersistenceConstants.SUMMARY_PROJECTION);
 
-    Assert.assertEquals(Collections.emptyList(), result);
+    Assert.assertTrue(result.isEmpty());
     verifyNoInteractions(repository);
   }
 }

@@ -2,7 +2,9 @@ package org.cbioportal.infrastructure.repository.clickhouse.generic_assay;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.ibatis.session.ResultHandler;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -34,6 +36,24 @@ public class ClickhouseGenericAssayMapperTest {
   private static final String ACC_TCGA_ARMLEVEL_CNA_PROFILE = "acc_tcga_armlevel_cna";
 
   @Autowired private ClickhouseGenericAssayMapper mapper;
+
+  /** Collects the streamed rows from the stable-id meta query into a list for assertions. */
+  private List<GenericAssayMeta> metaByStableIds(List<String> stableIds) {
+    List<GenericAssayMeta> collected = new ArrayList<>();
+    mapper.getGenericAssayMetaByStableIds(stableIds, collect(collected));
+    return collected;
+  }
+
+  /** Collects the streamed rows from the profile-id meta query into a list for assertions. */
+  private List<GenericAssayMeta> metaByProfileIds(List<String> profileIds, List<String> stableIds) {
+    List<GenericAssayMeta> collected = new ArrayList<>();
+    mapper.getGenericAssayMetaByProfileIds(profileIds, stableIds, collect(collected));
+    return collected;
+  }
+
+  private static ResultHandler<GenericAssayMeta> collect(List<GenericAssayMeta> sink) {
+    return context -> sink.add(context.getResultObject());
+  }
 
   @Test
   public void getSampleCategoricalGenericAssayDataCounts() {
@@ -110,7 +130,7 @@ public class ClickhouseGenericAssayMapperTest {
 
   @Test
   public void getGenericAssayMetaByStableIds_returnsMetaWithProperties() {
-    List<GenericAssayMeta> result = mapper.getGenericAssayMetaByStableIds(List.of("1p_status"));
+    List<GenericAssayMeta> result = metaByStableIds(List.of("1p_status"));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getStableId()).isEqualTo("1p_status");
@@ -124,8 +144,7 @@ public class ClickhouseGenericAssayMapperTest {
     // Lexicographic order would be: 10p_status, 1p_status, 2p_status, 9p_status
     // Numeric-aware order should be: 1p_status, 2p_status, 9p_status, 10p_status
     List<GenericAssayMeta> result =
-        mapper.getGenericAssayMetaByStableIds(
-            List.of("10p_status", "9p_status", "2p_status", "1p_status"));
+        metaByStableIds(List.of("10p_status", "9p_status", "2p_status", "1p_status"));
 
     assertThat(result)
         .extracting(GenericAssayMeta::getStableId)
@@ -134,8 +153,7 @@ public class ClickhouseGenericAssayMapperTest {
 
   @Test
   public void getGenericAssayMetaByProfileIds_noStableIdsFilter_returnsAllEntities() {
-    List<GenericAssayMeta> result =
-        mapper.getGenericAssayMetaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
+    List<GenericAssayMeta> result = metaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
 
     assertThat(result)
         .isNotEmpty()
@@ -149,8 +167,7 @@ public class ClickhouseGenericAssayMapperTest {
   public void getGenericAssayMetaByProfileIds_sortsNumerically() {
     // Lexicographic order would be: 10p_status, 1p_status, 2p_status, 9p_status
     // Numeric-aware order should be: 1p_status, 2p_status, 9p_status, 10p_status
-    List<GenericAssayMeta> result =
-        mapper.getGenericAssayMetaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
+    List<GenericAssayMeta> result = metaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null);
 
     assertThat(result)
         .extracting(GenericAssayMeta::getStableId)
@@ -160,8 +177,7 @@ public class ClickhouseGenericAssayMapperTest {
   @Test
   public void getGenericAssayMetaByProfileIds_withStableIdsFilter_returnsOnlyMatchingEntities() {
     List<GenericAssayMeta> result =
-        mapper.getGenericAssayMetaByProfileIds(
-            List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), List.of("1p_status"));
+        metaByProfileIds(List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), List.of("1p_status"));
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getStableId()).isEqualTo("1p_status");

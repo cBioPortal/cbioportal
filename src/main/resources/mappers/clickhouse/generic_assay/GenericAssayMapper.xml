@@ -171,7 +171,8 @@
                 typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseMapTypeHandler"/>
     </resultMap>
 
-    <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap">
+    <!-- fetchSize keeps the JDBC driver streaming in batches; consumed row-by-row via a ResultHandler -->
+    <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap" fetchSize="10000">
         SELECT
             entity_stable_id AS stableId,
             entity_type AS entityType,
@@ -183,7 +184,8 @@
         ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
     </select>
 
-    <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
+    <!-- fetchSize keeps the JDBC driver streaming in batches; consumed row-by-row via a ResultHandler -->
+    <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap" fetchSize="10000">
         SELECT
             gam.entity_stable_id AS stableId,
             gam.entity_type AS entityType,

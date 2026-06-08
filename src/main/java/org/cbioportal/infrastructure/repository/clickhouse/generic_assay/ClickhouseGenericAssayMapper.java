@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.generic_assay;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.ResultHandler;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
@@ -69,22 +70,27 @@ public interface ClickhouseGenericAssayMapper {
   List<String> getGenericAssayStableIdsByProfileIds(List<String> molecularProfileIds);
 
   /**
-   * Retrieves generic assay meta data (with pre-aggregated properties) for the given entity stable
-   * IDs from the generic_assay_meta_derived table.
+   * Streams generic assay meta data (with pre-aggregated properties) for the given entity stable
+   * IDs from the generic_assay_meta_derived table. Each mapped row is passed to {@code handler} as
+   * it is read, so the full result set is never materialized in memory.
    *
    * @param stableIds the list of entity stable IDs
-   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   * @param handler invoked once per {@link GenericAssayMeta} row
    */
-  List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
+  void getGenericAssayMetaByStableIds(
+      @Param("list") List<String> stableIds, ResultHandler<GenericAssayMeta> handler);
 
   /**
    * Resolves profile IDs → entity stable IDs via generic_assay_profile_entity_derived and joins
-   * with generic_assay_meta_derived in a single query.
+   * with generic_assay_meta_derived in a single query, streaming each mapped row to {@code handler}
+   * as it is read rather than materializing the full result set.
    *
    * @param profileIds the list of molecular profile stable IDs
    * @param stableIds optional additional stable ID filter; {@code null} means no filter
-   * @return a list of {@link GenericAssayMeta} with properties pre-populated
+   * @param handler invoked once per {@link GenericAssayMeta} row
    */
-  List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
-      @Param("profileIds") List<String> profileIds, @Param("stableIds") List<String> stableIds);
+  void getGenericAssayMetaByProfileIds(
+      @Param("profileIds") List<String> profileIds,
+      @Param("stableIds") List<String> stableIds,
+      ResultHandler<GenericAssayMeta> handler);
 }

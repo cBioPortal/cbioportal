@@ -36,7 +36,7 @@ You don't need to pick which one you want — the agent decides which tools to c
 - [What are the most mutated genes in lung cancer?](https://chat.cbioportal.org/c/new?q=What%20are%20the%20most%20mutated%20genes%20in%20lung%20cancer%3F&submit=true&spec=cBioPortalChat)
 - [Compare low grade glioma by molecular subtype.](https://chat.cbioportal.org/c/new?q=Compare%20low%20grade%20glioma%20by%20molecular%20subtype.&submit=true&spec=cBioPortalChat)
 
-## Tips for using the chat interface
+## Tips for Using the Chat Interface
 
 - **Be specific** — include study names, gene symbols (UPPERCASE HUGO format), and data types when possible.
 - **Ask follow-up questions** — the chat keeps conversation context, so you can refine in sequence.

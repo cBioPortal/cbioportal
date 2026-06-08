@@ -9,6 +9,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.legacy.web.parameter.DataFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssaySelectionFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationDataFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
@@ -30,6 +31,7 @@ public record StudyViewFilterContext(
     List<List<String>> genomicProfiles,
     List<GenomicDataFilter> genomicDataFilters,
     List<GenericAssayDataFilter> genericAssayDataFilters,
+    List<GenericAssaySelectionFilter> genericAssaySelectionFilters,
     List<List<String>> caseLists,
     List<ClinicalDataFilter> customDataFilters,
     AlterationFilter alterationFilter,

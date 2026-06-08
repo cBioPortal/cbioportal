@@ -160,7 +160,10 @@
             <!-- Apply Generic Assay Data Filter -->
             <if test="studyViewFilterHelper.studyViewFilter.genericAssayDataFilters != null and !studyViewFilterHelper.studyViewFilter.genericAssayDataFilters.isEmpty()">
                 <include refid="applyGenericAssayDataFilter"/>
-            </if>            
+            </if>
+            <if test="studyViewFilterHelper.studyViewFilter.genericAssaySelectionFilters != null and !studyViewFilterHelper.studyViewFilter.genericAssaySelectionFilters.isEmpty()">
+                <include refid="applyGenericAssaySelectionFilter"/>
+            </if>
             <!-- Apply Clinical Data Filter -->
             <if test="studyViewFilterHelper.studyViewFilter.clinicalDataFilters != null and !studyViewFilterHelper.studyViewFilter.clinicalDataFilters.isEmpty()">
                 <include refid="applyClinicalDataCountFilter"/>
@@ -555,6 +558,68 @@
                 )
             </foreach>
         </if>
+    </sql>
+
+    <sql id="applyGenericAssaySelectionFilter">
+        <foreach item="genericAssaySelectionFilter" collection="studyViewFilterHelper.studyViewFilter.genericAssaySelectionFilters" open="INTERSECT" separator="INTERSECT">
+            <foreach item="selectionGroup" collection="genericAssaySelectionFilter.values" open="(" separator="INTERSECT" close=")">
+                SELECT DISTINCT sd.sample_unique_id
+                FROM sample_derived sd
+                WHERE
+                <choose>
+                    <when test="genericAssaySelectionFilter.patientLevel">
+                        sd.patient_unique_id IN (
+                            SELECT DISTINCT patient_unique_id
+                            FROM generic_assay_data_derived gad
+                            <include refid="selectMatchingGenericAssaySelections"/>
+                        )
+                    </when>
+                    <otherwise>
+                        sd.sample_unique_id IN (
+                            SELECT DISTINCT sample_unique_id
+                            FROM generic_assay_data_derived gad
+                            <include refid="selectMatchingGenericAssaySelections"/>
+                        )
+                    </otherwise>
+                </choose>
+            </foreach>
+        </foreach>
+    </sql>
+
+    <sql id="selectMatchingGenericAssaySelections">
+        <where>
+            gad.profile_type = #{genericAssaySelectionFilter.profileType}
+            AND gad.datatype != 'LIMIT-VALUE'
+            <if test="studyViewFilterHelper.involvedCancerStudies != null and !studyViewFilterHelper.involvedCancerStudies.isEmpty()">
+                AND gad.sample_unique_id IN (
+                    SELECT sample_unique_id
+                    FROM sample_derived
+                    WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterHelper.involvedCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                )
+            </if>
+            AND
+            <foreach item="selectionValue" collection="selectionGroup" open="((" separator=") OR (" close="))">
+                gad.entity_stable_id = #{selectionValue.stableId}
+                AND
+                <choose>
+                    <when test="selectionValue.value == 'NA'">
+                        (
+                            gad.value IS NULL
+                            OR
+                            <include refid="normalizeAttributeValue">
+                                <property name="attribute_value" value="gad.value"/>
+                            </include> = 'NA'
+                        )
+                    </when>
+                    <otherwise>
+                        gad.value ILIKE #{selectionValue.value}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </where>
     </sql>
     
     <sql id="selectAllGenericAssays">

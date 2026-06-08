@@ -70,6 +70,7 @@ public abstract class StudyViewFilterFactory {
         base.getGenomicProfiles(),
         base.getGenomicDataFilters(),
         base.getGenericAssayDataFilters(),
+        base.getGenericAssaySelectionFilters(),
         base.getCaseLists(),
         base.getCustomDataFilters(),
         base.getAlterationFilter(),

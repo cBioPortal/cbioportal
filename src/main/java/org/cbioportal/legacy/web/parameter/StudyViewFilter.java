@@ -40,6 +40,7 @@ public class StudyViewFilter implements Serializable {
   private List<List<String>> genomicProfiles;
   private List<GenomicDataFilter> genomicDataFilters;
   private List<GenericAssayDataFilter> genericAssayDataFilters;
+  private List<GenericAssaySelectionFilter> genericAssaySelectionFilters;
   private List<List<String>> caseLists;
   private List<ClinicalDataFilter> customDataFilters;
   private AlterationFilter alterationFilter;
@@ -65,6 +66,30 @@ public class StudyViewFilter implements Serializable {
   @AssertTrue
   private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
     return validateDataFilters(genericAssayDataFilters);
+  }
+
+  @AssertTrue
+  private boolean isGenericAssaySelectionFiltersValid() {
+    return genericAssaySelectionFilters == null
+        || genericAssaySelectionFilters.stream()
+            .allMatch(
+                filter ->
+                    filter != null
+                        && filter.getProfileType() != null
+                        && filter.getPatientLevel() != null
+                        && filter.getValues() != null
+                        && !filter.getValues().isEmpty()
+                        && filter.getValues().stream()
+                            .allMatch(
+                                group ->
+                                    group != null
+                                        && !group.isEmpty()
+                                        && group.stream()
+                                            .allMatch(
+                                                value ->
+                                                    value != null
+                                                        && value.getStableId() != null
+                                                        && value.getValue() != null)));
   }
 
   @AssertTrue
@@ -186,6 +211,15 @@ public class StudyViewFilter implements Serializable {
 
   public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
     this.genericAssayDataFilters = genericAssayDataFilters;
+  }
+
+  public List<GenericAssaySelectionFilter> getGenericAssaySelectionFilters() {
+    return genericAssaySelectionFilters;
+  }
+
+  public void setGenericAssaySelectionFilters(
+      List<GenericAssaySelectionFilter> genericAssaySelectionFilters) {
+    this.genericAssaySelectionFilters = genericAssaySelectionFilters;
   }
 
   public List<ClinicalDataFilter> getCustomDataFilters() {

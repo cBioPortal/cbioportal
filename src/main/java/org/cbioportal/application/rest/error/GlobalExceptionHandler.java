@@ -35,7 +35,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -137,33 +137,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
+  @Nullable
   protected ResponseEntity<Object> handleMissingServletRequestParameter(
-      @NonNull MissingServletRequestParameterException ex,
-      @NonNull HttpHeaders headers,
-      @NonNull HttpStatusCode status,
-      @NonNull WebRequest request) {
+      MissingServletRequestParameterException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("Request parameter is missing: " + ex.getParameterName()),
         HttpStatus.BAD_REQUEST);
   }
 
   @Override
+  @Nullable
   protected ResponseEntity<Object> handleTypeMismatch(
-      @NonNull TypeMismatchException ex,
-      @NonNull HttpHeaders headers,
-      @NonNull HttpStatusCode status,
-      @NonNull WebRequest request) {
+      TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("Request parameter type mismatch: " + ex.getMostSpecificCause()),
         HttpStatus.BAD_REQUEST);
   }
 
   @Override
+  @Nullable
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
-      @NonNull HttpMessageNotReadableException ex,
-      @NonNull HttpHeaders headers,
-      @NonNull HttpStatusCode status,
-      @NonNull WebRequest request) {
+      HttpMessageNotReadableException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("There is an error in the JSON format of the request payload"),
         HttpStatus.BAD_REQUEST);
@@ -188,11 +188,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
+  @Nullable
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
-      @NonNull MethodArgumentNotValidException ex,
-      @NonNull HttpHeaders headers,
-      @NonNull HttpStatusCode status,
-      @NonNull WebRequest request) {
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
 
     FieldError fieldError = ex.getBindingResult().getFieldError();
     if (fieldError != null) {

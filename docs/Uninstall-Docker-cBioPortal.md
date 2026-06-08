@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 # Uninstall Docker cBioPortal
 
 ## 1. Remove cBioPortal docker container

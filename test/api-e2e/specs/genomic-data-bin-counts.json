@@ -45,7 +45,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "GenomicDataBinCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -108,7 +108,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/filtered-samples/fetch?",
+                "url": "/api/filtered-samples/fetch?",
                 "label": "FilteredSamples",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -159,7 +159,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/molecular-profile-sample-counts/fetch?",
+                "url": "/api/molecular-profile-sample-counts/fetch?",
                 "label": "MolecularProfileSample",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -210,7 +210,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/cna-genes/fetch?",
+                "url": "/api/cna-genes/fetch?",
                 "label": "CNAGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -270,7 +270,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "GenomicDataBinCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -368,7 +368,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "ClinicalDataBin",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -468,7 +468,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -519,7 +519,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
+                "url": "/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
                 "label": "ClinicalDataDensity",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -570,7 +570,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/structuralvariant-genes/fetch?",
+                "url": "/api/structuralvariant-genes/fetch?",
                 "label": "StructuralVariantGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -621,7 +621,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/mutated-genes/fetch?",
+                "url": "/api/mutated-genes/fetch?",
                 "label": "MutatedGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -672,7 +672,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/sample-lists-counts/fetch?",
+                "url": "/api/sample-lists-counts/fetch?",
                 "label": "CaseList",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -735,7 +735,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/mutated-genes/fetch?",
+                "url": "/api/mutated-genes/fetch?",
                 "label": "MutatedGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -786,7 +786,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/filtered-samples/fetch?",
+                "url": "/api/filtered-samples/fetch?",
                 "label": "FilteredSamples",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -837,7 +837,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/cna-genes/fetch?",
+                "url": "/api/cna-genes/fetch?",
                 "label": "CNAGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -888,7 +888,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/sample-lists-counts/fetch?",
+                "url": "/api/sample-lists-counts/fetch?",
                 "label": "CaseList",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -986,7 +986,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "ClinicalDataBin",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1086,7 +1086,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1137,7 +1137,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/molecular-profile-sample-counts/fetch?",
+                "url": "/api/molecular-profile-sample-counts/fetch?",
                 "label": "MolecularProfileSample",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1188,7 +1188,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
+                "url": "/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
                 "label": "ClinicalDataDensity",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1239,7 +1239,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/structuralvariant-genes/fetch?",
+                "url": "/api/structuralvariant-genes/fetch?",
                 "label": "StructuralVariantGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1299,7 +1299,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "GenomicDataBinCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1374,7 +1374,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/structuralvariant-genes/fetch?",
+                "url": "/api/structuralvariant-genes/fetch?",
                 "label": "StructuralVariantGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1437,7 +1437,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/mutated-genes/fetch?",
+                "url": "/api/mutated-genes/fetch?",
                 "label": "MutatedGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1500,7 +1500,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/sample-lists-counts/fetch?",
+                "url": "/api/sample-lists-counts/fetch?",
                 "label": "CaseList",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1563,7 +1563,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/molecular-profile-sample-counts/fetch?",
+                "url": "/api/molecular-profile-sample-counts/fetch?",
                 "label": "MolecularProfileSample",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1673,7 +1673,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "ClinicalDataBin",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1736,7 +1736,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/filtered-samples/fetch?",
+                "url": "/api/filtered-samples/fetch?",
                 "label": "FilteredSamples",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1848,7 +1848,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1911,7 +1911,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
+                "url": "/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
                 "label": "ClinicalDataDensity",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -1974,7 +1974,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/cna-genes/fetch?",
+                "url": "/api/cna-genes/fetch?",
                 "label": "CNAGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2061,7 +2061,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/structuralvariant-genes/fetch?",
+                "url": "/api/structuralvariant-genes/fetch?",
                 "label": "StructuralVariantGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2136,7 +2136,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/sample-lists-counts/fetch?",
+                "url": "/api/sample-lists-counts/fetch?",
                 "label": "CaseList",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2211,7 +2211,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/molecular-profile-sample-counts/fetch?",
+                "url": "/api/molecular-profile-sample-counts/fetch?",
                 "label": "MolecularProfileSample",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2333,7 +2333,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "ClinicalDataBin",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2417,7 +2417,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "GenomicDataBinCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2492,7 +2492,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/filtered-samples/fetch?",
+                "url": "/api/filtered-samples/fetch?",
                 "label": "FilteredSamples",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2616,7 +2616,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2691,7 +2691,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
+                "url": "/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
                 "label": "ClinicalDataDensity",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2766,7 +2766,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/mutated-genes/fetch?",
+                "url": "/api/mutated-genes/fetch?",
                 "label": "MutatedGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2841,7 +2841,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/cna-genes/fetch?",
+                "url": "/api/cna-genes/fetch?",
                 "label": "CNAGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -2925,7 +2925,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/genomic-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "GenomicDataBinCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3099,7 +3099,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3212,7 +3212,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/molecular-profile-sample-counts/fetch?",
+                "url": "/api/molecular-profile-sample-counts/fetch?",
                 "label": "MolecularProfileSample",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3325,7 +3325,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
+                "url": "/api/clinical-data-density-plot/fetch?xAxisAttributeId=FRACTION_GENOME_ALTERED&xAxisBinCount=44&xAxisStart=0&xAxisEnd=1&yAxisAttributeId=MUTATION_COUNT&yAxisBinCount=38&yAxisStart=0&xAxisLogScale=false&yAxisLogScale=false&",
                 "label": "ClinicalDataDensity",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3438,7 +3438,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/sample-lists-counts/fetch?",
+                "url": "/api/sample-lists-counts/fetch?",
                 "label": "CaseList",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3551,7 +3551,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/filtered-samples/fetch?",
+                "url": "/api/filtered-samples/fetch?",
                 "label": "FilteredSamples",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3711,7 +3711,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
+                "url": "/api/clinical-data-bin-counts/fetch?dataBinMethod=STATIC&",
                 "label": "ClinicalDataBin",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3824,7 +3824,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/structuralvariant-genes/fetch?",
+                "url": "/api/structuralvariant-genes/fetch?",
                 "label": "StructuralVariantGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -3937,7 +3937,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/mutated-genes/fetch?",
+                "url": "/api/mutated-genes/fetch?",
                 "label": "MutatedGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",
@@ -4050,7 +4050,7 @@
                         "tiersBooleanMap": {}
                     }
                 },
-                "url": "/api/column-store/cna-genes/fetch?",
+                "url": "/api/cna-genes/fetch?",
                 "label": "CNAGenes",
                 "studies": [
                     "blca_tcga_pan_can_atlas_2018",

@@ -211,7 +211,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
         profiledCasesCounter.sampleUniqueIdentifier);
 
     return genePanelDataList.stream()
-        .filter(GenePanelData::getProfiled)
+        .filter(d -> Boolean.TRUE.equals(d.getProfiled()))
         .map(profiledCasesCounter.sampleUniqueIdentifier)
         .distinct()
         .count();
@@ -244,7 +244,7 @@ public class AlterationEnrichmentUtil<T extends AlterationCountBase> {
         profiledCasesCounter.patientUniqueIdentifier);
 
     return genePanelDataList.stream()
-        .filter(GenePanelData::getProfiled)
+        .filter(d -> Boolean.TRUE.equals(d.getProfiled()))
         .map(profiledCasesCounter.patientUniqueIdentifier)
         .distinct()
         .count();

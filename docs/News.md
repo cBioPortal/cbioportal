@@ -1,3 +1,7 @@
+## May 26, 2026
+*   **v7.0.0 Release:** MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal.
+*   **Seed database relocated:** The seed database has been moved and reorganized for ClickHouse compatibility. See the [Migration Guide](Migration-v6-to-v7.md) for details on upgrading from v6.x.
+
 ## April 10, 2026
 *   **New Feature:** Clonality and Cancer Cell Fraction (CCF) are available now as a data option in the Plots tab, allowing visualization of clonality across samples. [Example: PIK3CA mutations in breast and lung cancer cases in the MSK-IMPACT 50K Clinical Sequencing Cohort (MSK, Cancer Cell 2026)](https://bit.ly/4tIcxcu)
 

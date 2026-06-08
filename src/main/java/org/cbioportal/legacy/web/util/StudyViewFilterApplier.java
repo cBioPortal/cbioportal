@@ -381,7 +381,8 @@ public class StudyViewFilterApplier {
         // the profileMap contains that profile id
         genePanelData.forEach(
             datum -> {
-              if (datum.getProfiled() && profileMap.containsKey(datum.getMolecularProfileId())) {
+              if (Boolean.TRUE.equals(datum.getProfiled())
+                  && profileMap.containsKey(datum.getMolecularProfileId())) {
                 SampleIdentifier sampleIdentifier =
                     studyViewFilterUtil.buildSampleIdentifier(
                         datum.getStudyId(), datum.getSampleId());
@@ -1535,7 +1536,7 @@ public class StudyViewFilterApplier {
     }
 
     List<GenePanelData> genePanelData =
-        genePanelDataList.stream().filter(GenePanelData::getProfiled).toList();
+        genePanelDataList.stream().filter(d -> Boolean.TRUE.equals(d.getProfiled())).toList();
 
     Set<SampleIdentifier> profiledCases =
         genePanelData.stream()

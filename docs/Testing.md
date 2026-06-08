@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 # Introduction
 
 This page is about how to run and debug, in an IDE agnostic way, any test classes added to the backend (Java layer).
@@ -59,7 +61,7 @@ _Cgds-test.sql_ should be generated with `/db-scripts/src/main/resources/gen-cgd
 SET GLOBAL local_infile=1;
 CREATE DATABASE cgds_test;
 CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword';
-GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'";
+GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost';
 FLUSH PRIVILEGES;
 SET default_storage_engine=InnoDB;
 SET SESSION sql_mode = 'ANSI_QUOTES';
@@ -70,9 +72,9 @@ SET SESSION sql_mode = 'ANSI_QUOTES';
 ```shell
  docker run -ti --rm \
   --name testdb \
-  --env MYSQL_ROOT_PASSWORD=root \
+  --env MYSQL_ROOT_PASSWORD=*** \
   --env MYSQL_USER=cbio_user \
-  --env MYSQL_PASSWORD=somepassword \
+  --env MYSQL_PASSWORD=*** \
   --env MYSQL_DATABASE=cgds_test \
   -v <path-to-file>/init.sql:/docker-entrypoint-initdb.d/first_file.sql \
   -v <path-to-file>/cgds-test.sql:/docker-entrypoint-initdb.d/second_file.sql \

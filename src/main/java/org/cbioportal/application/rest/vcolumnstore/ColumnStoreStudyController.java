@@ -1,7 +1,7 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
@@ -9,6 +9,8 @@ import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
@@ -20,9 +22,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,8 +42,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @see StudySortBy
  * @see Direction
  */
+@PublicApi
+@Tag(name = PublicApiTags.STUDIES, description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreStudyController {
 
   private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
@@ -65,9 +69,6 @@ public class ColumnStoreStudyController {
    * through the projection parameter, and sorting the results by a specified property and
    * direction.
    *
-   * <p><b>Note:</b> This endpoint is marked as {@link Hidden} and will not be exposed in the API
-   * documentation.
-   *
    * @param keyword the search keyword that applies to the name and cancer type of the studies. This
    *     parameter is optional.
    * @param projection the level of detail of the response. Defaults to {@link
@@ -81,8 +82,10 @@ public class ColumnStoreStudyController {
    * @see StudySortBy
    * @see Direction
    */
-  @Hidden
-  @GetMapping(value = "/studies", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/studies",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
           @RequestParam(required = false)
@@ -134,10 +137,12 @@ public class ColumnStoreStudyController {
     return ResponseEntity.ok().headers(headers).body(responseBody);
   }
 
-  @Hidden
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @GetMapping(value = "/studies/{studyId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/studies/{studyId}",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
       throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
@@ -167,7 +172,7 @@ public class ColumnStoreStudyController {
    * @see Direction
    * @see StudySortBy
    */
-  @GetMapping("/studies/meta")
+  @RequestMapping(method = RequestMethod.GET, value = "/studies/meta")
   public ResponseEntity<Void> getAllStudiesMeta(
       @RequestParam(required = false) String keyword,
       @RequestParam(required = false) StudySortBy sortBy,

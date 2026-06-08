@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -75,8 +76,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @InternalApi
+@Tag(name = "Study View", description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnarStoreStudyViewController {
 
   private final StudyViewService studyViewService;
@@ -104,7 +106,6 @@ public class ColumnarStoreStudyViewController {
     this.customDataFilterUtil = customDataFilterUtil;
   }
 
-  @Hidden
   @RequestMapping(
       value = "/filtered-samples/fetch",
       method = RequestMethod.POST,
@@ -119,7 +120,6 @@ public class ColumnarStoreStudyViewController {
         SampleMapper.INSTANCE.toDtos(studyViewService.getFilteredSamples(studyViewFilter)));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/mutated-genes/fetch",
       method = RequestMethod.POST,
@@ -133,7 +133,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getMutatedGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/molecular-profile-sample-counts/fetch",
       method = RequestMethod.POST,
@@ -156,7 +155,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getMolecularProfileSampleCounts(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/cna-genes/fetch",
       method = RequestMethod.POST,
@@ -170,7 +168,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getCnaGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/structuralvariant-genes/fetch",
       method = RequestMethod.POST,
@@ -194,7 +191,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(studyViewService.getStructuralVariantGenes(studyViewFilter));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/clinical-data-counts/fetch",
       method = RequestMethod.POST,
@@ -218,7 +214,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(result);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/sample-lists-counts/fetch",
       method = RequestMethod.POST,
@@ -236,7 +231,6 @@ public class ColumnarStoreStudyViewController {
     return studyViewService.getCaseListDataCounts(studyViewFilter);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/clinical-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -253,7 +247,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/clinical-data-density-plot/fetch",
       method = RequestMethod.POST,
@@ -323,7 +316,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -414,7 +406,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/genomic-data-counts/fetch",
       method = RequestMethod.POST,
@@ -456,7 +447,6 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/generic-assay-data-counts/fetch",
       method = RequestMethod.POST,
@@ -495,7 +485,6 @@ public class ColumnarStoreStudyViewController {
         studyViewService.getGenericAssayDataCounts(studyViewFilter, gaFilters));
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/mutation-data-counts/fetch",
       method = RequestMethod.POST,
@@ -537,7 +526,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(result);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/clinical-event-type-counts/fetch",
       method = RequestMethod.POST,
@@ -608,9 +596,9 @@ public class ColumnarStoreStudyViewController {
         studyViewService.getSampleTreatmentReport(studyViewFilter, projection));
   }
 
-  @Hidden // should unhide when we remove legacy controller
+  @Hidden
   @RequestMapping(
-      value = "/custom-data-counts/fetch",
+      value = "/not-ready-yet/custom-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -659,9 +647,9 @@ public class ColumnarStoreStudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
-  @Hidden // should unhide when we remove legacy controller
+  @Hidden
   @RequestMapping(
-      value = "/custom-data-bin-counts/fetch",
+      value = "/not-ready-yet/custom-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -685,7 +673,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(customDataBins);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/genomic-data-bin-counts/fetch",
       method = RequestMethod.POST,
@@ -706,7 +693,6 @@ public class ColumnarStoreStudyViewController {
     return ResponseEntity.ok(genomicDataBins);
   }
 
-  @Hidden // should unhide when we remove legacy controller
   @RequestMapping(
       value = "/generic-assay-data-bin-counts/fetch",
       method = RequestMethod.POST,

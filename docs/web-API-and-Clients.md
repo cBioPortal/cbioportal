@@ -41,7 +41,7 @@ cBioPortal(
 cbioportalR offers easy-to-use functions that allow users to browse and pull data from public or institutional cBioPortal sites without knowledge of web service or Bioconductor infrastructures. The package is tidyverse-compatible. Key package features include:
 
 1. Comprehensive documentation aimed at helping clinical researchers understand the underlying structure of cBioPortal data
-2. [Tutorials]([https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html]) for quick API authentication and set up
+2. [Tutorials](https://www.karissawhiting.com/cbioportalR/articles/overview-of-workflow.html) for quick API authentication and set up
 3. Functions to pull complete clinical and genomic data by study ID, molecular profile ID, sample list IDs or individual sample ID (e.g. `get_genetics_by_study()`, `get_genetics_by_sample()`)
 4. Functions to navigate and identify patient IDs, sample IDs or study IDs as needed, or infer necessary ID information for queries when not supplied by user.
 5. Helper functions to pull information on gene panels (`get_gene_panel()`), or lookup entrez ID (`get_entrez_id()`), Hugo Symbol (`get_hugo_symbol()`) or common gene aliases (`get_alias()`) of genes
@@ -116,7 +116,7 @@ muts = cbioportal.mutations.getMutationsInMolecularProfileBySampleListIdUsingGET
 ).result()
 ```
 
-For a portal that requires authentication one can use (see [Data Access Using Tokens](/deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)):
+For a portal that requires authentication one can use (see [Data Access Using Tokens](deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)):
 
 ```
 from bravado.client import SwaggerClient

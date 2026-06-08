@@ -2,6 +2,9 @@
 
 This page describes various changes deployers will need to make as they deploy newer versions of the portal.
 
+## v6.4 -> v7.0
+- Please see [v6 to v7 Migration](Migration-v6-to-v7.md)
+
 ## v6.3 -> v6.4
 - The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading.
 
@@ -25,7 +28,7 @@ This page describes various changes deployers will need to make as they deploy n
 - `portal.properties` migration needed:
   - `portal.properties` has been renamed to `application.properties`. This is the Spring Boot default name 
   - `authenticate` values of `googleplus`, `social_auth_google` and `social_auth_microsoft` have been replaced by `optional_oauth2`
-    - If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property `always_show_study_group=PUBLIC` and confirm  that all studies in your database you'd like to be be public have `GROUPS` values set to `PUBLIC`
+    - If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property `always_show_study_group=PUBLIC` and confirm  that all studies in your database you'd like to be public have `GROUPS` values set to `PUBLIC`
 - `Redis HTTP Session`
   - To disable redis session (Must be disabled if redis is not setup) `spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration`
   - To enable `spring.data.redis.host=localhost` `spring.data.redis.port=6379`

@@ -265,7 +265,8 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     sampleIds.add("TCGA-A1-A0SB-01");
     sampleIds.add("TCGA-A1-B0SO-01");
 
-    // Streaming variant must yield the same rows as fetchCopyNumberSegments, one at a time.
+    // Streams each row to the consumer; assert the streamed rows match the expected segments
+    // (same inputs/assertions as fetchCopyNumberSegments above).
     List<CopyNumberSeg> streamed = new ArrayList<>();
     copyNumberSegmentMyBatisRepository.streamCopyNumberSegments(
         studyIds, sampleIds, null, "SUMMARY", streamed::add);

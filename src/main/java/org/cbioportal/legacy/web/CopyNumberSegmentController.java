@@ -176,6 +176,10 @@ public class CopyNumberSegmentController {
     StreamingResponseBody body =
         outputStream -> {
           try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            // A committed 200 cannot become a 500 mid-stream; disable AUTO_CLOSE_JSON_CONTENT so a
+            // failure leaves the array unclosed (client sees invalid JSON) rather than a silently
+            // truncated but well-formed one. The exception still propagates and is logged.
+            generator.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
             generator.writeStartArray();
             copyNumberSegmentService.streamCopyNumberSegments(
                 studyIds,

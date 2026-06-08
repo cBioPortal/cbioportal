@@ -133,6 +133,56 @@ public class CopyNumberSegmentControllerTest {
 
   @Test
   @WithMockUser
+  public void fetchCopyNumberSegmentsFailureMidStreamLeavesArrayUnclosed() throws Exception {
+    // Emit one element, then fail (as a DB error mid-stream would). The 200 is already committed so
+    // it cannot become a 500; assert the array is left unclosed so the client gets detectably
+    // invalid JSON rather than a silently truncated but well-formed array.
+    Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<CopyNumberSeg> consumer = invocation.getArgument(4);
+              consumer.accept(createExampleCopyNumberSegs().get(0));
+              throw new RuntimeException("boom mid-stream");
+            })
+        .when(copyNumberSegmentService)
+        .streamCopyNumberSegments(
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+    List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
+    SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
+    sampleIdentifier1.setStudyId(TEST_CANCER_STUDY_IDENTIFIER_1);
+    sampleIdentifier1.setSampleId(TEST_SAMPLE_STABLE_ID_1);
+    sampleIdentifiers.add(sampleIdentifier1);
+
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/copy-number-segments/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
+    String body;
+    try {
+      body =
+          mockMvc
+              .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+    } catch (Exception propagated) {
+      body = mvcResult.getResponse().getContentAsString();
+    }
+
+    org.junit.Assert.assertFalse(
+        "array must be left unclosed on mid-stream failure, got: " + body,
+        body.trim().endsWith("]"));
+  }
+
+  @Test
+  @WithMockUser
   public void fetchCopyNumberSegmentsDefaultProjection() throws Exception {
 
     List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();

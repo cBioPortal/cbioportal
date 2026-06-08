@@ -40,7 +40,7 @@ This section provides a summary. For Quick Start instructions, or for more addit
 #### What database to use
 
 - **v7 (master)**: Uses **ClickHouse** as the sole database backend. cBioPortal production are using [ClickHouse Cloud](https://clickhouse.com/cloud)
-- **v6 (maintenance-v6)**: Continues to use the legacy MySQL database backend. We recommend to set up a MySQL database automatically using [Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose). It's useful to know how to do this as it allows you to import any dataset of your choice. For debugging production issues, we also have a database available with all the data on <https://cbioportal.org> that one can connect to directly. Please reach out on slack to get the credentials.
+- **v6 (maintenance-v6)**: Uses the legacy MySQL database backend. This branch receives **limited support** (security fixes only). See [Migration Guide](docs/Migration-v6-to-v7.md) for upgrading to v7.
 
 #### Deploy your development image inside Docker Compose
 
@@ -82,9 +82,9 @@ java -Xms2g -Xmx4g \
      -Dsession.service.origin='*' \
      -Dspring.datasource.username=cbio_user \
      -Dspring.datasource.password=somepassword \
-     -Dspring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver \
-     -Dspring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect \
-     -Dspring.datasource.url='jdbc:mysql://cbio_user:somepassword@localhost:3306/cbioportal?useSSL=false&allowPublicKeyRetrieval=true' \
+     -Dspring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver \
+     -Dspring.jpa.database-platform=org.hibernate.dialect.ClickHouseDialect \
+     -Dspring.datasource.url='jdbc:ch://localhost:8123/cbioportal' \
      -Dshow.civic=true \
      -Dskin.footer='' \
      -Dapp.name='my-portal' \

@@ -27,13 +27,13 @@
 
 # Introduction
 
-This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading.md#preparing-study-data).
+This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](data-loading/README.md#preparing-study-data).
 
 # Formats
 
 ## Cancer Study
 
-As described in the [Data Loading tool](Data-Loading.md) page, the following file is needed to describe the cancer study:
+As described in the [Data Loading tool](data-loading/README.md) page, the following file is needed to describe the cancer study:
 
 ### Meta file
 This file contains metadata about the cancer study. The file contains the following fields:
@@ -275,7 +275,7 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
 ### Wide vs Long format
 For CNA data two formats are supported: the wide, and the long format:
@@ -1355,7 +1355,7 @@ rank<TAB>gene<TAB>N<TAB>n<TAB>p<TAB>q
 Gene panel functionality can specify which genes are assayed on a panel and assign samples and genetic profiles (such as mutation data) to a panel.
 
 To include gene panel data in your instance, the following data and/or configurations can be used:
-1. **Gene panel file**: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: [Import-Gene-Panels](Import-Gene-Panels.md).
+1. **Gene panel file**: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: [Import-Gene-Panels](data-loading/Import-Gene-Panels.md).
 2. **Gene panel matrix file**: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and structural variant data, because the MAF and structural variant formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (`_sequenced`) and Structural variants (`_sv`) is also required.
 3. **Gene panel property in meta file**: Adding the `gene_panel:` property to the meta file of data profile will assign all samples from that profile to the gene panel. In this case it is not necessary to include a column for this profile in the gene panel matrix file.
 
@@ -1396,7 +1396,7 @@ data_filename: data_gene_panel_matrix.txt
 If all samples in a genetic profile have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel:**. If this is present, all samples in this data file will be assigned to this gene panel for this specific profile.
 
 ## Gene Set Data
-A description of importing gene sets (which are required before loading gene set study) can be found [here](Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
+A description of importing gene sets (which are required before loading gene set study) can be found [here](data-loading/Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
 
 cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis](https://www.bioconductor.org/packages/release/bioc/html/GSVA.html) method in R (GSVA, [Hänzelmann, 2013](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a bootstrapping method.
 

@@ -43,7 +43,7 @@ export enum EnrichmentType {
 
 /**
  * CancerType - Cancer type information
- * Source: Derived from API response at /api/column-store/studies
+ * Source: Derived from API response at /api/studies
  */
 export interface CancerType {
   /** Cancer type ID */
@@ -60,7 +60,7 @@ export interface CancerType {
 
 /**
  * CancerStudyMetadataDTO - Cancer study metadata with detailed statistics
- * Source: Derived from API response at /api/column-store/studies?projection=DETAILED
+ * Source: Derived from API response at /api/studies?projection=DETAILED
  * All fields are required unless marked optional
  */
 export interface CancerStudyMetadataDTO {
@@ -120,7 +120,7 @@ export interface CancerStudyMetadataDTO {
 
 /**
  * Gene - Gene information
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  */
 export interface Gene {
   /** Entrez Gene ID */
@@ -133,7 +133,7 @@ export interface Gene {
 
 /**
  * AlleleSpecificCopyNumber - Allele-specific copy number data
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  * Note: This field can be null even in DETAILED projection
  */
 export interface AlleleSpecificCopyNumber {
@@ -143,7 +143,7 @@ export interface AlleleSpecificCopyNumber {
 
 /**
  * MutationDTO - Mutation data transfer object
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  * Different projection types (ID, SUMMARY, DETAILED) expose different fields
  */
 export interface MutationDTO {

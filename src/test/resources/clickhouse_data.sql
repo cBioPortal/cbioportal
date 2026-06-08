@@ -256,9 +256,8 @@ insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,2,1
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,3,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,4,null);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,2);
-insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,6,1);
+insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (11,6,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (1,7,null);
-insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,2,2);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,3,1);
 insert into sample_profile (sample_id,genetic_profile_id,panel_id) values (2,4,2);
@@ -578,8 +577,8 @@ values(13,15,7113,'enst00000332149','21','exon',-1,'q13.4',42880007,'tmprss2-erg
 insert into structural_variant (genetic_profile_id,sample_id,site1_entrez_gene_id,site1_ensembl_transcript_id,site1_chromosome,site1_region,site1_region_number,site1_contig,site1_position,site1_description,site2_entrez_gene_id,site2_ensembl_transcript_id,site2_chromosome,site2_region,site2_region_number,site2_contig,site2_position,site2_description,ncbi_build,dna_support,rna_support,tumor_read_count,tumor_variant_count,annotation,event_info,comments,sv_status)
 values(13,15,8031,'enst00000344348','10','exon',-1,'q13.4',51582939,'ncoa4-null',null,'enst00000340058_null','10','exon',-1,'p13.1',43612031,'ncoa4-null','grch37','no','yes',100001,80000,'ncoa4-null','fusion','gain-of-function','SOMATIC');
 
-insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,207,1,998421,17,0.00000315,0.00233);
-insert into mut_sig (cancer_study_id,entrez_gene_id,rank,numbasescovered,nummutations,p_value,q_value) values (1,208,2,3200341,351,0.000000012,0.00000000000212);
+insert into mut_sig (cancer_study_id,entrez_gene_id,rank,NumBasesCovered,NumMutations,p_value,q_value) values (1,207,1,998421,17,0.00000315,0.00233);
+insert into mut_sig (cancer_study_id,entrez_gene_id,rank,NumBasesCovered,NumMutations,p_value,q_value) values (1,208,2,3200341,351,0.000000012,0.00000000000212);
 
 -- gistic values (genetic_profile_id = 2) should only be {-2, -1, 0, 1, 2}
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (2,1,'-1,2,0,1,-2,2,-1,0,1,-2,2,0,1,-1,');

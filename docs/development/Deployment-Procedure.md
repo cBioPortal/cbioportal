@@ -1,3 +1,5 @@
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
 # Deployment Procedure
 This describes our internal deployment procedure. Shared publicly, in case it
 may be of use. Instructions on how to deploy cBioPortal can be found elsewhere,

@@ -22,6 +22,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @ContextConfiguration(classes = {CoExpressionController.class, TestConfig.class})
+@TestPropertySource(properties = "coexpression_enabled=true")
 public class CoExpressionControllerTest {
 
   private static final String TEST_ENTREZ_GENE_ID_1 = "1";
@@ -77,7 +79,7 @@ public class CoExpressionControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/molecular-profiles/co-expressions/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/molecular-profiles/co-expressions/fetch")
                 .with(csrf())
                 .param("molecularProfileIdA", "test_molecular_profile_id")
                 .param("molecularProfileIdB", "test_molecular_profile_id")

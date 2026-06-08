@@ -17,7 +17,7 @@ describe('ColumnStoreMutationController E2E Tests', () => {
     testData: any,
     projectionType: ProjectionType
   ): Promise<MutationDTO[]> {
-    const url = `${config.serverUrl}/api/column-store/mutations/fetch?projection=${projectionType}`;
+    const url = `${config.serverUrl}/api/not-ready-yet/mutations/fetch?projection=${projectionType}`;
 
     const response = await axios.post<MutationDTO[]>(url, testData, {
       headers: {

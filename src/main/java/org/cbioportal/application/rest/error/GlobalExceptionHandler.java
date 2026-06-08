@@ -29,7 +29,9 @@ import org.cbioportal.legacy.service.exception.TokenNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -40,12 +42,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-// TODO
-// - consider extending extends ResponseEntityExceptionHandler
-// - check controllers for not catching exceptions themselves
-@ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
-public class GlobalExceptionHandler {
+@ControllerAdvice({
+  "org.cbioportal.legacy.web",
+  "org.cbioportal.application.rest.vcolumnstore",
+  "org.cbioportal.application.proxy",
+  "org.cbioportal.application.file.export"
+})
+public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
@@ -134,24 +140,31 @@ public class GlobalExceptionHandler {
         new ErrorResponse("Gene panel not found: " + ex.getGenePanelId()), HttpStatus.NOT_FOUND);
   }
 
-  @ExceptionHandler(MissingServletRequestParameterException.class)
-  public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(
-      MissingServletRequestParameterException ex) {
+  @Override
+  protected ResponseEntity<Object> handleMissingServletRequestParameter(
+      MissingServletRequestParameterException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("Request parameter is missing: " + ex.getParameterName()),
         HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(TypeMismatchException.class)
-  public ResponseEntity<ErrorResponse> handleTypeMismatch(TypeMismatchException ex) {
+  @Override
+  protected ResponseEntity<Object> handleTypeMismatch(
+      TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("Request parameter type mismatch: " + ex.getMostSpecificCause()),
         HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(HttpMessageNotReadableException.class)
-  public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
-      HttpMessageNotReadableException ex) {
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(
+      HttpMessageNotReadableException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
     return new ResponseEntity<>(
         new ErrorResponse("There is an error in the JSON format of the request payload"),
         HttpStatus.BAD_REQUEST);
@@ -175,9 +188,12 @@ public class GlobalExceptionHandler {
         HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(
-      MethodArgumentNotValidException ex) {
+  @Override
+  protected ResponseEntity<Object> handleMethodArgumentNotValid(
+      MethodArgumentNotValidException ex,
+      HttpHeaders headers,
+      HttpStatusCode status,
+      WebRequest request) {
 
     FieldError fieldError = ex.getBindingResult().getFieldError();
     if (fieldError != null) {

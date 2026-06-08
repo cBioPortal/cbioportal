@@ -44,7 +44,7 @@ You don't need to pick which one you want — the agent decides which tools to c
 - **Ask about the schema** — you can ask the agent to explain available fields and tables to help frame more effective queries.
 - **Statistical claims need external tools** — the agent can return summary data and generate links (including Kaplan–Meier plots), but it cannot compute statistical test results (p-values, hazard ratios, odds ratios). Use cBioPortal's Group Comparison tab, R, or Python to run the test.
 
-## Getting started
+## Getting Started
 
 1. Fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform) to request access. We onboard new users in groups — we appreciate your patience until we get in touch.
 2. Type your question in the chat input.

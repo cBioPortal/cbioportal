@@ -128,6 +128,12 @@ public class ColumnStoreGenericAssayController {
     StreamingResponseBody body =
         outputStream -> {
           try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            // Once the 200 + first bytes are flushed the status can no longer change, so a
+            // mid-stream failure cannot become a 500 (inherent to streaming). Disable
+            // AUTO_CLOSE_JSON_CONTENT so that on failure the array is left unclosed: the client
+            // receives detectably-invalid JSON (parse error) rather than a silently-truncated but
+            // well-formed array, and the propagated exception is still logged server-side.
+            generator.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
             generator.writeStartArray();
             getGenericAssayMetaUseCase.execute(
                 stableIds,

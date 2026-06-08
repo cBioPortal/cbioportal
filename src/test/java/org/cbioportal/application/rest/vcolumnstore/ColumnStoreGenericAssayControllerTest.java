@@ -160,6 +160,57 @@ public class ColumnStoreGenericAssayControllerTest {
                 "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
   }
 
+  @Test
+  @WithMockUser
+  public void testFetchGenericAssayMeta_failureMidStreamLeavesArrayUnclosed() throws Exception {
+    // Emit one element, then fail (as a DB error mid-stream would). Because the 200 is already
+    // committed it cannot become a 500; we assert the array is NOT cleanly closed, so the client
+    // gets detectably-invalid JSON instead of a silently-truncated but well-formed array.
+    Mockito.doAnswer(
+            invocation -> {
+              Consumer<GenericAssayMeta> consumer = invocation.getArgument(3);
+              consumer.accept(new GenericAssayMeta(ENTITY_TYPE, GENERIC_ASSAY_STABLE_ID_1));
+              throw new RuntimeException("boom mid-stream");
+            })
+        .when(getGenericAssayMetaUseCase)
+        .execute(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setGenericAssayStableIds(Arrays.asList(GENERIC_ASSAY_STABLE_ID_1));
+
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(filter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
+    String body;
+    try {
+      body =
+          mockMvc
+              .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+    } catch (Exception propagated) {
+      // The async dispatch may rethrow the mid-stream failure; the partial body is on the response.
+      body = mvcResult.getResponse().getContentAsString();
+    }
+
+    // One element was written but the array must not have been closed with ']'.
+    org.junit.Assert.assertTrue(
+        "expected a partial element to have been written",
+        body.contains(GENERIC_ASSAY_STABLE_ID_1));
+    org.junit.Assert.assertFalse(
+        "array must be left unclosed on mid-stream failure, got: " + body,
+        body.trim().endsWith("]"));
+  }
+
   /**
    * Stubs the streaming use case so that the given items are pushed to the {@link Consumer} the
    * controller supplies, mirroring how rows are streamed from the database.

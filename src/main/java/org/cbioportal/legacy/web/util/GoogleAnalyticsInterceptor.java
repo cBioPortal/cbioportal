@@ -101,7 +101,7 @@ public class GoogleAnalyticsInterceptor implements HandlerInterceptor {
               }
             }
           } catch (RestClientException e) {
-            e.printStackTrace();
+            LOG.error("Error sending POST request to Google Analytics", e);
           }
         });
   }

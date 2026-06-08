@@ -51,7 +51,7 @@ You don't need to pick which one you want — the agent decides which tools to c
 3. Review the AI-generated response.
 4. Ask follow-up questions to dive deeper.
 
-## Feedback and support
+## Feedback and Support
 
 The chat interface is actively being developed and improved. Your feedback drives it:
 

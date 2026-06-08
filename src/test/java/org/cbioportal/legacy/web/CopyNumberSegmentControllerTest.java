@@ -24,6 +24,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
@@ -136,10 +137,16 @@ public class CopyNumberSegmentControllerTest {
 
     List<CopyNumberSeg> copyNumberSegList = createExampleCopyNumberSegs();
 
-    Mockito.when(
-            copyNumberSegmentService.fetchCopyNumberSegments(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(copyNumberSegList);
+    // The endpoint now streams; feed the segments to the consumer the controller supplies.
+    Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<CopyNumberSeg> consumer = invocation.getArgument(4);
+              copyNumberSegList.forEach(consumer);
+              return null;
+            })
+        .when(copyNumberSegmentService)
+        .streamCopyNumberSegments(
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
 
     List<SampleIdentifier> sampleIdentifiers = new ArrayList<>();
     SampleIdentifier sampleIdentifier1 = new SampleIdentifier();
@@ -151,13 +158,19 @@ public class CopyNumberSegmentControllerTest {
     sampleIdentifier2.setSampleId(TEST_SAMPLE_STABLE_ID_2);
     sampleIdentifiers.add(sampleIdentifier2);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/copy-number-segments/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/copy-number-segments/fetch")
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(sampleIdentifiers)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

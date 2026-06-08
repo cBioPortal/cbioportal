@@ -1,5 +1,7 @@
 package org.cbioportal.legacy.web;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 @PublicApi
 @RestController()
@@ -51,6 +56,7 @@ public class CopyNumberSegmentController {
   private static final String COPY_NUMBER_SEGMENT_DEFAULT_PAGE_SIZE = "20000";
 
   @Autowired private CopyNumberSegmentService copyNumberSegmentService;
+  @Autowired private ObjectMapper objectMapper;
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -126,7 +132,7 @@ public class CopyNumberSegmentController {
       description = "OK",
       content =
           @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSeg.class))))
-  public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(
+  public ResponseEntity<StreamingResponseBody> fetchCopyNumberSegments(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -162,11 +168,33 @@ public class CopyNumberSegmentController {
               .getTotalCount()
               .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-    } else {
-      return new ResponseEntity<>(
-          copyNumberSegmentService.fetchCopyNumberSegments(
-              studyIds, sampleIds, chromosome, projection.name()),
-          HttpStatus.OK);
     }
+
+    // Stream the segments as a JSON array, writing each row as it is read from the database so the
+    // (potentially very large, multi-study) result set is never materialized into a list in memory.
+    String projectionName = projection.name();
+    StreamingResponseBody body =
+        outputStream -> {
+          try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            generator.writeStartArray();
+            copyNumberSegmentService.streamCopyNumberSegments(
+                studyIds,
+                sampleIds,
+                chromosome,
+                projectionName,
+                seg -> {
+                  try {
+                    generator.writeObject(seg);
+                  } catch (IOException e) {
+                    // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below
+                    throw new UncheckedIOException(e);
+                  }
+                });
+            generator.writeEndArray();
+          } catch (UncheckedIOException e) {
+            throw e.getCause();
+          }
+        };
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
   }
 }

@@ -69,6 +69,19 @@
         </if>
     </select>
 
+    <!-- Unpaged streaming variant of getCopyNumberSegments; consumed row-by-row via a ResultHandler
+         so a large multi-study result set is never materialized. fetchSize keeps the driver streaming. -->
+    <select id="streamCopyNumberSegments" resultType="org.cbioportal.legacy.model.CopyNumberSeg" fetchSize="10000">
+        SELECT
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="where"/>
+        <if test="chromosome != null and !chromosome.isEmpty()">
+            AND copy_number_seg.chr = #{chromosome}
+        </if>
+        ORDER BY copy_number_seg.seg_id ASC
+    </select>
+
     <select id="getMetaCopyNumberSegments" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount

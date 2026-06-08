@@ -47,12 +47,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-@ControllerAdvice({
-  "org.cbioportal.legacy.web",
-  "org.cbioportal.application.rest.vcolumnstore",
-  "org.cbioportal.application.proxy",
-  "org.cbioportal.application.file.export"
-})
+@ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);

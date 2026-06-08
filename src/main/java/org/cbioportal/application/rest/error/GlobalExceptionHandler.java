@@ -46,6 +46,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+// TODO: check controllers in org.cbioportal.application.proxy and
+// org.cbioportal.application.file.export for not catching exceptions themselves,
+// then add those packages to the @ControllerAdvice below.
 @ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 

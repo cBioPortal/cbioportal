@@ -1,98 +1,155 @@
-> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
-
 # cBioPortal Backend Code Organization
 
-## Maven Project
+The cBioPortal backend is a single-module Spring Boot application built with
+Maven. The current codebase uses package-based boundaries instead of the older
+multi-module layout.
 
-The backend code is structured as a [Maven](https://maven.apache.org/index.html)
-project. Included in the repository are [pom.xml files](https://maven.apache.org/pom.html#What_is_the_POM)
-which define the code components and modules which make up the backend. The pom.xml
-files also list dependencies on external open source libraries, and dependencies between cBioPortal Maven modules.
-They also give instructions for how to build and package code components into a
-deployable format.
+New backend work should follow the clean architecture structure under
+`src/main/java/org/cbioportal`. Legacy packages are still active for existing
+APIs and migration work, but new feature development should prefer the
+application/domain/infrastructure stack.
 
-### Frontend data exchange
+## Runtime Stack
 
-The frontend is a [React](https://reactjs.org/) javascript application located
-in a separate [GitHub
-repository](https://github.com/cBioPortal/cbioportal-frontend) repo, which
-communicates with the backend via a REST API. We also use JSP  to embed
-configuration data in the initial HTML page in order to allow us to optimize
-loading times.
+The backend connects to ClickHouse and serves the REST API used by
+`cbioportal-frontend`. The frontend is maintained in the
+[cbioportal-frontend](https://github.com/cBioPortal/cbioportal-frontend)
+repository and is packaged into the backend build as a Maven dependency.
 
-### Current Maven Modules
+The session service is a separate application used for saved sessions, virtual
+studies, groups, and related user state. cBioPortal proxies session-service
+requests from the backend so the frontend does not need to call the session
+service directly.
 
-TODO: This is out of date. See https://github.com/cBioPortal/cbioportal/issues/11403.
+## Main Packages
 
-#### The core module
+### `org.cbioportal.application`
 
-The [core](https://github.com/cBioPortal/cbioportal/blob/master/core) module contains the oldest code in the code base. Much of
-the backend web data services logic has been re-implemented and expanded in
-other backend maven modules, such as [model](https://github.com/cBioPortal/cbioportal/blob/master/model),
-[persistence-mybatis](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-mybatis),
-[service](https://github.com/cBioPortal/cbioportal/blob/master/service), and [web](https://github.com/cBioPortal/cbioportal/blob/master/web). We plan to discontinue the legacy
-webservice.do data servlet and fully transition to the new data services API in
-the near future. The core module will then be purged of much of the legacy
-code. Any surviving functionality (such as the handling of global configuration
-properties) may be relocated into new modules. It is therefore important that
-no new code features be introduced which are dependent on the core module
-functionality.
+The application layer contains Spring MVC controllers, request and response
+DTOs, API mappers, endpoint security helpers, file/export code, and proxy code.
 
-#### The central stack modules : web, service, persistence
+Typical responsibilities:
 
-Three maven modules make up the central stack of the new web API implementation.
+- Accept HTTP requests and validate request shape.
+- Enforce authorization with `@PreAuthorize` on endpoints that access
+  study-specific data.
+- Convert between API DTOs and domain objects.
+- Delegate business behavior to domain use cases or legacy services.
 
-* [web](https://github.com/cBioPortal/cbioportal/blob/master/web) : define Web API request handlers, map endpoints, select services
-* [service](https://github.com/cBioPortal/cbioportal/blob/master/service) : call persistence module or utils, apply business logic
-* [persistence](https://github.com/cBioPortal/cbioportal/blob/master/persistence) : retrieve data from database. Two submodules:
-  * [persistence-api](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-api) : declaration of repository classes / functions, caching markup
-  * [persistence-mybatis](https://github.com/cBioPortal/cbioportal/blob/master/persistence/persistence-mybatis) : implementation of persistence-api using [MyBatis](https://mybatis.org/mybatis-3/) mappers
+Controllers should not contain database queries or substantial business logic.
 
-#### Other modules
+### `org.cbioportal.domain`
 
-* [model](https://github.com/cBioPortal/cbioportal/blob/master/model) : data model POJO classes (used throughout the stack)
-* [security](https://github.com/cBioPortal/cbioportal/blob/master/security) : user authentication methods and authorization, request filters 
-* [business](https://github.com/cBioPortal/cbioportal/blob/master/business) : a legacy refactor of webservice.do, has active dataSource definition
-* [portal](https://github.com/cBioPortal/cbioportal/blob/master/portal) : web application packaging and launch
-* [scripts](https://github.com/cBioPortal/cbioportal/blob/master/scripts) : data import tool packaging (from core module scripts package)
-* [db_scripts](https://github.com/cBioPortal/cbioportal/blob/master/db_scripts) : installation and migration scripts for the database
+The domain layer contains feature-oriented business objects, repository
+interfaces, use cases, and pure domain utilities. Packages are organized by
+functional area, for example:
 
-#### External code modules
+- `alteration`
+- `cancerstudy`
+- `clinical_attributes`
+- `clinical_data`
+- `clinical_data_enrichment`
+- `clinical_event`
+- `coexpression`
+- `generic_assay`
+- `genomic_data`
+- `mutation`
+- `patient`
+- `sample`
+- `studyview`
+- `treatment`
 
-* [cbioportal-frontend](https://github.com/cBioPortal/cbioportal-frontend) : a React application using MobX and TypeScript
-* [session-service](https://github.com/cBioPortal/session-service) : an external session key/query specifier storage system
+Domain use cases coordinate business rules and call repository interfaces. They
+should not depend on ClickHouse mapper classes, Spring MVC controllers, or API
+DTOs.
 
-**cbioportal-frontend** is packaged in the web application as a default frontend
-implementation, but the source of the frontend code can also be directed to an external
-source host and be deployed independently of the backend web application. See
-[details](Deployment-Procedure.md)
+### `org.cbioportal.infrastructure`
 
-**session-service** is imported into the web module in order to set up a proxy service
-which receives and forwards requests for saved cBioPortal sessions to a separate system
-providing this storage (using a document based database) The code is needed for handling
-modeled types such as VirtualStudy and Session
+The infrastructure layer contains technical implementations for domain
+interfaces and external systems. Most data access code lives under
+`infrastructure.repository.clickhouse`.
 
-### cBioPortal Module Dependencies
+Typical responsibilities:
 
-![Module Dependencies](../images/maven-module-dependencies.png)
+- Implement domain repository interfaces.
+- Declare MyBatis mapper interfaces.
+- Keep ClickHouse-specific details out of controllers and use cases.
+- Hold infrastructure configuration and service adapters.
 
-_A module is directly dependent on all modules which touch it from below (touching only at a corner
-does not count). Dependencies are transitive : web is dependent on service, service
-is dependent on persistence-mybatis, therefore web is also dependent on
-persistence-mybatis. During packaging, all dependencies are made available to the
-dependent package for use. Avoid creating new dependencies between modules.
-**cyclical dependencies will cause errors during build**_
+The matching ClickHouse SQL mapper XML files live in
+`src/main/resources/mappers/clickhouse`.
 
-Module | Dependencies
------- | ------------
-portal | core, _cbioportal-frontend_
-scripts | core
-core | web 
-web | business, service, _session-service_
-security-spring | service
-service | persistence-mybatis
-persistence-mybatis | persistence-api, db-scripts
-persistence-api | model
-business | model
-db-scripts |
-model |
+### `org.cbioportal.legacy`
+
+The legacy layer contains the older model, persistence, service, web, security,
+configuration, and utility code that still supports existing behavior.
+
+This code is not dead code. Many endpoints and compatibility paths still depend
+on it. When changing legacy behavior, keep the change local and preserve the
+existing public API unless the issue or migration explicitly requires a
+contract change.
+
+For new features, prefer the clean architecture stack. If a feature must touch
+legacy code, keep the boundary clear and avoid expanding legacy patterns into
+new code.
+
+### `org.cbioportal.shared`
+
+The shared package contains cross-cutting enums and small utilities that are
+used by more than one layer. Keep this package narrow; feature-specific logic
+usually belongs in the relevant domain package.
+
+## Resources
+
+Important runtime resources are under `src/main/resources`:
+
+- `application.properties.EXAMPLE` contains example Spring Boot configuration.
+- `mappers/clickhouse` contains current ClickHouse MyBatis SQL mappers.
+- `mappers/export` contains export SQL mappers.
+- `db-scripts/clickhouse` contains ClickHouse schema and migration resources.
+- `templates` and `webapp` contain server-rendered and packaged web assets.
+
+Older mapper locations under `src/main/resources/org/cbioportal` still support
+legacy code paths.
+
+## Tests
+
+The repository uses separate test layers:
+
+- `src/test/java` contains unit and focused Spring MVC tests.
+- `src/integration/java` contains integration tests that need database-backed
+  Spring components.
+- `src/e2e/js` contains API E2E tests that call a running cBioPortal instance.
+
+ClickHouse mapper tests commonly use Testcontainers fixtures from
+`src/test/resources`.
+
+## Adding a New Backend Feature
+
+A typical clean-architecture feature has this shape:
+
+1. Add or reuse domain model classes and repository interfaces in
+   `org.cbioportal.domain.<feature>`.
+2. Implement business behavior in a use case in the same domain package.
+3. Implement repository interfaces in
+   `org.cbioportal.infrastructure.repository.clickhouse.<feature>`.
+4. Add or update MyBatis mapper XML under
+   `src/main/resources/mappers/clickhouse/<feature>`.
+5. Add REST DTOs, MapStruct mappers, and controller methods under
+   `org.cbioportal.application.rest`.
+6. Add unit tests for use cases and controller behavior. Add mapper,
+   integration, or E2E coverage when the behavior depends on SQL or the HTTP
+   contract.
+
+## Dependency Direction
+
+Keep dependencies flowing inward:
+
+- Controllers depend on DTO mappers and domain use cases.
+- Domain use cases depend on domain repository interfaces.
+- Infrastructure implements domain repository interfaces and owns SQL details.
+- Legacy code can be adapted at the boundary, but new domain logic should not
+  depend on legacy web controllers.
+
+This direction keeps business behavior testable and lets ClickHouse-specific
+queries evolve without leaking persistence details into the REST layer.

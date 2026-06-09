@@ -21,11 +21,12 @@ cBioPortal consists of the following components:
 The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
 connects to a ClickHouse database to serve a REST API following the OpenAPI
 specification (https://www.cbioportal.org/api). Note that the repo where this
-lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
-to import data as well as the validator. The backend can be configured to
-connect to a Redis cache to store database query results for improved performance.
+lives in (https://github.com/cBioPortal/cbioportal) contains the backend
+runtime code. The backend can be configured to connect to a Redis cache to
+store database query results for improved performance.
 
-The backend is organized as a multi-module Maven project.
+The backend is organized as a single-module Spring Boot application with
+package-based application, domain, infrastructure, and legacy layers.
 See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
 
 ## Validator

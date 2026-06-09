@@ -1,0 +1,104 @@
+﻿# Welcome to the documentation for cBioPortal!
+
+> We've organized this site by the different roles in the cBioPortal community.
+
+- [Welcome to the documentation for cBioPortal!](https://docs.cbioportal.org/readme.md): Welcome to the documentation for cBioPortal!
+- [About Us](https://docs.cbioportal.org/about-us.md): The cBioPortal for Cancer Genomics was originally developed at Memorial Sloan Kettering Cancer Center (MSK). The public cBioPortal site is hosted by the Center for Molecular Oncology at MSK.
+- [Supported Data Types](https://docs.cbioportal.org/supported-data-types.md): cBioPortal is a multimodal cancer data visualization tool and supports a variety of data types. For some data types, we have explicit support; for others, you can leverage generic assay or clinical data to assign arbitrary data to either a sample or patient.
+- [List of Active RFCs](https://docs.cbioportal.org/rfc-list.md): We maintain an active set of RFCs (Requests for Comments) where we spec out new features and solicit community feedback.
+- [User Guide](https://docs.cbioportal.org/user-guide/readme.md): The cBioPortal for Cancer Genomics is a resource for interactive exploration of multidimensional cancer genomics data sets. The goal of cBioPortal is to
+- [News](https://docs.cbioportal.org/news.md): v7.0.0 Release: MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal.
+- [Genie News](https://docs.cbioportal.org/news-genie.md): Public Release 19.0 of AACR Project GENIE:
+- [API and API Clients](https://docs.cbioportal.org/web-api-and-clients.md): cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visualizations/reports.
+- [AI Integrations](https://docs.cbioportal.org/ai-integrations/readme.md): The cBioPortal community is exploring the use of large language models (LLMs) to make cancer genomics data more accessible and easier to explore.
+- [Deployment](https://docs.cbioportal.org/deployment/readme.md): Private instances of cBioPortal are maintained by institutions and companies around the world.
+- [Architecture Overview](https://docs.cbioportal.org/architecture-overview.md): cBioPortal consists of the following components:
+- [Hardware Requirements](https://docs.cbioportal.org/hardware-requirements.md): Hardware requirements will vary depending on the volume of users you anticipate will access your cBioPortal instance and the amount of data loaded in the portal.
+- [Data Loading](https://docs.cbioportal.org/data-loading/readme.md): This page is the starting point for data loading. The General Overview section below contains all the required steps to get you started.
+- [Downloads](https://docs.cbioportal.org/downloads.md): This page describes the various files available for download. The first section is targeted towards users of cBioPortal. The second section towards maintainers of cBioPortal instances.
+- [Introduction](https://docs.cbioportal.org/file-formats.md): Introduction
+- [Z Score normalization script](https://docs.cbioportal.org/z-score-normalization-script.md): For some data types, when uploading to cBioPortal, it is currently necessary to also provide a z-score transformed version of your input file. The z-score data is essential for the oncoprint functionality.
+- [Study Curation Guide](https://docs.cbioportal.org/study-curation-guide.md): This guide is to help data curators learn how to curate a study on their own computer
+- [Mutation data transcript annotation](https://docs.cbioportal.org/mutation-data-transcript-annotation.md): This document describes how each mutation in cBioPortal gets annotated with a specific gene symbol + protein change.
+- [Updating the gene names and aliases tables](https://docs.cbioportal.org/updating-gene-and-gene_alias-tables.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Migration Guide](https://docs.cbioportal.org/migration-guide.md): This page describes various changes deployers will need to make as they deploy newer versions of the portal.
+- [Migrating from v6 (MySQL) to v7 (ClickHouse)](https://docs.cbioportal.org/migration-v6-to-v7.md): cBioPortal version 7 replaces MySQL with ClickHouse as the sole database for the portal. MySQL is no longer supported going forward. This guide walks you through migrating an existing v6 (MySQL) cBioPortal deployment to v7 (ClickHouse).
+- [Development](https://docs.cbioportal.org/development/readme.md): cBioPortal is an open source project hosted on Github. The core team will consider pull requests from any source.
+
+## User Guide
+
+- [New Users](https://docs.cbioportal.org/user-guide/new-users.md): Are you new to cBioPortal? Welcome! We have a few options to help you get started.
+- [cBioPortal FAQs](https://docs.cbioportal.org/user-guide/faq.md): General Questions
+- [Overview](https://docs.cbioportal.org/user-guide/overview.md): These tutorial slides contain annoted screenshots to walk you through using the cBioPortal site.
+- [By page](https://docs.cbioportal.org/user-guide/by-page.md): Tutorial Slides: Single Study Exploration Google slides | PDF
+- [Onco Query Language (OQL)](https://docs.cbioportal.org/user-guide/oql.md): The Onco Query Language (OQL) is used to define which specific types of alterations are included in a query on the cBioPortal for Cancer Genomics. By default, querying for a gene includes mutations, fusions, amplifications and deep deletions.
+
+## AI Integrations
+
+- [Chat Interface](https://docs.cbioportal.org/ai-integrations/chat-interface.md): We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development.
+- [Model Context Protocol (MCP)](https://docs.cbioportal.org/ai-integrations/mcp.md): This document provides technical information about the Model Context Protocol (MCP) servers and architecture that power AI integrations with cBioPortal.
+
+## Deployment
+
+### Deploy with Docker (Recommended)
+
+- [Deploy with Docker](https://docs.cbioportal.org/deployment/docker/readme.md): This guide covers deploying cBioPortal using Docker Compose, which orchestrates all required services together. The deployment includes:
+- [Importing test data with Docker](https://docs.cbioportal.org/deployment/docker/import_test_data.md): This is an example to import the sample study study_es_0. study_es_0 is a testing and evaluation dataset that covers a broad range of cBioPortal data types. It is intended to help ensure that your cBioPortal importer is correctly handling all supported data types.
+- [Example commands](https://docs.cbioportal.org/deployment/docker/example_commands.md): Use this command to import a gene panel. Specify the gene panel file by replacing path_to_genepanel_file with the absolute path to the gene panel file.
+- [Authenticating and Authorizing Users using Keycloak in Docker](https://docs.cbioportal.org/deployment/docker/using-keycloak.md): ⚠️ This documentation for keycloak might be outdated, see related ticket ⚠️
+- [ClickHouse Setup Guide](https://docs.cbioportal.org/deployment/clickhouse/readme.md): Starting with version 7, cBioPortal uses ClickHouse as its sole database. This guide will help you set up and configure a ClickHouse-backed cBioPortal instance.
+- [Deploy Standalone Isolated Version](https://docs.cbioportal.org/deployment/standalone/readme.md): ⚠️ Outdated Documentation: The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
+- [Deploy with Kubernetes](https://docs.cbioportal.org/deployment/kubernetes/readme.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
+### Authorization and Authentication
+
+- [User Authorization](https://docs.cbioportal.org/deployment/authorization-and-authentication/user-authorization.md): This step is only required if you intend on running an instance of the portal that supports user authorization.
+- [Spring Security](https://docs.cbioportal.org/deployment/authorization-and-authentication/spring-security.md): The cBioPortal app leverages Spring Security to configure authorization and authentication. Some example settings can be found in the security.properties.EXAMPLE file.
+- [User Authorization](https://docs.cbioportal.org/deployment/authorization-and-authentication/user-authorization.md): This step is only required if you intend on running an instance of the portal that supports user authorization.
+- [Introduction](https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-saml.md): The cBioPortal includes support for SAML (Security Assertion Markup Language). This document explains why you might find SAML useful, and how to configure SAML within your own instance of cBioPortal.
+- [Authenticating Users via LDAP](https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-ldap.md): To connect cBioPortal to an external user database such as Active Directory will require the installation of Keycloak. Please read the Wiki page on Authenticating and Authorizing Users via Keycloak for information on how to connect the cBioPortal with Keycloak.
+- [Authenticating and Authorizing Users via Keycloak](https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak.md): This documentation is for keycloak v26.2.4
+- [Authenticating Users via Tokens](https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-tokens.md): The cBioPortal provides access to data within its database through the cBioPortal web service. While most users interact with this web service indirectly while visiting cBioPortal web pages, it is possible to access this web service directly.
+- [Keycloak Management via API Access and User Creation](https://docs.cbioportal.org/deployment/authorization-and-authentication/keycloak-api-access-and-user-creation.md): ⚠️ This documentation is for keycloak <v20, see related ticket ⚠️
+
+### Customization
+
+- [Customizing your instance of cBioPortal](https://docs.cbioportal.org/deployment/customization/customizing-your-instance-of-cbioportal.md): cBioPortal contains a number of properties that allow you to customize your cBioPortal instance.
+- [More application.properties Settings](https://docs.cbioportal.org/deployment/customization/application.properties-reference.md): This page describes the main properties within application.properties. Note that auth-related properties can be found in security.properties-Reference.
+- [Security Properties](https://docs.cbioportal.org/deployment/customization/security.properties-reference.md): The following are the properties for configuring authentication and authorization in the application. The cBioPortal application mainly uses Spring Security for auth configuration; see also Spring Security docs.
+- [Backend Caching](https://docs.cbioportal.org/deployment/customization/caching.md): cBioPortal provides the option of caching information on the backend to improve performance. Without caching, every time a request is received by the backend, a query is sent to the database system for information, and the returned data is processed to construct a response.
+- [Study View Customization](https://docs.cbioportal.org/deployment/customization/studyview.md): Study view page is fully responsive, it will try to fit as many charts as possible based on the browser's width and height.
+- [Study View Customization](https://docs.cbioportal.org/deployment/customization/studyview.md): Study view page is fully responsive, it will try to fit as many charts as possible based on the browser's width and height.
+
+### Integration with Other Webservices
+
+- [Integration with Other Webservices](https://docs.cbioportal.org/deployment/integration-with-other-webservices/readme.md)
+- [Introduction](https://docs.cbioportal.org/deployment/integration-with-other-webservices/oncokb-data-access.md): Using OncoKB does not require a data access token. But the instance you are connecting to only includes biological information by default. If you want to include tumor type summary, therapeutic levels and more, please consider obtaining a license from OncoKB.
+- [UptimeRobot Integration](https://docs.cbioportal.org/deployment/integration-with-other-webservices/uptimerobot-integration.md): Both configuration properties must be set to enable the integration:
+
+### Data Loading Overview
+
+- [Using the dataset validator](https://docs.cbioportal.org/data-loading/using-the-dataset-validator.md): To facilitate the loading of new studies into its database, cBioPortal provides a set of staging files formats for the various data types. To validate your files you can use the dataset validator script.
+- [Using the metaImport script](https://docs.cbioportal.org/data-loading/using-the-metaimport-script.md): The metaImport script should be used to automate the process of validating and loading datasets. It also has some nice features like an extra option to only load datasets that completely pass validation (i.e.
+- [Data loading: Importing without validation and deleting studies](https://docs.cbioportal.org/data-loading/data-loading-maintaining-studies.md): For data curators and developers cbioportalImporter.py is available. This script can import data regardless of validation results. If data format is incorrect, the importer may stop with an error or crash, or leave the database in an inconsistent state.
+- [Importing single data files for development](https://docs.cbioportal.org/data-loading/data-loading-for-developers.md): In some cases, for example during development, it may be useful to import a single data file into an existing study. To import one data file at a time, you can use the following command.
+- [Data Loading Tips and Best Practices](https://docs.cbioportal.org/data-loading/data-loading-tips-and-best-practices.md): Here we describe some Tips and Best Practices.
+- [Import OncoKB annotations as custom driver annotations](https://docs.cbioportal.org/data-loading/import-oncokb-annotations-as-custom-driver-annotations.md): The Annotation Configuration menu in Study View and Group Comparison is available only when custom driver annotations are present in the cBioPortal database for the genes in the study (or studies).
+- [Import Gene Sets in cBioPortal](https://docs.cbioportal.org/data-loading/import-gene-sets.md): Gene sets are collections of genes that are grouped together based on higher level function or system characteristics, such as being part of the same molecular process or found to be co-regulated for example.
+- [Import Gene Panels](https://docs.cbioportal.org/data-loading/import-gene-panels.md): This page describes how to import a gene panel into the cBioPortal database. The gene panel to import must be in the proper file format — see Gene Panel File format for more information.
+- [Study View Customization](https://docs.cbioportal.org/deployment/customization/studyview.md): Study view page is fully responsive, it will try to fit as many charts as possible based on the browser's width and height.
+
+## Development
+
+- [Feature Development Guide](https://docs.cbioportal.org/development/feature-development-guide.md): This is a guide for developers that are implementing a new feature.
+- [cBioPortal ER Diagram](https://docs.cbioportal.org/development/cbioportal-er-diagram.md): cBioPortal ER Diagram - PDF Version
+- [cBioPortal Database Versioning](https://docs.cbioportal.org/development/database-versioning.md): We follow the following logic when deciding how/when to increment the version of cBioPortal database. It's a complete modification of semantic versioning
+- [cBioPortal Backend Code Organization](https://docs.cbioportal.org/development/backend-code-organization.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [cBioPortal Development Guidelines](https://docs.cbioportal.org/development/backend-development-guidelines.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Build with different frontend versions](https://docs.cbioportal.org/development/build-different-frontend.md): Maven will build cBioPortal with a cBioPortal-frontend version and git repository url as determined by respectively the frontend.version and frontend.groupId parameters in the root POM.xml.
+- [Session Service](https://docs.cbioportal.org/development/session-service-working.md): Define new type at SessionType.java.
+- [Manual test cases](https://docs.cbioportal.org/development/manual-test-cases.md): Linked below is a Google Doc with some manual test cases you might want to look at when developing, and deploying new changes. Note that this list is a work in progress and subject to change.
+- [Release Procedure](https://docs.cbioportal.org/development/release-procedure.md): We have release procedures for the following scenarios:
+- [Deployment Procedure](https://docs.cbioportal.org/development/deployment-procedure.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Security](https://docs.cbioportal.org/development/security.md): We are committed to maintaining a secure and reliable platform by integrating proactive vulnerability detection and mitigation strategies into our development and release workflows.
+- [Documentation site](https://docs.cbioportal.org/development/documentation-site.md): This documentation site is created using https://retype.com/, a static site generator based on markdown.

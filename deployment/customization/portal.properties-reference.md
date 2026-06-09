@@ -1,0 +1,1 @@
+This file has been deprecated and information about customizing cBioPortal can be found in [application.properties documentation](application.properties-Reference.md).

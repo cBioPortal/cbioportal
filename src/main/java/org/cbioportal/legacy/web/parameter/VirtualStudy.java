@@ -4,12 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import org.cbioportal.legacy.utils.removeme.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class VirtualStudy extends Session {
 
+  private final Logger LOG = LoggerFactory.getLogger(VirtualStudy.class);
   private VirtualStudyData data;
 
   @Override
@@ -18,7 +20,7 @@ public class VirtualStudy extends Session {
     try {
       this.data = mapper.readValue(mapper.writeValueAsString(data), VirtualStudyData.class);
     } catch (IOException e) {
-      throw new UncheckedIOException("Failed to deserialize virtual study data", e);
+      LOG.error("Error occurred", e);
     }
   }
 

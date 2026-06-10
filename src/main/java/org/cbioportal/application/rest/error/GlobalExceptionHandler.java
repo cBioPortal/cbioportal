@@ -36,7 +36,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
@@ -138,7 +137,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
-  @Nullable
   protected ResponseEntity<Object> handleMissingServletRequestParameter(
       @NonNull MissingServletRequestParameterException ex,
       @NonNull HttpHeaders headers,
@@ -150,7 +148,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
-  @Nullable
   protected ResponseEntity<Object> handleTypeMismatch(
       @NonNull TypeMismatchException ex,
       @NonNull HttpHeaders headers,
@@ -162,7 +159,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
-  @Nullable
   protected ResponseEntity<Object> handleHttpMessageNotReadable(
       @NonNull HttpMessageNotReadableException ex,
       @NonNull HttpHeaders headers,
@@ -192,7 +188,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
   }
 
   @Override
-  @Nullable
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
       @NonNull MethodArgumentNotValidException ex,
       @NonNull HttpHeaders headers,

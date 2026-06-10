@@ -25,6 +25,13 @@ lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
 to import data as well as the validator. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.
 
+The ClickHouse database used by cBioPortal stores data in two layers:
+
+- **Base tables** — Raw study data (samples, patients, mutations, copy-number alterations, clinical data, etc.), populated by `metaImport.py` during import.
+- **Derived tables** — Precomputed, denormalized query structures that accelerate Study View queries by a large factor. They are built from base tables after imports in an additional processing step. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) for details.
+
+For more on ClickHouse architecture, deployment options, and sizing guidance, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
+
 The backend is organized as a multi-module Maven project.
 See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
 

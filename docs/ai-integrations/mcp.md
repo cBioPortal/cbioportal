@@ -66,7 +66,7 @@ To build an MCP integration with cBioPortal:
 2. **Access data** through:
    - [REST API](../web-API-and-Clients.md) - Programmatic access
    - [DataHub](https://github.com/cBioPortal/datahub) - Bulk data downloads
-   - ClickHouse database - Direct queries (not publicly accessible; contact us to discuss options)
+   - ClickHouse database - Direct queries (not publicly accessible; contact us to discuss options). For details on setting up ClickHouse for your own MCP deployment, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
 
 ## Resources
 

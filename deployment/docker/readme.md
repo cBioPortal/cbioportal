@@ -11,6 +11,8 @@ This guide covers deploying cBioPortal using [Docker Compose](https://docs.docke
 
 Some data (e.g. OncoKB annotations) is fetched from external services at runtime.
 
+> **See also:** For detailed ClickHouse setup instructions including ClickHouse Cloud and self-managed options, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/products/overview#/install_the_platform) (latest version)

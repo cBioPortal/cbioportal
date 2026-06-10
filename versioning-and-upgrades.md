@@ -9,6 +9,8 @@ This document explains version compatibility and upgrade expectations for cBioPo
 | v7 | Active | ClickHouse only | Active |
 | v6 | Maintenance | MySQL | Security fixes only |
 
+_MSK's cBioPortal deployment uses [ClickHouse Cloud](https://clickhouse.com/cloud) — see the [case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) for how ClickHouse accelerates cancer research._
+
 ## v7 Database Compatibility
 
 Starting with **v7**, cBioPortal:

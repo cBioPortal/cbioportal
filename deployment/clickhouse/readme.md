@@ -6,14 +6,16 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 
 1. [Installing the ClickHouse CLI](#1-installing-the-clickhouse-cli)
 2. [Hosting Options](#2-hosting-options)
-3. [Docker Compose Setup](#3-docker-compose-setup)
-4. [Relevant Data Files](#4-relevant-data-files)
-5. [Data Loading](#5-data-loading)
-6. [Notes on Derived Tables](#6-notes-on-derived-tables)
-7. [Notes for Users with High-Volume Data](#7-notes-for-users-with-high-volume-data)
-8. [Data Safety Warnings](#8-data-safety-warnings)
-9. [Verifying Structural Integrity](#9-verifying-structural-integrity)
-10. [Version Migration](#10-version-migration)
+3. [Architecture](#3-architecture)
+4. [Docker Compose Setup](#4-docker-compose-setup)
+5. [Relevant Data Files](#5-relevant-data-files)
+6. [Data Loading](#6-data-loading)
+7. [Notes on Derived Tables](#7-notes-on-derived-tables)
+8. [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data)
+9. [Data Safety Warnings](#9-data-safety-warnings)
+10. [Verifying Structural Integrity](#10-verifying-structural-integrity)
+11. [Version Migration](#11-version-migration)
+12. [Further Reading](#12-further-reading)
 
 ---
 
@@ -57,7 +59,7 @@ clickhouse client --host <hostname> --port <port> --user <user> --password '<pas
 
 For HTTP access (port 8123), use `curl` or the ClickHouse HTTP interface directly.
 
-If you are having trouble installing the ClickHouse CLI on your host machine, it is also possible to connect to the ClickHouse database through Docker. See [Docker Compose Setup](#3-docker-compose-setup).
+If you are having trouble installing the ClickHouse CLI on your host machine, it is also possible to connect to the ClickHouse database through Docker. See [Docker Compose Setup](#4-docker-compose-setup).
 
 ---
 
@@ -87,7 +89,54 @@ If you want to get ClickHouse Cloud working with your own setup, you can try rem
 
 ---
 
-## 3. Docker Compose Setup
+## 3. Architecture
+
+cBioPortal v7 uses ClickHouse as its sole database backend. This section describes how ClickHouse fits into the overall application architecture.
+
+### Database Layers
+
+ClickHouse stores two categories of tables:
+
+- **Base tables** — Store the raw study data as imported: cancer studies, samples, patients, genetic profiles, mutations, copy-number alterations, clinical data, etc. These are populated by `metaImport.py` during study import.
+- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 7](#7-notes-on-derived-tables) for details.
+
+### How Components Connect
+
+```
+┌──────────────────────┐     HTTP (8123)      ┌──────────────────┐
+│   cBioPortal Web App │ ◄──────────────────► │  ClickHouse DB   │
+│   (Java Spring Boot) │     JDBC (native)     │                  │
+└──────────────────────┘                       └──────────────────┘
+         ▲                                              ▲
+         │                                              │
+         │ HTTP REST API                                │ native TCP (9000)
+         ▼                                              ▼
+┌──────────────────────┐                       ┌──────────────────┐
+│  Frontend (React)    │                       │ metaImport.py    │
+│  / Session Service   │                       │ (importer)       │
+└──────────────────────┘                       └──────────────────┘
+```
+
+1. **Web App** — The cBioPortal Java backend connects to ClickHouse via JDBC (using the ClickHouse JDBC driver) on port 8123 (HTTP) or the native protocol. It queries both base tables and derived tables depending on the endpoint.
+2. **Importer** — `metaImport.py` and the Java importer JAR connect to ClickHouse using the ClickHouse native protocol (port 9000). They write to base tables and optionally rebuild derived tables.
+3. **CLI / Admin** — The `clickhouse client` command and any administrative scripts connect via native TCP.
+
+### Connection Configuration
+
+The web app connects to ClickHouse using properties in `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:clickhouse://<host>:8123/<database>
+spring.datasource.username=<user>
+spring.datasource.password=<password>
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+```
+
+When using Docker Compose, these are set automatically from the `.env` file.
+
+---
+
+## 4. Docker Compose Setup
 
 For instructions on running cBioPortal with ClickHouse via Docker Compose, see the [Docker deployment guide](/deployment/docker/README.md).
 
@@ -111,7 +160,7 @@ This will use the ClickHouse CLI that is embedded in the `cbioportal-database` c
 
 ---
 
-## 4. Relevant Data Files
+## 5. Relevant Data Files
 
 After running the `init.sh` script from the Docker Compose steps above, you will notice several new files present in the `data/` directory. These include:
 
@@ -122,7 +171,7 @@ After running the `init.sh` script from the Docker Compose steps above, you will
 
 ---
 
-## 5. Data Loading
+## 6. Data Loading
 
 See [Data Loading](/data-loading/README.md).
 
@@ -130,7 +179,7 @@ Note that cBioPortal study files themselves are backwards-compatible -- there is
 
 ---
 
-## 6. Notes on Derived Tables
+## 7. Notes on Derived Tables
 
 ### What Are Derived Tables?
 
@@ -160,12 +209,12 @@ This imports the study data without rebuilding derived tables unnecessarily.
 ### Important Notes
 
 - **Always rebuild derived tables as the last step before viewing a cBioPortal instance connected to the database** in production. Without them, the website may fail to load or display inaccurate data.
-- The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#7-notes-for-users-with-high-volume-data) if you encounter issues.
+- The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data) if you encounter issues.
 - Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports.
 
 ---
 
-## 7. Notes for Users with High-Volume Data
+## 8. Notes for Users with High-Volume Data
 
 When working with large studies (>100K samples or >10GB of clinical/genomic data), you may encounter resource limitations with the local Docker Compose ClickHouse database. Here are some recommendations:
 
@@ -191,7 +240,7 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 8. Data Safety Warnings
+## 9. Data Safety Warnings
 
 > ⚠️ **Critical:** Interrupting an import (e.g., killing the process, network failure, power loss) can leave your ClickHouse database in a **corrupt or inconsistent state**. Data may be partially imported, derived tables may be stale, and the database may become unusable.
 
@@ -205,13 +254,13 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 9. Verifying Database Integrity
+## 10. Verifying Database Integrity
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
 ---
 
-## 10. Version Migration
+## 11. Version Migration
 
 > ⚠️ **There is currently no automated mechanism for migrating data between ClickHouse versions.**
 
@@ -224,3 +273,13 @@ If you upgrade to a newer version of cBioPortal that includes schema changes, yo
 3. Re-import all studies using `metaImport.py -s ...`.
 
 This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.
+
+---
+
+## 12. Further Reading
+
+- [cBioPortal deploys on ClickHouse Cloud — case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) — how MSK uses ClickHouse to power cbioportal.org
+- [ClickHouse Documentation](https://clickhouse.com/docs) — official ClickHouse docs
+- [ClickHouse Cloud](https://clickhouse.com/cloud) — managed ClickHouse service
+- [cBioPortal Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose) — reference Docker Compose deployment
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — protocol spec for AI integrations

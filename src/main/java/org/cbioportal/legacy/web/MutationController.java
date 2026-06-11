@@ -17,11 +17,15 @@ import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
+import org.cbioportal.legacy.utils.Encoder;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.Direction;
@@ -56,6 +60,7 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 public class MutationController {
 
   @Autowired private MutationService mutationService;
+  @Autowired private SampleListService sampleListService;
   @Autowired private ObjectMapper objectMapper;
 
   @PreAuthorize(
@@ -135,7 +140,7 @@ public class MutationController {
       responseCode = "200",
       description = "OK",
       content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
-  public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
+  public ResponseEntity<StreamingResponseBody> fetchMutationsInMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
           String molecularProfileId,
@@ -185,36 +190,75 @@ public class MutationController {
       responseHeaders.add(
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
-    } else {
-      List<Mutation> mutations;
-      if (mutationFilter.getSampleListId() != null) {
-        mutations =
-            mutationService.getMutationsInMolecularProfileBySampleListId(
-                molecularProfileId,
-                mutationFilter.getSampleListId(),
-                mutationFilter.getEntrezGeneIds(),
-                false,
-                projection.name(),
-                pageSize,
-                pageNumber,
-                sortBy == null ? null : sortBy.getOriginalValue(),
-                direction.name());
-      } else {
-        mutations =
-            mutationService.fetchMutationsInMolecularProfile(
-                molecularProfileId,
-                mutationFilter.getSampleIds(),
-                mutationFilter.getEntrezGeneIds(),
-                false,
-                projection.name(),
-                pageSize,
-                pageNumber,
-                sortBy == null ? null : sortBy.getOriginalValue(),
-                direction.name());
-      }
-
-      return new ResponseEntity<>(mutations, HttpStatus.OK);
     }
+
+    // Resolve sample ids (from the sample list, if given) so the result can be streamed via the
+    // shared single-/multi-profile streaming path; the (potentially very large) mutation result
+    // set is then never materialized into a list on the heap.
+    final List<String> sampleIds;
+    if (mutationFilter.getSampleListId() != null) {
+      List<String> resolvedSampleIds;
+      try {
+        resolvedSampleIds =
+            sampleListService.getAllSampleIdsInSampleList(mutationFilter.getSampleListId());
+      } catch (SampleListNotFoundException e) {
+        // Match the previous behavior, where an unknown sample list yields an empty result rather
+        // than an error.
+        resolvedSampleIds = Collections.emptyList();
+      }
+      sampleIds = resolvedSampleIds;
+    } else {
+      sampleIds = mutationFilter.getSampleIds();
+    }
+
+    // Single profile: one entry per sample id (the mapper collapses a single distinct profile into
+    // "profile = X AND sample IN (array)").
+    final List<String> molecularProfileIds =
+        Collections.nCopies(sampleIds.size(), molecularProfileId);
+    final List<Integer> entrezGeneIds = mutationFilter.getEntrezGeneIds();
+    final String projectionName = projection.name();
+    final String sortByValue = sortBy == null ? null : sortBy.getOriginalValue();
+    final String directionName = direction.name();
+
+    StreamingResponseBody body =
+        outputStream -> {
+          try (JsonGenerator generator = objectMapper.getFactory().createGenerator(outputStream)) {
+            // A committed 200 cannot become a 500 mid-stream; disable AUTO_CLOSE_JSON_CONTENT so a
+            // failure leaves the array unclosed (client sees invalid JSON) rather than a silently
+            // truncated but well-formed one. The exception still propagates and is logged.
+            generator.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
+            generator.writeStartArray();
+            if (!sampleIds.isEmpty()) {
+              mutationService.streamMutationsInMultipleMolecularProfiles(
+                  molecularProfileIds,
+                  sampleIds,
+                  entrezGeneIds,
+                  projectionName,
+                  pageSize,
+                  pageNumber,
+                  sortByValue,
+                  directionName,
+                  mutation -> {
+                    try {
+                      // UniqueKeyInterceptor only runs for List bodies, not StreamingResponseBody,
+                      // so populate the derived keys here to match the non-streaming response.
+                      mutation.setUniqueSampleKey(
+                          Encoder.calculateBase64(mutation.getSampleId(), mutation.getStudyId()));
+                      mutation.setUniquePatientKey(
+                          Encoder.calculateBase64(mutation.getPatientId(), mutation.getStudyId()));
+                      generator.writeObject(mutation);
+                    } catch (IOException e) {
+                      // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below
+                      throw new UncheckedIOException(e);
+                    }
+                  });
+            }
+            generator.writeEndArray();
+          } catch (UncheckedIOException e) {
+            throw e.getCause();
+          }
+        };
+    return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
   }
 
   //  @Hidden

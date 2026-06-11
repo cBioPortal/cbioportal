@@ -33,11 +33,6 @@ public class GenePanelServiceImpl implements GenePanelService {
 
   private final String SEQUENCED_LIST_SUFFIX = "_sequenced";
 
-  private final Function<GenePanelData, String> SAMPLE_IDENTIFIER_GENERATOR =
-      d -> d.getMolecularProfileId() + d.getSampleId();
-  private final Function<GenePanelData, String> PATIENT_IDENTIFIER_GENERATOR =
-      d -> d.getMolecularProfileId() + d.getPatientId();
-
   @Override
   public List<GenePanel> getAllGenePanels(
       String projection, Integer pageSize, Integer pageNumber, String sortBy, String direction) {
@@ -168,33 +163,50 @@ public class GenePanelServiceImpl implements GenePanelService {
   @Override
   public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
       List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    return getGenePanelData(molecularProfileSampleIdentifiers, SAMPLE_IDENTIFIER_GENERATOR);
+    return annotateBySequencedSampleLists(
+        genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(
+            molecularProfileSampleIdentifiers));
   }
 
   @Override
   public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
       List<MolecularProfileCaseIdentifier> molecularProfilePatientIdentifiers) {
-    return getGenePanelData(molecularProfilePatientIdentifiers, PATIENT_IDENTIFIER_GENERATOR);
+    return annotateBySequencedSampleLists(
+        genePanelRepository.fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
+            molecularProfilePatientIdentifiers));
   }
 
-  private List<GenePanelData> getGenePanelData(
-      List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
-      Function<GenePanelData, String> keyGenerator) {
+  /**
+   * Applies the sequenced-sample-list profiled annotation (needed for MUTATION profiles) to gene
+   * panel data that the repository has already filtered down to the requested (profile, case) pairs
+   * in SQL. Previously this path fetched gene panel data for every sample of each requested profile
+   * and filtered in Java, materializing the full samples x profiles cross-product on the heap.
+   */
+  private List<GenePanelData> annotateBySequencedSampleLists(List<GenePanelData> genePanelData) {
+    if (CollectionUtils.isEmpty(genePanelData)) {
+      return genePanelData;
+    }
+
     Set<String> molecularProfileIds =
-        molecularProfileCaseIdentifiers.stream()
-            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
-            .collect(toSet());
+        genePanelData.stream().map(GenePanelData::getMolecularProfileId).collect(toSet());
 
-    Map<String, Boolean> queriedMolecularProfileCaseIdentifierMap =
-        molecularProfileCaseIdentifiers.stream()
-            .collect(
-                Collectors.toMap(
-                    datum -> datum.getMolecularProfileId() + datum.getCaseId(), datum -> true));
+    Map<String, MolecularProfile> molecularProfileIdMap =
+        molecularProfileService.getMolecularProfiles(molecularProfileIds, "SUMMARY").stream()
+            .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
-    return fetchGenePanelDataByMolecularProfileIds(molecularProfileIds).stream()
-        .filter(
-            datum ->
-                queriedMolecularProfileCaseIdentifierMap.containsKey(keyGenerator.apply(datum)))
+    return genePanelData.stream()
+        .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
+        .entrySet()
+        .stream()
+        .flatMap(
+            entry -> {
+              MolecularProfile molecularProfile = molecularProfileIdMap.get(entry.getKey());
+              List<GenePanelData> profileData = entry.getValue();
+              return (molecularProfile != null
+                      ? annotateDataFromSequencedSampleLists(profileData, molecularProfile)
+                      : profileData)
+                  .stream();
+            })
         .collect(toList());
   }
 

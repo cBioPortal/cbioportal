@@ -28,7 +28,8 @@ public class ClickhouseJsonMapTypeHandler extends BaseTypeHandler<Map<String, Ob
   }
 
   @Override
-  public Map<String, Object> getNullableResult(ResultSet rs, String columnName) throws SQLException {
+  public Map<String, Object> getNullableResult(ResultSet rs, String columnName)
+      throws SQLException {
     return convertToMap(rs.getObject(columnName));
   }
 

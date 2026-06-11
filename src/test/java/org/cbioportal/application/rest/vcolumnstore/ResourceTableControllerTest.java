@@ -56,8 +56,7 @@ public class ResourceTableControllerTest {
 
     Mockito.when(getResourceTableTabsUseCase.execute(Mockito.any())).thenReturn(tabs);
 
-    ResourceTabsRequest request =
-        new ResourceTabsRequest(List.of(STUDY_ID), null, null);
+    ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_ID), null, null);
 
     MvcResult mvcResult =
         mockMvc
@@ -114,14 +113,28 @@ public class ResourceTableControllerTest {
     List<ResourceTableRow> rows =
         List.of(
             new ResourceTableRow(
-                STUDY_ID, RESOURCE_ID, "H&E Slide", "SAMPLE",
-                "tcga-a1-a0sb", "tcga-a1-a0sb-01",
-                "https://example.com/he1.jpg", "H&E Sample 1", "IMAGE", 1,
+                STUDY_ID,
+                RESOURCE_ID,
+                "H&E Slide",
+                "SAMPLE",
+                "tcga-a1-a0sb",
+                "tcga-a1-a0sb-01",
+                "https://example.com/he1.jpg",
+                "H&E Sample 1",
+                "IMAGE",
+                1,
                 Map.of("stain", "HE")),
             new ResourceTableRow(
-                STUDY_ID, RESOURCE_ID, "H&E Slide", "SAMPLE",
-                "tcga-a1-a0sd", "tcga-a1-a0sd-01",
-                "https://example.com/he2.jpg", "H&E Sample 2", "IMAGE", 1,
+                STUDY_ID,
+                RESOURCE_ID,
+                "H&E Slide",
+                "SAMPLE",
+                "tcga-a1-a0sd",
+                "tcga-a1-a0sd-01",
+                "https://example.com/he2.jpg",
+                "H&E Sample 2",
+                "IMAGE",
+                1,
                 Map.of("stain", "HE")));
 
     ResourceTableResult result =
@@ -156,7 +169,8 @@ public class ResourceTableControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].resourceId").value(RESOURCE_ID))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].patientId").value("tcga-a1-a0sb"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].sampleId").value("tcga-a1-a0sb-01"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].url").value("https://example.com/he1.jpg"))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.rows[0].url").value("https://example.com/he1.jpg"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].type").value("IMAGE"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].metadata.stain").value("HE"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows[1].patientId").value("tcga-a1-a0sd"));

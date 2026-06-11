@@ -55,8 +55,7 @@ public class ResourceTableController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = ResourceTableTab.class)))
   public ResponseEntity<List<ResourceTableTab>> fetchResourceTableTabs(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
+      @Parameter(hidden = true) @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
       @Valid @RequestBody(required = false) ResourceTabsRequest request) {
     return ResponseEntity.ok(getTabsUseCase.execute(request));
@@ -76,8 +75,7 @@ public class ResourceTableController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = ResourceTableResult.class)))
   public ResponseEntity<ResourceTableResult> fetchResourceTableData(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "involvedCancerStudies")
+      @Parameter(hidden = true) @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
       @Valid @RequestBody(required = false) ResourceTableQuery query) {
     return ResponseEntity.ok(getDataUseCase.execute(query));

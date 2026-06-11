@@ -3,7 +3,6 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -37,8 +36,7 @@ public class ClickhouseResourceDataMapperTest {
 
   @Test
   public void getResourceTableTabs_returnsAllTabsForStudy() {
-    ResourceTabsRequest request =
-        new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
+    ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
 
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
@@ -50,8 +48,7 @@ public class ClickhouseResourceDataMapperTest {
 
   @Test
   public void getResourceTableTabs_totalCountIsCorrectPerTab() {
-    ResourceTabsRequest request =
-        new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
+    ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
 
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
@@ -66,8 +63,7 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableTabs_labelFallsBackToResourceId_whenNoDefinition() {
     // Insert a resource_data row with no matching resource_definition at runtime is hard to do
     // here, so we verify that the label for HE_SLIDE matches the definition display name.
-    ResourceTabsRequest request =
-        new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
+    ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
 
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
@@ -120,20 +116,25 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_sortByPatientId_ascDescWorks() {
     ResourceTableQuery asc =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, "patientId", "ASC",
-            null);
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, "patientId", "ASC", null);
     ResourceTableQuery desc =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, "patientId", "DESC",
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            "patientId",
+            "DESC",
             null);
 
     List<ResourceTableRow> ascending = mapper.getResourceTableRows(asc);
     List<ResourceTableRow> descending = mapper.getResourceTableRows(desc);
 
-    assertThat(ascending.get(0).patientId())
-        .isLessThanOrEqualTo(ascending.get(1).patientId());
-    assertThat(descending.get(0).patientId())
-        .isGreaterThanOrEqualTo(descending.get(1).patientId());
+    assertThat(ascending.get(0).patientId()).isLessThanOrEqualTo(ascending.get(1).patientId());
+    assertThat(descending.get(0).patientId()).isGreaterThanOrEqualTo(descending.get(1).patientId());
   }
 
   @Test
@@ -158,7 +159,9 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(rows).isNotEmpty();
     ResourceTableRow rowWithMeta =
-        rows.stream().filter(r -> r.metadata() != null && !r.metadata().isEmpty()).findFirst()
+        rows.stream()
+            .filter(r -> r.metadata() != null && !r.metadata().isEmpty())
+            .findFirst()
             .orElseThrow(() -> new AssertionError("No row with metadata found"));
     assertThat(rowWithMeta.metadata()).containsKey("stain");
     assertThat(rowWithMeta.metadata().get("stain")).isEqualTo("HE");
@@ -166,11 +169,18 @@ public class ClickhouseResourceDataMapperTest {
 
   @Test
   public void getResourceTableRows_columnFilter_containsType() {
-    ResourceColumnFilter typeFilter =
-        new ResourceColumnFilter("type", "equals", List.of("IMAGE"));
+    ResourceColumnFilter typeFilter = new ResourceColumnFilter("type", "equals", List.of("IMAGE"));
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null,
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
             List.of(typeFilter));
 
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
@@ -185,7 +195,15 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceColumnFilter("metadata:stain", "equals", List.of("HE"));
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null,
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
             List.of(metaFilter));
 
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);

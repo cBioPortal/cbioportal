@@ -313,10 +313,10 @@ public class DataBinHelper {
                 Comparator.comparing(
                     e -> e.getKey().hasLowerBound() ? e.getKey().lowerEndpoint() : null,
                     Comparator.nullsFirst(Comparator.naturalOrder())))
-            .collect(Collectors.toList());
+            .toList();
 
     // Sort the values once — O(m log m).
-    List<BigDecimal> sortedValues = values.stream().sorted().collect(Collectors.toList());
+    List<BigDecimal> sortedValues = values.stream().sorted().toList();
 
     // Two-pointer sweep: advance through sorted values; for each value do a
     // single forward scan through the sorted bins with an early-exit break.

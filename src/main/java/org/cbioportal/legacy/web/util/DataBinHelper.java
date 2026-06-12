@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -299,16 +300,36 @@ public class DataBinHelper {
   }
 
   public static void calcCounts(List<DataBin> dataBins, List<BigDecimal> values) {
-    Map<Range<BigDecimal>, DataBin> rangeMap =
-        dataBins.stream().collect(Collectors.toMap(DataBinHelper::calcRange, b -> b));
+    if (dataBins.isEmpty() || values.isEmpty()) {
+      return;
+    }
 
-    // TODO complexity here is O(n x m), find a better way to do this
-    for (Range<BigDecimal> range : rangeMap.keySet()) {
-      for (BigDecimal value : values) {
-        // check if the value falls within the data bin range
+    // Build a list of (range, dataBin) pairs sorted by range lower bound.
+    // Bins whose start is null (open-ended lower bound, e.g. "<10") are placed first.
+    List<Map.Entry<Range<BigDecimal>, DataBin>> sortedEntries =
+        dataBins.stream()
+            .map(bin -> Map.entry(DataBinHelper.calcRange(bin), bin))
+            .sorted(
+                Comparator.comparing(
+                    e -> e.getKey().hasLowerBound() ? e.getKey().lowerEndpoint() : null,
+                    Comparator.nullsFirst(Comparator.naturalOrder())))
+            .collect(Collectors.toList());
+
+    // Sort the values once — O(m log m).
+    List<BigDecimal> sortedValues = values.stream().sorted().collect(Collectors.toList());
+
+    // Two-pointer sweep: advance through sorted values; for each value do a
+    // single forward scan through the sorted bins with an early-exit break.
+    // Because bins are non-overlapping and sorted, each value belongs to at
+    // most one bin, so the inner loop exits immediately after a match.
+    // Overall complexity: O((n + m) log(n + m)).
+    for (BigDecimal value : sortedValues) {
+      for (Map.Entry<Range<BigDecimal>, DataBin> entry : sortedEntries) {
+        Range<BigDecimal> range = entry.getKey();
         if (range != null && range.contains(value)) {
-          DataBin dataBin = rangeMap.get(range);
+          DataBin dataBin = entry.getValue();
           dataBin.setCount(dataBin.getCount() + 1);
+          break; // bins are non-overlapping — no need to check further
         }
       }
     }

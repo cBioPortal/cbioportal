@@ -194,20 +194,18 @@ public class GenePanelServiceImpl implements GenePanelService {
         molecularProfileService.getMolecularProfiles(molecularProfileIds, "SUMMARY").stream()
             .collect(Collectors.toMap(MolecularProfile::getStableId, Function.identity()));
 
-    return genePanelData.stream()
-        .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
-        .entrySet()
-        .stream()
-        .flatMap(
-            entry -> {
-              MolecularProfile molecularProfile = molecularProfileIdMap.get(entry.getKey());
-              List<GenePanelData> profileData = entry.getValue();
-              return (molecularProfile != null
-                      ? annotateDataFromSequencedSampleLists(profileData, molecularProfile)
-                      : profileData)
-                  .stream();
-            })
-        .collect(toList());
+    Map<String, List<GenePanelData>> genePanelDataByProfileId =
+        genePanelData.stream().collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId));
+
+    genePanelDataByProfileId.forEach(
+        (profileId, profileData) -> {
+          MolecularProfile molecularProfile = molecularProfileIdMap.get(profileId);
+          if (molecularProfile != null) {
+            annotateDataFromSequencedSampleLists(profileData, molecularProfile);
+          }
+        });
+
+    return genePanelData;
   }
 
   /**

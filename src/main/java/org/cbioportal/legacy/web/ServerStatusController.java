@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.cbioportal.legacy.service.ServerStatusService;
 import org.cbioportal.legacy.service.impl.ServerStatusServiceImpl.ServerStatusMessage;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Server running status", description = "This end point does not require authentication")
 public class ServerStatusController {
 
-  @Autowired private ServerStatusService serverStatusService;
+  private final ServerStatusService serverStatusService;
+
+  public ServerStatusController(ServerStatusService serverStatusService) {
+    this.serverStatusService = serverStatusService;
+  }
 
   @RequestMapping(
       value = "/api/health",

@@ -13,6 +13,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -96,11 +97,40 @@ class RequestLoggingFilterTest {
 
     LoggedRequest logged = runAndCapture(request);
 
-    assertEquals("REDACTED", logged.getHeaders().get("Authorization"));
-    assertEquals("keep-me", logged.getHeaders().get("X-Custom"));
-    assertFalse(
-        logged.getHeaders().values().contains("Bearer secret-token"),
+    assertEquals("REDACTED", header(logged, "Authorization"));
+    assertEquals("keep-me", header(logged, "X-Custom"));
+    assertTrue(
+        logged.getHeaders().stream().noneMatch(h -> h.value().contains("secret-token")),
         "redacted secret must not be stored");
+  }
+
+  @Test
+  void redactsConfiguredQueryAndBodyParams() throws Exception {
+    RequestLoggingProperties props = new RequestLoggingProperties();
+    props.setRedactParams(List.of("token", "password"));
+    filter = new RequestLoggingFilter(service, props);
+
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/studies/acc_tcga/x");
+    request.setServerName("cbioportal.org");
+    request.setQueryString("projection=SUMMARY&token=abc123");
+    request.setContentType("application/json");
+    request.setContent("{\"password\":\"hunter2\",\"ids\":[1]}".getBytes());
+
+    LoggedRequest logged = runAndCapture(request);
+
+    assertEquals("projection=SUMMARY&token=REDACTED", logged.getQueryString());
+    assertTrue(logged.getUrl().endsWith("token=REDACTED"));
+    assertFalse(logged.getBody().contains("hunter2"), "secret body value must be redacted");
+    assertTrue(logged.getBody().contains("REDACTED"));
+    assertTrue(logged.getBody().contains("\"ids\""), "non-secret fields must be preserved");
+  }
+
+  private static String header(LoggedRequest logged, String name) {
+    return logged.getHeaders().stream()
+        .filter(h -> h.name().equals(name))
+        .map(HttpHeader::value)
+        .findFirst()
+        .orElse(null);
   }
 
   @Test

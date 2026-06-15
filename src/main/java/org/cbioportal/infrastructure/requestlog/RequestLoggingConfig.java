@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.requestlog;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -10,6 +11,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import org.springframework.data.mongodb.core.index.Index;
@@ -44,7 +46,7 @@ public class RequestLoggingConfig {
   @Bean
   public RequestLogService requestLogService(
       MongoTemplate requestLogMongoTemplate, RequestLoggingProperties properties) {
-    ensureIndexes(requestLogMongoTemplate, properties.getCollection());
+    ensureIndexes(requestLogMongoTemplate, properties);
     return new RequestLogService(
         requestLogMongoTemplate,
         properties.getCollection(),
@@ -71,19 +73,23 @@ public class RequestLoggingConfig {
   }
 
   /**
-   * Create the indexes that back endpoint/path search. Failures here must not prevent startup (e.g.
-   * Mongo temporarily unreachable), so they are logged and swallowed; the indexes will be created
-   * on the next successful write attempt if missing.
+   * Create the indexes that back endpoint/path search, plus an optional TTL index that bounds how
+   * long captured (potentially sensitive) requests are retained. Failures here must not prevent
+   * startup (e.g. Mongo temporarily unreachable), so they are logged and swallowed.
    */
-  private void ensureIndexes(MongoTemplate template, String collection) {
+  private void ensureIndexes(MongoTemplate template, RequestLoggingProperties properties) {
+    String collection = properties.getCollection();
     try {
-      template
-          .indexOps(collection)
-          .ensureIndex(
-              new Index().on("endpoint", org.springframework.data.domain.Sort.Direction.ASC));
-      template
-          .indexOps(collection)
-          .ensureIndex(new Index().on("path", org.springframework.data.domain.Sort.Direction.ASC));
+      template.indexOps(collection).ensureIndex(new Index().on("endpoint", Sort.Direction.ASC));
+      template.indexOps(collection).ensureIndex(new Index().on("path", Sort.Direction.ASC));
+      if (properties.getTtlDays() > 0) {
+        template
+            .indexOps(collection)
+            .ensureIndex(
+                new Index()
+                    .on("lastSeen", Sort.Direction.ASC)
+                    .expire(Duration.ofDays(properties.getTtlDays())));
+      }
     } catch (RuntimeException ex) {
       LOG.warn("Could not create request-logging indexes: {}", ex.getMessage());
     }

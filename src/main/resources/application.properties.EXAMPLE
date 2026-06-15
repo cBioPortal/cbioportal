@@ -467,6 +467,11 @@ feature.study.export.timeout_ms=600000
 # request-logging.max-body-bytes=5242880
 # Header names whose values are stored as REDACTED. Set empty to capture verbatim for replay.
 # request-logging.redact-headers=authorization,cookie,set-cookie
+# Query-string/body (form or JSON) parameter names whose values are stored as REDACTED. Empty by
+# default; e.g. token,password,secret,access_token to scrub secrets passed outside headers.
+# request-logging.redact-params=
+# Auto-delete captures not seen for this many days (TTL index on lastSeen). 0 = keep forever.
+# request-logging.ttl-days=0
 # request-logging.writer-threads=2
 # request-logging.queue-capacity=10000
 

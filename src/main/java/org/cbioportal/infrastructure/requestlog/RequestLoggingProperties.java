@@ -44,6 +44,22 @@ public class RequestLoggingProperties {
    */
   private List<String> redactHeaders = List.of("authorization", "cookie", "set-cookie");
 
+  /**
+   * Query-string and body parameter/field names (case-insensitive) whose values are replaced with
+   * {@code "REDACTED"} before being stored, so secrets passed outside headers (e.g. {@code ?token=}
+   * or a JSON {@code "password"} field) don't land in the database. Applied to query strings,
+   * form-encoded bodies and JSON bodies. Empty by default; populating it adds a small parsing cost
+   * to capturing matching requests.
+   */
+  private List<String> redactParams = List.of();
+
+  /**
+   * Days after which a captured request that hasn't been seen again is automatically deleted (via a
+   * MongoDB TTL index on {@code lastSeen}). {@code 0} (the default) keeps documents forever; set a
+   * positive value to bound retention of potentially sensitive captured data.
+   */
+  private int ttlDays = 0;
+
   /** Number of background threads used to write captured requests to MongoDB. */
   private int writerThreads = 2;
 
@@ -107,6 +123,22 @@ public class RequestLoggingProperties {
 
   public void setRedactHeaders(List<String> redactHeaders) {
     this.redactHeaders = redactHeaders;
+  }
+
+  public List<String> getRedactParams() {
+    return redactParams;
+  }
+
+  public void setRedactParams(List<String> redactParams) {
+    this.redactParams = redactParams;
+  }
+
+  public int getTtlDays() {
+    return ttlDays;
+  }
+
+  public void setTtlDays(int ttlDays) {
+    this.ttlDays = ttlDays;
   }
 
   public int getWriterThreads() {

@@ -1,7 +1,7 @@
 package org.cbioportal.infrastructure.requestlog;
 
 import java.time.Instant;
-import java.util.Map;
+import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -17,7 +17,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "logged_requests")
 public class LoggedRequest {
 
-  /** SHA-256 of {@code method\npath\nsortedQuery\nbody}; used as the Mongo {@code _id}. */
+  /**
+   * SHA-256 of {@code method\npath\nquery\nbody} (post-redaction); used as the Mongo {@code _id}.
+   */
   @Id private String id;
 
   private String method;
@@ -36,7 +38,7 @@ public class LoggedRequest {
   /** Fully reconstructed request URL including scheme, host and query string. */
   private String url;
 
-  private Map<String, String> headers;
+  private List<HttpHeader> headers;
 
   private String contentType;
 
@@ -102,11 +104,11 @@ public class LoggedRequest {
     this.url = url;
   }
 
-  public Map<String, String> getHeaders() {
+  public List<HttpHeader> getHeaders() {
     return headers;
   }
 
-  public void setHeaders(Map<String, String> headers) {
+  public void setHeaders(List<HttpHeader> headers) {
     this.headers = headers;
   }
 

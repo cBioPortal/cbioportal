@@ -297,3 +297,53 @@ export interface ClinicalDataCountItem {
   /** Array of value/count pairs for this attribute */
   counts: ClinicalDataCount[];
 }
+
+/**
+ * ClinicalDataDTO - One clinical data value for a sample or patient.
+ * Source: https://www.cbioportal.org/api/v3/api-docs/public (ClinicalData schema)
+ * Required fields: clinicalAttributeId, value, patientId, studyId, uniquePatientKey
+ */
+export interface ClinicalDataDTO {
+  /** Clinical attribute identifier (e.g. "CANCER_TYPE") */
+  clinicalAttributeId: string;
+  /** The clinical data value */
+  value: string;
+  /** Sample stable id (absent for patient-level data) */
+  sampleId?: string;
+  /** Patient stable id */
+  patientId: string;
+  /** Study stable id */
+  studyId: string;
+  /** Base64(sampleId + studyId); absent for patient-level data */
+  uniqueSampleKey?: string;
+  /** Base64(patientId + studyId) */
+  uniquePatientKey: string;
+}
+
+/**
+ * CopyNumberSeg - One copy number segment for a sample.
+ * Source: https://www.cbioportal.org/api/v3/api-docs/public (CopyNumberSeg schema)
+ * Required fields: sampleId, patientId, studyId, chromosome, start, end
+ */
+export interface CopyNumberSeg {
+  /** Sample stable id */
+  sampleId: string;
+  /** Patient stable id */
+  patientId: string;
+  /** Study stable id */
+  studyId: string;
+  /** Chromosome (e.g. "1") */
+  chromosome: string;
+  /** Segment start position */
+  start: number;
+  /** Segment end position */
+  end: number;
+  /** Number of probes in the segment */
+  numberOfProbes: number;
+  /** Mean log2 copy-number ratio of the segment */
+  segmentMean: number;
+  /** Base64(sampleId + studyId) */
+  uniqueSampleKey: string;
+  /** Base64(patientId + studyId) */
+  uniquePatientKey: string;
+}

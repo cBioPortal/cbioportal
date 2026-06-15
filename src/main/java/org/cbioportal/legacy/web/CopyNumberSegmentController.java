@@ -21,6 +21,7 @@ import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.service.CopyNumberSegmentService;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.utils.Encoder;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.Direction;
@@ -188,6 +189,14 @@ public class CopyNumberSegmentController {
                 projectionName,
                 seg -> {
                   try {
+                    // UniqueKeyInterceptor only runs for List bodies, not StreamingResponseBody,
+                    // so populate the derived keys here to match the non-streaming response.
+                    seg.setUniqueSampleKey(
+                        Encoder.calculateBase64(
+                            seg.getSampleStableId(), seg.getCancerStudyIdentifier()));
+                    seg.setUniquePatientKey(
+                        Encoder.calculateBase64(
+                            seg.getPatientId(), seg.getCancerStudyIdentifier()));
                     generator.writeObject(seg);
                   } catch (IOException e) {
                     // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below

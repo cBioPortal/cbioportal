@@ -22,6 +22,7 @@ import org.cbioportal.legacy.service.ClinicalDataService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.utils.Encoder;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
@@ -382,6 +383,14 @@ public class ClinicalDataController {
                 projectionName,
                 datum -> {
                   try {
+                    // UniqueKeyInterceptor only runs for List bodies, not StreamingResponseBody,
+                    // so populate the derived keys here to match the non-streaming response.
+                    if (datum.getSampleId() != null) {
+                      datum.setUniqueSampleKey(
+                          Encoder.calculateBase64(datum.getSampleId(), datum.getStudyId()));
+                    }
+                    datum.setUniquePatientKey(
+                        Encoder.calculateBase64(datum.getPatientId(), datum.getStudyId()));
                     generator.writeObject(datum);
                   } catch (IOException e) {
                     // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below

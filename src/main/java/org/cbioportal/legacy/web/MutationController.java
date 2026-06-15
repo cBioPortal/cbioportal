@@ -351,6 +351,12 @@ public class MutationController {
                 directionName,
                 mutation -> {
                   try {
+                    // UniqueKeyInterceptor only runs for List bodies, not StreamingResponseBody,
+                    // so populate the derived keys here to match the non-streaming response.
+                    mutation.setUniqueSampleKey(
+                        Encoder.calculateBase64(mutation.getSampleId(), mutation.getStudyId()));
+                    mutation.setUniquePatientKey(
+                        Encoder.calculateBase64(mutation.getPatientId(), mutation.getStudyId()));
                     generator.writeObject(mutation);
                   } catch (IOException e) {
                     // ResultHandler/Consumer cannot throw checked exceptions; unwrapped below

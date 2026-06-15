@@ -38,7 +38,7 @@ public class GenericAssayMyBatisRepositoryTest {
   public void getGenericAssayAdditionalproperties() {
     List<String> stableIds = Arrays.asList("mean_1", "mean_2");
     List<GenericAssayAdditionalProperty> result =
-        genericAssayMyBatisRepository.getGenericAssayAdditionalproperties(stableIds);
+        genericAssayMyBatisRepository.getGenericAssayAdditionalproperties(stableIds, null);
     Assert.assertNotNull(result);
     Assert.assertEquals(4, result.size());
 
@@ -56,6 +56,21 @@ public class GenericAssayMyBatisRepositoryTest {
           Assert.assertEquals("description of mean_2", additionalProperty.getValue());
         }
       }
+    }
+  }
+
+  @Test
+  public void getGenericAssayAdditionalpropertiesRestrictedByName() {
+    List<String> stableIds = Arrays.asList("mean_1", "mean_2");
+    List<GenericAssayAdditionalProperty> result =
+        genericAssayMyBatisRepository.getGenericAssayAdditionalproperties(
+            stableIds, Arrays.asList("name"));
+    Assert.assertNotNull(result);
+    // Only the "name" property for each of the two entities is returned (the "description"
+    // properties are filtered out in SQL).
+    Assert.assertEquals(2, result.size());
+    for (GenericAssayAdditionalProperty additionalProperty : result) {
+      Assert.assertEquals("name", additionalProperty.getName());
     }
   }
 }

@@ -15,7 +15,8 @@ public interface GenericAssayRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
-  List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(List<String> stableIds);
+  List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(
+      List<String> stableIds, List<String> propertyNames);
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

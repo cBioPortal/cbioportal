@@ -34,7 +34,6 @@ import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.ClinicalDataSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -60,8 +59,14 @@ public class ClinicalDataController {
   public static final int CLINICAL_DATA_MAX_PAGE_SIZE = 10000000;
   private static final String CLINICAL_DATA_DEFAULT_PAGE_SIZE = "10000000";
 
-  @Autowired private ClinicalDataService clinicalDataService;
-  @Autowired private ObjectMapper objectMapper;
+  private final ClinicalDataService clinicalDataService;
+  private final ObjectMapper objectMapper;
+
+  public ClinicalDataController(
+      ClinicalDataService clinicalDataService, ObjectMapper objectMapper) {
+    this.clinicalDataService = clinicalDataService;
+    this.objectMapper = objectMapper;
+  }
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

@@ -49,6 +49,7 @@ public interface MutationRepository {
    * passed to {@code consumer} as it is read so the full result set is never held in memory. Not
    * cached.
    */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
   void streamMutationsInMultipleMolecularProfiles(
       List<String> molecularProfileIds,
       List<String> sampleIds,

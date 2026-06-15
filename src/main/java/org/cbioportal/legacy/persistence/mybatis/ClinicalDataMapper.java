@@ -23,6 +23,7 @@ public interface ClinicalDataMapper {
    * passes each mapped row to {@code handler} instead of building a list, so a large result set is
    * never materialized in memory.
    */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
   void getSampleClinicalData(
       List<String> studyIds,
       List<String> sampleIds,
@@ -48,6 +49,7 @@ public interface ClinicalDataMapper {
       String direction);
 
   /** Streaming overload of {@link #getPatientClinicalData}; see {@link #getSampleClinicalData}. */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
   void getPatientClinicalData(
       List<String> studyIds,
       List<String> patientIds,

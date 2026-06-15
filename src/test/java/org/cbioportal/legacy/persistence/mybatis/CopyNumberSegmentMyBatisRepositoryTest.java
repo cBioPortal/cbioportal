@@ -256,7 +256,7 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
   }
 
   @Test
-  public void streamCopyNumberSegments() throws Exception {
+  public void streamCopyNumberSegments() {
 
     List<String> studyIds = new ArrayList<>();
     studyIds.add("study_tcga_pub");

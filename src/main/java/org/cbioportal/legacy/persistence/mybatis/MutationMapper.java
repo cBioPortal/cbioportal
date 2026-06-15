@@ -40,6 +40,7 @@ public interface MutationMapper {
    * statement (honoring the same projection/paging/sort) but passes each mapped row to {@code
    * handler} instead of building a list, so a large result set is never materialized in memory.
    */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
   void getMutationsInMultipleMolecularProfiles(
       List<String> molecularProfileIds,
       List<String> sampleIds,

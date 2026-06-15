@@ -37,6 +37,7 @@ public interface MutationService {
       String sortBy,
       String direction);
 
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
   void streamMutationsInMultipleMolecularProfiles(
       List<String> molecularProfileIds,
       List<String> sampleIds,

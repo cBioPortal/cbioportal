@@ -427,20 +427,20 @@ public class MutationMyBatisRepositoryTest {
   }
 
   @Test
-  public void streamMutationsInMultipleMolecularProfiles() throws Exception {
+  public void streamMutationsInMultipleMolecularProfiles() {
 
-    List<String> molecularProfileIds = new ArrayList<>();
-    molecularProfileIds.add("acc_tcga_mutations");
-    molecularProfileIds.add("study_tcga_pub_mutations");
+    List<String> profileIds = new ArrayList<>();
+    profileIds.add("acc_tcga_mutations");
+    profileIds.add("study_tcga_pub_mutations");
 
-    List<String> sampleIds = new ArrayList<>();
-    sampleIds.add("TCGA-A1-B0SO-01");
-    sampleIds.add("TCGA-A1-A0SH-01");
+    List<String> sampleStableIds = new ArrayList<>();
+    sampleStableIds.add("TCGA-A1-B0SO-01");
+    sampleStableIds.add("TCGA-A1-A0SH-01");
 
     // Streaming variant must yield the same rows as getMutationsInMultipleMolecularProfiles.
     List<Mutation> result = new ArrayList<>();
     mutationMyBatisRepository.streamMutationsInMultipleMolecularProfiles(
-        molecularProfileIds, sampleIds, null, "SUMMARY", null, null, null, null, result::add);
+        profileIds, sampleStableIds, null, "SUMMARY", null, null, null, null, result::add);
 
     Assert.assertEquals(3, result.size());
     Assert.assertEquals(

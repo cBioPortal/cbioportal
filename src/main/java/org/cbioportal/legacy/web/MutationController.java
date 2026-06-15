@@ -36,7 +36,6 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -59,9 +58,18 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @Tag(name = PublicApiTags.MUTATIONS, description = " ")
 public class MutationController {
 
-  @Autowired private MutationService mutationService;
-  @Autowired private SampleListService sampleListService;
-  @Autowired private ObjectMapper objectMapper;
+  private final MutationService mutationService;
+  private final SampleListService sampleListService;
+  private final ObjectMapper objectMapper;
+
+  public MutationController(
+      MutationService mutationService,
+      SampleListService sampleListService,
+      ObjectMapper objectMapper) {
+    this.mutationService = mutationService;
+    this.sampleListService = sampleListService;
+    this.objectMapper = objectMapper;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -170,46 +178,13 @@ public class MutationController {
       throws MolecularProfileNotFoundException {
 
     if (projection == Projection.META) {
-      HttpHeaders responseHeaders = new HttpHeaders();
-      MutationMeta mutationMeta;
-
-      if (mutationFilter.getSampleListId() != null) {
-        mutationMeta =
-            mutationService.getMetaMutationsInMolecularProfileBySampleListId(
-                molecularProfileId,
-                mutationFilter.getSampleListId(),
-                mutationFilter.getEntrezGeneIds());
-      } else {
-        mutationMeta =
-            mutationService.fetchMetaMutationsInMolecularProfile(
-                molecularProfileId,
-                mutationFilter.getSampleIds(),
-                mutationFilter.getEntrezGeneIds());
-      }
-      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
-      responseHeaders.add(
-          HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
-      return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+      return buildMutationMetaResponse(molecularProfileId, mutationFilter);
     }
 
     // Resolve sample ids (from the sample list, if given) so the result can be streamed via the
     // shared single-/multi-profile streaming path; the (potentially very large) mutation result
     // set is then never materialized into a list on the heap.
-    final List<String> sampleIds;
-    if (mutationFilter.getSampleListId() != null) {
-      List<String> resolvedSampleIds;
-      try {
-        resolvedSampleIds =
-            sampleListService.getAllSampleIdsInSampleList(mutationFilter.getSampleListId());
-      } catch (SampleListNotFoundException e) {
-        // Match the previous behavior, where an unknown sample list yields an empty result rather
-        // than an error.
-        resolvedSampleIds = Collections.emptyList();
-      }
-      sampleIds = resolvedSampleIds;
-    } else {
-      sampleIds = mutationFilter.getSampleIds();
-    }
+    final List<String> sampleIds = resolveSampleIds(mutationFilter);
 
     // Single profile: one entry per sample id (the mapper collapses a single distinct profile into
     // "profile = X AND sample IN (array)").
@@ -388,6 +363,42 @@ public class MutationController {
           }
         };
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(body);
+  }
+
+  private ResponseEntity<StreamingResponseBody> buildMutationMetaResponse(
+      String molecularProfileId, MutationFilter mutationFilter)
+      throws MolecularProfileNotFoundException {
+
+    MutationMeta mutationMeta;
+    if (mutationFilter.getSampleListId() != null) {
+      mutationMeta =
+          mutationService.getMetaMutationsInMolecularProfileBySampleListId(
+              molecularProfileId,
+              mutationFilter.getSampleListId(),
+              mutationFilter.getEntrezGeneIds());
+    } else {
+      mutationMeta =
+          mutationService.fetchMetaMutationsInMolecularProfile(
+              molecularProfileId, mutationFilter.getSampleIds(), mutationFilter.getEntrezGeneIds());
+    }
+
+    HttpHeaders responseHeaders = new HttpHeaders();
+    responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, mutationMeta.getTotalCount().toString());
+    responseHeaders.add(HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
+    return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
+  }
+
+  private List<String> resolveSampleIds(MutationFilter mutationFilter) {
+    if (mutationFilter.getSampleListId() == null) {
+      return mutationFilter.getSampleIds();
+    }
+    try {
+      return sampleListService.getAllSampleIdsInSampleList(mutationFilter.getSampleListId());
+    } catch (SampleListNotFoundException e) {
+      // Match the previous behavior, where an unknown sample list yields an empty result rather
+      // than an error.
+      return Collections.emptyList();
+    }
   }
 
   private void extractMolecularProfileAndSampleIds(

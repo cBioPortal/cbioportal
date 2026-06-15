@@ -12,6 +12,7 @@ import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.MutationFilter;
@@ -24,10 +25,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -131,7 +132,9 @@ public class MutationControllerTest {
   private static final String NAME_SPACE_COLUMNS =
       "{\"columnName\":{\"fieldName\":\"fieldValue\"}}";
 
-  @MockBean private MutationService mutationService;
+  @MockitoBean private MutationService mutationService;
+
+  @MockitoBean private SampleListService sampleListService;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -710,18 +713,24 @@ public class MutationControllerTest {
 
     List<Mutation> mutationList = createExampleMutations();
 
-    Mockito.when(
-            mutationService.fetchMutationsInMolecularProfile(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.anyBoolean(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
-        .thenReturn(mutationList);
+    // The endpoint now streams; feed the mutations to the consumer the controller supplies.
+    Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<Mutation> consumer = invocation.getArgument(8);
+              mutationList.forEach(consumer);
+              return null;
+            })
+        .when(mutationService)
+        .streamMutationsInMultipleMolecularProfiles(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any());
 
     List<String> sampleIds = new ArrayList<>();
     sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
@@ -729,14 +738,20 @@ public class MutationControllerTest {
     MutationFilter mutationFilter = new MutationFilter();
     mutationFilter.setSampleIds(sampleIds);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(mutationFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(mutationFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -857,18 +872,24 @@ public class MutationControllerTest {
 
     List<Mutation> mutationList = createExampleMutationsWithGeneAndAlleleSpecificCopyNumber();
 
-    Mockito.when(
-            mutationService.fetchMutationsInMolecularProfile(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.anyBoolean(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
-        .thenReturn(mutationList);
+    // The endpoint now streams; feed the mutations to the consumer the controller supplies.
+    Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<Mutation> consumer = invocation.getArgument(8);
+              mutationList.forEach(consumer);
+              return null;
+            })
+        .when(mutationService)
+        .streamMutationsInMultipleMolecularProfiles(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.any());
 
     List<String> sampleIds = new ArrayList<>();
     sampleIds.add(TEST_SAMPLE_STABLE_ID_1);
@@ -876,15 +897,21 @@ public class MutationControllerTest {
     MutationFilter mutationFilter = new MutationFilter();
     mutationFilter.setSampleIds(sampleIds);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post(
+                        "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+                    .with(csrf())
+                    .param("projection", "DETAILED")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(mutationFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
-                .with(csrf())
-                .param("projection", "DETAILED")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(mutationFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

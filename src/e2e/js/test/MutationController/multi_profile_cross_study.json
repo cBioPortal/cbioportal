@@ -1,0 +1,9 @@
+{
+  "sampleMolecularIdentifiers": [
+    { "molecularProfileId": "lgg_ucsf_2014_mutations", "sampleId": "P01_Pri" },
+    { "molecularProfileId": "lgg_ucsf_2014_mutations", "sampleId": "P04_Pri" },
+    { "molecularProfileId": "lgg_tcga_mutations", "sampleId": "TCGA-CS-4938-01" },
+    { "molecularProfileId": "lgg_tcga_mutations", "sampleId": "TCGA-CS-4942-01" }
+  ],
+  "entrezGeneIds": [3417]
+}

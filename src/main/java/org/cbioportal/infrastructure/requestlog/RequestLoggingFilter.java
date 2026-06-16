@@ -31,7 +31,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 
 /**
  * Captures every matching HTTP request and hands it to {@link RequestLogService} to be stored in
- * MongoDB. The request body is read through a {@link ContentCachingRequestWrapper} so that
+ * ClickHouse. The request body is read through a {@link ContentCachingRequestWrapper} so that
  * capturing it does not interfere with the controller's own read of the body.
  *
  * <p>Capturing happens <em>after</em> the request has been handled, so the body has been fully read
@@ -118,16 +118,14 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     logged.setPath(path);
     logged.setEndpoint(endpoint != null ? endpoint : path);
     logged.setQueryString(queryString);
+    logged.setServerName(request.getServerName());
     logged.setUrl(reconstructUrl(request, queryString));
     logged.setHeaders(extractHeaders(request));
     logged.setContentType(contentType);
     logged.setBody(body);
     logged.setBodyTruncated(truncated);
     logged.setResponseStatus(response.getStatus());
-    Instant now = Instant.now();
-    logged.setFirstSeen(now);
-    logged.setLastSeen(now);
-    logged.setCount(1);
+    logged.setSeen(Instant.now());
     return logged;
   }
 

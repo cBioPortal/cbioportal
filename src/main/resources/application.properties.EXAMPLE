@@ -451,16 +451,19 @@ spring.devtools.restart.enabled=false
 feature.study.export=false
 feature.study.export.timeout_ms=600000
 
-## MongoDB HTTP request logging (QC)
-# When enabled, every matching HTTP request (method, url, headers and body) is captured and
-# upserted into MongoDB, deduplicated by a hash of method + path + query + body so the collection
-# stays bounded regardless of traffic. Each document holds everything needed to replay the request
-# with curl and can be searched by endpoint. Disabled by default; turning it on opens a dedicated
-# Mongo connection used only for this purpose.
+## ClickHouse HTTP request logging (QC)
+# When enabled, every matching HTTP request (method, url, headers and body) is captured and inserted
+# into a dedicated ClickHouse table using the application's primary datasource. Repeated observations
+# of the same request (same hash of method + path + query + body) are collapsed by the table's
+# ReplacingMergeTree merges, so the table converges on one row per distinct request. Each row holds
+# everything needed to replay the request with curl and can be searched by endpoint. Disabled by
+# default. The target table must already exist; create it with the ReplacingMergeTree DDL from the
+# project docs (ENGINE = ReplacingMergeTree(seen) ORDER BY id, optionally with a TTL on seen).
 # request-logging.enabled=false
-# request-logging.mongo-uri=mongodb://localhost:27017
-# request-logging.database=cbioportal_qc
-# request-logging.collection=logged_requests
+# Target table; may be database-qualified. Defaults to logged_requests in the datasource's database.
+# request-logging.table=logged_requests
+# Use ClickHouse async inserts so small per-request inserts are batched server-side (recommended).
+# request-logging.async-insert=true
 # Ant-style paths to capture (comma separated); defaults to the REST API only.
 # request-logging.path-patterns=/api/**
 # Max request body bytes to capture/buffer; larger bodies are truncated and flagged.
@@ -470,8 +473,6 @@ feature.study.export.timeout_ms=600000
 # Query-string/body (form or JSON) parameter names whose values are stored as REDACTED. Empty by
 # default; e.g. token,password,secret,access_token to scrub secrets passed outside headers.
 # request-logging.redact-params=
-# Auto-delete captures not seen for this many days (TTL index on lastSeen). 0 = keep forever.
-# request-logging.ttl-days=0
 # request-logging.writer-threads=2
 # request-logging.queue-capacity=10000
 

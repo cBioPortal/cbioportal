@@ -1,8 +1,9 @@
 package org.cbioportal.infrastructure.requestlog;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import java.time.Duration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -11,18 +12,13 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
-import org.springframework.data.mongodb.core.index.Index;
 
 /**
- * Wires up the MongoDB HTTP request logger. Everything here is gated on {@code
- * request-logging.enabled=true}; when the feature is off no Mongo client is created and no filter
- * is registered, so the rest of the application is unaffected. This is needed because the
- * application deliberately excludes Spring Boot's Mongo auto-configuration (see {@code
- * PortalApplication}), so a dedicated, self-contained Mongo connection is provisioned just for
- * request logging.
+ * Wires up the ClickHouse HTTP request logger. Everything here is gated on {@code
+ * request-logging.enabled=true}; when the feature is off no filter is registered, so the rest of the
+ * application is unaffected. Captured requests are written through the application's primary
+ * datasource (the same ClickHouse the app already queries) into a dedicated table that is expected
+ * to already exist.
  */
 @Configuration
 @EnableConfigurationProperties(RequestLoggingProperties.class)
@@ -31,27 +27,45 @@ public class RequestLoggingConfig {
 
   private static final Logger LOG = LoggerFactory.getLogger(RequestLoggingConfig.class);
 
-  @Bean(destroyMethod = "close")
-  public MongoClient requestLogMongoClient(RequestLoggingProperties properties) {
-    return MongoClients.create(properties.getMongoUri());
-  }
-
-  @Bean
-  public MongoTemplate requestLogMongoTemplate(
-      MongoClient requestLogMongoClient, RequestLoggingProperties properties) {
-    return new MongoTemplate(
-        new SimpleMongoClientDatabaseFactory(requestLogMongoClient, properties.getDatabase()));
-  }
-
   @Bean
   public RequestLogService requestLogService(
-      MongoTemplate requestLogMongoTemplate, RequestLoggingProperties properties) {
-    ensureIndexes(requestLogMongoTemplate, properties);
+      DataSource dataSource, RequestLoggingProperties properties) {
     return new RequestLogService(
-        requestLogMongoTemplate,
-        properties.getCollection(),
+        dataSource,
+        properties.getTable(),
+        properties.isAsyncInsert(),
+        resolveGitCommit(),
         properties.getWriterThreads(),
         properties.getQueueCapacity());
+  }
+
+  /**
+   * The full commit the running backend was built from, suffixed with {@code -dirty} when the build
+   * had uncommitted changes (so QC can tell apart captures taken against a clean tag versus a local
+   * working tree). Read straight from the {@code git.properties} that the git-commit-id Maven plugin
+   * writes onto the classpath at build time, rather than the autoconfigured {@code GitProperties}
+   * bean (which doesn't expose the plugin's {@code git.commit.id.full} key in this build). Falls back
+   * to {@code "unknown"} when the file is absent (e.g. running from an IDE without the plugin).
+   */
+  private static String resolveGitCommit() {
+    Properties props = new Properties();
+    try (InputStream in = RequestLoggingConfig.class.getResourceAsStream("/git.properties")) {
+      if (in == null) {
+        return "unknown";
+      }
+      props.load(in);
+    } catch (IOException ex) {
+      LOG.warn("Could not read git.properties for request logging: {}", ex.getMessage());
+      return "unknown";
+    }
+    String commitId =
+        props.getProperty("git.commit.id.full", props.getProperty("git.commit.id", ""));
+    if (commitId.isEmpty()) {
+      return "unknown";
+    }
+    return Boolean.parseBoolean(props.getProperty("git.dirty", "false"))
+        ? commitId + "-dirty"
+        : commitId;
   }
 
   @Bean
@@ -65,33 +79,9 @@ public class RequestLoggingConfig {
     registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
     registration.setName("requestLoggingFilter");
     LOG.info(
-        "MongoDB request logging enabled; capturing {} into {}/{}",
+        "ClickHouse request logging enabled; capturing {} into {}",
         properties.getPathPatterns(),
-        properties.getDatabase(),
-        properties.getCollection());
+        properties.getTable());
     return registration;
-  }
-
-  /**
-   * Create the indexes that back endpoint/path search, plus an optional TTL index that bounds how
-   * long captured (potentially sensitive) requests are retained. Failures here must not prevent
-   * startup (e.g. Mongo temporarily unreachable), so they are logged and swallowed.
-   */
-  private void ensureIndexes(MongoTemplate template, RequestLoggingProperties properties) {
-    String collection = properties.getCollection();
-    try {
-      template.indexOps(collection).ensureIndex(new Index().on("endpoint", Sort.Direction.ASC));
-      template.indexOps(collection).ensureIndex(new Index().on("path", Sort.Direction.ASC));
-      if (properties.getTtlDays() > 0) {
-        template
-            .indexOps(collection)
-            .ensureIndex(
-                new Index()
-                    .on("lastSeen", Sort.Direction.ASC)
-                    .expire(Duration.ofDays(properties.getTtlDays())));
-      }
-    } catch (RuntimeException ex) {
-      LOG.warn("Could not create request-logging indexes: {}", ex.getMessage());
-    }
   }
 }

@@ -2,38 +2,38 @@ package org.cbioportal.infrastructure.requestlog;
 
 import java.time.Instant;
 import java.util.List;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
- * A single, unique HTTP request captured for QC purposes.
+ * A single observation of an HTTP request captured for QC purposes.
  *
- * <p>The {@link #id} is a deterministic hash of the request's method, path, query string and body,
- * so re-issuing the same request simply increments {@link #count} and refreshes {@link #lastSeen}
- * rather than creating a new document. This keeps the collection bounded by the number of
- * <em>distinct</em> requests, not by traffic volume.
+ * <p>The {@link #id} is a deterministic hash of the request's method, path, query string and body.
+ * Every observation is inserted as its own row; the backing ClickHouse table is a {@code
+ * ReplacingMergeTree} ordered by {@code id}, so background merges eventually collapse repeated
+ * observations of the same logical request to a single row. Per-request statistics such as how many
+ * times a request was seen, and the first/last time it was seen, are derived at query time
+ * ({@code count()}, {@code min(seen)}, {@code max(seen)} grouped by {@code id}) rather than being
+ * maintained on write.
  */
-@Document(collection = "logged_requests")
 public class LoggedRequest {
 
-  /**
-   * SHA-256 of {@code method\npath\nquery\nbody} (post-redaction); used as the Mongo {@code _id}.
-   */
-  @Id private String id;
+  /** SHA-256 of {@code method\npath\nquery\nbody} (post-redaction); the table's sort/dedup key. */
+  private String id;
 
   private String method;
 
   /** Request path without the query string, e.g. {@code /api/studies/acc_tcga/clinical-data}. */
-  @Indexed private String path;
+  private String path;
 
   /**
    * The matched controller route pattern, e.g. {@code /api/studies/{studyId}/clinical-data}. This
    * is the primary field to search on when collecting all calls to a given endpoint.
    */
-  @Indexed private String endpoint;
+  private String endpoint;
 
   private String queryString;
+
+  /** The server host the request was addressed to, e.g. {@code www.cbioportal.org}. */
+  private String serverName;
 
   /** Fully reconstructed request URL including scheme, host and query string. */
   private String url;
@@ -46,15 +46,11 @@ public class LoggedRequest {
 
   private boolean bodyTruncated;
 
-  /** HTTP status returned the last time this request was seen. */
+  /** HTTP status returned for this observation. */
   private int responseStatus;
 
-  /** Number of times this exact request has been observed. */
-  private long count;
-
-  private Instant firstSeen;
-
-  private Instant lastSeen;
+  /** When this observation was captured. */
+  private Instant seen;
 
   public String getId() {
     return id;
@@ -94,6 +90,14 @@ public class LoggedRequest {
 
   public void setQueryString(String queryString) {
     this.queryString = queryString;
+  }
+
+  public String getServerName() {
+    return serverName;
+  }
+
+  public void setServerName(String serverName) {
+    this.serverName = serverName;
   }
 
   public String getUrl() {
@@ -144,27 +148,11 @@ public class LoggedRequest {
     this.responseStatus = responseStatus;
   }
 
-  public long getCount() {
-    return count;
+  public Instant getSeen() {
+    return seen;
   }
 
-  public void setCount(long count) {
-    this.count = count;
-  }
-
-  public Instant getFirstSeen() {
-    return firstSeen;
-  }
-
-  public void setFirstSeen(Instant firstSeen) {
-    this.firstSeen = firstSeen;
-  }
-
-  public Instant getLastSeen() {
-    return lastSeen;
-  }
-
-  public void setLastSeen(Instant lastSeen) {
-    this.lastSeen = lastSeen;
+  public void setSeen(Instant seen) {
+    this.seen = seen;
   }
 }

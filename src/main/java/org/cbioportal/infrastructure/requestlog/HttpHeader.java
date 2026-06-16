@@ -1,10 +1,10 @@
 package org.cbioportal.infrastructure.requestlog;
 
 /**
- * A single captured request header, stored as a {@code {name, value}} sub-document.
+ * A single captured request header. The full set of headers for a request is serialized to JSON as
+ * an array of these {@code {name, value}} objects and stored in a single column.
  *
- * <p>Headers are kept as a list of these rather than a {@code Map} so that attacker-supplied header
- * names (which can legally contain characters such as {@code $} or {@code .}) never become MongoDB
- * field keys, where they would be rejected or interpreted as operators/paths.
+ * <p>Headers are kept as a list of name/value pairs rather than a map so that duplicate header names
+ * are preserved and attacker-supplied header names never need to become structural keys.
  */
 public record HttpHeader(String name, String value) {}

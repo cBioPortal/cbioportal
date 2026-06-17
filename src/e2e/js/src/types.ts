@@ -287,44 +287,6 @@ export interface ClinicalDataCount {
 }
 
 /**
- * GenePanelData - Gene panel profiling status for one (sample, molecular profile) pair.
- * Source: https://www.cbioportal.org/api/v3/api-docs/public (GenePanelData schema)
- * Required fields: molecularProfileId, sampleId, patientId, studyId, profiled
- */
-export interface GenePanelData {
-  /** Molecular profile stable id (e.g. "acc_tcga_mutations") */
-  molecularProfileId: string;
-  /** Sample stable id */
-  sampleId: string;
-  /** Patient stable id */
-  patientId: string;
-  /** Study stable id */
-  studyId: string;
-  /** Whether the sample is profiled in this molecular profile */
-  profiled: boolean;
-  /** Gene panel stable id; absent/null when whole-genome profiled */
-  genePanelId?: string;
-  /** Base64(sampleId + studyId) */
-  uniqueSampleKey: string;
-  /** Base64(patientId + studyId) */
-  uniquePatientKey: string;
-}
-
-/**
- * GenericAssayMeta - Metadata for a generic assay entity.
- * Source: https://www.cbioportal.org/api/v3/api-docs/public (GenericAssayMeta schema)
- * Required fields: stableId
- */
-export interface GenericAssayMeta {
-  /** Generic assay entity stable id */
-  stableId: string;
-  /** Entity type (e.g. "GENERIC_ASSAY") */
-  entityType: string;
-  /** Arbitrary key->value annotation properties (e.g. NAME, DESCRIPTION, URL, GENE_SYMBOL) */
-  genericEntityMetaProperties: { [key: string]: string };
-}
-
-/**
  * ClinicalDataCountItem - Count breakdown for one clinical attribute across all values
  * Source: https://www.cbioportal.org/api/v3/api-docs/internal (ClinicalDataCountItem schema)
  * Required fields: attributeId, counts

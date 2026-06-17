@@ -139,11 +139,7 @@
         cs.status AS status,
         cs.import_date AS importDate,
         reference_genome.name AS referenceGenome,
-        allSampleCount,
-        NULL AS type_of_cancer_name,
-        NULL AS type_of_cancer_dedicated_color,
-        NULL AS type_of_cancer_short_name,
-        NULL AS type_of_cancer_parent
+        allSampleCount
 
         FROM cancer_study AS cs
         INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
@@ -223,7 +219,6 @@
             <arg column="importDate" javaType="java.util.Date" />
             <arg column="allSampleCount" javaType="int" />
             <arg column="referenceGenome" javaType="String" />
-            <arg javaType="org.cbioportal.domain.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>
     </resultMap>
 

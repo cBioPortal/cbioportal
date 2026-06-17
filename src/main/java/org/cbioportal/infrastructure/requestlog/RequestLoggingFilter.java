@@ -20,6 +20,7 @@ import java.util.Enumeration;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -97,13 +98,17 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     String contentType = request.getContentType();
 
     Charset charset =
-        request.getCharacterEncoding() != null
-            ? Charset.forName(request.getCharacterEncoding())
-            : StandardCharsets.UTF_8;
+        Optional.ofNullable(request.getCharacterEncoding())
+            .map(Charset::forName)
+            .orElse(StandardCharsets.UTF_8);
     byte[] bodyBytes = request.getContentAsByteArray();
+    // The cache filled to the cap. The body was truncated unless the declared content length proves
+    // it fit exactly; an unknown length (-1, e.g. chunked transfer) is treated as possibly
+    // truncated.
+    long contentLength = request.getContentLengthLong();
     boolean truncated =
         bodyBytes.length >= properties.getMaxBodyBytes()
-            && request.getContentLengthLong() > bodyBytes.length;
+            && (contentLength < 0 || contentLength > bodyBytes.length);
 
     // Redact before hashing/storing so secrets never reach the database and so requests that differ
     // only in a secret value still deduplicate to the same document.

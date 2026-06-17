@@ -457,11 +457,12 @@ feature.study.export.timeout_ms=600000
 # of the same request (same hash of method + path + query + body) are collapsed by the table's
 # ReplacingMergeTree merges, so the table converges on one row per distinct request. Each row holds
 # everything needed to replay the request with curl and can be searched by endpoint. Disabled by
-# default. The target table must already exist; create it with the ReplacingMergeTree DDL from the
-# project docs (ENGINE = ReplacingMergeTree(seen) ORDER BY id, optionally with a TTL on seen).
+# default. The target table must already exist; create it with the provisioning script
+# src/main/resources/db-scripts/clickhouse/request_log.sql (the application does not create it).
 # request-logging.enabled=false
-# Target table; may be database-qualified. Defaults to logged_requests in the datasource's database.
-# request-logging.table=logged_requests
+# Target table; may be database-qualified. Defaults to cbioportal_qc.logged_requests (as created by
+# request_log.sql); the runtime datasource user needs INSERT on it.
+# request-logging.table=cbioportal_qc.logged_requests
 # Use ClickHouse async inserts so small per-request inserts are batched server-side (recommended).
 # request-logging.async-insert=true
 # Ant-style paths to capture (comma separated); defaults to the REST API only.

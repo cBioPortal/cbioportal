@@ -22,11 +22,12 @@ public class RequestLoggingProperties {
   private boolean enabled = false;
 
   /**
-   * Target table for captured requests. May be qualified with a database (e.g. {@code
-   * cbioportal_qc.logged_requests}); when unqualified it resolves against the database in the
-   * primary datasource URL. The table must already exist (see the project docs for the DDL).
+   * Target table for captured requests. Defaults to the database-qualified {@code
+   * cbioportal_qc.logged_requests} created by {@code db-scripts/clickhouse/request_log.sql}; an
+   * unqualified value resolves against the database in the primary datasource URL. The table must
+   * already exist (the application does not create it).
    */
-  private String table = "logged_requests";
+  private String table = "cbioportal_qc.logged_requests";
 
   /**
    * Use ClickHouse asynchronous inserts ({@code async_insert=1, wait_for_async_insert=0}) so the

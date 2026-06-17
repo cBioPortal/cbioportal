@@ -1,43 +1,22 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import java.util.Map;
 import org.cbioportal.domain.studyview.StudyViewService;
-import org.cbioportal.infrastructure.service.BasicDataBinner;
-import org.cbioportal.infrastructure.service.ClinicalDataBinner;
-import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
-import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
-import org.cbioportal.legacy.service.ClinicalDataDensityPlotService;
-import org.cbioportal.legacy.service.CustomDataService;
-import org.cbioportal.legacy.service.ViolinPlotService;
-import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
-import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@WebMvcTest
-@ContextConfiguration(classes = {ColumnarStoreStudyViewController.class, TestConfig.class})
 public class ColumnarStoreStudyViewControllerTest {
 
   private static final String TEST_STUDY_ID = "test_study_id";
@@ -46,33 +25,22 @@ public class ColumnarStoreStudyViewControllerTest {
   private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
   private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
 
-  @MockitoBean private StudyViewService studyViewService;
-  @MockitoBean private BasicDataBinner basicDataBinner;
-  @MockitoBean private ClinicalDataBinner clinicalDataBinner;
-  @MockitoBean private ClinicalDataDensityPlotService clinicalDataDensityPlotService;
-  @MockitoBean private ViolinPlotService violinPlotService;
-  @MockitoBean private CustomDataService customDataService;
-  @MockitoBean private CustomDataFilterUtil customDataFilterUtil;
-
-  @MockitoBean(name = "staticRefCacheMapUtil")
-  private CacheMapUtil cacheMapUtil;
-
-  @Autowired private MockMvc mockMvc;
+  private StudyViewService studyViewService;
+  private MockMvc mockMvc;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
 
   @Before
   public void setUp() {
-    CancerStudy cancerStudy = new CancerStudy();
-    cancerStudy.setCancerStudyIdentifier(TEST_STUDY_ID);
-    cancerStudy.setPublicStudy(true);
-
-    Mockito.when(cacheMapUtil.getCancerStudyMap()).thenReturn(Map.of(TEST_STUDY_ID, cancerStudy));
-    Mockito.when(cacheMapUtil.hasCacheEnabled()).thenReturn(false);
+    studyViewService = Mockito.mock(StudyViewService.class);
+    mockMvc =
+        MockMvcBuilders.standaloneSetup(
+                new ColumnarStoreStudyViewController(
+                    studyViewService, null, null, null, null, null, null))
+            .build();
   }
 
   @Test
-  @WithMockUser
   public void fetchGenericAssayDataCounts() throws Exception {
     List<GenericAssayDataCountItem> genericAssayDataCountItems =
         List.of(
@@ -97,7 +65,6 @@ public class ColumnarStoreStudyViewControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
@@ -122,7 +89,6 @@ public class ColumnarStoreStudyViewControllerTest {
   }
 
   @Test
-  @WithMockUser
   public void fetchGenericAssayDataCountsByProfileType() throws Exception {
     List<GenericAssayDataCountItem> genericAssayDataCountItems =
         List.of(
@@ -144,7 +110,6 @@ public class ColumnarStoreStudyViewControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
@@ -166,7 +131,6 @@ public class ColumnarStoreStudyViewControllerTest {
   }
 
   @Test
-  @WithMockUser
   public void fetchGenericAssayDataCounts_missingFiltersAndProfileType_returnsBadRequest()
       throws Exception {
     GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
@@ -177,7 +141,6 @@ public class ColumnarStoreStudyViewControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
@@ -187,7 +150,6 @@ public class ColumnarStoreStudyViewControllerTest {
   }
 
   @Test
-  @WithMockUser
   public void fetchGenericAssayDataCounts_blankProfileType_returnsBadRequest() throws Exception {
     GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
     genericAssayDataCountFilter.setProfileType("   ");
@@ -198,7 +160,6 @@ public class ColumnarStoreStudyViewControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
-                .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))

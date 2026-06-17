@@ -128,9 +128,6 @@ public class StudyViewControllerTest {
   private static final String TEST_HUGO_GENE_SYMBOL_2 = "test_hugo_gene_symbol_2";
   private static final String TEST_CYTOBAND_1 = "test_cytoband_1";
   private static final String TEST_CYTOBAND_2 = "test_cytoband_2";
-  private static final String TEST_STABLE_ID = "test_stable_id";
-  private static final String TEST_GENERIC_ASSAY_DATA_VALUE_1 = "value1";
-  private static final String TEST_GENERIC_ASSAY_DATA_VALUE_2 = "value2";
   private static final String TEST_CLINICAL_EVENT_TYPE = "STATUS";
   private static final Integer TEST_CLINICAL_EVENT_TYPE_COUNT = 513;
   private static final String TEST_CNA_ALTERATION_NAME_1 = "test_cna_event_type_1";

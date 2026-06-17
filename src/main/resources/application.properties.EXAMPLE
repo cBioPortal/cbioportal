@@ -451,5 +451,31 @@ spring.devtools.restart.enabled=false
 feature.study.export=false
 feature.study.export.timeout_ms=600000
 
+## ClickHouse HTTP request logging (QC)
+# When enabled, every matching HTTP request (method, url, headers and body) is captured and inserted
+# into a dedicated ClickHouse table using the application's primary datasource. Repeated observations
+# of the same request (same hash of method + path + query + body) are collapsed by the table's
+# ReplacingMergeTree merges, so the table converges on one row per distinct request. Each row holds
+# everything needed to replay the request with curl and can be searched by endpoint. Disabled by
+# default. The target table must already exist; create it with the provisioning script
+# src/main/resources/db-scripts/clickhouse/request_log.sql (the application does not create it).
+# request-logging.enabled=false
+# Target table; may be database-qualified. Defaults to cbioportal_qc.logged_requests (as created by
+# request_log.sql); the runtime datasource user needs INSERT on it.
+# request-logging.table=cbioportal_qc.logged_requests
+# Use ClickHouse async inserts so small per-request inserts are batched server-side (recommended).
+# request-logging.async-insert=true
+# Ant-style paths to capture (comma separated); defaults to the REST API only.
+# request-logging.path-patterns=/api/**
+# Max request body bytes to capture/buffer; larger bodies are truncated and flagged.
+# request-logging.max-body-bytes=5242880
+# Header names whose values are stored as REDACTED. Set empty to capture verbatim for replay.
+# request-logging.redact-headers=authorization,cookie,set-cookie
+# Query-string/body (form or JSON) parameter names whose values are stored as REDACTED. Empty by
+# default; e.g. token,password,secret,access_token to scrub secrets passed outside headers.
+# request-logging.redact-params=
+# request-logging.writer-threads=2
+# request-logging.queue-capacity=10000
+
 # EOL - Do not delete the following lines
 

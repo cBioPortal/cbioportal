@@ -6,9 +6,11 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
+import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -35,6 +37,76 @@ public class ClickhouseGenericAssayMapperTest {
   private static final String SAMPLE_LEVEL_ASSAY_PROFILE_TYPE = "sample_level_assay";
 
   @Autowired private ClickhouseGenericAssayMapper mapper;
+
+  @Test
+  public void getSampleCategoricalGenericAssayDataBinCounts() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA));
+
+    GenericAssayDataBinFilter genericAssayDataBinFilter = new GenericAssayDataBinFilter();
+    genericAssayDataBinFilter.setStableId("1p_status");
+    genericAssayDataBinFilter.setProfileType("armlevel_cna");
+
+    List<ClinicalDataCount> actualCounts =
+        mapper.getGenericAssayDataBinCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataBinFilter));
+
+    ClinicalDataCount expectedLoss = new ClinicalDataCount();
+    expectedLoss.setAttributeId("1p_statusarmlevel_cna");
+    expectedLoss.setValue("Loss");
+    expectedLoss.setCount(1);
+    ClinicalDataCount expectedGain = new ClinicalDataCount();
+    expectedGain.setAttributeId("1p_statusarmlevel_cna");
+    expectedGain.setValue("Gain");
+    expectedGain.setCount(1);
+    ClinicalDataCount expectedUnchanged = new ClinicalDataCount();
+    expectedUnchanged.setAttributeId("1p_statusarmlevel_cna");
+    expectedUnchanged.setValue("Unchanged");
+    expectedUnchanged.setCount(1);
+    ClinicalDataCount expectedNa = new ClinicalDataCount();
+    expectedNa.setAttributeId("1p_statusarmlevel_cna");
+    expectedNa.setValue("NA");
+    expectedNa.setCount(1);
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(List.of(expectedLoss, expectedGain, expectedUnchanged, expectedNa));
+  }
+
+  @Test
+  public void getPatientCategoricalGenericAssayDataBinCounts() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    GenericAssayDataBinFilter genericAssayDataBinFilter = new GenericAssayDataBinFilter();
+    genericAssayDataBinFilter.setStableId("DMETS_DX_ADRENAL");
+    genericAssayDataBinFilter.setProfileType("distant_mets");
+
+    List<ClinicalDataCount> actualCounts =
+        mapper.getGenericAssayDataBinCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataBinFilter));
+
+    ClinicalDataCount expectedNo = new ClinicalDataCount();
+    expectedNo.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedNo.setValue("No");
+    expectedNo.setCount(9);
+    ClinicalDataCount expectedYes = new ClinicalDataCount();
+    expectedYes.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedYes.setValue("Yes");
+    expectedYes.setCount(1);
+    ClinicalDataCount expectedNa = new ClinicalDataCount();
+    expectedNa.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedNa.setValue("NA");
+    expectedNa.setCount(14);
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(List.of(expectedNo, expectedYes, expectedNa));
+  }
 
   @Test
   public void getSampleCategoricalGenericAssayDataCounts() {

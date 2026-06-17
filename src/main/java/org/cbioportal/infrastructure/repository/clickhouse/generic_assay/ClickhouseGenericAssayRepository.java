@@ -47,6 +47,12 @@ public class ClickhouseGenericAssayRepository implements GenericAssayRepository 
   }
 
   @Override
+  public List<GenericAssayDataCountItem> getGenericAssayDataCountsByProfileType(
+      StudyViewFilterContext studyViewFilterContext, String profileType) {
+    return mapper.getGenericAssayDataCountsByProfileType(studyViewFilterContext, profileType);
+  }
+
+  @Override
   public List<String> getGenericAssayStableIdsByProfileIds(List<String> molecularProfileIds) {
     return mapper.getGenericAssayStableIdsByProfileIds(molecularProfileIds);
   }

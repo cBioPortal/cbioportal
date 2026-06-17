@@ -55,6 +55,17 @@ public interface GenericAssayRepository {
       List<GenericAssayDataFilter> genericAssayDataFilters);
 
   /**
+   * Retrieves counts for all entities in a generic assay profile based on the study view filter
+   * context and a single profile type.
+   *
+   * @param studyViewFilterContext The filter criteria for the study view.
+   * @param profileType The profile type suffix to aggregate.
+   * @return a list of {@link GenericAssayDataCountItem} representing assay data counts.
+   */
+  List<GenericAssayDataCountItem> getGenericAssayDataCountsByProfileType(
+      StudyViewFilterContext studyViewFilterContext, String profileType);
+
+  /**
    * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
    * IDs via generic_assay_profile_entity_derived.
    *

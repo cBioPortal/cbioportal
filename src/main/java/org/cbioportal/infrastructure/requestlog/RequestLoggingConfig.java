@@ -15,8 +15,8 @@ import org.springframework.core.Ordered;
 
 /**
  * Wires up the ClickHouse HTTP request logger. Everything here is gated on {@code
- * request-logging.enabled=true}; when the feature is off no filter is registered, so the rest of the
- * application is unaffected. Captured requests are written through the application's primary
+ * request-logging.enabled=true}; when the feature is off no filter is registered, so the rest of
+ * the application is unaffected. Captured requests are written through the application's primary
  * datasource (the same ClickHouse the app already queries) into a dedicated table that is expected
  * to already exist.
  */
@@ -42,10 +42,11 @@ public class RequestLoggingConfig {
   /**
    * The full commit the running backend was built from, suffixed with {@code -dirty} when the build
    * had uncommitted changes (so QC can tell apart captures taken against a clean tag versus a local
-   * working tree). Read straight from the {@code git.properties} that the git-commit-id Maven plugin
-   * writes onto the classpath at build time, rather than the autoconfigured {@code GitProperties}
-   * bean (which doesn't expose the plugin's {@code git.commit.id.full} key in this build). Falls back
-   * to {@code "unknown"} when the file is absent (e.g. running from an IDE without the plugin).
+   * working tree). Read straight from the {@code git.properties} that the git-commit-id Maven
+   * plugin writes onto the classpath at build time, rather than the autoconfigured {@code
+   * GitProperties} bean (which doesn't expose the plugin's {@code git.commit.id.full} key in this
+   * build). Falls back to {@code "unknown"} when the file is absent (e.g. running from an IDE
+   * without the plugin).
    */
   private static String resolveGitCommit() {
     Properties props = new Properties();

@@ -10,8 +10,8 @@ import java.util.List;
  * Every observation is inserted as its own row; the backing ClickHouse table is a {@code
  * ReplacingMergeTree} ordered by {@code id}, so background merges eventually collapse repeated
  * observations of the same logical request to a single row. Per-request statistics such as how many
- * times a request was seen, and the first/last time it was seen, are derived at query time
- * ({@code count()}, {@code min(seen)}, {@code max(seen)} grouped by {@code id}) rather than being
+ * times a request was seen, and the first/last time it was seen, are derived at query time ({@code
+ * count()}, {@code min(seen)}, {@code max(seen)} grouped by {@code id}) rather than being
  * maintained on write.
  */
 public class LoggedRequest {

@@ -277,9 +277,7 @@ public class GenericAssayServiceImpTest extends BaseServiceImplTest {
         .thenReturn(mockGenericAssayMetaList);
     Mockito.when(genericAssayRepository.getGenericAssayStableIdsByMolecularIds(PROFILE_ID_LIST))
         .thenReturn(idList);
-    Mockito.when(
-            genericAssayRepository.getGenericAssayAdditionalproperties(
-                Mockito.eq(idList), Mockito.anyList()))
+    Mockito.when(genericAssayRepository.getGenericAssayAdditionalproperties(idList))
         .thenReturn(mockGenericAssayAdditionalPropertyList);
 
     List<GenericAssayMeta> result =

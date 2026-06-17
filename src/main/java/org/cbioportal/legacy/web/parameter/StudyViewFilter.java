@@ -72,25 +72,28 @@ public class StudyViewFilter implements Serializable {
   @AssertTrue
   private boolean isGenericAssaySelectionFiltersValid() {
     return genericAssaySelectionFilters == null
-        || genericAssaySelectionFilters.stream()
-            .allMatch(
-                filter ->
-                    filter != null
-                        && StringUtils.hasText(filter.getProfileType())
-                        && filter.getPatientLevel() != null
-                        && filter.getValues() != null
-                        && !filter.getValues().isEmpty()
-                        && filter.getValues().stream()
-                            .allMatch(
-                                group ->
-                                    group != null
-                                        && !group.isEmpty()
-                                        && group.stream()
-                                            .allMatch(
-                                                value ->
-                                                    value != null
-                                                        && StringUtils.hasText(value.getStableId())
-                                                        && StringUtils.hasText(value.getValue()))));
+        || genericAssaySelectionFilters.stream().allMatch(this::isValidGenericAssaySelectionFilter);
+  }
+
+  private boolean isValidGenericAssaySelectionFilter(GenericAssaySelectionFilter filter) {
+    return filter != null
+        && StringUtils.hasText(filter.getProfileType())
+        && filter.getPatientLevel() != null
+        && filter.getValues() != null
+        && !filter.getValues().isEmpty()
+        && filter.getValues().stream().allMatch(this::isValidGenericAssaySelectionGroup);
+  }
+
+  private boolean isValidGenericAssaySelectionGroup(List<GenericAssaySelectionValue> group) {
+    return group != null
+        && !group.isEmpty()
+        && group.stream().allMatch(this::isValidGenericAssaySelectionValue);
+  }
+
+  private boolean isValidGenericAssaySelectionValue(GenericAssaySelectionValue value) {
+    return value != null
+        && StringUtils.hasText(value.getStableId())
+        && StringUtils.hasText(value.getValue());
   }
 
   @AssertTrue

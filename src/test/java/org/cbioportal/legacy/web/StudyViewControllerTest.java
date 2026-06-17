@@ -1016,6 +1016,8 @@ public class StudyViewControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.spearmanCorr").value(1));
   }
 
+  @Test
+  @WithMockUser
   public void fetchClinicalDataClinicalTable() throws Exception {
     // For this sake of this test the sample clinical data and patient clinical data are identical.
     when(clinicalDataService.fetchSampleClinicalTable(

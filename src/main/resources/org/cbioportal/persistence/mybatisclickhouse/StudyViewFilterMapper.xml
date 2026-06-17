@@ -615,7 +615,11 @@
                         )
                     </when>
                     <otherwise>
-                        gad.value ILIKE #{selectionValue.value}
+                        lower(
+                            <include refid="normalizeAttributeValue">
+                                <property name="attribute_value" value="gad.value"/>
+                            </include>
+                        ) = lower(#{selectionValue.value})
                     </otherwise>
                 </choose>
             </foreach>

@@ -20,6 +20,7 @@ import org.cbioportal.legacy.web.parameter.MutationDataFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.legacy.web.parameter.filter.AndedSampleTreatmentFilters;
+import org.springframework.util.StringUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -77,7 +78,7 @@ public class StudyViewFilterDTO {
             .allMatch(
                 filter ->
                     filter != null
-                        && filter.getProfileType() != null
+                        && StringUtils.hasText(filter.getProfileType())
                         && filter.getPatientLevel() != null
                         && filter.getValues() != null
                         && !filter.getValues().isEmpty()
@@ -90,8 +91,8 @@ public class StudyViewFilterDTO {
                                             .allMatch(
                                                 value ->
                                                     value != null
-                                                        && value.getStableId() != null
-                                                        && value.getValue() != null)));
+                                                        && StringUtils.hasText(value.getStableId())
+                                                        && StringUtils.hasText(value.getValue()))));
   }
 
   @AssertTrue

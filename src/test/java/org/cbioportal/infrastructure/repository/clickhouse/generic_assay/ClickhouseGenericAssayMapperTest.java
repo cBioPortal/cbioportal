@@ -110,7 +110,7 @@ public class ClickhouseGenericAssayMapperTest {
                 List.of(
                     new GenericAssayDataCount("Loss", 2),
                     new GenericAssayDataCount("Gain", 2),
-                    new GenericAssayDataCount("NA", 0))));
+                    new GenericAssayDataCount("NA", 23))));
 
     assertThat(actualCounts)
         .usingRecursiveComparison()

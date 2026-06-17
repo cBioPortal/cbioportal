@@ -17,6 +17,7 @@ import org.cbioportal.legacy.model.GeneFilter;
 import org.cbioportal.legacy.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.legacy.web.parameter.filter.AndedSampleTreatmentFilters;
+import org.springframework.util.StringUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -75,7 +76,7 @@ public class StudyViewFilter implements Serializable {
             .allMatch(
                 filter ->
                     filter != null
-                        && filter.getProfileType() != null
+                        && StringUtils.hasText(filter.getProfileType())
                         && filter.getPatientLevel() != null
                         && filter.getValues() != null
                         && !filter.getValues().isEmpty()
@@ -88,8 +89,8 @@ public class StudyViewFilter implements Serializable {
                                             .allMatch(
                                                 value ->
                                                     value != null
-                                                        && value.getStableId() != null
-                                                        && value.getValue() != null)));
+                                                        && StringUtils.hasText(value.getStableId())
+                                                        && StringUtils.hasText(value.getValue()))));
   }
 
   @AssertTrue

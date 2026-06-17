@@ -185,4 +185,25 @@ public class ColumnarStoreStudyViewControllerTest {
 
     Mockito.verifyNoInteractions(studyViewService);
   }
+
+  @Test
+  @WithMockUser
+  public void fetchGenericAssayDataCounts_blankProfileType_returnsBadRequest() throws Exception {
+    GenericAssayDataCountFilter genericAssayDataCountFilter = new GenericAssayDataCountFilter();
+    genericAssayDataCountFilter.setProfileType("   ");
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(TEST_STUDY_ID));
+    genericAssayDataCountFilter.setStudyViewFilter(studyViewFilter);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-data-counts/fetch")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataCountFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(studyViewService);
+  }
 }

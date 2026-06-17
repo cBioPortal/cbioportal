@@ -228,6 +228,50 @@ public class ClickhouseSampleMapperTest {
   }
 
   @Test
+  public void getSamplesFilteredBySampleLevelGenericAssaySelection_isCaseInsensitive() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "armlevel_cna",
+                false,
+                List.of(
+                    List.of(
+                        newGenericAssaySelectionValue("1p_status", "gain"),
+                        newGenericAssaySelectionValue("10p_status", "gain")),
+                    List.of(newGenericAssaySelectionValue("9p_status", "gain"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertEquals(1, filteredSamples.size());
+    assertEquals("tcga-a1-b0sp-01", filteredSamples.getFirst().stableId());
+  }
+
+  @Test
+  public void
+      getSamplesFilteredBySampleLevelGenericAssaySelection_doesNotTreatWildcardsAsMatchAll() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "armlevel_cna",
+                false,
+                List.of(List.of(newGenericAssaySelectionValue("1p_status", "%"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertTrue(filteredSamples.isEmpty());
+  }
+
+  @Test
   public void getSamplesFilteredByPatientLevelGenericAssaySelection() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(Collections.singletonList(STUDY_GENIE_PUB));

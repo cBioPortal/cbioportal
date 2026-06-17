@@ -96,6 +96,7 @@
         FROM genetic_profile
         WHERE
         patient_level = 1
+        AND endsWith(stable_id, concat('_', #{profileType}))
         <if
                 test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
             AND stable_id IN
@@ -141,15 +142,9 @@
         cast(
         multiIf(
         (SELECT is_patient_level FROM profile_level LIMIT 1),
-        count(distinct patient_unique_id),
-        count(distinct sample_unique_id)
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>)),
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>))
         ) AS INTEGER) AS total
-        FROM generic_assay_data_derived
-        <where>
-            profile_type = #{profileType} AND
-            <include
-                    refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
-        </where>
         )
 
         SELECT * FROM generic_assay_query
@@ -171,6 +166,7 @@
                 count() > 0 AS is_patient_level
             FROM genetic_profile
             WHERE patient_level = 1
+                AND endsWith(stable_id, concat('_', #{profileType}))
             <if
                     test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
                 AND stable_id IN

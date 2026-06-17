@@ -33,9 +33,9 @@ public class GenePanelServiceImpl implements GenePanelService {
 
   private final String SEQUENCED_LIST_SUFFIX = "_sequenced";
 
-  private final Function<GenePanelData, String> SAMPLE_IDENTIFIER_GENERATOR =
+  private final Function<GenePanelData, String> sampleIdentifierGenerator =
       d -> d.getMolecularProfileId() + d.getSampleId();
-  private final Function<GenePanelData, String> PATIENT_IDENTIFIER_GENERATOR =
+  private final Function<GenePanelData, String> patientIdentifierGenerator =
       d -> d.getMolecularProfileId() + d.getPatientId();
 
   @Override
@@ -168,13 +168,13 @@ public class GenePanelServiceImpl implements GenePanelService {
   @Override
   public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfiles(
       List<MolecularProfileCaseIdentifier> molecularProfileSampleIdentifiers) {
-    return getGenePanelData(molecularProfileSampleIdentifiers, SAMPLE_IDENTIFIER_GENERATOR);
+    return getGenePanelData(molecularProfileSampleIdentifiers, sampleIdentifierGenerator);
   }
 
   @Override
   public List<GenePanelData> fetchGenePanelDataInMultipleMolecularProfilesByPatientIds(
       List<MolecularProfileCaseIdentifier> molecularProfilePatientIdentifiers) {
-    return getGenePanelData(molecularProfilePatientIdentifiers, PATIENT_IDENTIFIER_GENERATOR);
+    return getGenePanelData(molecularProfilePatientIdentifiers, patientIdentifierGenerator);
   }
 
   private List<GenePanelData> getGenePanelData(
@@ -195,7 +195,7 @@ public class GenePanelServiceImpl implements GenePanelService {
         .filter(
             datum ->
                 queriedMolecularProfileCaseIdentifierMap.containsKey(keyGenerator.apply(datum)))
-        .collect(toList());
+        .toList();
   }
 
   /**

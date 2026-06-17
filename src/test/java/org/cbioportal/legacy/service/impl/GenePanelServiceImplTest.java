@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.GenePanel;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.GenePanelToGene;
@@ -214,7 +215,8 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
         .thenReturn(Arrays.asList(molecularProfile));
 
     Mockito.when(
-            genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList()))
+            genePanelRepository.fetchGenePanelDataByMolecularProfileIds(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
         .thenReturn(genePanelDataList);
 
     List<GenePanelData> result =
@@ -268,11 +270,14 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     profileCaseIdentifier3.setCaseId(SAMPLE_ID3);
     molecularProfileSampleIdentifiers.add(profileCaseIdentifier3);
 
-    // The repository now filters to the requested (profile, case) pairs in SQL, so it returns
-    // only the matching rows directly.
     Mockito.when(
-            genePanelRepository.fetchGenePanelDataInMultipleMolecularProfiles(Mockito.anyList()))
+            genePanelRepository.fetchGenePanelDataByMolecularProfileIds(
+                Collections.singleton(MOLECULAR_PROFILE_ID)))
         .thenReturn(genePanelDataList);
+    Set<String> molecularProfileIds =
+        molecularProfileSampleIdentifiers.stream()
+            .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
+            .collect(Collectors.toSet());
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
@@ -280,10 +285,9 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     molecularProfile.setMolecularAlterationType(
         MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
-    // Profile metadata is now looked up only for the profiles present in the returned rows.
     Mockito.when(
             molecularProfileService.getMolecularProfiles(
-                Collections.singleton(MOLECULAR_PROFILE_ID), "SUMMARY"))
+                new HashSet<>(molecularProfileIds), "SUMMARY"))
         .thenReturn(Arrays.asList(molecularProfile));
 
     List<GenePanelData> result =

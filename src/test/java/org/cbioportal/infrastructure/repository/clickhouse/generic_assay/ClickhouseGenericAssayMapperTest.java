@@ -6,9 +6,11 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
+import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -32,8 +34,79 @@ public class ClickhouseGenericAssayMapperTest {
   private static final String ACC_TCGA = "acc_tcga";
   private static final String STUDY_GENIE_PUB = "study_genie_pub";
   private static final String ACC_TCGA_ARMLEVEL_CNA_PROFILE = "acc_tcga_armlevel_cna";
+  private static final String SAMPLE_LEVEL_ASSAY_PROFILE_TYPE = "sample_level_assay";
 
   @Autowired private ClickhouseGenericAssayMapper mapper;
+
+  @Test
+  public void getSampleCategoricalGenericAssayDataBinCounts() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA));
+
+    GenericAssayDataBinFilter genericAssayDataBinFilter = new GenericAssayDataBinFilter();
+    genericAssayDataBinFilter.setStableId("1p_status");
+    genericAssayDataBinFilter.setProfileType("armlevel_cna");
+
+    List<ClinicalDataCount> actualCounts =
+        mapper.getGenericAssayDataBinCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataBinFilter));
+
+    ClinicalDataCount expectedLoss = new ClinicalDataCount();
+    expectedLoss.setAttributeId("1p_statusarmlevel_cna");
+    expectedLoss.setValue("Loss");
+    expectedLoss.setCount(1);
+    ClinicalDataCount expectedGain = new ClinicalDataCount();
+    expectedGain.setAttributeId("1p_statusarmlevel_cna");
+    expectedGain.setValue("Gain");
+    expectedGain.setCount(1);
+    ClinicalDataCount expectedUnchanged = new ClinicalDataCount();
+    expectedUnchanged.setAttributeId("1p_statusarmlevel_cna");
+    expectedUnchanged.setValue("Unchanged");
+    expectedUnchanged.setCount(1);
+    ClinicalDataCount expectedNa = new ClinicalDataCount();
+    expectedNa.setAttributeId("1p_statusarmlevel_cna");
+    expectedNa.setValue("NA");
+    expectedNa.setCount(1);
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(List.of(expectedLoss, expectedGain, expectedUnchanged, expectedNa));
+  }
+
+  @Test
+  public void getPatientCategoricalGenericAssayDataBinCounts() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    GenericAssayDataBinFilter genericAssayDataBinFilter = new GenericAssayDataBinFilter();
+    genericAssayDataBinFilter.setStableId("DMETS_DX_ADRENAL");
+    genericAssayDataBinFilter.setProfileType("distant_mets");
+
+    List<ClinicalDataCount> actualCounts =
+        mapper.getGenericAssayDataBinCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataBinFilter));
+
+    ClinicalDataCount expectedNo = new ClinicalDataCount();
+    expectedNo.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedNo.setValue("No");
+    expectedNo.setCount(9);
+    ClinicalDataCount expectedYes = new ClinicalDataCount();
+    expectedYes.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedYes.setValue("Yes");
+    expectedYes.setCount(1);
+    ClinicalDataCount expectedNa = new ClinicalDataCount();
+    expectedNa.setAttributeId("DMETS_DX_ADRENALdistant_mets");
+    expectedNa.setValue("NA");
+    expectedNa.setCount(14);
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(List.of(expectedNo, expectedYes, expectedNa));
+  }
 
   @Test
   public void getSampleCategoricalGenericAssayDataCounts() {
@@ -74,6 +147,170 @@ public class ClickhouseGenericAssayMapperTest {
         mapper.getGenericAssayDataCounts(
             StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
             List.of(genericAssayDataFilter));
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "DMETS_DX_ADRENAL",
+                List.of(
+                    new GenericAssayDataCount("No", 9),
+                    new GenericAssayDataCount("Yes", 1),
+                    new GenericAssayDataCount("NA", 14))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getSampleCategoricalGenericAssayDataCounts_countsDistinctSamples() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    GenericAssayDataFilter genericAssayDataFilter =
+        new GenericAssayDataFilter("sample_dup_status", SAMPLE_LEVEL_ASSAY_PROFILE_TYPE);
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCounts(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            List.of(genericAssayDataFilter));
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "sample_dup_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 2),
+                    new GenericAssayDataCount("Gain", 2),
+                    new GenericAssayDataCount("NA", 23))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getSampleCategoricalGenericAssayDataCountsByProfileType() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "armlevel_cna");
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "1p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 1),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "2p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "9p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2))),
+            new GenericAssayDataCountItem(
+                "10p_status",
+                List.of(
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void
+      getSampleCategoricalGenericAssayDataCountsByProfileType_ignoresStudiesWithoutProfile() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(ACC_TCGA, STUDY_GENIE_PUB));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "armlevel_cna");
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "1p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 1),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "2p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))),
+            new GenericAssayDataCountItem(
+                "9p_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 1),
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2))),
+            new GenericAssayDataCountItem(
+                "10p_status",
+                List.of(
+                    new GenericAssayDataCount("Gain", 1),
+                    new GenericAssayDataCount("Unchanged", 2),
+                    new GenericAssayDataCount("NA", 1))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getSampleCategoricalGenericAssayDataCountsByProfileType_countsDistinctSamples() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            SAMPLE_LEVEL_ASSAY_PROFILE_TYPE);
+
+    List<GenericAssayDataCountItem> expectedCounts =
+        List.of(
+            new GenericAssayDataCountItem(
+                "sample_dup_status",
+                List.of(
+                    new GenericAssayDataCount("Loss", 2), new GenericAssayDataCount("Gain", 2))));
+
+    assertThat(actualCounts)
+        .usingRecursiveComparison()
+        .ignoringCollectionOrder()
+        .isEqualTo(expectedCounts);
+  }
+
+  @Test
+  public void getPatientCategoricalGenericAssayDataCountsByProfileType() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    List<GenericAssayDataCountItem> actualCounts =
+        mapper.getGenericAssayDataCountsByProfileType(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            "distant_mets");
 
     List<GenericAssayDataCountItem> expectedCounts =
         List.of(

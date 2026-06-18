@@ -14,6 +14,8 @@ import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
+import org.cbioportal.legacy.web.parameter.GenericAssaySelectionFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssaySelectionValue;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -199,6 +201,96 @@ public class ClickhouseSampleMapperTest {
             StudyViewFilterFactory.make(
                 studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
     assertEquals(24, filteredSamples10.size());
+  }
+
+  @Test
+  public void getSamplesFilteredBySampleLevelGenericAssaySelection() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "armlevel_cna",
+                false,
+                List.of(
+                    List.of(
+                        newGenericAssaySelectionValue("1p_status", "Gain"),
+                        newGenericAssaySelectionValue("10p_status", "Gain")),
+                    List.of(newGenericAssaySelectionValue("9p_status", "Gain"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertEquals(1, filteredSamples.size());
+    assertEquals("tcga-a1-b0sp-01", filteredSamples.getFirst().stableId());
+  }
+
+  @Test
+  public void getSamplesFilteredBySampleLevelGenericAssaySelection_isCaseInsensitive() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "armlevel_cna",
+                false,
+                List.of(
+                    List.of(
+                        newGenericAssaySelectionValue("1p_status", "gain"),
+                        newGenericAssaySelectionValue("10p_status", "gain")),
+                    List.of(newGenericAssaySelectionValue("9p_status", "gain"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertEquals(1, filteredSamples.size());
+    assertEquals("tcga-a1-b0sp-01", filteredSamples.getFirst().stableId());
+  }
+
+  @Test
+  public void
+      getSamplesFilteredBySampleLevelGenericAssaySelection_doesNotTreatWildcardsAsMatchAll() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "armlevel_cna",
+                false,
+                List.of(List.of(newGenericAssaySelectionValue("1p_status", "%"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertTrue(filteredSamples.isEmpty());
+  }
+
+  @Test
+  public void getSamplesFilteredByPatientLevelGenericAssaySelection() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(Collections.singletonList(STUDY_GENIE_PUB));
+    studyViewFilter.setGenericAssaySelectionFilters(
+        List.of(
+            newGenericAssaySelectionFilter(
+                "distant_mets",
+                true,
+                List.of(List.of(newGenericAssaySelectionValue("DMETS_DX_ADRENAL", "Yes"))))));
+
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+
+    assertEquals(2, filteredSamples.size());
+    var filteredSampleIds = filteredSamples.stream().map(Sample::stableId).toList();
+    assertTrue(filteredSampleIds.contains("GENIE-TEST-321-01"));
+    assertTrue(filteredSampleIds.contains("GENIE-TEST-321-02"));
   }
 
   @Test
@@ -627,6 +719,22 @@ public class ClickhouseSampleMapperTest {
     assertTrue(allAccSampleIds.contains("tcga-a1-b0so-01"));
     assertTrue(allAccSampleIds.contains("tcga-a1-b0sp-01"));
     assertTrue(allAccSampleIds.contains("tcga-a1-b0sq-01"));
+  }
+
+  private GenericAssaySelectionFilter newGenericAssaySelectionFilter(
+      String profileType, boolean patientLevel, List<List<GenericAssaySelectionValue>> values) {
+    GenericAssaySelectionFilter filter = new GenericAssaySelectionFilter();
+    filter.setProfileType(profileType);
+    filter.setPatientLevel(patientLevel);
+    filter.setValues(values);
+    return filter;
+  }
+
+  private GenericAssaySelectionValue newGenericAssaySelectionValue(String stableId, String value) {
+    GenericAssaySelectionValue selectionValue = new GenericAssaySelectionValue();
+    selectionValue.setStableId(stableId);
+    selectionValue.setValue(value);
+    return selectionValue;
   }
 
   private void assertAccTcgaSamplesSummary(List<Sample> allAccSamples) {

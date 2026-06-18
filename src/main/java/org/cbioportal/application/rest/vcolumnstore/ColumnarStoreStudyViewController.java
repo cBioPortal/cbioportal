@@ -68,6 +68,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -467,10 +468,19 @@ public class ColumnarStoreStudyViewController {
           @Valid
           @RequestBody(required = false)
           GenericAssayDataCountFilter genericAssayDataCountFilter) {
+    if (genericAssayDataCountFilter == null) {
+      return ResponseEntity.badRequest().build();
+    }
 
     List<GenericAssayDataFilter> gaFilters =
-        genericAssayDataCountFilter.getGenericAssayDataFilters();
+        genericAssayDataCountFilter.getGenericAssayDataFilters() == null
+            ? new ArrayList<>()
+            : genericAssayDataCountFilter.getGenericAssayDataFilters();
+    String profileType = genericAssayDataCountFilter.getProfileType();
     StudyViewFilter studyViewFilter = genericAssayDataCountFilter.getStudyViewFilter();
+    if (gaFilters.isEmpty() && !StringUtils.hasText(profileType)) {
+      return ResponseEntity.badRequest().build();
+    }
     // when there is only one filter, it means study view is doing a single chart filter operation
     // remove filter from studyViewFilter to return all data counts
     // the reason we do this is to make sure after chart get filtered, user can still see unselected
@@ -482,7 +492,9 @@ public class ColumnarStoreStudyViewController {
     }
 
     return ResponseEntity.ok(
-        studyViewService.getGenericAssayDataCounts(studyViewFilter, gaFilters));
+        gaFilters.isEmpty()
+            ? studyViewService.getGenericAssayDataCounts(studyViewFilter, profileType)
+            : studyViewService.getGenericAssayDataCounts(studyViewFilter, gaFilters));
   }
 
   @RequestMapping(

@@ -34,6 +34,13 @@ public class GenericAssayServiceImpl implements GenericAssayService {
 
   @Autowired private SampleListRepository sampleListRepository;
 
+  // The only generic-entity meta properties consumed by the frontend. For non-DETAILED
+  // projections we restrict the properties query to these names (pushed into SQL), avoiding
+  // loading and serializing large unused properties (e.g. TRANSCRIPT_ID, GENE_SYMBOL, PHOSPHOSITES)
+  // for every entity. DETAILED still returns the full property map.
+  private static final List<String> SUMMARY_META_PROPERTY_NAMES =
+      Arrays.asList("NAME", "DESCRIPTION", "URL");
+
   // TODO: When fully migrated to column-store, replace this method body with a delegation to
   //       GetGenericAssayMetaUseCase.execute(stableIds, molecularProfileIds, projection).
   @Override
@@ -79,8 +86,14 @@ public class GenericAssayServiceImpl implements GenericAssayService {
           metaResults.add(new GenericAssayMeta(meta.getStableId()));
         }
       } else {
+        // DETAILED returns the full property map; SUMMARY (the default and only projection the
+        // frontend uses) returns just the consumed property names, restricted in SQL.
+        List<String> propertyNames =
+            projection.equals("DETAILED") ? null : SUMMARY_META_PROPERTY_NAMES;
         Map<String, List<GenericAssayAdditionalProperty>> additionalPropertiesGroupedByStableId =
-            genericAssayRepository.getGenericAssayAdditionalproperties(distinctStableIds).stream()
+            genericAssayRepository
+                .getGenericAssayAdditionalproperties(distinctStableIds, propertyNames)
+                .stream()
                 .collect(Collectors.groupingBy(GenericAssayAdditionalProperty::getStableId));
         for (GenericAssayMeta meta : metaData) {
           String stableId = meta.getStableId();

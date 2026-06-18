@@ -27,9 +27,13 @@
                 FROM genetic_entity
                     <where>
                         genetic_entity.stable_id IN
-                            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+                            <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
                     </where>
             )
+            <if test="propertyNames != null and !propertyNames.isEmpty()">
+                AND generic_entity_properties.name IN
+                    <foreach item="name" collection="propertyNames" open="(" separator="," close=")">#{name}</foreach>
+            </if>
     </select>
 
     <select id="getMolecularProfileInternalIdsByMolecularProfileIds" resultType="int">

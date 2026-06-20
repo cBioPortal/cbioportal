@@ -26,8 +26,7 @@ jobs:
       - name: Get Labels from release-drafter.yml
         id: get_labels
         run: |
-          curl -s "https://raw.githubusercontent.com/cBioPortal/cbioportal/master/.github/release-drafter.yml" | \
-            yq -r '.categories[].labels[]' > labels.txt
+          yq -r '.categories[].labels[]' .github/release-drafter.yml > labels.txt
       - name: Check Labels
         id: check_labels
         run: |
@@ -39,8 +38,8 @@ jobs:
           pr_label_index=0
           while [ $pr_label_index -lt ${#PR_LABELS[@]} ] ; do
             pr_label="${PR_LABELS[$pr_label_index]}"
-            if [[ "$pr_label" == "skip-changelog" ]] ; then
-              echo "PR contains a valid label: skip-changelog"
+            if [[ "$pr_label" == "skip-changelog" || "$pr_label" == "cl-skip-changelog" ]] ; then
+              echo "PR contains a valid label: $pr_label"
               exit 0  # Valid label found, exit successfully
             fi
             available_label_index=0

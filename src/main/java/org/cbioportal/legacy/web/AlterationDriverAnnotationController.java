@@ -10,7 +10,6 @@ import java.util.List;
 import org.cbioportal.legacy.model.CustomDriverAnnotationReport;
 import org.cbioportal.legacy.service.AlterationDriverAnnotationService;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Custom driver annotations", description = " ")
 public class AlterationDriverAnnotationController {
 
-  @Autowired private AlterationDriverAnnotationService alterationDriverAnnotationService;
+  private final AlterationDriverAnnotationService alterationDriverAnnotationService;
+
+  public AlterationDriverAnnotationController(
+      AlterationDriverAnnotationService alterationDriverAnnotationService) {
+    this.alterationDriverAnnotationService = alterationDriverAnnotationService;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileIds, 'Collection<MolecularProfileId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

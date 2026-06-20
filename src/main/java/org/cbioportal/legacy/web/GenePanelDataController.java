@@ -21,7 +21,6 @@ import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.GenePanelDataFilter;
 import org.cbioportal.legacy.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +41,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.GENE_PANEL_DATA, description = " ")
 public class GenePanelDataController {
 
-  @Autowired private GenePanelService genePanelService;
+  private final GenePanelService genePanelService;
+
+  public GenePanelDataController(GenePanelService genePanelService) {
+    this.genePanelService = genePanelService;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

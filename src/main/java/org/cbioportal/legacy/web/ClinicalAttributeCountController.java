@@ -17,7 +17,6 @@ import org.cbioportal.legacy.web.config.InternalApiTags;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.ClinicalAttributeCountFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = InternalApiTags.CLINICAL_ATTRIBUTES_COUNT, description = " ")
 public class ClinicalAttributeCountController {
 
-  @Autowired private ClinicalAttributeService clinicalAttributeService;
+  private final ClinicalAttributeService clinicalAttributeService;
+
+  public ClinicalAttributeCountController(ClinicalAttributeService clinicalAttributeService) {
+    this.clinicalAttributeService = clinicalAttributeService;
+  }
 
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

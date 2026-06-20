@@ -23,7 +23,6 @@ import org.cbioportal.legacy.service.exception.GenericAssayNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +41,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 @Tag(name = "Enrichments", description = " ")
 public class ExpressionEnrichmentController {
-  @Autowired private ExpressionEnrichmentService expressionEnrichmentService;
+  private final ExpressionEnrichmentService expressionEnrichmentService;
+
+  public ExpressionEnrichmentController(ExpressionEnrichmentService expressionEnrichmentService) {
+    this.expressionEnrichmentService = expressionEnrichmentService;
+  }
 
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

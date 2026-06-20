@@ -26,7 +26,6 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.PatientIdentifier;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.ClinicalEventSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -49,7 +48,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = InternalApiTags.CLINICAL_EVENTS, description = " ")
 public class ClinicalEventController {
 
-  @Autowired private ClinicalEventService clinicalEventService;
+  private final ClinicalEventService clinicalEventService;
+
+  public ClinicalEventController(ClinicalEventService clinicalEventService) {
+    this.clinicalEventService = clinicalEventService;
+  }
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

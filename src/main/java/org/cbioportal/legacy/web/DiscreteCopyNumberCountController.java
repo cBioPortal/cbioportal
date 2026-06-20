@@ -16,7 +16,6 @@ import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException
 import org.cbioportal.legacy.web.config.InternalApiTags;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CopyNumberCountIdentifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +36,11 @@ public class DiscreteCopyNumberCountController {
 
   private static final int COPY_NUMBER_COUNT_MAX_PAGE_SIZE = 50000;
 
-  @Autowired private DiscreteCopyNumberService discreteCopyNumberService;
+  private final DiscreteCopyNumberService discreteCopyNumberService;
+
+  public DiscreteCopyNumberCountController(DiscreteCopyNumberService discreteCopyNumberService) {
+    this.discreteCopyNumberService = discreteCopyNumberService;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

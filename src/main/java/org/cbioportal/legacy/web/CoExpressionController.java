@@ -16,7 +16,6 @@ import org.cbioportal.legacy.service.CoExpressionService;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +36,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Co-Expressions", description = " ")
 public class CoExpressionController {
 
-  @Autowired private CoExpressionService coExpressionService;
+  private final CoExpressionService coExpressionService;
+
+  public CoExpressionController(CoExpressionService coExpressionService) {
+    this.coExpressionService = coExpressionService;
+  }
 
   // requires permission to access both molecularProfileIdA and molecularProfileIdB because service
   // layer does not enforce requirement that both profiles are in the same study

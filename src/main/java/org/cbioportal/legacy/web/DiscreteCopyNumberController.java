@@ -19,7 +19,6 @@ import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +39,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
 public class DiscreteCopyNumberController {
 
-  @Autowired private DiscreteCopyNumberService discreteCopyNumberService;
+  private final DiscreteCopyNumberService discreteCopyNumberService;
+
+  public DiscreteCopyNumberController(DiscreteCopyNumberService discreteCopyNumberService) {
+    this.discreteCopyNumberService = discreteCopyNumberService;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

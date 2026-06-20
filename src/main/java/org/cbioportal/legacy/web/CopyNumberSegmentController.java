@@ -25,7 +25,6 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.sort.CopyNumberSegmentSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -50,7 +49,11 @@ public class CopyNumberSegmentController {
   private static final int COPY_NUMBER_SEGMENT_MAX_PAGE_SIZE = 20000;
   private static final String COPY_NUMBER_SEGMENT_DEFAULT_PAGE_SIZE = "20000";
 
-  @Autowired private CopyNumberSegmentService copyNumberSegmentService;
+  private final CopyNumberSegmentService copyNumberSegmentService;
+
+  public CopyNumberSegmentController(CopyNumberSegmentService copyNumberSegmentService) {
+    this.copyNumberSegmentService = copyNumberSegmentService;
+  }
 
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

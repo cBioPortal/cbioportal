@@ -24,7 +24,6 @@ import org.cbioportal.legacy.web.parameter.GenericAssayFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +46,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.GENERIC_ASSAY_DATA, description = " ")
 public class GenericAssayDataController {
 
-  @Autowired private GenericAssayService genericAssayService;
+  private final GenericAssayService genericAssayService;
+
+  public GenericAssayDataController(GenericAssayService genericAssayService) {
+    this.genericAssayService = genericAssayService;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

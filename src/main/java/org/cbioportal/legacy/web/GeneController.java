@@ -23,7 +23,6 @@ import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.GeneSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +41,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.GENES, description = " ")
 public class GeneController {
 
-  @Autowired private GeneService geneService;
+  private final GeneService geneService;
+
+  public GeneController(GeneService geneService) {
+    this.geneService = geneService;
+  }
 
   @RequestMapping(
       value = "/api/genes",

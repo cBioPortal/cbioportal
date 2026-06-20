@@ -20,7 +20,6 @@ import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.sort.CancerTypeSortBy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,7 +37,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.CANCER_TYPES, description = " ")
 public class CancerTypeController {
 
-  @Autowired private CancerTypeService cancerTypeService;
+  private final CancerTypeService cancerTypeService;
+
+  public CancerTypeController(CancerTypeService cancerTypeService) {
+    this.cancerTypeService = cancerTypeService;
+  }
 
   @RequestMapping(
       value = "/api/cancer-types",

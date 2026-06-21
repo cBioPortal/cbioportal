@@ -106,7 +106,6 @@ public class SessionServiceController {
         // JSON from file to Object
         VirtualStudyData virtualStudyData =
             sessionServiceObjectMapper.readValue(body.toString(), VirtualStudyData.class);
-        // TODO sanitize what's supplied. e.g. anonymous user should not specify the users field!
 
         if (isAuthorized()) {
           String userName = userName();
@@ -119,6 +118,11 @@ public class SessionServiceController {
               || type.equals(Session.SessionType.group)) {
             virtualStudyData.setUsers(Collections.singleton(userName));
           }
+        } else {
+          // Sanitize: anonymous users must not be able to inject arbitrary owner or
+          // users values into the session store. Strip both fields from the payload.
+          virtualStudyData.setOwner(null);
+          virtualStudyData.setUsers(Collections.emptySet());
         }
 
         // use basic authentication for session service if set

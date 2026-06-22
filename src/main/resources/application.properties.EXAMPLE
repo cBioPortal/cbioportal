@@ -17,6 +17,15 @@ spring.datasource.username=dummy
 spring.datasource.password=dummy
 spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 
+# Secondary ClickHouse datasource for resource-table feature (optional).
+# When configured, the resource-table API queries this database instead of the primary.
+# Use a separate database (e.g. cbioportal_ext) to isolate from production schema changes.
+# If not set, the resource mapper falls back to the primary datasource above.
+#spring.clickhouse.secondary.url=jdbc:ch://localhost:8443/cbioportal_ext
+#spring.clickhouse.secondary.username=dummy
+#spring.clickhouse.secondary.password=dummy
+#spring.clickhouse.secondary.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+
 # this should normally be set to false. In some cases you could set this to true (e.g. for testing a feature of a newer release that is not related to the schema change in expected db version above):
 db.suppress_schema_version_mismatch_errors=false
 

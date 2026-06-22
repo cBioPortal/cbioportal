@@ -11,6 +11,8 @@ DROP TABLE IF EXISTS mut_sig;
 DROP TABLE IF EXISTS clinical_attribute_meta;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS clinical_patient;
+DROP VIEW IF EXISTS resource_data_unified;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
@@ -416,9 +418,39 @@ CREATE TABLE resource_sample
 -- --------------------------------------------------------
 CREATE TABLE resource_definition
 (
-    resource_id Int32,
-    definition  String
-) ENGINE = MergeTree() ORDER BY resource_id;
+    RESOURCE_ID       String,
+    CANCER_STUDY_ID   Int32,
+    RESOURCE_TYPE     String,
+    DISPLAY_NAME      String,
+    DESCRIPTION       Nullable(String),
+    OPEN_BY_DEFAULT   UInt8,
+    PRIORITY          Int32,
+    CUSTOM_METADATA   Nullable(String)
+) ENGINE = MergeTree() ORDER BY (RESOURCE_ID, CANCER_STUDY_ID);
+
+-- --------------------------------------------------------
+CREATE TABLE resource_data
+(
+    RESOURCE_DATA_ID  Int32,
+    RESOURCE_ID       String,
+    CANCER_STUDY_ID   Int32,
+    ENTITY_TYPE       String,
+    PATIENT_ID        Nullable(String),
+    SAMPLE_ID         Nullable(String),
+    URL               String,
+    DISPLAY_NAME      Nullable(String),
+    TYPE              Nullable(String),
+    METADATA          Nullable(String),
+    PRIORITY          Int32
+) ENGINE = MergeTree() ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
+
+-- In tests, resource_data_unified is a simple alias for resource_data.
+-- In production, this is a UNION ALL view over resource_data + legacy tables.
+CREATE VIEW resource_data_unified AS
+    SELECT
+        RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
+        PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA, PRIORITY
+    FROM resource_data;
 
 -- --------------------------------------------------------
 CREATE TABLE clinical_patient

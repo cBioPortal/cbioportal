@@ -43,6 +43,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.cbioportal.domain.resource.ResourceTableQuery;
+import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
@@ -161,6 +163,8 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       "/clinical-event-type-counts/fetch";
   public static final String SURVIVAL_DATA_FETCH_PATH = "/survival-data/fetch";
   public static final String CLINICAL_EVENT_META_FETCH_PATH = "/clinical-events-meta/fetch";
+  public static final String RESOURCE_TABLE_TABS_FETCH_PATH = "/resource-table/tabs/fetch";
+  public static final String RESOURCE_TABLE_QUERY_FETCH_PATH = "/resource-table/query/fetch";
   public static final String TREATMENTS_PATIENT_COUNT_FETCH_PATH =
       "/treatments/patient-counts/fetch";
   public static final String TREATMENTS_SAMPLE_COUNT_FETCH_PATH = "/treatments/sample-counts/fetch";
@@ -264,6 +268,10 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       return extractCancerStudyIdsFromSurvivalRequest(request);
     } else if (requestPathInfo.equals(CLINICAL_EVENT_META_FETCH_PATH)) {
       return extractCancerStudyIdsFromClinicalEventAttributeRequest(request);
+    } else if (requestPathInfo.equals(RESOURCE_TABLE_TABS_FETCH_PATH)) {
+      return extractCancerStudyIdsFromResourceTabsRequest(request);
+    } else if (requestPathInfo.equals(RESOURCE_TABLE_QUERY_FETCH_PATH)) {
+      return extractCancerStudyIdsFromResourceTableQuery(request);
     }
     return true;
   }
@@ -1140,6 +1148,44 @@ public class InvolvedCancerStudyExtractorInterceptor implements HandlerIntercept
       LOG.error(
           "exception thrown during extraction of clinicalEventAttributeRequest: {}",
           e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  private boolean extractCancerStudyIdsFromResourceTabsRequest(HttpServletRequest request) {
+    try {
+      ResourceTabsRequest resourceTabsRequest =
+          objectMapper.readValue(request.getInputStream(), ResourceTabsRequest.class);
+      request.setAttribute("interceptedResourceTabsRequest", resourceTabsRequest);
+      if (cacheMapUtil.hasCacheEnabled()) {
+        Collection<String> cancerStudyIdCollection =
+            resourceTabsRequest.studyIds() == null
+                ? new HashSet<>()
+                : new HashSet<>(resourceTabsRequest.studyIds());
+        request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+      }
+    } catch (Exception e) {
+      LOG.error("exception thrown during extraction of resourceTabsRequest: {}", e.getMessage());
+      return false;
+    }
+    return true;
+  }
+
+  private boolean extractCancerStudyIdsFromResourceTableQuery(HttpServletRequest request) {
+    try {
+      ResourceTableQuery resourceTableQuery =
+          objectMapper.readValue(request.getInputStream(), ResourceTableQuery.class);
+      request.setAttribute("interceptedResourceTableQuery", resourceTableQuery);
+      if (cacheMapUtil.hasCacheEnabled()) {
+        Collection<String> cancerStudyIdCollection =
+            resourceTableQuery.studyIds() == null
+                ? new HashSet<>()
+                : new HashSet<>(resourceTableQuery.studyIds());
+        request.setAttribute("involvedCancerStudies", cancerStudyIdCollection);
+      }
+    } catch (Exception e) {
+      LOG.error("exception thrown during extraction of resourceTableQuery: {}", e.getMessage());
       return false;
     }
     return true;

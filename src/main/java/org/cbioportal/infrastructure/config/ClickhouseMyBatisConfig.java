@@ -15,7 +15,20 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 @Configuration
 @MapperScan(
     value = {
-      "org.cbioportal.infrastructure.repository.clickhouse",
+      "org.cbioportal.infrastructure.repository.clickhouse.alteration",
+      "org.cbioportal.infrastructure.repository.clickhouse.cancerstudy",
+      "org.cbioportal.infrastructure.repository.clickhouse.clinical_attributes",
+      "org.cbioportal.infrastructure.repository.clickhouse.clinical_data",
+      "org.cbioportal.infrastructure.repository.clickhouse.clinical_event",
+      "org.cbioportal.infrastructure.repository.clickhouse.coexpression",
+      "org.cbioportal.infrastructure.repository.clickhouse.generic_assay",
+      "org.cbioportal.infrastructure.repository.clickhouse.genomic_data",
+      "org.cbioportal.infrastructure.repository.clickhouse.mutation",
+      "org.cbioportal.infrastructure.repository.clickhouse.patient",
+      "org.cbioportal.infrastructure.repository.clickhouse.sample",
+      "org.cbioportal.infrastructure.repository.clickhouse.studyview",
+      "org.cbioportal.infrastructure.repository.clickhouse.treatment",
+      "org.cbioportal.infrastructure.repository.clickhouse.typehandlers",
       "org.cbioportal.legacy.persistence.mybatis"
     },
     sqlSessionFactoryRef = "sqlSessionFactory")

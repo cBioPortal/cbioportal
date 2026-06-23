@@ -202,10 +202,12 @@
       </when>
       <otherwise>ORDER BY rdata.PRIORITY DESC, rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
     </choose>
-    <choose>
-      <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
-      <otherwise> ASC </otherwise>
-    </choose>
+    <if test="query.sortBy != null and !query.sortBy.isEmpty() and !query.sortBy.startsWith('metadata:')">
+      <choose>
+        <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
+        <otherwise> ASC </otherwise>
+      </choose>
+    </if>
   </sql>
 
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">

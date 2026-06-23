@@ -309,10 +309,11 @@ public class DataBinHelper {
     // Bins with no lower bound (e.g. "<10") sort first via nullsFirst.
     // Null ranges represent special-value bins (e.g. "NA") and are excluded
     // from the range sweep — they are not matchable by a numeric value.
+    // NOTE: filter before map because Map.entry() rejects null keys (NPE).
     List<Map.Entry<Range<BigDecimal>, DataBin>> sortedEntries =
         dataBins.stream()
+            .filter(bin -> DataBinHelper.calcRange(bin) != null)
             .map(bin -> Map.entry(DataBinHelper.calcRange(bin), bin))
-            .filter(e -> e.getKey() != null)
             .sorted(
                 Comparator.comparing(
                     e -> e.getKey().hasLowerBound() ? e.getKey().lowerEndpoint() : null,

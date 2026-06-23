@@ -326,7 +326,7 @@ public class DataBinHelperTest {
 
   @Test
   public void calcCounts_valueInsideBin_counted() {
-    // [0, 10] — value 5 should be counted
+    // (0, 10] — value 5 should be counted (open lower, closed upper)
     DataBin b = bin(0, 10);
     DataBinHelper.calcCounts(List.of(b), decList(5));
     assertEquals(1, b.getCount().intValue());
@@ -351,7 +351,7 @@ public class DataBinHelperTest {
 
   @Test
   public void calcCounts_valueOnClosedUpperBoundary_counted() {
-    // [0, 10] — value exactly at upper boundary
+    // (0, 10] — value exactly at closed upper boundary is counted
     DataBin b = bin(0, 10);
     DataBinHelper.calcCounts(List.of(b), decList(10));
     assertEquals(1, b.getCount().intValue());
@@ -366,7 +366,8 @@ public class DataBinHelperTest {
 
   @Test
   public void calcCounts_adjacentBins_valueOnBoundary_countedOnce() {
-    // [0,5] and [5,10] — value 5 must go to exactly one bin
+    // (0,5] and (5,10] — value 5 is the closed upper of b1, open lower of b2.
+    // Must be counted exactly once (in b1), never double-counted.
     DataBin b1 = bin(0, 5);
     DataBin b2 = bin(5, 10);
     DataBinHelper.calcCounts(List.of(b1, b2), decList(5));
@@ -376,7 +377,7 @@ public class DataBinHelperTest {
 
   @Test
   public void calcCounts_multipleValuesSpreadAcrossBins() {
-    // three bins: [0,10], [10,20], [20,30]
+    // three bins: (0,10], (10,20], (20,30]
     DataBin b1 = bin(0, 10);
     DataBin b2 = bin(10, 20);
     DataBin b3 = bin(20, 30);
@@ -384,6 +385,67 @@ public class DataBinHelperTest {
     DataBinHelper.calcCounts(bins, decList(5, 10, 15, 20, 25));
     int total = b1.getCount() + b2.getCount() + b3.getCount();
     assertEquals("all 5 values should be counted across the three bins", 5, total);
+  }
+
+  @Test
+  public void calcCounts_multipleValuesInSameBin_allCounted() {
+    // (0, 10] — values 1,2,3,4 are all strictly inside; count must be 4.
+    DataBin b = bin(0, 10);
+    DataBinHelper.calcCounts(List.of(b), decList(1, 2, 3, 4));
+    assertEquals(4, b.getCount().intValue());
+  }
+
+  @Test
+  public void calcCounts_unsortedBins_sortedInternally() {
+    // Bins supplied in reverse order: (10,20] first, then (0,10].
+    // The implementation sorts by lower bound internally, so both should
+    // be correctly matched regardless of the order they are passed in.
+    DataBin b1 = bin(0, 10); // (0, 10]
+    DataBin b2 = bin(10, 20); // (10, 20]
+    // Pass in reverse order to prove internal sort.
+    DataBinHelper.calcCounts(List.of(b2, b1), decList(5, 15));
+    assertEquals("b1 (0,10] should count value 5", 1, b1.getCount().intValue());
+    assertEquals("b2 (10,20] should count value 15", 1, b2.getCount().intValue());
+  }
+
+  @Test
+  public void calcCounts_unsortedValues_sortedInternally() {
+    // Values supplied in descending order: [15, 5, 10].
+    // The implementation sorts values internally, so counting must still be correct.
+    DataBin b1 = bin(0, 10); // (0, 10]
+    DataBin b2 = bin(10, 20); // (10, 20]
+    DataBinHelper.calcCounts(List.of(b1, b2), decList(15, 5, 10));
+    // 5 → b1, 10 → b1 (closed upper), 15 → b2
+    assertEquals("b1 should count 5 and 10", 2, b1.getCount().intValue());
+    assertEquals("b2 should count 15", 1, b2.getCount().intValue());
+  }
+
+  @Test
+  public void calcCounts_nullRangeBin_filtered_notCounted() {
+    // A DataBin with both start=null and end=null produces a null Range
+    // (e.g. an NA/special-value bin). The implementation filters these out
+    // via .filter(e -> e.getKey() != null), so they must never absorb values.
+    DataBin nabin = new DataBin();
+    nabin.setStart(null);
+    nabin.setEnd(null);
+    nabin.setCount(0);
+    DataBin normal = bin(0, 10);
+    DataBinHelper.calcCounts(List.of(nabin, normal), decList(5));
+    assertEquals("NA bin must not absorb any value", 0, nabin.getCount().intValue());
+    assertEquals("normal bin must still count correctly", 1, normal.getCount().intValue());
+  }
+
+  @Test
+  public void calcCounts_overlappingBins_firstBinWins() {
+    // Overlapping bins are not a valid real-world input, but this test documents
+    // the actual behavior so future maintainers know what to expect.
+    // With two-pointer sweep sorted by lower bound, only the first matching bin
+    // (by lower endpoint) absorbs the value; the second overlapping bin does not.
+    DataBin b1 = bin(0, 10); // (0, 10]
+    DataBin b2 = bin(5, 15); // (5, 15] — overlaps with b1
+    DataBinHelper.calcCounts(List.of(b1, b2), decList(7));
+    int total = b1.getCount() + b2.getCount();
+    assertEquals("overlapping bins: value must be counted exactly once", 1, total);
   }
 
   @Test

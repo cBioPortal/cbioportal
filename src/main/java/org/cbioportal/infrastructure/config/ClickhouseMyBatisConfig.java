@@ -9,27 +9,18 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
 @MapperScan(
     value = {
-      "org.cbioportal.infrastructure.repository.clickhouse.alteration",
-      "org.cbioportal.infrastructure.repository.clickhouse.cancerstudy",
-      "org.cbioportal.infrastructure.repository.clickhouse.clinical_attributes",
-      "org.cbioportal.infrastructure.repository.clickhouse.clinical_data",
-      "org.cbioportal.infrastructure.repository.clickhouse.clinical_event",
-      "org.cbioportal.infrastructure.repository.clickhouse.coexpression",
-      "org.cbioportal.infrastructure.repository.clickhouse.generic_assay",
-      "org.cbioportal.infrastructure.repository.clickhouse.genomic_data",
-      "org.cbioportal.infrastructure.repository.clickhouse.mutation",
-      "org.cbioportal.infrastructure.repository.clickhouse.patient",
-      "org.cbioportal.infrastructure.repository.clickhouse.sample",
-      "org.cbioportal.infrastructure.repository.clickhouse.studyview",
-      "org.cbioportal.infrastructure.repository.clickhouse.treatment",
+      "org.cbioportal.infrastructure.repository.clickhouse",
       "org.cbioportal.legacy.persistence.mybatis"
     },
+    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*\\.resource\\..*"),
     sqlSessionFactoryRef = "sqlSessionFactory")
 public class ClickhouseMyBatisConfig {
 

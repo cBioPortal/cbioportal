@@ -4,7 +4,7 @@ import javax.sql.DataSource;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.jdbc.DataSourceBuilder;
@@ -13,15 +13,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Secondary ClickHouse datasource configuration for the resource-table feature.
+ * Configuration for the resource-table feature's datasource and MyBatis session factory.
  *
- * <p>This creates a separate connection pool pointing to an isolated ClickHouse database (e.g.
- * cbioportal_ext) where the resource_data table and resource_data_unified view live.
+ * <p>The resource mapper uses its own SqlSessionFactory ('resourceSqlSessionFactory') separate from
+ * the primary, to avoid XML parsing conflicts.
  *
- * <p>Activated only when spring.clickhouse.secondary.url is configured. The resource-table mapper
- * is wired to this datasource via a dedicated SqlSessionFactory.
+ * <p>When spring.clickhouse.secondary.url is configured, it uses a dedicated connection pool.
+ * Otherwise, it falls back to the primary datasource.
  *
- * <p>Properties:
+ * <p>Properties (when using secondary):
  *
  * <pre>
  *   spring.clickhouse.secondary.url=jdbc:ch://host:8443/cbioportal_ext?ssl=true
@@ -31,27 +31,32 @@ import org.springframework.context.annotation.Configuration;
  * </pre>
  */
 @Configuration
-@ConditionalOnProperty(prefix = "spring.clickhouse.secondary", name = "url")
 @MapperScan(
     basePackages = "org.cbioportal.infrastructure.repository.clickhouse.resource",
-    sqlSessionFactoryRef = "secondaryClickhouseSqlSessionFactory")
+    sqlSessionFactoryRef = "resourceSqlSessionFactory")
 public class SecondaryClickhouseConfig {
 
+  @Autowired private DataSource primaryDataSource;
+
+  @Autowired(required = false)
+  private DataSource secondaryClickhouseDataSource;
+
   @Bean("secondaryClickhouseDataSource")
+  @ConditionalOnProperty(prefix = "spring.clickhouse.secondary", name = "url")
   @ConfigurationProperties("spring.clickhouse.secondary")
   public DataSource secondaryClickhouseDataSource() {
     return DataSourceBuilder.create().build();
   }
 
-  @Bean("secondaryClickhouseSqlSessionFactory")
-  public SqlSessionFactory secondaryClickhouseSqlSessionFactory(
-      @Qualifier("secondaryClickhouseDataSource") DataSource dataSource,
-      ApplicationContext applicationContext)
+  @Bean("resourceSqlSessionFactory")
+  public SqlSessionFactory resourceSqlSessionFactory(ApplicationContext applicationContext)
       throws Exception {
     SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
-    sessionFactory.setDataSource(dataSource);
+    DataSource ds =
+        secondaryClickhouseDataSource != null ? secondaryClickhouseDataSource : primaryDataSource;
+    sessionFactory.setDataSource(ds);
     sessionFactory.setMapperLocations(
-        applicationContext.getResources("classpath:mappers/clickhouse/resource/*.xml"));
+        applicationContext.getResources("classpath:mappers/resource/*.xml"));
     return sessionFactory.getObject();
   }
 }

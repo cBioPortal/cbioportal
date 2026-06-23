@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,11 +51,16 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.Group;
+import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -398,11 +404,42 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .map(m -> m.getCancerStudyIdentifier())
             .collect(Collectors.toSet());
       }
-      default -> {
-        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
-        yield new HashSet<>();
+      case ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter -> {
+        List<ClinicalDataIdentifier> identifiers = clinicalDataMultiStudyFilter.getIdentifiers();
+        yield identifiers == null
+            ? new HashSet<>()
+            : identifiers.stream()
+                .map(ClinicalDataIdentifier::getStudyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
       }
+      case GroupFilter groupFilter -> {
+        List<Group> groups = groupFilter.getGroups();
+        yield groups == null
+            ? new HashSet<>()
+            : groups.stream()
+                .filter(Objects::nonNull)
+                .map(Group::getSampleIdentifiers)
+                .filter(Objects::nonNull)
+                .flatMap(List::stream)
+                .map(SampleIdentifier::getStudyId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+      }
+      // Fail closed: an unrecognized filter type must never resolve to an empty study set, which
+      // would make the caller's permission check pass vacuously. Throwing denies access (the
+      // exception is caught by hasPermission and turned into false).
+      default ->
+          throw new UnsupportedFilterTypeException(
+              "Refusing to authorize unsupported filter type: " + filter.getClass().getName());
     };
+  }
+
+  /** Thrown when a filter type is not explicitly handled, so authorization fails closed. */
+  private static class UnsupportedFilterTypeException extends RuntimeException {
+    UnsupportedFilterTypeException(String message) {
+      super(message);
+    }
   }
 
   /**

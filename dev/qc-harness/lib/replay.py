@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Replay the heavy QC corpus against one running backend.
 
-For each request: POST the decoded JSON body to base_url+path, record HTTP status,
-latency, response length, and a canonical SHA-256 of the response (arrays/objects
-sorted so incidental ordering differences don't register as mismatches). The raw
-response is also saved so any parity mismatch can be inspected.
+For each request: POST the decoded JSON body to base_url+path (query string included),
+record HTTP status, latency, response length, a raw SHA-256, and a canonical SHA-256
+of the response (arrays/objects sorted so incidental ordering differences don't
+register as mismatches).
 
-Output: one JSONL line per request to --out.
+Output: one JSONL line per request to --out. Pass --save-bodies <dir> to also dump
+each raw response to <dir>/<idx>.json so a parity mismatch can be inspected.
 """
 import argparse, base64, hashlib, json, sys, time, urllib.request, urllib.error
 from concurrent.futures import ThreadPoolExecutor
@@ -45,6 +46,9 @@ def main():
     rows = [l.rstrip("\n").split("\t") for l in open(args.corpus) if l.strip()]
     out = open(args.out, "w")
     n_ok = n_err = 0
+    if args.save_bodies:
+        import os
+        os.makedirs(args.save_bodies, exist_ok=True)
 
     def do_one(i, f):
         ep, path = f[0], f[1]
@@ -71,6 +75,9 @@ def main():
         # canonicalization reorders arrays (defends against benign ordering); skip for very
         # large bodies where the raw sha already settles parity cheaply.
         canon = canon_sha(resp_text) if (resp_text and len(resp_text) < 20_000_000) else "skipped"
+        if args.save_bodies:
+            with open(f"{args.save_bodies}/{i:05d}.json", "w") as bf:
+                bf.write(resp_text)
         return {"idx": i, "ep": ep, "path": path, "req_sha": hashlib.sha256(body).hexdigest()[:16],
                 "status": status, "latency_ms": round(dt, 1), "resp_len": len(resp_text),
                 "resp_raw": raw_sha, "resp_canon": canon, "err": err}

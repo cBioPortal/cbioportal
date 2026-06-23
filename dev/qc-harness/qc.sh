@@ -26,7 +26,10 @@ replay_side() {  # $1=OLD|NEW  $2=jar  $3=port
       --base-url "http://localhost:$3" --out /tmp/warm-$1.jsonl 2>/dev/null || true
   python3 "$HERE/lib/replay.py" --corpus "$WORK_DIR/corpus.tsv" \
       --base-url "http://localhost:$3" --out "$WORK_DIR/results-$1.jsonl"
-  python3 "$HERE/lib/gcstats.py" "$WORK_DIR/gc-$1.log" "$((COUNT*2))" > "$WORK_DIR/mem-$1.txt" || true
+  # GC log covers warmup + measured = 2x the ACTUAL corpus size (DISTINCT+filtering
+  # can yield fewer than COUNT rows), so derive the denominator from the corpus.
+  local n_req; n_req=$(( $(wc -l < "$WORK_DIR/corpus.tsv") * 2 ))
+  python3 "$HERE/lib/gcstats.py" "$WORK_DIR/gc-$1.log" "$n_req" > "$WORK_DIR/mem-$1.txt" || true
   kill "$(cat "$WORK_DIR/backend-$1.pid")" 2>/dev/null || true
   while kill -0 "$(cat "$WORK_DIR/backend-$1.pid")" 2>/dev/null; do sleep 1; done
 }

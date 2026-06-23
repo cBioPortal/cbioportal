@@ -139,10 +139,23 @@ public class StudyController {
     } else authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (projection == Projection.META) {
+      // Count only the studies the caller is authorized to see. Reusing the ACL-filtered row query
+      // (rather than an unfiltered count) keeps the META total consistent with the rows that would
+      // be returned and prevents the count from leaking the existence of private studies.
+      int totalCount =
+          studyService
+              .getAllStudies(
+                  keyword,
+                  Projection.SUMMARY.name(),
+                  PagingConstants.MAX_PAGE_SIZE,
+                  0,
+                  null,
+                  Direction.ASC.name(),
+                  authentication,
+                  getAccessLevel())
+              .size();
       HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.add(
-          HeaderKeyConstants.TOTAL_COUNT,
-          studyService.getMetaStudies(keyword).getTotalCount().toString());
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalCount));
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(

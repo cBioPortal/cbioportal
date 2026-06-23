@@ -84,10 +84,21 @@ public class PatientController {
       throws StudyNotFoundException {
 
     if (projection == Projection.META) {
+      // Count only the patients in studies the caller is authorized to see. Reusing the
+      // ACL-filtered (@PostFilter) row query keeps the META total consistent with the rows that
+      // would be returned and prevents the count from leaking private study contents.
+      int totalCount =
+          patientService
+              .getAllPatients(
+                  keyword,
+                  Projection.SUMMARY.name(),
+                  PagingConstants.MAX_PAGE_SIZE,
+                  0,
+                  null,
+                  Direction.ASC.name())
+              .size();
       HttpHeaders responseHeaders = new HttpHeaders();
-      responseHeaders.add(
-          HeaderKeyConstants.TOTAL_COUNT,
-          patientService.getMetaPatients(keyword).getTotalCount().toString());
+      responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalCount));
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(

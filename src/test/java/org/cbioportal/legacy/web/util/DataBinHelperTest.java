@@ -313,7 +313,8 @@ public class DataBinHelperTest {
     List<DataBin> bins = Collections.emptyList();
     List<BigDecimal> values = decList(1, 2, 3);
     DataBinHelper.calcCounts(bins, values);
-    // no exception, nothing to assert
+    // Guard clause should return early without throwing or modifying values
+    assertEquals("values must be unchanged when bins is empty", 3, values.size());
   }
 
   @Test

@@ -90,7 +90,7 @@ public interface ClickhouseAlterationMapper {
    * @return a list of EntityToPanel objects representing the entity-to-panel associations
    */
   List<EntityToPanel> getEntityToGenePanels(
-      String sampleStableIdsJoined, String profileIdsJoined, String field);
+      List<String> sampleStableIds, List<String> profileIds, String field);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
       String[] samples, String[] molecularProfiles, AlterationFilterHelper alterationFilterHelper);

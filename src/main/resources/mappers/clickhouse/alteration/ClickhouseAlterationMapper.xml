@@ -176,13 +176,13 @@ totalProfiled Count per gene in java.
         FROM sample_to_gene_panel_derived sgpd
                  JOIN sample_derived sd ON sgpd.sample_unique_id=sd.sample_unique_id
         WHERE sd.${field} IN
-              (
-                  ${sampleStableIdsJoined}
-                  )
+              <foreach item="sampleStableId" collection="sampleStableIds" open="(" separator="," close=")">
+                  #{sampleStableId}
+              </foreach>
           AND sgpd.genetic_profile_id IN
-              (
-                  ${profileIdsJoined}
-                  )
+              <foreach item="profileId" collection="profileIds" open="(" separator="," close=")">
+                  #{profileId}
+              </foreach>
     </select>
 
     <sql id="getAlterationCountByGeneGiven">

@@ -146,6 +146,10 @@ public class SessionServiceController {
         if (isAuthorized()) {
           customData.setOwner(userName());
           customData.setUsers(Collections.singleton(userName()));
+        } else {
+          // Sanitize: anonymous users must not inject arbitrary owner or users values.
+          customData.setOwner(null);
+          customData.setUsers(Collections.emptySet());
         }
 
         // use basic authentication for session service if set

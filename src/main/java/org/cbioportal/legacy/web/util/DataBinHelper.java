@@ -327,23 +327,15 @@ public class DataBinHelper {
     // binIdx is monotonically non-decreasing: once a bin's upper bound lies
     // strictly below the current value, that bin can never match any future
     // value (future values are >= current), so we advance binIdx permanently.
-    // This eliminates the O(n×m) rescan of the previous implementation.
     //
     // Total complexity: O((n + m) log(n + m)) — dominated by the sort steps.
     int binIdx = 0;
     for (BigDecimal value : sortedValues) {
-      // Advance past bins whose upper bound is fully below the current value.
-      while (binIdx < sortedEntries.size()) {
-        Range<BigDecimal> range = sortedEntries.get(binIdx).getKey();
-        if (range.hasUpperBound()) {
-          int cmp = range.upperEndpoint().compareTo(value);
-          // Skip if upper < value, or upper == value but the bound is OPEN (exclusive).
-          if (cmp < 0 || (cmp == 0 && range.upperBoundType() == BoundType.OPEN)) {
-            binIdx++;
-            continue;
-          }
-        }
-        break;
+      // Advance past any bins whose upper bound lies strictly below this value.
+      // isBinExhausted() encapsulates the bound-type check to keep this loop clean.
+      while (binIdx < sortedEntries.size()
+          && isBinExhausted(sortedEntries.get(binIdx).getKey(), value)) {
+        binIdx++;
       }
       if (binIdx >= sortedEntries.size()) {
         break; // all remaining values are beyond every bin
@@ -355,6 +347,20 @@ public class DataBinHelper {
         // Do NOT advance binIdx — the next value may still fall in this same bin.
       }
     }
+  }
+
+  /**
+   * Returns {@code true} if {@code range}'s upper bound lies strictly below {@code value}, meaning
+   * no future value (which is >= current) can ever match this bin. Used by the two-pointer sweep in
+   * {@link #calcCounts} to advance the bin index monotonically.
+   */
+  private static boolean isBinExhausted(Range<BigDecimal> range, BigDecimal value) {
+    if (!range.hasUpperBound()) {
+      return false; // open-ended upper bin — never exhausted
+    }
+    int cmp = range.upperEndpoint().compareTo(value);
+    // Exhausted when upper < value, or upper == value but bound is OPEN (exclusive).
+    return cmp < 0 || (cmp == 0 && range.upperBoundType() == BoundType.OPEN);
   }
 
   public static Range<BigDecimal> calcRange(DataBin dataBin) {

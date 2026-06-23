@@ -6,9 +6,9 @@
     <constructor>
       <arg column="resourceId" javaType="String"/>
       <arg column="label" javaType="String"/>
-      <arg column="totalCount" javaType="long"/>
-      <arg column="patientCount" javaType="long"/>
-      <arg column="sampleCount" javaType="long"/>
+      <arg column="totalCount" javaType="_long"/>
+      <arg column="patientCount" javaType="_long"/>
+      <arg column="sampleCount" javaType="_long"/>
     </constructor>
   </resultMap>
 
@@ -23,7 +23,7 @@
       <arg column="url" javaType="String"/>
       <arg column="displayName" javaType="String"/>
       <arg column="type" javaType="String"/>
-      <arg column="priority" javaType="int"/>
+      <arg column="priority" javaType="_int"/>
       <arg column="metadata" javaType="java.util.Map"
            typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
     </constructor>

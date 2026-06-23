@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web.util;
 
+import com.google.common.collect.BoundType;
 import com.google.common.collect.Range;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -304,11 +305,14 @@ public class DataBinHelper {
       return;
     }
 
-    // Build a list of (range, dataBin) pairs sorted by range lower bound.
-    // Bins whose start is null (open-ended lower bound, e.g. "<10") are placed first.
+    // Build a list of non-null (range, dataBin) pairs sorted by lower bound.
+    // Bins with no lower bound (e.g. "<10") sort first via nullsFirst.
+    // Null ranges represent special-value bins (e.g. "NA") and are excluded
+    // from the range sweep — they are not matchable by a numeric value.
     List<Map.Entry<Range<BigDecimal>, DataBin>> sortedEntries =
         dataBins.stream()
             .map(bin -> Map.entry(DataBinHelper.calcRange(bin), bin))
+            .filter(e -> e.getKey() != null)
             .sorted(
                 Comparator.comparing(
                     e -> e.getKey().hasLowerBound() ? e.getKey().lowerEndpoint() : null,
@@ -318,19 +322,37 @@ public class DataBinHelper {
     // Sort the values once — O(m log m).
     List<BigDecimal> sortedValues = values.stream().sorted().toList();
 
-    // Two-pointer sweep: advance through sorted values; for each value do a
-    // single forward scan through the sorted bins with an early-exit break.
-    // Because bins are non-overlapping and sorted, each value belongs to at
-    // most one bin, so the inner loop exits immediately after a match.
-    // Overall complexity: O((n + m) log(n + m)).
+    // True two-pointer sweep — O(n + m) after sorting.
+    //
+    // binIdx is monotonically non-decreasing: once a bin's upper bound lies
+    // strictly below the current value, that bin can never match any future
+    // value (future values are >= current), so we advance binIdx permanently.
+    // This eliminates the O(n×m) rescan of the previous implementation.
+    //
+    // Total complexity: O((n + m) log(n + m)) — dominated by the sort steps.
+    int binIdx = 0;
     for (BigDecimal value : sortedValues) {
-      for (Map.Entry<Range<BigDecimal>, DataBin> entry : sortedEntries) {
-        Range<BigDecimal> range = entry.getKey();
-        if (range != null && range.contains(value)) {
-          DataBin dataBin = entry.getValue();
-          dataBin.setCount(dataBin.getCount() + 1);
-          break; // bins are non-overlapping — no need to check further
+      // Advance past bins whose upper bound is fully below the current value.
+      while (binIdx < sortedEntries.size()) {
+        Range<BigDecimal> range = sortedEntries.get(binIdx).getKey();
+        if (range.hasUpperBound()) {
+          int cmp = range.upperEndpoint().compareTo(value);
+          // Skip if upper < value, or upper == value but the bound is OPEN (exclusive).
+          if (cmp < 0 || (cmp == 0 && range.upperBoundType() == BoundType.OPEN)) {
+            binIdx++;
+            continue;
+          }
         }
+        break;
+      }
+      if (binIdx >= sortedEntries.size()) {
+        break; // all remaining values are beyond every bin
+      }
+      Range<BigDecimal> range = sortedEntries.get(binIdx).getKey();
+      if (range.contains(value)) {
+        DataBin dataBin = sortedEntries.get(binIdx).getValue();
+        dataBin.setCount(dataBin.getCount() + 1);
+        // Do NOT advance binIdx — the next value may still fall in this same bin.
       }
     }
   }

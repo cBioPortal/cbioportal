@@ -4,27 +4,27 @@
 
   <resultMap id="ResourceTableTabResultMap" type="org.cbioportal.domain.resource.ResourceTableTab">
     <constructor>
-      <arg name="resourceId" column="resourceId" javaType="String"/>
-      <arg name="label" column="label" javaType="String"/>
-      <arg name="totalCount" column="totalCount" javaType="long"/>
-      <arg name="patientCount" column="patientCount" javaType="long"/>
-      <arg name="sampleCount" column="sampleCount" javaType="long"/>
+      <arg column="resourceId" javaType="String"/>
+      <arg column="label" javaType="String"/>
+      <arg column="totalCount" javaType="long"/>
+      <arg column="patientCount" javaType="long"/>
+      <arg column="sampleCount" javaType="long"/>
     </constructor>
   </resultMap>
 
   <resultMap id="ResourceTableRowResultMap" type="org.cbioportal.domain.resource.ResourceTableRow">
     <constructor>
-      <arg name="studyId" column="studyId" javaType="String"/>
-      <arg name="resourceId" column="resourceId" javaType="String"/>
-      <arg name="resourceDisplayName" column="resourceDisplayName" javaType="String"/>
-      <arg name="resourceType" column="resourceType" javaType="String"/>
-      <arg name="patientId" column="patientId" javaType="String"/>
-      <arg name="sampleId" column="sampleId" javaType="String"/>
-      <arg name="url" column="url" javaType="String"/>
-      <arg name="displayName" column="displayName" javaType="String"/>
-      <arg name="type" column="type" javaType="String"/>
-      <arg name="priority" column="priority" javaType="int"/>
-      <arg name="metadata" column="metadata" javaType="java.util.Map"
+      <arg column="studyId" javaType="String"/>
+      <arg column="resourceId" javaType="String"/>
+      <arg column="resourceDisplayName" javaType="String"/>
+      <arg column="resourceType" javaType="String"/>
+      <arg column="patientId" javaType="String"/>
+      <arg column="sampleId" javaType="String"/>
+      <arg column="url" javaType="String"/>
+      <arg column="displayName" javaType="String"/>
+      <arg column="type" javaType="String"/>
+      <arg column="priority" javaType="int"/>
+      <arg column="metadata" javaType="java.util.Map"
            typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
     </constructor>
   </resultMap>

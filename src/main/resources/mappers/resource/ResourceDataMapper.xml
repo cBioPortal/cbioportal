@@ -31,16 +31,16 @@
 
   <sql id="ResourceTableFromClause">
     FROM resource_data_unified rdata
-    INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
     LEFT JOIN resource_definition rdef
-      ON rdef.RESOURCE_ID = rdata.RESOURCE_ID
-     AND rdef.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+      ON rdef.resource_id = rdata.RESOURCE_ID
+     AND rdef.cancer_study_id = rdata.CANCER_STUDY_ID
   </sql>
 
   <sql id="ResourceTableBaseFilters">
     <where>
       rdata.RESOURCE_ID = #{query.resourceId}
-      AND cs.CANCER_STUDY_IDENTIFIER IN
+      AND cs.cancer_study_identifier IN
       <foreach item="studyId" collection="query.studyIds" open="(" separator="," close=")">
         #{studyId}
       </foreach>
@@ -188,14 +188,14 @@
 
   <sql id="ResourceTableOrderBy">
     <choose>
-      <when test="query.sortBy == 'studyId'">ORDER BY cs.CANCER_STUDY_IDENTIFIER</when>
+      <when test="query.sortBy == 'studyId'">ORDER BY cs.cancer_study_identifier</when>
       <when test="query.sortBy == 'patientId'">ORDER BY rdata.PATIENT_ID</when>
       <when test="query.sortBy == 'sampleId'">ORDER BY rdata.SAMPLE_ID</when>
       <when test="query.sortBy == 'url'">ORDER BY rdata.URL</when>
       <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME</when>
       <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE</when>
       <when test="query.sortBy == 'priority'">ORDER BY rdata.PRIORITY</when>
-      <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.DISPLAY_NAME</when>
+      <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name</when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
         ORDER BY JSONExtractString(rdata.METADATA, #{sortMetadataKey})
@@ -211,17 +211,17 @@
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">
     SELECT
       rdata.RESOURCE_ID AS resourceId,
-      coalesce(any(rdef.DISPLAY_NAME), rdata.RESOURCE_ID) AS label,
+      coalesce(any(rdef.display_name), rdata.RESOURCE_ID) AS label,
       count(*) AS totalCount,
       count(DISTINCT if(rdata.PATIENT_ID IS NULL, NULL, rdata.PATIENT_ID)) AS patientCount,
       count(DISTINCT if(rdata.SAMPLE_ID IS NULL, NULL, rdata.SAMPLE_ID)) AS sampleCount
     FROM resource_data_unified rdata
-    INNER JOIN cancer_study cs ON cs.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
     LEFT JOIN resource_definition rdef
-      ON rdef.RESOURCE_ID = rdata.RESOURCE_ID
-     AND rdef.CANCER_STUDY_ID = rdata.CANCER_STUDY_ID
+      ON rdef.resource_id = rdata.RESOURCE_ID
+     AND rdef.cancer_study_id = rdata.CANCER_STUDY_ID
     <where>
-      cs.CANCER_STUDY_IDENTIFIER IN
+      cs.cancer_study_identifier IN
       <foreach item="studyId" collection="request.studyIds" open="(" separator="," close=")">
         #{studyId}
       </foreach>
@@ -244,9 +244,9 @@
 
   <select id="getResourceTableRows" resultMap="ResourceTableRowResultMap">
     SELECT
-      cs.CANCER_STUDY_IDENTIFIER AS studyId,
+      cs.cancer_study_identifier AS studyId,
       rdata.RESOURCE_ID AS resourceId,
-      coalesce(rdef.DISPLAY_NAME, rdata.RESOURCE_ID) AS resourceDisplayName,
+      coalesce(rdef.display_name, rdata.RESOURCE_ID) AS resourceDisplayName,
       rdata.ENTITY_TYPE AS resourceType,
       rdata.PATIENT_ID AS patientId,
       rdata.SAMPLE_ID AS sampleId,

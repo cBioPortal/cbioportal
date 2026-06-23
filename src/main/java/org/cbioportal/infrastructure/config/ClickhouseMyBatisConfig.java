@@ -28,7 +28,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
       "org.cbioportal.infrastructure.repository.clickhouse.sample",
       "org.cbioportal.infrastructure.repository.clickhouse.studyview",
       "org.cbioportal.infrastructure.repository.clickhouse.treatment",
-      "org.cbioportal.infrastructure.repository.clickhouse.typehandlers",
       "org.cbioportal.legacy.persistence.mybatis"
     },
     sqlSessionFactoryRef = "sqlSessionFactory")

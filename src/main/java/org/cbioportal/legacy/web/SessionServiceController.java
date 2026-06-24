@@ -120,7 +120,7 @@ public class SessionServiceController {
           }
         } else {
           // Sanitize: anonymous users must not be able to inject arbitrary owner or users values
-          // into the session store. Force server-side defaults instead of trusting the payload.
+          // into the session store. Force owner to "anonymous" and users to empty values.
           virtualStudyData.setOwner("anonymous");
           virtualStudyData.setUsers(new java.util.HashSet<>());
         }

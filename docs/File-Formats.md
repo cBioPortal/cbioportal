@@ -1622,13 +1622,14 @@ The mutational signature meta files follow the same convention as the [Generic A
 however there are some key differences:
 - `generic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
 - `datatype` should be set to `LIMIT-VALUE`
-- The molecular profile `stable_id` is used by the frontend to derive the mutational-signature analysis/version. The current patient-view implementation takes the **last underscore-delimited token** of the profile id, so mutational-signature profile ids should end with `_{filetype}_{version}`, where:
+- In the curator-facing meta file, set `stable_id` so it ends with `_{filetype}_{version}`. After import, the frontend reads the loaded `molecularProfileId` (which includes the study prefix), and the current patient-view implementation derives the mutational-signature analysis/version from the **last underscore-delimited token** of that loaded id. In practice, the meta-file `stable_id` should therefore end with `_{filetype}_{version}`, where:
   - `filetype` is `contribution`, `pvalue`, or `counts`
   - `version` is the analysis/version token shown in the UI (for example `v2`, `v3`, `SBS`, `DBS`, or `ID`)
   - Profiles that belong to the same mutational-signature analysis should use the same trailing `version` token across contribution/pvalue/count files
   - Different mutational-signature analyses in the same study should use different trailing `version` tokens
+- Example curator-facing meta-file `stable_id` values: `mutational_signatures_contribution_v2`, `mutational_signatures_pvalue_v2`, `mutational_signatures_counts_v2`
 - When multiple mutational-signature versions are available, the current patient view defaults to `v3` over `v2`; otherwise it prefers `SBS` when present, and falls back to the first derived version.
-- The frontend currently expects contribution and pvalue profiles to come in pairs for each derived `version`. If a pvalue file is provided, its profile `stable_id` should therefore use the same trailing `version` token as the matching contribution file.
+- The frontend currently expects contribution and pvalue profiles to come in pairs for each derived `version`. If a pvalue file is provided, its meta-file `stable_id` should therefore use the same trailing `version` token as the matching contribution file.
 - In `generic_entity_meta_properties` the `NAME` value is required. `DESCRIPTION` and `URL` are recommended so the patient-view mutational-signature tab can show descriptive text and an external link for a selected signature.
 - If you want the patient-view legend/color grouping to reflect a signature category, encode it in `NAME` as `ENTITY_NAME (CATEGORY)`, since the frontend derives the category from the text in parentheses.
 

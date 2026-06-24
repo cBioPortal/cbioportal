@@ -1624,11 +1624,11 @@ however there are some key differences:
 - `datatype` should be set to `LIMIT-VALUE`
 - `stable_id` values should end with `_{filetype}_{version}`, where:
   - `filetype` is `contribution`, `pvalue`, or `counts`
-  - `version` is the analysis/version token shown in the UI (for example `v2`, `v3`, `SBS`, `DBS`, or `ID`)
-  - Profiles that belong to the same mutational-signature analysis should use the same trailing `version` token across contribution/pvalue/count files
-  - Different mutational-signature analyses in the same study should use different trailing `version` tokens
+  - `version` is the analysis/version label shown in the UI (for example `v2`, `v3`, `SBS`, `DBS`, or `ID`)
+  - Profiles that belong to the same mutational-signature analysis should use the same trailing `version` value across contribution/pvalue/count files
+  - Different mutational-signature analyses in the same study should use different trailing `version` values
 - Example `stable_id` values: `mutational_signatures_contribution_v2`, `mutational_signatures_pvalue_v2`, `mutational_signatures_counts_v2`
-- Contribution and pvalue profiles belonging to the same analysis should use the same trailing `version` token.
+- Contribution and pvalue profiles belonging to the same analysis should use the same trailing `version` value.
 - In `generic_entity_meta_properties` the `NAME` value is required. `DESCRIPTION` and `URL` are recommended so the patient-view mutational-signature tab can show descriptive text and an external link for a selected signature.
 - If you want the patient-view legend/color grouping to reflect a signature category, encode it in `NAME` as `ENTITY_NAME (CATEGORY)`, since the frontend derives the category from the text in parentheses.
 
@@ -1641,7 +1641,7 @@ Each collection of mutational signatures can consist of up to three different da
   - Data file containing p-values for each signature-sample pair. Values below `0.05` will be shown as significant.
 - Mutational _counts_ matrix file (optional)
   - Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by [COSMIC](https://cancer.sanger.ac.uk/signatures/). But other channels can also be used. Values are expected to be positive integers.
-  - If the counts matrix should appear under the same mutational-signature selector entry as a contribution/pvalue pair in patient view, use the same trailing `version` token in the counts profile `stable_id`.
+  - Counts profiles belonging to the same analysis should use the same trailing `version` value.
 
 ## Resource Data
 

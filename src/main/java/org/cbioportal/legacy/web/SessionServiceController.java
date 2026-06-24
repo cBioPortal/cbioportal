@@ -149,7 +149,7 @@ public class SessionServiceController {
         } else {
           // Sanitize: anonymous users must not inject arbitrary owner or users values.
           customData.setOwner("anonymous");
-          customData.setUsers(Collections.emptySet());
+          customData.setUsers(new java.util.HashSet<>());
         }
 
         // use basic authentication for session service if set

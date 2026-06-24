@@ -121,7 +121,7 @@ public class SessionServiceController {
         } else {
           // Sanitize: anonymous users must not be able to inject arbitrary owner or
           // users values into the session store. Strip both fields from the payload.
-          virtualStudyData.setOwner(null);
+          virtualStudyData.setOwner("anonymous");
           virtualStudyData.setUsers(Collections.emptySet());
         }
 
@@ -148,7 +148,7 @@ public class SessionServiceController {
           customData.setUsers(Collections.singleton(userName()));
         } else {
           // Sanitize: anonymous users must not inject arbitrary owner or users values.
-          customData.setOwner(null);
+          customData.setOwner("anonymous");
           customData.setUsers(Collections.emptySet());
         }
 

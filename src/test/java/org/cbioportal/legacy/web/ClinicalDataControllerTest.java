@@ -331,7 +331,7 @@ public class ClinicalDataControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/legacy/clinical-data/fetch")
+            MockMvcRequestBuilders.post("/api/clinical-data/fetch")
                 .with(csrf())
                 .param("clinicalDataType", "PATIENT")
                 .accept(MediaType.APPLICATION_JSON)
@@ -377,7 +377,7 @@ public class ClinicalDataControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/legacy/clinical-data/fetch")
+            MockMvcRequestBuilders.post("/api/clinical-data/fetch")
                 .with(csrf())
                 .param("projection", "META")
                 .param("clinicalDataType", "PATIENT")

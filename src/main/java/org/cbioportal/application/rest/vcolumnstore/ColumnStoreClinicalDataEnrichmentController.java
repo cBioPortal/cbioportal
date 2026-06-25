@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.Collections;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataEnrichmentMapper;
 import org.cbioportal.application.rest.response.ClinicalDataEnrichmentDTO;
@@ -19,7 +18,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -74,7 +72,7 @@ public class ColumnStoreClinicalDataEnrichmentController {
       "hasPermission(#groupFilter, 'GroupFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       method = RequestMethod.POST,
-      value = "/clinical-data-enrichments/fetch",
+      value = "/not-ready-yet/clinical-data-enrichments/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Fetch clinical data enrichments for the sample groups")
@@ -86,21 +84,14 @@ public class ColumnStoreClinicalDataEnrichmentController {
               array =
                   @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichmentDTO.class))))
   public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
-      @Parameter(hidden = true)
-          @RequestAttribute(required = false, value = "interceptedGroupFilter")
-          GroupFilter interceptedGroupFilter,
       @Parameter(required = true, description = "Group filter with sample identifiers")
           @Valid
           @RequestBody(required = false)
           GroupFilter groupFilter) {
 
-    GroupFilter effectiveFilter = groupFilter != null ? groupFilter : interceptedGroupFilter;
-    if (effectiveFilter == null) {
-      return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
-    }
     return new ResponseEntity<>(
         ClinicalDataEnrichmentMapper.INSTANCE.toDTOs(
-            fetchClinicalDataEnrichmentsUseCase.execute(effectiveFilter)),
+            fetchClinicalDataEnrichmentsUseCase.execute(groupFilter)),
         HttpStatus.OK);
   }
 }

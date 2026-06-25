@@ -2,7 +2,7 @@
 
 :warning:  ***Warning: this way of loading data is deprecated. See [Data loading](Data-Loading.md) for the recommended method.***
 
-The page describes how to import data into the cBioPortal using Python scripts found in our [scripts](https://github.com/cBioPortal/cbioportal/tree/stable/core/src/main/scripts) directory.  The follow assumptions have been made:
+This page describes how to import data into the cBioPortal using Python scripts found in our [scripts](https://github.com/cBioPortal/cbioportal/tree/stable/core/src/main/scripts) directory.  The following assumptions have been made:
 
 1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
 2. The data to import is in the proper [File Format](/File-Formats.md).
@@ -40,7 +40,7 @@ The [meta_study.txt](File-Formats.md#cancer-study) file should conform to the fi
 
 ## Import Study Data
 
-The following command is used to import all types of genomic and clinicla data described on our [File Formats](File-Formats.md) wiki page.  Below are examples of import copy number and mutation data:
+The following command is used to import all types of genomic and clinical data described on our [File Formats](File-Formats.md) wiki page.  Below are examples of import copy number and mutation data:
 
 ```
 $PORTAL_HOME/core/src/main/scripts/cbioportalImporter.py --jvm-args "-Dspring.profiles.active=dbcp -cp $PORTAL_HOME/core/target/core-1.0-SNAPSHOT.jar" --command import-study-data --meta-filename /path-to-meta_CNA.txt/meta_CNA.txt --data-filename /path-to-data_CNA.txt/data_CNA.txt

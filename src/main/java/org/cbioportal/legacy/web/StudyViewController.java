@@ -266,11 +266,11 @@ public class StudyViewController {
         false);
   }
 
-  @Hidden
+  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/legacy/custom-data-bin-counts/fetch",
+      value = "/custom-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

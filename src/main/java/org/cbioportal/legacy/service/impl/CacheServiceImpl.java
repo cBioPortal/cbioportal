@@ -82,8 +82,7 @@ public class CacheServiceImpl implements CacheService {
                 });
       }
     } catch (RuntimeException e) {
-      e.printStackTrace();
-      LOG.error("Error while evicting cache." + e.getMessage());
+      LOG.error("Error while evicting cache.", e);
       throw new CacheOperationException("Error while evicting cache.", e);
     }
   }

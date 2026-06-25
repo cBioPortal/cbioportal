@@ -61,7 +61,7 @@ _Cgds-test.sql_ should be generated with `/db-scripts/src/main/resources/gen-cgd
 SET GLOBAL local_infile=1;
 CREATE DATABASE cgds_test;
 CREATE USER 'cbio_user'@'localhost' IDENTIFIED BY 'somepassword';
-GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost'";
+GRANT ALL ON cgds_test.* TO 'cbio_user'@'localhost';
 FLUSH PRIVILEGES;
 SET default_storage_engine=InnoDB;
 SET SESSION sql_mode = 'ANSI_QUOTES';

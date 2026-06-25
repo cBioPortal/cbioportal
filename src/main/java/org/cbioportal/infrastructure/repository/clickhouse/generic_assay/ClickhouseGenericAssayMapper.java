@@ -59,6 +59,10 @@ public interface ClickhouseGenericAssayMapper {
       StudyViewFilterContext studyViewFilterContext,
       List<GenericAssayDataFilter> genericAssayDataFilters);
 
+  List<GenericAssayDataCountItem> getGenericAssayDataCountsByProfileType(
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
+      @Param("profileType") String profileType);
+
   /**
    * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
    * IDs.

@@ -23,6 +23,9 @@ categories:
     labels:
       - 'style tweak'
       - 'cl-style-tweak'
+  - title: '💥 Breaking API Changes'
+    labels:
+      - 'breaking-api'
   - title: '⚙️ REST API Changes'
     labels:
       - 'api'

@@ -50,13 +50,33 @@
     <select id="getGenericAssayDataBinCounts" resultType="org.cbioportal.legacy.model.ClinicalDataCount">
         <bind name="profileType" value="genericAssayDataBinFilters[0].profileType" />
         <!-- get all non-NA value samples. A caveat here is that if user select only 'NA', this query will return empty (null) thus we need the 2 coalesce() below to handle this case -->
-        WITH generic_assay_query AS (
+        WITH profile_level AS (
+        SELECT
+        count() > 0 AS is_patient_level
+        FROM genetic_profile
+        WHERE
+        patient_level = 1
+        AND endsWith(stable_id, concat('_', #{profileType}))
+        <if
+                test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
+            AND stable_id IN
+            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies()" open="(" separator="," close=")">
+                concat(#{studyId}, '_', #{profileType})
+            </foreach>
+        </if>
+        ),
+        generic_assay_query AS (
         SELECT
         concat(entity_stable_id, profile_type) AS attributeId,
         <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
             <property name="attribute_value" value="value"/>
         </include> AS value,
-        cast(count(value) as INTEGER) AS count
+        cast(
+        multiIf(
+        (SELECT is_patient_level FROM profile_level LIMIT 1),
+        count(distinct patient_unique_id),
+        count(distinct sample_unique_id)
+        ) AS INTEGER) AS count
         FROM generic_assay_data_derived
         <where>
             <!-- Need to ensure no NA values -->
@@ -77,6 +97,15 @@
         sum(count) as generic_assay_count
         FROM generic_assay_query
         GROUP BY attributeId
+        ),
+        total_count AS (
+        SELECT
+        cast(
+        multiIf(
+        (SELECT is_patient_level FROM profile_level LIMIT 1),
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>)),
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>))
+        ) AS INTEGER) AS total
         )
         SELECT * FROM generic_assay_query
         UNION ALL
@@ -85,16 +114,36 @@
         SELECT
         coalesce((SELECT attributeId FROM generic_assay_sum LIMIT 1), concat(#{genericAssayDataBinFilters[0].stableId}, #{profileType})) as attributeId,
         'NA' as value,
-        cast(((SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>)) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
+        cast((coalesce((SELECT total FROM total_count LIMIT 1), 0) - coalesce((SELECT generic_assay_count FROM generic_assay_sum LIMIT 1), 0)) as INTEGER) as count
     </select>
 
     <select id="getGenericAssayDataCounts" resultMap="GenericAssayDataCountItemResultMap">
         <bind name="profileType" value="genericAssayDataFilters[0].profileType"/>
-        WITH generic_assay_query AS (
+        WITH profile_level AS (
+        SELECT
+        count() > 0 AS is_patient_level
+        FROM genetic_profile
+        WHERE
+        patient_level = 1
+        AND endsWith(stable_id, concat('_', #{profileType}))
+        <if
+                test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
+            AND stable_id IN
+            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies()" open="(" separator="," close=")">
+                concat(#{studyId}, '_', #{profileType})
+            </foreach>
+        </if>
+        ),
+        generic_assay_query AS (
         SELECT
         entity_stable_id AS stableId,
         value,
-        cast(count(distinct patient_unique_id) AS INTEGER) AS count
+        cast(
+        multiIf(
+        (SELECT is_patient_level FROM profile_level LIMIT 1),
+        count(distinct patient_unique_id),
+        count(distinct sample_unique_id)
+        ) AS INTEGER) AS count
         FROM generic_assay_data_derived
         <where>
             <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
@@ -116,6 +165,15 @@
         sum(count) AS gad_count
         FROM generic_assay_query
         GROUP BY stableId
+        ),
+        total_count AS (
+        SELECT
+        cast(
+        multiIf(
+        (SELECT is_patient_level FROM profile_level LIMIT 1),
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>)),
+        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>))
+        ) AS INTEGER) AS total
         )
 
         SELECT * FROM generic_assay_query
@@ -126,25 +184,97 @@
         coalesce((SELECT stableId FROM generic_assay_data_sum LIMIT 1), #{genericAssayDataFilters[0].stableId}) as stableId,
         'NA' as value,
         cast((
-        multiIf(
-        (
-        SELECT count() > 0
-        FROM genetic_profile
-        WHERE
-        patient_level = 1
-        <if
-                test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
-            AND stable_id IN
-            <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies()" open="(" separator="," close=")">
-                concat(#{studyId}, '_', #{profileType})
-            </foreach>
-        </if>
-        ),
-        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.patient.ClickhousePatientMapper.getFilteredPatientCount"/>)),
-        (SELECT * FROM (<include refid="org.cbioportal.infrastructure.repository.clickhouse.sample.ClickhouseSampleMapper.getFilteredSampleCount"/>))
-        )
+        coalesce((SELECT total FROM total_count LIMIT 1), 0)
         - coalesce((SELECT gad_count FROM generic_assay_data_sum LIMIT 1), 0))
         as INTEGER) as count
+    </select>
+
+    <select id="getGenericAssayDataCountsByProfileType" resultMap="GenericAssayDataCountItemResultMap">
+        WITH profile_level AS (
+            SELECT
+                count() > 0 AS is_patient_level
+            FROM genetic_profile
+            WHERE patient_level = 1
+                AND endsWith(stable_id, concat('_', #{profileType}))
+            <if
+                    test="studyViewFilterContext.customDataFilterCancerStudies() != null and !studyViewFilterContext.customDataFilterCancerStudies().isEmpty()">
+                AND stable_id IN
+                <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies()" open="(" separator="," close=")">
+                    concat(#{studyId}, '_', #{profileType})
+                </foreach>
+            </if>
+        ),
+        generic_assay_query AS (
+            SELECT
+                entity_stable_id AS stableId,
+                value,
+                cast(
+                    multiIf(
+                        (SELECT is_patient_level FROM profile_level LIMIT 1),
+                        count(distinct patient_unique_id),
+                        count(distinct sample_unique_id)
+                    )
+                AS INTEGER) AS count
+            FROM generic_assay_data_derived
+            <where>
+                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                    <property name="attribute_value" value="value"/>
+                </include> != 'NA' AND
+                profile_type = #{profileType} AND
+                <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            </where>
+            GROUP BY entity_stable_id, value
+        ),
+        generic_assay_entities AS (
+            SELECT DISTINCT
+                entity_stable_id AS stableId
+            FROM generic_assay_data_derived
+            <where>
+                profile_type = #{profileType} AND
+                <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            </where>
+        ),
+        generic_assay_data_sum AS (
+            SELECT
+                stableId,
+                sum(count) AS gad_count
+            FROM generic_assay_query
+            GROUP BY stableId
+        ),
+        total_count AS (
+            SELECT
+                cast(
+                    multiIf(
+                        (SELECT is_patient_level FROM profile_level LIMIT 1),
+                        count(distinct patient_unique_id),
+                        count(distinct sample_unique_id)
+                    )
+                AS INTEGER) AS total
+            FROM generic_assay_data_derived
+            <where>
+                profile_type = #{profileType} AND
+                <include
+                        refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
+            </where>
+        ),
+        na_counts AS (
+            SELECT
+                generic_assay_entities.stableId AS stableId,
+                'NA' AS value,
+                cast(total_count.total - coalesce(generic_assay_data_sum.gad_count, 0) AS INTEGER) AS count
+            FROM generic_assay_entities
+            CROSS JOIN total_count
+            LEFT JOIN generic_assay_data_sum
+                ON generic_assay_data_sum.stableId = generic_assay_entities.stableId
+        )
+
+        SELECT * FROM generic_assay_query
+        UNION ALL
+        SELECT * FROM na_counts
+        WHERE count > 0
+        ORDER BY toUInt32OrZero(extract(stableId, '^[0-9]+')) ASC, stableId ASC, value ASC
     </select>
 
     <resultMap id="GenericAssayDataCountItemResultMap" type="org.cbioportal.legacy.model.GenericAssayDataCountItem">
@@ -204,4 +334,3 @@
     </select>
 
 </mapper>
-

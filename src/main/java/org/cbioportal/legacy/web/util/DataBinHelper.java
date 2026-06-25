@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.DataBin;
@@ -300,6 +301,25 @@ public class DataBinHelper {
     return trimmed;
   }
 
+  /**
+   * Counts how many values fall into each bin using an O((n+m)log(n+m)) sort-and-sweep algorithm,
+   * where n is the number of bins and m is the number of values.
+   *
+   * <p>The algorithm:
+   *
+   * <ol>
+   *   <li>Sorts bins by lower bound — O(n log n)
+   *   <li>Sorts values — O(m log m)
+   *   <li>Advances a monotone {@code binIdx} pointer — O(n+m) sweep
+   * </ol>
+   *
+   * <p><b>Assumption:</b> bins are non-overlapping (guaranteed by {@code LinearDataBinner} and
+   * {@code DiscreteDataBinner}, which always generate adjacent partitions from sequential boundary
+   * points). Overlapping bins would cause under-counting.
+   *
+   * @param dataBins the bins whose {@code count} fields will be updated in place
+   * @param values the raw numeric values to distribute across bins
+   */
   public static void calcCounts(List<DataBin> dataBins, List<BigDecimal> values) {
     if (dataBins.isEmpty() || values.isEmpty()) {
       return;
@@ -307,13 +327,15 @@ public class DataBinHelper {
 
     // Build a list of non-null (range, dataBin) pairs sorted by lower bound.
     // Bins with no lower bound (e.g. "<10") sort first via nullsFirst.
-    // Null ranges represent special-value bins (e.g. "NA") and are excluded
-    // from the range sweep — they are not matchable by a numeric value.
-    // NOTE: filter before map because Map.entry() rejects null keys (NPE).
+    // flatMap+Optional computes calcRange exactly once per bin, filtering out
+    // null ranges (NA/special-value bins) without a second calcRange call.
     List<Map.Entry<Range<BigDecimal>, DataBin>> sortedEntries =
         dataBins.stream()
-            .filter(bin -> DataBinHelper.calcRange(bin) != null)
-            .map(bin -> Map.entry(DataBinHelper.calcRange(bin), bin))
+            .flatMap(
+                bin ->
+                    Optional.ofNullable(DataBinHelper.calcRange(bin))
+                        .map(range -> Map.entry(range, bin))
+                        .stream())
             .sorted(
                 Comparator.comparing(
                     e -> e.getKey().hasLowerBound() ? e.getKey().lowerEndpoint() : null,
@@ -341,9 +363,9 @@ public class DataBinHelper {
       if (binIdx >= sortedEntries.size()) {
         break; // all remaining values are beyond every bin
       }
-      Range<BigDecimal> range = sortedEntries.get(binIdx).getKey();
-      if (range.contains(value)) {
-        DataBin dataBin = sortedEntries.get(binIdx).getValue();
+      Map.Entry<Range<BigDecimal>, DataBin> entry = sortedEntries.get(binIdx);
+      if (entry.getKey().contains(value)) {
+        DataBin dataBin = entry.getValue();
         dataBin.setCount(dataBin.getCount() + 1);
         // Do NOT advance binIdx — the next value may still fall in this same bin.
       }

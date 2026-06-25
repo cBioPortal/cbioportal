@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.835647814237">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.835740749430">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -47,12 +47,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.835647814237" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.835740749430" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.835647814237" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.835740749430" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.835647814237" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.835647814237" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.835740749430" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.835740749430" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -1996,17 +1996,20 @@ in the meta file will make cBioPortal interpret the data as Mutational Signature
 <p>The mutational signature meta files follow the same convention as the <doc-anchor-trigger to="#generic-assay-meta-file">Generic Assay Meta file</doc-anchor-trigger>,
 however there are some key differences:</p>
 <ul>
-<li><code translate="no" v-pre>genetic_assay_type</code> should be set to <code translate="no" v-pre>MUTATIONAL_SIGNATURE</code></li>
-<li><code translate="no" v-pre>datatype</code> should be set to <code translate="no" v-pre>LIMIT_VALUE</code></li>
-<li><code translate="no" v-pre>stable_id</code> values should end with: <code translate="no" v-pre>_{filetype}_{identifier}</code>, where:
+<li><code translate="no" v-pre>generic_assay_type</code> should be set to <code translate="no" v-pre>MUTATIONAL_SIGNATURE</code></li>
+<li><code translate="no" v-pre>datatype</code> should be set to <code translate="no" v-pre>LIMIT-VALUE</code></li>
+<li><code translate="no" v-pre>stable_id</code> values should end with <code translate="no" v-pre>_{filetype}_{version}</code>, where:
 <ul>
-<li><code translate="no" v-pre>filetype</code> is either <code translate="no" v-pre>contribution</code>, <code translate="no" v-pre>pvalue</code> or <code translate="no" v-pre>counts</code></li>
-<li><code translate="no" v-pre>identifier</code> is consistent between files belonging to the same analysis</li>
-<li>Multiple signatures can be added to a single study, as long as they have different identifiers in their stable id (e.g., <code translate="no" v-pre>contribution_SBS</code> and <code translate="no" v-pre>contribution_DBS</code>)</li>
+<li><code translate="no" v-pre>filetype</code> is <code translate="no" v-pre>contribution</code>, <code translate="no" v-pre>pvalue</code>, or <code translate="no" v-pre>counts</code></li>
+<li><code translate="no" v-pre>version</code> is the analysis/version label shown in the UI (for example <code translate="no" v-pre>v2</code>, <code translate="no" v-pre>v3</code>, <code translate="no" v-pre>SBS</code>, <code translate="no" v-pre>DBS</code>, or <code translate="no" v-pre>ID</code>)</li>
+<li>Profiles that belong to the same mutational-signature analysis should use the same trailing <code translate="no" v-pre>version</code> value across contribution/pvalue/count files</li>
+<li>Different mutational-signature analyses in the same study should use different trailing <code translate="no" v-pre>version</code> values</li>
 </ul>
 </li>
-<li>In <code translate="no" v-pre>generic_entity_meta_properties</code> the <code translate="no" v-pre>NAME</code> value is required. The <code translate="no" v-pre>DESCRIPTION</code> and <code translate="no" v-pre>URL</code> values can be added
-to display more information and link to external resources in the mutational signatures tab.</li>
+<li>Example <code translate="no" v-pre>stable_id</code> values: <code translate="no" v-pre>mutational_signatures_contribution_v2</code>, <code translate="no" v-pre>mutational_signatures_pvalue_v2</code>, <code translate="no" v-pre>mutational_signatures_counts_v2</code></li>
+<li>Contribution and pvalue profiles belonging to the same analysis should use the same trailing <code translate="no" v-pre>version</code> value.</li>
+<li>In <code translate="no" v-pre>generic_entity_meta_properties</code> the <code translate="no" v-pre>NAME</code> value is required. <code translate="no" v-pre>DESCRIPTION</code> and <code translate="no" v-pre>URL</code> are recommended so the patient-view mutational-signature tab can show descriptive text and an external link for a selected signature.</li>
+<li>If you want the patient-view legend/color grouping to reflect a signature category, encode it in <code translate="no" v-pre>NAME</code> as <code translate="no" v-pre>ENTITY_NAME (CATEGORY)</code>, since the frontend derives the category from the text in parentheses.</li>
 </ul>
 <h4 id="mutational-signature-data-files">Mutational Signature data files</h4>
 <p>The mutational signature data files follow the same convention as the <doc-anchor-trigger to="#generic-assay-data-file">Generic Assay Data file</doc-anchor-trigger>.
@@ -2014,17 +2017,18 @@ Each collection of mutational signatures can consist of up to three different da
 <ul>
 <li>Signature <em>contribution</em> file (<strong>required</strong>)
 <ul>
-<li>Data file containing the contribution of each signature-sample pair. Values are expected to be 0 ≥ x ≥ 1.</li>
+<li>Data file containing the contribution of each signature-sample pair. Values are expected to be <code translate="no" v-pre>0 &lt;= x &lt;= 1</code>.</li>
 </ul>
 </li>
 <li>Signature <em>pvalue</em> file (optional)
 <ul>
-<li>Data file containing p-values for each signature-sample pair. Values below 0.05 will be shown as significant.</li>
+<li>Data file containing p-values for each signature-sample pair. Values below <code translate="no" v-pre>0.05</code> will be shown as significant.</li>
 </ul>
 </li>
 <li>Mutational <em>counts</em> matrix file (optional)
 <ul>
 <li>Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by <a href="https://cancer.sanger.ac.uk/signatures/">COSMIC</a>. But other channels can also be used. Values are expected to be positive integers.</li>
+<li>Counts profiles belonging to the same analysis should use the same trailing <code translate="no" v-pre>version</code> value.</li>
 </ul>
 </li>
 </ul>

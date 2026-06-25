@@ -1606,24 +1606,28 @@ in the meta file will make cBioPortal interpret the data as Mutational Signature
 #### Mutational Signature meta files
 The mutational signature meta files follow the same convention as the [Generic Assay Meta file](#generic-assay-meta-file),
 however there are some key differences:
-- `genetic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
-- `datatype` should be set to `LIMIT_VALUE`
-- `stable_id` values should end with: `_{filetype}_{identifier}`, where:
-  - `filetype` is either `contribution`, `pvalue` or `counts`
-  - `identifier` is consistent between files belonging to the same analysis
-  - Multiple signatures can be added to a single study, as long as they have different identifiers in their stable id (e.g., `contribution_SBS` and `contribution_DBS`)
-- In `generic_entity_meta_properties` the `NAME` value is required. The `DESCRIPTION` and `URL` values can be added 
-  to display more information and link to external resources in the mutational signatures tab.
+- `generic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
+- `datatype` should be set to `LIMIT-VALUE`
+- `stable_id` values should end with `_{filetype}_{version}`, where:
+  - `filetype` is `contribution`, `pvalue`, or `counts`
+  - `version` is the analysis/version label shown in the UI (for example `v2`, `v3`, `SBS`, `DBS`, or `ID`)
+  - Profiles that belong to the same mutational-signature analysis should use the same trailing `version` value across contribution/pvalue/count files
+  - Different mutational-signature analyses in the same study should use different trailing `version` values
+- Example `stable_id` values: `mutational_signatures_contribution_v2`, `mutational_signatures_pvalue_v2`, `mutational_signatures_counts_v2`
+- Contribution and pvalue profiles belonging to the same analysis should use the same trailing `version` value.
+- In `generic_entity_meta_properties` the `NAME` value is required. `DESCRIPTION` and `URL` are recommended so the patient-view mutational-signature tab can show descriptive text and an external link for a selected signature.
+- If you want the patient-view legend/color grouping to reflect a signature category, encode it in `NAME` as `ENTITY_NAME (CATEGORY)`, since the frontend derives the category from the text in parentheses.
 
 #### Mutational Signature data files
 The mutational signature data files follow the same convention as the [Generic Assay Data file](#generic-assay-data-file).
 Each collection of mutational signatures can consist of up to three different data files, each with an accompanying meta file.
 - Signature _contribution_ file (**required**)
-  - Data file containing the contribution of each signature-sample pair. Values are expected to be 0 ≥ x ≥ 1.
+  - Data file containing the contribution of each signature-sample pair. Values are expected to be `0 <= x <= 1`.
 - Signature _pvalue_ file (optional)
-  - Data file containing p-values for each signature-sample pair. Values below 0.05 will be shown as significant.
+  - Data file containing p-values for each signature-sample pair. Values below `0.05` will be shown as significant.
 - Mutational _counts_ matrix file (optional)
   - Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by [COSMIC](https://cancer.sanger.ac.uk/signatures/). But other channels can also be used. Values are expected to be positive integers.
+  - Counts profiles belonging to the same analysis should use the same trailing `version` value.
 
 ## Resource Data
 

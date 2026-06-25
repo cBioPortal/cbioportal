@@ -18,7 +18,6 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataType;
 import org.cbioportal.legacy.web.parameter.DataBinMethod;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DataBinner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -28,7 +27,6 @@ public class ClinicalDataBinner {
   private final StudyViewService studyViewService;
   private final DataBinner dataBinner;
 
-  @Autowired
   public ClinicalDataBinner(StudyViewService studyViewService, DataBinner dataBinner) {
     this.studyViewService = studyViewService;
     this.dataBinner = dataBinner;

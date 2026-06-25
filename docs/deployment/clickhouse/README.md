@@ -257,7 +257,7 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ## 10. Verifying Database Integrity
 
-After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
+After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/main#check-clickhouse-constraint-violations).
 
 ---
 

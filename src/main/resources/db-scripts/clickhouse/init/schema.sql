@@ -548,23 +548,24 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-CREATE TABLE embeddings(
-    `EMBEDDING_ID` Int32,
-    `SHORT_NAME` String,
-    `NAME` String,
-    `DESCRIPTION` String,
-    `EMBEDDING_TYPE` String,
-    `REDUCTION_TECHNIQUE` String
-) ENGINE = MergeTree ORDER BY (EMBEDDING_ID);
+CREATE TABLE embedding_definition(
+    `internal_id` Int32,
+    `embedding_id` String,
+    `short_name` String,
+    `name` String,
+    `description` String,
+    `entity_type` String,
+    `reduction_technique` String
+) ENGINE = MergeTree ORDER BY (internal_id,embedding_id);
 
 CREATE TABLE embedding_data(
-    `EMBEDDING_ID` Int32,
-    `PATIENT_ID` String,
-    `SAMPLE_ID` Nullable(String),
-    `X` Float32,
-    `Y` Float32,
-    `CUSTOM_ATTRIBUTED` JSON,
-    `STUDY_ID` String
-) ENGINE = MergeTree ORDER BY (STUDY_ID, EMBEDDING_ID, PATIENT_ID, SAMPLE_ID);
+    `embedding_id` Int32,
+    `patient_id` String,
+    `sample_id` String,
+    `x` Float32,
+    `y` Float32,
+    `custom_attribute` String,
+    `study_id` Int32
+) ENGINE = MergeTree ORDER BY (study_id, embedding_id, patient_id, sample_id);
 
 INSERT INTO info (`db_schema_version`, `geneset_version`, `derived_table_schema_version`, `gene_table_version`) VALUES ('2.14.5', 'msigdb_v2025.1.Hs', '1.0.9', 'hgnc_v7_2025.10.7');

@@ -6,7 +6,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -29,7 +28,7 @@ import org.springframework.web.client.RestTemplate;
 public class ProxyController {
   private static final String DEFAULT_ONCOKB_URL = "https://public.api.oncokb.org/api/v1";
 
-  @Autowired private Monkifier monkifier;
+  private final Monkifier monkifier;
 
   @Value("${oncokb.token:}")
   private String oncokbToken;
@@ -39,6 +38,10 @@ public class ProxyController {
 
   @Value("${show.oncokb:false}")
   private Boolean showOncokb;
+
+  public ProxyController(Monkifier monkifier) {
+    this.monkifier = monkifier;
+  }
 
   /**
    * This dev endpoint can be used (with a personal access token) instead of the production

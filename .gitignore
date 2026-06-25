@@ -114,3 +114,6 @@ docs/.obsidian/
 .hermes/
 docker-test-checklist.md
 command-audit.md
+
+# Local MCP server config (may hold credentials)
+.mcp.json

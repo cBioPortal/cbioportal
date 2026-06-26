@@ -98,10 +98,21 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
         min = new BigDecimal(value.substring(gt.length()));
         startInclusive = false;
       } else {
-        min = max = new BigDecimal(attrValue);
+        int dashIndex = value.indexOf('-', 1); // skip the first character to allow negative numbers
+        if (dashIndex > 0) {
+          try {
+            min = new BigDecimal(value.substring(0, dashIndex).trim());
+            max = new BigDecimal(value.substring(dashIndex + 1).trim());
+          } catch (NumberFormatException nfe) {
+            min = max = new BigDecimal(value);
+          }
+        } else {
+          min = max = new BigDecimal(value);
+        }
       }
     } catch (Exception e) {
-      // invalid range -- TODO: also support ranges like 20-30?
+      // invalid range
+
       return null;
     }
 

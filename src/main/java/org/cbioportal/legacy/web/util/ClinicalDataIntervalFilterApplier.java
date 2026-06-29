@@ -17,6 +17,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier {
 
+  private static final String LTE = "<=";
+  private static final String LT = "<";
+  private static final String GTE = ">=";
+  private static final String GT = ">";
+
   @Autowired
   public ClinicalDataIntervalFilterApplier(
       PatientService patientService,
@@ -78,24 +83,19 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
 
     String value = attrValue.trim();
 
-    String lte = "<=";
-    String lt = "<";
-    String gte = ">=";
-    String gt = ">";
-
     boolean startInclusive = true;
     boolean endInclusive = true;
 
     try {
-      if (value.startsWith(lte)) {
-        max = new BigDecimal(value.substring(lte.length()));
-      } else if (value.startsWith(lt)) {
-        max = new BigDecimal(value.substring(lt.length()));
+      if (value.startsWith(LTE)) {
+        max = new BigDecimal(value.substring(LTE.length()));
+      } else if (value.startsWith(LT)) {
+        max = new BigDecimal(value.substring(LT.length()));
         endInclusive = false;
-      } else if (value.startsWith(gte)) {
-        min = new BigDecimal(value.substring(gte.length()));
-      } else if (value.startsWith(gt)) {
-        min = new BigDecimal(value.substring(gt.length()));
+      } else if (value.startsWith(GTE)) {
+        min = new BigDecimal(value.substring(GTE.length()));
+      } else if (value.startsWith(GT)) {
+        min = new BigDecimal(value.substring(GT.length()));
         startInclusive = false;
       } else {
         int dashIndex = value.indexOf('-', 1); // skip the first character to allow negative numbers
@@ -110,7 +110,7 @@ public class ClinicalDataIntervalFilterApplier extends ClinicalDataFilterApplier
           min = max = new BigDecimal(value);
         }
       }
-    } catch (Exception e) {
+    } catch (NumberFormatException e) {
       // invalid range
 
       return null;

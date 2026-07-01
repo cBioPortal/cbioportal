@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -11,6 +12,9 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
 
   List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
+
+  List<ResourceFacetOption> getResourceTableFacetValues(
+      @Param("query") ResourceTableQuery query, @Param("column") String column);
 
   long getResourceTableRowCount(@Param("query") ResourceTableQuery query);
 

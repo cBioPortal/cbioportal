@@ -29,6 +29,13 @@
     </constructor>
   </resultMap>
 
+  <resultMap id="ResourceFacetOptionResultMap" type="org.cbioportal.domain.resource.ResourceFacetOption">
+    <constructor>
+      <arg column="value" javaType="String"/>
+      <arg column="count" javaType="_long"/>
+    </constructor>
+  </resultMap>
+
   <sql id="ResourceTableFromClause">
     FROM resource_data_unified rdata
     INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
@@ -261,6 +268,16 @@
     <include refid="ResourceTableBaseFilters"/>
     <include refid="ResourceTableOrderBy"/>
     LIMIT #{query.limit} OFFSET #{query.offset}
+  </select>
+
+  <select id="getResourceTableFacetValues" resultMap="ResourceFacetOptionResultMap">
+    SELECT ${column} AS value, count(*) AS count
+    <include refid="ResourceTableFromClause"/>
+    <include refid="ResourceTableBaseFilters"/>
+    AND ${column} IS NOT NULL AND ${column} != ''
+    GROUP BY ${column}
+    ORDER BY count DESC
+    LIMIT 100
   </select>
 
   <select id="getResourceTableRowCount" resultType="long">

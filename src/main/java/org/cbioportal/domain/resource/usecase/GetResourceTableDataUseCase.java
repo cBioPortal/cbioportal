@@ -3,6 +3,7 @@ package org.cbioportal.domain.resource.usecase;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
+import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableResult;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -30,8 +31,10 @@ public class GetResourceTableDataUseCase {
     long totalRowCount = resourceDataRepository.getResourceTableRowCount(query);
     long patientCount = resourceDataRepository.getResourceTablePatientCount(query);
     long sampleCount = resourceDataRepository.getResourceTableSampleCount(query);
+    Map<String, List<ResourceFacetOption>> facets =
+        resourceDataRepository.getResourceTableFacets(query);
     return new ResourceTableResult(
-        List.of(), defaultColumns(), rows, totalRowCount, patientCount, sampleCount, Map.of());
+        List.of(), defaultColumns(), rows, totalRowCount, patientCount, sampleCount, facets);
   }
 
   private static List<ResourceColumnInfo> defaultColumns() {

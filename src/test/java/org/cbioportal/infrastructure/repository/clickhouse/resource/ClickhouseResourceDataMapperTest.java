@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
+import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -209,6 +210,57 @@ public class ClickhouseResourceDataMapperTest {
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(2); // both HE_SLIDE rows have stain=HE
+  }
+
+  @Test
+  public void getResourceTableFacetValues_ignoresPaginationAndReturnsDistinctCounts() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
+
+    List<ResourceFacetOption> patientFacets =
+        mapper.getResourceTableFacetValues(query, "rdata.PATIENT_ID");
+    List<ResourceFacetOption> sampleFacets =
+        mapper.getResourceTableFacetValues(query, "rdata.SAMPLE_ID");
+    List<ResourceFacetOption> typeFacets = mapper.getResourceTableFacetValues(query, "rdata.TYPE");
+
+    assertThat(patientFacets).hasSize(2);
+    assertThat(sampleFacets).hasSize(2);
+    assertThat(typeFacets).containsExactly(new ResourceFacetOption("IMAGE", 2L));
+    assertThat(patientFacets)
+        .containsExactlyInAnyOrder(
+            new ResourceFacetOption("tcga-a1-a0sb", 1L),
+            new ResourceFacetOption("tcga-a1-a0sd", 1L));
+    assertThat(sampleFacets)
+        .containsExactlyInAnyOrder(
+            new ResourceFacetOption("tcga-a1-a0sb-01", 1L),
+            new ResourceFacetOption("tcga-a1-a0sd-01", 1L));
+  }
+
+  @Test
+  public void getResourceTableFacetValues_respectsSearchAndFilters() {
+    ResourceColumnFilter patientFilter =
+        new ResourceColumnFilter("patientId", "equals", List.of("tcga-a1-a0sb"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            "a0s",
+            0,
+            10,
+            null,
+            null,
+            List.of(patientFilter));
+
+    List<ResourceFacetOption> patientFacets =
+        mapper.getResourceTableFacetValues(query, "rdata.PATIENT_ID");
+    List<ResourceFacetOption> sampleFacets =
+        mapper.getResourceTableFacetValues(query, "rdata.SAMPLE_ID");
+
+    assertThat(patientFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb", 1L));
+    assertThat(sampleFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb-01", 1L));
   }
 
   // ---- Count queries ----

@@ -43,6 +43,25 @@ public class GetGenericAssayMetaUseCase {
               + " #projection}")
   public List<GenericAssayMeta> execute(
       List<String> stableIds, List<String> molecularProfileIds, String projection) {
+    return execute(stableIds, molecularProfileIds, projection, null, null, null);
+  }
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()",
+      key =
+          "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
+              + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
+              + " #projection, #searchTerm, #pageSize, #pageNumber}")
+  public List<GenericAssayMeta> execute(
+      List<String> stableIds,
+      List<String> molecularProfileIds,
+      String projection,
+      String searchTerm,
+      Integer pageSize,
+      Integer pageNumber) {
+    String normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+    Integer offset = pageSize == null || pageNumber == null ? null : pageSize * pageNumber;
 
     if (molecularProfileIds != null) {
       List<String> sortedProfileIds = molecularProfileIds.stream().distinct().sorted().toList();
@@ -57,11 +76,18 @@ public class GetGenericAssayMetaUseCase {
         if (stableIds != null) {
           resolvedIds.retainAll(new HashSet<>(stableIds));
         }
-        return resolvedIds.stream().map(GenericAssayMeta::new).toList();
+        var filteredIds =
+            resolvedIds.stream()
+                .filter(id -> containsSearchText(id, normalizedSearchTerm))
+                .toList();
+        return pageIds(filteredIds, pageSize, pageNumber).stream()
+            .map(GenericAssayMeta::new)
+            .toList();
       }
 
       // Single merged query: profile → entity + meta join
-      return repository.getGenericAssayMetaByProfileIds(sortedProfileIds, stableIds);
+      return repository.getGenericAssayMetaByProfileIds(
+          sortedProfileIds, stableIds, normalizedSearchTerm, pageSize, offset);
     }
 
     if (stableIds == null || stableIds.isEmpty()) {
@@ -71,9 +97,67 @@ public class GetGenericAssayMetaUseCase {
     List<String> distinctStableIds = stableIds.stream().distinct().toList();
 
     if ("ID".equals(projection)) {
-      return distinctStableIds.stream().map(GenericAssayMeta::new).toList();
+      return pageIds(
+              distinctStableIds.stream()
+                  .filter(id -> containsSearchText(id, normalizedSearchTerm))
+                  .toList(),
+              pageSize,
+              pageNumber)
+          .stream()
+          .map(GenericAssayMeta::new)
+          .toList();
     }
 
-    return repository.getGenericAssayMetaByStableIds(distinctStableIds);
+    return repository.getGenericAssayMetaByStableIds(
+        distinctStableIds, normalizedSearchTerm, pageSize, offset);
+  }
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()",
+      key =
+          "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
+              + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
+              + " #searchTerm, 'count'}")
+  public Integer count(
+      List<String> stableIds, List<String> molecularProfileIds, String searchTerm) {
+    String normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+    if (molecularProfileIds != null) {
+      List<String> sortedProfileIds = molecularProfileIds.stream().distinct().sorted().toList();
+      if (sortedProfileIds.isEmpty()) {
+        return 0;
+      }
+      return repository.countGenericAssayMetaByProfileIds(
+          sortedProfileIds, stableIds, normalizedSearchTerm);
+    }
+
+    if (stableIds == null || stableIds.isEmpty()) {
+      return 0;
+    }
+
+    return repository.countGenericAssayMetaByStableIds(
+        stableIds.stream().distinct().toList(), normalizedSearchTerm);
+  }
+
+  private String normalizeSearchTerm(String searchTerm) {
+    if (searchTerm == null || searchTerm.isBlank()) {
+      return null;
+    }
+    return searchTerm.trim();
+  }
+
+  private boolean containsSearchText(String value, String searchTerm) {
+    return searchTerm == null || value.toLowerCase().contains(searchTerm.toLowerCase());
+  }
+
+  private List<String> pageIds(List<String> ids, Integer pageSize, Integer pageNumber) {
+    if (pageSize == null || pageNumber == null) {
+      return ids;
+    }
+    int offset = pageSize * pageNumber;
+    if (offset >= ids.size()) {
+      return Collections.emptyList();
+    }
+    return ids.subList(offset, Math.min(offset + pageSize, ids.size()));
   }
 }

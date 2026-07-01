@@ -16,6 +16,11 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceFacetOption> getResourceTableFacetValues(
       @Param("query") ResourceTableQuery query, @Param("column") String column);
 
+  List<ResourceFacetOption> getResourceTableMetadataFacetValues(
+      @Param("query") ResourceTableQuery query, @Param("metadataKey") String metadataKey);
+
+  List<String> getResourceTableMetadataKeys(@Param("query") ResourceTableQuery query);
+
   long getResourceTableRowCount(@Param("query") ResourceTableQuery query);
 
   long getResourceTablePatientCount(@Param("query") ResourceTableQuery query);

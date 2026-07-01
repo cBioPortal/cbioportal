@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.service.MutationService;
@@ -62,7 +63,8 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
   public ResponseEntity<List<Mutation>> getMutationsInMolecularProfileBySampleListId(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
@@ -128,7 +130,8 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
   public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
@@ -223,7 +226,8 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
   public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")

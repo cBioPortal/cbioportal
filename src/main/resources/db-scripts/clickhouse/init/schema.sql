@@ -91,7 +91,7 @@ DROP TABLE IF EXISTS sample_profile;
 DROP TABLE IF EXISTS structural_variant;
 DROP TABLE IF EXISTS type_of_cancer;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS embeddings;
+DROP TABLE IF EXISTS embedding_definition;
 DROP TABLE IF EXISTS embedding_data;
 
 CREATE TABLE allele_specific_copy_number (

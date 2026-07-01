@@ -1,6 +1,5 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,20 +13,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ClickhouseResourceDataRepository implements ResourceDataRepository {
-  private static final Map<String, String> FACET_COLUMNS = createFacetColumns();
+  // Only non-ID builtin columns that benefit from categorical filtering
+  private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.TYPE");
 
   private final ClickhouseResourceDataMapper mapper;
 
   public ClickhouseResourceDataRepository(ClickhouseResourceDataMapper mapper) {
     this.mapper = mapper;
-  }
-
-  private static Map<String, String> createFacetColumns() {
-    Map<String, String> facetColumns = new LinkedHashMap<>();
-    facetColumns.put("patientId", "rdata.PATIENT_ID");
-    facetColumns.put("sampleId", "rdata.SAMPLE_ID");
-    facetColumns.put("type", "rdata.TYPE");
-    return Collections.unmodifiableMap(facetColumns);
   }
 
   @Override
@@ -43,6 +35,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   @Override
   public Map<String, List<ResourceFacetOption>> getResourceTableFacets(ResourceTableQuery query) {
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
+
+    // Builtin columns (only 'type' — patientId/sampleId have too many values)
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
       List<ResourceFacetOption> values =
           mapper.getResourceTableFacetValues(query, entry.getValue());
@@ -50,6 +44,18 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         facets.put(entry.getKey(), values);
       }
     }
+
+    // Dynamic metadata columns — discover keys then get distinct values for each
+    List<String> metadataKeys = mapper.getResourceTableMetadataKeys(query);
+    if (metadataKeys != null) {
+      for (String key : metadataKeys) {
+        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(query, key);
+        if (values != null && !values.isEmpty()) {
+          facets.put("metadata:" + key, values);
+        }
+      }
+    }
+
     return facets;
   }
 

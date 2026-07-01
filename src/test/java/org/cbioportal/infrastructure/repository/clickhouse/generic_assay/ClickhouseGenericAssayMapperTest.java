@@ -403,4 +403,24 @@ public class ClickhouseGenericAssayMapperTest {
     assertThat(result).hasSize(1);
     assertThat(result.get(0).getStableId()).isEqualTo("1p_status");
   }
+
+  @Test
+  public void getGenericAssayMetaByProfileIds_withSearchTermAndPaging_returnsMatchingPage() {
+    List<GenericAssayMeta> result =
+        mapper.getGenericAssayMetaByProfileIds(
+            List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null, "status", 2, 1);
+
+    assertThat(result)
+        .extracting(GenericAssayMeta::getStableId)
+        .containsExactly("2p_status", "9p_status");
+  }
+
+  @Test
+  public void countGenericAssayMetaByProfileIds_withSearchTerm_returnsTotalMatches() {
+    Integer result =
+        mapper.countGenericAssayMetaByProfileIds(
+            List.of(ACC_TCGA_ARMLEVEL_CNA_PROFILE), null, "status");
+
+    assertThat(result).isEqualTo(4);
+  }
 }

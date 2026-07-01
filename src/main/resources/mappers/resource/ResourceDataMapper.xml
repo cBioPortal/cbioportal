@@ -280,20 +280,22 @@
   </select>
 
   <select id="getResourceTableMetadataFacetValues" resultMap="ResourceFacetOptionResultMap">
-    SELECT JSONExtractString(rdata.METADATA, #{metadataKey}) AS value, count(*) AS count
+    SELECT JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
     AND rdata.METADATA IS NOT NULL
-    AND JSONExtractString(rdata.METADATA, #{metadataKey}) != ''
+    AND JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) != ''
     GROUP BY value
     ORDER BY value ASC
   </select>
 
   <select id="getResourceTableMetadataKeys" resultType="String">
-    SELECT DISTINCT arrayJoin(JSONExtractKeys(rdata.METADATA)) AS metaKey
-    <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceTableBaseFilters"/>
-    AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
+    SELECT DISTINCT metaKey FROM (
+      SELECT arrayJoin(JSONExtractKeys(ifNull(rdata.METADATA, '{}'))) AS metaKey
+      <include refid="ResourceTableFromClause"/>
+      <include refid="ResourceTableBaseFilters"/>
+      AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
+    ) sub
     ORDER BY metaKey ASC
   </select>
 

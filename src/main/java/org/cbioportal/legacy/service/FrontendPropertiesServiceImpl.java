@@ -268,10 +268,26 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return String.valueOf(!propertyValue.isEmpty());
       case "frontendUrl":
         return getFrontendUrl(propertyValue);
+      case "skin_hide_download_controls":
+        return getSkinHideDownloadControlsValue(propertyValue);
       // For others, just return the value in the properties file.
       default:
         return propertyValue;
     }
+  }
+
+  public static String getSkinHideDownloadControlsValue(String propertyValue) {
+    if (propertyValue == null) {
+      return null;
+    }
+    propertyValue = propertyValue.trim();
+    if (propertyValue.equalsIgnoreCase("true")) {
+      return "hide";
+    }
+    if (propertyValue.equalsIgnoreCase("false")) {
+      return "show";
+    }
+    return propertyValue;
   }
 
   private String enableOncoKBandHotspots(String enableOncoKBandHotspots) {

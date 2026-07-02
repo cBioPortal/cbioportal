@@ -14,4 +14,122 @@
         </where>
         GROUP BY event_type
     </select>
+
+    <resultMap id="patientClinicalEventResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <id property="clinicalEventId" column="clinicalEventId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="startDate" column="startDate"/>
+        <result property="stopDate" column="stopDate"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData" notNullColumn="key">
+            <result property="key" column="key"/>
+            <result property="value" column="value"/>
+        </collection>
+    </resultMap>
+
+    <resultMap id="patientClinicalEventIdResultMap" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <id property="clinicalEventId" column="clinicalEventId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+    </resultMap>
+
+    <sql id="eventBaseQuery">
+        FROM clinical_event ce
+        INNER JOIN patient p ON ce.patient_id = p.internal_id
+        INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+          AND p.stable_id = #{patientId}
+    </sql>
+
+    <sql id="eventSortAndLimit">
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'eventType'">ce.event_type</when>
+            <when test="sortBy == 'startDate'">ce.start_date</when>
+            <when test="sortBy == 'stopDate'">ce.stop_date</when>
+            <otherwise>ce.clinical_event_id</otherwise>
+        </choose>
+        <choose>
+            <when test="sortBy != null and direction == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        <if test="sortBy != null">, ce.clinical_event_id ASC</if>
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </sql>
+
+    <!-- projection = ID: no dates, no attributes -->
+    <select id="getPatientClinicalEventsIdProjection" resultMap="patientClinicalEventIdResultMap">
+        SELECT
+            ce.clinical_event_id AS clinicalEventId,
+            ce.event_type AS eventType,
+            p.stable_id AS patientId,
+            cs.cancer_study_identifier AS studyId
+        <include refid="eventBaseQuery"/>
+        ORDER BY ce.clinical_event_id ASC
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- SUMMARY and DETAILED projections both return full data (dates + attributes); ID projection
+         routes to getPatientClinicalEventsIdProjection instead. -->
+    <select id="getPatientClinicalEvents" resultMap="patientClinicalEventResultMap">
+        SELECT
+            ev.clinicalEventId,
+            ev.eventType,
+            ev.patientId,
+            ev.studyId,
+            ev.startDate,
+            ev.stopDate,
+            ced.`key` AS `key`,
+            ced.value AS value
+        FROM (
+            SELECT
+                ce.clinical_event_id AS clinicalEventId,
+                ce.event_type AS eventType,
+                p.stable_id AS patientId,
+                cs.cancer_study_identifier AS studyId,
+                ce.start_date AS startDate,
+                ce.stop_date AS stopDate
+            <include refid="eventBaseQuery"/>
+            <include refid="eventSortAndLimit"/>
+        ) ev
+        LEFT JOIN (
+            SELECT clinical_event_id, CAST(`key` AS Nullable(String)) AS `key`, CAST(value AS Nullable(String)) AS value
+            FROM clinical_event_data
+            WHERE clinical_event_id IN (
+                SELECT ce.clinical_event_id
+                FROM clinical_event ce
+                INNER JOIN patient p ON ce.patient_id = p.internal_id
+                INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+                WHERE cs.cancer_study_identifier = #{studyId} AND p.stable_id = #{patientId}
+            )
+        ) ced ON ev.clinicalEventId = ced.clinical_event_id
+        ORDER BY
+        <choose>
+            <when test="sortBy == 'eventType'">ev.eventType</when>
+            <when test="sortBy == 'startDate'">ev.startDate</when>
+            <when test="sortBy == 'stopDate'">ev.stopDate</when>
+            <otherwise>ev.clinicalEventId</otherwise>
+        </choose>
+        <choose>
+            <when test="sortBy != null and direction == 'DESC'">DESC</when>
+            <otherwise>ASC</otherwise>
+        </choose>
+        <if test="sortBy != null">, ev.clinicalEventId ASC</if>
+    </select>
+
+    <select id="getMetaPatientClinicalEvents" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        SELECT
+            count(*) AS totalCount
+        FROM clinical_event ce
+        INNER JOIN patient p ON ce.patient_id = p.internal_id
+        INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+        WHERE cs.cancer_study_identifier = #{studyId}
+          AND p.stable_id = #{patientId}
+    </select>
 </mapper>

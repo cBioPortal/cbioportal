@@ -9,7 +9,9 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 @Configuration
@@ -18,6 +20,7 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
       "org.cbioportal.infrastructure.repository.clickhouse",
       "org.cbioportal.legacy.persistence.mybatis"
     },
+    excludeFilters = @ComponentScan.Filter(type = FilterType.REGEX, pattern = ".*\\.resource\\..*"),
     sqlSessionFactoryRef = "sqlSessionFactory")
 public class ClickhouseMyBatisConfig {
 

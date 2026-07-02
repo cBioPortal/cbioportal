@@ -6,6 +6,7 @@ import java.util.List;
 public class ClinicalViolinPlotRowData implements Serializable {
   private String category;
   private Integer numSamples;
+  private Integer numPatients;
   private List<Double> curveData;
   private ClinicalViolinPlotBoxData boxData;
   private List<ClinicalViolinPlotIndividualPoint> individualPoints;
@@ -18,6 +19,8 @@ public class ClinicalViolinPlotRowData implements Serializable {
         + '\''
         + ", numSamples="
         + numSamples
+        + ", numPatients="
+        + numPatients
         + ", curveData="
         + curveData
         + ", boxData="
@@ -41,6 +44,14 @@ public class ClinicalViolinPlotRowData implements Serializable {
 
   public void setNumSamples(Integer numSamples) {
     this.numSamples = numSamples;
+  }
+
+  public Integer getNumPatients() {
+    return numPatients;
+  }
+
+  public void setNumPatients(Integer numPatients) {
+    this.numPatients = numPatients;
   }
 
   public List<Double> getCurveData() {

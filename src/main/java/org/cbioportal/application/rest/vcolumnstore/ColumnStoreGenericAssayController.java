@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
@@ -16,7 +18,10 @@ import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.config.PublicApiTags;
 import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
+import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
+import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -67,15 +72,35 @@ public class ColumnStoreGenericAssayController {
           @Valid
           @RequestBody
           GenericAssayMetaFilter genericAssayMetaFilter,
+      @Parameter(description = "Search keyword that applies to stable ID, name, and description")
+          @RequestParam(required = false)
+          String searchTerm,
+      @Parameter(description = "Page size of the result list")
+          @Max(PagingConstants.MAX_PAGE_SIZE)
+          @Min(PagingConstants.MIN_PAGE_SIZE)
+          @RequestParam(required = false)
+          Integer pageSize,
+      @Parameter(description = "Page number of the result list")
+          @Min(PagingConstants.MIN_PAGE_NUMBER)
+          @RequestParam(required = false)
+          Integer pageNumber,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
+    Integer totalCount =
+        getGenericAssayMetaUseCase.count(
+            genericAssayMetaFilter.getGenericAssayStableIds(),
+            genericAssayMetaFilter.getMolecularProfileIds(),
+            searchTerm);
     List<GenericAssayMeta> result =
         getGenericAssayMetaUseCase.execute(
             genericAssayMetaFilter.getGenericAssayStableIds(),
             genericAssayMetaFilter.getMolecularProfileIds(),
-            projection.name());
-    return streamJson(result);
+            projection.name(),
+            searchTerm,
+            pageSize,
+            pageNumber);
+    return streamJson(result, totalCount);
   }
 
   // PreAuthorize is removed for performance reason
@@ -97,7 +122,8 @@ public class ColumnStoreGenericAssayController {
           Projection projection) {
     return streamJson(
         getGenericAssayMetaUseCase.execute(
-            null, Arrays.asList(molecularProfileId), projection.name()));
+            null, Arrays.asList(molecularProfileId), projection.name()),
+        null);
   }
 
   @RequestMapping(
@@ -118,11 +144,18 @@ public class ColumnStoreGenericAssayController {
           Projection projection) {
     return streamJson(
         getGenericAssayMetaUseCase.execute(
-            Arrays.asList(genericAssayStableId), null, projection.name()));
+            Arrays.asList(genericAssayStableId), null, projection.name()),
+        null);
   }
 
-  private ResponseEntity<StreamingResponseBody> streamJson(List<GenericAssayMeta> data) {
+  private ResponseEntity<StreamingResponseBody> streamJson(
+      List<GenericAssayMeta> data, Integer totalCount) {
+    HttpHeaders headers = new HttpHeaders();
+    if (totalCount != null) {
+      headers.add(HeaderKeyConstants.TOTAL_COUNT, totalCount.toString());
+    }
     return ResponseEntity.ok()
+        .headers(headers)
         .contentType(MediaType.APPLICATION_JSON)
         .body(outputStream -> objectMapper.writeValue(outputStream, data));
   }

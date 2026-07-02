@@ -301,6 +301,16 @@
                 typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseMapTypeHandler"/>
     </resultMap>
 
+    <sql id="GenericAssayMetaSearchPredicate">
+        <if test="searchTerm != null and searchTerm != ''">
+            AND (
+                entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
+                OR properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
+                OR properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+            )
+        </if>
+    </sql>
+
     <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap">
         SELECT
             entity_stable_id AS stableId,
@@ -308,9 +318,21 @@
             properties
         FROM generic_assay_meta_derived
         WHERE entity_stable_id IN
-            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+            <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        <include refid="GenericAssayMetaSearchPredicate"/>
         <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
         ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countGenericAssayMetaByStableIds" resultType="int">
+        SELECT count()
+        FROM generic_assay_meta_derived
+        WHERE entity_stable_id IN
+            <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        <include refid="GenericAssayMetaSearchPredicate"/>
     </select>
 
     <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
@@ -329,8 +351,40 @@
             AND gam.entity_stable_id IN
                 <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
+        <if test="searchTerm != null and searchTerm != ''">
+            AND (
+                gam.entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
+                OR gam.properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
+                OR gam.properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+            )
+        </if>
         <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
         ORDER BY toUInt32OrZero(extract(gam.entity_stable_id, '^[0-9]+')) ASC, gam.entity_stable_id ASC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countGenericAssayMetaByProfileIds" resultType="int">
+        SELECT count()
+        FROM generic_assay_meta_derived gam
+        WHERE gam.entity_stable_id IN (
+            SELECT DISTINCT entity_stable_id
+            FROM generic_assay_profile_entity_derived
+            WHERE profile_stable_id IN
+                <foreach item="item" collection="profileIds" open="(" separator="," close=")">#{item}</foreach>
+        )
+        <if test="stableIds != null and !stableIds.isEmpty()">
+            AND gam.entity_stable_id IN
+                <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+        <if test="searchTerm != null and searchTerm != ''">
+            AND (
+                gam.entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
+                OR gam.properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
+                OR gam.properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+            )
+        </if>
     </select>
 
 </mapper>

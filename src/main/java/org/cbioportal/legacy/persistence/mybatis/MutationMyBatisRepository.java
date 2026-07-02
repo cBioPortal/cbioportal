@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
@@ -72,6 +73,31 @@ public class MutationMyBatisRepository implements MutationRepository {
         PaginationCalculator.offset(pageSize, pageNumber),
         sortBy,
         direction);
+  }
+
+  @Override
+  public void streamMutationsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction,
+      Consumer<Mutation> consumer) {
+
+    mutationMapper.getMutationsInMultipleMolecularProfiles(
+        molecularProfileIds,
+        sampleIds,
+        entrezGeneIds,
+        false,
+        projection,
+        pageSize,
+        PaginationCalculator.offset(pageSize, pageNumber),
+        sortBy,
+        direction,
+        context -> consumer.accept(context.getResultObject()));
   }
 
   @Override

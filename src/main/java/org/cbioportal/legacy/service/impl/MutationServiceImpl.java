@@ -2,6 +2,7 @@ package org.cbioportal.legacy.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.GeneFilterQuery;
 import org.cbioportal.legacy.model.GenomicDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
@@ -109,6 +110,30 @@ public class MutationServiceImpl implements MutationService {
             direction);
 
     return mutationList;
+  }
+
+  @Override
+  public void streamMutationsInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      String projection,
+      Integer pageSize,
+      Integer pageNumber,
+      String sortBy,
+      String direction,
+      Consumer<Mutation> consumer) {
+
+    mutationRepository.streamMutationsInMultipleMolecularProfiles(
+        molecularProfileIds,
+        sampleIds,
+        entrezGeneIds,
+        projection,
+        pageSize,
+        pageNumber,
+        sortBy,
+        direction,
+        consumer);
   }
 
   @Override

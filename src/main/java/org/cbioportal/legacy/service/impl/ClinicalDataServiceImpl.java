@@ -3,6 +3,7 @@ package org.cbioportal.legacy.service.impl;
 import static org.cbioportal.legacy.utils.Encoder.calculateBase64;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -163,6 +164,21 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
     return clinicalDataRepository.fetchClinicalData(
         studyIds, ids, attributeIds, clinicalDataType, projection);
+  }
+
+  @Override
+  public void streamClinicalData(
+      List<String> studyIds,
+      List<String> ids,
+      List<String> attributeIds,
+      String clinicalDataType,
+      String projection,
+      Consumer<ClinicalData> consumer) {
+    if (ids.isEmpty()) {
+      return;
+    }
+    clinicalDataRepository.streamClinicalData(
+        studyIds, ids, attributeIds, clinicalDataType, projection, consumer);
   }
 
   @Override

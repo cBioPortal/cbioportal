@@ -128,7 +128,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     skin_show_study_help_button("skin.show_study_help_button", null),
     skin_patientview_filter_genes_profiled_all_samples(
         "skin.patientview.filter_genes_profiled_all_samples", null),
-    skin_patientview_show_mskcc_slide_viewer("skin.patientview.show_mskcc_slide_viewer", null),
     skin_show_settings_menu("skin.show_settings_menu", null),
     skin_hide_logout_button("skin.hide_logout_button", null),
     quick_search_enabled("quick_search.enabled", null),
@@ -163,7 +162,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     frontendConfigOverride("frontend.config", null),
     query_sets_of_genes("querypage.setsofgenes.location", null),
     authenticationMethod("authenticate", "false"),
-    mskWholeSlideViewerToken("msk.whole.slide.viewer.secret.key", null),
     oncoprintOncoKbHotspotsDefault("oncoprint.oncokb_hotspots.default", "true"),
     oncoKbTokenDefined("oncokb.token", ""),
     sessionServiceEnabled("session.service.url", ""),
@@ -212,7 +210,9 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     enable_study_tags("enable_study_tags", null),
 
     clickhouse_mode("clickhouse_mode", "false"),
-    feature_study_export("feature.study.export", "false");
+    feature_study_export("feature.study.export", "false"),
+
+    msk_wsi_tile_server_url("msk.wsi.tile_server.url", null);
 
     private final String propertyName;
     private final String defaultValue;

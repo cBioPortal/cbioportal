@@ -83,6 +83,11 @@
                 AND clinical_sample.attr_id IN
                     <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
+            <!-- Empty attr_value means "no data" (v7 ClickHouse import stores blank cells as ''); -->
+            <!-- exclude them so missing values are reported as absent rows, matching legacy behavior. -->
+            <if test="_parameter.containsKey('excludeEmptyValues') and excludeEmptyValues">
+                AND clinical_sample.attr_value != ''
+            </if>
         </where>
     </sql>
 
@@ -111,6 +116,11 @@
             <if test="_parameter.containsKey('attributeIds') and attributeIds != null">
                 AND clinical_patient.attr_id IN
                     <foreach item="item" collection="attributeIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+            <!-- Empty attr_value means "no data" (v7 ClickHouse import stores blank cells as ''); -->
+            <!-- exclude them so missing values are reported as absent rows, matching legacy behavior. -->
+            <if test="_parameter.containsKey('excludeEmptyValues') and excludeEmptyValues">
+                AND clinical_patient.attr_value != ''
             </if>
         </where>
     </sql>

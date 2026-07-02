@@ -39,7 +39,9 @@ public class PatientMyBatisRepositoryTest {
         patientMyBatisRepository.getAllPatients(null, "ID", null, null, null, null);
     result = sortedResult(result);
 
-    Assert.assertEquals(18, result.size());
+    // 19 includes TCGA-EMPTY-VAL-PT, the empty-value fixture patient added in
+    // clickhouse_data_legacy.sql for ClinicalDataMyBatisRepositoryTest.
+    Assert.assertEquals(19, result.size());
     Patient patient = result.get(0);
     Assert.assertEquals((Integer) 1, patient.getInternalId());
     Assert.assertEquals("TCGA-A1-A0SB", patient.getStableId());
@@ -62,7 +64,8 @@ public class PatientMyBatisRepositoryTest {
 
     BaseMeta result = patientMyBatisRepository.getMetaPatients(null);
 
-    Assert.assertEquals((Integer) 18, result.getTotalCount());
+    // 19 includes the TCGA-EMPTY-VAL-PT empty-value fixture patient (clickhouse_data_legacy.sql).
+    Assert.assertEquals((Integer) 19, result.getTotalCount());
   }
 
   @Test

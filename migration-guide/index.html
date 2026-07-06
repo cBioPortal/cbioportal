@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.836674054592">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.836675604049">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.836674054592" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.836675604049" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.836674054592" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.836675604049" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.836674054592" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.836675604049" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -264,6 +264,7 @@ For example <code translate="no" v-pre>java -Xms2g -Xmx4g -jar cbioportal/target
 <li><code translate="no" v-pre>portal.properties</code> migration needed:
 <ul>
 <li><code translate="no" v-pre>portal.properties</code> has been renamed to <code translate="no" v-pre>application.properties</code>. This is the Spring Boot default name</li>
+<li>Database connection properties should use Spring Boot datasource names in <code translate="no" v-pre>application.properties</code>. Replace old <code translate="no" v-pre>db.*</code> connection settings such as <code translate="no" v-pre>db.connection_string</code>, <code translate="no" v-pre>db.user</code>, and <code translate="no" v-pre>db.password</code> with <code translate="no" v-pre>spring.datasource.url</code>, <code translate="no" v-pre>spring.datasource.username</code>, and <code translate="no" v-pre>spring.datasource.password</code>. See <a href="https://github.com/cBioPortal/cbioportal/blob/maintenance-v6/docs/deployment/customization/application.properties-Reference.md#database-settings">Database Settings</a> for the full set of datasource properties.</li>
 <li><code translate="no" v-pre>authenticate</code> values of <code translate="no" v-pre>googleplus</code>, <code translate="no" v-pre>social_auth_google</code> and <code translate="no" v-pre>social_auth_microsoft</code> have been replaced by <code translate="no" v-pre>optional_oauth2</code>
 <ul>
 <li>If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property <code translate="no" v-pre>always_show_study_group=PUBLIC</code> and confirm  that all studies in your database you&#x27;d like to be public have <code translate="no" v-pre>GROUPS</code> values set to <code translate="no" v-pre>PUBLIC</code></li>

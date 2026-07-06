@@ -4,11 +4,22 @@ This page describes the main properties within application.properties. Note that
 
 ## Database Settings
 
+cBioPortal connects to MySQL via Spring Boot's standard datasource properties. Configure these in `application.properties`:
+
+```properties
+spring.datasource.url=jdbc:mysql://<host>:<port>/<database>
+spring.datasource.username=<your-db-user>
+spring.datasource.password=<your-db-password>
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 ```
-db.user=
-db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
+
+For example:
+
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.mysql.jdbc.Driver
 ```
 
 The format of the `db.connection_string` is:

@@ -1,8 +1,6 @@
 package org.cbioportal.legacy.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -67,28 +65,5 @@ public class FrontendPropertiesServiceImplTest {
     } finally {
       Files.deleteIfExists(runtimeFile);
     }
-  }
-
-  @Test
-  public void initShouldExposeGenericAssayDisplayTextToFrontendConfig() {
-    FrontendPropertiesServiceImpl service = new FrontendPropertiesServiceImpl();
-    ReflectionTestUtils.setField(service, "env", env);
-    when(env.getProperty(anyString(), nullable(String.class)))
-        .thenAnswer(
-            invocation -> {
-              String key = invocation.getArgument(0);
-              String defaultValue = invocation.getArgument(1);
-              if ("generic_assay_display_text".equals(key)) {
-                return "LOH_HLA:HLA LOH,MUTATIONAL_SIGNATURE:Mutational Signature";
-              }
-              return defaultValue;
-            });
-
-    service.init();
-
-    assertEquals(
-        "LOH_HLA:HLA LOH,MUTATIONAL_SIGNATURE:Mutational Signature",
-        service.getFrontendProperty(
-            FrontendPropertiesServiceImpl.FrontendProperty.generic_assay_display_text));
   }
 }

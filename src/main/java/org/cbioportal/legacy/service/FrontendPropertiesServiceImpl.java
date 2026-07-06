@@ -155,6 +155,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     skin_citation_rule_text("skin.citation_rule_text", null),
     skin_geneset_hierarchy_default_p_value("skin.geneset_hierarchy.default_p_value", null),
     skin_geneset_hierarchy_default_gsva_score("skin.geneset_hierarchy.default_gsva_score", null),
+    generic_assay_display_text("generic_assay_display_text", null),
     app_version("app.version", null),
     frontendSentryEndpoint("sentryjs.frontend_project_endpoint", null),
 

@@ -137,26 +137,29 @@
 
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
+      <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and (filter.values == null || filter.values.isEmpty())">
+        1 = 0
+      </when>
       <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(rdata.METADATA, #{metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
       </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(rdata.METADATA, #{metadataKey}) IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(rdata.METADATA, #{metadataKey}) != #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) != #{filter.values[0]}
       </when>
       <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(rdata.METADATA, #{metadataKey}) NOT IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) NOT IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(rdata.METADATA, #{metadataKey}) = #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) = #{filter.values[0]}
       </when>
       <otherwise>
         1 = 1
@@ -166,6 +169,9 @@
 
   <sql id="ApplyStringFilterTemplate">
     <choose>
+      <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and (filter.values == null || filter.values.isEmpty())">
+        1 = 0
+      </when>
       <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
         ${column} LIKE CONCAT('%', #{filter.values[0]}, '%')
       </when>

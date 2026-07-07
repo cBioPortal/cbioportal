@@ -11,7 +11,7 @@
 # NOTE: the .git folder is included in the build stage (the git-commit-id Maven
 # plugin needs it), but excluded from the final image. No confidential
 # information is exposed. (see: stackoverflow.com/questions/56278325)
-ARG CORE_BRANCH=rfc100-rc
+ARG CORE_BRANCH=main
 
 FROM maven:3-eclipse-temurin-21 AS build
 

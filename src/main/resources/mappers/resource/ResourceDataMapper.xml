@@ -205,11 +205,11 @@
       <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name</when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
-        ORDER BY JSONExtractString(rdata.METADATA, #{sortMetadataKey})
+        ORDER BY JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey})
       </when>
       <otherwise>ORDER BY rdata.PRIORITY DESC, rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
     </choose>
-    <if test="query.sortBy != null and !query.sortBy.isEmpty() and !query.sortBy.startsWith('metadata:')">
+    <if test="query.sortBy != null and !query.sortBy.isEmpty()">
       <choose>
         <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
         <otherwise> ASC </otherwise>

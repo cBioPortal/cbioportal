@@ -305,8 +305,8 @@
         <if test="searchTerm != null and searchTerm != ''">
             AND (
                 entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
-                OR properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
-                OR properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(properties['NAME'], '') ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(properties['DESCRIPTION'], '') ILIKE concat('%', #{searchTerm}, '%')
             )
         </if>
     </sql>
@@ -354,8 +354,8 @@
         <if test="searchTerm != null and searchTerm != ''">
             AND (
                 gam.entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
-                OR gam.properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
-                OR gam.properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(gam.properties['NAME'], '') ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(gam.properties['DESCRIPTION'], '') ILIKE concat('%', #{searchTerm}, '%')
             )
         </if>
         <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
@@ -381,8 +381,8 @@
         <if test="searchTerm != null and searchTerm != ''">
             AND (
                 gam.entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
-                OR gam.properties['NAME'] ILIKE concat('%', #{searchTerm}, '%')
-                OR gam.properties['DESCRIPTION'] ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(gam.properties['NAME'], '') ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(gam.properties['DESCRIPTION'], '') ILIKE concat('%', #{searchTerm}, '%')
             )
         </if>
     </select>

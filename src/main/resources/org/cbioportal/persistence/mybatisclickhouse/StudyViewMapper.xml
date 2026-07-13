@@ -198,7 +198,7 @@
         FROM clinical_data_derived
         <where>
             type='${type}'
-            AND <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+            AND <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="normalizeAttributeValue">
                 <property name="attribute_value" value="value"/>
             </include>
@@ -271,7 +271,7 @@
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived
             <where>
-                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="alteration_value"/>
                 </include> != 'NA' AND
@@ -315,7 +315,7 @@
                 cast(count(distinct patient_unique_id) AS INTEGER) AS count
             FROM generic_assay_data_derived
             <where>
-                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="value"/>
                 </include> != 'NA' AND
@@ -714,7 +714,7 @@
                 cast(count(value) as INTEGER) AS count
             FROM genetic_alteration_derived
             <where>
-                <!-- Table creation in clickhouse.sql has ensured no NA values but extra caution is always appreciated -->
+                <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
                 <include refid="normalizeAttributeValue">
                     <property name="attribute_value" value="alteration_value"/>
                 </include> != 'NA' AND

@@ -22,7 +22,7 @@ public abstract class AbstractTestcontainers {
           .withClasspathResourceMapping(
               "clickhouse_data.sql", "/docker-entrypoint-initdb.d/b_schema.sql", BindMode.READ_ONLY)
           .withClasspathResourceMapping(
-              "clickhouse/clickhouse.sql",
+              "clickhouse/generate_derived_tables.sql",
               "/docker-entrypoint-initdb.d/c_schema.sql",
               BindMode.READ_ONLY);
 

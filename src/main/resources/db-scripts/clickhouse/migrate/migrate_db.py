@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+"""ClickHouse-native schema migration runner for cBioPortal.
+
+Parses migrate_schema.sql (in this same directory, unless overridden) into version-tagged
+sections and applies any section newer than the target database's current db_schema_version,
+strictly in ascending order. See the header of migrate_schema.sql for the section format.
+
+ClickHouse connection is configured via environment variables, matching the convention used by
+cbioportal-core's rebuild_derived_tables.py:
+    CLICKHOUSE_HOST, CLICKHOUSE_NATIVE_PORT, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_DB
+"""
+
+import argparse
+import os
+import re
+import subprocess
+import sys
+import time
+
+RED = '\033[91m'
+GREEN = '\033[92m'
+END = '\033[0m'
+
+SECTION_HEADER_RE = re.compile(r'^##\s*db_schema_version:\s*(\S+)\s*$')
+DESCRIPTION_RE = re.compile(r'^##\s*description:\s*(.*)$')
+CUSTOM_RE = re.compile(r'^##\s*custom:\s*true\s*$', re.IGNORECASE)
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_MIGRATE_SCHEMA_SQL = os.path.join(SCRIPT_DIR, 'migrate_schema.sql')
+
+# Hardcoded custom migration steps, keyed by db_schema_version. Each function receives the
+# ClickHouse connection properties dict and is responsible for whatever work that version's
+# migration needs beyond (or instead of) the section's inline SQL. Register new entries here
+# when adding a section marked '## custom: true' to migrate_schema.sql.
+CUSTOM_MIGRATIONS = {
+    # '3.1.0': migrate_3_1_0,
+}
+
+
+class MigrationSection:
+    def __init__(self, version, description, sql, custom):
+        self.version = version
+        self.description = description
+        self.sql = sql
+        self.custom = custom
+
+    def version_tuple(self):
+        return version_tuple(self.version)
+
+
+def version_tuple(version):
+    return tuple(int(part) for part in version.split('.'))
+
+
+def parse_migrate_schema_sql(filepath):
+    with open(filepath) as f:
+        lines = f.readlines()
+
+    sections = []
+    current = None
+    sql_lines = []
+
+    def flush():
+        if current is not None:
+            sections.append(MigrationSection(
+                current['version'], current['description'],
+                ''.join(sql_lines).strip(), current['custom']))
+
+    for line in lines:
+        header_match = SECTION_HEADER_RE.match(line)
+        if header_match:
+            flush()
+            current = {'version': header_match.group(1), 'description': '', 'custom': False}
+            sql_lines = []
+            continue
+        if current is None:
+            continue  # ignore file header / comments before the first section
+        desc_match = DESCRIPTION_RE.match(line)
+        if desc_match:
+            current['description'] = desc_match.group(1).strip()
+            continue
+        if CUSTOM_RE.match(line):
+            current['custom'] = True
+            continue
+        sql_lines.append(line)
+    flush()
+
+    sections.sort(key=lambda s: s.version_tuple())
+    return sections
+
+
+def get_clickhouse_props():
+    required_props = {
+        'host': 'CLICKHOUSE_HOST',
+        'port': 'CLICKHOUSE_NATIVE_PORT',
+        'user': 'CLICKHOUSE_USER',
+        'password': 'CLICKHOUSE_PASSWORD',
+        'database': 'CLICKHOUSE_DB',
+    }
+    missing = []
+    ch_props = {}
+    for key, env_var in required_props.items():
+        value = os.environ.get(env_var)
+        if not value:
+            missing.append(env_var)
+        ch_props[key] = value
+    if missing:
+        raise RuntimeError(f"ClickHouse properties not set: {', '.join(missing)}")
+    return ch_props
+
+
+def _base_cmd(ch_props):
+    return [
+        'clickhouse', 'client',
+        '--host', ch_props['host'],
+        '--port', ch_props['port'],
+        '--user', ch_props['user'],
+        '--password', ch_props['password'],
+        '--database', ch_props['database'],
+    ]
+
+
+def run_query(ch_props, query):
+    """Run a single query via the clickhouse client and return trimmed stdout."""
+    cmd = _base_cmd(ch_props) + ['--query', query]
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        raise RuntimeError(
+            "clickhouse client not found. Install it with:\n"
+            "  curl https://clickhouse.com/install | sh"
+        )
+    if result.returncode != 0:
+        raise RuntimeError(f"clickhouse client failed (exit {result.returncode}):\n{result.stderr}")
+    return result.stdout.strip()
+
+
+def run_multiquery(ch_props, sql):
+    """Run a block of SQL statements (piped via stdin) through the clickhouse client."""
+    cmd = _base_cmd(ch_props) + ['--multiquery']
+    try:
+        result = subprocess.run(cmd, input=sql, capture_output=True, text=True)
+    except FileNotFoundError:
+        raise RuntimeError(
+            "clickhouse client not found. Install it with:\n"
+            "  curl https://clickhouse.com/install | sh"
+        )
+    if result.returncode != 0:
+        raise RuntimeError(f"clickhouse client failed (exit {result.returncode}):\n{result.stderr}")
+    return result.stdout
+
+
+def get_current_db_schema_version(ch_props):
+    version = run_query(ch_props, "SELECT db_schema_version FROM info LIMIT 1")
+    if not version:
+        raise RuntimeError(
+            "Could not read db_schema_version from info table. Is the database initialized?")
+    return version
+
+
+def wait_for_mutations(ch_props, timeout_secs=300, poll_interval_secs=2):
+    """Block until all ClickHouse mutations in this database have completed.
+
+    ALTER TABLE ... UPDATE/DELETE are async mutations in ClickHouse — a section isn't
+    actually done just because the client returned.
+    """
+    deadline = time.time() + timeout_secs
+    while time.time() < deadline:
+        pending = run_query(
+            ch_props,
+            "SELECT count() FROM system.mutations "
+            f"WHERE database = '{ch_props['database']}' AND is_done = 0",
+        )
+        if pending == '0':
+            return
+        time.sleep(poll_interval_secs)
+    raise TimeoutError(f"Mutations did not complete within {timeout_secs}s")
+
+
+def apply_section(ch_props, section):
+    print(f"Applying db_schema_version {section.version}: {section.description}")
+    if section.sql:
+        run_multiquery(ch_props, section.sql)
+        wait_for_mutations(ch_props)
+    if section.custom:
+        custom_fn = CUSTOM_MIGRATIONS.get(section.version)
+        if not custom_fn:
+            raise RuntimeError(
+                f"Section {section.version} is marked '## custom: true' but no function is "
+                f"registered in CUSTOM_MIGRATIONS")
+        custom_fn(ch_props)
+    print(GREEN + f"Applied db_schema_version {section.version}" + END)
+
+
+def run_migrations(migrate_schema_sql_filepath=None):
+    """Apply any pending migrations. Returns True on success, False on failure."""
+    try:
+        filepath = migrate_schema_sql_filepath or DEFAULT_MIGRATE_SCHEMA_SQL
+        if not os.path.exists(filepath):
+            raise RuntimeError(f"Could not find migrate_schema.sql at {filepath}")
+
+        ch_props = get_clickhouse_props()
+        current_version = get_current_db_schema_version(ch_props)
+        current_tuple = version_tuple(current_version)
+
+        sections = parse_migrate_schema_sql(filepath)
+        pending = [s for s in sections if s.version_tuple() > current_tuple]
+
+        if not pending:
+            print(f"Database is already at db_schema_version {current_version}. Nothing to do.")
+            return True
+
+        print(f"Current db_schema_version: {current_version}. "
+              f"{len(pending)} migration(s) to apply.")
+        for section in pending:
+            apply_section(ch_props, section)
+
+        return True
+    except Exception as e:
+        print(RED + f"Migration failed: {e}" + END, file=sys.stderr)
+        return False
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Apply pending ClickHouse schema migrations.")
+    parser.add_argument(
+        '--migrate-schema-sql',
+        default=None,
+        help="Path to migrate_schema.sql (defaults to the file next to this script)")
+    args = parser.parse_args()
+
+    success = run_migrations(args.migrate_schema_sql)
+    sys.exit(0 if success else 1)
+
+
+if __name__ == '__main__':
+    main()

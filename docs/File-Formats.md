@@ -154,7 +154,7 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
     | GENDER and SEX | 9 |
     | AGE | 8 |
 
-    Priority is not the only factor determining which chart is displayed first. A layout algorithm in Study View also adjusts chart placement. The algorithm tries to fit charts into a 2 by 2 matrix (the Mutated Genes Table occupies 2 by 2 spaces). When a chart cannot fit into the first matrix, a second matrix is generated with lower priority than the first one. If a later chart can fit into the first matrix, then its priority is promoted.
+    Priority is not the only factor determining which chart is displayed first. A layout algorithm in Study View also adjusts chart placement. The layout is arranged on a grid of chart slots: most charts occupy a single 1 by 1 slot, while the Mutated Genes Table spans a 2 by 2 block of slots. When a chart cannot be placed in the first grid, an additional grid is generated with lower priority than the first one. If a later chart can still fit into the first grid, then its priority is promoted.
 
     See [Study View customization](/deployment/customization/Studyview.md) for more detailed information about how Study View uses priority and how the layout is calculated.
 - Row 5: **The attribute name for the database**: This name should be in upper case.

@@ -1,5 +1,6 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -71,15 +72,8 @@ public class GetGenericAssayMetaUseCase {
 
       if ("ID".equals(projection)) {
         // Lightweight path: resolve IDs only, skip meta fetch
-        Set<String> resolvedIds =
-            new LinkedHashSet<>(repository.getGenericAssayStableIdsByProfileIds(sortedProfileIds));
-        if (stableIds != null) {
-          resolvedIds.retainAll(new HashSet<>(stableIds));
-        }
         var filteredIds =
-            resolvedIds.stream()
-                .filter(id -> containsSearchText(id, normalizedSearchTerm))
-                .toList();
+            resolveFilteredIdsByProfileIds(sortedProfileIds, stableIds, normalizedSearchTerm);
         return pageIds(filteredIds, pageSize, pageNumber).stream()
             .map(GenericAssayMeta::new)
             .toList();
@@ -98,11 +92,7 @@ public class GetGenericAssayMetaUseCase {
 
     if ("ID".equals(projection)) {
       return pageIds(
-              distinctStableIds.stream()
-                  .filter(id -> containsSearchText(id, normalizedSearchTerm))
-                  .toList(),
-              pageSize,
-              pageNumber)
+              filterIdsBySearchTerm(distinctStableIds, normalizedSearchTerm), pageSize, pageNumber)
           .stream()
           .map(GenericAssayMeta::new)
           .toList();
@@ -112,20 +102,31 @@ public class GetGenericAssayMetaUseCase {
         distinctStableIds, normalizedSearchTerm, pageSize, offset);
   }
 
+  // Mirrors the ID-projection branches in execute(): count must use the same match
+  // criteria (stable ID only, no name/description) as the data it's counting, or the
+  // reported total-count won't line up with what's actually paginable for that projection.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()",
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
-              + " #searchTerm, 'count'}")
+              + " #projection, #searchTerm, 'count'}")
   public Integer count(
-      List<String> stableIds, List<String> molecularProfileIds, String searchTerm) {
+      List<String> stableIds,
+      List<String> molecularProfileIds,
+      String projection,
+      String searchTerm) {
     String normalizedSearchTerm = normalizeSearchTerm(searchTerm);
+
     if (molecularProfileIds != null) {
       List<String> sortedProfileIds = molecularProfileIds.stream().distinct().sorted().toList();
       if (sortedProfileIds.isEmpty()) {
         return 0;
+      }
+      if ("ID".equals(projection)) {
+        return resolveFilteredIdsByProfileIds(sortedProfileIds, stableIds, normalizedSearchTerm)
+            .size();
       }
       return repository.countGenericAssayMetaByProfileIds(
           sortedProfileIds, stableIds, normalizedSearchTerm);
@@ -135,8 +136,12 @@ public class GetGenericAssayMetaUseCase {
       return 0;
     }
 
-    return repository.countGenericAssayMetaByStableIds(
-        stableIds.stream().distinct().toList(), normalizedSearchTerm);
+    List<String> distinctStableIds = stableIds.stream().distinct().toList();
+    if ("ID".equals(projection)) {
+      return filterIdsBySearchTerm(distinctStableIds, normalizedSearchTerm).size();
+    }
+
+    return repository.countGenericAssayMetaByStableIds(distinctStableIds, normalizedSearchTerm);
   }
 
   private String normalizeSearchTerm(String searchTerm) {
@@ -148,6 +153,20 @@ public class GetGenericAssayMetaUseCase {
 
   private boolean containsSearchText(String value, String searchTerm) {
     return searchTerm == null || value.toLowerCase().contains(searchTerm.toLowerCase());
+  }
+
+  private List<String> filterIdsBySearchTerm(Collection<String> ids, String normalizedSearchTerm) {
+    return ids.stream().filter(id -> containsSearchText(id, normalizedSearchTerm)).toList();
+  }
+
+  private List<String> resolveFilteredIdsByProfileIds(
+      List<String> sortedProfileIds, List<String> stableIds, String normalizedSearchTerm) {
+    Set<String> resolvedIds =
+        new LinkedHashSet<>(repository.getGenericAssayStableIdsByProfileIds(sortedProfileIds));
+    if (stableIds != null) {
+      resolvedIds.retainAll(new HashSet<>(stableIds));
+    }
+    return filterIdsBySearchTerm(resolvedIds, normalizedSearchTerm);
   }
 
   private List<String> pageIds(List<String> ids, Integer pageSize, Integer pageNumber) {

@@ -143,13 +143,37 @@ public class GetGenericAssayMetaUseCaseTest {
   }
 
   @Test
-  public void count_profilesOnly_usesRepositoryCount() {
+  public void count_profilesOnly_summaryProjection_usesRepositoryCount() {
     when(repository.countGenericAssayMetaByProfileIds(PROFILE_ID_LIST, null, "tp53"))
         .thenReturn(42);
 
-    Integer result = useCase.count(null, PROFILE_ID_LIST, "tp53");
+    Integer result =
+        useCase.count(null, PROFILE_ID_LIST, PersistenceConstants.SUMMARY_PROJECTION, "tp53");
 
     Assert.assertEquals(Integer.valueOf(42), result);
     verify(repository).countGenericAssayMetaByProfileIds(PROFILE_ID_LIST, null, "tp53");
+  }
+
+  @Test
+  public void count_profilesOnly_idProjection_matchesStableIdOnly() {
+    // GENERIC_ASSAY_ID_2 does not contain "generic_assay_id_1", so only ID_1 should match;
+    // if this incorrectly delegated to the repository's name/description-aware count, this
+    // distinction would be lost.
+    when(repository.getGenericAssayStableIdsByProfileIds(PROFILE_ID_LIST)).thenReturn(ID_LIST);
+
+    Integer result = useCase.count(null, PROFILE_ID_LIST, "ID", GENERIC_ASSAY_ID_1);
+
+    Assert.assertEquals(Integer.valueOf(1), result);
+    verify(repository, org.mockito.Mockito.never())
+        .countGenericAssayMetaByProfileIds(
+            org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any());
+  }
+
+  @Test
+  public void count_stableIdsOnly_idProjection_matchesStableIdOnly() {
+    Integer result = useCase.count(ID_LIST, null, "ID", GENERIC_ASSAY_ID_2);
+
+    Assert.assertEquals(Integer.valueOf(1), result);
+    verifyNoInteractions(repository);
   }
 }

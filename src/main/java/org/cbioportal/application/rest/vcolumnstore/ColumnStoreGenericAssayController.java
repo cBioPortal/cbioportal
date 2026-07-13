@@ -87,11 +87,16 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
+    // Only compute a total count when the caller is actually paging; legacy callers that
+    // just want the full list (e.g. patient view) shouldn't pay for an extra count query.
     Integer totalCount =
-        getGenericAssayMetaUseCase.count(
-            genericAssayMetaFilter.getGenericAssayStableIds(),
-            genericAssayMetaFilter.getMolecularProfileIds(),
-            searchTerm);
+        pageSize != null && pageNumber != null
+            ? getGenericAssayMetaUseCase.count(
+                genericAssayMetaFilter.getGenericAssayStableIds(),
+                genericAssayMetaFilter.getMolecularProfileIds(),
+                projection.name(),
+                searchTerm)
+            : null;
     List<GenericAssayMeta> result =
         getGenericAssayMetaUseCase.execute(
             genericAssayMetaFilter.getGenericAssayStableIds(),

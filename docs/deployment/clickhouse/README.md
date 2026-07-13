@@ -270,14 +270,15 @@ sections) applied by `db-scripts/clickhouse/migrate/migrate_db.py`. The runner r
 order. Derived table schema updates (tracked by `DERIVED_TABLE_SCHEMA_VERSION`) version
 independently and are applied by rebuilding your derived tables with `generate_derived_tables.sql`.
 
-**External users (Docker Compose):** `git pull` the latest `cbioportal-docker-compose` master, then
+**Docker Compose deployments:** `git pull` the latest `cbioportal-docker-compose` master, then
 `docker compose up`. The migration step runs automatically before the `cbioportal` service starts;
 on a fresh install it's a safe no-op since `schema.sql` already seeds `info` at the current version.
 
-**Institutional / manual deployments (e.g. ClickHouse Cloud):** run `migrate_db.py` directly against
-your database, then rebuild derived tables, before deploying the new cBioPortal backend image. The
-backend refuses to start against a `db_schema_version` that doesn't match its build's `db.version`
-unless `db.suppress_schema_version_mismatch_errors=true` is set.
+**Manual deployments (e.g. ClickHouse Cloud, Kubernetes, or any setup that doesn't go through
+`cbioportal-docker-compose`):** run `migrate_db.py` directly against your database, then rebuild
+derived tables, before deploying the new cBioPortal backend image. The backend refuses to start
+against a `db_schema_version` that doesn't match its build's `db.version` unless
+`db.suppress_schema_version_mismatch_errors=true` is set.
 
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
 ClickHouse deployment) still require the manual re-import process, since no migration path exists

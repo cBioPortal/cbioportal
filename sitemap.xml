@@ -2,394 +2,394 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://docs.cbioportal.org/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/deploying/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/import-the-seed-database/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/updating-your-cbioportal-installation/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/build-from-source/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/load-sample-cancer-study/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/pre-build-steps/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/create-and-publish-virtual-study/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/importer-tool/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/incremental-data-loading/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/deploy-without-docker/software-requirements/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/supported-data-types/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/rfc-list/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/donate/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/imported-maf-columns/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/inter-repository-dependencies/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/msk-maintenance/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/session-service-management/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/software-acknowledgments/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/testing/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/uninstall-docker-cbioportal/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/versioning-and-upgrades/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/virtual-study-data-schema/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/import-study-using-docker/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/import-reference-genome/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/frontend-setup-guideline/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/download_custom_buttons-reference/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/portal.properties-reference/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/docker/notes-for-non-linux/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/about-us/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/web-api-and-clients/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/ai-integrations/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/faq/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/docker/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/overview/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/oql/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/clickhouse/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/new-users/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/user-guide/by-page/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/news/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/ai-integrations/mcp/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/architecture-overview/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/news-genie/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/ai-integrations/chat-interface/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/hardware-requirements/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/application.properties-reference/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/standalone/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/kubernetes/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/user-authorization/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/file-formats/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/docker/example_commands/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/integration-with-other-webservices/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/docker/import_test_data/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/docker/using-keycloak/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-and-authorizing-users-via-keycloak/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-saml/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/spring-security/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-tokens/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/customizing-your-instance-of-cbioportal/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/authenticating-users-via-ldap/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/security.properties-reference/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/authorization-and-authentication/keycloak-api-access-and-user-creation/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/caching/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/integration-with-other-webservices/oncokb-data-access/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/downloads/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/feature-development-guide/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/using-the-dataset-validator/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/using-the-metaimport-script/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/cbioportal-er-diagram/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/database-versioning/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/backend-code-organization/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/session-service-working/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/release-procedure/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/deployment-procedure/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/integration-with-other-webservices/uptimerobot-integration/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/backend-development-guidelines/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/build-different-frontend/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/data-loading-maintaining-studies/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/manual-test-cases/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/study-curation-guide/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/data-loading-for-developers/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/data-loading-tips-and-best-practices/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/mutation-data-transcript-annotation/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/import-oncokb-annotations-as-custom-driver-annotations/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/deployment/customization/studyview/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/migration-guide/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/security/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/import-gene-sets/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/data-loading/import-gene-panels/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/updating-gene-and-gene_alias-tables/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/migration-v6-to-v7/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/development/documentation-site/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
   <url>
     <loc>https://docs.cbioportal.org/z-score-normalization-script/</loc>
-    <lastmod>2026-07-09T08:04:32Z</lastmod>
+    <lastmod>2026-07-13T15:42:48Z</lastmod>
   </url>
 </urlset>

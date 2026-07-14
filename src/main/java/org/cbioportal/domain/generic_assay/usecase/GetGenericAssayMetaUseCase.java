@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
@@ -53,7 +54,9 @@ public class GetGenericAssayMetaUseCase {
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
-              + " #projection, #searchTerm, #pageSize, #pageNumber}")
+              + " #projection,"
+              + " (#searchTerm == null or #searchTerm.trim().isEmpty() ? null : #searchTerm.trim()),"
+              + " #pageSize, #pageNumber}")
   public List<GenericAssayMeta> execute(
       List<String> stableIds,
       List<String> molecularProfileIds,
@@ -111,7 +114,9 @@ public class GetGenericAssayMetaUseCase {
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
-              + " #projection, #searchTerm, 'count'}")
+              + " #projection,"
+              + " (#searchTerm == null or #searchTerm.trim().isEmpty() ? null : #searchTerm.trim()),"
+              + " 'count'}")
   public Integer count(
       List<String> stableIds,
       List<String> molecularProfileIds,
@@ -152,7 +157,9 @@ public class GetGenericAssayMetaUseCase {
   }
 
   private boolean containsSearchText(String value, String searchTerm) {
-    return searchTerm == null || value.toLowerCase().contains(searchTerm.toLowerCase());
+    return searchTerm == null
+        || (value != null
+            && value.toLowerCase(Locale.ROOT).contains(searchTerm.toLowerCase(Locale.ROOT)));
   }
 
   private List<String> filterIdsBySearchTerm(Collection<String> ids, String normalizedSearchTerm) {

@@ -22,6 +22,7 @@ import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /**
@@ -87,6 +89,10 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
+    if ((pageSize == null) != (pageNumber == null)) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "pageSize and pageNumber must both be supplied together");
+    }
     // Only compute a total count when the caller is actually paging; legacy callers that
     // just want the full list (e.g. patient view) shouldn't pay for an extra count query.
     Integer totalCount =

@@ -264,6 +264,46 @@ public class ColumnStoreGenericAssayControllerTest {
         .execute(null, List.of(PROF_ID), "ID", "tp53", 100, 0);
   }
 
+  @Test
+  @WithMockUser
+  public void testFetchGenericAssayMeta_pageSizeWithoutPageNumber_returnsBadRequest()
+      throws Exception {
+    GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
+    genericAssayMetaFilter.setMolecularProfileIds(List.of(PROF_ID));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                .queryParam("pageSize", "100")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(getGenericAssayMetaUseCase);
+  }
+
+  @Test
+  @WithMockUser
+  public void testFetchGenericAssayMeta_pageNumberWithoutPageSize_returnsBadRequest()
+      throws Exception {
+    GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
+    genericAssayMetaFilter.setMolecularProfileIds(List.of(PROF_ID));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                .queryParam("pageNumber", "0")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(getGenericAssayMetaUseCase);
+  }
+
   private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {
     List<GenericAssayMeta> items = new ArrayList<>();
     items.add(

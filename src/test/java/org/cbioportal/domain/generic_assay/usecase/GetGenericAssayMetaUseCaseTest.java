@@ -176,4 +176,26 @@ public class GetGenericAssayMetaUseCaseTest {
     Assert.assertEquals(Integer.valueOf(1), result);
     verifyNoInteractions(repository);
   }
+
+  @Test
+  public void execute_stableIdsOnly_idProjection_withSearchTerm_ignoresNullStableId() {
+    // a malformed request can legally contain a null entry in genericAssayStableIds
+    // (GenericAssayMetaFilter only validates list size, not element nullability); it
+    // must be filtered out rather than throwing when a searchTerm is also supplied
+    List<String> idsWithNull = Arrays.asList(GENERIC_ASSAY_ID_1, null, GENERIC_ASSAY_ID_2);
+
+    List<GenericAssayMeta> result = useCase.execute(idsWithNull, null, "ID", "id_1", null, null);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(GENERIC_ASSAY_ID_1, result.get(0).getStableId());
+  }
+
+  @Test
+  public void count_stableIdsOnly_idProjection_withSearchTerm_ignoresNullStableId() {
+    List<String> idsWithNull = Arrays.asList(GENERIC_ASSAY_ID_1, null, GENERIC_ASSAY_ID_2);
+
+    Integer result = useCase.count(idsWithNull, null, "ID", "generic_assay_id");
+
+    Assert.assertEquals(Integer.valueOf(2), result);
+  }
 }

@@ -1,5 +1,7 @@
 package org.cbioportal.domain.generic_assay.usecase;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -90,8 +92,7 @@ public class GetGenericAssayMetaUseCaseTest {
     Assert.assertEquals(GENERIC_ASSAY_ID_2, result.get(1).getStableId());
     Assert.assertNull(result.get(0).getEntityType());
     verify(repository).getGenericAssayStableIdsByProfileIds(PROFILE_ID_LIST);
-    verify(repository, org.mockito.Mockito.never())
-        .getGenericAssayMetaByProfileIds(org.mockito.Mockito.any(), org.mockito.Mockito.any());
+    verify(repository, never()).getGenericAssayMetaByProfileIds(any(), any());
   }
 
   @Test
@@ -164,9 +165,7 @@ public class GetGenericAssayMetaUseCaseTest {
     Integer result = useCase.count(null, PROFILE_ID_LIST, "ID", GENERIC_ASSAY_ID_1);
 
     Assert.assertEquals(Integer.valueOf(1), result);
-    verify(repository, org.mockito.Mockito.never())
-        .countGenericAssayMetaByProfileIds(
-            org.mockito.Mockito.any(), org.mockito.Mockito.any(), org.mockito.Mockito.any());
+    verify(repository, never()).countGenericAssayMetaByProfileIds(any(), any(), any());
   }
 
   @Test

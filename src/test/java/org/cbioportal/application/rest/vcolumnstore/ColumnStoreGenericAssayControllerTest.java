@@ -1,5 +1,10 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,7 +19,6 @@ import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -59,8 +63,7 @@ public class ColumnStoreGenericAssayControllerTest {
   public void testGetGenericAssayMetaByMolecularProfileId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaItems = createGenericAssayMetaItemsList();
 
-    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(genericAssayMetaItems);
+    when(getGenericAssayMetaUseCase.execute(any(), any(), any())).thenReturn(genericAssayMetaItems);
 
     MvcResult mvcResult =
         mockMvc
@@ -93,7 +96,7 @@ public class ColumnStoreGenericAssayControllerTest {
   public void testGetGenericAssayMetaByStableId() throws Exception {
     List<GenericAssayMeta> genericAssayMetaSingleItem = createGenericAssayMetaSingleItem();
 
-    Mockito.when(getGenericAssayMetaUseCase.execute(Mockito.any(), Mockito.any(), Mockito.any()))
+    when(getGenericAssayMetaUseCase.execute(any(), any(), any()))
         .thenReturn(genericAssayMetaSingleItem);
 
     MvcResult mvcResult =
@@ -130,14 +133,7 @@ public class ColumnStoreGenericAssayControllerTest {
     GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
     genericAssayMetaFilter.setGenericAssayStableIds(genericAssayStableIds);
 
-    Mockito.when(
-            getGenericAssayMetaUseCase.execute(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
+    when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
     mockMvc
@@ -163,10 +159,9 @@ public class ColumnStoreGenericAssayControllerTest {
             MockMvcResultMatchers.jsonPath(
                 "$[1].genericEntityMetaProperties", Matchers.hasValue(TEST_NAME_VALUE)));
 
-    Mockito.verify(getGenericAssayMetaUseCase)
+    verify(getGenericAssayMetaUseCase)
         .execute(genericAssayStableIds, null, "SUMMARY", null, null, null);
-    Mockito.verify(getGenericAssayMetaUseCase, Mockito.never())
-        .count(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    verify(getGenericAssayMetaUseCase, never()).count(any(), any(), any(), any());
   }
 
   @Test
@@ -176,18 +171,8 @@ public class ColumnStoreGenericAssayControllerTest {
     GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
     genericAssayMetaFilter.setMolecularProfileIds(List.of(PROF_ID));
 
-    Mockito.when(
-            getGenericAssayMetaUseCase.count(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(250);
-    Mockito.when(
-            getGenericAssayMetaUseCase.execute(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
+    when(getGenericAssayMetaUseCase.count(any(), any(), any(), any())).thenReturn(250);
+    when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
     MvcResult mvcResult =
@@ -212,9 +197,8 @@ public class ColumnStoreGenericAssayControllerTest {
         .andExpect(
             MockMvcResultMatchers.jsonPath("$[0].stableId").value(GENERIC_ASSAY_STABLE_ID_2));
 
-    Mockito.verify(getGenericAssayMetaUseCase).count(null, List.of(PROF_ID), "SUMMARY", "tp53");
-    Mockito.verify(getGenericAssayMetaUseCase)
-        .execute(null, List.of(PROF_ID), "SUMMARY", "tp53", 100, 1);
+    verify(getGenericAssayMetaUseCase).count(null, List.of(PROF_ID), "SUMMARY", "tp53");
+    verify(getGenericAssayMetaUseCase).execute(null, List.of(PROF_ID), "SUMMARY", "tp53", 100, 1);
   }
 
   @Test
@@ -225,18 +209,8 @@ public class ColumnStoreGenericAssayControllerTest {
     GenericAssayMetaFilter genericAssayMetaFilter = new GenericAssayMetaFilter();
     genericAssayMetaFilter.setMolecularProfileIds(List.of(PROF_ID));
 
-    Mockito.when(
-            getGenericAssayMetaUseCase.count(
-                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-        .thenReturn(5);
-    Mockito.when(
-            getGenericAssayMetaUseCase.execute(
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any(),
-                Mockito.any()))
+    when(getGenericAssayMetaUseCase.count(any(), any(), any(), any())).thenReturn(5);
+    when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
     MvcResult mvcResult =
@@ -259,9 +233,8 @@ public class ColumnStoreGenericAssayControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string("total-count", "5"));
 
-    Mockito.verify(getGenericAssayMetaUseCase).count(null, List.of(PROF_ID), "ID", "tp53");
-    Mockito.verify(getGenericAssayMetaUseCase)
-        .execute(null, List.of(PROF_ID), "ID", "tp53", 100, 0);
+    verify(getGenericAssayMetaUseCase).count(null, List.of(PROF_ID), "ID", "tp53");
+    verify(getGenericAssayMetaUseCase).execute(null, List.of(PROF_ID), "ID", "tp53", 100, 0);
   }
 
   @Test
@@ -281,7 +254,7 @@ public class ColumnStoreGenericAssayControllerTest {
                 .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
         .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    Mockito.verifyNoInteractions(getGenericAssayMetaUseCase);
+    verifyNoInteractions(getGenericAssayMetaUseCase);
   }
 
   @Test
@@ -301,7 +274,7 @@ public class ColumnStoreGenericAssayControllerTest {
                 .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
         .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-    Mockito.verifyNoInteractions(getGenericAssayMetaUseCase);
+    verifyNoInteractions(getGenericAssayMetaUseCase);
   }
 
   private List<GenericAssayMeta> createGenericAssayMetaSingleItem() {

@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_data.ClickhouseEmbeddingMapper">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.embedding.ClickhouseEmbeddingMapper">
+
 
     <sql id="select">
         SELECT
-            embedding_definition.internal_id AS internalId,
-            embedding_definition.short_name AS shortName,
-            embedding_definition.description AS description,
-            embedding_definition.entity_type AS entityType,
-            embedding_definition.reduction_technique AS reductionTechnique,
-            embedding_definition.name AS name,
-            embedding_definition.embedding_id AS embeddingIdentifier,
-            cancer_study.cancer_study_identifier AS studyIdentifier,
-            embedding_data.sample_id AS sampleId,
-            embedding_data.patient_id AS patientId,
-            embedding_data.x AS x,
-            embedding_data.y AS y,
-            embedding_data.custom_attribute AS customAttribute,
-            embedding_data.embedding_definition_id AS embeddingDefinitionId
+--             Leslie
+embedding_definition.internal_id AS internalId,
+embedding_definition.short_name AS shortName,
+embedding_definition.description AS description,
+embedding_definition.entity_type AS entityType,
+embedding_definition.reduction_technique AS reductionTechnique,
+embedding_definition.name AS name,
+embedding_definition.embedding_id AS embeddingIdentifier,
+cancer_study.cancer_study_identifier AS studyIdentifier,
+embedding_data.sample_id AS sampleId,
+embedding_data.patient_id AS patientId,
+embedding_data.x AS x,
+embedding_data.y AS y,
+embedding_data.custom_attribute AS customAttribute,
+embedding_data.embedding_id AS embeddingDefinitionId
     </sql>
+
 
     <sql id="from">
         FROM embedding_data
-        INNER JOIN cancer_study ON embedding_data.study_id = cancer_study.cancer_study_id
-        INNER JOIN embedding_definition ON embedding_data.embedding_definition_id = embedding_definition.internal_id
+       INNER JOIN cancer_study ON embedding_data.study_id = cancer_study.cancer_study_id
+       INNER JOIN embedding_definition ON embedding_data.embedding_id = embedding_definition.internal_id
     </sql>
+
 
     <sql id="where">
         <where>
@@ -41,51 +46,31 @@
         </where>
     </sql>
 
-    <select id="getEmbeddingDataInStudy" resultMap="embeddingWithDataResultMap">
+
+    <select id="getEmbeddingDataInStudy" resultMap="embeddingRowResultMap">
         <include refid="select"/>
         <include refid="from"/>
         <include refid="where"/>
         ORDER BY embedding_definition.internal_id
     </select>
 
-    <resultMap id="embeddingDataResultMap" type="org.cbioportal.domain.embedding.EmbeddingData">
+
+    <resultMap id="embeddingRowResultMap" type="org.cbioportal.domain.embedding.EmbeddingRow">
         <constructor>
-            <arg name="embeddingDefinitionId" column="embeddingDefinitionId" javaType="Integer" />
-            <arg name="patientId" column="patientId" javaType="String" />
-            <arg name="sampleId" column="sampleId" javaType="String" />
-            <arg name="x" column="x" javaType="double" />
-            <arg name="y" column="y" javaType="double" />
-            <arg name="customAttribute" column="customAttribute" javaType="String" />
-            <arg name="studyIdentifier" column="studyIdentifier" javaType="String" />
+            <arg column="internalId" javaType="Integer"/>
+            <arg column="shortName" javaType="String"/>
+            <arg column="description" javaType="String"/>
+            <arg column="entityType" javaType="String"/>
+            <arg column="reductionTechnique" javaType="String"/>
+            <arg column="name" javaType="String"/>
+            <arg column="embeddingIdentifier" javaType="String"/>
+            <arg column="sampleId" javaType="String"/>
+            <arg column="patientId" javaType="String"/>
+            <arg column="x" javaType="Double"/>
+            <arg column="y" javaType="Double"/>
+            <arg column="customAttribute" javaType="String"/>
+            <arg column="studyIdentifier" javaType="String"/>
+            <arg column="embeddingDefinitionId" javaType="Integer"/>
         </constructor>
     </resultMap>
-
-    <resultMap id="embeddingDefinitionResultMap" type="org.cbioportal.domain.embedding.EmbeddingDefinition">
-        <constructor>
-            <idArg name="internalId" column="internalId" javaType="Integer" />
-            <arg name="description" column="description" javaType="String" />
-            <arg name="entityType" column="entityType" javaType="String" />
-            <arg name="reductionTechnique" column="reductionTechnique" javaType="String" />
-            <arg name="name" column="name" javaType="String" />
-            <arg name="shortName" column="shortName" javaType="String" />
-            <arg name="embeddingIdentifier" column="embeddingIdentifier" javaType="String" />
-        </constructor>
-    </resultMap>
-
-    <resultMap id="embeddingDefinitionSummaryResultMap" type="org.cbioportal.domain.embedding.EmbeddingDefinition">
-        <constructor>
-            <idArg name="internalId" column="internalId" javaType="Integer" />
-            <arg name="shortName" column="shortName" javaType="String" />
-            <arg name="description" column="description" javaType="String" />
-            <arg name="entityType" column="entityType" javaType="String" />
-        </constructor>
-    </resultMap>
-
-    <resultMap id="embeddingWithDataResultMap" type="org.cbioportal.domain.embedding.EmbeddingWithData">
-        <constructor>
-            <idArg name="embeddingDefinition" column="internalId" javaType="org.cbioportal.domain.embedding.EmbeddingDefinition" resultMap="embeddingDefinitionSummaryResultMap" />
-            <arg name="embeddingData" javaType="java.util.List" resultMap="embeddingDataResultMap" />
-        </constructor>
-    </resultMap>
-
 </mapper>

@@ -9,10 +9,5 @@ import org.springframework.stereotype.Service;
  * utilize the use cases
  *
  * @param fetchEmbeddingInStudyUseCase
-**/
-
-public record EmbeddingUseCases(
-    FetchEmbeddingInStudyUseCase fetchEmbeddingInStudyUseCase
-) {}
-    
-
+ */
+public record EmbeddingUseCases(FetchEmbeddingInStudyUseCase fetchEmbeddingInStudyUseCase) {}

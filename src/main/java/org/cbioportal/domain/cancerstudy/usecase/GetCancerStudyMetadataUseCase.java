@@ -79,7 +79,9 @@ public class GetCancerStudyMetadataUseCase {
    * @see CancerStudyMetadata
    */
   @PostFilter(
-      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ) or "
+          + "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies', 'false')) and "
+          + "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).LIST))")
   public List<CancerStudyMetadata> execute(
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
     List<ResourceCount> resourceCounts = getResourceCountsForAllStudies(projectionType);

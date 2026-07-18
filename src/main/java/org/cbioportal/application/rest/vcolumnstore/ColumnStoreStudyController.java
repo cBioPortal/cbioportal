@@ -75,6 +75,10 @@ public class ColumnStoreStudyController {
    *     ProjectionType#SUMMARY}.
    * @param sortBy the name of the property that the result list is sorted by. This parameter is
    *     optional.
+   * @param pageSize the maximum number of items to return per page. When {@code null}, all results
+   *     are returned. Must be between {@code 1} and {@link PagingConstants#MAX_PAGE_SIZE}.
+   * @param pageNumber the 1-based page number to return. {@code null} and {@code 0} are both
+   *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
    *     and an HTTP status code {@link HttpStatus#OK}.
@@ -118,15 +122,26 @@ public class ColumnStoreStudyController {
 
     var studies = getCancerStudyMetadataUseCase.execute(projection, sortAndSearchCriteria);
 
-    // Pagination should be handled at the DB layer, but currently our query is not
-    // setup to handle this with authorization
+    // Pagination is applied in-memory after authorization filtering (@PostFilter on the use case
+    // removes studies the caller cannot read). True DB-level pagination is not yet possible here
+    // because the authorized study set is only known after @PostFilter runs.
+    //
+    // pageNumber is 1-based. Values <= 0 and null are treated as page 1 (offset 0) for backward
+    // compatibility. Long arithmetic prevents overflow when pageSize * pageNumber is large.
+    // Capture total count before pagination so META headers report the full
+    // authorized study count, not the number of items on the current page.
+    int totalCount = studies.size();
     if (pageSize != null) {
-      studies = studies.stream().limit(pageSize).toList();
+      long offset =
+          (pageNumber != null && pageNumber > 0) ? (long) pageSize * (pageNumber - 1) : 0L;
+      int fromIndex = (int) Math.min(offset, studies.size());
+      int toIndex = (int) Math.min(offset + pageSize, studies.size());
+      studies = studies.subList(fromIndex, toIndex);
     }
     var headers = new HttpHeaders();
     if (projection == ProjectionType.META) {
-      headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(studies.size()));
-      headers.add(TOTAL_COUNT_HEADER, String.valueOf(studies.size()));
+      headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalCount));
+      headers.add(TOTAL_COUNT_HEADER, String.valueOf(totalCount));
     }
 
     List<CancerStudyMetadataDTO> responseBody =

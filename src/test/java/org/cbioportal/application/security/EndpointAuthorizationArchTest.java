@@ -58,6 +58,11 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.StaticDataTimestampController",
           "org.cbioportal.legacy.web.TestController",
 
+          // robots.txt + sitemaps: a public-portal-only feature (SitemapFeature keeps it off when
+          // authorization is enabled), so the endpoints only ever expose already-public URLs
+          "org.cbioportal.application.seo.RobotsController",
+          "org.cbioportal.application.seo.SitemapController",
+
           // UI pages and documentation
           "org.cbioportal.legacy.web.IndexPageController",
           "org.cbioportal.legacy.web.LoginPageController",

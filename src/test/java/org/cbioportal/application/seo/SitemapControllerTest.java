@@ -31,7 +31,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(addFilters = false)
-@ContextConfiguration(classes = {RobotsController.class, SitemapController.class, TestConfig.class})
+@ContextConfiguration(
+    classes = {
+      RobotsController.class,
+      SitemapController.class,
+      SitemapFeature.class,
+      TestConfig.class
+    })
 @TestPropertySource(properties = {"sitemaps=true"})
 public class SitemapControllerTest {
 
@@ -137,20 +143,15 @@ public class SitemapControllerTest {
 
   @Test
   public void sitemapStudySlicesUrlsPerPage() throws Exception {
-    // 50001 patients + 1 study URL = 50002 URLs -> page 0 holds 50000, page 1 holds the last 2.
-    List<Patient> patients = new ArrayList<>(50001);
-    for (int i = 0; i < 50001; i++) {
-      patients.add(patient(String.format("P%06d", i)));
+    // The service pages patients at PATIENTS_PER_PAGE (49999). Page 0 fills a full patient page and
+    // adds the study-summary URL (50000 URLs); page 1 has one patient; page 2 is past the end.
+    List<Patient> firstPage = new ArrayList<>(49999);
+    for (int i = 0; i < 49999; i++) {
+      firstPage.add(patient(String.format("P%06d", i)));
     }
-    Mockito.when(
-            patientService.getAllPatientsInStudy(
-                Mockito.eq("big"),
-                Mockito.any(),
-                Mockito.anyInt(),
-                Mockito.anyInt(),
-                Mockito.any(),
-                Mockito.any()))
-        .thenReturn(patients);
+    stubPatientPage("big", 0, firstPage);
+    stubPatientPage("big", 1, List.of(patient("P049999")));
+    stubPatientPage("big", 2, List.of());
 
     mockMvc
         .perform(
@@ -158,21 +159,43 @@ public class SitemapControllerTest {
                 .param("studyId", "big")
                 .param("page", "0"))
         .andExpect(status().isOk())
-        .andExpect(content().string(countMatches("<loc>", 50000)));
+        .andExpect(content().string(countMatches("<loc>", 50000)))
+        .andExpect(content().string(Matchers.containsString("/study/summary?id=big")));
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("/sitemap_study.xml")
                 .param("studyId", "big")
                 .param("page", "1"))
         .andExpect(status().isOk())
-        .andExpect(content().string(countMatches("<loc>", 2)));
-    // Page beyond the last is out of range.
+        .andExpect(content().string(countMatches("<loc>", 1)))
+        // The study-summary URL only appears on page 0.
+        .andExpect(content().string(Matchers.not(Matchers.containsString("/study/summary"))));
+    // A later page with no patients is out of range.
     mockMvc
         .perform(
             MockMvcRequestBuilders.get("/sitemap_study.xml")
                 .param("studyId", "big")
                 .param("page", "2"))
         .andExpect(status().isNotFound());
+    // Negative pages are rejected.
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/sitemap_study.xml")
+                .param("studyId", "big")
+                .param("page", "-1"))
+        .andExpect(status().isNotFound());
+  }
+
+  private void stubPatientPage(String studyId, int page, List<Patient> result) throws Exception {
+    Mockito.when(
+            patientService.getAllPatientsInStudy(
+                Mockito.eq(studyId),
+                Mockito.any(),
+                Mockito.anyInt(),
+                Mockito.eq(page),
+                Mockito.any(),
+                Mockito.any()))
+        .thenReturn(result);
   }
 
   @Test

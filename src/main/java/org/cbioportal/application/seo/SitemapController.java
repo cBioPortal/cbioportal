@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.Patient;
@@ -15,8 +13,8 @@ import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.parameter.sort.PatientSortBy;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Serves XML sitemaps that expose every public study and patient page to search engines.
+ * Serves XML sitemaps that expose every study and patient page to search engines.
  *
  * <ul>
  *   <li>{@code /sitemap_index.xml} — a sitemap index with one entry per study page (a large study
@@ -35,24 +33,27 @@ import org.springframework.web.bind.annotation.RestController;
  *       patient in that study, for page {@code N}.
  * </ul>
  *
- * <p>Enabled by the {@code sitemaps} program argument (shared with {@link RobotsController}); when
- * disabled every endpoint returns 404. Both files carry {@code X-Robots-Tag: noindex} so the
+ * <p>Available only when the {@link SitemapFeature} is enabled (public portal with the {@code
+ * sitemaps} flag); otherwise every endpoint returns 404. Because the feature is public-only, no
+ * per-study authorization is required. Both files carry {@code X-Robots-Tag: noindex} so the
  * sitemap documents themselves are not indexed.
  */
 @Hidden
 @RestController
 public class SitemapController {
 
-  // sitemaps.org caps a single sitemap at 50,000 URLs / 50 MB. Studies below this stay in one file;
-  // larger ones are paginated. The study-summary URL counts toward the per-page total.
+  // sitemaps.org caps a single sitemap at 50,000 URLs / 50 MB.
   private static final int MAX_URLS_PER_SITEMAP = 50000;
 
-  // getAllStudies / getAllPatientsInStudy paginate; request one oversized page to get everything,
-  // matching how StudyController warms its all-studies cache.
+  // Patients are paginated one fewer than the cap so page 0 still fits after the study-summary URL
+  // is prepended. Pages line up with the patient-service page boundaries (pageSize = this value).
+  private static final int PATIENTS_PER_PAGE = MAX_URLS_PER_SITEMAP - 1;
+
+  // getAllStudies paginates; request one oversized page to get every study, matching how
+  // StudyController warms its all-studies cache.
   private static final int UNPAGED = 10000000;
 
-  @Value("${sitemaps:false}")
-  private boolean sitemapsEnabled;
+  @Autowired private SitemapFeature sitemapFeature;
 
   @Autowired private StudyService studyService;
 
@@ -60,12 +61,13 @@ public class SitemapController {
 
   @GetMapping(value = "/sitemap_index.xml", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<String> sitemapIndex(HttpServletRequest request) {
-    if (!sitemapsEnabled) {
+    if (!sitemapFeature.isEnabled()) {
       return ResponseEntity.notFound().build();
     }
 
     String baseUrl = SeoRequestUtil.resolveBaseUrl(request);
 
+    // The feature only runs on a public portal, so every study is public: no authentication needed.
     List<CancerStudy> studies =
         studyService.getAllStudies(
             null,
@@ -100,49 +102,49 @@ public class SitemapController {
       HttpServletRequest request,
       @RequestParam String studyId,
       @RequestParam(defaultValue = "0") int page) {
-    if (!sitemapsEnabled) {
+    if (!sitemapFeature.isEnabled()) {
+      return ResponseEntity.notFound().build();
+    }
+    if (page < 0) {
       return ResponseEntity.notFound().build();
     }
 
     String baseUrl = SeoRequestUtil.resolveBaseUrl(request);
 
+    // Fetch only the patients for the requested page, sorted by stable id so page boundaries are
+    // stable across requests. The database does the paging and sorting; no full-study scan.
     List<Patient> patients;
     try {
       patients =
           patientService.getAllPatientsInStudy(
-              studyId, Projection.ID.name(), UNPAGED, 0, null, Direction.ASC.name());
+              studyId,
+              Projection.ID.name(),
+              PATIENTS_PER_PAGE,
+              page,
+              PatientSortBy.patientId.getOriginalValue(),
+              Direction.ASC.name());
     } catch (StudyNotFoundException e) {
       return ResponseEntity.notFound().build();
     }
-    // Sort so a given page returns the same patients on every request; the DB order is not
-    // guaranteed. Copy first rather than mutating the list the service handed back.
-    patients = new ArrayList<>(patients);
-    patients.sort(Comparator.comparing(Patient::getStableId));
-
-    // A study's URL entries are the study-summary URL followed by one URL per patient; paginate
-    // that combined sequence into MAX_URLS_PER_SITEMAP-sized pages.
-    int totalUrls = 1 + patients.size();
-    int pageCount = ceilDiv(totalUrls, MAX_URLS_PER_SITEMAP);
-    if (page < 0 || page >= pageCount) {
+    // The study-summary URL lives on page 0. A later page with no patients is past the end.
+    if (page > 0 && patients.isEmpty()) {
       return ResponseEntity.notFound().build();
     }
-
-    int start = page * MAX_URLS_PER_SITEMAP;
-    int end = Math.min(start + MAX_URLS_PER_SITEMAP, totalUrls);
 
     StringBuilder xml = new StringBuilder();
     xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
     xml.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-    for (int entry = start; entry < end; entry++) {
-      String loc;
-      if (entry == 0) {
-        loc = baseUrl + "/study/summary?id=" + urlEncode(studyId);
-      } else {
-        String patientId = patients.get(entry - 1).getStableId();
-        loc =
-            baseUrl + "/patient?studyId=" + urlEncode(studyId) + "&caseId=" + urlEncode(patientId);
-      }
-      xml.append("  <url>\n    <loc>").append(xmlEscape(loc)).append("</loc>\n  </url>\n");
+    if (page == 0) {
+      appendUrl(xml, baseUrl + "/study/summary?id=" + urlEncode(studyId));
+    }
+    for (Patient patient : patients) {
+      appendUrl(
+          xml,
+          baseUrl
+              + "/patient?studyId="
+              + urlEncode(studyId)
+              + "&caseId="
+              + urlEncode(patient.getStableId()));
     }
     xml.append("</urlset>\n");
 
@@ -151,12 +153,12 @@ public class SitemapController {
 
   /**
    * Number of sitemap pages a study needs. Patient count is bounded by sample count, so a study
-   * whose samples (plus the study-summary URL) fit in one file is single-page without an extra
-   * count query; only genuinely large studies pay for an exact patient count.
+   * whose samples fit on one page is single-page without an extra count query; only genuinely large
+   * studies pay for an exact patient count.
    */
   private int pageCountForStudy(CancerStudy study) {
     Integer sampleCount = study.getAllSampleCount();
-    if (sampleCount != null && 1 + sampleCount <= MAX_URLS_PER_SITEMAP) {
+    if (sampleCount != null && sampleCount <= PATIENTS_PER_PAGE) {
       return 1;
     }
     int patientCount;
@@ -166,7 +168,11 @@ public class SitemapController {
     } catch (StudyNotFoundException e) {
       return 1;
     }
-    return Math.max(1, ceilDiv(1 + patientCount, MAX_URLS_PER_SITEMAP));
+    return Math.max(1, ceilDiv(patientCount, PATIENTS_PER_PAGE));
+  }
+
+  private static void appendUrl(StringBuilder xml, String loc) {
+    xml.append("  <url>\n    <loc>").append(xmlEscape(loc)).append("</loc>\n  </url>\n");
   }
 
   private ResponseEntity<String> xmlResponse(String body) {

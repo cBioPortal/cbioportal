@@ -12,11 +12,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-/** With the {@code sitemaps} flag unset (default), every SEO endpoint returns 404. */
+/**
+ * Sitemaps are a public-portal-only feature: even with {@code sitemaps=true}, enabling
+ * authorization turns every SEO endpoint into a 404, so an authenticated portal never publishes
+ * study/patient URLs.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
 @AutoConfigureMockMvc(addFilters = false)
@@ -27,7 +32,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
       SitemapFeature.class,
       TestConfig.class
     })
-public class SitemapDisabledControllerTest {
+@TestPropertySource(properties = {"sitemaps=true", "authenticate=true"})
+public class SitemapAuthEnabledControllerTest {
 
   @MockBean private StudyService studyService;
   @MockBean private PatientService patientService;
@@ -35,19 +41,19 @@ public class SitemapDisabledControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  public void robotsTxtIsNotFoundWhenDisabled() throws Exception {
+  public void robotsTxtIsNotFoundWhenAuthorizationEnabled() throws Exception {
     mockMvc.perform(MockMvcRequestBuilders.get("/robots.txt")).andExpect(status().isNotFound());
   }
 
   @Test
-  public void sitemapIndexIsNotFoundWhenDisabled() throws Exception {
+  public void sitemapIndexIsNotFoundWhenAuthorizationEnabled() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/sitemap_index.xml"))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void sitemapStudyIsNotFoundWhenDisabled() throws Exception {
+  public void sitemapStudyIsNotFoundWhenAuthorizationEnabled() throws Exception {
     mockMvc
         .perform(MockMvcRequestBuilders.get("/sitemap_study.xml").param("studyId", "acc_tcga"))
         .andExpect(status().isNotFound());

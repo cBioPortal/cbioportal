@@ -50,6 +50,8 @@ public abstract class EmbeddingUtil {
   }
 
   /**
+   * TODO check this method could be improved
+   *
    * @return
    */
   public static List<EmbeddingDefinition> getUniqueEmbeddingDefinitions(

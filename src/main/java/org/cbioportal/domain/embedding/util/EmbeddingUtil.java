@@ -59,8 +59,6 @@ public abstract class EmbeddingUtil {
       int internalId = embeddingRow.internalId();
       String description = embeddingRow.description();
       String entityType = embeddingRow.entityType();
-      String reductionTechnique = embeddingRow.reductionTechnique(); // need to revisit
-      String name = embeddingRow.name(); // need to revisit
       String shortName = embeddingRow.shortName();
 
       definitionSet.add(new EmbeddingDefinition(internalId, description, entityType, shortName));

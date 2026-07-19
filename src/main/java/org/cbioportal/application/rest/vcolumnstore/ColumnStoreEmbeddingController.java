@@ -60,6 +60,7 @@ public class ColumnStoreEmbeddingController {
    * @return ResponseEntity containing list of embedding data DTOs, or empty body for META
    *     projection
    */
+  @InternalApi
   @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -77,7 +78,7 @@ public class ColumnStoreEmbeddingController {
       @Parameter(description = "Cancer study identifiers to filter by.")
           @RequestParam(required = false)
           String studyId) {
-    // for now the usecase will return nothing but will return to
+
     Embedding embedding =
         embeddingUseCases
             .fetchEmbeddingInStudyUseCase()

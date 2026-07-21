@@ -3,7 +3,9 @@ package org.cbioportal.infrastructure.repository.clickhouse.embedding;
 import java.util.List;
 import org.cbioportal.domain.embedding.EmbeddingRow;
 import org.cbioportal.domain.embedding.repository.EmbeddingRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class ClickhouseEmbeddingRepository implements EmbeddingRepository {
 
   private final ClickhouseEmbeddingMapper mapper;

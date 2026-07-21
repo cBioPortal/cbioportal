@@ -3,7 +3,8 @@ package org.cbioportal.application.rest.vcolumnstore;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.cbioportal.domain.embedding.Embedding;
+import org.cbioportal.application.rest.mapper.EmbeddingMapper;
+import org.cbioportal.application.rest.response.EmbeddingDTO;
 import org.cbioportal.domain.embedding.usecase.EmbeddingUseCases;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.springframework.http.MediaType;
@@ -69,7 +70,7 @@ public class ColumnStoreEmbeddingController {
       method = RequestMethod.GET,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Embedding> fetchEmbeddingInStudy(
+  public ResponseEntity<EmbeddingDTO> fetchEmbeddingInStudy(
       @Parameter(description = "Reduction technique, e.g. UMAP or PCA")
           @RequestParam(required = false)
           String reductionTechnique,
@@ -78,11 +79,11 @@ public class ColumnStoreEmbeddingController {
       @Parameter(description = "Cancer study identifiers to filter by.")
           @RequestParam(required = false)
           String studyId) {
-
-    Embedding embedding =
-        embeddingUseCases
-            .fetchEmbeddingInStudyUseCase()
-            .execute(reductionTechnique, entityType, studyId);
-    return ResponseEntity.ok(embedding);
+    EmbeddingDTO embeddingDTO =
+        EmbeddingMapper.INSTANCE.toEmbeddingDTOO(
+            embeddingUseCases
+                .fetchEmbeddingInStudyUseCase()
+                .execute(reductionTechnique, entityType, studyId));
+    return ResponseEntity.ok(embeddingDTO);
   }
 }

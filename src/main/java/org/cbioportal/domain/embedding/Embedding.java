@@ -4,7 +4,7 @@ import java.util.List;
 
 public record Embedding(
     List<String> studyIdentifier,
-    Integer totalSample,
-    Integer totalPatient,
+    Integer totalSamples,
+    Integer totalPatients,
     EmbeddingDefinition embeddingDefinition,
     List<EmbeddingData> embeddingData) {}

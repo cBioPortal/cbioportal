@@ -711,3 +711,8 @@ OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;
 OPTIMIZE TABLE generic_assay_profile_entity_derived;
 OPTIMIZE TABLE generic_assay_meta_derived;
+
+-- Record the version of this script in info.derived_table_schema_version, so callers (e.g.
+-- migrate_db.py --regenerate-derived-tables) can detect whether derived tables are stale by
+-- comparing against this script's own header version, regardless of who/what last ran it.
+ALTER TABLE info UPDATE derived_table_schema_version = '2.0.0' WHERE 1;

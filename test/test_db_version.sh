@@ -99,12 +99,20 @@ migrate_schema_sql_db_version=$(grep -oE '^##[[:space:]]*db_schema_version:[[:sp
 generate_derived_tables_sql_version=$(head -n 1 ${GENERATE_DERIVED_TABLES_SQL} | \
     sed -E 's/^-- version ([0-9]+\.[0-9]+\.[0-9]+) of derived table schema and data definition/\1/')
 
+# --- generate_derived_tables.sql: its own trailing "ALTER TABLE info UPDATE
+# derived_table_schema_version = 'X'" statement, which is what actually gets written to the
+# database when this script runs — must agree with the header above ---
+generate_derived_tables_sql_info_update_line=$(grep 'ALTER TABLE info UPDATE derived_table_schema_version' ${GENERATE_DERIVED_TABLES_SQL} | tail -n 1)
+find_delimited_substrings "$generate_derived_tables_sql_info_update_line" "'" "'"
+generate_derived_tables_sql_info_update_version=${found_delimited_substrings[0]}
+
 echo "pom.xml db.version is $pom_db_version"
 echo "schema.sql db_schema_version is $schema_sql_db_version"
 echo "migrate_schema.sql highest db_schema_version section is $migrate_schema_sql_db_version"
 echo "pom.xml derived_table.version is $pom_derived_table_version"
 echo "schema.sql derived_table_schema_version is $schema_sql_derived_table_version"
 echo "generate_derived_tables.sql header version is $generate_derived_tables_sql_version"
+echo "generate_derived_tables.sql info UPDATE version is $generate_derived_tables_sql_info_update_version"
 
 if [ "$pom_db_version" == "$schema_sql_db_version" ] &&
         [ "$schema_sql_db_version" == "$migrate_schema_sql_db_version" ] ; then
@@ -113,7 +121,8 @@ else
     db_versions_all_match="no"
 fi
 if [ "$pom_derived_table_version" == "$schema_sql_derived_table_version" ] &&
-        [ "$schema_sql_derived_table_version" == "$generate_derived_tables_sql_version" ] ; then
+        [ "$schema_sql_derived_table_version" == "$generate_derived_tables_sql_version" ] &&
+        [ "$generate_derived_tables_sql_version" == "$generate_derived_tables_sql_info_update_version" ] ; then
     derived_table_versions_all_match="yes"
 else
     derived_table_versions_all_match="no"

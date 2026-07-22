@@ -9,8 +9,9 @@
 --   <SQL statements for this section>
 --
 -- Rules for writing a section:
---   1. Sections must be idempotent (IF EXISTS / IF NOT EXISTS everywhere) — ClickHouse has no
---      transactions, so a crash mid-section must be safe to re-run from the top.
+--   1. Sections should be idempotent wherever possible (IF EXISTS / IF NOT EXISTS) — ClickHouse
+--      has no transactions, so a crash mid-section ideally leaves it safe to re-run from the top.
+--      Not always achievable; use judgment, and note in the description when a section isn't.
 --   2. Never DROP a column in the same section that reads from it.
 --   3. For ORDER BY / primary-key changes: create a new table, INSERT ... SELECT, RENAME —
 --      ClickHouse cannot ALTER these in place.
@@ -22,6 +23,10 @@
 --      that must be computed outside ClickHouse). migrate_db.py runs this section's SQL (if any)
 --      first, then calls the matching hardcoded Python function registered in
 --      migrate_db.py's CUSTOM_MIGRATIONS dict, keyed by this section's version.
+--   6. Any section that changes base tables must also bump ../generate_derived_tables.sql's
+--      version (even with no semantic change to that file), since a base-table change may affect
+--      derived tables in ways that aren't obvious to every author. derived_table_schema_version
+--      may also bump on its own with no corresponding section here.
 --
 -- Sections for versions already recorded in the target database's info.db_schema_version are
 -- skipped automatically — do not remove or renumber old sections once released.

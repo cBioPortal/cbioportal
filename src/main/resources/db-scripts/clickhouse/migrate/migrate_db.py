@@ -5,6 +5,12 @@ Parses migrate_schema.sql (in this same directory, unless overridden) into versi
 sections and applies any section newer than the target database's current db_schema_version,
 strictly in ascending order. See the header of migrate_schema.sql for the section format.
 
+With --regenerate-derived-tables, also regenerates derived tables (generate_derived_tables.sql)
+whenever its version differs from the database's current info.derived_table_schema_version. This
+covers both a derived-table rebuild required by a base-table migration and a derived-table-only
+version bump shipped with no corresponding migrate_schema.sql section. Off by default, since
+institutional deployments may run derived-table regeneration as a separate manual step.
+
 ClickHouse connection is configured via environment variables, matching the convention used by
 cbioportal-core's rebuild_derived_tables.py:
     CLICKHOUSE_HOST, CLICKHOUSE_NATIVE_PORT, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_DB
@@ -29,9 +35,13 @@ END = '\033[0m'
 SECTION_HEADER_RE = re.compile(r'^##\s*db_schema_version:\s*(\S+)\s*$')
 DESCRIPTION_RE = re.compile(r'^##\s*description:\s*(.*)$')
 CUSTOM_RE = re.compile(r'^##\s*custom:\s*true\s*$', re.IGNORECASE)
+DERIVED_TABLE_VERSION_HEADER_RE = re.compile(
+    r'^-- version (\d+\.\d+\.\d+) of derived table schema and data definition\s*$')
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_MIGRATE_SCHEMA_SQL = os.path.join(SCRIPT_DIR, 'migrate_schema.sql')
+DEFAULT_GENERATE_DERIVED_TABLES_SQL = os.path.normpath(
+    os.path.join(SCRIPT_DIR, os.pardir, 'generate_derived_tables.sql'))
 
 # Hardcoded custom migration steps, keyed by db_schema_version. Each function receives the
 # ClickHouse connection properties dict and is responsible for whatever work that version's
@@ -92,6 +102,16 @@ def parse_migrate_schema_sql(filepath):
 
     sections.sort(key=lambda s: s.version_tuple())
     return sections
+
+
+def get_derived_tables_sql_version(filepath):
+    with open(filepath) as f:
+        first_line = f.readline()
+    match = DERIVED_TABLE_VERSION_HEADER_RE.match(first_line.strip())
+    if not match:
+        raise RuntimeError(
+            f"Could not parse derived table schema version from the first line of {filepath}")
+    return match.group(1)
 
 
 def get_clickhouse_props():
@@ -175,6 +195,15 @@ def get_current_db_schema_version(ch_props):
     return version
 
 
+def get_current_derived_table_schema_version(ch_props):
+    version = run_query(ch_props, "SELECT derived_table_schema_version FROM info LIMIT 1")
+    if not version:
+        raise RuntimeError(
+            "Could not read derived_table_schema_version from info table. "
+            "Is the database initialized?")
+    return version
+
+
 def wait_for_mutations(ch_props, timeout_secs=300, poll_interval_secs=2):
     """Block until all ClickHouse mutations in this database have completed.
 
@@ -209,8 +238,42 @@ def apply_section(ch_props, section):
     print(GREEN + f"Applied db_schema_version {section.version}" + END)
 
 
-def run_migrations(migrate_schema_sql_filepath=None):
-    """Apply any pending migrations. Returns True on success, False on failure."""
+def maybe_regenerate_derived_tables(ch_props, derived_table_sql_filepath=None):
+    """Regenerate derived tables if generate_derived_tables.sql's own version differs from the
+    database's current info.derived_table_schema_version. Runs unconditionally as a blanket
+    policy whenever that's the case — covers both a derived-table rebuild required by a
+    base-table migration and a derived-table-only version bump with no corresponding
+    migrate_schema.sql section."""
+    filepath = derived_table_sql_filepath or DEFAULT_GENERATE_DERIVED_TABLES_SQL
+    if not os.path.exists(filepath):
+        raise RuntimeError(f"Could not find generate_derived_tables.sql at {filepath}")
+
+    expected_version = get_derived_tables_sql_version(filepath)
+    current_version = get_current_derived_table_schema_version(ch_props)
+    if expected_version == current_version:
+        print(f"Derived tables are already at derived_table_schema_version "
+              f"{current_version}. Nothing to do.")
+        return
+
+    print(f"Regenerating derived tables: derived_table_schema_version {current_version} -> "
+          f"{expected_version}")
+    optimize_backoff_secs = os.environ.get('CLICKHOUSE_OPTIMIZE_BACKOFF_SECS', '0')
+    _run_client(ch_props, [
+        '--multiquery',
+        '--queries-file', filepath,
+        '--param_optimize_backoff_secs', optimize_backoff_secs,
+    ])
+    # generate_derived_tables.sql ends with an ALTER TABLE info UPDATE for
+    # derived_table_schema_version, which is an async mutation.
+    wait_for_mutations(ch_props)
+    print(GREEN + f"Regenerated derived tables at derived_table_schema_version "
+                  f"{expected_version}" + END)
+
+
+def run_migrations(migrate_schema_sql_filepath=None, regenerate_derived_tables=False,
+                    derived_table_sql_filepath=None):
+    """Apply any pending migrations (and optionally regenerate derived tables). Returns True on
+    success, False on failure."""
     config_path = None
     try:
         filepath = migrate_schema_sql_filepath or DEFAULT_MIGRATE_SCHEMA_SQL
@@ -229,12 +292,14 @@ def run_migrations(migrate_schema_sql_filepath=None):
 
         if not pending:
             print(f"Database is already at db_schema_version {current_version}. Nothing to do.")
-            return True
+        else:
+            print(f"Current db_schema_version: {current_version}. "
+                  f"{len(pending)} migration(s) to apply.")
+            for section in pending:
+                apply_section(ch_props, section)
 
-        print(f"Current db_schema_version: {current_version}. "
-              f"{len(pending)} migration(s) to apply.")
-        for section in pending:
-            apply_section(ch_props, section)
+        if regenerate_derived_tables:
+            maybe_regenerate_derived_tables(ch_props, derived_table_sql_filepath)
 
         return True
     except Exception as e:
@@ -251,9 +316,24 @@ def main():
         '--migrate-schema-sql',
         default=None,
         help="Path to migrate_schema.sql (defaults to the file next to this script)")
+    parser.add_argument(
+        '--regenerate-derived-tables',
+        action='store_true',
+        help="After applying migrations, also regenerate derived tables if "
+             "generate_derived_tables.sql's version differs from the database's current "
+             "derived_table_schema_version. Off by default: institutional deployments that run "
+             "derived-table regeneration as a separate manual step should leave this unset.")
+    parser.add_argument(
+        '--derived-tables-sql',
+        default=None,
+        help="Path to generate_derived_tables.sql (defaults to the file next to this script's "
+             "parent directory); only used with --regenerate-derived-tables")
     args = parser.parse_args()
 
-    success = run_migrations(args.migrate_schema_sql)
+    success = run_migrations(
+        args.migrate_schema_sql,
+        regenerate_derived_tables=args.regenerate_derived_tables,
+        derived_table_sql_filepath=args.derived_tables_sql)
     sys.exit(0 if success else 1)
 
 

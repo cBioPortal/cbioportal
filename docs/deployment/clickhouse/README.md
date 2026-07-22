@@ -189,6 +189,14 @@ Without derived tables, every Study View page load would need to join across gen
 
 ### When Derived Tables Are Built
 
+| Scenario | Derived tables rebuilt? | Why |
+|---|---|---|
+| First-ever `docker compose up` (empty ClickHouse volume) | Yes | The fresh-install init scripts run `generate_derived_tables.sql` as part of first-time database setup. |
+| `docker compose up` on an existing, already-initialized database, no pending migration | No | Docker's init scripts only run once against an empty data volume; nothing else rebuilds derived tables on a plain restart. |
+| After importing a study (`metaImport.py`) | Yes, automatically | `metaImport.py` rebuilds derived tables after every successful import, unless you pass `--no-derive-tables` (see below). |
+| After `docker compose up` applies a pending schema migration | Yes, automatically | `migrate_db.py` is invoked with `--regenerate-derived-tables` in `cbioportal-docker-compose`, so it regenerates derived tables whenever `generate_derived_tables.sql`'s own version differs from the database's current version — whether or not the migration that triggered it touched base tables. See [§11 Version Migration](#11-version-migration). |
+| Manual/institutional deployments running `migrate_db.py` directly (no docker-compose) | No, unless you opt in | `migrate_db.py` does **not** regenerate derived tables by default — pass `--regenerate-derived-tables`, or rebuild them yourself as a separate step. See [§11 Version Migration](#11-version-migration). |
+
 By default, `metaImport.py` **automatically rebuilds derived tables** after every import. This ensures query performance stays fast after loading new studies.
 
 ### Skipping Derived Table Rebuild (`--no-derive-tables` and `derive-tables`)
@@ -268,17 +276,29 @@ Starting with `DB_SCHEMA_VERSION` `3.0.0`, in-place schema upgrades are handled 
 sections) applied by `db-scripts/clickhouse/migrate/migrate_db.py`. The runner reads the current
 `db_schema_version` from the `info` table, skips sections already applied, and applies the rest in
 order. Derived table schema updates (tracked by `DERIVED_TABLE_SCHEMA_VERSION`) version
-independently and are applied by rebuilding your derived tables with `generate_derived_tables.sql`.
+independently, and are applied by rebuilding derived tables with `generate_derived_tables.sql`.
+
+**Version-bump convention:** any migration that changes base tables must also bump
+`generate_derived_tables.sql`'s version (even with no semantic change to that script), since a
+base-table change may affect derived tables in ways that aren't obvious to every contributor.
+`derived_table_schema_version` can also bump on its own, with no corresponding base-table
+migration.
 
 **Docker Compose deployments:** `git pull` the latest `cbioportal-docker-compose` master, then
 `docker compose up`. The migration step runs automatically before the `cbioportal` service starts;
-on a fresh install it's a safe no-op since `schema.sql` already seeds `info` at the current version.
+on a fresh install it's a safe no-op since `schema.sql` already seeds `info` at the current
+version. It also regenerates derived tables automatically whenever `generate_derived_tables.sql`'s
+version differs from the database's current `derived_table_schema_version` — you don't need a
+separate manual step.
 
 **Manual deployments (e.g. ClickHouse Cloud, Kubernetes, or any setup that doesn't go through
-`cbioportal-docker-compose`):** run `migrate_db.py` directly against your database, then rebuild
-derived tables, before deploying the new cBioPortal backend image. The backend refuses to start
-against a `db_schema_version` that doesn't match its build's `db.version` unless
-`db.suppress_schema_version_mismatch_errors=true` is set.
+`cbioportal-docker-compose`):** run `migrate_db.py` directly against your database before deploying
+the new cBioPortal backend image. By default `migrate_db.py` only touches base tables — pass
+`--regenerate-derived-tables` if you want it to also regenerate derived tables (using the same
+version-comparison logic described above) in the same run; otherwise, rebuild derived tables
+yourself as a separate step (e.g. if you run derivation through your own tooling against
+ClickHouse Cloud). The backend refuses to start against a `db_schema_version` that doesn't match
+its build's `db.version` unless `db.suppress_schema_version_mismatch_errors=true` is set.
 
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
 ClickHouse deployment) still require the manual re-import process, since no migration path exists

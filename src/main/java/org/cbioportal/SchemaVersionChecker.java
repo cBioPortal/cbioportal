@@ -26,9 +26,6 @@ public class SchemaVersionChecker implements ApplicationRunner {
 
   @Autowired private InfoService infoService;
 
-  @Value("${clickhouse_mode:false}")
-  private String clickhouseMode;
-
   @Value("${db.version}")
   private String expectedDbSchemaVersion;
 
@@ -37,14 +34,11 @@ public class SchemaVersionChecker implements ApplicationRunner {
 
   @Override
   public void run(ApplicationArguments args) {
-    if (!Boolean.parseBoolean(clickhouseMode)) {
-      return;
-    }
-
     InfoDb infoDb = infoService.getInfoFromDb();
     if (infoDb == null || infoDb.getDbSchemaVersion() == null) {
-      logger.warn(
-          "Could not read db_schema_version from the database; skipping schema version check.");
+      failOrWarn(
+          "Could not read db_schema_version from the database. The database may not be "
+              + "initialized, or the info table's schema_version column is unexpectedly empty.");
       return;
     }
 
@@ -53,14 +47,20 @@ public class SchemaVersionChecker implements ApplicationRunner {
       return;
     }
 
-    String message =
+    failOrWarn(
         String.format(
             "Database schema version mismatch: the database is at db_schema_version '%s', but "
                 + "this cBioPortal build expects '%s'. Run "
                 + "db-scripts/clickhouse/migrate/migrate_db.py against your database to upgrade "
-                + "it, or downgrade the cBioPortal build to a version compatible with '%s'. To "
-                + "start anyway, set db.suppress_schema_version_mismatch_errors=true.",
-            actualDbSchemaVersion, expectedDbSchemaVersion, actualDbSchemaVersion);
+                + "it, or downgrade the cBioPortal build to a version compatible with '%s'.",
+            actualDbSchemaVersion, expectedDbSchemaVersion, actualDbSchemaVersion));
+  }
+
+  private void failOrWarn(String problem) {
+    String message =
+        problem
+            + " To allow the application to start anyway (which can result in silent errors and "
+            + "data distortion), set db.suppress_schema_version_mismatch_errors=true.";
 
     if (suppressSchemaVersionMismatchErrors) {
       logger.warn(message);

@@ -64,8 +64,7 @@ Three maven modules make up the central stack of the new web API implementation.
 
 **cbioportal-frontend** is packaged in the web application as a default frontend
 implementation, but the source of the frontend code can also be directed to an external
-source host and be deployed independently of the backend web application. See
-[details](Deployment-Procedure.md)
+source host and be deployed independently of the backend web application.
 
 **session-service** is imported into the web module in order to set up a proxy service
 which receives and forwards requests for saved cBioPortal sessions to a separate system

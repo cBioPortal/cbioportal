@@ -8,11 +8,6 @@ import org.cbioportal.domain.embedding.EmbeddingRow;
 public abstract class EmbeddingUtil {
   private EmbeddingUtil() {}
 
-  // Need methods that  can count the number of patients
-  // Need method that can count the number of samples
-  // Need a method to return a list of embedding data
-  // Need a method to return a conversion to Embedding
-
   /**
    * @return
    */
@@ -21,13 +16,21 @@ public abstract class EmbeddingUtil {
   }
 
   /**
+   * 
    * @return
    */
   public static int countSample(List<EmbeddingRow> embeddingRows) {
-    return Math.toIntExact(embeddingRows.stream().map(EmbeddingRow::sampleId).distinct().count());
+    return Math.toIntExact(
+        embeddingRows.stream()
+            .map(EmbeddingRow::sampleId)
+            .filter(Objects::nonNull)
+            .filter(id -> !id.isEmpty())
+            .distinct()
+            .count());
   }
 
   /**
+   * 
    * @return
    */
   public static List<EmbeddingData> getEmbeddingData(List<EmbeddingRow> embeddingRows) {

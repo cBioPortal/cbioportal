@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class ColumnStoreEmbeddingController {
-  // Attribute which holds the different usecases for retrieving embedding
+
   private final EmbeddingUseCases embeddingUseCases;
 
   /**
@@ -53,13 +53,11 @@ public class ColumnStoreEmbeddingController {
   }
 
   /**
-   * Fetch Mutation by exactly one sampleUniqueIdentifier or molecularProfileId must or
-   * entrezGeneIds
+   * Fetch Embedding entrezGeneIds
    *
    * @param
    * @param
-   * @return ResponseEntity containing list of embedding data DTOs, or empty body for META
-   *     projection
+   * @return ResponseEntity containing list of embedding data DTOs
    */
   @InternalApi
   @Hidden

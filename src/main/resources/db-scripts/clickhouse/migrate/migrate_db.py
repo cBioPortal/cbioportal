@@ -8,6 +8,10 @@ strictly in ascending order. See the header of migrate_schema.sql for the sectio
 ClickHouse connection is configured via environment variables, matching the convention used by
 cbioportal-core's rebuild_derived_tables.py:
     CLICKHOUSE_HOST, CLICKHOUSE_NATIVE_PORT, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_DB
+
+Credentials are written to a temporary clickhouse-client config file (mode 0600) rather than
+passed as command-line arguments, since subprocess argv is visible to other users on the host via
+`ps aux` / `/proc/<pid>/cmdline`.
 """
 
 import argparse
@@ -15,6 +19,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 RED = '\033[91m'
@@ -109,37 +114,39 @@ def get_clickhouse_props():
     return ch_props
 
 
+def _yaml_double_quoted(value):
+    """Escape a string for use inside a YAML double-quoted scalar."""
+    return value.replace('\\', '\\\\').replace('"', '\\"')
+
+
+def write_client_config(ch_props):
+    """Write ClickHouse connection settings (including the password) to a temp YAML config file
+    with 0600 permissions, for use with `clickhouse client --config-file`. Avoids passing the
+    password as a subprocess argv, which would otherwise be visible to any other user on the
+    host via `ps aux` / `/proc/<pid>/cmdline`. Caller is responsible for deleting the file."""
+    fd, path = tempfile.mkstemp(prefix='ch_migrate_client_', suffix='.yaml')
+    try:
+        with os.fdopen(fd, 'w') as f:
+            f.write(f"user: \"{_yaml_double_quoted(ch_props['user'])}\"\n")
+            f.write(f"password: \"{_yaml_double_quoted(ch_props['password'])}\"\n")
+            f.write(f"host: \"{_yaml_double_quoted(ch_props['host'])}\"\n")
+            f.write(f"port: {ch_props['port']}\n")
+            f.write(f"database: \"{_yaml_double_quoted(ch_props['database'])}\"\n")
+    except Exception:
+        os.remove(path)
+        raise
+    os.chmod(path, 0o600)
+    return path
+
+
 def _base_cmd(ch_props):
-    return [
-        'clickhouse', 'client',
-        '--host', ch_props['host'],
-        '--port', ch_props['port'],
-        '--user', ch_props['user'],
-        '--password', ch_props['password'],
-        '--database', ch_props['database'],
-    ]
+    return ['clickhouse', 'client', '--config-file', ch_props['config_path']]
 
 
-def run_query(ch_props, query):
-    """Run a single query via the clickhouse client and return trimmed stdout."""
-    cmd = _base_cmd(ch_props) + ['--query', query]
+def _run_client(ch_props, extra_args, input_text=None):
+    cmd = _base_cmd(ch_props) + extra_args
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True)
-    except FileNotFoundError:
-        raise RuntimeError(
-            "clickhouse client not found. Install it with:\n"
-            "  curl https://clickhouse.com/install | sh"
-        )
-    if result.returncode != 0:
-        raise RuntimeError(f"clickhouse client failed (exit {result.returncode}):\n{result.stderr}")
-    return result.stdout.strip()
-
-
-def run_multiquery(ch_props, sql):
-    """Run a block of SQL statements (piped via stdin) through the clickhouse client."""
-    cmd = _base_cmd(ch_props) + ['--multiquery']
-    try:
-        result = subprocess.run(cmd, input=sql, capture_output=True, text=True)
+        result = subprocess.run(cmd, input=input_text, capture_output=True, text=True)
     except FileNotFoundError:
         raise RuntimeError(
             "clickhouse client not found. Install it with:\n"
@@ -148,6 +155,16 @@ def run_multiquery(ch_props, sql):
     if result.returncode != 0:
         raise RuntimeError(f"clickhouse client failed (exit {result.returncode}):\n{result.stderr}")
     return result.stdout
+
+
+def run_query(ch_props, query):
+    """Run a single query via the clickhouse client and return trimmed stdout."""
+    return _run_client(ch_props, ['--query', query]).strip()
+
+
+def run_multiquery(ch_props, sql):
+    """Run a block of SQL statements (piped via stdin) through the clickhouse client."""
+    return _run_client(ch_props, ['--multiquery'], input_text=sql)
 
 
 def get_current_db_schema_version(ch_props):
@@ -194,12 +211,16 @@ def apply_section(ch_props, section):
 
 def run_migrations(migrate_schema_sql_filepath=None):
     """Apply any pending migrations. Returns True on success, False on failure."""
+    config_path = None
     try:
         filepath = migrate_schema_sql_filepath or DEFAULT_MIGRATE_SCHEMA_SQL
         if not os.path.exists(filepath):
             raise RuntimeError(f"Could not find migrate_schema.sql at {filepath}")
 
         ch_props = get_clickhouse_props()
+        config_path = write_client_config(ch_props)
+        ch_props['config_path'] = config_path
+
         current_version = get_current_db_schema_version(ch_props)
         current_tuple = version_tuple(current_version)
 
@@ -219,6 +240,9 @@ def run_migrations(migrate_schema_sql_filepath=None):
     except Exception as e:
         print(RED + f"Migration failed: {e}" + END, file=sys.stderr)
         return False
+    finally:
+        if config_path and os.path.exists(config_path):
+            os.remove(config_path)
 
 
 def main():

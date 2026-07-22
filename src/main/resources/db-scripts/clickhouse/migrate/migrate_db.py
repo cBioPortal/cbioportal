@@ -8,8 +8,8 @@ strictly in ascending order. See the header of migrate_schema.sql for the sectio
 With --regenerate-derived-tables, also regenerates derived tables (generate_derived_tables.sql)
 whenever its version differs from the database's current info.derived_table_schema_version. This
 covers both a derived-table rebuild required by a base-table migration and a derived-table-only
-version bump shipped with no corresponding migrate_schema.sql section. Off by default, since
-institutional deployments may run derived-table regeneration as a separate manual step.
+version bump shipped with no corresponding migrate_schema.sql section. Off by default, since some
+deployments may run derived-table regeneration as a separate manual step.
 
 ClickHouse connection is configured via environment variables, matching the convention used by
 cbioportal-core's rebuild_derived_tables.py:
@@ -321,8 +321,8 @@ def main():
         action='store_true',
         help="After applying migrations, also regenerate derived tables if "
              "generate_derived_tables.sql's version differs from the database's current "
-             "derived_table_schema_version. Off by default: institutional deployments that run "
-             "derived-table regeneration as a separate manual step should leave this unset.")
+             "derived_table_schema_version. Off by default: deployments that run derived-table "
+             "regeneration as a separate manual step should leave this unset.")
     parser.add_argument(
         '--derived-tables-sql',
         default=None,

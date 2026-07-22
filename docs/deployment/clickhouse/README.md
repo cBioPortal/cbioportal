@@ -195,7 +195,7 @@ Without derived tables, every Study View page load would need to join across gen
 | `docker compose up` on an existing, already-initialized database, no pending migration | No | Docker's init scripts only run once against an empty data volume; nothing else rebuilds derived tables on a plain restart. |
 | After importing a study (`metaImport.py`) | Yes, automatically | `metaImport.py` rebuilds derived tables after every successful import, unless you pass `--no-derive-tables` (see below). |
 | After `docker compose up` applies a pending schema migration | Yes, automatically | `migrate_db.py` is invoked with `--regenerate-derived-tables` in `cbioportal-docker-compose`, so it regenerates derived tables whenever `generate_derived_tables.sql`'s own version differs from the database's current version — whether or not the migration that triggered it touched base tables. See [§11 Version Migration](#11-version-migration). |
-| Manual/institutional deployments running `migrate_db.py` directly (no docker-compose) | No, unless you opt in | `migrate_db.py` does **not** regenerate derived tables by default — pass `--regenerate-derived-tables`, or rebuild them yourself as a separate step. See [§11 Version Migration](#11-version-migration). |
+| Manual deployments running `migrate_db.py` directly (no docker-compose) | No, unless you opt in | `migrate_db.py` does **not** regenerate derived tables by default — pass `--regenerate-derived-tables`, or rebuild them yourself as a separate step. See [§11 Version Migration](#11-version-migration). |
 
 By default, `metaImport.py` **automatically rebuilds derived tables** after every import. This ensures query performance stays fast after loading new studies.
 

@@ -51,7 +51,7 @@ public abstract class EmbeddingUtil {
   }
 
   /**
-   * TODO check this method could be improved
+   * TODO check this method could be improved maybe we could use a hashmap to simplify the process
    *
    * @return
    */

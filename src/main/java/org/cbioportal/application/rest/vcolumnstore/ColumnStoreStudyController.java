@@ -17,6 +17,7 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -56,8 +57,8 @@ public class ColumnStoreStudyController {
   private final PermissionEvaluator permissionEvaluator;
 
   /**
-   * Constructs a new {@link ColumnStoreStudyController} with the specified use case and permission
-   * evaluator.
+   * Constructs a new {@link ColumnStoreStudyController}, with the specified use case and an
+   * optional permission evaluator.
    *
    * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study
    *     metadata.
@@ -65,7 +66,7 @@ public class ColumnStoreStudyController {
    */
   public ColumnStoreStudyController(
       GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
-      PermissionEvaluator permissionEvaluator) {
+      @Autowired(required = false) PermissionEvaluator permissionEvaluator) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
     this.permissionEvaluator = permissionEvaluator;
   }
@@ -146,17 +147,16 @@ public class ColumnStoreStudyController {
           studies.stream()
               .map(
                   study -> {
-                    boolean hasReadPermission = false;
-                    if (authentication != null) {
+                    // Default to true if security is disabled (permissionEvaluator is null)
+                    boolean hasReadPermission = true;
+                    if (permissionEvaluator != null && authentication != null) {
                       hasReadPermission =
                           permissionEvaluator.hasPermission(
                               authentication,
-                              study.cancerStudyIdentifier(), // Uses the exact UseCase domain
-                              // property identifier
+                              study.cancerStudyIdentifier(),
                               "CancerStudyId",
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
-                    // Map the study and pass the permission flag directly to MapStruct!
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })
               .toList();
@@ -174,13 +174,12 @@ public class ColumnStoreStudyController {
   public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
       throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
-    // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
     var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);
   }
 
   /**
-   * Retrieves metadata information for cancer studies, specifically the total number of studies.
+   * Retrieves metadata information for cancer studies, specifically the total number of studies
    * matching the given filter and sort criteria.
    *
    * <p>This endpoint is intended for metadata retrieval only and does not return a response body.

@@ -7,21 +7,20 @@
 
     <sql id="select">
         SELECT
---             Leslie
-embedding_definition.internal_id AS internalId,
-embedding_definition.short_name AS shortName,
-embedding_definition.description AS description,
-embedding_definition.entity_type AS entityType,
-embedding_definition.reduction_technique AS reductionTechnique,
-embedding_definition.name AS name,
-embedding_definition.embedding_id AS embeddingIdentifier,
-cancer_study.cancer_study_identifier AS studyIdentifier,
-embedding_data.sample_id AS sampleId,
-embedding_data.patient_id AS patientId,
-embedding_data.x AS x,
-embedding_data.y AS y,
-embedding_data.custom_attribute AS customAttribute,
-embedding_data.embedding_id AS embeddingDefinitionId
+            embedding_definition.internal_id AS internalId,
+            embedding_definition.short_name AS shortName,
+            embedding_definition.description AS description,
+            embedding_definition.entity_type AS entityType,
+            embedding_definition.reduction_technique AS reductionTechnique,
+            embedding_definition.name AS name,
+            embedding_definition.embedding_id AS embeddingIdentifier,
+            cancer_study.cancer_study_identifier AS studyIdentifier,
+            embedding_data.sample_id AS sampleId,
+            embedding_data.patient_id AS patientId,
+            embedding_data.x AS x,
+            embedding_data.y AS y,
+            embedding_data.custom_attribute AS customAttribute,
+            embedding_data.embedding_id AS embeddingDefinitionId
     </sql>
 
 
@@ -40,8 +39,11 @@ embedding_data.embedding_id AS embeddingDefinitionId
             <if test="entityType != null">
                 AND embedding_definition.entity_type = #{entityType}
             </if>
-            <if test="studyId != null">
-                AND cancer_study.cancer_study_identifier = #{studyId}
+            <if test="studyId != null and !studyIds.isEmpty()">
+                AND cancer_study.cancer_study_identifier IN
+                <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
+                    #{studyId}
+                </foreach>
             </if>
         </where>
     </sql>

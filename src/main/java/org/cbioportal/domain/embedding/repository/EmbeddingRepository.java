@@ -11,5 +11,5 @@ import org.cbioportal.domain.embedding.EmbeddingRow;
 public interface EmbeddingRepository {
 
   List<EmbeddingRow> getEmbeddingDataInStudy(
-      String reductionTechnique, String entityType, String studyId);
+      String reductionTechnique, String entityType, List<String> studyIds);
 }

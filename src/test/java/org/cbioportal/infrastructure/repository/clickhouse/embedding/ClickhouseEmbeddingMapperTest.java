@@ -31,8 +31,9 @@ public class ClickhouseEmbeddingMapperTest {
 
   @Test
   public void getEmbeddingDataInStudy() {
+    var studyIds = List.of(STUDY_TCGA_PUB, STUDY_ACC_TCGA);
     List<EmbeddingRow> embeddingWithDataList =
-        mapper.getEmbeddingDataInStudy("pca", "sample", STUDY_TCGA_PUB);
+        mapper.getEmbeddingDataInStudy("pca", "sample", studyIds);
     assertEquals(4, embeddingWithDataList.size());
   }
 }

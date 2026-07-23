@@ -16,7 +16,6 @@ public abstract class EmbeddingUtil {
   }
 
   /**
-   * 
    * @return
    */
   public static int countSample(List<EmbeddingRow> embeddingRows) {
@@ -30,7 +29,6 @@ public abstract class EmbeddingUtil {
   }
 
   /**
-   * 
    * @return
    */
   public static List<EmbeddingData> getEmbeddingData(List<EmbeddingRow> embeddingRows) {

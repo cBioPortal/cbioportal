@@ -22,7 +22,7 @@ public class ClickhouseEmbeddingRepository implements EmbeddingRepository {
    */
   @Override
   public List<EmbeddingRow> getEmbeddingDataInStudy(
-      String reductionTechnique, String entityType, String studyId) {
+      String reductionTechnique, String entityType, List<String> studyId) {
     return mapper.getEmbeddingDataInStudy(reductionTechnique, entityType, studyId);
   }
 }

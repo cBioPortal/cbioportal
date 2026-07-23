@@ -12,7 +12,7 @@ public interface EmbeddingMapper {
 
   @Mapping(target = "studyIds", source = "studyIdentifier")
   @Mapping(target = "sampleSize", source = "totalSamples")
-  @Mapping(target = "title", source = "embeddingDefinition.name")
+  @Mapping(target = "title", source = "embeddingDefinition.shortName")
   @Mapping(target = "description", source = "embeddingDefinition.description")
   @Mapping(target = "embeddingType", source = "embeddingDefinition.entityType")
   @Mapping(target = "data", source = "embeddingData")

@@ -37,9 +37,9 @@ public class FetchEmbeddingInStudyUseCase {
    * @see
    * @see
    */
-  public Embedding execute(String reductionTechnique, String entityType, String studyId) {
+  public Embedding execute(String reductionTechnique, String entityType, List<String> studyIds) {
     List<EmbeddingRow> embeddingRows =
-        embeddingRepository.getEmbeddingDataInStudy(reductionTechnique, entityType, studyId);
+        embeddingRepository.getEmbeddingDataInStudy(reductionTechnique, entityType, studyIds);
 
     int totalNumOfPatient = EmbeddingUtil.countPatient(embeddingRows);
     int totalNumOfPSample = EmbeddingUtil.countSample(embeddingRows);

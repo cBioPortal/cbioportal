@@ -3,6 +3,7 @@ package org.cbioportal.application.rest.vcolumnstore;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
 import org.cbioportal.application.rest.mapper.EmbeddingMapper;
 import org.cbioportal.application.rest.response.EmbeddingDTO;
 import org.cbioportal.domain.embedding.usecase.EmbeddingUseCases;
@@ -76,12 +77,12 @@ public class ColumnStoreEmbeddingController {
           String entityType,
       @Parameter(description = "Cancer study identifiers to filter by.")
           @RequestParam(required = false)
-          String studyId) {
+          List<String> studyIds) {
     EmbeddingDTO embeddingDTO =
         EmbeddingMapper.INSTANCE.toEmbeddingDTOO(
             embeddingUseCases
                 .fetchEmbeddingInStudyUseCase()
-                .execute(reductionTechnique, entityType, studyId));
+                .execute(reductionTechnique, entityType, studyIds));
     return ResponseEntity.ok(embeddingDTO);
   }
 }

@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Issues short-lived capabilities for the same-origin WSI tile service. */
@@ -45,6 +47,41 @@ public class WsiAccessTokenController {
 
   @Autowired(required = false)
   private WsiSlideAccessRepository wsiSlideAccessRepository;
+
+  /** Issues a study-scoped capability for DSA annotation access. */
+  @GetMapping("/access-token")
+  @PreAuthorize(
+      "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
+          + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  public ResponseEntity<?> issueAccessToken(
+      @RequestParam(required = false) String studyId,
+      @RequestParam(required = false, defaultValue = "wsi") String purpose) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    boolean anonymous = isAnonymous(authentication);
+    if (anonymous && !localAuthBypass) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
+    if (anonymous) {
+      authentication = localDevelopmentAuthentication();
+    }
+    if (studyId == null || studyId.isBlank()) {
+      return ResponseEntity.badRequest().build();
+    }
+    if (!"annotations".equals(purpose)) {
+      return ResponseEntity.badRequest().build();
+    }
+    if (accessTokenSecret == null
+        || accessTokenSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+    }
+
+    int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
+    Instant issuedAt = Instant.now();
+    Instant expiresAt = issuedAt.plusSeconds(ttl);
+    String token = issuePurposeToken(authentication, studyId, purpose, issuedAt, expiresAt);
+    return ResponseEntity.ok(
+        Map.of("access_token", token, "token_type", "Bearer", "expires_in", ttl));
+  }
 
   /**
    * Returns the browser-facing pixel access bundle for one materialized slide.
@@ -121,6 +158,24 @@ public class WsiAccessTokenController {
         .claim("thumbnail_width", access.thumbnail().width())
         .claim("thumbnail_height", access.thumbnail().height())
         .claim("wsi_auth_version", 2)
+        .setIssuedAt(Date.from(issuedAt))
+        .setExpiration(Date.from(expiresAt))
+        .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))
+        .compact();
+  }
+
+  private String issuePurposeToken(
+      Authentication authentication,
+      String studyId,
+      String purpose,
+      Instant issuedAt,
+      Instant expiresAt) {
+    return Jwts.builder()
+        .setHeaderParam("typ", "JWT")
+        .setSubject(authentication.getName())
+        .setAudience(accessTokenAudience)
+        .claim("scope", "annotations:read annotations:write")
+        .claim("study_id", studyId)
         .setIssuedAt(Date.from(issuedAt))
         .setExpiration(Date.from(expiresAt))
         .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))

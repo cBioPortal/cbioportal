@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Map;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiThumbnail;
 import org.cbioportal.domain.wsi.WsiTileMetadata;
@@ -86,6 +87,38 @@ public class WsiAccessTokenControllerTest {
     assertTrue(decodedPayload.contains("\"image_id\":\"slide-1\""));
     assertTrue(decodedPayload.contains("\"scope\":\"wsi:read\""));
     assertTrue(decodedPayload.contains("\"wsi_auth_version\":2"));
+  }
+
+  @Test
+  public void returnsAnnotationScopeWhenRequested() {
+    WsiAccessTokenController plainController = createAuthenticatedController();
+    ReflectionTestUtils.setField(
+        plainController, "accessTokenSecret", "0123456789abcdef0123456789abcdef");
+    ReflectionTestUtils.setField(plainController, "accessTokenAudience", "cbioportal-wsi");
+    ReflectionTestUtils.setField(plainController, "accessTokenTtlSeconds", 300);
+    ResponseEntity<?> response = plainController.issueAccessToken("study-1", "annotations");
+
+    assertEquals(200, response.getStatusCode().value());
+    Map<?, ?> body = (Map<?, ?>) response.getBody();
+    assertNotNull(body);
+    assertEquals("Bearer", body.get("token_type"));
+    String token = (String) body.get("access_token");
+    String payload = token.split("\\.")[1];
+    String decodedPayload =
+        new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
+    assertTrue(decodedPayload.contains("\"scope\":\"annotations:read annotations:write\""));
+    assertTrue(decodedPayload.contains("\"study_id\":\"study-1\""));
+  }
+
+  @Test
+  public void rejectsNonAnnotationPurpose() {
+    WsiAccessTokenController plainController = createAuthenticatedController();
+    ReflectionTestUtils.setField(
+        plainController, "accessTokenSecret", "0123456789abcdef0123456789abcdef");
+
+    ResponseEntity<?> response = plainController.issueAccessToken("study-1", "wsi");
+
+    assertEquals(400, response.getStatusCode().value());
   }
 
   private WsiAccessTokenController createAuthenticatedController() {

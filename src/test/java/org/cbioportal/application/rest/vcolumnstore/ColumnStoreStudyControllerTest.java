@@ -80,4 +80,31 @@ public class ColumnStoreStudyControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value("unauth_study_id"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].readPermission").value(false));
   }
+
+  @Test
+  public void getAllStudies_whenSecurityIsDisabled_defaultsReadPermissionToTrue() throws Exception {
+    // 1. Initialize controller without PermissionEvaluator (simulating security disabled)
+    MockMvc mockMvcNoSecurity =
+        MockMvcBuilders.standaloneSetup(
+                new ColumnStoreStudyController(getCancerStudyMetadataUseCase, null))
+            .build();
+
+    CancerStudyMetadata testStudy = Mockito.mock(CancerStudyMetadata.class);
+    Mockito.when(testStudy.cancerStudyIdentifier()).thenReturn("public_study");
+
+    Mockito.when(
+            getCancerStudyMetadataUseCase.execute(
+                Mockito.any(ProjectionType.class), Mockito.any(SortAndSearchCriteria.class)))
+        .thenReturn(List.of(testStudy));
+
+    // 2. Perform GET /api/studies
+    mockMvcNoSecurity
+        .perform(
+            MockMvcRequestBuilders.get("/api/studies")
+                .param("projection", "SUMMARY")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value("public_study"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].readPermission").value(true));
+  }
 }

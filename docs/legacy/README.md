@@ -19,19 +19,19 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 
 ### Deploying without Docker (v6)
 
-- [Deploy without Docker — overview](deploy-without-docker-README.md)
-- [Software Requirements](Software-Requirements.md)
-- [Pre-Build Steps](Pre-Build-Steps.md)
-- [Building from Source](Build-from-Source.md)
-- [Importing the Seed Database](Import-the-Seed-Database.md)
-- [Deploying the Web Application](Deploying.md)
-- [Loading a Sample Study](Load-Sample-Cancer-Study.md)
+- [Deploy without Docker — overview](/legacy/deployment/deploy-without-docker/README.md)
+- [Software Requirements](/legacy/deployment/deploy-without-docker/Software-Requirements.md)
+- [Pre-Build Steps](/legacy/deployment/deploy-without-docker/Pre-Build-Steps.md)
+- [Building from Source](/legacy/deployment/deploy-without-docker/Build-from-Source.md)
+- [Importing the Seed Database](/legacy/deployment/deploy-without-docker/Import-the-Seed-Database.md)
+- [Deploying the Web Application](/legacy/deployment/deploy-without-docker/Deploying.md)
+- [Loading a Sample Study](/legacy/deployment/deploy-without-docker/Load-Sample-Cancer-Study.md)
 
 ### Other v6 deployment topics
 
-- [Standalone Deployment](standalone-README.md)
-- [Authenticating and Authorizing Users using Keycloak in Docker](using-keycloak.md)
-- [Deploy with Kubernetes](kubernetes-README.md)
+- [Standalone Deployment](/legacy/deployment/standalone/README.md)
+- [Authenticating and Authorizing Users using Keycloak in Docker](/legacy/deployment/docker/using-keycloak.md)
+- [Deploy with Kubernetes](/legacy/deployment/kubernetes/README.md)
 - [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)
 
 ### v6 maintenance and development
@@ -40,7 +40,7 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 - [Importer Tool](Importer-Tool.md) — superseded by [metaImport.py](../data-loading/README.md)
 - [Updating your cBioPortal installation](Updating-your-cBioPortal-installation.md) — the MySQL `migrate_db.py` workflow
 - [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
-- [Deployment Procedure](Deployment-Procedure.md)
-- [Backend Code Organization](Backend-Code-Organization.md)
-- [portal.properties Reference](portal.properties-Reference.md) — renamed to `application.properties` in v6
-- [Entity-relationship Diagram](cBioPortal-ER-Diagram.md) — depicts the v6 MySQL schema (db schema 2.13.1)
+- [Deployment Procedure](/legacy/development/Deployment-Procedure.md)
+- [Backend Code Organization](/legacy/development/Backend-Code-Organization.md)
+- [portal.properties Reference](/legacy/deployment/customization/portal.properties-Reference.md) — renamed to `application.properties` in v6
+- [Entity-relationship Diagram](/legacy/development/cBioPortal-ER-Diagram.md) — depicts the v6 MySQL schema (db schema 2.13.1)

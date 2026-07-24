@@ -1,23 +1,14 @@
-> ⚠️ **Legacy Documentation:** This page was written for an earlier version of cBioPortal.
-> As of v7, the information in this document is out of date and retained for historical reference only.
-> See [Deployment](../deployment/README.md) for current deployment instructions.
->
-> ---
->
-
-> ⚠️ **Outdated Documentation:** The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
 
 # Deploy Standalone Isolated Version
 
 ## Overview
 In some cases a cBioPortal instance needs to be completely isolated from connecting to outside resources. While cBioPortal will run in an isolated environment some features will not be available. In this documentation we cover how to setup and deploy a docker version of cBioPortal that is isolated from all outside services.
 
-
 ## Setup Instructions
 
 ### Docker Configuration and Setup
 Our docker configuration is based off the default cBioPortal docker configuration however we have made some changes to support our requirements. We create two networks in this deployment. The first being a bridge network that allows the services to connect to the outside world. The second is an internal network that only allows for services to talk to other services in that network. Most of the services are configured to use the internal network, with the exception being the NGINX and cBioPortal services. The NGINX needs to be able to communicate with the outside world in order to make the cBioPortal instance available to the outside world. The cBioPortal instance needs to be able to communicate with the outside world in order to allow for authentication with an outside service. However, if the cBioPortal instance does not authenticate then the service can be deployed only on the internal network.
-
 
 ```
 services:
@@ -274,7 +265,6 @@ networks:
 ### NGINX Configuration and Setup
 The NGINX configuration below supports HTTPS, a static landing page, cBioPortal being hosted as a subdirectory. You will need to provide your own certificates. You will note in the configuration that we host the static site in the `/gn-static` directory. This directory will also need to contain an index file as well as any supporting resources. The `/gn-static` is also used by a site the connects to a server running on port 8777. This hosts the `VUEs.json` file used by Genome Nexus and the port is only available to services inside the internal network. We also have a location lookup for `/reactapp` that handles cBioPortal requests that do not support running cBioPortal in a subdirectory.
 
-
 ```
 server {
   listen 80;
@@ -340,7 +330,6 @@ server {
 ### cBioPortal Configuration and Setup
 Our cBioPortal configuration of changes that need to be reflected in the configuration file. The first is that the public instance of Genome Nexus can no longer be accessed. To accomplish this we update the url for Genome Nexus to be a local path and create proxy services for the internal Genome Nexus. Additionally, we configure the server to support being behind a reverse proxy (NGINX) and set the context path to `/cbioportal`. We set our database settings to communicate with our MySQL instance. Finally, we configure security for OAuth2 authentication and authorization.
 
-
 ```
 # Genome Nexus Configuration
 
@@ -365,7 +354,6 @@ spring.datasource.username=cbio_user
 spring.datasource.password=somepassword
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.database-platform=org.hibernate.dialect.MySQL5InnoDBDialect
-
 
 # security
 authenticate=oauth2
@@ -430,7 +418,6 @@ echo "Iptables chain block installation - Complete"
 ### OncoKB Setup
 You will need to obtain OncoKB transcript information and an OncoKB license in order to use it. Contact the OncoKB team to learn more.
 
-
 ### GenomeNexus Setup
 
 Populate Genome Nexus Data
@@ -448,7 +435,6 @@ sudo mkdir 98_GRCh38 && cd "$_"
 sudo curl -o 98_GRCh38.tar https://oncokb.s3.amazonaws.com/gn-vep-data/98_GRCh38/98_GRCh38.tar
 sudo tar xvf 98_GRCh38.tar
 ```
-
 
 ### Cancer Hotspots Setup
 The default Cancer Hotspots does not support docker by default. You can either add your own files as listed below our use the DFCI forked version: https://github.com/dfci/cancerhotspots.

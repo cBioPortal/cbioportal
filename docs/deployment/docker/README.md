@@ -151,7 +151,7 @@ For a full overview of available properties — custom logos, external databases
 
 - [Importing test data](import_test_data.md) — detailed import tutorial
 - [Example commands](example_commands.md) — additional uses of the cBioPortal image
-- [Keycloak authentication](/legacy/using-keycloak.md) — Dockerizing Keycloak alongside cBioPortal
+- [Keycloak authentication](/legacy/deployment/docker/using-keycloak.md) — Dockerizing Keycloak alongside cBioPortal
 
 ## Building the Image
 

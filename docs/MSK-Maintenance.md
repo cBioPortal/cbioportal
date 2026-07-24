@@ -1,4 +1,4 @@
-> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> ⚠️ **Some of this page may be outdated.** It predates cBioPortal v7 (MySQL → ClickHouse; Docker Compose as the only supported deployment method) and has not been fully revised. Verify details against the [current documentation](/deployment/README.md) before relying on them.
 
 # MSK Maintenance (In Progress)
 We provide our cBioPortal's maintenance page publicly in the hope that it may be useful to others

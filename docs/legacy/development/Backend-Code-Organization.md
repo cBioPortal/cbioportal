@@ -1,4 +1,4 @@
-> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
 
 # cBioPortal Backend Code Organization
 
@@ -65,7 +65,7 @@ Three maven modules make up the central stack of the new web API implementation.
 **cbioportal-frontend** is packaged in the web application as a default frontend
 implementation, but the source of the frontend code can also be directed to an external
 source host and be deployed independently of the backend web application. See
-[details](/legacy/Deployment-Procedure.md)
+[details](/legacy/development/Deployment-Procedure.md)
 
 **session-service** is imported into the web module in order to set up a proxy service
 which receives and forwards requests for saved cBioPortal sessions to a separate system
@@ -74,7 +74,7 @@ modeled types such as VirtualStudy and Session
 
 ### cBioPortal Module Dependencies
 
-![Module Dependencies](../images/maven-module-dependencies.png)
+![Module Dependencies](/images/maven-module-dependencies.png)
 
 _A module is directly dependent on all modules which touch it from below (touching only at a corner
 does not count). Dependencies are transitive : web is dependent on service, service

@@ -1,9 +1,4 @@
-> ⚠️ **Legacy Documentation:** This page was written for an earlier version of cBioPortal.
-> As of v7, the information in this document is out of date and retained for historical reference only.
-> See [Deployment](../deployment/README.md) for current deployment instructions.
->
-> ---
->
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
 
 # Authenticating and Authorizing Users using Keycloak in Docker
 

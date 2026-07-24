@@ -1,10 +1,10 @@
-> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
 
 :warning:  ***Warning: this way of loading data is deprecated. See [Data loading](/data-loading/README.md) for the recommended method.***
 
 This page describes how to import data into the cBioPortal using Python scripts found in our [scripts](https://github.com/cBioPortal/cbioportal/tree/stable/core/src/main/scripts) directory.  The following assumptions have been made:
 
-1. The cBioPortal software has been correctly [built from source](/legacy/Build-from-Source.md).
+1. The cBioPortal software has been correctly [built from source](/legacy/deployment/deploy-without-docker/Build-from-Source.md).
 2. The data to import is in the proper [File Format](/File-Formats.md).
 3. The `PORTAL_HOME` environment variable has been properly defined.
 

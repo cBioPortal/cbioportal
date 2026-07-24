@@ -443,7 +443,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication follow the [Deployment with authentication steps](/legacy/Deploying.md#with-authentication) and set `authenticate=googleplus`.
+To activate password authentication follow the [Deployment with authentication steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) and set `authenticate=googleplus`.
 
 In addition, set this property in `application.properties`:
 
@@ -640,7 +640,7 @@ cBioPortal is supported on the backend with Ehcache or Redis. These caches are c
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](/legacy/Build-from-Source.md#building-with-maven)).
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](/legacy/deployment/deploy-without-docker/Build-from-Source.md#building-with-maven)).
 
 > ⚠️ **Legacy (pre-v7):** This note describes a standalone-Tomcat WAR deployment. v7 ships an executable jar (`<packaging>jar</packaging>`) and no longer defines the `-Dexclude-redisson` build flag, so this workaround does not apply to a v7 Docker deployment. Left here pending confirmation of the equivalent v7 guidance.
 

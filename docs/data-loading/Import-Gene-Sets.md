@@ -48,9 +48,16 @@ docker compose exec cbioportal metaImport.py \
 ```
 
 ## Requirements for gene sets in cBioPortal
-Gene set functionality was added in cBioPortal 1.7.0. Please use this or a later version. In addition, the database has to be updated to version 2.3.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper `migrate_db.py` for `migration.sql`.
 
-Updating the database is described [here](https://github.com/cBioPortal/cbioportal/blob/master/docs/Updating-your-cBioPortal-installation.md#running-the-migration-script).
+Gene set functionality is available in all supported versions of cBioPortal. The
+tables it requires are part of the standard ClickHouse schema, so a database
+created from the current schema needs no additional migration step. See the
+[ClickHouse Setup Guide](/deployment/clickhouse/README.md) for how the schema is
+initialized.
+
+> **Upgrading from v6 or earlier?** The MySQL-era `migrate_db.py` / `migration.sql`
+> workflow no longer applies. There is no in-place upgrade path to v7 — see the
+> [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
 
 ## Import Gene Sets
 

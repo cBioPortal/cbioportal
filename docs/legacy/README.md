@@ -31,6 +31,7 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 
 - [Standalone Deployment](standalone-README.md)
 - [Authenticating and Authorizing Users using Keycloak in Docker](using-keycloak.md)
+- [Deploy with Kubernetes](kubernetes-README.md)
 - [Uninstall Docker cBioPortal](Uninstall-Docker-cBioPortal.md)
 
 ### v6 maintenance and development
@@ -38,3 +39,4 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 - [Testing](Testing.md)
 - [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
 - [Deployment Procedure](Deployment-Procedure.md)
+- [Backend Code Organization](Backend-Code-Organization.md)

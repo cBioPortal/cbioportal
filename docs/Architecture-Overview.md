@@ -32,8 +32,12 @@ The ClickHouse database used by cBioPortal stores data in two layers:
 
 For more on ClickHouse architecture, deployment options, and sizing guidance, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
 
-The backend is organized as a multi-module Maven project.
-See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
+The backend is a single-module Maven project. Java sources live under
+`src/main/java/org/cbioportal/`, organized by layer: `domain/` (feature-grouped
+domain and DTO classes), `infrastructure/` (configuration, repositories,
+services), `application/` (use cases), and `shared/` (common utilities). The
+`legacy/` package holds the v6 service layer, which is being phased out — new
+features should use the domain/infrastructure stack rather than adding to it.
 
 ## Validator
 The

@@ -79,11 +79,13 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         request instanceof ContentCachingRequestWrapper ccrw
             ? ccrw
             : new ContentCachingRequestWrapper(request, properties.getMaxBodyBytes());
+    long startNs = System.nanoTime();
     try {
       filterChain.doFilter(wrapped, response);
     } finally {
+      long durationMs = (System.nanoTime() - startNs) / 1_000_000L;
       try {
-        requestLogService.save(capture(wrapped, response));
+        requestLogService.save(capture(wrapped, response, durationMs));
       } catch (RuntimeException ex) {
         // Capturing must never break the response.
         LOG.debug("Failed to capture request for logging", ex);
@@ -92,7 +94,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
   }
 
   private LoggedRequest capture(
-      ContentCachingRequestWrapper request, HttpServletResponse response) {
+      ContentCachingRequestWrapper request, HttpServletResponse response, long durationMs) {
     String method = request.getMethod();
     String path = request.getRequestURI();
     String contentType = request.getContentType();
@@ -130,6 +132,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     logged.setBody(body);
     logged.setBodyTruncated(truncated);
     logged.setResponseStatus(response.getStatus());
+    logged.setDurationMs(durationMs);
     logged.setSeen(Instant.now());
     return logged;
   }

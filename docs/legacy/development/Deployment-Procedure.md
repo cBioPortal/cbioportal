@@ -3,7 +3,7 @@
 # Deployment Procedure
 This describes our internal deployment procedure. Shared publicly, in case it
 may be of use. Instructions on how to deploy cBioPortal can be found elsewhere,
-see e.g. [Deploying the web application](/deployment/deploy-without-docker/Deploying.md) and [Deploy using
+see e.g. [Deploying the web application](/legacy/deployment/deploy-without-docker/Deploying.md) and [Deploy using
 Docker](/deployment/docker/).
 
 We deploy the master branch of backend and the master branch of frontend to
@@ -50,7 +50,6 @@ this reason the following sections assume that's the case.
 
 ### Public Portal Backend Upgrade
 Once the backend repo has been tagged on github, a docker image gets build on Docker Hub automatically. It can take ~5 min before the image is available. You can check here what the status of the builds is: https://github.com/cBioPortal/cbioportal/actions?query=workflow%3A%22Docker+Image+CI%22.
-
 
 After that, if you have access to the kubernetes cluster you can change the image in the configuration of the kubernetes cluster:
 
@@ -106,7 +105,6 @@ Make sure to commit your changes to the knowledgesystems-k8s-deployment repo
 and push them to the main repo, so that other people making changes to the
 kubernetes config will be using the latest version. 
 
-
 ## Upgrading Related Backend Components
 Backend upgrades involving the database schema, DAO classes, etc. require updates to databases and importers. CBioPortal has multiple MySQL databases (all using AWS RDS) backing different portals. Similarly, there are multiple importers responsible for loading portal-specific data. Every database must be manually migrated on an individual basis; all importers/data fetchers can be updated simultaneously through an existing deployment script.
 
@@ -122,7 +120,7 @@ If there is not a weekly dump, backup the database being migrated using mysqldum
 mysqldump -u <user> -h <host> -p <database name> | gzip > <database_name>_`date +%Y%m%d_%H%M`.sql.gz 
 ```
     
-The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](/Updating-your-cBioPortal-installation.md#running-the-migration-script). 
+The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](/legacy/Updating-your-cBioPortal-installation.md#running-the-migration-script). 
 
 These are all cBioPortal databases and their locations:
 

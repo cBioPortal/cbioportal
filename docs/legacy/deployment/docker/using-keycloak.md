@@ -1,3 +1,5 @@
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
+
 # Authenticating and Authorizing Users using Keycloak in Docker
 
 **⚠️ This documentation for keycloak might be outdated, see related [ticket](https://github.com/cBioPortal/cbioportal/issues/10360) ⚠️**
@@ -40,6 +42,6 @@ docker run -d --restart=always \
     quay.io/keycloak/keycloak:16.1.1
 ```
 
-Finally, configure Keycloak and cBioPortal as explained in the [Keycloak documentation](./../authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md). Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.
+Finally, configure Keycloak and cBioPortal as explained in the [Keycloak documentation](/legacy/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md). Remember to specify port 8180 for the Keycloak server, wherever the guide says 8080.
 
 After configuring Keycloak, set up cBioPortal containers [as specified in the documentation](./). Make sure to update the `-Dauthenticate` in the [docker-compose file](https://github.com/cBioPortal/cbioportal-docker-compose/blob/5da068f0eb9b4f42db52ab5e91321b26a1826d7a/docker-compose.yml#L20) to `-Dauthenticate=saml`.

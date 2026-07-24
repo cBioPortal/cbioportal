@@ -1,4 +1,4 @@
-> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](../README.md).
+> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](/deployment/README.md).
 
 # Deploying the Web Application
 
@@ -44,4 +44,4 @@ java -jar target/cbioportal-exec.jar -Dauthenticate=false
 
 ### With authentication
 
-To configure the authentication and authorization please consult the [Authorization](./../authorization-and-authentication/User-Authorization.md) and [Authentication](./../authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md) Sections.
+To configure the authentication and authorization please consult the [Authorization](/deployment/authorization-and-authentication/User-Authorization.md) and [Authentication](/legacy/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md) Sections.

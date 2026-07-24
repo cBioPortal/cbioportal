@@ -1,3 +1,5 @@
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
+
 # Introduction
 
 The cBioPortal includes support for SAML (Security Assertion Markup Language).  This document explains why you might find SAML useful, and how to configure SAML within your own instance of cBioPortal.
@@ -192,7 +194,7 @@ adding your own version of the `SAMLUserDetailsService` class.
 
 ## Authorizing Users
 
-Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
+Next, please read the Wiki page on [User Authorization](/deployment/authorization-and-authentication/User-Authorization.md), and add user rights for a single user.
 
 
 ## Configuring the Login.html Page (not applicable to most external IDPs)
@@ -222,7 +224,7 @@ skin.login.contact_html=If you think you have received this message in error, pl
 You are now ready to go.
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](/deployment/deploy-without-docker/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 

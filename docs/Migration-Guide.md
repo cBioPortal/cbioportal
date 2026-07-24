@@ -6,13 +6,13 @@ This page describes various changes deployers will need to make as they deploy n
 - Please see [v6 to v7 Migration](Migration-v6-to-v7.md)
 
 ## v6.3 -> v6.4
-- The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading.
+- The [v6.4.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.4.0) release includes database schema changes that aren’t backward compatible. Please review the [Database Migration Guide](/legacy/Updating-your-cBioPortal-installation.md#running-the-migration-script) before upgrading.
 
 ## v6.2 -> v6.3
-- cBioPortal Database Migration: [v6.3.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.3.0) introduces breaking changes to the cBioPortal database schema. Please see the [Database Migration Guide](https://docs.cbioportal.org/updating-your-cbioportal-installation/#running-the-migration-script) before upgrading cBioPortal to v6.3.0.
+- cBioPortal Database Migration: [v6.3.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.3.0) introduces breaking changes to the cBioPortal database schema. Please see the [Database Migration Guide](/legacy/Updating-your-cBioPortal-installation.md#running-the-migration-script) before upgrading cBioPortal to v6.3.0.
 
 ## v6.0 -> v6.1
-- cBioPortal Frontend Package: [v6.1.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.1.0) replaces JitPack with GitHub Packages for distributing the [frontend package](https://github.com/orgs/cBioPortal/packages?repo_name=cbioportal-frontend). This requires users to authenticate with GitHub when building cBioPortal from source. Check [docs](https://docs.cbioportal.org/deployment/deploy-without-docker/build-from-source/) for detailed instructions.
+- cBioPortal Frontend Package: [v6.1.0](https://github.com/cBioPortal/cbioportal/releases/tag/v6.1.0) replaces JitPack with GitHub Packages for distributing the [frontend package](https://github.com/orgs/cBioPortal/packages?repo_name=cbioportal-frontend). This requires users to authenticate with GitHub when building cBioPortal from source. Check [docs](/legacy/deployment/deploy-without-docker/Build-from-Source.md) for detailed instructions.
 
 ## v6.0.23 -> v6.0.24
 
@@ -61,7 +61,7 @@ This page describes various changes deployers will need to make as they deploy n
 - The new default set of transcripts for each gene has changed from `uniprot` to `mskcc`. See
   the [Mutation Data Annotation Section](./mutation-data-transcript-annotation.md) for more details. To keep the old set
   of default transcripts add the property `genomenexus.isoform_override_source=uniprot`
-  to [the properties file](https://docs.cbioportal.org/deployment/customization/portal.properties-reference/#properties).
+  to [the properties file](/deployment/customization/application.properties-Reference.md#properties).
 
 See the [v5.0.0 release notes](https://github.com/cBioPortal/cbioportal/releases/tag/v5.0.0) for more details.
 

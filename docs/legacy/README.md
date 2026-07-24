@@ -41,3 +41,4 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 - [Deployment Procedure](Deployment-Procedure.md)
 - [Backend Code Organization](Backend-Code-Organization.md)
 - [portal.properties Reference](portal.properties-Reference.md) — renamed to `application.properties` in v6
+- [Entity-relationship Diagram](cBioPortal-ER-Diagram.md) — depicts the v6 MySQL schema (db schema 2.13.1)

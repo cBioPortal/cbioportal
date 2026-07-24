@@ -85,3 +85,4 @@
   * [Update genes and gene aliases (v6)](legacy/Updating-gene-and-gene_alias-tables.md)
   * [Deployment Procedure (v6)](legacy/Deployment-Procedure.md)
   * [Backend Code Organization (v6)](legacy/Backend-Code-Organization.md)
+  * [portal.properties Reference (v6)](legacy/portal.properties-Reference.md)

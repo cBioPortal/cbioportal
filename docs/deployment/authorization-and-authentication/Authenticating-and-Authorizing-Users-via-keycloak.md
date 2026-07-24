@@ -70,7 +70,7 @@ Make sure you add at least:
 - By configuration
     - a _User Property_-type attribute with the name _username_. Use _username_ for the attributes **Property**, **Name**. Use the selectable _urn:oid:1.2.840.113549.1.9.1_ as **SAML Attribute Name**.
 
-![](../../images/previews/client-scopes.png)
+![](../../images/previews/client-scopes-tab.png)
 
 ![](../../images/previews/add-mappers.png)
 
@@ -287,7 +287,7 @@ the same as the one for assigning roles to individual users.
 ### Doing a Test Run
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](/legacy/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/Deploying.md#with-authentication) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8081/](http://localhost:8081/).
 
@@ -369,7 +369,7 @@ Create the Mapper with **configure new mapper**.
 
 ![](../../images/previews/api-create-audience-mapper.png)
 Since newer Keycloak versions dont send the subject in the Access token also add the predefined SUB Mapper to the client.
-![](../../images/previews/api-client-add-sub-mapper)
+![](../../images/previews/api-client-add-sub-mapper.png)
 
 #### Scope tab
 

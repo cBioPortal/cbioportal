@@ -443,7 +443,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication follow the [Deployment with authentication steps](/legacy/Deploying.md#required-login) and set `authenticate=googleplus`.
+To activate password authentication follow the [Deployment with authentication steps](/legacy/Deploying.md#with-authentication) and set `authenticate=googleplus`.
 
 In addition, set this property in `application.properties`:
 

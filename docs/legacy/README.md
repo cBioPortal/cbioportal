@@ -40,3 +40,4 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 - [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
 - [Deployment Procedure](Deployment-Procedure.md)
 - [Backend Code Organization](Backend-Code-Organization.md)
+- [portal.properties Reference](portal.properties-Reference.md) — renamed to `application.properties` in v6

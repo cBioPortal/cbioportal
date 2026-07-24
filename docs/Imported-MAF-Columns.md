@@ -1,3 +1,5 @@
+> ⚠️ **Class links may be outdated.** The `core/src/main/java/...` paths below reflect the pre-v7 multi-module Maven layout and no longer resolve. In v7 these classes have moved and split across repositories — e.g. `MafRecord` is now at `src/main/java/org/cbioportal/application/file/model/` in cbioportal, and `ExtendedMutationUtil` lives in [cbioportal-core](https://github.com/cBioPortal/cbioportal-core). The **column-to-database mapping tables below remain valid** — the `mutation` and `mutation_event` tables still exist in the ClickHouse schema. Exact class locations should be confirmed by a maintainer.
+
 Relevant classes:
 * [MafUtil](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/maf/MafUtil.java)
 * [ExtendedMutationUtil](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/java/org/mskcc/cbio/portal/util/ExtendedMutationUtil.java)

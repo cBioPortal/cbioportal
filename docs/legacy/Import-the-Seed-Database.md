@@ -57,4 +57,4 @@ After the code has been successfully configured and built, you can import the ne
 
 **Important:** Please be aware of the version of the seed database. In the [README on datahub](https://github.com/cbioportal/datahub/blob/master/seedDB/README.md), we stated which version of cBioPortal is compatible with the current seed database.
 
-If the database is older than what cBioPortal is expecting, the system will ask you (during startup or data loading) to migrate the database to a newer version. The migration process is described [here](/Updating-your-cBioPortal-installation.md#running-the-migration-script).
+If the database is older than what cBioPortal is expecting, the system will ask you (during startup or data loading) to migrate the database to a newer version. The migration process is described [here](/legacy/Updating-your-cBioPortal-installation.md#running-the-migration-script).

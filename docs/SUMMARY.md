@@ -90,3 +90,5 @@
   * [Backend Code Organization (v6)](legacy/Backend-Code-Organization.md)
   * [portal.properties Reference (v6)](legacy/portal.properties-Reference.md)
   * [Entity-relationship Diagram (v6 MySQL schema)](legacy/cBioPortal-ER-Diagram.md)
+  * [Importer Tool (v6)](legacy/Importer-Tool.md)
+  * [Updating your cBioPortal installation (v6)](legacy/Updating-your-cBioPortal-installation.md)

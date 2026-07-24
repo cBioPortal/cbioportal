@@ -129,7 +129,7 @@ If there is not a weekly dump, backup the database being migrated using mysqldum
 mysqldump -u <user> -h <host> -p <database name> | gzip > <database_name>_`date +%Y%m%d_%H%M`.sql.gz 
 ```
     
-The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](/Updating-your-cBioPortal-installation.md#running-the-migration-script). 
+The second step is to migrate the database. Make sure that the migration script is the same version as the deployed cBioPortal website. It is recommended to first test the migration script manually line-by-line in a copy of the existing database. This will catch any data-related bugs that might not be captured by the python migration script. After testing is successful, migrate the production databases following these steps [here](/legacy/Updating-your-cBioPortal-installation.md#running-the-migration-script). 
 
 These are all cBioPortal databases and their locations:
 

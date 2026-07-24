@@ -37,6 +37,8 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 ### v6 maintenance and development
 
 - [Testing](Testing.md)
+- [Importer Tool](Importer-Tool.md) — superseded by [metaImport.py](../data-loading/README.md)
+- [Updating your cBioPortal installation](Updating-your-cBioPortal-installation.md) — the MySQL `migrate_db.py` workflow
 - [Update genes and gene aliases](Updating-gene-and-gene_alias-tables.md)
 - [Deployment Procedure](Deployment-Procedure.md)
 - [Backend Code Organization](Backend-Code-Organization.md)

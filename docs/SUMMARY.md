@@ -64,7 +64,7 @@
   * [Release Procedure](development/Release-Procedure.md)
   * [Security](development/Security.md)
   * [This documentation site](development/Documentation-site.md)
-* [Legacy (v6)](legacy/README.md)
+* [Legacy (v6)](/legacy/deployment/deploy-without-docker/README.md)
   * [Deploy without Docker (v6)](/legacy/deployment/deploy-without-docker/README.md)
     * [Software Requirements (v6)](/legacy/deployment/deploy-without-docker/Software-Requirements.md)
     * [Pre-Build Steps (v6)](/legacy/deployment/deploy-without-docker/Pre-Build-Steps.md)

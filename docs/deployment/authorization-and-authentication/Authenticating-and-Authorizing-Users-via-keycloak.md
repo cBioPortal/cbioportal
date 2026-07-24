@@ -112,6 +112,8 @@ curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms
 ⚠️ This GUI option has been removed from the newer versions of Keycloak. But there is a link to show the content in the browser.
 ![](../../images/previews/Export-idp-metadata-option.png)
 
+> ⚠️ **v7 mount path unverified.** The `-v …:/cbioportal-webapp/WEB-INF/classes/…` Docker mount targets in this section (here and below for the keystore, certificate, and `logback.xml`) were written for an earlier layout. v7 runs an executable jar (`java -jar app.jar`), so whether a file mounted under `WEB-INF/classes/` lands on the classpath depends on the image's `loader.path`. Confirm the correct v7 location for these `classpath:`-referenced files with a maintainer before relying on it.
+
 After you've downloaded the XML file with one of the above ways, move it to `src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 ** Note:** It may occur that the XML-file is not properly formatted. Please use a XML-formatting tool to repair the file in this case. It's also possible to use the security property with the url from Keycloak. With that no download of the Metadata is needed, but it may happen, that the file that cbioportal gets is also not well formatted and might not work. Also cBioPortal needs a way to make a network request to Keycloak. 
 
@@ -124,7 +126,7 @@ There are two ways to Create a signing key for cBioPortal 1. with Keystore 2. wi
 **Note** this version was not verified, so it could be deprecated.
 
 Use the Java '`keytool`' command to generate keystore, as described
-[here](Authenticating-Users-via-SAML.md#creating-a-keystore)
+[here](/legacy/deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md#creating-a-keystore)
 on the page about SAML in cBioPortal:
 
 ```

@@ -44,3 +44,9 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 - [Backend Code Organization](/legacy/development/Backend-Code-Organization.md)
 - [portal.properties Reference](/legacy/deployment/customization/portal.properties-Reference.md) — renamed to `application.properties` in v6
 - [Entity-relationship Diagram](/legacy/development/cBioPortal-ER-Diagram.md) — depicts the v6 MySQL schema (db schema 2.13.1)
+
+## Recently retired (v7 cleanup)
+
+- [Authenticating Users via SAML](deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md) — pre-v7 OneLogin/Tomcat SAML setup; current auth is via [Keycloak](/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md)
+- [Database Versioning](development/Database-Versioning.md) — MySQL-era schema-versioning policy
+- [MSK Maintenance](MSK-Maintenance.md) — MSK-internal ops runbook

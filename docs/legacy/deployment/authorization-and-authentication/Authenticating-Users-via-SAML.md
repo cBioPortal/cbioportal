@@ -1,3 +1,5 @@
+> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
+
 # Introduction
 
 The cBioPortal includes support for SAML (Security Assertion Markup Language).  This document explains why you might find SAML useful, and how to configure SAML within your own instance of cBioPortal.
@@ -79,7 +81,7 @@ To get started:
 
 then, move this XML file to:
 
-    src/main/resources/
+    portal/src/main/resources/
 
 You should now be all set with OneLogin.com.  Next, you need to configure your instance of cBioPortal.
 
@@ -103,7 +105,7 @@ This will create a Java keystore for a key called:  `secure-key` and place the k
 
 When you are done, copy `samlKeystore.jsk` to the correct location:
     
-    mv samlKeystore.jks src/main/resources/
+    mv samlKeystore.jks portal/src/main/resources/
 
 If you need to export the public certificate associated within your keystore, run:
 
@@ -192,7 +194,7 @@ adding your own version of the `SAMLUserDetailsService` class.
 
 ## Authorizing Users
 
-Next, please read the Wiki page on [User Authorization](User-Authorization.md), and add user rights for a single user.
+Next, please read the Wiki page on [User Authorization](/deployment/authorization-and-authentication/User-Authorization.md), and add user rights for a single user.
 
 
 ## Configuring the Login.html Page (not applicable to most external IDPs)

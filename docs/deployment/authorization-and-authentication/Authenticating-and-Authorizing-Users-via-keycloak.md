@@ -112,7 +112,7 @@ curl -o client-tailored-saml-idp-metadata.xml "http://localhost:8081/auth/realms
 ⚠️ This GUI option has been removed from the newer versions of Keycloak. But there is a link to show the content in the browser.
 ![](../../images/previews/Export-idp-metadata-option.png)
 
-After you've downloaded the XML file with one of the above ways, move it to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
+After you've downloaded the XML file with one of the above ways, move it to `src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/client-tailored-saml-idp-metadata.xml:/cbioportal-webapp/WEB-INF/classes/client-tailored-saml-idp-metadata.xml`.
 ** Note:** It may occur that the XML-file is not properly formatted. Please use a XML-formatting tool to repair the file in this case. It's also possible to use the security property with the url from Keycloak. With that no download of the Metadata is needed, but it may happen, that the file that cbioportal gets is also not well formatted and might not work. Also cBioPortal needs a way to make a network request to Keycloak. 
 
 ## Create a signing key for cBioPortal
@@ -135,7 +135,7 @@ keytool -genkey -alias secure-key -keyalg RSA -keystore samlKeystore.jks
 value by adding the `-validity` parameter and the number of days (e.g. `-validity 200`
 for 200 days). If the keystore expires, then **'invalid requester'** errors are thrown.
 
-Install the generated JKS file to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/samlKeystore.jks:/cbioportal-webapp/WEB-INF/classes/samlKeystore.jks`.
+Install the generated JKS file to `src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/samlKeystore.jks:/cbioportal-webapp/WEB-INF/classes/samlKeystore.jks`.
 
 Import the key's certificate into Keycloak, so that Keycloak knows that it can trust the holder of this
 key. To do that, head to the **SAML Keys** tab in the keycloak admin screen about the `cbioportal` client and:
@@ -156,7 +156,7 @@ As Specified in [security properties](../customization/security.properties-refer
 ```
     openssl req -newkey rsa:2048 -nodes -keyout local.key -x509 -days 365 -out local.crt
 ```
-Install the generated certificate and key files to `portal/src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/localsaml.crt:/cbioportal-webapp/WEB-INF/classes/localsaml.crt`.
+Install the generated certificate and key files to `src/main/resources/` if you're compiling cBioPortal yourself or if you're using the Docker container, mount the file in the `/cbioportal-webapp` folder with `-v /path/to/localsaml.crt:/cbioportal-webapp/WEB-INF/classes/localsaml.crt`.
 Then add them in the security properties.
 ```
 spring.security.saml2.relyingparty.registration.cbio-saml-idp.signing.credentials[0].certificate-location=classpath:/localsaml.crt

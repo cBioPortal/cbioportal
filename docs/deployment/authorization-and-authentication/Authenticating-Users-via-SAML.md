@@ -79,7 +79,7 @@ To get started:
 
 then, move this XML file to:
 
-    portal/src/main/resources/
+    src/main/resources/
 
 You should now be all set with OneLogin.com.  Next, you need to configure your instance of cBioPortal.
 
@@ -103,7 +103,7 @@ This will create a Java keystore for a key called:  `secure-key` and place the k
 
 When you are done, copy `samlKeystore.jsk` to the correct location:
     
-    mv samlKeystore.jks portal/src/main/resources/
+    mv samlKeystore.jks src/main/resources/
 
 If you need to export the public certificate associated within your keystore, run:
 

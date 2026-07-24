@@ -287,7 +287,7 @@ the same as the one for assigning roles to individual users.
 ### Doing a Test Run
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](../deploy-without-docker/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/Deploying.md#required-login) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8081/](http://localhost:8081/).
 

@@ -4,7 +4,7 @@
 
 This page describes how to import data into the cBioPortal using Python scripts found in our [scripts](https://github.com/cBioPortal/cbioportal/tree/stable/core/src/main/scripts) directory.  The following assumptions have been made:
 
-1. The cBioPortal software has been correctly [built from source](/deployment/deploy-without-docker/Build-from-Source.md).
+1. The cBioPortal software has been correctly [built from source](/legacy/Build-from-Source.md).
 2. The data to import is in the proper [File Format](/File-Formats.md).
 3. The `PORTAL_HOME` environment variable has been properly defined.
 

@@ -44,4 +44,4 @@ java -jar target/cbioportal-exec.jar -Dauthenticate=false
 
 ### With authentication
 
-To configure the authentication and authorization please consult the [Authorization](./../authorization-and-authentication/User-Authorization.md) and [Authentication](./../authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md) Sections.
+To configure the authentication and authorization please consult the [Authorization](/deployment/authorization-and-authentication/User-Authorization.md) and [Authentication](/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md) Sections.

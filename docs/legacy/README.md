@@ -47,6 +47,7 @@ updated for v7 and their commands, paths, and configuration keys may no longer b
 
 ## Recently retired (v7 cleanup)
 
-- [Authenticating Users via SAML](deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md) — pre-v7 OneLogin/Tomcat SAML setup; current auth is via [Keycloak](/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md)
+- [Authenticating Users via SAML](deployment/authorization-and-authentication/Authenticating-Users-via-SAML.md) — pre-v7 OneLogin/Tomcat SAML setup
+- [Authenticating and Authorizing Users via Keycloak](deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md) — pre-v7 Keycloak/SAML auth setup
 - [Database Versioning](development/Database-Versioning.md) — MySQL-era schema-versioning policy
 - [MSK Maintenance](MSK-Maintenance.md) — MSK-internal ops runbook

@@ -21,10 +21,8 @@ cBioPortal consists of the following components:
 The [backend](https://github.com/cBioPortal/cbioportal) is written in Java and
 connects to a ClickHouse database to serve a REST API following the OpenAPI
 specification (https://www.cbioportal.org/api). Note that the repo where this
-lives in (https://github.com/cBioPortal/cbioportal) also contains the Java
-classes that import study data into the database. The validator and the
-Python import scripts live in the separate
-[cbioportal-core](https://github.com/cBioPortal/cbioportal-core) repository. The backend can be configured to
+lives in (https://github.com/cBioPortal/cbioportal) also contains Java classes
+to import data. The backend can be configured to
 connect to a Redis cache to store database query results for improved performance.
 
 The ClickHouse database used by cBioPortal stores data in two layers:
@@ -33,14 +31,6 @@ The ClickHouse database used by cBioPortal stores data in two layers:
 - **Derived tables** — Precomputed, denormalized query structures that accelerate Study View queries by a large factor. They are built from base tables after imports in an additional processing step. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) for details.
 
 For more on ClickHouse architecture, deployment options, and sizing guidance, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
-
-The backend is a single-module Maven project. Java sources live under
-`src/main/java/org/cbioportal/`, organized by layer: `domain/` (feature-grouped
-domain and DTO classes), `infrastructure/` (configuration, repositories,
-services), `application/` (REST controllers, security, and app configuration), and `shared/`
-(common utilities). The
-`legacy/` package holds the v6 service layer, which is being phased out — new
-features should use the domain/infrastructure stack rather than adding to it.
 
 ## Validator
 The

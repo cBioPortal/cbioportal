@@ -715,9 +715,6 @@ Once you have a minimal MAF you can run it through the [Genome Nexus Annotation 
 This tool runs annotates variants against the [Genome Nexus Server](https://genomenexus.org), which in turn leverages Ensembl Variant Effect Predictor (VEP) and selects a single effect per variant. Protein identifiers will be mapped to UniProt canonical isoforms (see also [this mapping file](https://github.com/genome-nexus/genome-nexus-importer/blob/master/data/grch37_ensembl92/export/ensembl_biomart_canonical_transcripts_per_hgnc.txt)).
 
 ### cBioPortal mutation data file format
-For a column-by-column mapping of MAF fields onto the `mutation` and `mutation_event`
-database tables, see [Imported MAF Columns](/Imported-MAF-Columns.md).
-
 The cBioPortal mutation data file format recognized by the portal has:
 * 32 columns from the [TCGA MAF format](https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/).
 * 1 column with the amino acid change.

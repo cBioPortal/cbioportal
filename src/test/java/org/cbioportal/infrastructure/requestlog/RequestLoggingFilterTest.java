@@ -2,6 +2,8 @@ package org.cbioportal.infrastructure.requestlog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -13,7 +15,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.LongSupplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -69,6 +73,7 @@ class RequestLoggingFilterTest {
     assertEquals("projection=SUMMARY", logged.getQueryString());
     assertEquals("{\"ids\":[1,2,3]}", logged.getBody());
     assertEquals(200, logged.getResponseStatus());
+    assertTrue(logged.getDurationMs() >= 0, "durationMs must be non-negative");
     assertFalse(logged.isBodyTruncated());
     assertTrue(logged.getUrl().endsWith("/api/studies/acc_tcga/x?projection=SUMMARY"));
   }
@@ -87,6 +92,35 @@ class RequestLoggingFilterTest {
 
     assertEquals(idA1, idA2, "same method+path+query+body must hash to the same id");
     assertFalse(idA1.equals(idB), "different bodies must hash to different ids");
+  }
+
+  @Test
+  void durationMs_doesNotAffectDeduplicationId() throws Exception {
+    // Drive two deterministic, distinct elapsed values so the test is meaningful:
+    // if durationMs were included in the SHA-256 hash the IDs would differ; they must not.
+    // A single iterator supplies all four clock ticks across both filter instances:
+    //   ticks 1+2 → first request:  (5_000_000 - 0) / 1_000_000  =  5 ms
+    //   ticks 3+4 → second request: (200_000_000 - 0) / 1_000_000 = 200 ms
+    Iterator<Long> ticks = List.of(0L, 5_000_000L, 0L, 200_000_000L).iterator();
+    LongSupplier clock = ticks::next;
+
+    filter = new RequestLoggingFilter(service, new RequestLoggingProperties(), clock);
+    LoggedRequest first = runAndCapture(postRequest("{\"ids\":[1]}"));
+
+    service = mock(RequestLogService.class);
+    filter = new RequestLoggingFilter(service, new RequestLoggingProperties(), clock);
+    LoggedRequest second = runAndCapture(postRequest("{\"ids\":[1]}"));
+
+    // Precondition: durations must actually differ — guards against both being 0 (false positive)
+    assertNotEquals(
+        first.getDurationMs(),
+        second.getDurationMs(),
+        "test precondition: durations must differ to be a meaningful dedup check");
+    // Despite different durations, the dedup id must be identical
+    assertEquals(
+        first.getId(),
+        second.getId(),
+        "id must not change between runs of the same logical request");
   }
 
   @Test
@@ -131,6 +165,32 @@ class RequestLoggingFilterTest {
         .map(HttpHeader::value)
         .findFirst()
         .orElse(null);
+  }
+
+  @Test
+  void durationMs_isCapturedEvenWhenChainThrows() throws Exception {
+    // durationMs is computed in the finally block so it must be recorded even when the filter
+    // chain throws — ensuring latency data is never lost due to downstream errors.
+    // Inject a deterministic clock (7 ms) so we can assert an exact value, not just >= 0.
+    LongSupplier clock = List.of(0L, 7_000_000L).iterator()::next;
+    filter = new RequestLoggingFilter(service, new RequestLoggingProperties(), clock);
+
+    FilterChain throwingChain =
+        (req, res) -> {
+          throw new ServletException("simulated downstream failure");
+        };
+
+    MockHttpServletRequest request = postRequest("{\"ids\":[1]}");
+    assertThrows(
+        ServletException.class,
+        () -> filter.doFilter(request, new MockHttpServletResponse(), throwingChain));
+
+    ArgumentCaptor<LoggedRequest> captor = ArgumentCaptor.forClass(LoggedRequest.class);
+    verify(service).save(captor.capture());
+    assertEquals(
+        7L,
+        captor.getValue().getDurationMs(),
+        "durationMs must equal injected elapsed time even when the chain throws");
   }
 
   @Test

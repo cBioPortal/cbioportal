@@ -63,9 +63,9 @@ public class RequestLogService {
     return "INSERT INTO "
         + table
         + " (id, method, path, endpoint, query_string, server_name, url, headers, content_type,"
-        + " body, body_truncated, response_status, seen, git_commit)"
+        + " body, body_truncated, response_status, duration_ms, seen, git_commit)"
         + settings
-        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        + " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   }
 
   /** Hand a captured request off to be written asynchronously. Never blocks the caller. */
@@ -93,8 +93,9 @@ public class RequestLogService {
       statement.setString(10, nullToEmpty(request.getBody()));
       statement.setInt(11, request.isBodyTruncated() ? 1 : 0);
       statement.setInt(12, request.getResponseStatus());
-      statement.setTimestamp(13, Timestamp.from(request.getSeen()));
-      statement.setString(14, gitCommit);
+      statement.setLong(13, request.getDurationMs());
+      statement.setTimestamp(14, Timestamp.from(request.getSeen()));
+      statement.setString(15, gitCommit);
       statement.executeUpdate();
     } catch (SQLException | RuntimeException ex) {
       LOG.warn("Failed to log request {} to ClickHouse: {}", request.getPath(), ex.getMessage());

@@ -17,6 +17,12 @@
 -- request-logging.table. The runtime datasource user needs INSERT on this
 -- table (plus SELECT/OPTIMIZE to query and compact it), e.g.:
 --   GRANT SELECT, INSERT, OPTIMIZE ON cbioportal_qc.* TO <app_user>;
+--
+-- Migration note (existing deployments):
+--   If this table was created before duration_ms was added, run:
+--   ALTER TABLE cbioportal_qc.logged_requests
+--       ADD COLUMN IF NOT EXISTS duration_ms UInt64 DEFAULT 0
+--       AFTER response_status;
 
 CREATE DATABASE IF NOT EXISTS cbioportal_qc;
 
@@ -34,6 +40,7 @@ CREATE TABLE IF NOT EXISTS cbioportal_qc.logged_requests
     body String,
     body_truncated UInt8,                   -- 1 when the body exceeded the capture cap
     response_status UInt16,
+    duration_ms UInt64,                     -- elapsed request-processing duration in milliseconds
     seen DateTime,                          -- when this observation was captured
     git_commit LowCardinality(String),      -- backend build commit (suffixed -dirty if uncommitted)
     INDEX idx_endpoint endpoint TYPE bloom_filter GRANULARITY 4

@@ -1,4 +1,4 @@
-> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
+> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](/deployment/README.md).
 
 # Deploying the Web Application
 

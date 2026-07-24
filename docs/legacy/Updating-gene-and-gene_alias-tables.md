@@ -1,4 +1,4 @@
-> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
+> **Note:** This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 
 # Updating the gene names and aliases tables
 This manual is intended for users that have knowledge about the structure of the cBioPortal seed database.

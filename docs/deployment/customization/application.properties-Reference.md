@@ -910,6 +910,7 @@ To make study and patient pages discoverable by search engines, the backend can 
 ### Properties
 
 * `sitemaps`: when `true`, the backend serves `/robots.txt`, `/sitemap_index.xml`, and `/sitemap_study.xml`. Defaults to `false`, in which case all three return 404.
+* `robots.disallow_user_agents`: comma-separated crawler User-Agent names to block entirely in `robots.txt` (each is emitted as its own `User-agent: <name>` / `Disallow: /` group, before the shared policy). Empty by default, so the generic policy is unchanged.
 
 ### Behavior
 

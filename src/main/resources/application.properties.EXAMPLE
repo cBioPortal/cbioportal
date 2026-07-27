@@ -489,5 +489,8 @@ feature.study.export.timeout_ms=600000
 # false), so an authenticated deployment never publishes study/patient URLs even if this is set to
 # true.
 # sitemaps=true
+# Optionally block specific crawlers entirely in robots.txt (comma-separated User-Agent names).
+# Empty by default; each name is emitted as its own "User-agent: <name> / Disallow: /" group.
+# robots.disallow_user_agents=PetalBot
 
 # EOL - Do not delete the following lines

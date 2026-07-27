@@ -484,10 +484,10 @@ feature.study.export.timeout_ms=600000
 
 # Search-engine sitemaps and robots.txt (SEO). When enabled, the backend serves /robots.txt,
 # /sitemap_index.xml and /sitemap_study.xml (study and patient page URLs for crawlers); when
-# disabled these all return 404. Defaults to false. This is a PUBLIC-portal-only feature: it is
-# automatically forced off whenever authentication is enabled (authenticate is anything other than
-# false), so an authenticated deployment never publishes study/patient URLs even if this is set to
-# true.
+# disabled these all return 404. Defaults to false. Intended for public portals: the sitemap index
+# is built from the anonymous study listing (public studies only) and per-study patient enumeration
+# is authorization-checked, so it never exposes non-public data even on a portal that also serves
+# access-controlled studies.
 # sitemaps=true
 # Optionally block specific crawlers entirely in robots.txt (comma-separated User-Agent names).
 # Empty by default; each name is emitted as its own "User-agent: <name> / Disallow: /" group.

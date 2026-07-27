@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,10 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
  *       patient in that study, for page {@code N}.
  * </ul>
  *
- * <p>Available only when the {@link SitemapFeature} is enabled (public portal with the {@code
- * sitemaps} flag); otherwise every endpoint returns 404. Because the feature is public-only, no
- * per-study authorization is required. Both files carry {@code X-Robots-Tag: noindex} so the
- * sitemap documents themselves are not indexed.
+ * <p>Available only when the {@link SitemapFeature} is enabled (the {@code sitemaps} flag);
+ * otherwise every endpoint returns 404. The index is built from an anonymous study listing so it
+ * advertises only public studies, and per-study patient enumeration is guarded by a study-level
+ * authorization check, so the feature never exposes non-public data. Both files carry {@code
+ * X-Robots-Tag: noindex} so the sitemap documents themselves are not indexed.
  */
 @Hidden
 @RestController
@@ -67,7 +69,8 @@ public class SitemapController {
 
     String baseUrl = SeoRequestUtil.resolveBaseUrl(request);
 
-    // The feature only runs on a public portal, so every study is public: no authentication needed.
+    // Build the index from the anonymous listing (null authentication) so it advertises only public
+    // studies, whatever the portal's auth mode.
     List<CancerStudy> studies =
         studyService.getAllStudies(
             null,
@@ -97,6 +100,10 @@ public class SitemapController {
     return xmlResponse(xml.toString());
   }
 
+  // A study's patient list is public only for public studies; the permission check limits an
+  // anonymous crawler to those and blocks enumeration of access-controlled studies.
+  @PreAuthorize(
+      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @GetMapping(value = "/sitemap_study.xml", produces = MediaType.APPLICATION_XML_VALUE)
   public ResponseEntity<String> sitemapStudy(
       HttpServletRequest request,

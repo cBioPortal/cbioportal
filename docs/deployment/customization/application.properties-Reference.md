@@ -914,6 +914,6 @@ To make study and patient pages discoverable by search engines, the backend can 
 
 ### Behavior
 
-* This is a **public-portal-only** feature. It is automatically forced off whenever authentication is enabled (`authenticate` is anything other than `false`), regardless of the `sitemaps` value, so an authenticated deployment never publishes study/patient URLs a user may not be allowed to see.
+* Intended for public portals, but safe to enable anywhere: the sitemap index is built from an **anonymous** study listing, so it advertises only public studies, and `/sitemap_study.xml` is guarded by a study-level authorization check, so an anonymous crawler can enumerate patients of public studies only. Enabling it never exposes non-public data.
 * `robots.txt` keeps `/api/` crawlable on purpose: study and patient pages are a client-rendered SPA whose content is populated by `/api/` requests, so disallowing `/api/` would make crawlers index empty pages.
 * The sitemap files are served with `X-Robots-Tag: noindex` so the sitemaps themselves are not indexed.

@@ -1,28 +1,24 @@
 package org.cbioportal.application.seo;
 
-import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * Availability of the SEO feature (robots.txt + sitemaps).
+ * Availability of the SEO feature (robots.txt + sitemaps), toggled by the {@code sitemaps} program
+ * argument.
  *
- * <p>It is turned on by the {@code sitemaps} program argument, but only on <b>public</b> portals:
- * when portal authorization is enabled, different users may see different studies, so publishing a
- * single sitemap of study/patient URLs would either leak restricted URLs or be wrong. The feature
- * therefore stays off whenever authorization is enabled, and the endpoints return 404 there.
- * Because it only ever runs on a public portal, the endpoints expose exclusively already-public
- * URLs and need no per-request authorization.
+ * <p>It is meant for public portals and is safe to leave off elsewhere: the sitemap index and
+ * robots.txt are built from an anonymous study listing, so they advertise only public studies, and
+ * per-study patient enumeration is authorization-checked. Enabling it therefore never exposes
+ * non-public data even on a portal that also serves access-controlled studies.
  */
 @Component
 class SitemapFeature {
 
   private final boolean enabled;
 
-  SitemapFeature(
-      @Value("${sitemaps:false}") boolean sitemapsEnabled,
-      @Value("${authenticate:false}") String authenticate) {
-    this.enabled = sitemapsEnabled && !PortalSecurityConfig.userAuthorizationEnabled(authenticate);
+  SitemapFeature(@Value("${sitemaps:false}") boolean sitemapsEnabled) {
+    this.enabled = sitemapsEnabled;
   }
 
   boolean isEnabled() {

@@ -905,7 +905,7 @@ See [UptimeRobot Integration](../integration-with-other-webservices/UptimeRobot-
 
 ### Background
 
-To make study and patient pages discoverable by search engines, the backend can serve a `robots.txt` and XML sitemaps directly. `robots.txt` steers crawlers (it disallows `/proxy/`, blocks the abusive PetalBot, sets a crawl delay, and advertises the sitemap), while the sitemaps enumerate every study-summary and patient page URL. Patient sitemaps are paginated so no file exceeds the sitemaps.org limit of 50,000 URLs.
+To make study and patient pages discoverable by search engines, the backend can serve a `robots.txt` and XML sitemaps directly. `robots.txt` steers crawlers (it disallows `/proxy/`, sets a crawl delay, and advertises the sitemap), while the sitemaps enumerate every study-summary and patient page URL. Patient sitemaps are paginated so no file exceeds the sitemaps.org limit of 50,000 URLs.
 
 ### Properties
 

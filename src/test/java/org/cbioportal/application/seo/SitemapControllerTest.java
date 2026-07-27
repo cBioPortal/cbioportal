@@ -52,7 +52,6 @@ public class SitemapControllerTest {
         .perform(MockMvcRequestBuilders.get("/robots.txt"))
         .andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.TEXT_PLAIN))
-        .andExpect(content().string(Matchers.containsString("User-agent: PetalBot")))
         .andExpect(content().string(Matchers.containsString("User-agent: *")))
         .andExpect(content().string(Matchers.containsString("Disallow: /proxy/")))
         .andExpect(content().string(Matchers.containsString("Crawl-delay: 5")))

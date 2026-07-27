@@ -29,20 +29,13 @@ public class RobotsController {
 
     String baseUrl = SeoRequestUtil.resolveBaseUrl(request);
 
-    // PetalBot (Huawei Cloud) disguises itself with a browser User-Agent and fans out across every
-    // per-patient page, driving expensive API traffic. It honors robots.txt, so disallow it
-    // outright.
-    //
-    // For all other crawlers the goal is SEO: study and patient pages are a client-rendered React
-    // SPA whose content is populated by /api/ XHRs, so /api/ must stay crawlable or a JS-executing
-    // indexer (Googlebot) would render empty pages. Only /proxy/ is disallowed — it forwards to
-    // external services (OncoKB, Genome Nexus) and carries no indexable content. Crawl-delay slows
-    // the polite crawlers, and the sitemap advertises the study/patient URLs worth indexing.
+    // The goal is SEO: study and patient pages are a client-rendered React SPA whose content is
+    // populated by /api/ XHRs, so /api/ must stay crawlable or a JS-executing indexer (Googlebot)
+    // would render empty pages. Only /proxy/ is disallowed — it forwards to external services
+    // (OncoKB, Genome Nexus) and carries no indexable content. Crawl-delay throttles crawlers, and
+    // the sitemap advertises the study/patient URLs worth indexing.
     String body =
-        "User-agent: PetalBot\n"
-            + "Disallow: /\n"
-            + "\n"
-            + "User-agent: *\n"
+        "User-agent: *\n"
             + "Allow: /\n"
             + "Disallow: /proxy/\n"
             + "Crawl-delay: 5\n"

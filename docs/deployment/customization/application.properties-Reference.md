@@ -910,7 +910,12 @@ To make study and patient pages discoverable by search engines, the backend can 
 ### Properties
 
 * `sitemaps`: when `true`, the backend serves `/robots.txt`, `/sitemap_index.xml`, and `/sitemap_study.xml`. Defaults to `false`, in which case all three return 404.
-* `robots.disallow_user_agents`: comma-separated crawler User-Agent names to block entirely in `robots.txt` (each is emitted as its own `User-agent: <name>` / `Disallow: /` group, before the shared policy). Empty by default, so the generic policy is unchanged.
+
+The emitted `robots.txt` policy is tunable without code changes:
+
+* `robots.disallow_paths`: comma-separated path prefixes disallowed for all crawlers. Defaults to `/proxy/` (external OncoKB/Genome Nexus annotation — the heaviest crawl fan-out, and no indexable content). `/api/` is intentionally left crawlable, since study/patient pages are a client-rendered SPA whose content is populated by `/api/` requests.
+* `robots.crawl_delay`: `Crawl-delay` value (seconds) emitted for all crawlers. Defaults to `5`; set blank to omit the directive.
+* `robots.disallow_user_agents`: comma-separated crawler User-Agent names to block entirely (each is emitted as its own `User-agent: <name>` / `Disallow: /` group, before the shared policy). Empty by default.
 
 ### Behavior
 

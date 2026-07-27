@@ -489,8 +489,16 @@ feature.study.export.timeout_ms=600000
 # is authorization-checked, so it never exposes non-public data even on a portal that also serves
 # access-controlled studies.
 # sitemaps=true
-# Optionally block specific crawlers entirely in robots.txt (comma-separated User-Agent names).
-# Empty by default; each name is emitted as its own "User-agent: <name> / Disallow: /" group.
+# robots.txt policy (all optional; defaults shown reproduce the built-in policy):
+#   robots.disallow_paths       - comma-separated path prefixes disallowed for all crawlers.
+#                                 Defaults to /proxy/ (external annotation, no indexable content).
+#                                 /api/ is intentionally left crawlable so the client-rendered SPA
+#                                 pages still render for indexers.
+#   robots.crawl_delay          - Crawl-delay seconds for all crawlers; blank to omit.
+#   robots.disallow_user_agents - comma-separated User-Agent names blocked entirely (each gets its
+#                                 own "User-agent: <name> / Disallow: /" group). Empty by default.
+# robots.disallow_paths=/proxy/
+# robots.crawl_delay=5
 # robots.disallow_user_agents=PetalBot
 
 # EOL - Do not delete the following lines

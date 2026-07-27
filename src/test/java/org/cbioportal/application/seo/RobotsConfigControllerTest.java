@@ -32,7 +32,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
       SitemapFeature.class,
       TestConfig.class
     })
-@TestPropertySource(properties = {"sitemaps=true", "robots.disallow_user_agents=PetalBot, BadBot"})
+@TestPropertySource(
+    properties = {
+      "sitemaps=true",
+      "robots.disallow_user_agents=PetalBot, BadBot",
+      "robots.disallow_paths=/proxy/, /annotation/",
+      "robots.crawl_delay=10"
+    })
 public class RobotsConfigControllerTest {
 
   @MockBean private StudyService studyService;
@@ -41,7 +47,7 @@ public class RobotsConfigControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Test
-  public void blockedUserAgentsGetTheirOwnGroupsBeforeTheWildcard() throws Exception {
+  public void policyReflectsConfiguredBotsPathsAndCrawlDelay() throws Exception {
     String body =
         mockMvc
             .perform(MockMvcRequestBuilders.get("/robots.txt"))
@@ -50,11 +56,16 @@ public class RobotsConfigControllerTest {
             .getResponse()
             .getContentAsString();
 
+    // Each configured bot gets its own block, before the shared wildcard policy.
     assertTrue(body.contains("User-agent: PetalBot\nDisallow: /"));
-    // The surrounding whitespace in the property value is trimmed.
     assertTrue(body.contains("User-agent: BadBot\nDisallow: /"));
-    // Blocked bots come before the shared wildcard policy, which is still present.
     assertTrue(body.indexOf("User-agent: PetalBot") < body.indexOf("User-agent: *"));
+
+    // Each configured path becomes a Disallow line (surrounding whitespace trimmed).
     assertTrue(body.contains("Disallow: /proxy/"));
+    assertTrue(body.contains("Disallow: /annotation/"));
+
+    // Configured crawl-delay is used.
+    assertTrue(body.contains("Crawl-delay: 10"));
   }
 }

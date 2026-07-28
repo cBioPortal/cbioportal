@@ -35,6 +35,28 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
 
+**Example**: A user asks, in plain language:
+
+> *Which genes are most frequently mutated in the msk_impact_2017 study?*
+
+The MCP server translates this into a query against the `mutation_derived` table — one of the precomputed derived tables described in the [ClickHouse Setup Guide](/deployment/clickhouse/README.md#8-notes-on-derived-tables) — rather than joining `mutation`, `genetic_profile`, `sample`, and `gene` at runtime:
+
+```sql
+SELECT `GENE.hugoGeneSymbol` AS gene,
+       count(DISTINCT sampleId) AS mutated_samples
+FROM mutation_derived
+WHERE studyId = 'msk_impact_2017'
+GROUP BY gene
+ORDER BY mutated_samples DESC
+LIMIT 5;
+```
+
+The result comes back in well under a second even on cohorts with tens of thousands of samples, and the assistant renders it conversationally:
+
+> *The five most frequently mutated genes in MSK-IMPACT (2017) are TP53, KRAS, APC, PIK3CA, and KMT2D.*
+
+The latency of that single scan is what makes multi-turn exploration usable — a follow-up like *"now restrict that to lung adenocarcinoma"* is another sub-second query rather than a multi-second join.
+
 #### cbioportal-navigator
 
 An MCP server that enables AI agents to navigate and interact with the cBioPortal web interface.

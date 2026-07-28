@@ -1,5 +1,3 @@
-> ⚠️ **Legacy documentation (cBioPortal v6 and earlier).** This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method. It is retained for historical reference only — do not rely on it for a v7 deployment. See the [current deployment documentation](/deployment/README.md) and the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
-
 # cBioPortal Database Versioning
 
 We follow the following logic when deciding how/when to increment the version of cBioPortal database. It's a complete modification of semantic versioning (MAJOR.MINOR.PATCH) more suitable for our purposes:

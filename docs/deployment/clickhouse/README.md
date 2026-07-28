@@ -7,15 +7,17 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 1. [Installing the ClickHouse CLI](#1-installing-the-clickhouse-cli)
 2. [Hosting Options](#2-hosting-options)
 3. [Architecture](#3-architecture)
-4. [Docker Compose Setup](#4-docker-compose-setup)
-5. [Relevant Data Files](#5-relevant-data-files)
-6. [Data Loading](#6-data-loading)
-7. [Notes on Derived Tables](#7-notes-on-derived-tables)
-8. [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data)
-9. [Data Safety Warnings](#9-data-safety-warnings)
-10. [Verifying Database Integrity](#10-verifying-database-integrity)
-11. [Version Migration](#11-version-migration)
-12. [Further Reading](#12-further-reading)
+4. [Sizing Guidance](#4-sizing-guidance)
+5. [Docker Compose Setup](#5-docker-compose-setup)
+6. [Relevant Data Files](#6-relevant-data-files)
+7. [Data Loading](#7-data-loading)
+8. [Notes on Derived Tables](#8-notes-on-derived-tables)
+9. [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data)
+10. [Data Safety Warnings](#10-data-safety-warnings)
+11. [Verifying Database Integrity](#11-verifying-database-integrity)
+12. [Migrating from MySQL to ClickHouse](#12-migrating-from-mysql-to-clickhouse)
+13. [Version Migration](#13-version-migration)
+14. [Further Reading](#14-further-reading)
 
 ---
 
@@ -98,7 +100,7 @@ cBioPortal v7 uses ClickHouse as its sole database backend. This section describ
 ClickHouse stores two categories of tables:
 
 - **Base tables** — Store the raw study data as imported: cancer studies, samples, patients, genetic profiles, mutations, copy-number alterations, clinical data, etc. These are populated by `metaImport.py` during study import.
-- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 7](#7-notes-on-derived-tables) for details.
+- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 8](#8-notes-on-derived-tables) for details.
 
 ### How Components Connect
 
@@ -134,9 +136,44 @@ spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 
 When using Docker Compose, these are set automatically from the `.env` file.
 
+
+
 ---
 
-## 4. Docker Compose Setup
+## 4. Sizing Guidance
+
+Choosing the right ClickHouse resources depends on your cohort size and query workload. The table below provides rough guidelines for self-hosted ClickHouse deployments. For ClickHouse Cloud (used by the public cBioPortal at cbioportal.org and genie.cbioportal.org), you can adjust compute and RAM on demand.
+
+| Cohort Size | Minimum RAM | Recommended RAM | Storage (estimated) | CPU | Notes |
+|---|---|---|---|---|---|
+| <10K samples | 4 GB | 8 GB | 10–50 GB | 2 vCPU | Suitable for evaluation, development, or small institutional deployments. The default Docker Compose setup works well here. |
+| 10K–100K samples | 8 GB | 16 GB | 50–500 GB | 4 vCPU | Typical mid-size institutional deployment. Derived table rebuilds may require 16 GB+ during peak. |
+| 100K–500K samples | 16 GB | 32 GB | 500 GB – 2 TB | 8 vCPU | Large research consortia. Strongly consider ClickHouse Cloud for elastic scaling. Batch imports with `--no-derive-tables`. |
+| >500K samples | 32 GB | 64 GB+ | 2 TB+ | 16 vCPU | Public portals (e.g., cbioportal.org). ClickHouse Cloud recommended; blue-green deployment advised. |
+
+> **Note:** Storage estimates depend heavily on the number of genetic profiles, clinical attributes, and mutation density per sample. The figures above assume typical whole-exome sequencing studies.
+
+### Memory Pressure During Imports
+
+Importing large studies and rebuilding derived tables are the most memory-intensive operations. If you see `Memory limit exceeded` errors:
+
+- **Reduce concurrency** — Import studies one at a time with `--no-derive-tables`, then run `derive-tables` once at the end.
+- **Add back-off between optimize operations** — Set `CLICKHOUSE_OPTIMIZE_BACKOFF_SECS` in your `.env` file (see [section 10](#10-notes-for-users-with-high-volume-data)).
+- **Upgrade your ClickHouse instance** — Add RAM or switch to ClickHouse Cloud.
+
+### ClickHouse Cloud Tiers
+
+For ClickHouse Cloud, the service tier determines resource allocation:
+
+- **Development tier** — Suitable for evaluation and small cohorts (<10K samples)
+- **Production tier** — Suitable for institutional deployments (10K–500K samples)
+- **Enterprise tier** — Suitable for public portals and large consortia (>500K samples)
+
+See the [ClickHouse Cloud documentation](https://clickhouse.com/docs/cloud/manage) for the latest pricing and service tiers.
+
+---
+
+## 5. Docker Compose Setup
 
 For instructions on running cBioPortal with ClickHouse via Docker Compose, see the [Docker deployment guide](/deployment/docker/README.md).
 
@@ -160,7 +197,7 @@ This will use the ClickHouse CLI that is embedded in the `cbioportal-database` c
 
 ---
 
-## 5. Relevant Data Files
+## 6. Relevant Data Files
 
 After running the `init.sh` script from the Docker Compose steps above, you will notice several new files present in the `data/` directory. These include:
 
@@ -171,7 +208,7 @@ After running the `init.sh` script from the Docker Compose steps above, you will
 
 ---
 
-## 6. Data Loading
+## 7. Data Loading
 
 See [Data Loading](/data-loading/README.md).
 
@@ -179,7 +216,7 @@ Note that cBioPortal study files themselves are backwards-compatible -- there is
 
 ---
 
-## 7. Notes on Derived Tables
+## 8. Notes on Derived Tables
 
 ### What Are Derived Tables?
 
@@ -215,7 +252,7 @@ This imports the study data without rebuilding derived tables unnecessarily.
 
 ---
 
-## 8. Notes for Users with High-Volume Data
+## 9. Notes for Users with High-Volume Data
 
 When working with large studies (>100K samples or >10GB of clinical/genomic data), you may encounter resource limitations with the local Docker Compose ClickHouse database. Here are some recommendations:
 
@@ -241,7 +278,7 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 9. Data Safety Warnings
+## 10. Data Safety Warnings
 
 > ⚠️ **Critical:** Interrupting an import (e.g., killing the process, network failure, power loss) can leave your ClickHouse database in a **corrupt or inconsistent state**. Data may be partially imported, derived tables may be stale, and the database may become unusable.
 
@@ -255,13 +292,78 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 10. Verifying Database Integrity
+## 11. Verifying Database Integrity
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
 ---
 
-## 11. Version Migration
+## 12. Migrating from MySQL to ClickHouse
+
+If you already run a MySQL-backed cBioPortal instance and want to add ClickHouse (or fully migrate), the following walkthrough covers the key steps.
+
+### Prerequisites
+
+- A working MySQL-backed cBioPortal instance (v6 or v7).
+- A ClickHouse database (self-hosted or ClickHouse Cloud) — see [section 2](#2-hosting-options).
+- The ClickHouse CLI installed (see [section 1](#1-installing-the-clickhouse-cli)).
+- Sufficient disk space to export your study data.
+
+### Step 1: Export Existing Study Data
+
+From your MySQL-backed instance, export all study data using `metaImport.py`:
+
+```bash
+# List all studies in your database
+docker compose exec cbioportal metaImport.py --list-studies
+
+# Export each study to study files
+docker compose exec cbioportal metaImport.py --export-studies /tmp/export
+```
+
+This produces a set of study directories with file-formatted data that can be imported into any cBioPortal database.
+
+> **Note:** Study file formats are backwards-compatible between MySQL and ClickHouse — no format changes are needed. See [Data Loading](#7-data-loading).
+
+### Step 2: Set Up ClickHouse
+
+Set up your ClickHouse database following the [hosting options](#2-hosting-options) guide. For Docker Compose users, the easiest path is to clone the [cbioportal-docker-compose](https://github.com/cBioPortal/cbioportal-docker-compose) repository and configure it to point to your ClickHouse instance.
+
+### Step 3: Import Data into ClickHouse
+
+```bash
+# Import each study into ClickHouse
+docker compose exec cbioportal metaImport.py -s /tmp/export/study1 -o
+docker compose exec cbioportal metaImport.py -s /tmp/export/study2 -o
+```
+
+After importing all studies, rebuild derived tables:
+
+```bash
+docker compose exec cbioportal metaImport.py derive-tables
+```
+
+### Step 4: Switch Over
+
+Once data is imported and verified:
+
+1. Update your cBioPortal `application.properties` to point to the ClickHouse database (see [Connection Configuration](#3-architecture)).
+2. Restart the cBioPortal web app.
+3. Verify queries work correctly — the REST API endpoints remain the same.
+
+### Running MySQL and ClickHouse Side-by-Side
+
+During a transition period, you can run both databases simultaneously. The cBioPortal web app connects to a single database at a time, so you would need to:
+
+1. Maintain the MySQL instance as-is for existing users.
+2. Set up a second cBioPortal deployment (or staging instance) connected to ClickHouse.
+3. After validating the ClickHouse-based deployment, switch production DNS/traffic to it.
+
+> **Tip:** This is similar to the blue-green deployment approach used by MSK for ClickHouse (see [How MSK hosts ClickHouse](#how-msk-hosts-clickhouse)).
+
+---
+
+## 13. Version Migration
 
 > ⚠️ **There is currently no automated mechanism for migrating data between ClickHouse versions.**
 
@@ -275,9 +377,11 @@ If you upgrade to a newer version of cBioPortal that includes schema changes, yo
 
 This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.
 
+
+
 ---
 
-## 12. Further Reading
+## 14. Further Reading
 
 - [cBioPortal deploys on ClickHouse Cloud — case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) — how MSK uses ClickHouse to power cbioportal.org
 - [ClickHouse Documentation](https://clickhouse.com/docs) — official ClickHouse docs

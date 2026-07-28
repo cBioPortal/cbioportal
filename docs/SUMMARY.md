@@ -24,6 +24,7 @@
     * [Example Commands](deployment/docker/example_commands.md)
     * [Authenticating and Authorizing Users using Keycloak in Docker](deployment/docker/using-keycloak.md)
   * [ClickHouse Setup](deployment/clickhouse/README.md)
+  * [Standalone / Air-Gapped Deployment](deployment/standalone/README.md)
   * [Authorization and Authentication](deployment/authorization-and-authentication/User-Authorization.md)
     * [Spring Security](deployment/authorization-and-authentication/Spring-Security.md)
     * [User Authorization](deployment/authorization-and-authentication/User-Authorization.md)

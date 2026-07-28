@@ -27,6 +27,7 @@ This page describes various changes deployers will need to make as they deploy n
   For example `java -Xms2g -Xmx4g -jar cbioportal/target/cbioportal-exec.jar --spring.config.location=cbioportal/application.properties --authenticate=false`
 - `portal.properties` migration needed:
   - `portal.properties` has been renamed to `application.properties`. This is the Spring Boot default name 
+  - Database connection properties should use Spring Boot datasource names in `application.properties`. Replace old `db.*` connection settings such as `db.connection_string`, `db.user`, and `db.password` with `spring.datasource.url`, `spring.datasource.username`, and `spring.datasource.password`. See [Database Settings](https://github.com/cBioPortal/cbioportal/blob/maintenance-v6/docs/deployment/customization/application.properties-Reference.md#database-settings) for the full set of datasource properties.
   - `authenticate` values of `googleplus`, `social_auth_google` and `social_auth_microsoft` have been replaced by `optional_oauth2`
     - If you used this property before without authorization (unlikely, only the public cBioPortal instance uses this), add the property `always_show_study_group=PUBLIC` and confirm  that all studies in your database you'd like to be public have `GROUPS` values set to `PUBLIC`
 - `Redis HTTP Session`

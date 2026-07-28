@@ -146,6 +146,11 @@ enable_cross_study_expression=(studies)=>studies.filter(s=>/pan_can_atlas/.test(
 # Any Number | Disabled when not set
 # studyview.max_samples_selected=
 
+## Optional Generic Assay display-title overrides exposed to the frontend.
+## Format: GENERIC_ASSAY_TYPE:Display Text pairs separated by commas.
+## Example:
+## generic_assay_display_text=TREATMENT_RESPONSE:Treatment Response,MUTATIONAL_SIGNATURE:Mutational Signature,LOH_HLA:HLA LOH
+
 # multithreading configuration
 multithread.core_pool_size=16
 
@@ -478,4 +483,3 @@ feature.study.export.timeout_ms=600000
 # request-logging.queue-capacity=10000
 
 # EOL - Do not delete the following lines
-

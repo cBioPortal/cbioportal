@@ -895,3 +895,25 @@ uptime_robot_api_key=RlrzpsmAn
 Both properties are required to enable the integration. When configured, the portal will automatically fetch and display active events as banners at the top of the page.
 
 See [UptimeRobot Integration](../integration-with-other-webservices/UptimeRobot-Integration.md) for setup instructions.
+
+## Search Engine Sitemaps and robots.txt (SEO)
+
+### Background
+
+To make study and patient pages discoverable by search engines, the backend can serve a `robots.txt` and XML sitemaps directly. `robots.txt` steers crawlers (it disallows `/proxy/`, sets a crawl delay, and advertises the sitemap), while the sitemaps enumerate every study-summary and patient page URL. Patient sitemaps are paginated so no file exceeds the sitemaps.org limit of 50,000 URLs.
+
+### Properties
+
+* `sitemaps`: when `true`, the backend serves `/robots.txt`, `/sitemap_index.xml`, and `/sitemap_study.xml`. Defaults to `false`, in which case all three return 404.
+
+The emitted `robots.txt` policy is tunable without code changes:
+
+* `robots.disallow_paths`: comma-separated path prefixes disallowed for all crawlers. Defaults to `/proxy/` (external OncoKB/Genome Nexus annotation — the heaviest crawl fan-out, and no indexable content). `/api/` is intentionally left crawlable, since study/patient pages are a client-rendered SPA whose content is populated by `/api/` requests.
+* `robots.crawl_delay`: `Crawl-delay` value (seconds) emitted for all crawlers. Defaults to `5`; set blank to omit the directive.
+* `robots.disallow_user_agents`: comma-separated crawler User-Agent names to block entirely (each is emitted as its own `User-agent: <name>` / `Disallow: /` group, before the shared policy). Empty by default.
+
+### Behavior
+
+* Intended for public portals, but safe to enable anywhere: the sitemap index is built from an **anonymous** study listing, so it advertises only public studies, and `/sitemap_study.xml` is guarded by a study-level authorization check, so an anonymous crawler can enumerate patients of public studies only. Enabling it never exposes non-public data.
+* `robots.txt` keeps `/api/` crawlable on purpose: study and patient pages are a client-rendered SPA whose content is populated by `/api/` requests, so disallowing `/api/` would make crawlers index empty pages.
+* The sitemap files are served with `X-Robots-Tag: noindex` so the sitemaps themselves are not indexed.

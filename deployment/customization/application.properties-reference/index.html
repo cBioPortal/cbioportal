@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.838065408781">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.838565410808">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -47,12 +47,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../../images/cbio-logo.png" />
-    <link href="../../../resources/css/retype.css?v=4.6.0.838065408781" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=4.6.0.838565410808" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.838065408781" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.838565410808" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.838065408781" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=4.6.0.838065408781" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.838565410808" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=4.6.0.838565410808" defer></script>
     <link href="../../../resources/css/katex.css?v=4.6.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=4.6.0" defer></script>
 
@@ -899,6 +899,25 @@ uptime_robot_api_key=RlrzpsmAn</code></pre>
 </doc-codeblock></div>
 <p>Both properties are required to enable the integration. When configured, the portal will automatically fetch and display active events as banners at the top of the page.</p>
 <p>See <a href="../../integration-with-other-webservices/uptimerobot-integration/">UptimeRobot Integration</a> for setup instructions.</p>
+<h2 id="search-engine-sitemaps-and-robotstxt-seo">Search Engine Sitemaps and robots.txt (SEO)</h2>
+<h3 id="background-3">Background</h3>
+<p>To make study and patient pages discoverable by search engines, the backend can serve a <code translate="no" v-pre>robots.txt</code> and XML sitemaps directly. <code translate="no" v-pre>robots.txt</code> steers crawlers (it disallows <code translate="no" v-pre>/proxy/</code>, sets a crawl delay, and advertises the sitemap), while the sitemaps enumerate every study-summary and patient page URL. Patient sitemaps are paginated so no file exceeds the sitemaps.org limit of 50,000 URLs.</p>
+<h3 id="properties-4">Properties</h3>
+<ul>
+<li><code translate="no" v-pre>sitemaps</code>: when <code translate="no" v-pre>true</code>, the backend serves <code translate="no" v-pre>/robots.txt</code>, <code translate="no" v-pre>/sitemap_index.xml</code>, and <code translate="no" v-pre>/sitemap_study.xml</code>. Defaults to <code translate="no" v-pre>false</code>, in which case all three return 404.</li>
+</ul>
+<p>The emitted <code translate="no" v-pre>robots.txt</code> policy is tunable without code changes:</p>
+<ul>
+<li><code translate="no" v-pre>robots.disallow_paths</code>: comma-separated path prefixes disallowed for all crawlers. Defaults to <code translate="no" v-pre>/proxy/</code> (external OncoKB/Genome Nexus annotation — the heaviest crawl fan-out, and no indexable content). <code translate="no" v-pre>/api/</code> is intentionally left crawlable, since study/patient pages are a client-rendered SPA whose content is populated by <code translate="no" v-pre>/api/</code> requests.</li>
+<li><code translate="no" v-pre>robots.crawl_delay</code>: <code translate="no" v-pre>Crawl-delay</code> value (seconds) emitted for all crawlers. Defaults to <code translate="no" v-pre>5</code>; set blank to omit the directive.</li>
+<li><code translate="no" v-pre>robots.disallow_user_agents</code>: comma-separated crawler User-Agent names to block entirely (each is emitted as its own <code translate="no" v-pre>User-agent: &lt;name&gt;</code> / <code translate="no" v-pre>Disallow: /</code> group, before the shared policy). Empty by default.</li>
+</ul>
+<h3 id="behavior-3">Behavior</h3>
+<ul>
+<li>Intended for public portals, but safe to enable anywhere: the sitemap index is built from an <strong>anonymous</strong> study listing, so it advertises only public studies, and <code translate="no" v-pre>/sitemap_study.xml</code> is guarded by a study-level authorization check, so an anonymous crawler can enumerate patients of public studies only. Enabling it never exposes non-public data.</li>
+<li><code translate="no" v-pre>robots.txt</code> keeps <code translate="no" v-pre>/api/</code> crawlable on purpose: study and patient pages are a client-rendered SPA whose content is populated by <code translate="no" v-pre>/api/</code> requests, so disallowing <code translate="no" v-pre>/api/</code> would make crawlers index empty pages.</li>
+<li>The sitemap files are served with <code translate="no" v-pre>X-Robots-Tag: noindex</code> so the sitemaps themselves are not indexed.</li>
+</ul>
 
                 
                 <!-- Required only on API pages -->

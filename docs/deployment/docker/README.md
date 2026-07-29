@@ -126,9 +126,7 @@ When this command executes -- it does so from the path `/` within the container.
 > docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 > ```
 >
-> `-Xmx8g` is a reasonable starting point. For studies in the 50K-200K sample range use `-jvo "-Xms8g -Xmx32g"`, and `-jvo "-Xms16g -Xmx96g"` above that.
->
-> Keep `-Xmx` under roughly 75% of the RAM allocated to Docker, since the database and the web app need the rest. See [Notes for non-Linux systems](notes-for-non-linux.md) for how to configure Docker VM memory.
+> `-Xmx8g` is a reasonable starting point. For larger studies on larger machines, you may want to set the memory limit even higher.
 
 
 All public studies can be downloaded from [cbioportal.org/datasets](https://www.cbioportal.org/datasets) or [github.com/cBioPortal/datahub](https://github.com/cBioPortal/datahub). Add any study to the `./study` folder and import it. The `./study/init.sh` script can download multiple studies at once — set `DATAHUB_STUDIES` to any public study ID (e.g. `lgg_ucsf_2014`) and run `./init.sh`.

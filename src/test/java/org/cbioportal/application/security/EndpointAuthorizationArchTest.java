@@ -58,6 +58,9 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.StaticDataTimestampController",
           "org.cbioportal.legacy.web.TestController",
 
+          // robots.txt: a crawl policy, no study data
+          "org.cbioportal.application.seo.RobotsController",
+
           // UI pages and documentation
           "org.cbioportal.legacy.web.IndexPageController",
           "org.cbioportal.legacy.web.LoginPageController",
@@ -105,6 +108,8 @@ public class EndpointAuthorizationArchTest {
           // TODO: Consider migrating these to @PreAuthorize for consistency
           "org.cbioportal.legacy.web.StudyController.getAllStudies",
           "org.cbioportal.legacy.web.StudyController.getTags",
+          // Indexes only the anonymous (public) study listing; sitemapStudy has @PreAuthorize
+          "org.cbioportal.application.seo.SitemapController.sitemapIndex",
           "org.cbioportal.legacy.web.PatientController.getAllPatients",
           "org.cbioportal.legacy.web.SampleController.getSamplesByKeyword",
           "org.cbioportal.legacy.web.SampleListController.getAllSampleLists",

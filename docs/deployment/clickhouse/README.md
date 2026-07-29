@@ -149,9 +149,9 @@ These are starting points for a self-hosted database, not benchmarks. On ClickHo
 | 100K-500K samples | 16-32 GB | 500 GB - 2 TB | 8 vCPU |
 | >500K samples | 32-64 GB+ | 2 TB+ | 16 vCPU |
 
-Storage varies with the number of genetic profiles, clinical attributes, and mutation density per sample; these figures assume whole-exome studies. Whole-genome data will need considerably more.
+Storage assumes whole-exome studies; whole-genome data needs considerably more.
 
-Imports and derived table rebuilds are the memory-intensive part, so size for those rather than for query load. If a rebuild hits `Memory limit exceeded`, import one study at a time with `--no-derive-tables` and run `derive-tables` once at the end, or set `CLICKHOUSE_OPTIMIZE_BACKOFF_SECS` (see [section 10](#10-notes-for-users-with-high-volume-data)) before adding RAM.
+Size for imports rather than for queries — importing a study and rebuilding derived tables use far more memory than serving one. If you run short during a rebuild, see [section 10](#10-notes-for-users-with-high-volume-data) before adding RAM.
 
 ---
 
@@ -261,25 +261,13 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ### Java Out-of-Memory Errors During Import
 
-`java.lang.OutOfMemoryError: Java heap space`, or the `cbioportal` container exiting with code 137, means the importer's Java heap is too small for the study. Raise it with `-jvo` (`--jvm-opts`):
+`java.lang.OutOfMemoryError: Java heap space`, or the `cbioportal` container exiting with code 137, means the importer's Java heap is too small for the study rather than ClickHouse running out of memory. Raise it with `-jvo`:
 
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 ```
 
-Larger studies benefit from pre-allocating the heap as well:
-
-```bash
-# over 50K samples
-docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms8g -Xmx32g"
-
-# over 200K samples, or whole-genome data
-docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
-```
-
-Keep `-Xmx` under roughly 75% of the RAM available to the Docker VM. ClickHouse, the web app, and MongoDB need the rest, and if the total exceeds system RAM the kernel will kill the container instead.
-
-See the [Docker deployment guide](/deployment/docker/README.md#importing-studies) for more on import OOM errors.
+See [Importing Studies](/deployment/docker/README.md#importing-studies) in the Docker guide for heap sizes on larger studies.
 
 ### General Recommendations for Large Datasets
 

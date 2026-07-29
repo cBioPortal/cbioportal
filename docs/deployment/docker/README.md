@@ -120,11 +120,25 @@ When this command executes -- it does so from the path `/` within the container.
 
 > **Note:** If the validator detects any critical errors with the data, those must be fixed before the study can be imported.
 
-> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
+> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory (OOM) error — typically seen as `java.lang.OutOfMemoryError: Java heap space` or the import process being killed with exit code 137 (SIGKILL by the kernel's OOM killer).
 >
+> The `-jvo` (JVM options) flag passes settings to the Java Virtual Machine running the importer. Use it to increase the maximum heap:
+>
+> ```bash
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 > ```
-> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
-> ```
+>
+> **Choosing the right values:**
+>
+> | Scenario | Recommended `-jvo` | Explanation |
+> |---|---|---|
+> | Small fix (<50K samples) | `-jvo "-Xmx8g"` | Sets max heap to 8 GB — safe starting point. |
+> | Large study (50K–200K samples) | `-jvo "-Xms8g -Xmx32g"` | Pre-allocates 8 GB, allows growth to 32 GB. |
+> | Very large (>200K samples) | `-jvo "-Xms16g -Xmx96g"` | Aggressive headroom for the largest imports. |
+>
+> > **Real-world example:** A user was unable to import the TCGA Breast Cancer study (~1,100 samples) due to OOM errors. Re-running with `-jvo "-Xms16g -Xmx96g"` completed the import successfully — the study validated, loaded, and all portal features worked without errors.
+>
+> > **Important:** The JVM heap comes from the Docker container's memory, not directly from the host. If the total memory demand (JVM + ClickHouse + web app + MongoDB) exceeds available system RAM, the kernel may kill the container. A good rule: don't set `-Xmx` above 75% of the RAM allocated to Docker. See the [Notes for non-Linux systems](notes-for-non-linux.md) for Docker VM memory configuration.
 
 
 All public studies can be downloaded from [cbioportal.org/datasets](https://www.cbioportal.org/datasets) or [github.com/cBioPortal/datahub](https://github.com/cBioPortal/datahub). Add any study to the `./study` folder and import it. The `./study/init.sh` script can download multiple studies at once — set `DATAHUB_STUDIES` to any public study ID (e.g. `lgg_ucsf_2014`) and run `./init.sh`.

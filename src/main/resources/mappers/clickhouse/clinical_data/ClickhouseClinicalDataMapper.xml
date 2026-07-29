@@ -191,17 +191,23 @@
             cd.attribute_name as attrId,
             cd.attribute_value as attrValue,
             cd.attribute_name as attributeName,
-            if(cam.cancer_study_id = 0, NULL, cam.display_name) as displayName,
-            if(cam.cancer_study_id = 0, NULL, cam.description) as description,
-            if(cam.cancer_study_id = 0, NULL, cam.datatype) as datatype,
-            if(cam.cancer_study_id = 0, NULL, cam.patient_attribute) as patientAttribute,
-            if(cam.cancer_study_id = 0, NULL, cam.priority) as priority,
-            if(cam.cancer_study_id = 0, NULL, cam.cancer_study_id) as cancerStudyId,
+            coalesce(cam_override.display_name, cam_default.display_name) as displayName,
+            coalesce(cam_override.description, cam_default.description) as description,
+            coalesce(cam_override.datatype, cam_default.datatype) as datatype,
+            coalesce(cam_override.patient_attribute, cam_default.patient_attribute) as patientAttribute,
+            coalesce(cam_override.priority, cam_default.priority) as priority,
+            coalesce(cam_override.cancer_study_id, cam_default.cancer_study_id) as cancerStudyId,
             cd.cancer_study_identifier as cancerStudyIdentifier
         FROM clinical_data_derived cd
         LEFT JOIN cancer_study cs ON cd.cancer_study_identifier = cs.cancer_study_identifier
-        LEFT JOIN clinical_attribute_meta cam ON cd.attribute_name = cam.attr_id AND cs.cancer_study_id = cam.cancer_study_id
+        LEFT JOIN clinical_attribute_meta cam_override
+            ON cd.attribute_name = cam_override.attr_id
+            AND cs.cancer_study_id = cam_override.cancer_study_id
+        LEFT JOIN clinical_attribute_meta cam_default
+            ON cd.attribute_name = cam_default.attr_id
+            AND cam_default.cancer_study_id = 0
         <include refid="fetchClinicalDataWhereClause" />
+        SETTINGS join_use_nulls = 1
     </select>
 
     <sql id="fetchClinicalDataWhereClause">

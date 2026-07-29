@@ -440,6 +440,26 @@ public class ClickhouseClinicalDataMapperTest {
   }
 
   @Test
+  public void fetchClinicalDataDetailedIncludesSharedClinicalAttributeMetadata() {
+    List<ClinicalData> detailedData =
+        mapper.fetchClinicalDataDetailed(
+            List.of("study_genie_pub_GENIE-TEST-301"),
+            List.of("wsi_slides"),
+            List.of(STUDY_GENIE_PUB),
+            "patient");
+
+    assertEquals("Should return one WSI slides record", 1, detailedData.size());
+
+    ClinicalData result = detailedData.getFirst();
+    assertNotNull("DETAILED projection should include clinical attribute", result.clinicalAttribute());
+    assertEquals("wsi_slides", result.attrId());
+    assertEquals("3", result.attrValue());
+    assertEquals("WSI Slides per Patient", result.clinicalAttribute().displayName());
+    assertEquals("number", result.clinicalAttribute().datatype());
+    assertEquals(Integer.valueOf(0), result.clinicalAttribute().cancerStudyId());
+  }
+
+  @Test
   public void getConflictingAttributeCounts() {
     // Test conflicting attributes where same attribute name exists in both sample and patient
     // levels

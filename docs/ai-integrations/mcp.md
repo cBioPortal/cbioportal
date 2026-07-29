@@ -31,7 +31,7 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **How it works**: The server acts as an intermediary that combines ClickHouse database access with domain-specific instructions, allowing researchers and clinicians to query complex genomic datasets through conversational interfaces without writing SQL directly.
 
-**Backing data store**: The server queries ClickHouse directly. Much of what it needs — alteration frequencies, clinical attribute breakdowns, sample counts — is already precomputed in the [derived tables](/deployment/clickhouse/README.md#8-notes-on-derived-tables), which is what keeps responses fast enough for back-and-forth questions. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) to set one up.
+**Backing data store**: The server queries ClickHouse directly. Much of what it needs — alteration frequencies, clinical attribute breakdowns, sample counts — is already precomputed in the [derived tables](/deployment/clickhouse/README.md#7-notes-on-derived-tables), which is what keeps responses fast enough for back-and-forth questions. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) to set one up.
 
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
 

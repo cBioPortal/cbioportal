@@ -8,10 +8,10 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 2. [Hosting Options](#2-hosting-options)
 3. [Architecture](#3-architecture)
 4. [Docker Compose Setup](#4-docker-compose-setup)
-5. [Migrating from MySQL to ClickHouse](#5-migrating-from-mysql-to-clickhouse)
-6. [Relevant Data Files](#6-relevant-data-files)
-7. [Data Loading](#7-data-loading)
-8. [Notes on Derived Tables](#8-notes-on-derived-tables)
+5. [Relevant Data Files](#5-relevant-data-files)
+6. [Data Loading](#6-data-loading)
+7. [Notes on Derived Tables](#7-notes-on-derived-tables)
+8. [Migrating from MySQL to ClickHouse](#8-migrating-from-mysql-to-clickhouse)
 9. [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data)
 10. [Data Safety Warnings](#10-data-safety-warnings)
 11. [Verifying Database Integrity](#11-verifying-database-integrity)
@@ -99,7 +99,7 @@ cBioPortal v7 uses ClickHouse as its sole database backend. This section describ
 ClickHouse stores two categories of tables:
 
 - **Base tables** — Store the raw study data as imported: cancer studies, samples, patients, genetic profiles, mutations, copy-number alterations, clinical data, etc. These are populated by `metaImport.py` during study import.
-- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 8](#8-notes-on-derived-tables) for details.
+- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 7](#7-notes-on-derived-tables) for details.
 
 ### How Components Connect
 
@@ -161,15 +161,7 @@ This will use the ClickHouse CLI that is embedded in the `cbioportal-database` c
 
 ---
 
-## 5. Migrating from MySQL to ClickHouse
-
-v7 will not connect to MySQL, so this is a one-way migration. There is no command that turns a populated MySQL database back into study files: you re-import the study directories you originally loaded. Set up ClickHouse per [Docker Compose Setup](#4-docker-compose-setup), re-import each study per [Data Loading](#7-data-loading), then rebuild derived tables once at the end.
-
-For the full procedure, see the [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
-
----
-
-## 6. Relevant Data Files
+## 5. Relevant Data Files
 
 After running the `init.sh` script from the Docker Compose steps above, you will notice several new files present in the `data/` directory. These include:
 
@@ -180,7 +172,7 @@ After running the `init.sh` script from the Docker Compose steps above, you will
 
 ---
 
-## 7. Data Loading
+## 6. Data Loading
 
 See [Data Loading](/data-loading/README.md).
 
@@ -188,7 +180,7 @@ Note that cBioPortal study files themselves are backwards-compatible -- there is
 
 ---
 
-## 8. Notes on Derived Tables
+## 7. Notes on Derived Tables
 
 ### What Are Derived Tables?
 
@@ -223,6 +215,14 @@ This imports the study data without rebuilding derived tables unnecessarily.
 
 ---
 
+## 8. Migrating from MySQL to ClickHouse
+
+v7 will not connect to MySQL, so this is a one-way migration. There is no command that turns a populated MySQL database back into study files: you re-import the study directories you originally loaded. Set up ClickHouse per [Docker Compose Setup](#4-docker-compose-setup), re-import each study per [Data Loading](#6-data-loading), then rebuild derived tables once at the end.
+
+For the full procedure, see the [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
+
+---
+
 ## 9. Notes for Users with High-Volume Data
 
 When working with large studies (>100K samples or >10GB of clinical/genomic data), you may encounter resource limitations with the local Docker Compose ClickHouse database. Here are some recommendations:
@@ -240,16 +240,6 @@ The derived table scripts perform large joins and aggregations that can consume 
    ```
 
 This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak memory usage during imports. Increase this value if you continue to see memory pressure.
-
-### Java Out-of-Memory Errors During Import
-
-`java.lang.OutOfMemoryError: Java heap space`, or the `cbioportal` container exiting with code 137, means the importer's Java heap is too small for the study rather than ClickHouse running out of memory. Raise it with `-jvo`:
-
-```bash
-docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
-```
-
-See [Importing Studies](/deployment/docker/README.md#importing-studies) in the Docker guide for heap sizes on larger studies.
 
 ### General Recommendations for Large Datasets
 

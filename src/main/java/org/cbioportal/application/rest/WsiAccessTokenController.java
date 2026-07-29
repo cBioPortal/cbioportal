@@ -8,9 +8,11 @@ import java.util.Date;
 import java.util.Map;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -33,13 +35,14 @@ public class WsiAccessTokenController {
   @Value("${wsi.access-token-ttl-seconds:300}")
   private int accessTokenTtlSeconds;
 
-  private final CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
-
-  public WsiAccessTokenController(CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator) {
-    this.cancerStudyPermissionEvaluator = cancerStudyPermissionEvaluator;
-  }
+  // The CancerStudyPermissionEvaluator bean does not exist on portals w/o user-authentication.
+  @Autowired(required = false)
+  private CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
 
   @GetMapping("/access-token")
+  @PreAuthorize(
+      "hasPermission(#studyId, 'CancerStudyId', "
+          + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<?> issueAccessToken(@RequestParam(required = false) String studyId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     if (authentication == null
@@ -49,6 +52,9 @@ public class WsiAccessTokenController {
     }
     if (studyId == null || studyId.isBlank()) {
       return ResponseEntity.badRequest().build();
+    }
+    if (cancerStudyPermissionEvaluator == null) {
+      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
     if (!cancerStudyPermissionEvaluator.hasPermission(
         authentication, studyId, "CancerStudyId", AccessLevel.READ)) {

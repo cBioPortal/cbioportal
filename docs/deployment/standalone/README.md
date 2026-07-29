@@ -48,7 +48,7 @@ The default `docker-compose.yml` already includes a `cbioportal-database` servic
 ```yaml
 services:
   cbioportal-database:
-    image: ${DOCKER_IMAGE_CLICKHOUSE}   # defaults to clickhouse/clickhouse-server:24.10 in .env
+    image: clickhouse/clickhouse-server:latest
     # ...configured for isolated use by default
 ```
 
@@ -58,27 +58,22 @@ If you already have a custom Docker Compose setup managing cBioPortal without Cl
 
 ```yaml
 services:
-  cbioportal-database:
-    image: ${DOCKER_IMAGE_CLICKHOUSE}   # e.g. clickhouse/clickhouse-server:24.10
-    container_name: cbioportal-database-container
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.8
+    container_name: cbioportal-clickhouse
     restart: unless-stopped
-    env_file:
-      - .env                            # supplies CLICKHOUSE_DB / USER / PASSWORD
     ports:
-      - "8123:8123"   # HTTP interface (JDBC, used by the web app)
-      - "9000:9000"   # Native TCP (importer, clickhouse client)
+      - "8123:8123"   # HTTP interface (JDBC)
+      - "9000:9000"   # Native TCP (importer, CLI)
     volumes:
-      # Schema, seed data, and derived tables are loaded on first start.
-      # Copy these files in from an internet-connected machine (see below).
-      - ./data/schema.sql:/data/schema.sql:ro
-      - ./data/load_schema.sh:/docker-entrypoint-initdb.d/001_load_schema.sh:ro
-      - ./data/seed.sql.gz:/data/seed.sql.gz:ro
-      - ./data/load_seed.sh:/docker-entrypoint-initdb.d/002_load_seed.sh:ro
-      - ./data/clickhouse.sql:/data/clickhouse.sql:ro
-      - ./data/load_derived_tables.sh:/docker-entrypoint-initdb.d/003_load_derived_tables.sh:ro
-      - cbioportal_clickhouse_data:/var/lib/clickhouse
+      - clickhouse-data:/var/lib/clickhouse
+      - ./config/clickhouse_users.xml:/etc/clickhouse-server/users.d/cbioportal.xml:ro
     networks:
-      - cbio-net
+      - cbio-internal
+    environment:
+      CLICKHOUSE_DB: cbioportal
+      CLICKHOUSE_USER: cbio_user
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     deploy:
       resources:
         limits:
@@ -87,10 +82,10 @@ services:
           memory: 4G
 
 volumes:
-  cbioportal_clickhouse_data:
+  clickhouse-data:
 
 networks:
-  cbio-net:
+  cbio-internal:
     driver: bridge
 ```
 
@@ -98,20 +93,16 @@ networks:
 
 ### Configuring the Connection
 
-In your `.env` file, point cBioPortal to the self-hosted ClickHouse instance. These are the variable names used by [cbioportal-docker-compose](https://github.com/cBioPortal/cbioportal-docker-compose):
+In your `.env` file (or `application.properties`), point cBioPortal to the self-hosted ClickHouse instance:
 
 ```properties
 # .env
-CLICKHOUSE_HOST=cbioportal-database
-CLICKHOUSE_HTTP_PORT=8123
-CLICKHOUSE_NATIVE_PORT=9000
+CLICKHOUSE_HOST=clickhouse
+CLICKHOUSE_PORT=8123
 CLICKHOUSE_DB=cbioportal
 CLICKHOUSE_USER=cbio_user
 CLICKHOUSE_PASSWORD=your-strong-password
-CLICKHOUSE_URL=jdbc:ch://cbioportal-database:8123/cbioportal
 ```
-
-> **Note:** `CLICKHOUSE_HOST` and the host in `CLICKHOUSE_URL` must both match the ClickHouse service name in your Compose file. `CLICKHOUSE_URL` is what the web app uses over JDBC; `CLICKHOUSE_NATIVE_PORT` is what the importer and CLI use.
 
 ## Important Considerations for Air-Gapped Deployments
 
@@ -126,28 +117,22 @@ The `init.sh` script from `cbioportal-docker-compose` downloads seed data and SQ
    ./init.sh
    ```
 2. Copy the entire `cbioportal-docker-compose` directory (including downloaded data in `data/` and `study/`) to the air-gapped machine.
-3. The `data/` directory will contain `schema.sql`, `seed.sql.gz`, `clickhouse.sql`, `clickhouse_user_settings.xml`, and the `load_*.sh` initialization scripts — all needed for an offline initialization.
-
-> **Note:** The Docker images themselves also have to cross the air gap. On the connected machine, `docker pull` each image referenced in `.env` (cBioPortal, ClickHouse, session service, MongoDB), then `docker save` them to a tarball and `docker load` it on the isolated host.
+3. The `data/` directory will contain `schema.sql`, `seed.sql.gz`, `clickhouse.sql`, and `clickhouse_user_settings.xml` — all needed for an offline initialization.
 
 ### External Data Sources
 
-OncoKB, Genome Nexus, CIVIC, and the various annotation overlays are external services that may not be available in air-gapped environments. Disable the ones you cannot reach in `application.properties`:
+OncoKB, Genome Nexus, CIVIC, and G2S are external services that may not be available in air-gapped environments. Disable them in `application.properties`:
 
 ```properties
 show.oncokb=false
 show.civic=false
 show.genomenexus=false
-show.hotspot=false
-show.signal=false
-show.ndex=false
+show.g2s=false
 ```
-
-See the [application.properties reference](/deployment/customization/application.properties-Reference.md) for the full list of toggles.
 
 ### Backup and Recovery
 
-In isolated environments, database backups are especially important since you cannot rely on ClickHouse Cloud backups. See [Data Safety Warnings](/deployment/clickhouse/README.md#10-data-safety-warnings) for best practices.
+In isolated environments, database backups are especially important since you cannot rely on ClickHouse Cloud backups. See [Data Safety Warnings](/deployment/clickhouse/README.md#11-data-safety-warnings) for best practices.
 
 ## Further Reading
 

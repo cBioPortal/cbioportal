@@ -89,7 +89,7 @@ networks:
     driver: bridge
 ```
 
-> **Note:** Adjust the memory limits based on your cohort size. See the [Sizing Guidance](/deployment/clickhouse/README.md#4-sizing-guidance) for recommendations.
+> **Note:** Adjust the memory limits based on your cohort size. See [Notes for Users with High-Volume Data](/deployment/clickhouse/README.md#9-notes-for-users-with-high-volume-data) if imports run short on memory.
 
 ### Configuring the Connection
 

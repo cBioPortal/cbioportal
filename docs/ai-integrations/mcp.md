@@ -31,31 +31,9 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **How it works**: The server acts as an intermediary that combines ClickHouse database access with domain-specific instructions, allowing researchers and clinicians to query complex genomic datasets through conversational interfaces without writing SQL directly.
 
-**Why ClickHouse?** The MCP server uses ClickHouse as its backing data store because ClickHouse is designed for low-latency analytical queries over billions of rows. For chat-style interactions where every 100ms of delay is visible to the user, ClickHouse's columnar storage and precomputed derived tables enable sub-second response times on complex genomic queries. Without ClickHouse, the same queries would require joining across many tables at runtime, making interactive AI-powered exploration impractical. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) for deployment details.
+**Backing data store**: The server queries ClickHouse directly. Most of what it asks for — alteration frequencies, clinical attribute breakdowns, sample counts — is already available in the [derived tables](/deployment/clickhouse/README.md#9-notes-on-derived-tables), which are precomputed and denormalized, so a question usually becomes one scan rather than a join across `mutation`, `genetic_profile`, `sample`, and `gene`. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) for deployment details.
 
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
-
-**Example**: A user asks, in plain language:
-
-> *Which genes are most frequently mutated in the msk_impact_2017 study?*
-
-The MCP server translates this into a query against the `mutation_derived` table — one of the precomputed derived tables described in the [ClickHouse Setup Guide](/deployment/clickhouse/README.md#9-notes-on-derived-tables) — rather than joining `mutation`, `genetic_profile`, `sample`, and `gene` at runtime:
-
-```sql
-SELECT `GENE.hugoGeneSymbol` AS gene,
-       count(DISTINCT sampleId) AS mutated_samples
-FROM mutation_derived
-WHERE studyId = 'msk_impact_2017'
-GROUP BY gene
-ORDER BY mutated_samples DESC
-LIMIT 5;
-```
-
-The result comes back in well under a second even on cohorts with tens of thousands of samples, and the assistant renders it conversationally:
-
-> *The five most frequently mutated genes in MSK-IMPACT (2017) are TP53, KRAS, APC, PIK3CA, and KMT2D.*
-
-The latency of that single scan is what makes multi-turn exploration usable — a follow-up like *"now restrict that to lung adenocarcinoma"* is another sub-second query rather than a multi-second join.
 
 #### cbioportal-navigator
 

@@ -8,6 +8,12 @@ parameters:
   custom_springboot_args:
     type: string
     default: "--spring.profiles.active=clickhouse"
+  wsi_tile_server_repo_url:
+    type: string
+    default: "https://github.com/cBioPortal/cbioportal-tile-server.git"
+  wsi_tile_server_ref:
+    type: string
+    default: "master"
 
 commands:
   build_push_image:
@@ -642,13 +648,6 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # Public read-only staging ClickHouse. Hardcoded rather than read from the
-              # clickhouse-public-staging-ro-user context because CircleCI does not pass
-              # context env vars to forked-PR builds. The remote-clickhouse override pushes
-              # these into the container, replacing the local .env default.
-              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
-              CLICKHOUSE_USER: "apitests"
-              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
@@ -684,10 +683,11 @@ jobs:
             command: |
               mkdir -p /tmp/repos/api-test-results
               cd cbioportal/src/e2e/js
+              corepack enable
               nvm install 22.18.0
               nvm use 22.18.0
-              npm install
-              npm test -- --reporter mocha-junit-reporter
+              yarn install --frozen-lockfile
+              yarn test -- --reporter mocha-junit-reporter
 
         - store_test_results:
             path: /tmp/repos/api-test-results
@@ -695,6 +695,104 @@ jobs:
             path: /tmp/repos/api-test-results
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
+
+    run_wsi_api_tests:
+      machine:
+        image: ubuntu-2204:2024.08.1
+        docker_layer_caching: true
+      resource_class: large
+      working_directory: /tmp/repos
+      environment:
+        DOCKER_REPO: cbioportal/cbioportal-dev
+      steps:
+        - attach_workspace:
+            at: /tmp/repos
+        - run:
+            name: Load cbioportal image
+            command: |
+              export DOCKER_TAG=$CIRCLE_SHA1
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
+        - run:
+            name: Instantiate a cbioportal instance
+            environment:
+              APP_CLICKHOUSE_MODE: "true"
+              APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
+            command: |
+              cd cbioportal-test
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+        - run:
+            name: Wait for cbioportal to be live at localhost
+            command: |
+              cd cbioportal-test
+              ./utils/check-connection.sh --url=localhost:8080
+        - run:
+            name: Start frontend dev server
+            command: |
+              corepack enable
+              cd /tmp/repos/cbioportal-frontend
+              nohup bash -lc 'BRANCH_ENV=master pnpm run start' >> /tmp/repos/frontend-logs.txt 2>&1 &
+        - run:
+            name: Wait for frontend to be live at localhost
+            command: |
+              cd cbioportal-test
+              ./utils/check-connection.sh --url=localhost:3000 --max_retries=80
+        - run:
+            name: Start local-file WSI tile server
+            command: |
+              git clone -b << pipeline.parameters.wsi_tile_server_ref >> --single-branch << pipeline.parameters.wsi_tile_server_repo_url >>
+              cd cbioportal-tile-server
+              python3 tools/download_public_test_slides.py
+              export WSI_TEST_SLIDE_MAP_FILE=/app/testdata/local-slide-map.json
+              export WSI_AUTH_REQUIRED=false
+              export WSI_AUTH_SECRET=local-ci-wsi-secret-local-ci-wsi-secret
+              export REDIS_PASSWORD=local-ci-redis-password
+              export DATABRICKS_HOST=https://example.invalid
+              export DATABRICKS_TOKEN=unused-in-local-slide-mode
+              export DATABRICKS_WAREHOUSE_ID=unused-in-local-slide-mode
+              export SERVER_PORT=8081
+              export CORS_ORIGINS=http://localhost:8080,http://localhost:3000
+              nohup docker compose up -d --build >> /tmp/repos/tile-server-logs.txt 2>&1 &
+        - run:
+            name: Wait for WSI tile server to be live at localhost
+            command: |
+              cd cbioportal-test
+              ./utils/check-connection.sh --url=localhost:8081 --max_retries=80
+        - run:
+            name: Smoke check local-file WSI tile server mode
+            command: |
+              curl -fsS http://localhost:8081/tiles/openslide-small/metadata | jq '.dimensions.width' > /tmp/repos/wsi-tile-smoke.txt
+              curl -fsS http://localhost:8081/tiles/missing-local/metadata && exit 1 || true
+        - run:
+            name: Run WSI API tests
+            environment:
+              CBIOPORTAL_URL: http://localhost:8080
+              CBIOPORTAL_FRONTEND_URL: http://localhost:3000
+              WSI_TILE_SERVER_URL: http://localhost:8081
+              WSI_TEST_BLOCK_SLIDE_ID: openslide-small
+              WSI_TEST_PART_SLIDE_ID: mussel-small
+              WSI_TEST_UNMATCHED_SLIDE_ID: missing-local
+              MOCHA_FILE: /tmp/repos/wsi-api-test-results/results.xml
+            command: |
+              mkdir -p /tmp/repos/wsi-api-test-results
+              cd cbioportal/src/e2e/js
+              corepack enable
+              nvm install 22.18.0
+              nvm use 22.18.0
+              yarn install --frozen-lockfile
+              yarn test -- --grep 'WsiHierarchyController' --reporter mocha-junit-reporter
+        - store_test_results:
+            path: /tmp/repos/wsi-api-test-results
+        - store_artifacts:
+            path: /tmp/repos/wsi-api-test-results
+        - store_artifacts:
+            path: /tmp/repos/docker-compose-logs.txt
+        - store_artifacts:
+            path: /tmp/repos/frontend-logs.txt
+        - store_artifacts:
+            path: /tmp/repos/tile-server-logs.txt
+        - store_artifacts:
+            path: /tmp/repos/wsi-tile-smoke.txt
 
     run_security_tests:
       machine:
@@ -856,6 +954,12 @@ workflows:
             context:
               - clickhouse-public-staging-ro-user
             requires:
+              - build_web_image
+        - run_wsi_api_tests:
+            context:
+              - clickhouse-public-staging-ro-user
+            requires:
+              - build_frontend
               - build_web_image
         - run_security_tests:
             context:

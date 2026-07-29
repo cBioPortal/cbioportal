@@ -370,7 +370,30 @@ FROM sample_derived AS sm
                          ON cs.cancer_study_id = cam.cancer_study_id
          LEFT JOIN clinical_sample AS csamp
                          ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
-WHERE cam.patient_attribute = 0;
+WHERE cam.patient_attribute = 0
+
+UNION ALL
+
+SELECT sm.internal_id             AS internal_id,
+       sm.sample_unique_id        AS sample_unique_id,
+       sm.patient_unique_id       AS patient_unique_id,
+       cam.attr_id                AS attribute_name,
+       ifNull(csamp.attr_value, '')          AS attribute_value,
+       cs.cancer_study_identifier AS cancer_study_identifier,
+       'sample'                   AS type
+FROM sample_derived AS sm
+         INNER JOIN cancer_study AS cs
+                    ON sm.cancer_study_identifier = cs.cancer_study_identifier
+         CROSS JOIN clinical_attribute_meta AS cam
+         LEFT JOIN clinical_attribute_meta AS cam_override
+                   ON cam.attr_id = cam_override.attr_id
+                       AND cam_override.patient_attribute = 0
+                       AND cam_override.cancer_study_id = cs.cancer_study_id
+         LEFT JOIN clinical_sample AS csamp
+                    ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
+WHERE cam.cancer_study_id = 0
+  AND cam.patient_attribute = 0
+  AND empty(cam_override.attr_id);
 
 -- INSERT patient attribute data
 INSERT INTO TABLE clinical_data_derived
@@ -387,7 +410,29 @@ FROM patient AS p
                          ON cs.cancer_study_id = cam.cancer_study_id
          LEFT JOIN clinical_patient AS clinpat
                          ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
-WHERE cam.patient_attribute = 1;
+WHERE cam.patient_attribute = 1
+
+UNION ALL
+
+SELECT p.internal_id                                        AS internal_id,
+       ''                                                   AS sample_unique_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+       cam.attr_id                                          AS attribute_name,
+       ifNull(clinpat.attr_value, '')                       AS attribute_value,
+       cs.cancer_study_identifier                           AS cancer_study_identifier,
+       'patient'                                            AS type
+FROM patient AS p
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+         CROSS JOIN clinical_attribute_meta AS cam
+         LEFT JOIN clinical_attribute_meta AS cam_override
+                   ON cam.attr_id = cam_override.attr_id
+                       AND cam_override.patient_attribute = 1
+                       AND cam_override.cancer_study_id = cs.cancer_study_id
+         LEFT JOIN clinical_patient AS clinpat
+                    ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
+WHERE cam.cancer_study_id = 0
+  AND cam.patient_attribute = 1
+  AND empty(cam_override.attr_id);
 
 -- Creates and populates clinical_event_derived with a primary key for Clickhouse-only (original clinical_event table remains unchanged)
 CREATE TABLE clinical_event_derived

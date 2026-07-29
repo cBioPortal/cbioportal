@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
+    <select id="getPatientHierarchy" resultType="string">
+        SELECT hierarchy_json
+        FROM wsi_patient_hierarchy
+        WHERE study_id = #{studyId}
+          AND patient_id = #{patientId}
+          AND snapshot_version = (
+              SELECT active_version
+              FROM wsi_patient_hierarchy_manifest FINAL
+              WHERE study_id = #{studyId}
+              LIMIT 1
+          )
+        LIMIT 1
+    </select>
+</mapper>

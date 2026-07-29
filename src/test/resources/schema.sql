@@ -49,6 +49,8 @@ DROP TABLE IF EXISTS cancer_study_tags;
 DROP TABLE IF EXISTS clinical_attribute_meta;
 DROP TABLE IF EXISTS clinical_event;
 DROP TABLE IF EXISTS clinical_event_data;
+DROP TABLE IF EXISTS wsi_patient_hierarchy;
+DROP TABLE IF EXISTS wsi_patient_hierarchy_manifest;
 DROP TABLE IF EXISTS clinical_patient;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS cna_event;
@@ -232,6 +234,23 @@ CREATE TABLE gene_panel_list (
     `gene_id` Int64
 ) ENGINE = MergeTree ORDER BY (internal_id, gene_id);
 
+CREATE TABLE wsi_patient_hierarchy (
+    study_id         String,
+    patient_id       String,
+    snapshot_version UInt64,
+    hierarchy_json   String,
+    updated_at       DateTime
+) ENGINE = MergeTree()
+ORDER BY (study_id, patient_id, snapshot_version);
+
+CREATE TABLE wsi_patient_hierarchy_manifest (
+    study_id       String,
+    active_version UInt64,
+    updated_at     DateTime
+) ENGINE = ReplacingMergeTree(updated_at)
+ORDER BY study_id;
+
+-- --------------------------------------------------------
 CREATE TABLE generic_entity_properties (
     `id` Int64,
     `genetic_entity_id` Int64,

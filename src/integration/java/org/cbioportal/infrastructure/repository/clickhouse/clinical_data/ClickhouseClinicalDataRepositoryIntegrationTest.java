@@ -26,30 +26,30 @@ class ClickhouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
 
   // Test data based on actual cBioPortal public dataset
   private static final List<String> TEST_STUDY_IDS = List.of(
-      "acc_tcga_pan_can_atlas_2018"
+      "acc_tcga"
   );
 
   private static final List<String> TEST_SAMPLE_UNIQUE_IDS = List.of(
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01",
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J3-01"
+      "acc_tcga_tcga-a1-b0so-01",
+      "acc_tcga_tcga-a1-b0sp-01",
+      "acc_tcga_tcga-a1-b0sq-01"
   );
 
   private static final List<String> TEST_PATIENT_UNIQUE_IDS = List.of(
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1",
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2",
-      "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J3"
+      "acc_tcga_tcga-a1-b0so",
+      "acc_tcga_tcga-a1-b0sp",
+      "acc_tcga_tcga-a1-b0sq"
   );
 
   private static final List<String> COMMON_SAMPLE_ATTRIBUTES = List.of(
-      "SAMPLE_TYPE",
-      "ANEUPLOIDY_SCORE"
+      "subtype",
+      "days_to_collection"
   );
 
   private static final List<String> COMMON_PATIENT_ATTRIBUTES = List.of(
-      "AGE",
-      "SEX",
-      "PRIOR_DX"
+      "os_status",
+      "retrospective_collection",
+      "wsi_slides"
   );
 
   @BeforeEach
@@ -119,41 +119,41 @@ class ClickhouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   void shouldReturnCorrectAttributeValuesForDetailedProjection() {
     List<ClinicalData> result = repository.fetchClinicalDataDetailed(
         List.of(
-            "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
-            "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
+            "acc_tcga_tcga-a1-b0so-01",
+            "acc_tcga_tcga-a1-b0sp-01"
         ),
-        List.of("ANEUPLOIDY_SCORE", "SAMPLE_TYPE"),
+        List.of("subtype", "days_to_collection"),
         TEST_STUDY_IDS,
         ClinicalDataType.SAMPLE
     );
 
     assertFalse(result.isEmpty(), "Should return data for valid sample IDs");
 
-    boolean foundJ1Aneuploidy = false;
-    boolean foundJ2Aneuploidy = false;
-    boolean foundSampleType = false;
+    boolean foundB0soSubtype = false;
+    boolean foundB0spSubtype = false;
+    boolean foundDaysToCollection = false;
 
     for (ClinicalData data : result) {
-      if ("TCGA-OR-A5J1-01".equals(data.sampleId()) && "ANEUPLOIDY_SCORE".equals(data.attrId())) {
-        assertEquals("2", data.attrValue(), "TCGA-OR-A5J1-01 should have ANEUPLOIDY_SCORE = 2");
-        foundJ1Aneuploidy = true;
+      if ("tcga-a1-b0so-01".equals(data.sampleId()) && "subtype".equals(data.attrId())) {
+        assertEquals("Luminal A", data.attrValue(), "tcga-a1-b0so-01 should have subtype = Luminal A");
+        foundB0soSubtype = true;
       }
-      if ("TCGA-OR-A5J2-01".equals(data.sampleId()) && "ANEUPLOIDY_SCORE".equals(data.attrId())) {
-        assertEquals("10", data.attrValue(), "TCGA-OR-A5J2-01 should have ANEUPLOIDY_SCORE = 10");
-        foundJ2Aneuploidy = true;
+      if ("tcga-a1-b0sp-01".equals(data.sampleId()) && "subtype".equals(data.attrId())) {
+        assertEquals("Luminal B", data.attrValue(), "tcga-a1-b0sp-01 should have subtype = Luminal B");
+        foundB0spSubtype = true;
       }
-      if ("SAMPLE_TYPE".equals(data.attrId())) {
-        assertEquals("Primary", data.attrValue(), "All samples should have SAMPLE_TYPE = Primary");
-        foundSampleType = true;
+      if ("tcga-a1-b0so-01".equals(data.sampleId()) && "days_to_collection".equals(data.attrId())) {
+        assertEquals("111", data.attrValue(), "Known seeded sample should have days_to_collection = 111");
+        foundDaysToCollection = true;
       }
 
       assertNotNull(data.clinicalAttribute(), "DETAILED projection should include clinical attribute");
       assertEquals(data.attrId(), data.clinicalAttribute().attrId(), "Attribute IDs should match");
     }
 
-    assertTrue(foundJ1Aneuploidy, "Should find ANEUPLOIDY_SCORE for TCGA-OR-A5J1-01");
-    assertTrue(foundJ2Aneuploidy, "Should find ANEUPLOIDY_SCORE for TCGA-OR-A5J2-01");
-    assertTrue(foundSampleType, "Should find SAMPLE_TYPE data");
+    assertTrue(foundB0soSubtype, "Should find subtype for tcga-a1-b0so-01");
+    assertTrue(foundB0spSubtype, "Should find subtype for tcga-a1-b0sp-01");
+    assertTrue(foundDaysToCollection, "Should find days_to_collection data");
   }
 
   // META projection tests
@@ -196,10 +196,10 @@ class ClickhouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
   @Test
   void shouldReturnSameEntitiesAcrossDifferentProjections() {
     List<String> testIds = List.of(
-        "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J1-01",
-        "acc_tcga_pan_can_atlas_2018_TCGA-OR-A5J2-01"
+        "acc_tcga_tcga-a1-b0so-01",
+        "acc_tcga_tcga-a1-b0sp-01"
     );
-    List<String> testAttrs = List.of("SAMPLE_TYPE");
+    List<String> testAttrs = List.of("subtype");
 
     List<ClinicalData> idResults = repository.fetchClinicalDataId(
         testIds, testAttrs, TEST_STUDY_IDS, ClinicalDataType.SAMPLE
@@ -225,7 +225,7 @@ class ClickhouseClinicalDataRepositoryIntegrationTest extends AbstractClickhouse
           "Sample ID should match across projections");
 
       assertNull(idData.attrValue(), "ID projection should not have attribute value");
-      assertEquals("Primary", summaryData.attrValue(), "SUMMARY projection should have attribute value");
+      assertNotNull(summaryData.attrValue(), "SUMMARY projection should have attribute value");
     }
   }
 

@@ -13,5 +13,3 @@ v7 replaced MySQL with [ClickHouse](https://clickhouse.com/), which is now the o
 - **[Deploy with Docker](/deployment/docker/README.md)** — Quick start with Docker Compose
 - **[ClickHouse Setup](/deployment/clickhouse/README.md)** — Hosting options and architecture
 - **[Migrating from v6 (MySQL) to v7 (ClickHouse)](/Migration-v6-to-v7.md)** — Upgrade path for existing installations
-
-Kubernetes is not supported for v7. The [v6 Kubernetes guide](/legacy/deployment/kubernetes/README.md) predates ClickHouse and is kept for reference only.

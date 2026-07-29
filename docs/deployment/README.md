@@ -11,7 +11,7 @@ v7 replaced MySQL with [ClickHouse](https://clickhouse.com/), which is now the o
 ## Deployment Overview
 
 - **[Deploy with Docker](/deployment/docker/README.md)** — Quick start with Docker Compose
-- **[ClickHouse Setup](/deployment/clickhouse/README.md)** — Hosting options, architecture, and sizing
+- **[ClickHouse Setup](/deployment/clickhouse/README.md)** — Hosting options and architecture
 - **[Standalone / Air-Gapped Deployment](/deployment/standalone/README.md)** — Self-hosted ClickHouse inside an isolated network
 - **[Migrating from v6 (MySQL) to v7 (ClickHouse)](/Migration-v6-to-v7.md)** — Upgrade path for existing installations
 

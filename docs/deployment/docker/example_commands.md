@@ -23,11 +23,18 @@ docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html 
 ```
 > :warning: After importing a study, remember to restart the `cbioportal` container to see the study on the home page. Run `docker compose restart cbioportal`.
 
-> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
+> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory (OOM) error. Use the `-jvo` flag to increase the JVM heap:
 >
+> ```bash
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 > ```
-> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
+>
+> For larger studies (50K+ samples), try:
+> ```bash
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms8g -Xmx32g"
 > ```
+>
+> See the [Importing Studies](/deployment/docker/README.md#importing-studies) section in the Docker deployment guide for full details on choosing the right heap size.
 
 ### Incremental Import
 

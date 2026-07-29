@@ -136,40 +136,22 @@ spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 
 When using Docker Compose, these are set automatically from the `.env` file.
 
-
-
 ---
 
 ## 4. Sizing Guidance
 
-Choosing the right ClickHouse resources depends on your cohort size and query workload. The table below provides rough guidelines for self-hosted ClickHouse deployments. For ClickHouse Cloud (used by the public cBioPortal at cbioportal.org and genie.cbioportal.org), you can adjust compute and RAM on demand.
+These are starting points for a self-hosted database, not benchmarks. On ClickHouse Cloud you can raise compute and RAM after the fact, so size for your current cohort and adjust.
 
-| Cohort Size | Minimum RAM | Recommended RAM | Storage (estimated) | CPU | Notes |
-|---|---|---|---|---|---|
-| <10K samples | 4 GB | 8 GB | 10–50 GB | 2 vCPU | Suitable for evaluation, development, or small institutional deployments. The default Docker Compose setup works well here. |
-| 10K–100K samples | 8 GB | 16 GB | 50–500 GB | 4 vCPU | Typical mid-size institutional deployment. Derived table rebuilds may require 16 GB+ during peak. |
-| 100K–500K samples | 16 GB | 32 GB | 500 GB – 2 TB | 8 vCPU | Large research consortia. Strongly consider ClickHouse Cloud for elastic scaling. Batch imports with `--no-derive-tables`. |
-| >500K samples | 32 GB | 64 GB+ | 2 TB+ | 16 vCPU | Public portals (e.g., cbioportal.org). ClickHouse Cloud recommended; blue-green deployment advised. |
+| Cohort size | RAM | Storage | CPU |
+|---|---|---|---|
+| <10K samples | 4-8 GB | 10-50 GB | 2 vCPU |
+| 10K-100K samples | 8-16 GB | 50-500 GB | 4 vCPU |
+| 100K-500K samples | 16-32 GB | 500 GB - 2 TB | 8 vCPU |
+| >500K samples | 32-64 GB+ | 2 TB+ | 16 vCPU |
 
-> **Note:** Storage estimates depend heavily on the number of genetic profiles, clinical attributes, and mutation density per sample. The figures above assume typical whole-exome sequencing studies.
+Storage varies with the number of genetic profiles, clinical attributes, and mutation density per sample; these figures assume whole-exome studies. Whole-genome data will need considerably more.
 
-### Memory Pressure During Imports
-
-Importing large studies and rebuilding derived tables are the most memory-intensive operations. If you see `Memory limit exceeded` errors:
-
-- **Reduce concurrency** — Import studies one at a time with `--no-derive-tables`, then run `derive-tables` once at the end.
-- **Add back-off between optimize operations** — Set `CLICKHOUSE_OPTIMIZE_BACKOFF_SECS` in your `.env` file (see [section 10](#10-notes-for-users-with-high-volume-data)).
-- **Upgrade your ClickHouse instance** — Add RAM or switch to ClickHouse Cloud.
-
-### ClickHouse Cloud Tiers
-
-For ClickHouse Cloud, the service tier determines resource allocation:
-
-- **Development tier** — Suitable for evaluation and small cohorts (<10K samples)
-- **Production tier** — Suitable for institutional deployments (10K–500K samples)
-- **Enterprise tier** — Suitable for public portals and large consortia (>500K samples)
-
-See the [ClickHouse Cloud documentation](https://clickhouse.com/docs/cloud/manage) for the latest pricing and service tiers.
+Imports and derived table rebuilds are the memory-intensive part, so size for those rather than for query load. If a rebuild hits `Memory limit exceeded`, import one study at a time with `--no-derive-tables` and run `derive-tables` once at the end, or set `CLICKHOUSE_OPTIMIZE_BACKOFF_SECS` (see [section 10](#10-notes-for-users-with-high-volume-data)) before adding RAM.
 
 ---
 
@@ -199,11 +181,9 @@ This will use the ClickHouse CLI that is embedded in the `cbioportal-database` c
 
 ## 6. Migrating from MySQL to ClickHouse
 
-> **Note:** ClickHouse is the sole database from v7 onward. A v7 web app will not connect to MySQL, so this is a one-way migration.
+v7 will not connect to MySQL, so this is a one-way migration. There is no command that turns a populated MySQL database back into study files: you re-import the study directories you originally loaded. Set up ClickHouse per [Docker Compose Setup](#5-docker-compose-setup), re-import each study per [Data Loading](#8-data-loading), then rebuild derived tables once at the end.
 
-There is no export command that reconstructs study files from a MySQL database — migration re-imports the study directories you originally loaded. Stand up ClickHouse as described in [Docker Compose Setup](#5-docker-compose-setup), re-import each study as described in [Data Loading](#8-data-loading), and rebuild derived tables once at the end.
-
-The full step-by-step procedure is in the [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
+For the full procedure, see the [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
 
 ---
 
@@ -259,7 +239,6 @@ This imports the study data without rebuilding derived tables unnecessarily.
 - The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#10-notes-for-users-with-high-volume-data) if you encounter issues.
 - Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports.
 
-
 ---
 
 ## 10. Notes for Users with High-Volume Data
@@ -280,30 +259,27 @@ The derived table scripts perform large joins and aggregations that can consume 
 
 This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak memory usage during imports. Increase this value if you continue to see memory pressure.
 
-
 ### Java Out-of-Memory Errors During Import
 
-If the importer fails with `java.lang.OutOfMemoryError: Java heap space` or the `cbioportal` container is killed with exit code 137 (SIGKILL), the Java heap used by `metaImport.py` may be too small for the study being imported.
-
-**Fix:** Pass JVM options to the importer using the `-jvo` (`--jvm-opts`) flag:
+`java.lang.OutOfMemoryError: Java heap space`, or the `cbioportal` container exiting with code 137, means the importer's Java heap is too small for the study. Raise it with `-jvo` (`--jvm-opts`):
 
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 ```
 
-For larger studies, pre-allocate the heap with `-Xms` and allow more headroom with `-Xmx`:
+Larger studies benefit from pre-allocating the heap as well:
 
 ```bash
-# For studies over 50K samples, try:
+# over 50K samples
 docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms8g -Xmx32g"
 
-# For very large studies (>200K samples) or full-genome data:
+# over 200K samples, or whole-genome data
 docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
 ```
 
-> **Note:** The `-Xmx` value should not exceed roughly 75% of the RAM available to the Docker VM, since ClickHouse, the web app, and MongoDB also need memory. If the total exceeds system RAM, the kernel's OOM killer may terminate the container.
+Keep `-Xmx` under roughly 75% of the RAM available to the Docker VM. ClickHouse, the web app, and MongoDB need the rest, and if the total exceeds system RAM the kernel will kill the container instead.
 
-See the [Docker deployment guide](/deployment/docker/README.md#importing-studies) for more detail on troubleshooting import OOM errors.
+See the [Docker deployment guide](/deployment/docker/README.md#importing-studies) for more on import OOM errors.
 
 ### General Recommendations for Large Datasets
 
@@ -346,8 +322,6 @@ If you upgrade to a newer version of cBioPortal that includes schema changes, yo
 3. Re-import all studies using `metaImport.py -s ...`.
 
 This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.
-
-
 
 ---
 

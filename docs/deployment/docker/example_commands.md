@@ -23,14 +23,6 @@ docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html 
 ```
 > :warning: After importing a study, remember to restart the `cbioportal` container to see the study on the home page. Run `docker compose restart cbioportal`.
 
-> :warning: **Warning:** Large studies can exhaust the importer's Java heap. Raise it with `-jvo`:
->
-> ```bash
-> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
-> ```
->
-> Past roughly 50K samples, use `-jvo "-Xms8g -Xmx32g"`. See [Importing Studies](/deployment/docker/README.md#importing-studies) for how to pick a heap size.
-
 ### Incremental Import
 
 To add or update data in an existing study without importing the entire study, you can use the new incremental import functionality. Point the importer to a folder containing a "delta" of study data you would like to add. To load data incrementally, you will specify the `-d` instead of the `-s` option.

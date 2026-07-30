@@ -275,6 +275,26 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
+## WSI hierarchy materialization
+
+Native WSI patient hierarchy reads in cBioPortal come from the ClickHouse
+tables `wsi_patient_hierarchy` and `wsi_patient_hierarchy_manifest`. cBioPortal
+ships the schema for fresh database initialization and test fixtures, but the
+production publication workflow is owned by the tile-server loader.
+
+Before enabling the frontend Pathology Slides feature for a study:
+
+1. Deploy the tile-server loader branch that runs
+   `load_clickhouse_hierarchy.py`.
+2. Allow that loader to create the WSI hierarchy tables on its first run with
+   ClickHouse DDL privileges.
+3. After the initial setup, continue publishing validated daily snapshots so
+   the manifest only advances to complete hierarchy versions.
+
+The portal does not provide a legacy hierarchy fallback. If the active manifest
+has not been published for a study, the backend hierarchy endpoint returns no
+data and the frontend hides the Pathology Slides tab.
+
 ---
 
 ## 12. Version Migration

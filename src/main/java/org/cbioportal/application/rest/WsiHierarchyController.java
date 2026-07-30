@@ -33,19 +33,4 @@ public class WsiHierarchyController {
     }
     return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(hierarchy);
   }
-
-  @GetMapping("/{studyId}/{patientId}/bootstrap")
-  @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', "
-          + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  public ResponseEntity<String> getPatientHierarchyBootstrap(
-      @PathVariable String studyId, @PathVariable String patientId) {
-    String hierarchy = repository.getPatientHierarchy(studyId, patientId);
-    if (hierarchy == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-    return ResponseEntity.ok()
-        .contentType(MediaType.APPLICATION_JSON)
-        .body("{\"hierarchy\":" + hierarchy + ",\"initial\":null}");
-  }
 }

@@ -117,19 +117,6 @@ describe('WsiHierarchyController E2E Tests', () => {
     expect(response.data).to.deep.equal(fixture.hierarchy);
   });
 
-  it('returns bootstrap payload with null initial slide', async () => {
-    const response = await axios.get<{ hierarchy: PatientHierarchy; initial: null }>(
-      `${hierarchyUrl}/bootstrap`
-    );
-
-    expect(response.status).to.equal(200);
-    expect(response.headers['content-type']).to.contain('application/json');
-    expect(response.data).to.deep.equal({
-      hierarchy: fixture.hierarchy,
-      initial: null,
-    });
-  });
-
   const frontendIt = hasExplicitFrontend ? it : it.skip;
   const tileIt = hasExplicitTileServer ? it : it.skip;
   const hierarchyTileConsistencyIt =
@@ -178,18 +165,6 @@ describe('WsiHierarchyController E2E Tests', () => {
         `${config.serverUrl}/api/wsi/hierarchy/${fixture.study_id}/missing-patient`
       );
       expect.fail('Expected request to fail with 404');
-    } catch (error: any) {
-      expect(error.response).to.not.equal(undefined);
-      expect(error.response.status).to.equal(404);
-    }
-  });
-
-  it('returns 404 bootstrap payload for an unknown patient', async () => {
-    try {
-      await axios.get(
-        `${config.serverUrl}/api/wsi/hierarchy/${fixture.study_id}/missing-patient/bootstrap`
-      );
-      expect.fail('Expected bootstrap request to fail with 404');
     } catch (error: any) {
       expect(error.response).to.not.equal(undefined);
       expect(error.response.status).to.equal(404);

@@ -82,7 +82,7 @@ Please note that some data types like study are not supported and must not be pr
 
 #### Derived Tables
 
-After each import (incremental or otherwise), `metaImport.py` automatically rebuilds **derived tables** — ClickHouse tables that pre-join and denormalize data for fast Study View queries. See the [ClickHouse Setup Guide](../deployment/clickhouse/README.md#5-derived-tables) for details on what derived tables are and why they matter.
+After each import (incremental or otherwise), `metaImport.py` automatically rebuilds **derived tables** — ClickHouse tables that pre-join and denormalize data for fast Study View queries. See the [ClickHouse Setup Guide](../deployment/clickhouse/README.md#7-notes-on-derived-tables) for details on what derived tables are and why they matter.
 
 #### Rebuilding Derived Tables Only
 

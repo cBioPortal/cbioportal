@@ -92,15 +92,3 @@ CLICKHOUSE_DB=<your_clickhouse_db_name>
 docker compose exec cbioportal-database \
     sh -c 'clickhouse client -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --database="$CLICKHOUSE_DB"'
 ```
-
-### Deleting a study ###
-
-To remove a study, run:
-
-```shell
-docker compose exec \
-    cbioportal \
-    cbioportalImporter.py -c remove-study -id study_id
-```
-
-Where `study_id` is the `cancer_study_identifier` of the study you would like to remove.

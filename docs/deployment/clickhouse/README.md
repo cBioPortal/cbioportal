@@ -13,7 +13,7 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 7. [Notes on Derived Tables](#7-notes-on-derived-tables)
 8. [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data)
 9. [Data Safety Warnings](#9-data-safety-warnings)
-10. [Verifying Structural Integrity](#10-verifying-structural-integrity)
+10. [Verifying Database Integrity](#10-verifying-database-integrity)
 11. [Version Migration](#11-version-migration)
 12. [Further Reading](#12-further-reading)
 

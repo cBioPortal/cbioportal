@@ -270,10 +270,10 @@ Validation of study succeeded.
 ```
 
 When using the `-html` option, a report will be generated, which looks like this for the previous example:
-![Screenshot of a successful validation report](images/scripts/report.png)
+![Screenshot of a successful validation report](../images/scripts/report.png)
 
 Here is an example of an HTML report for unsuccessful validation:
-![Screenshot of an unsuccessful validation report](images/scripts/report1.png)
+![Screenshot of an unsuccessful validation report](../images/scripts/report1.png)
 
 ## Offline validation ##
 The validation script can be used offline, without connecting to a cBioPortal server. The tests that depend on information specific to the portal (which clinical attributes and cancer types have been previously defined, and which Entrez gene identifiers and corresponding symbols are supported), will instead be read from a folder with .json files generated from the portal.
@@ -713,7 +713,7 @@ Validation of study succeeded with warnings.
 ## Validation of non-human data ##
 When importing a study with a reference genome other than hg19/GRCh37, this should be specified in the `meta_study.txt` file, next to the `reference_genome` field. Supported values are **hg19**, **hg38** and **mm10**.
 
-cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to [set up your database for mouse](/deployment/deploy-without-docker/Import-the-Seed-Database.md#download-the-cbioportal-seed-database).
+cBioPortal is gradually introducing support for mouse. If you want to load mouse studies, you first have to load the [mouse seed data](https://github.com/cBioPortal/datahub/blob/master/seedDB_mouse/README.md) into your database.
 
 As an example, the command for the mouse example using the three parameters is given:
 ```

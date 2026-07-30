@@ -27,7 +27,7 @@ In addition to storing the token (the unique number), its creation and expiratio
 
 A third implementation makes use of an external OAuth2-authentication provider and can integrate with single-sign on (SSO) solutions. The OAuth2 provider provides users with an **offline token** that does not allow for direct access to protected cBioPortal resources. Instead, the offline token is passed to the OAuth2 authorization server that returns an **access token**, a short-lived permission to access cBioPortal resources. The access token contains up-to-date user permissions (the studies that the user is permitted to view). This implementation ensures that any changes of user permissions registered at the authentication provider are effective immediately and do not rely on the expiration date of the token of the user. At any moment OAuth2 offline tokens can be revoked by the Authentication provider on a per-user basis.
 
-A step-by-step guide to configure KeyCloak to provide OAuth2 client functionality can be found in [Authenticating and Authorizing Users via keycloak](Authenticating-and-Authorizing-Users-via-keycloak.md#add-client-for-oauth2-token-based-data-access).
+A step-by-step guide to configure KeyCloak to provide OAuth2 client functionality can be found in [Authenticating and Authorizing Users via keycloak](/deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md#add-client-for-oauth2-token-based-data-access).
 
 ### Modifying Configuration
 

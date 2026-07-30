@@ -1,4 +1,4 @@
-> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](../README.md).
+> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](/deployment/README.md).
 
 # Pre-Build Steps
 

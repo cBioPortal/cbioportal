@@ -48,9 +48,8 @@ docker compose exec cbioportal metaImport.py \
 ```
 
 ## Requirements for gene sets in cBioPortal
-Gene set functionality was added in cBioPortal 1.7.0. Please use this or a later version. In addition, the database has to be updated to version 2.3.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper `migrate_db.py` for `migration.sql`.
 
-Updating the database is described [here](https://github.com/cBioPortal/cbioportal/blob/master/docs/Updating-your-cBioPortal-installation.md#running-the-migration-script).
+> **Note:** The database-migration step described for earlier versions (`migrate_db.py` / `migration.sql`) no longer applies to cBioPortal v7. See the [v6-to-v7 migration guide](/Migration-v6-to-v7.md).
 
 ## Import Gene Sets
 

@@ -720,12 +720,26 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
-              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
               cd cbioportal-test
               ./utils/check-connection.sh --url=localhost:8080
+        - run:
+            name: Seed local ClickHouse WSI hierarchy fixture
+            command: |
+              for attempt in $(seq 1 150); do
+                if docker exec cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB" --query "SELECT 1"' >/dev/null 2>&1; then
+                  break
+                fi
+                if [ "$attempt" -eq 150 ]; then
+                  echo "ClickHouse did not become ready within 5 minutes"
+                  exit 1
+                fi
+                sleep 2
+              done
+              docker exec -i cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB"' < /tmp/repos/cbioportal/src/e2e/js/test/WsiHierarchyController/wsi_hierarchy_ci_seed.sql
         - run:
             name: Start frontend dev server
             command: |
@@ -956,8 +970,6 @@ workflows:
             requires:
               - build_web_image
         - run_wsi_api_tests:
-            context:
-              - clickhouse-public-staging-ro-user
             requires:
               - build_frontend
               - build_web_image

@@ -29,4 +29,3 @@ hierarchy endpoints:
 
 - `samples[].parts[].blocks[].slides[]`
 - `slide_associations[]`
-- `/bootstrap` response envelope with `initial: null`

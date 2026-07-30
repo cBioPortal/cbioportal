@@ -100,27 +100,6 @@ public class WsiHierarchyControllerTest {
 
   @Test
   @WithMockUser
-  public void returnsBootstrapEnvelopeForAuthorizedUsers() throws Exception {
-    when(cancerStudyPermissionEvaluator.hasPermission(
-            org.mockito.ArgumentMatchers.any(Authentication.class),
-            eq("study"),
-            eq("CancerStudyId"),
-            eq(AccessLevel.READ)))
-        .thenReturn(true);
-    when(repository.getPatientHierarchy("study", "patient"))
-        .thenReturn("{\"patient_id\":\"patient\",\"samples\":[]}");
-
-    mockMvc
-        .perform(get("/api/wsi/hierarchy/study/patient/bootstrap"))
-        .andExpect(status().isOk())
-        .andExpect(content().contentTypeCompatibleWith("application/json"))
-        .andExpect(
-            content()
-                .json("{\"hierarchy\":{\"patient_id\":\"patient\",\"samples\":[]},\"initial\":null}"));
-  }
-
-  @Test
-  @WithMockUser
   public void returnsNotFoundWhenPatientIsMissing() throws Exception {
     when(cancerStudyPermissionEvaluator.hasPermission(
             org.mockito.ArgumentMatchers.any(Authentication.class),

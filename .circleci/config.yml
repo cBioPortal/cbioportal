@@ -8,13 +8,6 @@ parameters:
   custom_springboot_args:
     type: string
     default: "--spring.profiles.active=clickhouse"
-  wsi_tile_server_repo_url:
-    type: string
-    default: "https://github.com/cBioPortal/cbioportal-tile-server.git"
-  wsi_tile_server_ref:
-    type: string
-    default: "master"
-
 commands:
   build_push_image:
     description: "Build and push cBioPortal image to Dockerhub. Check parameters below for configurable options."
@@ -790,21 +783,12 @@ jobs:
                 exit 1
               fi
         - run:
-            name: Start local-file WSI tile server
+            name: Start local WSI tile contract fixture
             command: |
-              git clone -b << pipeline.parameters.wsi_tile_server_ref >> --single-branch << pipeline.parameters.wsi_tile_server_repo_url >>
-              cd cbioportal-tile-server
-              python3 tools/download_public_test_slides.py
-              export WSI_TEST_SLIDE_MAP_FILE=/app/testdata/local-slide-map.json
-              export WSI_AUTH_REQUIRED=false
-              export WSI_AUTH_SECRET=local-ci-wsi-secret-local-ci-wsi-secret
-              export REDIS_PASSWORD=local-ci-redis-password
-              export DATABRICKS_HOST=https://example.invalid
-              export DATABRICKS_TOKEN=unused-in-local-slide-mode
-              export DATABRICKS_WAREHOUSE_ID=unused-in-local-slide-mode
               export SERVER_PORT=8081
-              export CORS_ORIGINS=http://localhost:8080,http://localhost:3000
-              nohup docker compose up -d --build >> /tmp/repos/tile-server-logs.txt 2>&1 &
+              nohup python3 \
+                /tmp/repos/cbioportal/src/e2e/js/test/WsiHierarchyController/local_tile_server.py \
+                >> /tmp/repos/tile-server-logs.txt 2>&1 &
         - run:
             name: Wait for WSI tile server to be live at localhost
             command: |
@@ -813,7 +797,7 @@ jobs:
         - run:
             name: Smoke check local-file WSI tile server mode
             command: |
-              curl -fsS http://localhost:8081/tiles/openslide-small/metadata | jq '.dimensions.width' > /tmp/repos/wsi-tile-smoke.txt
+              curl -fsS http://localhost:8081/tiles/3020726/metadata | jq '.dimensions.width' > /tmp/repos/wsi-tile-smoke.txt
               curl -fsS http://localhost:8081/tiles/missing-local/metadata && exit 1 || true
         - run:
             name: Run WSI API tests

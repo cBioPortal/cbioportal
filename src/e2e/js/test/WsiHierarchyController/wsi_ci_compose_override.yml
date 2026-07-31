@@ -1,4 +1,18 @@
 services:
+  cbioportal:
+    # The web-and-data runtime is JRE-only; bypass the legacy entrypoint's
+    # `jar uf` step and launch the exploded Spring Boot classpath directly.
+    entrypoint: []
+    command: >-
+      /bin/sh -c
+      "java -Xms2g -Xmx4g
+      -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*'
+      org.cbioportal.PortalApplication
+      --spring.config.location=file:/cbioportal-webapp/application.properties
+      --authenticate=false
+      --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
+      --clickhouse_mode=true
+      --spring.profiles.active=clickhouse"
   cbioportal-database:
     volumes:
       - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro

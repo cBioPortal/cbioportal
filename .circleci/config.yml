@@ -642,7 +642,11 @@ jobs:
             name: Load cbioportal image
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              docker load -i $DOCKER_TAG-web-shenandoah.tar
+              # The local ClickHouse compose setup extracts the schema from
+              # the image before starting the database. The web-only image
+              # intentionally omits db-scripts, so use the web-and-data image
+              # for this fully local WSI job.
+              docker load -i $DOCKER_TAG.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -719,7 +723,7 @@ jobs:
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
               nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -972,7 +976,7 @@ workflows:
         - run_wsi_api_tests:
             requires:
               - build_frontend
-              - build_web_image
+              - build_web_and_data_image
         - run_security_tests:
             context:
               - docker-scout

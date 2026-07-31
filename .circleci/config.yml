@@ -766,7 +766,15 @@ jobs:
               [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
               nvm use 22.18.0
               cd /tmp/repos/cbioportal-frontend
-              nohup bash -lc 'BRANCH_ENV=master pnpm run start' >> /tmp/repos/frontend-logs.txt 2>&1 &
+              nohup env \
+                BRANCH_ENV=master \
+                NODE_ENV=development \
+                HOST=0.0.0.0 \
+                PORT=3000 \
+                CBIOPORTAL_URL= \
+                CBIOPORTAL_PROXY_TARGET=http://localhost:8080 \
+                pnpm exec rspack serve -c rspack.config.js \
+                >> /tmp/repos/frontend-logs.txt 2>&1 &
         - run:
             name: Wait for frontend to be live at localhost
             command: |

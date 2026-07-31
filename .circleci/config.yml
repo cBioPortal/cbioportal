@@ -815,9 +815,6 @@ jobs:
               CBIOPORTAL_URL: http://localhost:8080
               CBIOPORTAL_FRONTEND_URL: http://localhost:3000
               WSI_TILE_SERVER_URL: http://localhost:8081
-              WSI_TEST_BLOCK_SLIDE_ID: 3020726
-              WSI_TEST_PART_SLIDE_ID: 3020691
-              WSI_TEST_UNMATCHED_SLIDE_ID: 3020648
               MOCHA_FILE: /tmp/repos/wsi-api-test-results/results.xml
             command: |
               mkdir -p /tmp/repos/wsi-api-test-results

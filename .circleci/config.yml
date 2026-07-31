@@ -817,7 +817,10 @@ jobs:
               corepack enable
               corepack prepare yarn@1.22.22 --activate
               yarn install --frozen-lockfile
-              yarn test -- --grep 'WsiHierarchyController' --reporter mocha-junit-reporter
+              yarn test -- \
+                test/WsiHierarchyController/WsiHierarchyController.spec.ts \
+                --grep 'WsiHierarchyController' \
+                --reporter mocha-junit-reporter
         - store_test_results:
             path: /tmp/repos/wsi-api-test-results
         - store_artifacts:

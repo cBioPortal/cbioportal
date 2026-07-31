@@ -748,9 +748,23 @@ jobs:
               done
               docker exec -i cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB"' < /tmp/repos/cbioportal/src/e2e/js/test/WsiHierarchyController/wsi_hierarchy_ci_seed.sql
         - run:
+            name: Install Node.js 22 and pnpm for local WSI frontend
+            command: |
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm install 22.18.0
+              nvm use 22.18.0
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
+              node -v
+              pnpm -v
+        - run:
             name: Start frontend dev server
             command: |
-              corepack enable
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
               cd /tmp/repos/cbioportal-frontend
               nohup bash -lc 'BRANCH_ENV=master pnpm run start' >> /tmp/repos/frontend-logs.txt 2>&1 &
         - run:

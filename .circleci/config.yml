@@ -779,7 +779,13 @@ jobs:
             name: Wait for frontend to be live at localhost
             command: |
               cd cbioportal-test
-              ./utils/check-connection.sh --url=localhost:3000 --max_retries=80
+              if ! ./utils/check-connection.sh --url=localhost:3000 --max_retries=80; then
+                echo "Frontend server log:"
+                cat /tmp/repos/frontend-logs.txt || true
+                echo "Frontend processes:"
+                ps aux | grep -E '[r]spack|[p]npm' || true
+                exit 1
+              fi
         - run:
             name: Start local-file WSI tile server
             command: |

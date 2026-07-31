@@ -812,9 +812,10 @@ jobs:
             command: |
               mkdir -p /tmp/repos/wsi-api-test-results
               cd cbioportal/src/e2e/js
-              corepack enable
               nvm install 22.18.0
               nvm use 22.18.0
+              corepack enable
+              corepack prepare yarn@1.22.22 --activate
               yarn install --frozen-lockfile
               yarn test -- --grep 'WsiHierarchyController' --reporter mocha-junit-reporter
         - store_test_results:

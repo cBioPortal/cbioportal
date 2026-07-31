@@ -755,6 +755,11 @@ jobs:
         - run:
             name: Checkout native WSI frontend for local integration
             command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
               rm -rf /tmp/repos/cbioportal-frontend-wsi
               git clone --depth 1 --branch feature/native-wsi-viewer \
                 https://github.com/raylim/cbioportal-frontend.git \

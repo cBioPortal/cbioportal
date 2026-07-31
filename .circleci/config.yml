@@ -279,7 +279,7 @@ jobs:
             name: Load cbioportal image built from this PR
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              docker load -i $DOCKER_TAG-web-shenandoah.tar
+              docker load -i $DOCKER_TAG.tar
         - run:
             name: Install Node.js 22.18.0
             command: |

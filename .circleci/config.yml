@@ -279,7 +279,7 @@ jobs:
             name: Load cbioportal image built from this PR
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              docker load -i $DOCKER_TAG.tar
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
             name: Install Node.js 22.18.0
             command: |
@@ -635,7 +635,7 @@ jobs:
             name: Load cbioportal image
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              docker load -i $DOCKER_TAG.tar
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -643,11 +643,8 @@ jobs:
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
-              export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
-              nohup ./scripts/docker-compose.sh \
-                --compose_extensions='-f /tmp/repos/cbioportal/src/e2e/js/test/WsiHierarchyController/wsi_ci_compose_override.yml' \
-                >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
@@ -1002,8 +999,10 @@ workflows:
         # the check to mark required for branch protection.
         - e2e_localdb_merge
         - run_api_tests:
+            context:
+              - clickhouse-public-staging-ro-user
             requires:
-              - build_web_and_data_image
+              - build_web_image
         - run_wsi_api_tests:
             requires:
               - build_frontend

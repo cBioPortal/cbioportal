@@ -827,8 +827,7 @@
     <!-- needed for the opensaml dependency -->
     <repository>
       <id>shiboleth</id>
-      <url>
-        https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+      <url>https://build.shibboleth.net/maven/releases/</url>
     </repository>
     <!-- needed for keycloak test containers -->
     <repository>

@@ -753,17 +753,22 @@ jobs:
               node -v
               pnpm -v
         - run:
+            name: Checkout native WSI frontend for local integration
+            command: |
+              rm -rf /tmp/repos/cbioportal-frontend-wsi
+              git clone --depth 1 --branch feature/native-wsi-viewer \
+                https://github.com/raylim/cbioportal-frontend.git \
+                /tmp/repos/cbioportal-frontend-wsi
+              cd /tmp/repos/cbioportal-frontend-wsi
+              pnpm install --frozen-lockfile
+        - run:
             name: Start frontend dev server
             command: |
               export NVM_DIR="$HOME/.nvm"
               [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
               nvm use 22.18.0
-              cd /tmp/repos/cbioportal-frontend
-              # The master frontend defaults to HTTPS for deployed environments.
-              # This job exercises the local same-origin proxy, so use HTTP.
-              sed -i "s/server: 'https'/server: 'http'/" rspack.config.js
+              cd /tmp/repos/cbioportal-frontend-wsi
               nohup env \
-                BRANCH_ENV=master \
                 NODE_ENV=development \
                 HOST=0.0.0.0 \
                 PORT=3000 \
@@ -805,9 +810,9 @@ jobs:
               CBIOPORTAL_URL: http://localhost:8080
               CBIOPORTAL_FRONTEND_URL: http://localhost:3000
               WSI_TILE_SERVER_URL: http://localhost:8081
-              WSI_TEST_BLOCK_SLIDE_ID: openslide-small
-              WSI_TEST_PART_SLIDE_ID: mussel-small
-              WSI_TEST_UNMATCHED_SLIDE_ID: missing-local
+              WSI_TEST_BLOCK_SLIDE_ID: 3020726
+              WSI_TEST_PART_SLIDE_ID: 3020691
+              WSI_TEST_UNMATCHED_SLIDE_ID: 3020648
               MOCHA_FILE: /tmp/repos/wsi-api-test-results/results.xml
             command: |
               mkdir -p /tmp/repos/wsi-api-test-results

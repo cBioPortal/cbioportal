@@ -11,6 +11,14 @@ services:
       --spring.config.location=file:/cbioportal-webapp/application.properties
       --authenticate=false
       --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
+      --spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+      --spring.datasource.url=$${CLICKHOUSE_URL}
+      --spring.datasource.username=$${CLICKHOUSE_USER}
+      --spring.datasource.password=$${CLICKHOUSE_PASSWORD}
+      --spring.datasource.clickhouse.url=$${CLICKHOUSE_URL}
+      --spring.datasource.clickhouse.username=$${CLICKHOUSE_USER}
+      --spring.datasource.clickhouse.password=$${CLICKHOUSE_PASSWORD}
+      --spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
       --clickhouse_mode=true
       --spring.profiles.active=clickhouse"
   cbioportal-database:

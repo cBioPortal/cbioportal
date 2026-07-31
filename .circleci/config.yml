@@ -766,6 +766,9 @@ jobs:
               [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
               nvm use 22.18.0
               cd /tmp/repos/cbioportal-frontend
+              # The master frontend defaults to HTTPS for deployed environments.
+              # This job exercises the local same-origin proxy, so use HTTP.
+              sed -i "s/server: 'https'/server: 'http'/" rspack.config.js
               nohup env \
                 BRANCH_ENV=master \
                 NODE_ENV=development \

@@ -19,6 +19,7 @@ services:
       --spring.datasource.clickhouse.username=$${CLICKHOUSE_USER}
       --spring.datasource.clickhouse.password=$${CLICKHOUSE_PASSWORD}
       --spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+      --bitly.access.token=local-ci-unused-token
       --clickhouse_mode=true
       --spring.profiles.active=clickhouse"
   cbioportal-database:

@@ -559,7 +559,7 @@ CREATE TABLE embedding_definition(
 ) ENGINE = MergeTree ORDER BY (internal_id,embedding_id);
 
 CREATE TABLE embedding_data(
-    `embedding_id` Int32,
+    `embedding_definition_id` Int32,
     `patient_id` String,
     `sample_id` String,
     `x` Float32,

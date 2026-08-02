@@ -694,13 +694,13 @@ insert into embedding_definition (internal_id,embedding_id,short_name,name,descr
 insert into embedding_definition (internal_id,embedding_id,short_name,name,description,entity_type,reduction_technique) values (2,'patient_record_embedding','PCA 1','PCA Sample Embedding','PCA embedding for sample similarity','sample','pca');
 
 -- embedding data test data (patient-level, embedding_id=1)
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sb','',1.2,3.4,'{"data_split":"train"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sd','',2.1,0.8,'{"data_split":"train"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0se','',4.5,1.1,'{"data_split":"validation"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sf','',3.3,2.2,'{"data_split":"test"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sb','',1.2,3.4,'{"data_split":"train"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sd','',2.1,0.8,'{"data_split":"train"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0se','',4.5,1.1,'{"data_split":"validation"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (1,'tcga-a1-a0sf','',3.3,2.2,'{"data_split":"test"}',1);
 
 -- embedding data test data (sample-level, embedding_id=2)
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sg','tcga-a1-a0sg-01',0.5,1.9,'{"data_split":"train"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sh','tcga-a1-a0sh-01',2.7,3.1,'{"data_split":"validation"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0si','tcga-a1-a0si-01',1.8,0.4,'{"data_split":"test"}',1);
-insert into embedding_data (embedding_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sj','tcga-a1-a0sj-01',3.9,2.6,'{"data_split":"test"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sg','tcga-a1-a0sg-01',0.5,1.9,'{"data_split":"train"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sh','tcga-a1-a0sh-01',2.7,3.1,'{"data_split":"validation"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0si','tcga-a1-a0si-01',1.8,0.4,'{"data_split":"test"}',1);
+insert into embedding_data (embedding_definition_id,patient_id,sample_id,x,y,custom_attribute,study_id) values (2,'tcga-a1-a0sj','tcga-a1-a0sj-01',3.9,2.6,'{"data_split":"test"}',1);

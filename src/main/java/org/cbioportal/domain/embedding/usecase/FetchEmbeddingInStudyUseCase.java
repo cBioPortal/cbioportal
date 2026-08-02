@@ -32,7 +32,7 @@ public class FetchEmbeddingInStudyUseCase {
    *
    * @param reductionTechnique
    * @param entityType
-   * @param studyId
+   * @param studyIds
    * @return list of {@link } objects matching the given filter and search criteria
    * @see
    * @see

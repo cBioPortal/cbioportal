@@ -20,14 +20,14 @@
             embedding_data.x AS x,
             embedding_data.y AS y,
             embedding_data.custom_attribute AS customAttribute,
-            embedding_data.embedding_id AS embeddingDefinitionId
+            embedding_data.embedding_definition_id AS embeddingDefinitionId
     </sql>
 
 
     <sql id="from">
         FROM embedding_data
        INNER JOIN cancer_study ON embedding_data.study_id = cancer_study.cancer_study_id
-       INNER JOIN embedding_definition ON embedding_data.embedding_id = embedding_definition.internal_id
+       INNER JOIN embedding_definition ON embedding_data.embedding_definition_id = embedding_definition.internal_id
     </sql>
 
 
@@ -39,10 +39,10 @@
             <if test="entityType != null">
                 AND embedding_definition.entity_type = #{entityType}
             </if>
-            <if test="studyId != null and !studyIds.isEmpty()">
+            <if test="studyIds != null and !studyIds.isEmpty()">
                 AND cancer_study.cancer_study_identifier IN
-                <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
-                    #{studyId}
+                <foreach item="studyIds" collection="studyIds" open="(" separator="," close=")">
+                    #{studyIds}
                 </foreach>
             </if>
         </where>

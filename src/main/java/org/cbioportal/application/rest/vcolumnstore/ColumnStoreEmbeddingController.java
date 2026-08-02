@@ -1,20 +1,17 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
+import jakarta.validation.Valid;
 import org.cbioportal.application.rest.mapper.EmbeddingMapper;
 import org.cbioportal.application.rest.response.EmbeddingDTO;
 import org.cbioportal.domain.embedding.usecase.EmbeddingUseCases;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
+import org.cbioportal.legacy.web.parameter.EmbeddingFilter;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * REST controller for managing and retrieving Embedding data from a column-store data source.
@@ -70,19 +67,16 @@ public class ColumnStoreEmbeddingController {
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<EmbeddingDTO> fetchEmbeddingInStudy(
-      @Parameter(description = "Reduction technique, e.g. UMAP or PCA")
-          @RequestParam(required = false)
-          String reductionTechnique,
-      @Parameter(description = "Entity type: patient or sample") @RequestParam(required = false)
-          String entityType,
-      @Parameter(description = "Cancer study identifiers to filter by.")
-          @RequestParam(required = false)
-          List<String> studyIds) {
+      @Valid @RequestBody(required = true) EmbeddingFilter embeddingFilter) {
+
     EmbeddingDTO embeddingDTO =
         EmbeddingMapper.INSTANCE.toEmbeddingDTOO(
             embeddingUseCases
                 .fetchEmbeddingInStudyUseCase()
-                .execute(reductionTechnique, entityType, studyIds));
+                .execute(
+                    embeddingFilter.getReductionTechnique(),
+                    embeddingFilter.getEmbeddingType(),
+                    embeddingFilter.getStudyIds()));
     return ResponseEntity.ok(embeddingDTO);
   }
 }

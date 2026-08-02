@@ -17,12 +17,12 @@ public class ClickhouseEmbeddingRepository implements EmbeddingRepository {
   /**
    * @param reductionTechnique
    * @param entityType
-   * @param studyId
+   * @param studyIds
    * @return
    */
   @Override
   public List<EmbeddingRow> getEmbeddingDataInStudy(
-      String reductionTechnique, String entityType, List<String> studyId) {
-    return mapper.getEmbeddingDataInStudy(reductionTechnique, entityType, studyId);
+      String reductionTechnique, String entityType, List<String> studyIds) {
+    return mapper.getEmbeddingDataInStudy(reductionTechnique, entityType, studyIds);
   }
 }

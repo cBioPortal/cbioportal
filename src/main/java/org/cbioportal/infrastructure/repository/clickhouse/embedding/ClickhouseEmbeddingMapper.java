@@ -6,5 +6,5 @@ import org.cbioportal.domain.embedding.EmbeddingRow;
 public interface ClickhouseEmbeddingMapper {
 
   List<EmbeddingRow> getEmbeddingDataInStudy(
-      String reductionTechnique, String entityType, List<String> studyId);
+      String reductionTechnique, String entityType, List<String> studyIds);
 }

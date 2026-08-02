@@ -63,7 +63,7 @@ public class ColumnStoreEmbeddingController {
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/study/embeddings",
-      method = RequestMethod.GET,
+      method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<EmbeddingDTO> fetchEmbeddingInStudy(

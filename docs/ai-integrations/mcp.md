@@ -31,6 +31,8 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **How it works**: The server acts as an intermediary that combines ClickHouse database access with domain-specific instructions, allowing researchers and clinicians to query complex genomic datasets through conversational interfaces without writing SQL directly.
 
+**Backing data store**: The server queries the ClickHouse database for AI agents. It has direct access to the same database tables used by the cBioPortal web application. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) to set one up.
+
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
 
 #### cbioportal-navigator

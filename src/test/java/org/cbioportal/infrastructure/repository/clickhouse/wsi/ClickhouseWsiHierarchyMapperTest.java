@@ -50,7 +50,7 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void readsOnlyActivePublicationVersion() {
+  public void readsOnlyActiveReleaseVersion() {
     WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_versioned_study", "VERSIONED-PATIENT");
 
     assertEquals(1, hierarchy.sampleGroups().size());

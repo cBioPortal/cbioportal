@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "publication_id": "ci-wsi-fixture",
+  "generated_at": "2026-07-31T00:00:00+00:00",
+  "studies": {
+    "msk_spectrum_tme_2022": {
+      "patients": ["P-0055908"],
+      "samples": ["P-0055908-T01-IM6"],
+      "slides": ["3020648", "3020691", "3020726"]
+    },
+    "wsi_ci_study_b": {
+      "patients": ["WSI-CI-B-PATIENT"],
+      "samples": ["WSI-CI-B-SAMPLE"],
+      "slides": ["4020726"]
+    }
+  }
+}

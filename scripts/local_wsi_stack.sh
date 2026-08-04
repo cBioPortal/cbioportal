@@ -6,7 +6,7 @@ COMPOSE_DIR="${ROOT_DIR}/../cbioportal-docker-compose"
 FRONTEND_DIR="${ROOT_DIR}/../cbioportal-frontend"
 TILE_DIR="${ROOT_DIR}/../cbioportal-tile-server"
 STUDY_ID="msk_spectrum_tme_2022"
-EXPECTED_SAMPLE_IDS="P-0055908-T01-IM6,UNMATCHED"
+EXPECTED_SAMPLE_IDS="P-0055908-T01-IM6"
 COMPOSE_FILES=(-f docker-compose.yml -f docker-compose.wsi-local-dev.yml)
 COMPOSE_ENV=(
   CBIOPORTAL_SOURCE_DIR="${ROOT_DIR}"
@@ -60,7 +60,7 @@ normalize_minimal_wsi_study() {
     JOIN cbioportal.patient AS p ON s.patient_id = p.internal_id
     JOIN cbioportal.cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
     WHERE cs.cancer_study_identifier = '${STUDY_ID}'
-      AND s.stable_id NOT IN ('P-0055908-T01-IM6', 'UNMATCHED')
+      AND s.stable_id NOT IN ('P-0055908-T01-IM6')
     FORMAT TabSeparatedRaw
   " 2>/dev/null || true)"
 

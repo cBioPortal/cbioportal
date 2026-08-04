@@ -2,17 +2,80 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
-    <select id="getPatientHierarchy" resultType="string">
-        SELECT hierarchy_json
-        FROM wsi_patient_hierarchy
-        WHERE study_id = #{studyId}
-          AND patient_id = #{patientId}
-          AND snapshot_version = (
-              SELECT active_version
-              FROM wsi_patient_hierarchy_manifest FINAL
-              WHERE study_id = #{studyId}
-              LIMIT 1
-          )
-        LIMIT 1
+    <select id="getPatientHierarchy" resultType="hashmap">
+        SELECT
+            toString(ref_sample.stable_id) AS reference_sample_id,
+            toString(ps.reference_sequencing_date) AS reference_sequencing_date,
+            toString(portal_sample.stable_id) AS sample_id,
+            part.part_key AS part_key,
+            part.part_number AS part_number,
+            part.part_designator AS part_designator,
+            part.part_type AS part_type,
+            part.part_description AS part_description,
+            part.subspecialty AS subspecialty,
+            part.path_dx_title AS path_dx_title,
+            block.block_key AS block_key,
+            block.block_number AS block_number,
+            block.block_label AS block_label,
+            slide.image_id AS image_id,
+            slide.stain_name AS stain_name,
+            slide.stain_group AS stain_group,
+            slide.is_hne AS is_hne,
+            slide.is_ihc AS is_ihc,
+            slide.magnification AS magnification,
+            slide.file_size_bytes AS file_size_bytes,
+            slide.can_serve_tiles AS can_serve_tiles,
+            slide.barcode AS barcode,
+            slide.slide_type AS slide_type,
+            placement.match_level AS match_level,
+            placement.specimen_key AS specimen_key,
+            placement.procedure_date_days AS procedure_date_days,
+            placement.timepoint_source AS timepoint_source
+        FROM cancer_study study
+        INNER JOIN patient portal_patient
+            ON portal_patient.cancer_study_id = study.cancer_study_id
+        INNER JOIN (
+            SELECT
+                cancer_study_id,
+                argMax(active_version, (updated_at, publication_id)) AS active_version,
+                argMax(publication_id, (updated_at, publication_id)) AS publication_id
+            FROM wsi_publication_manifest
+            GROUP BY cancer_study_id
+        ) manifest
+            ON manifest.cancer_study_id = study.cancer_study_id
+        INNER JOIN wsi_patient_snapshot ps
+            ON ps.cancer_study_id = manifest.cancer_study_id
+           AND ps.snapshot_version = manifest.active_version
+           AND ps.publication_id = manifest.publication_id
+           AND ps.patient_id = portal_patient.internal_id
+        LEFT JOIN sample ref_sample ON ref_sample.internal_id = ps.reference_sample_id
+        LEFT JOIN wsi_part part
+            ON part.cancer_study_id = ps.cancer_study_id
+           AND part.patient_id = ps.patient_id
+           AND part.snapshot_version = ps.snapshot_version
+           AND part.publication_id = ps.publication_id
+        LEFT JOIN wsi_block block
+            ON block.cancer_study_id = part.cancer_study_id
+           AND block.patient_id = part.patient_id
+           AND block.snapshot_version = part.snapshot_version
+           AND block.publication_id = part.publication_id
+           AND block.part_key = part.part_key
+        LEFT JOIN wsi_slide_placement placement
+            ON placement.cancer_study_id = block.cancer_study_id
+           AND placement.patient_id = block.patient_id
+           AND placement.snapshot_version = block.snapshot_version
+           AND placement.publication_id = block.publication_id
+           AND placement.part_key = block.part_key
+           AND placement.block_key = block.block_key
+        LEFT JOIN wsi_slide slide
+            ON slide.cancer_study_id = placement.cancer_study_id
+           AND slide.patient_id = placement.patient_id
+           AND slide.snapshot_version = placement.snapshot_version
+           AND slide.publication_id = placement.publication_id
+           AND slide.image_id = placement.image_id
+        LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id
+        WHERE study.cancer_study_identifier = #{studyId}
+          AND portal_patient.stable_id = #{patientId}
+        ORDER BY sample_id, part.part_key, block.block_key, slide.image_id
     </select>
 </mapper>

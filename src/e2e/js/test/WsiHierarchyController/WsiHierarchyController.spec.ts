@@ -36,7 +36,6 @@ type Part = { blocks: Block[] };
 type Sample = { sampleId: string | null; parts: Part[] };
 type PatientHierarchy = {
   referenceSampleId: string | null;
-  referenceSequencingDate: string | null;
   sampleGroups: Sample[];
 };
 type SlideMetadata = {

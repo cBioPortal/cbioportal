@@ -79,7 +79,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
         samples.values().stream().map(WsiSampleGroupBuilder::build).toList();
     return new WsiHierarchy(
         value(first, "reference_sample_id", String.class),
-        value(first, "reference_sequencing_date", String.class),
         sampleGroups);
   }
 

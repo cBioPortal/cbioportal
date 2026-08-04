@@ -262,7 +262,7 @@ After importing studies and rebuilding derived tables, you can verify that your 
 ## WSI hierarchy materialization and authenticated rollout
 
 Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
-tables `wsi_release_manifest`, `wsi_patient_snapshot`, `wsi_part`,
+tables `wsi_release`, `wsi_release_patient`, `wsi_part`,
 `wsi_block`, `wsi_slide`, and `wsi_slide_placement`. The active release is
 selected per internal cancer-study ID; the companion `cbioportal-tile-server`
 loader validates and publishes one append-only release plus the trusted
@@ -315,19 +315,19 @@ Before enabling the Pathology Slides feature for a private study:
 3. Configure protected responses as private/no-store or private-cacheable as
    documented by the tile server. They must not be publicly cached.
 
-The release model uses a unique release ID for every load. All rows
-are inserted under that ID, and the manifest advances only after the complete
-snapshot is accepted. A retry therefore creates a new release ID and
-corrected rows win; partial rows are orphaned and invisible. The backend query
-uses deterministic `argMax` keys and restricts reads to the active manifest
-version and release ID, so historical duplicates do not fall through to an
-unordered `LIMIT 1`. A transient hierarchy failure is not equivalent to “no
-slides”; operators must treat an error response as an availability failure.
+The release model uses a unique release ID for every load. All rows are
+inserted under that ID, and the release row is inserted only after the complete
+snapshot is accepted. A retry therefore creates a new release ID and corrected
+rows win; partial rows are orphaned and invisible. The backend query uses
+deterministic `argMax` keys and restricts reads to the latest completed release,
+so historical duplicates do not fall through to an unordered `LIMIT 1`. A
+transient hierarchy failure is not equivalent to “no slides”; operators must
+treat an error response as an availability failure.
 
 For an existing installation created with the pre-release-ID schema,
 perform the WSI table migration/rebuild before enabling private-study WSI.
 The loader can add the new column for compatibility, but an old
-`ReplacingMergeTree` manifest table must not be treated as the new append-only
+`ReplacingMergeTree` release table must not be treated as the new append-only
 release table until it has been rebuilt with the current schema.
 
 ---

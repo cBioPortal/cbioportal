@@ -7,5 +7,4 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record WsiHierarchy(
     String referenceSampleId,
-    String referenceSequencingDate,
     List<WsiSampleGroup> sampleGroups) {}

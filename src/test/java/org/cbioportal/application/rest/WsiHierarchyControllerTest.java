@@ -104,7 +104,7 @@ public class WsiHierarchyControllerTest {
             eq(AccessLevel.READ)))
         .thenReturn(true);
     when(repository.getPatientHierarchy("study", "patient"))
-        .thenReturn(new WsiHierarchy(null, null, java.util.List.of()));
+        .thenReturn(new WsiHierarchy(null, java.util.List.of()));
 
     mockMvc
         .perform(get("/api/wsi/v2/hierarchy/study/patient"))
@@ -114,7 +114,7 @@ public class WsiHierarchyControllerTest {
         .andExpect(
             content()
                 .json(
-                    "{\"referenceSampleId\":null,\"referenceSequencingDate\":null,\"sampleGroups\":[]}"));
+                    "{\"referenceSampleId\":null,\"sampleGroups\":[]}"));
   }
 
   @Test

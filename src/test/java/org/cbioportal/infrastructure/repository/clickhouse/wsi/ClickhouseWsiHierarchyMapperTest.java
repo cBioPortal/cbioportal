@@ -31,7 +31,6 @@ public class ClickhouseWsiHierarchyMapperTest {
   public void readsNormalizedActivePatientHierarchy() {
     WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_test_study", "WSI-PATIENT");
 
-    assertEquals("2026-07-01 00:00:00.000000", hierarchy.referenceSequencingDate());
     assertEquals(2, hierarchy.sampleGroups().size());
     assertTrue(
         hierarchy.sampleGroups().stream()
@@ -68,7 +67,7 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void returnsNullWhenManifestIsMissing() {
-    assertNull(repository.getPatientHierarchy("wsi_missing_manifest_study", "MISSING-MANIFEST"));
+  public void returnsNullWhenReleaseIsMissing() {
+    assertNull(repository.getPatientHierarchy("wsi_missing_release_study", "MISSING-RELEASE"));
   }
 }

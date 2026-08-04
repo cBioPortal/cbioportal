@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "publication_id": "ci-wsi-fixture",
+  "release_id": "ci-wsi-fixture",
   "generated_at": "2026-07-31T00:00:00+00:00",
   "studies": {
     "msk_spectrum_tme_2022": {

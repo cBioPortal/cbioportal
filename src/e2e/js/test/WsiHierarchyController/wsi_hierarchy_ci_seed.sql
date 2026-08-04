@@ -1,4 +1,94 @@
-INSERT INTO wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-VALUES ('msk_spectrum_tme_2022', 'P-0055908', 1, '{"patient_id":"P-0055908","samples":[{"sample_id":"P-0055908-T01-IM6","cancer_type":"Ovarian Cancer","cancer_type_detailed":"High-Grade Serous Ovarian Cancer","oncotree_code":"HGSOC","primary_site":"Ovary","sample_type":"Primary","parts":[{"part_number":"27","part_designator":"27","part_type":"FALLOPIAN TUBE AND OVARY; SALPINGO-OOPHORECTOMY","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","subspecialty":"","path_dx_title":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","blocks":[{"block_number":"4","block_label":"4RO","slides":[{"image_id":"3020726","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"716956681","can_serve_tiles":true,"barcode":"","block_label":"4RO","block_number":"4","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor"}]},{"block_number":"62","block_label":"1 RFIM","slides":[{"image_id":"3020691","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"538183815","can_serve_tiles":true,"barcode":"","block_label":"1 RFIM","block_number":"62","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor"}]}]}]},{"sample_id":"UNMATCHED","cancer_type":"","cancer_type_detailed":"","oncotree_code":"","primary_site":"","sample_type":"Unmatched pathology slides","parts":[{"part_number":"34","part_designator":"34","part_type":"SMALL BOWEL; RESECTION","part_description":"Portion of small bowel and right colon with tumor","subspecialty":"","path_dx_title":"Portion of small bowel and right colon with tumor","blocks":[{"block_number":"4","block_label":"4RS","slides":[{"image_id":"3020648","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"1014457317","can_serve_tiles":false,"barcode":"","block_label":"4RS","block_number":"4","part_description":"Portion of small bowel and right colon with tumor"}]}]}]}],"slide_associations":[{"image_id":"3020726","sample_id":"P-0055908-T01-IM6","match_level":"BLOCK","specimen_key":"block::27::4","part_number":"27","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","block_number":"4","block_label":"4RO","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":true},{"image_id":"3020691","sample_id":"P-0055908-T01-IM6","match_level":"PART","specimen_key":"part::27","part_number":"27","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","block_number":"62","block_label":"1 RFIM","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":true},{"image_id":"3020648","sample_id":null,"match_level":"UNMATCHED","specimen_key":"unmatched::34::4","part_number":"34","part_description":"Portion of small bowel and right colon with tumor","block_number":"4","block_label":"4RS","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":false}]}', now());
-INSERT INTO wsi_patient_hierarchy_manifest (study_id, active_version, updated_at)
-VALUES ('msk_spectrum_tme_2022', 1, now());
+-- Portal catalog identities used to validate the normalized WSI references.
+INSERT INTO cancer_study (
+  cancer_study_id, cancer_study_identifier, type_of_cancer_id, name,
+  description, public, groups
+) VALUES
+  (990001, 'msk_spectrum_tme_2022', 'dummy', 'WSI CI study A',
+   'Authenticated WSI CI fixture', 1, 'WSI_CI_A'),
+  (990002, 'wsi_ci_study_b', 'dummy', 'WSI CI study B',
+   'Authenticated WSI CI fixture', 0, 'WSI_CI_B');
+
+INSERT INTO patient (internal_id, stable_id, cancer_study_id) VALUES
+  (990001, 'P-0055908', 990001),
+  (990002, 'WSI-CI-B-PATIENT', 990002);
+
+INSERT INTO sample (internal_id, stable_id, sample_type, patient_id) VALUES
+  (990001, 'P-0055908-T01-IM6', 'Primary', 990001),
+  (990002, 'WSI-CI-B-SAMPLE', 'Primary', 990002);
+
+-- Publication 1 for the MSK fixture, including one explicitly unmatched slide.
+INSERT INTO wsi_publication_manifest
+  (cancer_study_id, active_version, publication_id, updated_at)
+VALUES (990001, 1, 'wsi-ci-publication-a-1', now());
+INSERT INTO wsi_patient_snapshot
+  (cancer_study_id, patient_id, snapshot_version, publication_id,
+   reference_sample_id, reference_sequencing_date)
+VALUES (990001, 990001, 1, 'wsi-ci-publication-a-1', 990001, '2026-07-01 00:00:00');
+INSERT INTO wsi_part
+  (cancer_study_id, patient_id, snapshot_version, publication_id, part_key,
+   part_number, part_designator, part_type, part_description, subspecialty,
+   path_dx_title)
+VALUES
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '27', '27', '27',
+   'FALLOPIAN TUBE AND OVARY', 'Right fallopian tube and ovary', '',
+   'Right fallopian tube and ovary'),
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '34', '34', '34',
+   'SMALL BOWEL', 'Portion of small bowel with tumor', '',
+   'Portion of small bowel with tumor');
+INSERT INTO wsi_block
+  (cancer_study_id, patient_id, snapshot_version, publication_id, part_key,
+   block_key, block_number, block_label)
+VALUES
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '27', '4', '4', '4RO'),
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '34', '4', '4', '4RS');
+INSERT INTO wsi_slide
+  (cancer_study_id, patient_id, snapshot_version, publication_id, image_id,
+   stain_name, stain_group, is_hne, is_ihc, magnification, file_size_bytes,
+   can_serve_tiles, barcode, slide_type)
+VALUES
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '3020726', 'H&E, Initial',
+   'H&E (Initial)', true, false, '20x', 716956681, true, '', 'H&E'),
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '3020648', 'H&E, Initial',
+   'H&E (Initial)', true, false, '20x', 1014457317, false, '', 'H&E');
+INSERT INTO wsi_slide_placement
+  (cancer_study_id, patient_id, snapshot_version, publication_id, image_id,
+   part_key, block_key, sample_id, match_level, specimen_key,
+   procedure_date_days, timepoint_source)
+VALUES
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '3020726', '27', '4',
+   990001, 'BLOCK', 'block::27::4', -17,
+   'Procedure date relative to tumor sequencing'),
+  (990001, 990001, 1, 'wsi-ci-publication-a-1', '3020648', '34', '4',
+   NULL, 'UNMATCHED', 'unmatched::34::4', -17,
+   'Procedure date relative to tumor sequencing');
+
+-- A second study verifies study-scoped tile/index authorization in E2E tests.
+INSERT INTO wsi_publication_manifest
+  (cancer_study_id, active_version, publication_id, updated_at)
+VALUES (990002, 1, 'wsi-ci-publication-b-1', now());
+INSERT INTO wsi_patient_snapshot
+  (cancer_study_id, patient_id, snapshot_version, publication_id,
+   reference_sample_id, reference_sequencing_date)
+VALUES (990002, 990002, 1, 'wsi-ci-publication-b-1', 990002, NULL);
+INSERT INTO wsi_part
+  (cancer_study_id, patient_id, snapshot_version, publication_id, part_key,
+   part_number, part_designator, part_type, part_description, subspecialty,
+   path_dx_title)
+VALUES (990002, 990002, 1, 'wsi-ci-publication-b-1', '1', '1', '1',
+        'SPECIMEN', 'Fixture specimen', '', 'Fixture specimen');
+INSERT INTO wsi_block
+  (cancer_study_id, patient_id, snapshot_version, publication_id, part_key,
+   block_key, block_number, block_label)
+VALUES (990002, 990002, 1, 'wsi-ci-publication-b-1', '1', '1', '1', '1');
+INSERT INTO wsi_slide
+  (cancer_study_id, patient_id, snapshot_version, publication_id, image_id,
+   stain_name, stain_group, is_hne, is_ihc, magnification, file_size_bytes,
+   can_serve_tiles, barcode, slide_type)
+VALUES (990002, 990002, 1, 'wsi-ci-publication-b-1', '4020726', NULL, NULL,
+        true, false, NULL, NULL, true, NULL, 'H&E');
+INSERT INTO wsi_slide_placement
+  (cancer_study_id, patient_id, snapshot_version, publication_id, image_id,
+   part_key, block_key, sample_id, match_level, specimen_key,
+   procedure_date_days, timepoint_source)
+VALUES (990002, 990002, 1, 'wsi-ci-publication-b-1', '4020726', '1', '1',
+        990002, 'BLOCK', 'block::1::1', NULL, NULL);

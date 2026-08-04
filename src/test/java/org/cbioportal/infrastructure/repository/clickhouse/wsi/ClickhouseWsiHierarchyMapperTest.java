@@ -1,8 +1,10 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.junit.Test;
@@ -23,46 +25,50 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhouseWsiHierarchyMapperTest {
 
-  @Autowired private ClickhouseWsiHierarchyMapper mapper;
+  @Autowired private ClickhouseWsiHierarchyRepository repository;
 
   @Test
-  public void readsActivePatientHierarchy() {
-    String hierarchy = mapper.getPatientHierarchy("msk_spectrum_tme_2022", "P-0055908");
+  public void readsNormalizedActivePatientHierarchy() {
+    WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_test_study", "WSI-PATIENT");
 
-    assertTrue(hierarchy.contains("\"patient_id\":\"P-0055908\""));
-    assertTrue(hierarchy.contains("\"match_level\":\"PART\""));
-    assertTrue(hierarchy.contains("\"match_level\":\"BLOCK\""));
-    assertTrue(hierarchy.contains("\"match_level\":\"UNMATCHED\""));
-    assertTrue(hierarchy.contains("\"image_id\":\"3020726\""));
-    assertTrue(hierarchy.contains("\"image_id\":\"3020691\""));
-    assertTrue(hierarchy.contains("\"image_id\":\"3020648\""));
+    assertEquals("2026-07-01 00:00:00.000000", hierarchy.referenceSequencingDate());
+    assertEquals(2, hierarchy.sampleGroups().size());
+    assertTrue(
+        hierarchy.sampleGroups().stream()
+            .anyMatch(group -> group.sampleId() == null));
+    assertTrue(
+        hierarchy.sampleGroups().stream()
+            .flatMap(group -> group.parts().stream())
+            .flatMap(part -> part.blocks().stream())
+            .flatMap(block -> block.slides().stream())
+            .anyMatch(slide -> slide.imageId().equals("3020726") && slide.sampleId().equals("WSI-SAMPLE")));
   }
 
   @Test
   public void returnsNullForUnknownPatient() {
-    assertEquals(null, mapper.getPatientHierarchy("msk_spectrum_tme_2022", "missing"));
+    assertNull(repository.getPatientHierarchy("wsi_test_study", "missing"));
   }
 
   @Test
-  public void readsOnlyActiveManifestVersion() {
-    String hierarchy = mapper.getPatientHierarchy("wsi_versioned_study", "VERSIONED-PATIENT");
+  public void readsOnlyActivePublicationVersion() {
+    WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_versioned_study", "VERSIONED-PATIENT");
 
-    assertTrue(hierarchy.contains("\"sample_id\":\"active-sample\""));
-    assertTrue(hierarchy.contains("\"image_id\":\"active-slide\""));
-    assertTrue(!hierarchy.contains("\"sample_id\":\"old-sample\""));
+    assertEquals(1, hierarchy.sampleGroups().size());
+    assertEquals(
+        "active-slide",
+        hierarchy.sampleGroups().get(0).parts().get(0).blocks().get(0).slides().get(0).imageId());
   }
 
   @Test
   public void readsEmptyHierarchyPayload() {
-    String hierarchy = mapper.getPatientHierarchy("wsi_empty_hierarchy_study", "EMPTY-PATIENT");
+    WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_empty_hierarchy_study", "EMPTY-PATIENT");
 
-    assertEquals(
-        "{\"patient_id\":\"EMPTY-PATIENT\",\"samples\":[],\"slide_associations\":[]}", hierarchy);
+    assertTrue(hierarchy.sampleGroups().isEmpty());
+    assertNull(hierarchy.referenceSampleId());
   }
 
   @Test
   public void returnsNullWhenManifestIsMissing() {
-    assertEquals(
-        null, mapper.getPatientHierarchy("wsi_missing_manifest_study", "MISSING-MANIFEST"));
+    assertNull(repository.getPatientHierarchy("wsi_missing_manifest_study", "MISSING-MANIFEST"));
   }
 }

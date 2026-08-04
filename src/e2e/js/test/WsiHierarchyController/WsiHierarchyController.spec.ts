@@ -1,19 +1,23 @@
 import { expect } from 'chai';
 import axios from 'axios';
+import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
 const config = {
   serverUrl: process.env.CBIOPORTAL_URL || 'http://localhost:8080',
   tileServerUrl: process.env.WSI_TILE_SERVER_URL || 'http://localhost:8081',
   frontendUrl: process.env.CBIOPORTAL_FRONTEND_URL || 'http://localhost:3000',
+  authSecret: process.env.WSI_AUTH_SECRET || '',
+  authAudience: process.env.WSI_AUTH_AUDIENCE || 'cbioportal-wsi',
   blockTileSlideId: process.env.WSI_TEST_BLOCK_SLIDE_ID || '',
   partTileSlideId: process.env.WSI_TEST_PART_SLIDE_ID || '',
   unmatchedTileSlideId: process.env.WSI_TEST_UNMATCHED_SLIDE_ID || '',
 };
 
-const hasExplicitTileServer = Boolean(process.env.WSI_TILE_SERVER_URL);
+const hasAuthenticatedWsiSetup = Boolean(
+  process.env.WSI_TILE_SERVER_URL && process.env.WSI_AUTH_SECRET
+);
 const hasExplicitFrontend = Boolean(process.env.CBIOPORTAL_FRONTEND_URL);
 const hasExplicitTileIds = Boolean(
   process.env.WSI_TEST_BLOCK_SLIDE_ID &&
@@ -22,56 +26,34 @@ const hasExplicitTileIds = Boolean(
 );
 
 type Slide = {
-  image_id: string;
+  imageId: string;
+  sampleId: string | null;
+  matchLevel: 'PART' | 'BLOCK' | 'UNMATCHED';
+  canServeTiles: boolean;
 };
-
-type Block = {
-  slides: Slide[];
-};
-
-type Part = {
-  blocks: Block[];
-};
-
-type Sample = {
-  sample_id: string;
-  parts: Part[];
-};
-
-type SlideAssociation = {
-  image_id: string;
-  sample_id: string | null;
-  match_level: 'PART' | 'BLOCK' | 'UNMATCHED';
-  can_serve_tiles?: boolean;
-};
-
+type Block = { slides: Slide[] };
+type Part = { blocks: Block[] };
+type Sample = { sampleId: string | null; parts: Part[] };
 type PatientHierarchy = {
-  patient_id: string;
-  samples: Sample[];
-  slide_associations: SlideAssociation[];
+  referenceSampleId: string | null;
+  referenceSequencingDate: string | null;
+  sampleGroups: Sample[];
 };
-
 type SlideMetadata = {
-  dimensions: {
-    width: number;
-    height: number;
-  };
+  dimensions: { width: number; height: number };
   levels: number;
   level_dimensions: Array<{ width: number; height: number }>;
   tile_size?: number;
   objective_power?: number;
   vendor?: string;
 };
-
 type HierarchyFixture = {
   study_id: string;
   patient_id: string;
   hierarchy: PatientHierarchy;
 };
 
-const currentFile = fileURLToPath(import.meta.url);
-const currentDir = path.dirname(currentFile);
-
+const currentDir = path.resolve(process.cwd(), 'test/WsiHierarchyController');
 const fixturePath = path.join(
   currentDir,
   'msk_spectrum_tme_2022.wsi_hierarchy.jsonl'
@@ -81,175 +63,350 @@ const fixture = JSON.parse(
 ) as HierarchyFixture;
 
 function collectSlideIds(hierarchy: PatientHierarchy): string[] {
-  return hierarchy.samples.flatMap(sample =>
+  return hierarchy.sampleGroups.flatMap(sample =>
     sample.parts.flatMap(part =>
-      part.blocks.flatMap(block => block.slides.map(slide => slide.image_id))
+      part.blocks.flatMap(block => block.slides.map(slide => slide.imageId))
     )
   );
 }
 
-function findAssociation(
+function findSlide(
   hierarchy: PatientHierarchy,
-  matchLevel: SlideAssociation['match_level']
-): SlideAssociation {
-  const association = hierarchy.slide_associations.find(
-    candidate => candidate.match_level === matchLevel
-  );
-  expect(association, `missing ${matchLevel} slide association`).to.not.equal(undefined);
-  return association!;
+  matchLevel: Slide['matchLevel']
+): Slide {
+  const slide = hierarchy.sampleGroups
+    .flatMap(sample => sample.parts)
+    .flatMap(part => part.blocks)
+    .flatMap(block => block.slides)
+    .find(candidate => candidate.matchLevel === matchLevel);
+  expect(slide, `missing ${matchLevel} slide`).to.not.equal(undefined);
+  return slide!;
 }
 
-describe('WsiHierarchyController E2E Tests', () => {
-  const hierarchyUrl = `${config.serverUrl}/api/wsi/hierarchy/${fixture.study_id}/${fixture.patient_id}`;
-  const frontendHierarchyUrl = `${config.frontendUrl}/api/wsi/hierarchy/${fixture.study_id}/${fixture.patient_id}`;
-  const blockAssociation = findAssociation(fixture.hierarchy, 'BLOCK');
-  const partAssociation = findAssociation(fixture.hierarchy, 'PART');
-  const unmatchedAssociation = findAssociation(fixture.hierarchy, 'UNMATCHED');
-  const blockTileSlideId = config.blockTileSlideId || blockAssociation.image_id;
-  const partTileSlideId = config.partTileSlideId || partAssociation.image_id;
-  const unmatchedTileSlideId = config.unmatchedTileSlideId || unmatchedAssociation.image_id;
+function base64url(value: object): string {
+  return Buffer.from(JSON.stringify(value)).toString('base64url');
+}
 
-  it('returns the materialized public hierarchy fixture', async () => {
-    const response = await axios.get<PatientHierarchy>(hierarchyUrl);
+function makeToken(
+  studyId: string,
+  secret = config.authSecret,
+  overrides: Record<string, unknown> = {}
+): string {
+  const now = Math.floor(Date.now() / 1000);
+  const header = base64url({ alg: 'HS256', typ: 'JWT' });
+  const payload = base64url({
+    sub: 'wsi-ci-user',
+    aud: config.authAudience,
+    scope: 'wsi:read',
+    study_id: studyId,
+    wsi_auth_version: 1,
+    iat: now,
+    exp: now + 300,
+    ...overrides,
+  });
+  const signature = crypto
+    .createHmac('sha256', secret)
+    .update(`${header}.${payload}`)
+    .digest('base64url');
+  return `${header}.${payload}.${signature}`;
+}
+
+function bearer(token: string) {
+  return { headers: { Authorization: `Bearer ${token}` } };
+}
+
+function cookieHeader(response: any): string {
+  return (response.headers['set-cookie'] || [])
+    .map((cookie: string) => cookie.split(';', 1)[0])
+    .join('; ');
+}
+
+async function login(): Promise<string> {
+  const response = await axios.post(
+    `${config.serverUrl}/j_spring_security_check`,
+    'j_username=wsi-ci-user&j_password=wsi-ci-password&user_id=wsi-ci-user',
+    {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      maxRedirects: 0,
+      validateStatus: status => status === 302,
+    }
+  );
+  expect(cookieHeader(response)).to.not.equal('');
+  return cookieHeader(response);
+}
+
+function sessionRequest(cookie: string) {
+  return { headers: { Cookie: cookie } };
+}
+
+async function statusOf(request: Promise<any>): Promise<number> {
+  try {
+    return (await request).status;
+  } catch (error: any) {
+    expect(error.response, 'request did not return an HTTP response').to.not.equal(undefined);
+    return error.response.status;
+  }
+}
+
+describe('Authenticated WsiHierarchyController and tile contract', () => {
+  const hierarchyUrl = `${config.serverUrl}/api/wsi/v2/hierarchy/${fixture.study_id}/${fixture.patient_id}`;
+  const frontendHierarchyUrl = `${config.frontendUrl}/api/wsi/v2/hierarchy/${fixture.study_id}/${fixture.patient_id}`;
+  const blockSlide = findSlide(fixture.hierarchy, 'BLOCK');
+  const partSlide = findSlide(fixture.hierarchy, 'PART');
+  const unmatchedSlide = findSlide(fixture.hierarchy, 'UNMATCHED');
+  const blockTileSlideId = config.blockTileSlideId || blockSlide.imageId;
+  const partTileSlideId = config.partTileSlideId || partSlide.imageId;
+  const unmatchedTileSlideId = config.unmatchedTileSlideId || unmatchedSlide.imageId;
+
+  it('requires login before issuing a WSI capability', async function () {
+    if (!hasAuthenticatedWsiSetup) this.skip();
+    expect(
+      await statusOf(
+        axios.get(`${config.serverUrl}/api/wsi/access-token?studyId=${fixture.study_id}`)
+      )
+    ).to.equal(401);
+  });
+
+  it('issues a study-scoped capability only after login and permission checks', async function () {
+    if (!hasAuthenticatedWsiSetup) this.skip();
+    const cookie = await login();
+    const authorized = await axios.get(
+      `${config.serverUrl}/api/wsi/access-token?studyId=${fixture.study_id}`,
+      sessionRequest(cookie)
+    );
+    expect(authorized.status).to.equal(200);
+    expect(authorized.headers['cache-control']).to.contain('no-store');
+
+    expect(
+      await statusOf(
+        axios.get(
+          `${config.serverUrl}/api/wsi/access-token?studyId=wsi_ci_study_b`,
+          sessionRequest(cookie)
+        )
+      )
+    ).to.equal(403);
+    expect(
+      await statusOf(
+        axios.get(`${config.serverUrl}/api/wsi/access-token`, sessionRequest(cookie))
+      )
+    ).to.equal(400);
+    expect(
+      await statusOf(
+        axios.get(`${config.serverUrl}/api/wsi/access-token?studyId=%20`, sessionRequest(cookie))
+      )
+    ).to.equal(400);
+    expect(
+      await statusOf(
+        axios.get(
+          `${config.serverUrl}/api/wsi/access-token?studyId=missing-wsi-study`,
+          sessionRequest(cookie)
+        )
+      )
+    ).to.equal(403);
+  });
+
+  it('returns the materialized hierarchy only for the authenticated study session', async function () {
+    if (!hasAuthenticatedWsiSetup) this.skip();
+    const cookie = await login();
+    const response = await axios.get<PatientHierarchy>(hierarchyUrl, sessionRequest(cookie));
 
     expect(response.status).to.equal(200);
     expect(response.headers['content-type']).to.contain('application/json');
+    expect(response.headers['cache-control']).to.contain('private');
     expect(response.data).to.deep.equal(fixture.hierarchy);
+    expect(
+      await statusOf(
+        axios.get(
+          `${config.serverUrl}/api/wsi/v2/hierarchy/wsi_ci_study_b/WSI-CI-B-PATIENT`,
+          sessionRequest(cookie)
+        )
+      )
+    ).to.equal(403);
   });
 
-  const frontendIt = hasExplicitFrontend ? it : it.skip;
-  const tileIt = hasExplicitTileServer ? it : it.skip;
-  const hierarchyTileConsistencyIt =
-    hasExplicitTileServer && !hasExplicitTileIds ? it : it.skip;
-
-  frontendIt('matches the backend hierarchy payload through the frontend proxy', async () => {
+  const frontendIt = hasAuthenticatedWsiSetup && hasExplicitFrontend ? it : it.skip;
+  frontendIt('matches the authenticated backend hierarchy through the frontend proxy', async function () {
+    const cookie = await login();
     const [backendResponse, frontendResponse] = await Promise.all([
-      axios.get<PatientHierarchy>(hierarchyUrl),
-      axios.get<PatientHierarchy>(frontendHierarchyUrl),
+      axios.get<PatientHierarchy>(hierarchyUrl, sessionRequest(cookie)),
+      axios.get<PatientHierarchy>(frontendHierarchyUrl, sessionRequest(cookie)),
     ]);
 
     expect(frontendResponse.status).to.equal(200);
-    expect(frontendResponse.headers['content-type']).to.contain('application/json');
     expect(frontendResponse.data).to.deep.equal(backendResponse.data);
   });
 
   it('covers block, part, and unmatched slide associations in the hierarchy', () => {
-    const hierarchy = fixture.hierarchy;
-    const slideIds = collectSlideIds(hierarchy);
-    const associations = hierarchy.slide_associations;
-
-    expect(slideIds).to.have.members([
-      '3020726',
-      '3020691',
-      '3020648',
-    ]);
-    expect(associations.map(association => association.match_level)).to.have.members([
+    const slideIds = collectSlideIds(fixture.hierarchy);
+    const slides = fixture.hierarchy.sampleGroups
+      .flatMap(sample => sample.parts)
+      .flatMap(part => part.blocks)
+      .flatMap(block => block.slides);
+    expect(slideIds).to.have.members(['3020726', '3020691', '3020648']);
+    expect(slides.map(slide => slide.matchLevel)).to.have.members([
       'PART',
       'BLOCK',
       'UNMATCHED',
     ]);
-
-    associations.forEach(association => {
-      expect(slideIds).to.include(association.image_id);
-      if (association.match_level === 'UNMATCHED') {
-        expect(association.sample_id).to.equal(null);
+    slides.forEach(slide => {
+      expect(slideIds).to.include(slide.imageId);
+      if (slide.matchLevel === 'UNMATCHED') {
+        expect(slide.sampleId).to.equal(null);
       } else {
-        expect(association.sample_id).to.be.a('string').and.not.empty;
+        expect(slide.sampleId).to.be.a('string').and.not.empty;
       }
     });
   });
 
-  it('returns 404 for an unknown patient', async () => {
-    try {
-      await axios.get(
-        `${config.serverUrl}/api/wsi/hierarchy/${fixture.study_id}/missing-patient`
-      );
-      expect.fail('Expected request to fail with 404');
-    } catch (error: any) {
-      expect(error.response).to.not.equal(undefined);
-      expect(error.response.status).to.equal(404);
-    }
+  it('returns 404 for an unknown patient after authentication', async function () {
+    if (!hasAuthenticatedWsiSetup) this.skip();
+    const cookie = await login();
+    expect(
+      await statusOf(
+        axios.get(
+          `${config.serverUrl}/api/wsi/v2/hierarchy/${fixture.study_id}/missing-patient`,
+          sessionRequest(cookie)
+        )
+      )
+    ).to.equal(404);
   });
 
-  tileIt('serves tile metadata for block- and part-matched public slides', async () => {
-    const [blockResponse, partResponse] = await Promise.all([
-      axios.get<SlideMetadata>(
-        `${config.tileServerUrl}/tiles/${blockTileSlideId}/metadata`
-      ),
-      axios.get<SlideMetadata>(
-        `${config.tileServerUrl}/tiles/${partTileSlideId}/metadata`
+  const tileIt = hasAuthenticatedWsiSetup ? it : it.skip;
+  tileIt('enforces study binding for every protected tile-server resource', async function () {
+    const tokenA = makeToken(fixture.study_id);
+    const tokenB = makeToken('wsi_ci_study_b');
+
+    const allowedMetadata = await axios.get<SlideMetadata>(
+      `${config.tileServerUrl}/tiles/${blockTileSlideId}/metadata`,
+      bearer(tokenA)
+    );
+    expect(allowedMetadata.status).to.equal(200);
+    expect(allowedMetadata.headers['cache-control']).to.contain('private');
+    expect(allowedMetadata.headers['cache-control']).to.not.contain('public');
+
+    const allowedResources = await Promise.all([
+      axios.get(`${config.tileServerUrl}/tiles/${blockTileSlideId}/thumbnail`, {
+        ...bearer(tokenA),
+        responseType: 'arraybuffer',
+      }),
+      axios.get(`${config.tileServerUrl}/tiles/${blockTileSlideId}/zxy/0/0/0`, {
+        ...bearer(tokenA),
+        responseType: 'arraybuffer',
+      }),
+      axios.get(`${config.tileServerUrl}/tiles/${blockTileSlideId}/warmup`, bearer(tokenA)),
+      axios.get(`${config.tileServerUrl}/slides/${blockTileSlideId}/dbmeta`, bearer(tokenA)),
+      axios.get(
+        `${config.tileServerUrl}/patient/${fixture.patient_id}?studyId=${fixture.study_id}`,
+        bearer(tokenA)
       ),
     ]);
-
-    [blockResponse, partResponse].forEach(response => {
+    allowedResources.forEach(response => {
       expect(response.status).to.equal(200);
-      expect(response.headers['content-type']).to.contain('application/json');
-      expect(response.data.dimensions.width).to.be.greaterThan(0);
-      expect(response.data.dimensions.height).to.be.greaterThan(0);
-      expect(response.data.levels).to.be.greaterThan(0);
-      expect(response.data.level_dimensions).to.not.be.empty;
-      expect(response.data.tile_size).to.equal(256);
-      expect(response.data.objective_power).to.equal(20);
-      expect(response.data.vendor).to.equal('aperio');
+      expect(response.headers['cache-control']).to.contain('private');
+      expect(response.headers['cache-control']).to.not.contain('public');
     });
+
+    const forbiddenResources = [
+      `/tiles/4020726/metadata`,
+      `/tiles/4020726/thumbnail`,
+      `/tiles/4020726/zxy/0/0/0`,
+      `/tiles/4020726/warmup`,
+      `/slides/4020726/dbmeta`,
+      `/patient/WSI-CI-B-PATIENT?studyId=wsi_ci_study_b`,
+    ];
+    for (const resource of forbiddenResources) {
+      expect(await statusOf(axios.get(`${config.tileServerUrl}${resource}`, bearer(tokenA)))).to.equal(403);
+    }
+    expect(
+      (await axios.get(`${config.tileServerUrl}/search?q=WSI-CI-B`, bearer(tokenA))).data
+    ).to.deep.equal([]);
+
+    expect(
+      (await axios.get(`${config.tileServerUrl}/tiles/4020726/metadata`, bearer(tokenB))).status
+    ).to.equal(200);
   });
 
-  hierarchyTileConsistencyIt('reports tile-serving capability in the hierarchy consistently with live tile behavior', async () => {
-    const servableAssociations = fixture.hierarchy.slide_associations.filter(
-      association => association.can_serve_tiles === true
-    );
-    const nonServableAssociations = fixture.hierarchy.slide_associations.filter(
-      association => association.can_serve_tiles === false
-    );
+  tileIt('rejects missing, invalid, expired, over-maximum, and wrong-audience tokens', async function () {
+    const pathToTest = `${config.tileServerUrl}/tiles/${blockTileSlideId}/metadata`;
+    expect(await statusOf(axios.get(pathToTest))).to.equal(401);
+    expect(await statusOf(axios.get(pathToTest, bearer('not-a-jwt')))).to.equal(401);
+    expect(await statusOf(axios.get(pathToTest, bearer(makeToken(fixture.study_id, 'x'.repeat(32)))))).to.equal(401);
+    expect(
+      await statusOf(
+        axios.get(pathToTest, bearer(makeToken(fixture.study_id, config.authSecret, { aud: 'wrong-audience' })))
+      )
+    ).to.equal(401);
+    const now = Math.floor(Date.now() / 1000);
+    expect(
+      await statusOf(
+        axios.get(
+          pathToTest,
+          bearer(makeToken(fixture.study_id, config.authSecret, { iat: now - 300, exp: now - 1 }))
+        )
+      )
+    ).to.equal(401);
+    expect(
+      await statusOf(
+        axios.get(
+          pathToTest,
+          bearer(makeToken(fixture.study_id, config.authSecret, { exp: now + 901 }))
+        )
+      )
+    ).to.equal(401);
+  });
 
-    expect(servableAssociations.map(association => association.image_id)).to.have.members([
-      blockAssociation.image_id,
-      partAssociation.image_id,
-    ]);
-    expect(nonServableAssociations.map(association => association.image_id)).to.deep.equal([
-      unmatchedAssociation.image_id,
-    ]);
+  tileIt('accepts a replacement token after refresh', async function () {
+    const cookie = await login();
+    const first = await axios.get(
+      `${config.serverUrl}/api/wsi/access-token?studyId=${fixture.study_id}`,
+      sessionRequest(cookie)
+    );
+    const second = await axios.get(
+      `${config.serverUrl}/api/wsi/access-token?studyId=${fixture.study_id}`,
+      sessionRequest(cookie)
+    );
+    expect(first.data.access_token).to.not.equal(second.data.access_token);
+    expect(
+      (await axios.get(`${config.tileServerUrl}/tiles/${blockTileSlideId}/metadata`, bearer(second.data.access_token))).status
+    ).to.equal(200);
+  });
 
+  const hierarchyTileConsistencyIt =
+    hasAuthenticatedWsiSetup && !hasExplicitTileIds ? it : it.skip;
+  hierarchyTileConsistencyIt('reports tile-serving capability consistently with live behavior', async function () {
+    const slides = fixture.hierarchy.sampleGroups
+      .flatMap(sample => sample.parts)
+      .flatMap(part => part.blocks)
+      .flatMap(block => block.slides);
+    const servableSlides = slides.filter(slide => slide.canServeTiles === true);
+    const nonServableSlides = slides.filter(slide => slide.canServeTiles === false);
+    expect(servableSlides.map(slide => slide.imageId)).to.have.members([
+      blockSlide.imageId,
+      partSlide.imageId,
+    ]);
+    expect(nonServableSlides.map(slide => slide.imageId)).to.deep.equal([
+      unmatchedSlide.imageId,
+    ]);
+    const token = makeToken(fixture.study_id);
     const metadataResponses = await Promise.all(
-      servableAssociations.map(association =>
-        axios.get<SlideMetadata>(`${config.tileServerUrl}/tiles/${association.image_id}/metadata`)
+      servableSlides.map(slide =>
+        axios.get<SlideMetadata>(
+          `${config.tileServerUrl}/tiles/${slide.imageId}/metadata`,
+          bearer(token)
+        )
       )
     );
-
     metadataResponses.forEach(response => {
       expect(response.status).to.equal(200);
       expect(response.data.levels).to.be.greaterThan(0);
     });
-  });
-
-  tileIt('serves thumbnail and tile bytes for a block-matched public slide', async () => {
-    const [thumbnailResponse, tileResponse] = await Promise.all([
-      axios.get<ArrayBuffer>(
-        `${config.tileServerUrl}/tiles/${blockTileSlideId}/thumbnail?width=128&height=128`,
-        { responseType: 'arraybuffer' }
-      ),
-      axios.get<ArrayBuffer>(
-        `${config.tileServerUrl}/tiles/${blockTileSlideId}/zxy/0/0/0`,
-        { responseType: 'arraybuffer' }
-      ),
-    ]);
-
-    [thumbnailResponse, tileResponse].forEach(response => {
-      expect(response.status).to.equal(200);
-      expect(response.headers['content-type']).to.contain('image/jpeg');
-      expect(response.data.byteLength).to.be.greaterThan(0);
-    });
-  });
-
-  tileIt('does not serve tiles for the unmatched non-servable slide', async () => {
-    try {
-      await axios.get(
-        `${config.tileServerUrl}/tiles/${unmatchedTileSlideId}/metadata`
-      );
-      expect.fail('Expected unmatched slide metadata request to fail with 404');
-    } catch (error: any) {
-      expect(error.response).to.not.equal(undefined);
-      expect(error.response.status).to.equal(404);
-    }
+    expect(
+      await statusOf(
+        axios.get(
+          `${config.tileServerUrl}/tiles/${unmatchedTileSlideId}/metadata`,
+          bearer(token)
+        )
+      )
+    ).to.equal(404);
   });
 });

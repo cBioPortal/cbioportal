@@ -5,9 +5,11 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
+import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.repository.WsiHierarchyRepository;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -21,6 +23,7 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -59,7 +62,21 @@ public class WsiHierarchyControllerTest {
 
   @Test
   public void returnsUnauthorizedWithoutAuthentication() throws Exception {
-    mockMvc.perform(get("/api/wsi/hierarchy/study/patient")).andExpect(status().isUnauthorized());
+    mockMvc.perform(get("/api/wsi/v2/hierarchy/study/patient")).andExpect(status().isUnauthorized());
+    verifyNoInteractions(repository);
+  }
+
+  @Test
+  @WithAnonymousUser
+  public void publicStudyStillRequiresLoginForWsi() throws Exception {
+    when(cancerStudyPermissionEvaluator.hasPermission(
+            org.mockito.ArgumentMatchers.any(Authentication.class),
+            eq("study"),
+            eq("CancerStudyId"),
+            eq(AccessLevel.READ)))
+        .thenReturn(true);
+
+    mockMvc.perform(get("/api/wsi/v2/hierarchy/study/patient")).andExpect(status().isUnauthorized());
     verifyNoInteractions(repository);
   }
 
@@ -73,13 +90,13 @@ public class WsiHierarchyControllerTest {
             eq(AccessLevel.READ)))
         .thenReturn(false);
 
-    mockMvc.perform(get("/api/wsi/hierarchy/study/patient")).andExpect(status().isForbidden());
+    mockMvc.perform(get("/api/wsi/v2/hierarchy/study/patient")).andExpect(status().isForbidden());
     verifyNoInteractions(repository);
   }
 
   @Test
   @WithMockUser
-  public void returnsMaterializedJsonForAuthorizedUsers() throws Exception {
+  public void returnsNormalizedHierarchyForAuthorizedUsers() throws Exception {
     when(cancerStudyPermissionEvaluator.hasPermission(
             org.mockito.ArgumentMatchers.any(Authentication.class),
             eq("study"),
@@ -87,15 +104,17 @@ public class WsiHierarchyControllerTest {
             eq(AccessLevel.READ)))
         .thenReturn(true);
     when(repository.getPatientHierarchy("study", "patient"))
-        .thenReturn(
-            "{\"patient_id\":\"patient\",\"samples\":[],\"slide_associations\":[{\"image_id\":\"slide-1\",\"sample_id\":\"sample-1\",\"match_level\":\"PART\",\"specimen_key\":\"part::1\",\"slide_type\":\"H&E\",\"can_serve_tiles\":true}]}");
+        .thenReturn(new WsiHierarchy(null, null, java.util.List.of()));
 
     mockMvc
-        .perform(get("/api/wsi/hierarchy/study/patient"))
+        .perform(get("/api/wsi/v2/hierarchy/study/patient"))
         .andExpect(status().isOk())
+        .andExpect(header().string("Cache-Control", "private, no-store"))
         .andExpect(content().contentTypeCompatibleWith("application/json"))
-        .andExpect(content().json(
-            "{\"patient_id\":\"patient\",\"samples\":[],\"slide_associations\":[{\"image_id\":\"slide-1\",\"sample_id\":\"sample-1\",\"match_level\":\"PART\",\"specimen_key\":\"part::1\",\"slide_type\":\"H&E\",\"can_serve_tiles\":true}]}"));
+        .andExpect(
+            content()
+                .json(
+                    "{\"referenceSampleId\":null,\"referenceSequencingDate\":null,\"sampleGroups\":[]}"));
   }
 
   @Test
@@ -109,8 +128,6 @@ public class WsiHierarchyControllerTest {
         .thenReturn(true);
     when(repository.getPatientHierarchy("study", "missing")).thenReturn(null);
 
-    mockMvc
-        .perform(get("/api/wsi/hierarchy/study/missing"))
-        .andExpect(status().isNotFound());
+    mockMvc.perform(get("/api/wsi/v2/hierarchy/study/missing")).andExpect(status().isNotFound());
   }
 }

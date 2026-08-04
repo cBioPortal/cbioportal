@@ -680,23 +680,93 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (4,20,'name','larotrectinib');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (5,20,'description','trka/b/c inhibitor');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (6,20,'url','https://en.wikipedia.org/wiki/larotrectinib');
--- WSI hierarchy test data
-insert into wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-values ('msk_spectrum_tme_2022', 'P-0055908', 1, '{"patient_id":"P-0055908","samples":[{"sample_id":"P-0055908-T01-IM6","cancer_type":"Ovarian Cancer","cancer_type_detailed":"High-Grade Serous Ovarian Cancer","oncotree_code":"HGSOC","primary_site":"Ovary","sample_type":"Primary","parts":[{"part_number":"27","part_designator":"27","part_type":"FALLOPIAN TUBE AND OVARY; SALPINGO-OOPHORECTOMY","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","subspecialty":"","path_dx_title":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","blocks":[{"block_number":"4","block_label":"4RO","slides":[{"image_id":"3020726","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"716956681","can_serve_tiles":true,"barcode":"","block_label":"4RO","block_number":"4","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor"}]},{"block_number":"62","block_label":"1 RFIM","slides":[{"image_id":"3020691","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"538183815","can_serve_tiles":true,"barcode":"","block_label":"1 RFIM","block_number":"62","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor"}]}]}]},{"sample_id":"UNMATCHED","cancer_type":"","cancer_type_detailed":"","oncotree_code":"","primary_site":"","sample_type":"Unmatched pathology slides","parts":[{"part_number":"34","part_designator":"34","part_type":"SMALL BOWEL; RESECTION","part_description":"Portion of small bowel and right colon with tumor","subspecialty":"","path_dx_title":"Portion of small bowel and right colon with tumor","blocks":[{"block_number":"4","block_label":"4RS","slides":[{"image_id":"3020648","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":"1014457317","can_serve_tiles":false,"barcode":"","block_label":"4RS","block_number":"4","part_description":"Portion of small bowel and right colon with tumor"}]}]}]}],"slide_associations":[{"image_id":"3020726","sample_id":"P-0055908-T01-IM6","match_level":"BLOCK","specimen_key":"block::27::4","part_number":"27","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","block_number":"4","block_label":"4RO","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":true},{"image_id":"3020691","sample_id":"P-0055908-T01-IM6","match_level":"PART","specimen_key":"part::27","part_number":"27","part_description":"Right fallopian tube and ovary, right paracolic gutter, right pelvic side wall peritoneum and tumor","block_number":"62","block_label":"1 RFIM","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":true},{"image_id":"3020648","sample_id":null,"match_level":"UNMATCHED","specimen_key":"unmatched::34::4","part_number":"34","part_description":"Portion of small bowel and right colon with tumor","block_number":"4","block_label":"4RS","slide_type":"H&E","stain_name":"H&E, Initial","procedure_date_days":-17,"timepoint_source":"Procedure date relative to tumor sequencing","can_serve_tiles":false}]}', now());
-insert into wsi_patient_hierarchy_manifest (study_id, active_version, updated_at)
-values ('msk_spectrum_tme_2022', 1, now());
-insert into wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-values ('wsi_versioned_study', 'VERSIONED-PATIENT', 1, '{"patient_id":"VERSIONED-PATIENT","samples":[{"sample_id":"old-sample","parts":[]}],"slide_associations":[]}', now());
-insert into wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-values ('wsi_versioned_study', 'VERSIONED-PATIENT', 2, '{"patient_id":"VERSIONED-PATIENT","samples":[{"sample_id":"active-sample","parts":[{"part_number":"1","blocks":[{"block_number":"1","slides":[{"image_id":"active-slide"}]}]}]}],"slide_associations":[{"image_id":"active-slide","sample_id":"active-sample","match_level":"PART"}]}', now());
-insert into wsi_patient_hierarchy_manifest (study_id, active_version, updated_at)
-values ('wsi_versioned_study', 2, now());
-insert into wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-values ('wsi_empty_hierarchy_study', 'EMPTY-PATIENT', 1, '{"patient_id":"EMPTY-PATIENT","samples":[],"slide_associations":[]}', now());
-insert into wsi_patient_hierarchy_manifest (study_id, active_version, updated_at)
-values ('wsi_empty_hierarchy_study', 1, now());
-insert into wsi_patient_hierarchy (study_id, patient_id, snapshot_version, hierarchy_json, updated_at)
-values ('wsi_missing_manifest_study', 'MISSING-MANIFEST', 1, '{"patient_id":"MISSING-MANIFEST","samples":[{"sample_id":"orphaned-sample","parts":[]}],"slide_associations":[]}', now());
+-- WSI normalized hierarchy test data
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9001,'wsi_test_study','dummy','WSI test study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9002,'wsi_versioned_study','dummy','WSI versioned study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9003,'wsi_empty_hierarchy_study','dummy','WSI empty study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9004,'wsi_missing_manifest_study','dummy','WSI missing manifest study','normalized WSI fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'VERSIONED-PATIENT',9002);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9003,'EMPTY-PATIENT',9003);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-MANIFEST',9004);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
+
+insert into wsi_publication_manifest (cancer_study_id,active_version,publication_id,updated_at)
+values (9001,1,'publication-1','2026-07-23 03:00:00.000000');
+insert into wsi_publication_manifest (cancer_study_id,active_version,publication_id,updated_at)
+values (9002,2,'publication-2','2026-07-23 03:01:00.000000');
+insert into wsi_publication_manifest (cancer_study_id,active_version,publication_id,updated_at)
+values (9003,1,'publication-empty','2026-07-23 03:00:00.000000');
+
+insert into wsi_patient_snapshot
+(cancer_study_id,patient_id,snapshot_version,publication_id,reference_sample_id,reference_sequencing_date)
+values (9001,9001,1,'publication-1',9001,'2026-07-01 00:00:00.000000');
+insert into wsi_patient_snapshot
+(cancer_study_id,patient_id,snapshot_version,publication_id,reference_sample_id,reference_sequencing_date)
+values (9002,9002,1,'publication-1',9002,'2026-07-01 00:00:00.000000');
+insert into wsi_patient_snapshot
+(cancer_study_id,patient_id,snapshot_version,publication_id,reference_sample_id,reference_sequencing_date)
+values (9002,9002,2,'publication-2',9002,'2026-07-02 00:00:00.000000');
+insert into wsi_patient_snapshot
+(cancer_study_id,patient_id,snapshot_version,publication_id,reference_sample_id,reference_sequencing_date)
+values (9003,9003,1,'publication-empty',null,null);
+
+insert into wsi_part
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,1,'publication-1','part::27','27','27','FALLOPIAN TUBE','right ovary',null,'right ovary');
+insert into wsi_part
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,1,'publication-1','part::34','34','34','SMALL BOWEL','small bowel',null,'small bowel');
+insert into wsi_part
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9002,9002,1,'publication-1','part::1','1','1','old part','old specimen',null,'old specimen');
+insert into wsi_part
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9002,9002,2,'publication-2','part::1','1','1','active part','active specimen',null,'active specimen');
+
+insert into wsi_block
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,block_key,block_number,block_label)
+values (9001,9001,1,'publication-1','part::27','block::4','4','4RO');
+insert into wsi_block
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,block_key,block_number,block_label)
+values (9001,9001,1,'publication-1','part::34','block::4','4','4RS');
+insert into wsi_block
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,block_key,block_number,block_label)
+values (9002,9002,1,'publication-1','part::1','block::1','1','old');
+insert into wsi_block
+(cancer_study_id,patient_id,snapshot_version,publication_id,part_key,block_key,block_number,block_label)
+values (9002,9002,2,'publication-2','part::1','block::1','1','active');
+
+insert into wsi_slide
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,1,'publication-1','3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,1,'publication-1','3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9002,9002,1,'publication-1','old-slide',null,null,false,false,null,null,false,null,null);
+insert into wsi_slide
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9002,9002,2,'publication-2','active-slide',null,null,false,false,null,null,false,null,null);
+
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,part_key,block_key,sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
+values (9001,9001,1,'publication-1','3020726','part::27','block::4',9001,'BLOCK','block::27::4',-17,'procedure');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,part_key,block_key,sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
+values (9001,9001,1,'publication-1','3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4',-17,'procedure');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,part_key,block_key, sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
+values (9002,9002,1,'publication-1','old-slide','part::1','block::1',9002,'PART','part::1',null,null);
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,snapshot_version,publication_id,image_id,part_key,block_key, sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
+values (9002,9002,2,'publication-2','active-slide','part::1','block::1',9002,'PART','part::1',null,null);
 
 -- generic assay test data
 -- mutational signature test data

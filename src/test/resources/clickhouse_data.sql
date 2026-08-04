@@ -697,76 +697,76 @@ insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
 
 insert into wsi_release_manifest (cancer_study_id,active_release_version,release_id,updated_at)
-values (9001,1,'publication-1','2026-07-23 03:00:00.000000');
+values (9001,1,'release-1','2026-07-23 03:00:00.000000');
 insert into wsi_release_manifest (cancer_study_id,active_release_version,release_id,updated_at)
-values (9002,2,'publication-2','2026-07-23 03:01:00.000000');
+values (9002,2,'release-2','2026-07-23 03:01:00.000000');
 insert into wsi_release_manifest (cancer_study_id,active_release_version,release_id,updated_at)
-values (9003,1,'publication-empty','2026-07-23 03:00:00.000000');
+values (9003,1,'release-empty','2026-07-23 03:00:00.000000');
 
 insert into wsi_patient_release
 (cancer_study_id,patient_id,release_version,release_id,reference_sample_id,reference_sequencing_date)
-values (9001,9001,1,'publication-1',9001,'2026-07-01 00:00:00.000000');
+values (9001,9001,1,'release-1',9001,'2026-07-01 00:00:00.000000');
 insert into wsi_patient_release
 (cancer_study_id,patient_id,release_version,release_id,reference_sample_id,reference_sequencing_date)
-values (9002,9002,1,'publication-1',9002,'2026-07-01 00:00:00.000000');
+values (9002,9002,1,'release-1',9002,'2026-07-01 00:00:00.000000');
 insert into wsi_patient_release
 (cancer_study_id,patient_id,release_version,release_id,reference_sample_id,reference_sequencing_date)
-values (9002,9002,2,'publication-2',9002,'2026-07-02 00:00:00.000000');
+values (9002,9002,2,'release-2',9002,'2026-07-02 00:00:00.000000');
 insert into wsi_patient_release
 (cancer_study_id,patient_id,release_version,release_id,reference_sample_id,reference_sequencing_date)
-values (9003,9003,1,'publication-empty',null,null);
+values (9003,9003,1,'release-empty',null,null);
 
 insert into wsi_part
 (cancer_study_id,patient_id,release_version,release_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
-values (9001,9001,1,'publication-1','part::27','27','27','FALLOPIAN TUBE','right ovary',null,'right ovary');
+values (9001,9001,1,'release-1','part::27','27','27','FALLOPIAN TUBE','right ovary',null,'right ovary');
 insert into wsi_part
 (cancer_study_id,patient_id,release_version,release_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
-values (9001,9001,1,'publication-1','part::34','34','34','SMALL BOWEL','small bowel',null,'small bowel');
+values (9001,9001,1,'release-1','part::34','34','34','SMALL BOWEL','small bowel',null,'small bowel');
 insert into wsi_part
 (cancer_study_id,patient_id,release_version,release_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
-values (9002,9002,1,'publication-1','part::1','1','1','old part','old specimen',null,'old specimen');
+values (9002,9002,1,'release-1','part::1','1','1','old part','old specimen',null,'old specimen');
 insert into wsi_part
 (cancer_study_id,patient_id,release_version,release_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
-values (9002,9002,2,'publication-2','part::1','1','1','active part','active specimen',null,'active specimen');
+values (9002,9002,2,'release-2','part::1','1','1','active part','active specimen',null,'active specimen');
 
 insert into wsi_block
 (cancer_study_id,patient_id,release_version,release_id,part_key,block_key,block_number,block_label)
-values (9001,9001,1,'publication-1','part::27','block::4','4','4RO');
+values (9001,9001,1,'release-1','part::27','block::4','4','4RO');
 insert into wsi_block
 (cancer_study_id,patient_id,release_version,release_id,part_key,block_key,block_number,block_label)
-values (9001,9001,1,'publication-1','part::34','block::4','4','4RS');
+values (9001,9001,1,'release-1','part::34','block::4','4','4RS');
 insert into wsi_block
 (cancer_study_id,patient_id,release_version,release_id,part_key,block_key,block_number,block_label)
-values (9002,9002,1,'publication-1','part::1','block::1','1','old');
+values (9002,9002,1,'release-1','part::1','block::1','1','old');
 insert into wsi_block
 (cancer_study_id,patient_id,release_version,release_id,part_key,block_key,block_number,block_label)
-values (9002,9002,2,'publication-2','part::1','block::1','1','active');
+values (9002,9002,2,'release-2','part::1','block::1','1','active');
 
 insert into wsi_slide
 (cancer_study_id,patient_id,release_version,release_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9001,9001,1,'publication-1','3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
+values (9001,9001,1,'release-1','3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
 insert into wsi_slide
 (cancer_study_id,patient_id,release_version,release_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9001,9001,1,'publication-1','3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
+values (9001,9001,1,'release-1','3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
 insert into wsi_slide
 (cancer_study_id,patient_id,release_version,release_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9002,9002,1,'publication-1','old-slide',null,null,false,false,null,null,false,null,null);
+values (9002,9002,1,'release-1','old-slide',null,null,false,false,null,null,false,null,null);
 insert into wsi_slide
 (cancer_study_id,patient_id,release_version,release_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9002,9002,2,'publication-2','active-slide',null,null,false,false,null,null,false,null,null);
+values (9002,9002,2,'release-2','active-slide',null,null,false,false,null,null,false,null,null);
 
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,release_version,release_id,image_id,part_key,block_key,sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
-values (9001,9001,1,'publication-1','3020726','part::27','block::4',9001,'BLOCK','block::27::4',-17,'procedure');
+values (9001,9001,1,'release-1','3020726','part::27','block::4',9001,'BLOCK','block::27::4',-17,'procedure');
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,release_version,release_id,image_id,part_key,block_key,sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
-values (9001,9001,1,'publication-1','3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4',-17,'procedure');
+values (9001,9001,1,'release-1','3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4',-17,'procedure');
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,release_version,release_id,image_id,part_key,block_key, sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
-values (9002,9002,1,'publication-1','old-slide','part::1','block::1',9002,'PART','part::1',null,null);
+values (9002,9002,1,'release-1','old-slide','part::1','block::1',9002,'PART','part::1',null,null);
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,release_version,release_id,image_id,part_key,block_key, sample_id,match_level,specimen_key,procedure_date_days,timepoint_source)
-values (9002,9002,2,'publication-2','active-slide','part::1','block::1',9002,'PART','part::1',null,null);
+values (9002,9002,2,'release-2','active-slide','part::1','block::1',9002,'PART','part::1',null,null);
 
 -- generic assay test data
 -- mutational signature test data

@@ -64,8 +64,8 @@ DROP TABLE IF EXISTS wsi_slide_placement;
 DROP TABLE IF EXISTS wsi_slide;
 DROP TABLE IF EXISTS wsi_block;
 DROP TABLE IF EXISTS wsi_part;
-DROP TABLE IF EXISTS wsi_patient_publication;
-DROP TABLE IF EXISTS wsi_publication_manifest;
+DROP TABLE IF EXISTS wsi_patient_release;
+DROP TABLE IF EXISTS wsi_release_manifest;
 DROP TABLE IF EXISTS clinical_patient;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS cna_event;
@@ -337,29 +337,29 @@ CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived
 ) ENGINE = MergeTree()
 ORDER BY (profile_stable_id, entity_stable_id);
 
-CREATE TABLE wsi_publication_manifest (
+CREATE TABLE wsi_release_manifest (
     cancer_study_id Int64,
-    active_publication_version UInt64,
-    publication_id String,
+    active_release_version UInt64,
+    release_id String,
     updated_at DateTime64(6)
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, active_publication_version, publication_id);
+ORDER BY (cancer_study_id, active_release_version, release_id);
 
-CREATE TABLE wsi_patient_publication (
+CREATE TABLE wsi_patient_release (
     cancer_study_id Int64,
     patient_id Int64,
-    publication_version UInt64,
-    publication_id String,
+    release_version UInt64,
+    release_id String,
     reference_sample_id Nullable(Int64),
     reference_sequencing_date Nullable(DateTime64(6))
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, publication_version, publication_id);
+ORDER BY (cancer_study_id, patient_id, release_version, release_id);
 
 CREATE TABLE wsi_part (
     cancer_study_id Int64,
     patient_id Int64,
-    publication_version UInt64,
-    publication_id String,
+    release_version UInt64,
+    release_id String,
     part_key String,
     part_number Nullable(String),
     part_designator Nullable(String),
@@ -368,25 +368,25 @@ CREATE TABLE wsi_part (
     subspecialty Nullable(String),
     path_dx_title Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, publication_version, publication_id, part_key);
+ORDER BY (cancer_study_id, patient_id, release_version, release_id, part_key);
 
 CREATE TABLE wsi_block (
     cancer_study_id Int64,
     patient_id Int64,
-    publication_version UInt64,
-    publication_id String,
+    release_version UInt64,
+    release_id String,
     part_key String,
     block_key String,
     block_number Nullable(String),
     block_label Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, publication_version, publication_id, part_key, block_key);
+ORDER BY (cancer_study_id, patient_id, release_version, release_id, part_key, block_key);
 
 CREATE TABLE wsi_slide (
     cancer_study_id Int64,
     patient_id Int64,
-    publication_version UInt64,
-    publication_id String,
+    release_version UInt64,
+    release_id String,
     image_id String,
     stain_name Nullable(String),
     stain_group Nullable(String),
@@ -398,13 +398,13 @@ CREATE TABLE wsi_slide (
     barcode Nullable(String),
     slide_type Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, publication_version, publication_id, image_id);
+ORDER BY (cancer_study_id, patient_id, release_version, release_id, image_id);
 
 CREATE TABLE wsi_slide_placement (
     cancer_study_id Int64,
     patient_id Int64,
-    publication_version UInt64,
-    publication_id String,
+    release_version UInt64,
+    release_id String,
     image_id String,
     part_key String,
     block_key String,
@@ -414,7 +414,7 @@ CREATE TABLE wsi_slide_placement (
     procedure_date_days Nullable(Int32),
     timepoint_source Nullable(String)
 ) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, publication_version, publication_id, image_id, part_key, block_key);
+ORDER BY (cancer_study_id, patient_id, release_version, release_id, image_id, part_key, block_key);
 
 -- --------------------------------------------------------
 CREATE TABLE generic_entity_properties (

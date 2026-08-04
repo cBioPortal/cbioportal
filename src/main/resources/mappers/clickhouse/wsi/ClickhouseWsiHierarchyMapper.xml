@@ -5,7 +5,6 @@
     <select id="getPatientHierarchy" resultType="hashmap">
         SELECT
             toString(ref_sample.stable_id) AS reference_sample_id,
-            toString(ps.reference_sequencing_date) AS reference_sequencing_date,
             toString(portal_sample.stable_id) AS sample_id,
             part.part_key AS part_key,
             part.part_number AS part_number,
@@ -37,40 +36,34 @@
         INNER JOIN (
             SELECT
                 cancer_study_id,
-                argMax(active_release_version, (updated_at, release_id)) AS active_release_version,
-                argMax(release_id, (updated_at, release_id)) AS release_id
-            FROM wsi_release_manifest
+                argMax(release_id, (released_at, release_id)) AS release_id
+            FROM wsi_release
             GROUP BY cancer_study_id
-        ) manifest
-            ON manifest.cancer_study_id = study.cancer_study_id
-        INNER JOIN wsi_patient_release ps
-            ON ps.cancer_study_id = manifest.cancer_study_id
-           AND ps.release_version = manifest.active_release_version
-           AND ps.release_id = manifest.release_id
+        ) active_release
+            ON active_release.cancer_study_id = study.cancer_study_id
+        INNER JOIN wsi_release_patient ps
+            ON ps.cancer_study_id = active_release.cancer_study_id
+           AND ps.release_id = active_release.release_id
            AND ps.patient_id = portal_patient.internal_id
         LEFT JOIN sample ref_sample ON ref_sample.internal_id = ps.reference_sample_id
         LEFT JOIN wsi_part part
             ON part.cancer_study_id = ps.cancer_study_id
            AND part.patient_id = ps.patient_id
-           AND part.release_version = ps.release_version
            AND part.release_id = ps.release_id
         LEFT JOIN wsi_block block
             ON block.cancer_study_id = part.cancer_study_id
            AND block.patient_id = part.patient_id
-           AND block.release_version = part.release_version
            AND block.release_id = part.release_id
            AND block.part_key = part.part_key
         LEFT JOIN wsi_slide_placement placement
             ON placement.cancer_study_id = block.cancer_study_id
            AND placement.patient_id = block.patient_id
-           AND placement.release_version = block.release_version
            AND placement.release_id = block.release_id
            AND placement.part_key = block.part_key
            AND placement.block_key = block.block_key
         LEFT JOIN wsi_slide slide
             ON slide.cancer_study_id = placement.cancer_study_id
            AND slide.patient_id = placement.patient_id
-           AND slide.release_version = placement.release_version
            AND slide.release_id = placement.release_id
            AND slide.image_id = placement.image_id
         LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id

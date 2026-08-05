@@ -1,6 +1,6 @@
 -- Schema for the optional HTTP request log used for endpoint QC.
 --
--- This is independent of the main derived-table schema in generate_derived_tables.sql: it is
+-- This is independent of the main base/derived-table schema in schema.sql: it is
 -- only needed when the backend is run with request-logging.enabled=true, in
 -- which case every matching HTTP request is captured and inserted here through
 -- the application's primary ClickHouse datasource (see

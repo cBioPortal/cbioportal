@@ -146,7 +146,7 @@
         ) AS INTEGER) AS count
         FROM generic_assay_data_derived
         <where>
-            <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
+            <!-- Table creation in schema.sql has ensured no NA values but extra caution is always appreciated -->
             <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                 <property name="attribute_value" value="value"/>
             </include> != 'NA' AND

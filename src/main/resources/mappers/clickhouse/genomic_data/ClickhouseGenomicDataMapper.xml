@@ -35,7 +35,7 @@
         cast(count(value) as INTEGER) AS count
         FROM genetic_alteration_derived
         <where>
-            <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
+            <!-- Table creation in schema.sql has ensured no NA values but extra caution is always appreciated -->
             <include
                     refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                 <property name="attribute_value" value="alteration_value"/>
@@ -86,7 +86,7 @@
                 cast(count(*) as INTEGER) as count
             FROM genetic_alteration_derived
             <where>
-                <!-- Table creation in generate_derived_tables.sql has ensured no NA values but extra caution is always appreciated -->
+                <!-- Table creation in schema.sql has ensured no NA values but extra caution is always appreciated -->
                 <include
                         refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
                     <property name="attribute_value" value="alteration_value"/>

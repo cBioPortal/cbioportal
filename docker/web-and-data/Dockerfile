@@ -37,7 +37,7 @@ COPY . .
 # final image cache dependency libs separately from application classes
 # (see: https://spring.io/guides/topicals/spring-boot-docker/).
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    && mvn -q package -DskipTests \
+    && mvn -q package -DskipTests -Dmaven.gitcommitid.skip=true \
     && mkdir -p target/dependency \
     && (cd target/dependency && jar -xf ../*-exec.jar)
 

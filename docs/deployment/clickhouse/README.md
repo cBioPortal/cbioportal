@@ -77,6 +77,8 @@ See [Deploy with Docker](/deployment/docker/README.md) for more information.
 
 ### ClickHouse Cloud
 
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse" height="40" /></a>
+
 [ClickHouse Cloud](https://clickhouse.com/cloud) offers managed ClickHouse instances with adjustable RAM and compute.
 
 - **Pros:** No server maintenance, elastic scaling, built-in backups.
@@ -292,3 +294,7 @@ This manual process will only be necessary for the initial v6→v7 migration and
 - [ClickHouse Cloud](https://clickhouse.com/cloud) — managed ClickHouse service
 - [cBioPortal Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose) — reference Docker Compose deployment
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — protocol spec for AI integrations
+
+---
+
+ClickHouse, the ClickHouse logo, and related marks are trademarks or registered trademarks of ClickHouse, Inc.

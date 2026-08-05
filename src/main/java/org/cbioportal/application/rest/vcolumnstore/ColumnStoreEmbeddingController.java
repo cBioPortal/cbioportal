@@ -1,11 +1,11 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.cbioportal.application.rest.mapper.EmbeddingMapper;
 import org.cbioportal.application.rest.response.EmbeddingDTO;
 import org.cbioportal.domain.embedding.usecase.EmbeddingUseCases;
+import org.cbioportal.legacy.web.config.InternalApiTags;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.EmbeddingFilter;
 import org.springframework.http.MediaType;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.*;
  * <p>// * @see EmbeddingDataDTO
  */
 @InternalApi
-@Tag(name = "", description = " ")
+@Tag(name = InternalApiTags.EMBEDDING, description = "Embedding data")
 @RestController
 @RequestMapping("/api")
 public class ColumnStoreEmbeddingController {
@@ -58,7 +58,7 @@ public class ColumnStoreEmbeddingController {
    * @return ResponseEntity containing list of embedding data DTOs
    */
   @InternalApi
-  @Hidden
+  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(

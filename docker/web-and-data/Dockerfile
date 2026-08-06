@@ -13,7 +13,7 @@
 # information is exposed. (see: stackoverflow.com/questions/56278325)
 ARG CORE_BRANCH=main
 
-FROM maven:3-eclipse-temurin-21 AS build
+FROM --platform=$BUILDPLATFORM maven:3-eclipse-temurin-21 AS build
 
 WORKDIR /cbioportal
 
@@ -76,10 +76,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ARG CLICKHOUSE_VERSION=25.8.24.21
 RUN ARCH="$(dpkg --print-architecture)" \
     && curl -fsSL "https://packages.clickhouse.com/tgz/lts/clickhouse-common-static-${CLICKHOUSE_VERSION}-${ARCH}.tgz" -o /tmp/clickhouse.tgz \
-    && tar -xzf /tmp/clickhouse.tgz -C /tmp \
-    && install -m 755 "/tmp/clickhouse-common-static-${CLICKHOUSE_VERSION}/usr/bin/clickhouse" /usr/bin/clickhouse \
-    && rm -rf /tmp/clickhouse.tgz "/tmp/clickhouse-common-static-${CLICKHOUSE_VERSION}"
-
+    && tar -xzf /tmp/clickhouse.tgz -C /usr/bin --strip-components=3 "clickhouse-common-static-${CLICKHOUSE_VERSION}/usr/bin/clickhouse" \
+    && chmod 755 /usr/bin/clickhouse \
+    && rm -f /tmp/clickhouse.tgz
+ 
 # copy over core files (scripts, requirements) built from cbioportal-core
 COPY --from=build-core /core/scripts /core/scripts
 COPY --from=build-core /core/core-*.jar /core/core-IMPORTER.jar

@@ -34,12 +34,14 @@ import org.springframework.web.context.WebApplicationContext;
 public class GenericAssayDataControllerTest {
 
   private static final String PROF_ID = "test_prof_id";
+  private static final String PROF_ID_2 = "test_prof_id_2";
   private static final String ENTITY_TYPE = "test_type";
   public static final String GENERIC_ASSAY_STABLE_ID_1 = "genericAssayStableId1";
   public static final String GENERIC_ASSAY_STABLE_ID_2 = "genericAssayStableId2";
   public static final String GENERIC_ASSAY_STABLE_ID_3 = "genericAssayStableId3";
   public static final String GENERIC_ASSAY_STABLE_ID_4 = "genericAssayStableId4";
   private static final String SAMPLE_ID = "test_sample_stable_id_1";
+  private static final String SAMPLE_ID_2 = "test_sample_stable_id_2";
   private static final String VALUE_1 = "0.25";
   private static final String VALUE_2 = "-0.75";
   private static final String VALUE_3 = "";
@@ -190,6 +192,37 @@ public class GenericAssayDataControllerTest {
     Mockito.verifyNoInteractions(genericAssayService);
   }
 
+  @Test
+  public void testGenericAssayDataFetchInMultipleMolecularProfilesFiltersRequestedPairsOnly()
+      throws Exception {
+    List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsAcrossProfiles();
+    GenericAssayDataMultipleStudyFilter genericAssayDataMultipleStudyFilter =
+        new GenericAssayDataMultipleStudyFilter();
+    genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(
+        createMixedStudySampleMolecularIdentifiers());
+
+    Mockito.when(
+            genericAssayService.fetchGenericAssayData(
+                Mockito.anyList(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(genericAssayDataItems);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic_assay_data/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayDataMultipleStudyFilter)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].molecularProfileId").value(PROF_ID))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value(SAMPLE_ID))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].molecularProfileId").value(PROF_ID_2))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].sampleId").value(SAMPLE_ID_2));
+  }
+
+  @Test
   public void testGenericAssayDataGet() throws Exception {
     List<GenericAssayData> genericAssayDataItems = createGenericAssayDataItemsList();
     Mockito.when(
@@ -279,5 +312,56 @@ public class GenericAssayDataControllerTest {
     sampleMolecularIdentifiers.add(identifier4);
 
     return sampleMolecularIdentifiers;
+  }
+
+  private List<SampleMolecularIdentifier> createMixedStudySampleMolecularIdentifiers() {
+    List<SampleMolecularIdentifier> sampleMolecularIdentifiers = new ArrayList<>();
+
+    SampleMolecularIdentifier identifier1 = new SampleMolecularIdentifier();
+    identifier1.setSampleId(SAMPLE_ID);
+    identifier1.setMolecularProfileId(PROF_ID);
+    sampleMolecularIdentifiers.add(identifier1);
+
+    SampleMolecularIdentifier identifier2 = new SampleMolecularIdentifier();
+    identifier2.setSampleId(SAMPLE_ID_2);
+    identifier2.setMolecularProfileId(PROF_ID_2);
+    sampleMolecularIdentifiers.add(identifier2);
+
+    return sampleMolecularIdentifiers;
+  }
+
+  private List<GenericAssayData> createGenericAssayDataItemsAcrossProfiles() {
+    List<GenericAssayData> genericAssayDataItems = new ArrayList<>();
+
+    GenericAssayData item1 = new GenericAssayData();
+    item1.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_1);
+    item1.setMolecularProfileId(PROF_ID);
+    item1.setSampleId(SAMPLE_ID);
+    item1.setValue(VALUE_1);
+    genericAssayDataItems.add(item1);
+
+    GenericAssayData item2 = new GenericAssayData();
+    item2.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_2);
+    item2.setMolecularProfileId(PROF_ID_2);
+    item2.setSampleId(SAMPLE_ID_2);
+    item2.setValue(VALUE_2);
+    genericAssayDataItems.add(item2);
+
+    // These items emulate unwanted cross-combinations that should be filtered out.
+    GenericAssayData item3 = new GenericAssayData();
+    item3.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_1);
+    item3.setMolecularProfileId(PROF_ID);
+    item3.setSampleId(SAMPLE_ID_2);
+    item3.setValue(VALUE_1);
+    genericAssayDataItems.add(item3);
+
+    GenericAssayData item4 = new GenericAssayData();
+    item4.setGenericAssayStableId(GENERIC_ASSAY_STABLE_ID_2);
+    item4.setMolecularProfileId(PROF_ID_2);
+    item4.setSampleId(SAMPLE_ID);
+    item4.setValue(VALUE_2);
+    genericAssayDataItems.add(item4);
+
+    return genericAssayDataItems;
   }
 }

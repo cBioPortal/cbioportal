@@ -75,11 +75,9 @@ The simplest way to get started. The [cBioPortal Docker Compose](https://github.
 
 See [Deploy with Docker](/deployment/docker/README.md) for more information.
 
-### ClickHouse Cloud
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse Cloud" height="72" /></a>
 
-<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse" height="40" /></a>
-
-[ClickHouse Cloud](https://clickhouse.com/cloud) offers managed ClickHouse instances with adjustable RAM and compute.
+ClickHouse Cloud offers managed ClickHouse instances with adjustable RAM and compute.
 
 - **Pros:** No server maintenance, elastic scaling, built-in backups.
 - **Cons:** Can be expensive for large databases. Network latency if not in the same region as your cBioPortal instance.

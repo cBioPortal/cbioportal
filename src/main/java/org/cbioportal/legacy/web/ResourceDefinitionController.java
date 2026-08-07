@@ -43,10 +43,7 @@ public class ResourceDefinitionController {
 
   @Autowired private ResourceDefinitionService resourceDefinitionService;
 
-  @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) or "
-          + "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies', 'false')) and "
-          + "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).LIST))")
+  @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'READ_OR_SHOW_UNAUTHORIZED')")
   @RequestMapping(
       value = "/studies/{studyId}/resource-definitions",
       method = RequestMethod.GET,
@@ -95,10 +92,7 @@ public class ResourceDefinitionController {
     }
   }
 
-  @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) or "
-          + "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies', 'false')) and "
-          + "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).LIST))")
+  @PreAuthorize("hasPermission(#studyId, 'CancerStudyId', 'READ_OR_SHOW_UNAUTHORIZED')")
   @RequestMapping(
       value = "/studies/{studyId}/resource-definitions/{resourceId}",
       method = RequestMethod.GET,
@@ -119,9 +113,7 @@ public class ResourceDefinitionController {
   }
 
   @PreAuthorize(
-      "hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) or "
-          + "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies', 'false')) and "
-          + "hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).LIST))")
+      "hasPermission(#studyIds, 'Collection<CancerStudyId>', 'READ_OR_SHOW_UNAUTHORIZED')")
   @RequestMapping(
       value = "/resource-definitions/fetch",
       method = RequestMethod.POST,

@@ -58,6 +58,7 @@ import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -73,6 +74,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
   private final CacheMapUtil cacheMapUtil;
+  private final Environment environment;
 
   private static final String ALL_CANCER_STUDIES_ID = "all";
   private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
@@ -114,11 +116,13 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       final String appName,
       final String doFilterGroupsByAppName,
       final String alwaysShowCancerStudyGroup,
-      final CacheMapUtil cacheMapUtil) {
+      final CacheMapUtil cacheMapUtil,
+      final Environment environment) {
     this.APP_NAME = appName;
     this.FILTER_GROUPS_BY_APP_NAME = doFilterGroupsByAppName;
     this.PUBLIC_CANCER_STUDIES_GROUP = alwaysShowCancerStudyGroup;
     this.cacheMapUtil = cacheMapUtil;
+    this.environment = environment;
   }
 
   /**
@@ -141,6 +145,16 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       }
       return false;
     }
+
+    if ("READ_OR_SHOW_UNAUTHORIZED".equals(permission)) {
+      if (hasPermission(authentication, targetDomainObject, AccessLevel.READ)) {
+        return true;
+      }
+      return environment != null
+          && Boolean.parseBoolean(
+              environment.getProperty("skin.home_page.show_unauthorized_studies", "false"));
+    }
+
     CancerStudy cancerStudy = extractCancerStudy(targetDomainObject);
     if (log.isDebugEnabled()) {
       if (cancerStudy == null) {
@@ -190,6 +204,15 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         log.debug("hasPermission(), targetId is null, returning false");
       }
       return false;
+    }
+
+    if ("READ_OR_SHOW_UNAUTHORIZED".equals(permission)) {
+      if (hasPermission(authentication, targetId, targetType, AccessLevel.READ)) {
+        return true;
+      }
+      return environment != null
+          && Boolean.parseBoolean(
+              environment.getProperty("skin.home_page.show_unauthorized_studies", "false"));
     }
 
     try {

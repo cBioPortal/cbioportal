@@ -557,3 +557,13 @@ insert into resource_patient (internal_id, resource_id, url) values (5, 'IDC_OHI
 insert into resource_patient (internal_id, resource_id, url) values (6, 'IDC_OHIF_V2', 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG');
 
 insert into resource_study (internal_id, resource_id, url) values (2, 'FIGURES', 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Tumor_Mesothelioma2_legend.jpg/220px-Tumor_Mesothelioma2_legend.jpg');
+
+-- Dedicated entity (acc_tcga) for exercising empty-value clinical data exclusion.
+-- The v7 ClickHouse import stores blank clinical cells as empty strings (''); the legacy
+-- clinical-data reads must skip them so missing values are reported as absent rows.
+insert into patient (internal_id,stable_id,cancer_study_id) values (90001,'TCGA-EMPTY-VAL-PT',2);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (90001,'TCGA-EMPTY-VAL-PT-01','Primary Solid Tumor',90001);
+insert into clinical_patient (internal_id,attr_id,attr_value) values (90001,'OTHER_PATIENT_ID','EMPTY-VAL-PATIENT');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (90001,'FORM_COMPLETION_DATE','');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (90001,'OTHER_SAMPLE_ID','EMPTY-VAL-SAMPLE');
+insert into clinical_sample (internal_id,attr_id,attr_value) values (90001,'DAYS_TO_COLLECTION','');

@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Map;
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.utils.security.AccessLevel;
@@ -150,7 +152,14 @@ public class WsiAccessTokenControllerTest {
     assertNotNull(body);
     assertEquals("Bearer", body.get("token_type"));
     assertEquals(300, body.get("expires_in"));
-    assertTrue(((String) body.get("access_token")).length() > 20);
+    String token = (String) body.get("access_token");
+    assertTrue(token.length() > 20);
+    String payload = token.split("\\.")[1];
+    String decodedPayload =
+        new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
+    assertTrue(decodedPayload.contains("\"study_id\":\"msk_spectrum_tme_2022\""));
+    assertTrue(decodedPayload.contains("\"scope\":\"wsi:read\""));
+    assertTrue(decodedPayload.contains("\"wsi_auth_version\":1"));
   }
 
   private WsiAccessTokenController createAuthenticatedController() {

@@ -58,13 +58,30 @@ public class ClickhouseGenericAssayRepository implements GenericAssayRepository 
   }
 
   @Override
-  public List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds) {
-    return mapper.getGenericAssayMetaByStableIds(stableIds);
+  public List<GenericAssayMeta> getGenericAssayMetaByStableIds(
+      List<String> stableIds, String searchTerm, Integer pageSize, Integer offset) {
+    return mapper.getGenericAssayMetaByStableIds(stableIds, searchTerm, pageSize, offset);
+  }
+
+  @Override
+  public Integer countGenericAssayMetaByStableIds(List<String> stableIds, String searchTerm) {
+    return mapper.countGenericAssayMetaByStableIds(stableIds, searchTerm);
   }
 
   @Override
   public List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
-      List<String> profileIds, List<String> stableIds) {
-    return mapper.getGenericAssayMetaByProfileIds(profileIds, stableIds);
+      List<String> profileIds,
+      List<String> stableIds,
+      String searchTerm,
+      Integer pageSize,
+      Integer offset) {
+    return mapper.getGenericAssayMetaByProfileIds(
+        profileIds, stableIds, searchTerm, pageSize, offset);
+  }
+
+  @Override
+  public Integer countGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds, String searchTerm) {
+    return mapper.countGenericAssayMetaByProfileIds(profileIds, stableIds, searchTerm);
   }
 }

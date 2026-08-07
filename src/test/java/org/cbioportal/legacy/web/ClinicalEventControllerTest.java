@@ -2,6 +2,7 @@ package org.cbioportal.legacy.web;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -186,6 +187,43 @@ public class ClinicalEventControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].attributes[0].value").value(TEST_VALUE_3))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].attributes[1].key").value(TEST_KEY_4))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].attributes[1].value").value(TEST_VALUE_4));
+  }
+
+  @Test
+  @WithMockUser
+  public void getAllClinicalEventsInStudyDefaultsPageSizeToCap() throws Exception {
+    when(clinicalEventService.getAllClinicalEventsInStudy(any(), any(), any(), any(), any(), any()))
+        .thenReturn(createExampleClinicalEventList());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    // When pageSize is omitted it must default to the endpoint cap, not the shared 10M default,
+    // so a single unpaginated request cannot pull an entire large study's events into heap.
+    Mockito.verify(clinicalEventService)
+        .getAllClinicalEventsInStudy(
+            any(),
+            any(),
+            eq(ClinicalEventController.CLINICAL_EVENT_MAX_PAGE_SIZE),
+            any(),
+            any(),
+            any());
+  }
+
+  @Test
+  @WithMockUser
+  public void getAllClinicalEventsInStudyRejectsPageSizeAboveCap() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/api/studies/test_study_id/clinical-events")
+                .param(
+                    "pageSize",
+                    String.valueOf(ClinicalEventController.CLINICAL_EVENT_MAX_PAGE_SIZE + 1))
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 
   @Test

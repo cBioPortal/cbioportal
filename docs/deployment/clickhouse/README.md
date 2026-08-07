@@ -98,7 +98,7 @@ cBioPortal v7 uses ClickHouse as its sole database backend. This section describ
 ClickHouse stores two categories of tables:
 
 - **Base tables** — Store the raw study data as imported: cancer studies, samples, patients, genetic profiles, mutations, copy-number alterations, clinical data, etc. These are populated by `metaImport.py` during study import.
-- **Derived tables** — Precomputed, denormalized tables built from the base tables by running `clickhouse.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 7](#7-notes-on-derived-tables) for details.
+- **Derived tables** — Precomputed, denormalized tables built from the base tables. Their structure is defined in `schema.sql` alongside every other table; their data is populated by running `populate_derived_tables.sql`. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See [section 7](#7-notes-on-derived-tables) for details.
 
 ### How Components Connect
 
@@ -164,9 +164,9 @@ This will use the ClickHouse CLI that is embedded in the `cbioportal-database` c
 
 After running the `init.sh` script from the Docker Compose steps above, you will notice several new files present in the `data/` directory. These include:
 
-- **schema.sql** -- This is the base schema for the cBioPortal database.
+- **schema.sql** -- This is the base schema for the cBioPortal database, including the (empty) derived table definitions.
 - **seed.sql.gz** -- This contains the latest "seed data" for this version of the schema, including reference data like gene symbols.
-- **clickhouse.sql** -- This script is responsible for creating "derived tables" that the cBioPortal web application uses to load pages faster. Refer below for more info on derived tables.
+- **populate_derived_tables.sql** -- This script populates the "derived tables" that the cBioPortal web application uses to load pages faster. It doesn't define table structure (that's in `schema.sql`) — it's just data population, safe to run repeatedly. Refer below for more info on derived tables.
 - **clickhouse_user_settings.xml** -- This file contains the default settings that are assigned to the ClickHouse user in the newly created database.
 
 ---
@@ -189,11 +189,19 @@ Without derived tables, every Study View page load would need to join across gen
 
 ### When Derived Tables Are Built
 
+| Scenario | Derived tables rebuilt? | Why |
+|---|---|---|
+| First-ever `docker compose up` (empty ClickHouse volume) | Yes | The fresh-install init scripts load `schema.sql` (creates derived tables, empty) then run `populate_derived_tables.sql` as part of first-time database setup. |
+| `docker compose up` on an existing, already-initialized database, no pending migration | No | Docker's init scripts only run once against an empty data volume; nothing else rebuilds derived tables on a plain restart. |
+| After importing a study (`metaImport.py`) | Yes, automatically | `metaImport.py` repopulates derived tables after every successful import, unless you pass `--no-derive-tables` (see below). |
+| After `docker compose up` applies a pending schema migration | Yes, automatically | `migrate_db.py` is invoked with `--populate-derived-tables` in `cbioportal-docker-compose`, so it repopulates derived tables whenever a migration run actually applied one or more `migrate_schema.sql` sections. See [§11 Version Migration](#11-version-migration). |
+| Manual deployments running `migrate_db.py` directly (no docker-compose) | No, unless you opt in | `migrate_db.py` does **not** repopulate derived tables by default — pass `--populate-derived-tables`, or rebuild them yourself as a separate step. See [§11 Version Migration](#11-version-migration). |
+
 By default, `metaImport.py` **automatically rebuilds derived tables** after every import. This ensures query performance stays fast after loading new studies.
 
 ### Skipping Derived Table Rebuild (`--no-derive-tables` and `derive-tables`)
 
-The `derive-tables` command recreates all derived table structures based on all study data in the database. Normally, it's not necessary to run since `metaImport.py` will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:
+The `derive-tables` command repopulates all derived tables based on all study data currently in the database (table structure is unaffected — that's defined in `schema.sql`). Normally, it's not necessary to run since `metaImport.py` will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:
 
 ```bash
 docker compose exec cbioportal metaImport.py -s /study/study1 -o --no-derive-tables
@@ -263,17 +271,41 @@ After importing studies and rebuilding derived tables, you can verify that your 
 
 ## 11. Version Migration
 
-> ⚠️ **There is currently no automated mechanism for migrating data between ClickHouse versions.**
+Starting with `DB_SCHEMA_VERSION` `3.0.0`, in-place schema upgrades are handled by
+`db-scripts/clickhouse/migrate/migrate_schema.sql` (a forward-only, version-tagged set of SQL
+sections) applied by `db-scripts/clickhouse/migrate/migrate_db.py`. The runner reads the current
+`db_schema_version` from the `info` table, skips sections already applied, and applies the rest in
+order, advancing `db_schema_version` itself after each section succeeds.
 
-A migration tool for in-place schema upgrades is under development and will be available when the first update to the base table schema (`DB_SCHEMA_VERSION`) is released. There will be no updates to the base table schema before this tool is ready. Derived table schema updates (tracked by `DERIVED_TABLE_SCHEMA_VERSION`) can be applied by simply rebuilding your derived tables. Stay tuned to the [cBioPortal release notes](https://docs.cbioportal.org/news/) for updates.
+There is a single `db_schema_version` covering both base and derived tables — derived table
+*structure* is defined in `schema.sql` alongside every other table, so a derived-table structure
+change ships as an ordinary `migrate_schema.sql` section like any other schema change. Derived
+table *data* is repopulated separately by `db-scripts/clickhouse/populate_derived_tables.sql`,
+which doesn't have its own version — it's safe to run any time (after an import, after a
+migration, or manually) since it only clears and rebuilds data, never structure.
 
-If you upgrade to a newer version of cBioPortal that includes schema changes, you will need to:
+**Docker Compose deployments:** `git pull` the latest `cbioportal-docker-compose` master, then
+`docker compose up`. The migration step runs automatically before the `cbioportal` service starts;
+on a fresh install it's a safe no-op since `schema.sql` already seeds `info` at the current
+version. It also repopulates derived tables automatically whenever a migration run actually
+applies one or more sections — you don't need a separate manual step.
+
+**Manual deployments (e.g. ClickHouse Cloud, Kubernetes, or any setup that doesn't go through
+`cbioportal-docker-compose`):** run `migrate_db.py` directly against your database before deploying
+the new cBioPortal backend image. By default `migrate_db.py` only touches base tables — pass
+`--populate-derived-tables` if you want it to also repopulate derived tables in the same run when
+migrations were applied; otherwise, rebuild derived tables yourself as a separate step (e.g. if you
+run derivation through your own tooling against ClickHouse Cloud). The backend refuses to start
+against a `db_schema_version` that doesn't match its build's `db.version` unless
+`db.suppress_schema_version_mismatch_errors=true` is set.
+
+Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
+ClickHouse deployment) still require the manual re-import process, since no migration path exists
+for versions prior to `3.0.0`:
 
 1. Export your study data (study files).
 2. Initialize a fresh ClickHouse database with the new schema.
 3. Re-import all studies using `metaImport.py -s ...`.
-
-This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.
 
 ---
 

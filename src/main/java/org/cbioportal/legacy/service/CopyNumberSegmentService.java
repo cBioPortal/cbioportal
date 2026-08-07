@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
@@ -25,6 +26,13 @@ public interface CopyNumberSegmentService {
 
   List<CopyNumberSeg> fetchCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome, String projection);
+
+  void streamCopyNumberSegments(
+      List<String> studyIds,
+      List<String> sampleIds,
+      String chromosome,
+      String projection,
+      Consumer<CopyNumberSeg> consumer);
 
   BaseMeta fetchMetaCopyNumberSegments(
       List<String> studyIds, List<String> sampleIds, String chromosome);

@@ -1,0 +1,7 @@
+{
+  "attributeIds": ["CANCER_TYPE", "FRACTION_GENOME_ALTERED"],
+  "identifiers": [
+    { "studyId": "acc_tcga", "entityId": "TCGA-OR-A5J1-01" },
+    { "studyId": "acc_tcga", "entityId": "TCGA-OR-A5J2-01" }
+  ]
+}

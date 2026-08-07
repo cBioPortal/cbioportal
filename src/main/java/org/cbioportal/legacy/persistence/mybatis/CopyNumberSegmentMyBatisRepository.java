@@ -2,6 +2,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
@@ -57,6 +58,22 @@ public class CopyNumberSegmentMyBatisRepository implements CopyNumberSegmentRepo
 
     return copyNumberSegmentMapper.getCopyNumberSegments(
         studyIds, sampleIds, chromosome, projection, 0, 0, null, null);
+  }
+
+  @Override
+  public void streamCopyNumberSegments(
+      List<String> studyIds,
+      List<String> sampleIds,
+      String chromosome,
+      String projection,
+      Consumer<CopyNumberSeg> consumer) {
+
+    copyNumberSegmentMapper.streamCopyNumberSegments(
+        studyIds,
+        sampleIds,
+        chromosome,
+        projection,
+        context -> consumer.accept(context.getResultObject()));
   }
 
   @Override

@@ -487,6 +487,23 @@ public class ClinicalDataMyBatisRepositoryTest {
   }
 
   @Test
+  public void streamClinicalDataNullAttributeSummaryProjection() {
+
+    // Streaming variant must yield the same rows as fetchClinicalData.
+    List<ClinicalData> result = new java.util.ArrayList<>();
+    clinicalDataMyBatisRepository.streamClinicalData(
+        studyIds,
+        sampleIds,
+        null,
+        PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE,
+        "SUMMARY",
+        result::add);
+
+    Assert.assertEquals(8, result.size());
+    Assert.assertTrue(result.stream().anyMatch(r -> r.getAttrId().equals("DAYS_TO_COLLECTION")));
+  }
+
+  @Test
   public void fetchClinicalSampleIdsClinicalTabShowAllSamples() {
 
     List<Integer> result =

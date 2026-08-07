@@ -49,6 +49,12 @@ DROP TABLE IF EXISTS cancer_study_tags;
 DROP TABLE IF EXISTS clinical_attribute_meta;
 DROP TABLE IF EXISTS clinical_event;
 DROP TABLE IF EXISTS clinical_event_data;
+DROP TABLE IF EXISTS wsi_slide_placement;
+DROP TABLE IF EXISTS wsi_slide;
+DROP TABLE IF EXISTS wsi_block;
+DROP TABLE IF EXISTS wsi_part;
+DROP TABLE IF EXISTS wsi_release_patient;
+DROP TABLE IF EXISTS wsi_release;
 DROP TABLE IF EXISTS clinical_patient;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS cna_event;
@@ -232,6 +238,80 @@ CREATE TABLE gene_panel_list (
     `gene_id` Int64
 ) ENGINE = MergeTree ORDER BY (internal_id, gene_id);
 
+CREATE TABLE wsi_release (
+    cancer_study_id Int64,
+    release_id String,
+    release_version UInt64,
+    released_at DateTime64(6)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, released_at, release_id);
+
+CREATE TABLE wsi_release_patient (
+    cancer_study_id Int64,
+    release_id String,
+    patient_id Int64,
+    reference_sample_id Nullable(Int64)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, release_id, patient_id);
+
+CREATE TABLE wsi_part (
+    cancer_study_id Int64,
+    release_id String,
+    patient_id Int64,
+    part_key String,
+    part_number Nullable(String),
+    part_designator Nullable(String),
+    part_type Nullable(String),
+    part_description Nullable(String),
+    subspecialty Nullable(String),
+    path_dx_title Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, release_id, patient_id, part_key);
+
+CREATE TABLE wsi_block (
+    cancer_study_id Int64,
+    release_id String,
+    patient_id Int64,
+    part_key String,
+    block_key String,
+    block_number Nullable(String),
+    block_label Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, release_id, patient_id, part_key, block_key);
+
+CREATE TABLE wsi_slide (
+    cancer_study_id Int64,
+    release_id String,
+    patient_id Int64,
+    image_id String,
+    stain_name Nullable(String),
+    stain_group Nullable(String),
+    is_hne Bool,
+    is_ihc Bool,
+    magnification Nullable(String),
+    file_size_bytes Nullable(UInt64),
+    can_serve_tiles Bool,
+    barcode Nullable(String),
+    slide_type Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, release_id, patient_id, image_id);
+
+CREATE TABLE wsi_slide_placement (
+    cancer_study_id Int64,
+    release_id String,
+    patient_id Int64,
+    image_id String,
+    part_key String,
+    block_key String,
+    sample_id Nullable(Int64),
+    match_level String,
+    specimen_key String,
+    procedure_date_days Nullable(Int32),
+    timepoint_source Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, release_id, patient_id, image_id, part_key, block_key);
+
+-- --------------------------------------------------------
 CREATE TABLE generic_entity_properties (
     `id` Int64,
     `genetic_entity_id` Int64,

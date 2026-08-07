@@ -259,6 +259,77 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
+## WSI hierarchy materialization and authenticated rollout
+
+Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
+tables `wsi_release`, `wsi_release_patient`, `wsi_part`,
+`wsi_block`, `wsi_slide`, and `wsi_slide_placement`. The active release is
+selected per internal cancer-study ID; the companion `cbioportal-tile-server`
+loader validates and publishes one append-only release plus the trusted
+study-to-resource index.
+
+Clients use `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`. The response is
+pathology-only; portal clinical labels and pathology timeline events continue
+to come from the normal cBioPortal APIs.
+
+The cBioPortal properties for an authenticated deployment are:
+
+```properties
+msk.wsi.tile_server.url=https://cbioportal.example.org/wsi
+wsi.access-token-secret=<at-least-32-byte-secret>
+wsi.access-token-audience=cbioportal-wsi
+wsi.access-token-ttl-seconds=300
+```
+
+The tile server must use the matching values:
+
+```text
+WSI_AUTH_REQUIRED=true
+WSI_AUTH_SECRET=<same-secret>
+WSI_AUTH_AUDIENCE=cbioportal-wsi
+WSI_AUTH_MAX_TTL=900
+WSI_RESOURCE_INDEX_FILE=<loader-published-index>
+```
+
+The secret bytes and audience must match exactly, and the cBioPortal TTL must
+not exceed `WSI_AUTH_MAX_TTL`. Setting only
+`msk.wsi.tile_server.url` configures a frontend URL; it does not configure an
+authenticated or isolated production deployment.
+
+WSI is login-only, including for public studies. Anonymous users receive
+`401`, authenticated users without study access receive `403`, authenticated
+blank study IDs receive `400`, and a nonexistent study deliberately returns
+`403` to avoid an existence oracle. The capability contract is version 1 and
+contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `wsi_auth_version=1`,
+`iat`, and `exp`.
+
+Before enabling the Pathology Slides feature for a private study:
+
+1. Deploy the tile-server loader that validates the entire JSONL input, rejects
+   duplicate `(study_id, patient_id)` rows, and publishes a trusted index for
+   every patient, sample, and slide.
+2. Ensure the tile server independently checks that index for patient
+   hierarchy, slide metadata, thumbnails, tiles, warmup, raw slide metadata,
+   and search. A client-supplied `studyId` query parameter is only a
+   consistency check; it is never the authorization source.
+3. Configure protected responses as private/no-store or private-cacheable as
+   documented by the tile server. They must not be publicly cached.
+
+The release model uses a unique release ID for every load. All rows are
+inserted under that ID, and the release row is inserted only after the complete
+snapshot is accepted. A retry therefore creates a new release ID and corrected
+rows win; partial rows are orphaned and invisible. The backend query uses
+deterministic `argMax` keys and restricts reads to the latest completed release,
+so historical duplicates do not fall through to an unordered `LIMIT 1`. A
+transient hierarchy failure is not equivalent to “no slides”; operators must
+treat an error response as an availability failure.
+
+For an existing installation created with the pre-release-ID schema,
+perform the WSI table migration/rebuild before enabling private-study WSI.
+The loader can add the new column for compatibility, but an old
+`ReplacingMergeTree` release table must not be treated as the new append-only
+release table until it has been rebuilt with the current schema.
+
 ---
 
 ## 11. Version Migration

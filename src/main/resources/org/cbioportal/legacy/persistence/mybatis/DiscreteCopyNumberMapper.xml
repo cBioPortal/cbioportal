@@ -222,6 +222,13 @@
         ORDER BY cna_event.entrez_gene_id ASC, cna_event.alteration ASC, sample.stable_id ASC
     </select>
 
+    <select id="getMetaDiscreteCopyNumbersInMultipleMolecularProfiles" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        SELECT
+        COUNT(*) AS "totalCount"
+        <include refid="from"/>
+        <include refid="whereInMultipleMolecularProfiles"/>
+    </select>
+
     <select id="getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries" resultType="org.cbioportal.legacy.model.DiscreteCopyNumberData">
         SELECT
         <include refid="select"/>

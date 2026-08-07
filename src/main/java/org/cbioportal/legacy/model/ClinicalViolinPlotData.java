@@ -7,6 +7,7 @@ public class ClinicalViolinPlotData implements Serializable {
   private List<ClinicalViolinPlotRowData> rows;
   private Double axisStart;
   private Double axisEnd;
+  private Boolean patientAttribute;
 
   @Override
   public String toString() {
@@ -17,6 +18,8 @@ public class ClinicalViolinPlotData implements Serializable {
         + axisStart
         + ", axisEnd="
         + axisEnd
+        + ", patientAttribute="
+        + patientAttribute
         + '}';
   }
 
@@ -42,5 +45,13 @@ public class ClinicalViolinPlotData implements Serializable {
 
   public void setAxisEnd(Double axisEnd) {
     this.axisEnd = axisEnd;
+  }
+
+  public Boolean getPatientAttribute() {
+    return patientAttribute;
+  }
+
+  public void setPatientAttribute(Boolean patientAttribute) {
+    this.patientAttribute = patientAttribute;
   }
 }

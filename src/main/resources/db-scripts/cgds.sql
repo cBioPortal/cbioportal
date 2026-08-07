@@ -742,6 +742,26 @@ CREATE TABLE `resource_study` (
   FOREIGN KEY (`INTERNAL_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 );
 
+-- --------------------------------------------------------
+CREATE TABLE `resource_data` (
+  `RESOURCE_DATA_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `RESOURCE_ID`      varchar(255) NOT NULL,
+  `CANCER_STUDY_ID`  int(11) NOT NULL,
+  `ENTITY_TYPE`      ENUM('STUDY','PATIENT','SAMPLE') NOT NULL,
+  `PATIENT_ID`       varchar(255) DEFAULT NULL,
+  `SAMPLE_ID`        varchar(255) DEFAULT NULL,
+  `URL`              varchar(255) NOT NULL,
+  `DISPLAY_NAME`     varchar(255) DEFAULT NULL,
+  `TYPE`             varchar(255) DEFAULT NULL,
+  `METADATA`         JSON DEFAULT NULL,
+  `PRIORITY`         int(11) DEFAULT 0,
+  PRIMARY KEY (`RESOURCE_DATA_ID`),
+  KEY `idx_resource_data_study`   (`CANCER_STUDY_ID`, `RESOURCE_ID`),
+  KEY `idx_resource_data_patient` (`CANCER_STUDY_ID`, `RESOURCE_ID`, `PATIENT_ID`),
+  KEY `idx_resource_data_sample`  (`CANCER_STUDY_ID`, `RESOURCE_ID`, `SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
 -- DB_SCHEMA_VERSION AND DERIVED_TABLE_SCHEMA_VERSION MUST BE KEPT IN SYNC WITH THE db.version AND derived_table.version PROPERTIES IN pom.xml
 INSERT INTO `info` (`DB_SCHEMA_VERSION`, `GENESET_VERSION`, `DERIVED_TABLE_SCHEMA_VERSION`, `GENE_TABLE_VERSION`)
-  VALUES ('2.14.5', NULL, '1.0.11', NULL);
+  VALUES ('2.14.6', NULL, '1.0.11', NULL);

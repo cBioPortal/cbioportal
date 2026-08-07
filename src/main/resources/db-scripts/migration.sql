@@ -1089,3 +1089,63 @@ UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.4";
 ALTER TABLE `info` ADD COLUMN `GENE_TABLE_VERSION` varchar(24);
 UPDATE `info` SET `DERIVED_TABLE_SCHEMA_VERSION`="1.0.11";
 UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.5";
+
+##version: 2.14.6
+-- Create unified resource_data table consolidating resource_study, resource_patient, resource_sample.
+-- New columns support metadata JSON, display names, type badges, and ordering.
+-- Legacy split tables are kept intact for backward compatibility.
+CREATE TABLE IF NOT EXISTS `resource_data` (
+  `RESOURCE_DATA_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `RESOURCE_ID`      varchar(255) NOT NULL,
+  `CANCER_STUDY_ID`  int(11) NOT NULL,
+  `ENTITY_TYPE`      ENUM('STUDY','PATIENT','SAMPLE') NOT NULL,
+  `PATIENT_ID`       varchar(255) DEFAULT NULL,
+  `SAMPLE_ID`        varchar(255) DEFAULT NULL,
+  `URL`              varchar(255) NOT NULL,
+  `DISPLAY_NAME`     varchar(255) DEFAULT NULL,
+  `TYPE`             varchar(255) DEFAULT NULL,
+  `METADATA`         JSON DEFAULT NULL,
+  `PRIORITY`         int(11) DEFAULT 0,
+  PRIMARY KEY (`RESOURCE_DATA_ID`),
+  KEY `idx_resource_data_study`   (`CANCER_STUDY_ID`, `RESOURCE_ID`),
+  KEY `idx_resource_data_patient` (`CANCER_STUDY_ID`, `RESOURCE_ID`, `PATIENT_ID`),
+  KEY `idx_resource_data_sample`  (`CANCER_STUDY_ID`, `RESOURCE_ID`, `SAMPLE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+);
+
+-- Migrate existing SAMPLE-level resource data
+INSERT INTO `resource_data` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `PATIENT_ID`, `SAMPLE_ID`, `URL`, `PRIORITY`)
+SELECT rs.`RESOURCE_ID`,
+       cs.`CANCER_STUDY_ID`,
+       'SAMPLE',
+       p.`STABLE_ID`,
+       s.`STABLE_ID`,
+       rs.`URL`,
+       0
+FROM `resource_sample` rs
+INNER JOIN `sample`        s  ON rs.`INTERNAL_ID`     = s.`INTERNAL_ID`
+INNER JOIN `patient`       p  ON s.`PATIENT_ID`       = p.`INTERNAL_ID`
+INNER JOIN `cancer_study`  cs ON p.`CANCER_STUDY_ID`  = cs.`CANCER_STUDY_ID`;
+
+-- Migrate existing PATIENT-level resource data
+INSERT INTO `resource_data` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `PATIENT_ID`, `URL`, `PRIORITY`)
+SELECT rp.`RESOURCE_ID`,
+       cs.`CANCER_STUDY_ID`,
+       'PATIENT',
+       pt.`STABLE_ID`,
+       rp.`URL`,
+       0
+FROM `resource_patient` rp
+INNER JOIN `patient`      pt ON rp.`INTERNAL_ID`     = pt.`INTERNAL_ID`
+INNER JOIN `cancer_study` cs ON pt.`CANCER_STUDY_ID` = cs.`CANCER_STUDY_ID`;
+
+-- Migrate existing STUDY-level resource data
+INSERT INTO `resource_data` (`RESOURCE_ID`, `CANCER_STUDY_ID`, `ENTITY_TYPE`, `URL`, `PRIORITY`)
+SELECT rst.`RESOURCE_ID`,
+       rst.`INTERNAL_ID`,
+       'STUDY',
+       rst.`URL`,
+       0
+FROM `resource_study` rst;
+
+UPDATE `info` SET `DB_SCHEMA_VERSION`="2.14.6";

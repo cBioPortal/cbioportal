@@ -1,4 +1,4 @@
-> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](../README.md).
+> ⚠️ **Outdated Documentation:** This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them. Docker Compose is the only officially supported deployment method for v7. See [Deployment](/deployment/README.md).
 
 # Loading a Sample Study
 
@@ -49,7 +49,7 @@ After loading gene panels into the database, please restart Tomcat or call the `
 (see [here](/deployment/customization/application.properties-Reference.md#evict-caches-with-the-apicache-endpoint) for more information)
 so that the validator can retrieve gene panel information from the cBioPortal API.
 
-More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](/Import-Gene-Panels.md).
+More details to load your own gene panel and gene set data can be found here: [Import Gene Panels](/data-loading/Import-Gene-Panels.md).
 
 ## Validating the Sample Study
 

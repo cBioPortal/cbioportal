@@ -81,4 +81,4 @@ curl 'http://localhost:8080/api/session/custom_gene_list/save' \
   --data-raw '{"name":"test","description":"test description","geneList":["GENE1","GENE2"]}'
 ```
 
-Note on **Cookie**: You can log in to your account in your local cBioPortal instance, after login, copy cookies from requests in network tab. See [login configuration](/deployment/deploy-without-docker/Deploying.md#optional-login) for more information.
+Note on **Cookie**: You can log in to your account in your local cBioPortal instance, after login, copy cookies from requests in network tab. See [login configuration](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) for more information.

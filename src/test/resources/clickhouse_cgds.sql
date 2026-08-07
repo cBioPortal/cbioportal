@@ -48,6 +48,8 @@ DROP TABLE IF EXISTS geneset;
 DROP TABLE IF EXISTS generic_entity_properties;
 DROP TABLE IF EXISTS genetic_entity;
 DROP TABLE IF EXISTS reference_genome;
+DROP TABLE IF EXISTS embedding_definition;
+DROP TABLE IF EXISTS embedding_data;
 
 -- --------------------------------------------------------
 CREATE TABLE generic_entity_properties
@@ -583,3 +585,29 @@ CREATE TABLE reference_genome_gene
     start               BIGINT,
     end                 BIGINT
 ) ENGINE MergeTree() ORDER BY entrez_gene_id;
+
+CREATE TABLE embedding_definition
+(
+    `internal_id` Int32,
+    `embedding_id` String,
+    `short_name` String,
+    `name` String,
+    `description` String,
+    `entity_type` String,
+    `reduction_technique` String
+)
+    ENGINE = MergeTree
+ORDER BY tuple(internal_id, embedding_id);
+
+CREATE TABLE embedding_data
+(
+    `embedding_definition_id` Int32,
+    `patient_id` String,
+    `sample_id` String,
+    `x` Float32,
+    `y` Float32,
+    `custom_attribute` String,
+    `study_id` Int32,
+)
+    ENGINE = MergeTree
+ORDER BY tuple();

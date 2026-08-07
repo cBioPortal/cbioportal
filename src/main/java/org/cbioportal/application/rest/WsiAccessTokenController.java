@@ -64,7 +64,7 @@ public class WsiAccessTokenController {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
-    int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 900));
+    int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
     Instant issuedAt = Instant.now();
     Instant expiresAt = issuedAt.plusSeconds(ttl);
     String token =
@@ -73,6 +73,7 @@ public class WsiAccessTokenController {
             .setAudience(accessTokenAudience)
             .claim("scope", "wsi:read")
             .claim("study_id", studyId)
+            .claim("wsi_auth_version", 1)
             .setIssuedAt(Date.from(issuedAt))
             .setExpiration(Date.from(expiresAt))
             .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))

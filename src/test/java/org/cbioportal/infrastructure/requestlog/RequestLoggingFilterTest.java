@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.requestlog;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -69,6 +70,7 @@ class RequestLoggingFilterTest {
     assertEquals("projection=SUMMARY", logged.getQueryString());
     assertEquals("{\"ids\":[1,2,3]}", logged.getBody());
     assertEquals(200, logged.getResponseStatus());
+    assertTrue(logged.getDurationMs() >= 0, "durationMs must be non-negative");
     assertFalse(logged.isBodyTruncated());
     assertTrue(logged.getUrl().endsWith("/api/studies/acc_tcga/x?projection=SUMMARY"));
   }
@@ -87,6 +89,22 @@ class RequestLoggingFilterTest {
 
     assertEquals(idA1, idA2, "same method+path+query+body must hash to the same id");
     assertFalse(idA1.equals(idB), "different bodies must hash to different ids");
+  }
+
+  @Test
+  void durationMs_doesNotAffectDeduplicationId() throws Exception {
+    // Two runs of the same request will have different durations but must produce
+    // the same id — duration is an observation attribute, not part of the request
+    // identity used for ReplacingMergeTree deduplication.
+    String id1 = runAndCapture(postRequest("{\"ids\":[1]}")).getId();
+
+    service = mock(RequestLogService.class);
+    filter = new RequestLoggingFilter(service, new RequestLoggingProperties());
+    LoggedRequest second = runAndCapture(postRequest("{\"ids\":[1]}"));
+
+    assertEquals(
+        id1, second.getId(), "id must not change between runs of the same logical request");
+    assertTrue(second.getDurationMs() >= 0, "durationMs must always be set");
   }
 
   @Test
@@ -131,6 +149,28 @@ class RequestLoggingFilterTest {
         .map(HttpHeader::value)
         .findFirst()
         .orElse(null);
+  }
+
+  @Test
+  void durationMs_isCapturedEvenWhenChainThrows() throws Exception {
+    // durationMs is computed in the finally block so it must be recorded even
+    // when the filter chain throws — ensuring we never lose latency data due to
+    // downstream errors.
+    FilterChain throwingChain =
+        (req, res) -> {
+          throw new ServletException("simulated downstream failure");
+        };
+
+    MockHttpServletRequest request = postRequest("{\"ids\":[1]}");
+    assertThrows(
+        ServletException.class,
+        () -> filter.doFilter(request, new MockHttpServletResponse(), throwingChain));
+
+    ArgumentCaptor<LoggedRequest> captor = ArgumentCaptor.forClass(LoggedRequest.class);
+    verify(service).save(captor.capture());
+    assertTrue(
+        captor.getValue().getDurationMs() >= 0,
+        "durationMs must be captured even when the filter chain throws");
   }
 
   @Test

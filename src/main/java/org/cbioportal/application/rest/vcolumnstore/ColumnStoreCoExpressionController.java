@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.CoExpressionMapper;
+import org.cbioportal.application.rest.response.CoExpressionDTO;
 import org.cbioportal.domain.coexpression.usecase.FetchCoExpressionsUseCase;
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
@@ -41,7 +43,7 @@ public class ColumnStoreCoExpressionController {
       value = "/molecular-profiles/co-expressions/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<CoExpression>> fetchCoExpressions(
+  public ResponseEntity<List<CoExpressionDTO>> fetchCoExpressions(
       @Parameter(required = true, description = "Molecular Profile ID A") @RequestParam
           String molecularProfileIdA,
       @Parameter(required = true, description = "Molecular Profile ID B") @RequestParam
@@ -74,6 +76,7 @@ public class ColumnStoreCoExpressionController {
               threshold);
     }
 
-    return new ResponseEntity<>(coExpressionList, HttpStatus.OK);
+    return new ResponseEntity<>(
+        CoExpressionMapper.INSTANCE.toDTOs(coExpressionList), HttpStatus.OK);
   }
 }

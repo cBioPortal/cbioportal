@@ -215,7 +215,7 @@ skin.login.contact_html=If you think you have received this message in error, pl
 You are now ready to go.
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](/deployment/deploy-without-docker/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 

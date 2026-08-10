@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839459281843">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -47,12 +47,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../../images/cbio-logo.png" />
-    <link href="../../../resources/css/retype.css?v=4.6.0.839459281843" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=4.6.0.839459281843" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../../resources/js/prism.js?v=4.6.0.839699310912" defer></script>
     <link href="../../../resources/css/katex.css?v=4.6.0" rel="stylesheet">
     <script id="katex-js" data-cfasync="false" src="../../../resources/js/katex.js?v=4.6.0" defer></script>
 
@@ -558,7 +558,7 @@ bitly.api_key=</code></pre>
 googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK</code></pre>
 </doc-codeblock></div>
 <p>(note: these are just examples, you need to get your own) You will also need to go to &quot;Google+ API&quot; and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.</p>
-<p>To activate password authentication follow the <a href="../../deploy-without-docker/deploying/#required-login">Deployment with authentication steps</a> and set <code translate="no" v-pre>authenticate=googleplus</code>.</p>
+<p>To activate password authentication follow the <a href="../../../legacy/deployment/deploy-without-docker/deploying/#with-authentication">Deployment with authentication steps</a> and set <code translate="no" v-pre>authenticate=googleplus</code>.</p>
 <p>In addition, set this property in <code translate="no" v-pre>application.properties</code>:</p>
 <div id="password-authentication-code-2" class="codeblock-wrapper"><doc-codeblock>
 <pre translate="no" class="language-none"><code v-pre class="language-none">app.name=cbioportal</code></pre>
@@ -690,7 +690,10 @@ oncoprint.hotspots.default=true|false</code></pre>
 <h2 id="cache-settings">Cache Settings</h2>
 <p>cBioPortal is supported on the backend with Ehcache or Redis. These caches are configurable from within application.properties through the following properties.</p>
 <p>The cache type is set using <code translate="no" v-pre>persistence.cache_type</code>. Valid values are <code translate="no" v-pre>no-cache</code>, <code translate="no" v-pre>redis</code> (redis), <code translate="no" v-pre>ehache-heap</code> (ehcache heap-only), <code translate="no" v-pre>ehache-disk</code> (ehcache disk-only), and <code translate="no" v-pre>ehache-hybrid</code> (ehcache disk + heap). By default, <code translate="no" v-pre>persistence.cache_type</code> is set to <code translate="no" v-pre>no-cache</code> which disables the cache. When the cache is disabled, no responses will be stored in the cache.</p>
-<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> the &#x27;redis&#x27; caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the &#x27;redis&#x27; caching option for <code translate="no" v-pre>persistence.cache_type</code> and be sure to build cbioportal.war with the maven option <code translate="no" v-pre>-Dexclude-redisson</code> (see <a href="../../deploy-without-docker/build-from-source/#building-with-maven">Building with Maven</a>).</p>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> the &#x27;redis&#x27; caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the &#x27;redis&#x27; caching option for <code translate="no" v-pre>persistence.cache_type</code> and be sure to build cbioportal.war with the maven option <code translate="no" v-pre>-Dexclude-redisson</code> (see <a href="../../../legacy/deployment/deploy-without-docker/build-from-source/#building-with-maven">Building with Maven</a>).</p>
+<blockquote>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Legacy (pre-v7):</strong> This note describes a standalone-Tomcat WAR deployment. v7 ships an executable jar (<code translate="no" v-pre>&lt;packaging&gt;jar&lt;/packaging&gt;</code>) and no longer defines the <code translate="no" v-pre>-Dexclude-redisson</code> build flag, so this workaround does not apply to a v7 Docker deployment. Left here pending confirmation of the equivalent v7 guidance.</p>
+</blockquote>
 <div id="cache-settings-code-1" class="codeblock-wrapper"><doc-codeblock>
 <pre translate="no" class="language-none"><code v-pre class="language-none">persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]</code></pre>
 </doc-codeblock></div>
@@ -733,6 +736,9 @@ redis.password=password</code></pre>
 <h3 id="ehcache">Ehcache</h3>
 <p>To cache with Ehcache set <code translate="no" v-pre>persistence.cache_type</code> to <code translate="no" v-pre>ehache-heap</code> (ehcache heap-only), <code translate="no" v-pre>ehache-disk</code> (ehcache disk-only), or <code translate="no" v-pre>ehache-hybrid</code> (ehcache disk + heap).</p>
 <p>Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set <code translate="no" v-pre>ehcache.xml_configuration</code> to the name of the Ehcache xml configuration file. The default provided is <code translate="no" v-pre>ehcache.xml</code>; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under <code translate="no" v-pre>/persistence/persistence-api/src/main/resources/</code> and set <code translate="no" v-pre>ehcache.xml_configuration</code> to <code translate="no" v-pre>/[Ehcache xml configuration filename]</code>.</p>
+<blockquote>
+<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Path may be outdated:</strong> <code translate="no" v-pre>/persistence/persistence-api/src/main/resources/</code> refers to the pre-v7 multi-module Maven layout, which no longer exists in the single-module v7 build (no <code translate="no" v-pre>ehcache.xml</code> was found under <code translate="no" v-pre>src/</code> on the current default branch). The correct location for a custom Ehcache configuration in v7 needs to be confirmed by a maintainer.</p>
+</blockquote>
 <div id="ehcache-code-1" class="codeblock-wrapper"><doc-codeblock>
 <pre translate="no" class="language-none"><code v-pre class="language-none">ehcache.xml_configuration=</code></pre>
 </doc-codeblock></div>

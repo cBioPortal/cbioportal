@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839459281843">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -26,6 +26,10 @@
     <meta property="og:url" content="https://docs.cbioportal.org/data-loading/using-the-dataset-validator/">
     <meta property="og:title" content="Using the dataset validator">
     <meta property="og:description" content="To facilitate the loading of new studies into its database, cBioPortal provides a set of staging files formats for the various data types. To validate your files you can use the dataset validator script.">
+    <meta property="og:image" content="https://docs.cbioportal.org/images/scripts/report.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Using the dataset validator">
     <meta property="og:site_name" content="cBioPortal Docs">
     <meta property="og:locale" content="en_US">
 
@@ -34,6 +38,8 @@
     <meta name="twitter:url" content="https://docs.cbioportal.org/data-loading/using-the-dataset-validator/">
     <meta name="twitter:title" content="Using the dataset validator">
     <meta name="twitter:description" content="To facilitate the loading of new studies into its database, cBioPortal provides a set of staging files formats for the various data types. To validate your files you can use the dataset validator script.">
+    <meta name="twitter:image" content="https://docs.cbioportal.org/images/scripts/report.png">
+    <meta name="twitter:image:alt" content="Using the dataset validator">
 
     <!-- Alternate Markdown -->
     <link rel="alternate" type="text/markdown" href="https://docs.cbioportal.org/data-loading/using-the-dataset-validator.md">
@@ -41,12 +47,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.839459281843" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839459281843" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839699310912" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -491,13 +497,13 @@ Validation of study succeeded.</code></pre>
 </doc-codeblock></div>
 <p>When using the <code translate="no" v-pre>-html</code> option, a report will be generated, which looks like this for the previous example:
 <figure class="content-center">
-    <img src="images/scripts/report.png" alt="Screenshot of a successful validation report" class="max-w-full h-auto rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../../images/scripts/report.png" alt="Screenshot of a successful validation report" class="max-w-full h-auto rounded-image-rounded border-image-border border-image-border-width" width="1134" height="1054" />
     <figcaption class="caption">Screenshot of a successful validation report</figcaption>
 </figure>
 </p>
 <p>Here is an example of an HTML report for unsuccessful validation:
 <figure class="content-center">
-    <img src="images/scripts/report1.png" alt="Screenshot of an unsuccessful validation report" class="max-w-full h-auto rounded-image-rounded border-image-border border-image-border-width" />
+    <img src="../../images/scripts/report1.png" alt="Screenshot of an unsuccessful validation report" class="max-w-full h-auto rounded-image-rounded border-image-border border-image-border-width" width="1134" height="1054" />
     <figcaption class="caption">Screenshot of an unsuccessful validation report</figcaption>
 </figure>
 </p>
@@ -932,7 +938,7 @@ Validation of study succeeded with warnings.</code></pre>
 </doc-codeblock></div>
 <h2 id="validation-of-non-human-data">Validation of non-human data</h2>
 <p>When importing a study with a reference genome other than hg19/GRCh37, this should be specified in the <code translate="no" v-pre>meta_study.txt</code> file, next to the <code translate="no" v-pre>reference_genome</code> field. Supported values are <strong>hg19</strong>, <strong>hg38</strong> and <strong>mm10</strong>.</p>
-<p>cBioPortal is gradually introducing support for mouse. If you want to load mouse studies and you have to <a href="../../deployment/deploy-without-docker/import-the-seed-database/#download-the-cbioportal-seed-database">set up your database for mouse</a>.</p>
+<p>cBioPortal is gradually introducing support for mouse. If you want to load mouse studies, you first have to load the <a href="https://github.com/cBioPortal/datahub/blob/master/seedDB_mouse/README.md">mouse seed data</a> into your database.</p>
 <p>As an example, the command for the mouse example using the three parameters is given:</p>
 <div id="validation-of-non-human-data-code-1" class="codeblock-wrapper"><doc-codeblock>
 <pre translate="no" class="language-none"><code v-pre class="language-none">docker compose exec cbioportal validateData.py -s /study/study_es_0/ -P /cbioportal-webapp/application.properties -u http://localhost:8080 -v</code></pre>

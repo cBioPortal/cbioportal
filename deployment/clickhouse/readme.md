@@ -11,11 +11,12 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 5. [Relevant Data Files](#5-relevant-data-files)
 6. [Data Loading](#6-data-loading)
 7. [Notes on Derived Tables](#7-notes-on-derived-tables)
-8. [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data)
-9. [Data Safety Warnings](#9-data-safety-warnings)
-10. [Verifying Structural Integrity](#10-verifying-structural-integrity)
-11. [Version Migration](#11-version-migration)
-12. [Further Reading](#12-further-reading)
+8. [Migrating from MySQL to ClickHouse](#8-migrating-from-mysql-to-clickhouse)
+9. [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data)
+10. [Data Safety Warnings](#10-data-safety-warnings)
+11. [Verifying Database Integrity](#11-verifying-database-integrity)
+12. [Version Migration](#12-version-migration)
+13. [Further Reading](#13-further-reading)
 
 ---
 
@@ -74,9 +75,9 @@ The simplest way to get started. The [cBioPortal Docker Compose](https://github.
 
 See [Deploy with Docker](/deployment/docker/README.md) for more information.
 
-### ClickHouse Cloud
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse Cloud" height="88" /></a>
 
-[ClickHouse Cloud](https://clickhouse.com/cloud) offers managed ClickHouse instances with adjustable RAM and compute.
+ClickHouse Cloud offers managed ClickHouse instances with adjustable RAM and compute.
 
 - **Pros:** No server maintenance, elastic scaling, built-in backups.
 - **Cons:** Can be expensive for large databases. Network latency if not in the same region as your cBioPortal instance.
@@ -209,12 +210,20 @@ This imports the study data without rebuilding derived tables unnecessarily.
 ### Important Notes
 
 - **Always rebuild derived tables as the last step before viewing a cBioPortal instance connected to the database** in production. Without them, the website may fail to load or display inaccurate data.
-- The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#8-notes-for-users-with-high-volume-data) if you encounter issues.
+- The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data) if you encounter issues.
 - Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports.
 
 ---
 
-## 8. Notes for Users with High-Volume Data
+## 8. Migrating from MySQL to ClickHouse
+
+v7 will not connect to MySQL, so this is a one-way migration. There is no command that turns a populated MySQL database back into study files: you re-import the study directories you originally loaded. Set up ClickHouse per [Docker Compose Setup](#4-docker-compose-setup), re-import each study per [Data Loading](#6-data-loading), then rebuild derived tables once at the end.
+
+For the full procedure, see the [v6 to v7 Migration Guide](/Migration-v6-to-v7.md).
+
+---
+
+## 9. Notes for Users with High-Volume Data
 
 When working with large studies (>100K samples or >10GB of clinical/genomic data), you may encounter resource limitations with the local Docker Compose ClickHouse database. Here are some recommendations:
 
@@ -240,7 +249,7 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 9. Data Safety Warnings
+## 10. Data Safety Warnings
 
 > ⚠️ **Critical:** Interrupting an import (e.g., killing the process, network failure, power loss) can leave your ClickHouse database in a **corrupt or inconsistent state**. Data may be partially imported, derived tables may be stale, and the database may become unusable.
 
@@ -254,13 +263,13 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 ---
 
-## 10. Verifying Database Integrity
+## 11. Verifying Database Integrity
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
 ---
 
-## 11. Version Migration
+## 12. Version Migration
 
 > ⚠️ **There is currently no automated mechanism for migrating data between ClickHouse versions.**
 
@@ -276,10 +285,14 @@ This manual process will only be necessary for the initial v6→v7 migration and
 
 ---
 
-## 12. Further Reading
+## 13. Further Reading
 
 - [cBioPortal deploys on ClickHouse Cloud — case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) — how MSK uses ClickHouse to power cbioportal.org
 - [ClickHouse Documentation](https://clickhouse.com/docs) — official ClickHouse docs
 - [ClickHouse Cloud](https://clickhouse.com/cloud) — managed ClickHouse service
 - [cBioPortal Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose) — reference Docker Compose deployment
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) — protocol spec for AI integrations
+
+---
+
+ClickHouse, the ClickHouse logo, and related marks are trademarks or registered trademarks of ClickHouse, Inc.

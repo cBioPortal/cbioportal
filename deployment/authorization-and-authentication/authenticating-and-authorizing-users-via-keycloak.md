@@ -69,7 +69,7 @@ Make sure you add at least:
 - By configuration
     - a _User Property_-type attribute with the name _username_. Use _username_ for the attributes **Property**, **Name**. Use the selectable _urn:oid:1.2.840.113549.1.9.1_ as **SAML Attribute Name**.
 
-![](../../images/previews/client-scopes.png)
+![](../../images/previews/client-scopes-tab.png)
 
 ![](../../images/previews/add-mappers.png)
 
@@ -150,7 +150,7 @@ completion, but when navigating to the **SAML Keys** tab again you
 should now see the certificate and no private key.
 
 ### Certificate and Keyfile:
-As Specified in [security properties](../customization/security.properties-reference/#saml-configuration) you can create a Signing Key and Certificate by using:
+As Specified in [security properties](/deployment/customization/security.properties-Reference.md#saml-configuration) you can create a Signing Key and Certificate by using:
 
 ```
     openssl req -newkey rsa:2048 -nodes -keyout local.key -x509 -days 365 -out local.crt
@@ -171,7 +171,7 @@ In Keycloak go to the cioportal client and in the Keys menu aktivate **Client si
     filter_groups_by_appname
 ```
 
-2. Then, add the security properties for SAML authentification as described in the SAML Configuration section of the [Security Properties](../customization/security.properties-Reference.md/#saml-configuration).
+2. Then, add the security properties for SAML authentification as described in the SAML Configuration section of the [Security Properties](/deployment/customization/security.properties-Reference.md#saml-configuration).
 
 ## Obtain user identities
 
@@ -285,7 +285,7 @@ the same as the one for assigning roles to individual users.
 ### Doing a Test Run
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](../deploy-without-docker/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8081/](http://localhost:8081/).
 
@@ -367,7 +367,7 @@ Create the Mapper with **configure new mapper**.
 
 ![](../../images/previews/api-create-audience-mapper.png)
 Since newer Keycloak versions dont send the subject in the Access token also add the predefined SUB Mapper to the client.
-![](../../images/previews/api-client-add-sub-mapper)
+![](../../images/previews/api-client-add-sub-mapper.png)
 
 #### Scope tab
 
@@ -379,7 +379,7 @@ Enable _Full Scope_. This setting will include the user roles defined in the `cb
 
 ![](../../images/previews/api-mapper-scope.png)
 
-3. Add these parameters to `security.properties` of the cbioportal backend as specified in [Data Access Token Settings](../customization/security.properties-reference/#data-access-token-settings)
+3. Add these parameters to `security.properties` of the cbioportal backend as specified in [Data Access Token Settings](/deployment/customization/security.properties-Reference.md#data-access-token-settings)
 
 | parameter        | value  | comment  |
 | ------------- |:-------------:| -----:|

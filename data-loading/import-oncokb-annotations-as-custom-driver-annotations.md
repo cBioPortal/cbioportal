@@ -50,7 +50,7 @@ docker compose exec cbioportal importOncokbDiscreteCNA.py -s -s study/lgg_ucsf_2
 Where `-s` is the path to the directory of the iscrete Copy Number data file and `-u` is the URL to 
 a cBioPortal instance (needed for resolution of gene identifiers).
 
-[importOncokbDiscreteCNA.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/importOncokbMutation.py) will create a [custom driver annotation file](../File-Formats.md#custom-driver-annotations-file)
+[importOncokbDiscreteCNA.py](https://github.com/cBioPortal/cbioportal/blob/master/core/src/main/scripts/importer/importOncokbDiscreteCNA.py) will create a [custom driver annotation file](../File-Formats.md#custom-driver-annotations-file)
 with name _data_cna_pd_annotation.txt_ in the study directory. It will add a field `pd_annotations_filename` field in the 
 CNA meta file that references the newly created custom driver annotation file. The unmodified CNA meta file will be stored
 in the study directory with the _ONCOKB_IMPORT_BACKUP__ prefix.

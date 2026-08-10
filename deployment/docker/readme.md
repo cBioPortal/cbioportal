@@ -120,11 +120,13 @@ When this command executes -- it does so from the path `/` within the container.
 
 > **Note:** If the validator detects any critical errors with the data, those must be fixed before the study can be imported.
 
-> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
+> :warning: **Warning:** Large studies can exhaust the importer's Java heap, which shows up as `java.lang.OutOfMemoryError: Java heap space` or as the process being killed with exit code 137. Raise the heap with `-jvo`, which passes options through to the JVM:
 >
+> ```bash
+> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xmx8g"
 > ```
-> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
-> ```
+>
+> `-Xmx8g` is a reasonable starting point. For larger studies on larger machines, you may want to set the memory limit even higher.
 
 All public studies can be downloaded from [cbioportal.org/datasets](https://www.cbioportal.org/datasets) or [github.com/cBioPortal/datahub](https://github.com/cBioPortal/datahub). Add any study to the `./study` folder and import it. The `./study/init.sh` script can download multiple studies at once — set `DATAHUB_STUDIES` to any public study ID (e.g. `lgg_ucsf_2014`) and run `./init.sh`.
 

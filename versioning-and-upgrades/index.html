@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839459281843">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.839459281843" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -304,11 +304,11 @@
 <p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Important:</strong> cBioPortal v7 uses ClickHouse as its database, which has a fundamentally different schema from the v6 MySQL database. <strong>There is no in-place upgrade path from v6 to v7.</strong> Existing v6 deployments must:</p>
 </blockquote>
 <ol>
-<li>Set up a new v7 deployment using <a href="../deployment/docker/readme.md">Docker Compose</a></li>
+<li>Set up a new v7 deployment using <a href="../deployment/docker/">Docker Compose</a></li>
 <li><strong>Reimport all studies</strong> into the new v7 database using <code translate="no" v-pre>metaImport.py</code></li>
 <li>Rebuild derived tables after all imports are complete</li>
 </ol>
-<p>See the full <a href="../migration-v6-to-v7.md">v6 to v7 Migration Guide</a> for step-by-step instructions.</p>
+<p>See the full <a href="../migration-v6-to-v7/">v6 to v7 Migration Guide</a> for step-by-step instructions.</p>
 <h2 id="migration-notes">Migration Notes</h2>
 <p>Detailed migration guides will be provided as v7 stabilizes. At a minimum, migration involves:</p>
 <ul>

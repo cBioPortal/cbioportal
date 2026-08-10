@@ -779,7 +779,7 @@ the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_t
 See [Custom namespace columns](#custom-namespace-columns) for more information on adding custom columns to data files.
 
 ### Allele specific copy number (ASCN) annotations
-Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
+Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
 
 **The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
 

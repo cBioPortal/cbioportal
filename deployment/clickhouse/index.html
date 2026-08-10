@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839459281843">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.839459281843" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839459281843" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839699310912" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -238,11 +238,12 @@
 <li><doc-anchor-trigger to="#5-relevant-data-files">Relevant Data Files</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#6-data-loading">Data Loading</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#7-notes-on-derived-tables">Notes on Derived Tables</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#8-notes-for-users-with-high-volume-data">Notes for Users with High-Volume Data</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#9-data-safety-warnings">Data Safety Warnings</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#10-verifying-structural-integrity">Verifying Structural Integrity</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#11-version-migration">Version Migration</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#12-further-reading">Further Reading</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#8-migrating-from-mysql-to-clickhouse">Migrating from MySQL to ClickHouse</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#9-notes-for-users-with-high-volume-data">Notes for Users with High-Volume Data</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#10-data-safety-warnings">Data Safety Warnings</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#11-verifying-database-integrity">Verifying Database Integrity</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#12-version-migration">Version Migration</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#13-further-reading">Further Reading</doc-anchor-trigger></li>
 </ol>
 <hr>
 <h2 id="1-installing-the-clickhouse-cli">1. Installing the ClickHouse CLI</h2>
@@ -285,8 +286,8 @@ clickhouse client --host &lt;hostname&gt; --port &lt;port&gt; --user &lt;user&gt
 <li><strong>Cons:</strong> Limited by your machine&#x27;s resources. Not suitable for large production datasets.</li>
 </ul>
 <p>See <a href="../docker/">Deploy with Docker</a> for more information.</p>
-<h3 id="clickhouse-cloud">ClickHouse Cloud</h3>
-<p><a href="https://clickhouse.com/cloud">ClickHouse Cloud</a> offers managed ClickHouse instances with adjustable RAM and compute.</p>
+<p><a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse Cloud" height="88" /></a></p>
+<p>ClickHouse Cloud offers managed ClickHouse instances with adjustable RAM and compute.</p>
 <ul>
 <li><strong>Pros:</strong> No server maintenance, elastic scaling, built-in backups.</li>
 <li><strong>Cons:</strong> Can be expensive for large databases. Network latency if not in the same region as your cBioPortal instance.</li>
@@ -382,11 +383,15 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 <h3 id="important-notes">Important Notes</h3>
 <ul>
 <li><strong>Always rebuild derived tables as the last step before viewing a cBioPortal instance connected to the database</strong> in production. Without them, the website may fail to load or display inaccurate data.</li>
-<li>The derived table scripts may require significant memory for large databases. See <doc-anchor-trigger to="#8-notes-for-users-with-high-volume-data">Notes for Users with High-Volume Data</doc-anchor-trigger> if you encounter issues.</li>
+<li>The derived table scripts may require significant memory for large databases. See <doc-anchor-trigger to="#9-notes-for-users-with-high-volume-data">Notes for Users with High-Volume Data</doc-anchor-trigger> if you encounter issues.</li>
 <li>Derived tables <strong>cannot be incrementally updated</strong> — they are fully rebuilt from scratch each time, even for incremental imports.</li>
 </ul>
 <hr>
-<h2 id="8-notes-for-users-with-high-volume-data">8. Notes for Users with High-Volume Data</h2>
+<h2 id="8-migrating-from-mysql-to-clickhouse">8. Migrating from MySQL to ClickHouse</h2>
+<p>v7 will not connect to MySQL, so this is a one-way migration. There is no command that turns a populated MySQL database back into study files: you re-import the study directories you originally loaded. Set up ClickHouse per <doc-anchor-trigger to="#4-docker-compose-setup">Docker Compose Setup</doc-anchor-trigger>, re-import each study per <doc-anchor-trigger to="#6-data-loading">Data Loading</doc-anchor-trigger>, then rebuild derived tables once at the end.</p>
+<p>For the full procedure, see the <a href="../../migration-v6-to-v7/">v6 to v7 Migration Guide</a>.</p>
+<hr>
+<h2 id="9-notes-for-users-with-high-volume-data">9. Notes for Users with High-Volume Data</h2>
 <p>When working with large studies (&gt;100K samples or &gt;10GB of clinical/genomic data), you may encounter resource limitations with the local Docker Compose ClickHouse database. Here are some recommendations:</p>
 <h3 id="out-of-memory-issues-during-derived-table-rebuild">Out-of-Memory Issues During Derived Table Rebuild</h3>
 <p>The derived table scripts perform large joins and aggregations that can consume significant memory. If you see errors like <code translate="no" v-pre>Memory limit exceeded</code> or the ClickHouse container crashes during <code translate="no" v-pre>derive-tables</code>, consider these options:</p>
@@ -409,7 +414,7 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 <li><strong>Consider a blue/green deployment</strong> — maintain two databases (one staging, one production) and switch after successful import.</li>
 </ul>
 <hr>
-<h2 id="9-data-safety-warnings">9. Data Safety Warnings</h2>
+<h2 id="10-data-safety-warnings">10. Data Safety Warnings</h2>
 <blockquote>
 <p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Critical:</strong> Interrupting an import (e.g., killing the process, network failure, power loss) can leave your ClickHouse database in a <strong>corrupt or inconsistent state</strong>. Data may be partially imported, derived tables may be stale, and the database may become unusable.</p>
 </blockquote>
@@ -423,10 +428,10 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 <p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>Note:</strong> ClickHouse backup commands require special privileges that are <strong>not enabled by default on ClickHouse Cloud</strong>. You must request these privileges from your ClickHouse Cloud administrator before using backup features.</p>
 </blockquote>
 <hr>
-<h2 id="10-verifying-database-integrity">10. Verifying Database Integrity</h2>
+<h2 id="11-verifying-database-integrity">11. Verifying Database Integrity</h2>
 <p>After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided <a href="https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations">here</a>.</p>
 <hr>
-<h2 id="11-version-migration">11. Version Migration</h2>
+<h2 id="12-version-migration">12. Version Migration</h2>
 <blockquote>
 <p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>There is currently no automated mechanism for migrating data between ClickHouse versions.</strong></p>
 </blockquote>
@@ -439,7 +444,7 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 </ol>
 <p>This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.</p>
 <hr>
-<h2 id="12-further-reading">12. Further Reading</h2>
+<h2 id="13-further-reading">13. Further Reading</h2>
 <ul>
 <li><a href="https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research">cBioPortal deploys on ClickHouse Cloud — case study</a> — how MSK uses ClickHouse to power cbioportal.org</li>
 <li><a href="https://clickhouse.com/docs">ClickHouse Documentation</a> — official ClickHouse docs</li>
@@ -447,6 +452,8 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 <li><a href="https://github.com/cBioPortal/cbioportal-docker-compose">cBioPortal Docker Compose</a> — reference Docker Compose deployment</li>
 <li><a href="https://modelcontextprotocol.io/">Model Context Protocol (MCP)</a> — protocol spec for AI integrations</li>
 </ul>
+<hr>
+<p>ClickHouse, the ClickHouse logo, and related marks are trademarks or registered trademarks of ClickHouse, Inc.</p>
 
                 
                 <!-- Required only on API pages -->
@@ -472,10 +479,10 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
                     </div>
             
                     <div class="w-1/2">
-                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../deployment/standalone/">
+                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-body-link border border-base-border hover:border-base-border-hover rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../../deployment/authorization-and-authentication/user-authorization/">
                             <span>
                                 <span class="block text-xs font-normal text-right text-base-text-muted">Next</span>
-                                <span class="block mt-1">Deploy Standalone Isolated Version</span>
+                                <span class="block mt-1">User Authorization</span>
                             </span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="ml-3" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" overflow="visible"><path d="M19.92 12.38a1 1 0 00-.22-1.09l-7-7a.996.996 0 10-1.41 1.41l5.3 5.3H5c-.55 0-1 .45-1 1s.45 1 1 1h11.59l-5.29 5.29a.996.996 0 000 1.41c.19.2.44.3.7.3s.51-.1.71-.29l7-7c.09-.09.16-.21.21-.33z" /><path fill="none" d="M0 0h24v24H0z" /></svg>
                         </a>

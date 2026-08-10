@@ -20,9 +20,9 @@
 - [Z Score normalization script](https://docs.cbioportal.org/z-score-normalization-script.md): For some data types, when uploading to cBioPortal, it is currently necessary to also provide a z-score transformed version of your input file. The z-score data is essential for the oncoprint functionality.
 - [Study Curation Guide](https://docs.cbioportal.org/study-curation-guide.md): This guide is to help data curators learn how to curate a study on their own computer
 - [Mutation data transcript annotation](https://docs.cbioportal.org/mutation-data-transcript-annotation.md): This document describes how each mutation in cBioPortal gets annotated with a specific gene symbol + protein change.
-- [Updating the gene names and aliases tables](https://docs.cbioportal.org/updating-gene-and-gene_alias-tables.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
-- [Migration Guide](https://docs.cbioportal.org/migration-guide.md): This page describes various changes deployers will need to make as they deploy newer versions of the portal.
+- [Migration Guide](https://docs.cbioportal.org/migration-guide.md): This page describes changes deployers need to make as they deploy newer versions of the portal.
 - [Migrating from v6 (MySQL) to v7 (ClickHouse)](https://docs.cbioportal.org/migration-v6-to-v7.md): cBioPortal version 7 replaces MySQL with ClickHouse as the sole database for the portal. MySQL is no longer supported going forward. This guide walks you through migrating an existing v6 (MySQL) cBioPortal deployment to v7 (ClickHouse).
+- [Updating your cBioPortal installation](https://docs.cbioportal.org/updating-your-cbioportal-installation.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 - [Development](https://docs.cbioportal.org/development/readme.md): cBioPortal is an open source project hosted on Github. The core team will consider pull requests from any source.
 
 ## User Guide
@@ -47,8 +47,6 @@
 - [Example commands](https://docs.cbioportal.org/deployment/docker/example_commands.md): Use this command to import a gene panel. Specify the gene panel file by replacing path_to_genepanel_file with the absolute path to the gene panel file.
 - [Authenticating and Authorizing Users using Keycloak in Docker](https://docs.cbioportal.org/deployment/docker/using-keycloak.md): ⚠️ This documentation for keycloak might be outdated, see related ticket ⚠️
 - [ClickHouse Setup Guide](https://docs.cbioportal.org/deployment/clickhouse/readme.md): Starting with version 7, cBioPortal uses ClickHouse as its sole database. This guide will help you set up and configure a ClickHouse-backed cBioPortal instance.
-- [Deploy Standalone Isolated Version](https://docs.cbioportal.org/deployment/standalone/readme.md): ⚠️ Outdated Documentation: The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
-- [Deploy with Kubernetes](https://docs.cbioportal.org/deployment/kubernetes/readme.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 
 ### Authorization and Authentication
 
@@ -64,10 +62,10 @@
 ### Customization
 
 - [Customizing your instance of cBioPortal](https://docs.cbioportal.org/deployment/customization/customizing-your-instance-of-cbioportal.md): cBioPortal contains a number of properties that allow you to customize your cBioPortal instance.
+- [Customizing your instance of cBioPortal](https://docs.cbioportal.org/deployment/customization/customizing-your-instance-of-cbioportal.md): cBioPortal contains a number of properties that allow you to customize your cBioPortal instance.
 - [More application.properties Settings](https://docs.cbioportal.org/deployment/customization/application.properties-reference.md): This page describes the main properties within application.properties. Note that auth-related properties can be found in security.properties-Reference.
 - [Security Properties](https://docs.cbioportal.org/deployment/customization/security.properties-reference.md): The following are the properties for configuring authentication and authorization in the application. The cBioPortal application mainly uses Spring Security for auth configuration; see also Spring Security docs.
 - [Backend Caching](https://docs.cbioportal.org/deployment/customization/caching.md): cBioPortal provides the option of caching information on the backend to improve performance. Without caching, every time a request is received by the backend, a query is sent to the database system for information, and the returned data is processed to construct a response.
-- [Study View Customization](https://docs.cbioportal.org/deployment/customization/studyview.md): Study view page is fully responsive, it will try to fit as many charts as possible based on the browser's width and height.
 - [Study View Customization](https://docs.cbioportal.org/deployment/customization/studyview.md): Study view page is fully responsive, it will try to fit as many charts as possible based on the browser's width and height.
 
 ### Integration with Other Webservices
@@ -91,14 +89,33 @@
 ## Development
 
 - [Feature Development Guide](https://docs.cbioportal.org/development/feature-development-guide.md): This is a guide for developers that are implementing a new feature.
-- [cBioPortal ER Diagram](https://docs.cbioportal.org/development/cbioportal-er-diagram.md): cBioPortal ER Diagram - PDF Version
 - [cBioPortal Database Versioning](https://docs.cbioportal.org/development/database-versioning.md): We follow the following logic when deciding how/when to increment the version of cBioPortal database. It's a complete modification of semantic versioning
-- [cBioPortal Backend Code Organization](https://docs.cbioportal.org/development/backend-code-organization.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 - [cBioPortal Development Guidelines](https://docs.cbioportal.org/development/backend-development-guidelines.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 - [Build with different frontend versions](https://docs.cbioportal.org/development/build-different-frontend.md): Maven will build cBioPortal with a cBioPortal-frontend version and git repository url as determined by respectively the frontend.version and frontend.groupId parameters in the root POM.xml.
 - [Session Service](https://docs.cbioportal.org/development/session-service-working.md): Define new type at SessionType.java.
 - [Manual test cases](https://docs.cbioportal.org/development/manual-test-cases.md): Linked below is a Google Doc with some manual test cases you might want to look at when developing, and deploying new changes. Note that this list is a work in progress and subject to change.
 - [Release Procedure](https://docs.cbioportal.org/development/release-procedure.md): We have release procedures for the following scenarios:
-- [Deployment Procedure](https://docs.cbioportal.org/development/deployment-procedure.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
 - [Security](https://docs.cbioportal.org/development/security.md): We are committed to maintaining a secure and reliable platform by integrating proactive vulnerability detection and mitigation strategies into our development and release workflows.
 - [Documentation site](https://docs.cbioportal.org/development/documentation-site.md): This documentation site is created using https://retype.com/, a static site generator based on markdown.
+
+## Legacy (v6)
+
+- [Deploy without Docker](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/readme.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+
+### Deploy without Docker (v6)
+
+- [Deploy without Docker](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/readme.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Software Requirements](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/software-requirements.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Pre-Build Steps](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/pre-build-steps.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Building from Source](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/build-from-source.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Importing the Seed Database](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/import-the-seed-database.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Deploying the Web Application](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/deploying.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Loading a Sample Study](https://docs.cbioportal.org/legacy/deployment/deploy-without-docker/load-sample-cancer-study.md): ⚠️ Outdated Documentation: This page was written for an earlier version of cBioPortal. As of v7, these instructions are out of date and must be revised before relying on them.
+- [Deploy Standalone Isolated Version](https://docs.cbioportal.org/legacy/deployment/standalone/readme.md): ⚠️ Outdated Documentation: The v7 release of cBioPortal is designed to run with Docker Compose. If you need to set up a cBioPortal deployment outside of Docker, please contact the cBioPortal development team for guidance.
+- [Deploy with Kubernetes](https://docs.cbioportal.org/legacy/deployment/kubernetes/readme.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Uninstall Docker cBioPortal](https://docs.cbioportal.org/legacy/uninstall-docker-cbioportal.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [Deployment Procedure](https://docs.cbioportal.org/legacy/development/deployment-procedure.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [cBioPortal Backend Code Organization](https://docs.cbioportal.org/legacy/development/backend-code-organization.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.
+- [portal.properties Reference](https://docs.cbioportal.org/legacy/deployment/customization/portal.properties-reference.md): ⚠️ Legacy documentation (cBioPortal v6 and earlier). This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method.
+- [cBioPortal ER Diagram](https://docs.cbioportal.org/legacy/development/cbioportal-er-diagram.md): ⚠️ Legacy documentation (cBioPortal v6 and earlier). This page predates cBioPortal v7, which replaced MySQL with ClickHouse and made Docker Compose the only officially supported deployment method.
+- [Importer Tool](https://docs.cbioportal.org/legacy/importer-tool.md): Note: This documentation was written for an earlier version of cBioPortal. The information presented here may not apply to cBioPortal v7 and onwards.

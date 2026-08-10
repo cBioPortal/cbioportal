@@ -48,11 +48,11 @@ Users who cannot migrate immediately to v7 should remain on the latest v6 mainte
 
 > ⚠️ **Important:** cBioPortal v7 uses ClickHouse as its database, which has a fundamentally different schema from the v6 MySQL database. **There is no in-place upgrade path from v6 to v7.** Existing v6 deployments must:
 
-1. Set up a new v7 deployment using [Docker Compose](../deployment/docker/README.md)
+1. Set up a new v7 deployment using [Docker Compose](/deployment/docker/README.md)
 2. **Reimport all studies** into the new v7 database using `metaImport.py`
 3. Rebuild derived tables after all imports are complete
 
-See the full [v6 to v7 Migration Guide](../Migration-v6-to-v7.md) for step-by-step instructions.
+See the full [v6 to v7 Migration Guide](/Migration-v6-to-v7.md) for step-by-step instructions.
 
 ## Migration Notes
 

@@ -23,12 +23,6 @@ docker compose exec cbioportal metaImport.py -s /study/<name_of_study> -o -html 
 ```
 > :warning: After importing a study, remember to restart the `cbioportal` container to see the study on the home page. Run `docker compose restart cbioportal`.
 
-> :warning: **Warning:** When importing large studies, you may run into a Java out-of-memory error on machines with limited RAM. You can try adjusting the Java heap size used by the importer in order to work around this, for example:
->
-> ```
-> docker compose exec cbioportal metaImport.py -s /study/your_study -o -jvo "-Xms16g -Xmx96g"
-> ```
-
 ### Incremental Import
 
 To add or update data in an existing study without importing the entire study, you can use the new incremental import functionality. Point the importer to a folder containing a "delta" of study data you would like to add. To load data incrementally, you will specify the `-d` instead of the `-s` option.
@@ -92,15 +86,3 @@ CLICKHOUSE_DB=<your_clickhouse_db_name>
 docker compose exec cbioportal-database \
     sh -c 'clickhouse client -u"$CLICKHOUSE_USER" --password="$CLICKHOUSE_PASSWORD" --database="$CLICKHOUSE_DB"'
 ```
-
-### Deleting a study ###
-
-To remove a study, run:
-
-```shell
-docker compose exec \
-    cbioportal \
-    cbioportalImporter.py -c remove-study -id study_id
-```
-
-Where `study_id` is the `cancer_study_identifier` of the study you would like to remove.

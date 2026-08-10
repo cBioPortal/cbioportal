@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839459281843">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.839459281843" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839459281843" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839459281843" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.839699310912" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -276,8 +276,9 @@ docker compose exec cbioportal metaImport.py \
 	-html /study/reports/report.html</code></pre>
 </doc-codeblock></div>
 <h2 id="requirements-for-gene-sets-in-cbioportal">Requirements for gene sets in cBioPortal</h2>
-<p>Gene set functionality was added in cBioPortal 1.7.0. Please use this or a later version. In addition, the database has to be updated to version 2.3.0 or higher, depending on the cBioPortal version. This can be done by running the python wrapper <code translate="no" v-pre>migrate_db.py</code> for <code translate="no" v-pre>migration.sql</code>.</p>
-<p>Updating the database is described <a href="https://github.com/cBioPortal/cbioportal/blob/master/docs/Updating-your-cBioPortal-installation.md#running-the-migration-script">here</a>.</p>
+<blockquote>
+<p><strong>Note:</strong> The database-migration step described for earlier versions (<code translate="no" v-pre>migrate_db.py</code> / <code translate="no" v-pre>migration.sql</code>) no longer applies to cBioPortal v7. See the <a href="../../migration-v6-to-v7/">v6-to-v7 migration guide</a>.</p>
+</blockquote>
 <h2 id="import-gene-sets">Import Gene Sets</h2>
 <h3 id="file-formats">File formats</h3>
 <p>Once you have initialized your cBioPortal database, it is possible to import gene sets. The format of the gene set data file is <a href="https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29">the Gene Matrix Transposed file format (.gmt)</a>. This format is also used by the <doc-anchor-trigger to="#references">MSigDB</doc-anchor-trigger>, which hosts several collections of gene sets on: <a href="https://software.broadinstitute.org/gsea/msigdb/">https://software.broadinstitute.org/gsea/msigdb/</a></p>

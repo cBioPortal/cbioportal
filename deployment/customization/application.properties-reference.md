@@ -440,7 +440,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication follow the [Deployment with authentication steps](../deploy-without-docker/Deploying.md#required-login) and set `authenticate=googleplus`.
+To activate password authentication follow the [Deployment with authentication steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) and set `authenticate=googleplus`.
 
 In addition, set this property in `application.properties`:
 
@@ -637,7 +637,9 @@ cBioPortal is supported on the backend with Ehcache or Redis. These caches are c
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](../deploy-without-docker/Build-from-Source.md#building-with-maven)).
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](/legacy/deployment/deploy-without-docker/Build-from-Source.md#building-with-maven)).
+
+> ⚠️ **Legacy (pre-v7):** This note describes a standalone-Tomcat WAR deployment. v7 ships an executable jar (`<packaging>jar</packaging>`) and no longer defines the `-Dexclude-redisson` build flag, so this workaround does not apply to a v7 Docker deployment. Left here pending confirmation of the equivalent v7 guidance.
 
 ```
 persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
@@ -704,6 +706,8 @@ For more information on Redis, refer to the official documentation [here](https:
 To cache with Ehcache set `persistence.cache_type` to `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), or `ehache-hybrid` (ehcache disk + heap).
 
 Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.
+
+> ⚠️ **Path may be outdated:** `/persistence/persistence-api/src/main/resources/` refers to the pre-v7 multi-module Maven layout, which no longer exists in the single-module v7 build (no `ehcache.xml` was found under `src/` on the current default branch). The correct location for a custom Ehcache configuration in v7 needs to be confirmed by a maintainer.
 
 ```
 ehcache.xml_configuration=

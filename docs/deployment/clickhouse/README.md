@@ -66,9 +66,7 @@ If you are having trouble installing the ClickHouse CLI on your host machine, it
 
 ## 2. Hosting Options
 
-### Local Docker Compose
-
-The simplest way to get started. The [cBioPortal Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose) repository provides a pre-configured `docker-compose.yml` that spins up cBioPortal with a ClickHouse database, session service, and importer in one command.
+Local Docker Compose is the simplest way to get started. The [cBioPortal Docker Compose](https://github.com/cBioPortal/cbioportal-docker-compose) repository provides a pre-configured `docker-compose.yml` that spins up cBioPortal with a ClickHouse database, session service, and importer in one command.
 
 - **Pros:** Zero configuration, easy to tear down, great for evaluation and development.
 - **Cons:** Limited by your machine's resources. Not suitable for large production datasets.
@@ -82,7 +80,7 @@ ClickHouse Cloud offers managed ClickHouse instances with adjustable RAM and com
 - **Pros:** No server maintenance, elastic scaling, built-in backups.
 - **Cons:** Can be expensive for large databases. Network latency if not in the same region as your cBioPortal instance.
 
-#### How MSK hosts ClickHouse
+### How MSK hosts ClickHouse
 
 MSK uses ClickHouse Cloud for backing its own cBioPortal instances at cbioportal.org and genie.cbioportal.org. We benefit from being able to adjust the amount of RAM/compute each instance is using, since importing large studies can cause very high memory usage. We also have our own blue-green deployment architecture that enables us to swap between new copies of the data seamlessly.
 

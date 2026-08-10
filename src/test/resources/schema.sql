@@ -117,6 +117,7 @@ CREATE TABLE allele_specific_copy_number (
     `expected_alt_copies` Nullable(Int64),
     `total_copy_number` Nullable(Int64)
 ) ENGINE = MergeTree ORDER BY (mutation_event_id, genetic_profile_id, sample_id);
+
 CREATE TABLE alteration_driver_annotation (
     `alteration_event_id` Int64,
     `genetic_profile_id` Int64,
@@ -126,10 +127,12 @@ CREATE TABLE alteration_driver_annotation (
     `driver_tiers_filter` Nullable(String),
     `driver_tiers_filter_annotation` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (alteration_event_id, genetic_profile_id, sample_id);
+
 CREATE TABLE authorities (
     `email` String,
     `authority` String
 ) ENGINE = MergeTree ORDER BY (email);
+
 CREATE TABLE cancer_study (
     `cancer_study_id` Int64,
     `cancer_study_identifier` Nullable(String),
@@ -144,10 +147,12 @@ CREATE TABLE cancer_study (
     `import_date` Nullable(DateTime64(6)),
     `reference_genome_id` Nullable(Int64)
 ) ENGINE = MergeTree ORDER BY (cancer_study_id);
+
 CREATE TABLE cancer_study_tags (
     `cancer_study_id` Int64,
     `tags` String
 ) ENGINE = MergeTree ORDER BY (cancer_study_id);
+
 CREATE TABLE clinical_attribute_meta (
     `attr_id` String,
     `display_name` String,
@@ -157,6 +162,7 @@ CREATE TABLE clinical_attribute_meta (
     `priority` String,
     `cancer_study_id` Int64
 ) ENGINE = MergeTree ORDER BY (attr_id, cancer_study_id);
+
 CREATE TABLE IF NOT EXISTS clinical_data_derived
 (
     internal_id Int,
@@ -169,6 +175,7 @@ CREATE TABLE IF NOT EXISTS clinical_data_derived
 )
     ENGINE=MergeTree
         ORDER BY (cancer_study_identifier, type, attribute_name, sample_unique_id);
+
 CREATE TABLE clinical_event (
     `clinical_event_id` Int64,
     `patient_id` Int64,
@@ -176,11 +183,13 @@ CREATE TABLE clinical_event (
     `stop_date` Nullable(Int64),
     `event_type` String
 ) ENGINE = MergeTree ORDER BY (clinical_event_id);
+
 CREATE TABLE clinical_event_data (
     `clinical_event_id` Int64,
     `key` String,
     `value` String
 ) ENGINE = MergeTree ORDER BY (clinical_event_id);
+
 CREATE TABLE clinical_event_data_derived
 (
     patient_unique_id String,
@@ -193,6 +202,7 @@ CREATE TABLE clinical_event_data_derived
 )
 ENGINE = MergeTree
     ORDER BY (cancer_study_identifier, event_type, patient_unique_id);
+
 CREATE TABLE clinical_event_derived
 (
     `clinical_event_id` Int64,
@@ -207,21 +217,25 @@ CREATE TABLE clinical_event_derived
 PRIMARY KEY (cancer_study_identifier, event_type, clinical_event_id)
 ORDER BY (cancer_study_identifier, event_type, clinical_event_id)
 SETTINGS index_granularity = 8192;
+
 CREATE TABLE clinical_patient (
     `internal_id` Int64,
     `attr_id` String,
     `attr_value` String
 ) ENGINE = ReplacingMergeTree ORDER BY (internal_id, attr_id);
+
 CREATE TABLE clinical_sample (
     `internal_id` Int64,
     `attr_id` String,
     `attr_value` String
 ) ENGINE = ReplacingMergeTree ORDER BY (internal_id, attr_id);
+
 CREATE TABLE cna_event (
     `cna_event_id` Int64,
     `entrez_gene_id` Int64,
     `alteration` Int32
 ) ENGINE = MergeTree ORDER BY (cna_event_id);
+
 CREATE TABLE copy_number_seg (
     `seg_id` Int64,
     `cancer_study_id` Int64,
@@ -232,6 +246,7 @@ CREATE TABLE copy_number_seg (
     `num_probes` Int64,
     `segment_mean` Float64
 ) ENGINE = MergeTree ORDER BY (seg_id);
+
 CREATE TABLE copy_number_seg_file (
     `seg_file_id` Int64,
     `cancer_study_id` Int64,
@@ -239,37 +254,44 @@ CREATE TABLE copy_number_seg_file (
     `description` String,
     `filename` String
 ) ENGINE = MergeTree ORDER BY (seg_file_id);
+
 CREATE TABLE data_access_tokens (
     `token` String,
     `username` String,
     `expiration` DateTime64(6),
     `creation` DateTime64(6)
 ) ENGINE = MergeTree ORDER BY (token);
+
 CREATE TABLE gene (
     `entrez_gene_id` Int64,
     `hugo_gene_symbol` String,
     `genetic_entity_id` Int64,
     `type` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (entrez_gene_id);
+
 CREATE TABLE gene_alias (
     `entrez_gene_id` Int64,
     `gene_alias` String
 ) ENGINE = MergeTree ORDER BY (entrez_gene_id, gene_alias);
+
 CREATE TABLE gene_panel (
     `internal_id` Int64,
     `stable_id` String,
     `description` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (internal_id);
+
 CREATE TABLE gene_panel_list (
     `internal_id` Int64,
     `gene_id` Int64
 ) ENGINE = MergeTree ORDER BY (internal_id, gene_id);
+
 CREATE TABLE gene_panel_to_gene_derived
 (
     gene_panel_id LowCardinality(String),
     gene String
 ) ENGINE = MergeTree()
 ORDER BY (gene_panel_id);
+
 CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 (
     sample_unique_id String,
@@ -285,6 +307,7 @@ CREATE TABLE IF NOT EXISTS generic_assay_data_derived
 )
     ENGINE = MergeTree()
     ORDER BY (profile_type, entity_stable_id, patient_unique_id, sample_unique_id);
+
 CREATE TABLE IF NOT EXISTS generic_assay_meta_derived
 (
     entity_stable_id String,
@@ -292,18 +315,21 @@ CREATE TABLE IF NOT EXISTS generic_assay_meta_derived
     properties Map(String, String)
 ) ENGINE = MergeTree()
   ORDER BY (entity_stable_id);
+
 CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived
 (
     profile_stable_id LowCardinality(String),
     entity_stable_id  String
 ) ENGINE = MergeTree()
   ORDER BY (profile_stable_id, entity_stable_id);
+
 CREATE TABLE generic_entity_properties (
     `id` Int64,
     `genetic_entity_id` Int64,
     `name` String,
     `value` String
 ) ENGINE = MergeTree ORDER BY (id);
+
 CREATE TABLE geneset (
     `id` Int64,
     `genetic_entity_id` Int64,
@@ -312,24 +338,29 @@ CREATE TABLE geneset (
     `description` String,
     `ref_link` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (id);
+
 CREATE TABLE geneset_gene (
     `geneset_id` Int64,
     `entrez_gene_id` Int64
 ) ENGINE = MergeTree ORDER BY (geneset_id, entrez_gene_id);
+
 CREATE TABLE geneset_hierarchy_leaf (
     `node_id` Int64,
     `geneset_id` Int64
 ) ENGINE = MergeTree ORDER BY (node_id, geneset_id);
+
 CREATE TABLE geneset_hierarchy_node (
     `node_id` Int64,
     `node_name` String,
     `parent_id` Nullable(Int64)
 ) ENGINE = MergeTree ORDER BY (node_id);
+
 CREATE TABLE genetic_alteration (
     `genetic_profile_id` Int64,
     `genetic_entity_id` Int64,
     `values` String
 ) ENGINE = ReplacingMergeTree ORDER BY (genetic_profile_id, genetic_entity_id);
+
 CREATE TABLE IF NOT EXISTS genetic_alteration_derived
 (
     sample_unique_id String,
@@ -340,11 +371,13 @@ CREATE TABLE IF NOT EXISTS genetic_alteration_derived
     )
     ENGINE = MergeTree()
     ORDER BY (cancer_study_identifier, hugo_gene_symbol, profile_type, sample_unique_id);
+
 CREATE TABLE genetic_entity (
     `id` Int64,
     `entity_type` String,
     `stable_id` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (id);
+
 CREATE TABLE genetic_profile (
     `genetic_profile_id` Int64,
     `stable_id` String,
@@ -359,15 +392,18 @@ CREATE TABLE genetic_profile (
     `sort_order` Nullable(String),
     `patient_level` Nullable(Int32)
 ) ENGINE = MergeTree ORDER BY (genetic_profile_id);
+
 CREATE TABLE genetic_profile_link (
     `referring_genetic_profile_id` Int64,
     `referred_genetic_profile_id` Int64,
     `reference_type` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (referring_genetic_profile_id, referred_genetic_profile_id);
+
 CREATE TABLE genetic_profile_samples (
     `genetic_profile_id` Int64,
     `ordered_sample_list` String
 ) ENGINE = ReplacingMergeTree ORDER BY (genetic_profile_id);
+
 CREATE TABLE IF NOT EXISTS genomic_event_derived
 (
     sample_unique_id          String,
@@ -391,6 +427,7 @@ CREATE TABLE IF NOT EXISTS genomic_event_derived
     off_panel                 Boolean DEFAULT FALSE
 ) ENGINE = MergeTree
       ORDER BY (genetic_profile_stable_id, cancer_study_identifier, variant_type, entrez_gene_id, hugo_gene_symbol, sample_unique_id);
+
 CREATE TABLE gistic (
     `gistic_roi_id` Int64,
     `cancer_study_id` Int64,
@@ -401,15 +438,18 @@ CREATE TABLE gistic (
     `q_value` Float64,
     `amp` Int32
 ) ENGINE = MergeTree ORDER BY (gistic_roi_id);
+
 CREATE TABLE gistic_to_gene (
     `gistic_roi_id` Int64,
     `entrez_gene_id` Int64
 ) ENGINE = MergeTree ORDER BY (gistic_roi_id, entrez_gene_id);
+
 CREATE TABLE info (
     `db_schema_version` Nullable(String),
     `geneset_version` Nullable(String),
     `gene_table_version` Nullable(String)
 ) ENGINE = MergeTree ORDER BY tuple();
+
 CREATE TABLE mut_sig (
     `cancer_study_id` Int64,
     `entrez_gene_id` Int64,
@@ -419,6 +459,7 @@ CREATE TABLE mut_sig (
     `p_value` Float64,
     `q_value` Float64
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, entrez_gene_id);
+
 CREATE TABLE mutation (
     `mutation_event_id` Int64 COMMENT 'References mutation_event.mutation_event_id.',
     `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
@@ -452,6 +493,7 @@ CREATE TABLE mutation (
     `amino_acid_change` Nullable(String) COMMENT 'Amino acid change from mutation.',
     `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotations.'
 ) ENGINE = MergeTree ORDER BY (genetic_profile_id, entrez_gene_id) COMMENT 'Mutation observations in specific samples and profiles. References mutation_event, gene, genetic_profile, and sample.';
+
 CREATE TABLE mutation_count_by_keyword (
     `genetic_profile_id` Int64,
     `keyword` Nullable(String),
@@ -459,6 +501,7 @@ CREATE TABLE mutation_count_by_keyword (
     `keyword_count` Int64,
     `gene_count` Int64
 ) ENGINE = MergeTree ORDER BY (genetic_profile_id, entrez_gene_id);
+
 CREATE TABLE mutation_derived
 (
     molecularProfileId String COMMENT 'Stable ID of the genetic profile',
@@ -508,6 +551,7 @@ CREATE TABLE mutation_derived
     ENGINE = MergeTree()
       ORDER BY (molecularProfileId, sampleId, entrezGeneId)
       COMMENT 'Mutation query results with detailed annotations including driver status and allele-specific copy numbers';
+
 CREATE TABLE mutation_event (
     `mutation_event_id` Int64,
     `entrez_gene_id` Int64,
@@ -531,11 +575,13 @@ CREATE TABLE mutation_event (
     `canonical_transcript` Nullable(Int32),
     `keyword` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (mutation_event_id);
+
 CREATE TABLE patient (
     `internal_id` Int64,
     `stable_id` String,
     `cancer_study_id` Int64
 ) ENGINE = MergeTree ORDER BY (internal_id);
+
 CREATE TABLE reference_genome (
     `reference_genome_id` Int64,
     `species` String,
@@ -545,6 +591,7 @@ CREATE TABLE reference_genome (
     `url` String,
     `release_date` Nullable(DateTime64(6))
 ) ENGINE = MergeTree ORDER BY (reference_genome_id);
+
 CREATE TABLE reference_genome_gene (
     `entrez_gene_id` Int64,
     `reference_genome_id` Int64,
@@ -553,6 +600,7 @@ CREATE TABLE reference_genome_gene (
     `start` Nullable(Int64),
     `end` Nullable(Int64)
 ) ENGINE = MergeTree ORDER BY (entrez_gene_id, reference_genome_id);
+
 CREATE TABLE resource_definition (
     `resource_id` String,
     `display_name` String,
@@ -563,33 +611,39 @@ CREATE TABLE resource_definition (
     `cancer_study_id` Int64,
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
+
 CREATE TABLE resource_patient (
     `internal_id` Int64,
     `resource_id` String,
     `url` String
 ) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 CREATE TABLE resource_sample (
     `internal_id` Int64,
     `resource_id` String,
     `url` String
 ) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 CREATE TABLE resource_study (
     `internal_id` Int64,
     `resource_id` String,
     `url` String
 ) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 CREATE TABLE sample (
     `internal_id` Int64,
     `stable_id` String,
     `sample_type` String,
     `patient_id` Int64
 ) ENGINE = MergeTree ORDER BY (internal_id);
+
 CREATE TABLE sample_cna_event (
     `cna_event_id` Int64 COMMENT 'References cna_event.cna_event_id.',
     `sample_id` Int64 COMMENT 'References sample.internal_id.',
     `genetic_profile_id` Int64 COMMENT 'References genetic_profile.genetic_profile_id.',
     `annotation_json` Nullable(String) COMMENT 'JSON-formatted annotation details.'
 ) ENGINE = MergeTree PRIMARY KEY (genetic_profile_id, cna_event_id, sample_id) ORDER BY (genetic_profile_id, cna_event_id, sample_id) COMMENT 'Observed CNA events per sample and profile. References cna_event, sample, and genetic_profile.';
+
 CREATE TABLE sample_derived
 (
     sample_unique_id            String,
@@ -609,6 +663,7 @@ CREATE TABLE sample_derived
 )
     ENGINE = MergeTree
         ORDER BY (cancer_study_identifier, sample_unique_id);
+
 CREATE TABLE sample_list (
     `list_id` Int64,
     `stable_id` String,
@@ -617,15 +672,18 @@ CREATE TABLE sample_list (
     `name` String,
     `description` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (list_id);
+
 CREATE TABLE sample_list_list (
     `list_id` Int64,
     `sample_id` Int64
 ) ENGINE = MergeTree ORDER BY (list_id, sample_id);
+
 CREATE TABLE sample_profile (
     `sample_id` Int64,
     `genetic_profile_id` Int64,
     `panel_id` Nullable(Int64)
 ) ENGINE = ReplacingMergeTree ORDER BY (sample_id, genetic_profile_id);
+
 CREATE TABLE sample_to_gene_panel_derived
 (
     sample_unique_id String,
@@ -635,6 +693,7 @@ CREATE TABLE sample_to_gene_panel_derived
     genetic_profile_id LowCardinality(String)
 ) ENGINE = MergeTree()
 ORDER BY (gene_panel_id, alteration_type, genetic_profile_id, sample_unique_id);
+
 CREATE TABLE structural_variant (
     `internal_id` Int64,
     `genetic_profile_id` Int64,
@@ -677,6 +736,7 @@ CREATE TABLE structural_variant (
     `sv_status` String,
     `annotation_json` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (`sample_id`, `genetic_profile_id`);
+
 CREATE TABLE type_of_cancer (
     `type_of_cancer_id` String,
     `name` String,
@@ -684,6 +744,7 @@ CREATE TABLE type_of_cancer (
     `short_name` Nullable(String),
     `parent` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (type_of_cancer_id);
+
 CREATE TABLE users (
     `email` String,
     `name` String,

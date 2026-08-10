@@ -75,7 +75,7 @@ The simplest way to get started. The [cBioPortal Docker Compose](https://github.
 
 See [Deploy with Docker](/deployment/docker/README.md) for more information.
 
-<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse Cloud" height="72" /></a>
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse Cloud" height="88" /></a>
 
 ClickHouse Cloud offers managed ClickHouse instances with adjustable RAM and compute.
 

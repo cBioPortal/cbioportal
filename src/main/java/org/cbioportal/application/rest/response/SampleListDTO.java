@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
@@ -7,7 +8,7 @@ import java.util.List;
 public class SampleListDTO {
   private String sampleListId;
   private String studyId;
-  private Integer listId;
+  @JsonIgnore private Integer listId;
   private String category;
   private CancerStudyDTO study;
   private String name;

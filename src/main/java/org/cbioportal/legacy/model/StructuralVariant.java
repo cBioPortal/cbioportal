@@ -24,11 +24,15 @@
 package org.cbioportal.legacy.model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.Map;
 
 public class StructuralVariant extends UniqueKeyBase implements Serializable {
+
+  private static final ObjectMapper ANNOTATION_JSON_MAPPER = new ObjectMapper();
 
   private String molecularProfileId;
   private String sampleId;
@@ -77,11 +81,12 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
   private String driverTiersFilterAnn;
   private String svStatus;
 
-  @JsonRawValue
-  @Schema(type = "java.util.Map")
-  private Object annotationJson;
+  @JsonIgnore
+  @Schema(hidden = true)
+  private String annotationJson;
 
-  @Schema(type = "java.util.Map")
+  @JsonProperty
+  @Schema(type = "object", description = "Custom columns from annotation namespaces")
   private Map<String, Map<String, Object>> namespaceColumns;
 
   public String getMolecularProfileId() {
@@ -452,7 +457,7 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     this.site2RegionNumber = site2RegionNumber;
   }
 
-  public Object getAnnotationJson() {
+  public String getAnnotationJson() {
     return annotationJson;
   }
 
@@ -461,6 +466,15 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
   }
 
   public Map<String, Map<String, Object>> getNamespaceColumns() {
+    if (namespaceColumns == null && annotationJson != null) {
+      try {
+        namespaceColumns =
+            ANNOTATION_JSON_MAPPER.readValue(
+                annotationJson, new TypeReference<Map<String, Map<String, Object>>>() {});
+      } catch (Exception ignored) {
+        return null;
+      }
+    }
     return namespaceColumns;
   }
 

@@ -23,6 +23,15 @@ db.suppress_schema_version_mismatch_errors=false
 # Enable compression on responses
 server.compression.enabled=true
 
+# AI chat sidebar (prototype). POST /chat/stream forwards to a LibreChat agent over its
+# Open Responses API; the key is held here so the browser never sees it. Agent IDs are
+# listed by GET /api/agents/v1/models using the same key.
+#chat.librechat.base-url=https://chat.cbioportal.org
+#chat.librechat.agent-id=agent_xxxxxxxxxxxxxxxxxxxxx
+#chat.librechat.api-key=sk-...
+# Required when the frontend dev server proxies /chat here, or every POST 403s.
+#security.cors.allowed-origins=https://localhost:3000,http://localhost:3000
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up

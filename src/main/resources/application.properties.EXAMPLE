@@ -23,6 +23,22 @@ db.suppress_schema_version_mismatch_errors=false
 # Enable compression on responses
 server.compression.enabled=true
 
+# AI chat sidebar (prototype). All of these are required for POST /chat/stream to start.
+# Langfuse credentials come from the environment: LANGFUSE_HOST, LANGFUSE_PUBLIC_KEY,
+# LANGFUSE_SECRET_KEY.
+#
+# Service account needs the Vertex AI User role and Claude enabled in Model Garden.
+#chat.vertex.project=my-gcp-project
+#chat.vertex.region=global
+#chat.vertex.credentials-file=/path/to/service-account-key.json
+#chat.model=claude-sonnet-5
+#chat.max-steps=15
+# Exact paths — FastMCP serves "/mcp/" and 307-redirects "/mcp", which the JDK client won't follow.
+#chat.mcp.navigator-url=http://localhost:8002/mcp
+#chat.mcp.data-query-url=http://localhost:8000/mcp/
+# Required when the frontend dev server proxies /chat here, or every POST 403s.
+#security.cors.allowed-origins=https://localhost:3000,http://localhost:3000
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up

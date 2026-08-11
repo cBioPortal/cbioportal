@@ -136,13 +136,19 @@ public class ColumnStoreGenericAssayControllerTest {
     when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                    .with(csrf())
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
-                .with(csrf())
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

@@ -1,22 +1,17 @@
-package org.cbioportal.legacy.model;
+package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
+import org.cbioportal.legacy.model.ResourceType;
 
-public class ResourceDefinition implements Serializable {
-
-  @NotNull private String resourceId;
-  @NotNull private String displayName;
+@Schema(name = "ResourceDefinition", description = "Represents a resource definition")
+public class ResourceDefinitionDTO {
+  private String resourceId;
+  private String displayName;
   private String description;
-  @NotNull private ResourceType resourceType;
+  private ResourceType resourceType;
   private String priority;
   private Boolean openByDefault;
-
-  @Schema(hidden = true)
-  @NotNull
-  private String cancerStudyIdentifier;
-
+  private String studyId;
   private String customMetaData;
 
   public String getResourceId() {
@@ -67,20 +62,12 @@ public class ResourceDefinition implements Serializable {
     this.openByDefault = openByDefault;
   }
 
-  public String getCancerStudyIdentifier() {
-    return cancerStudyIdentifier;
-  }
-
-  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-    this.cancerStudyIdentifier = cancerStudyIdentifier;
-  }
-
   public String getStudyId() {
-    return cancerStudyIdentifier;
+    return studyId;
   }
 
   public void setStudyId(String studyId) {
-    this.cancerStudyIdentifier = studyId;
+    this.studyId = studyId;
   }
 
   public String getCustomMetaData() {

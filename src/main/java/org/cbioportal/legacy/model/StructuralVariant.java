@@ -26,6 +26,7 @@ package org.cbioportal.legacy.model;
 import com.fasterxml.jackson.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
+import java.util.Map;
 
 public class StructuralVariant extends UniqueKeyBase implements Serializable {
 
@@ -79,6 +80,9 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
   @JsonRawValue
   @Schema(type = "java.util.Map")
   private Object annotationJson;
+
+  @Schema(type = "java.util.Map")
+  private Map<String, Map<String, Object>> namespaceColumns;
 
   public String getMolecularProfileId() {
     return molecularProfileId;
@@ -454,5 +458,13 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
 
   public void setAnnotationJson(String annotationJson) {
     this.annotationJson = annotationJson;
+  }
+
+  public Map<String, Map<String, Object>> getNamespaceColumns() {
+    return namespaceColumns;
+  }
+
+  public void setNamespaceColumns(Map<String, Map<String, Object>> namespaceColumns) {
+    this.namespaceColumns = namespaceColumns;
   }
 }

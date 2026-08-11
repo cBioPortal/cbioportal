@@ -188,6 +188,7 @@ public class ColumnarStoreStudyViewController {
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(operationId = "fetchCNAGenes", description = "Fetch copy-number altered genes")
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<List<CopyNumberCountByGeneDTO>> fetchCnaGenes(

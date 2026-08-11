@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
-import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
-import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
+import org.cbioportal.application.rest.mapper.CancerStudyMapper;
+import org.cbioportal.application.rest.response.CancerStudyDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
  * with a column-store database, which is optimized for querying large datasets efficiently.
  *
  * @see GetCancerStudyMetadataUseCase
- * @see CancerStudyMetadataDTO
+ * @see CancerStudyDTO
  * @see ProjectionType
  * @see StudySortBy
  * @see Direction
@@ -89,8 +89,8 @@ public class ColumnStoreStudyController {
    * @param pageNumber the 1-based page number to return. {@code null} and {@code 0} are both
    *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
-   * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
-   *     and an HTTP status code {@link HttpStatus#OK}.
+   * @return a {@link ResponseEntity} containing a list of {@link CancerStudyDTO} objects and an
+   *     HTTP status code {@link HttpStatus#OK}.
    * @see ProjectionType
    * @see StudySortBy
    * @see Direction
@@ -99,7 +99,7 @@ public class ColumnStoreStudyController {
       method = RequestMethod.GET,
       value = "/studies",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
+  public ResponseEntity<List<CancerStudyDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
           @RequestParam(required = false)
           String keyword,
@@ -186,10 +186,10 @@ public class ColumnStoreStudyController {
       method = RequestMethod.GET,
       value = "/studies/{studyId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
+  public ResponseEntity<CancerStudyDTO> getStudy(@PathVariable String studyId)
       throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
-    var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
+    var dto = CancerStudyMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);
   }
 
@@ -202,8 +202,8 @@ public class ColumnStoreStudyController {
    * header.
    *
    * <p>Clients can use this endpoint to determine the number of studies that would be returned by
-   * {@link #getAllStudies(String, ProjectionType, StudySortBy, Direction)} without fetching the
-   * full list.
+   * {@link #getAllStudies(String, ProjectionType, StudySortBy, Integer, Integer, Direction)}
+   * without fetching the full list.
    *
    * @param keyword optional search keyword that filters studies by name or cancer type
    * @param sortBy optional property name used to sort the results

@@ -1,23 +1,19 @@
-package org.cbioportal.legacy.model;
+package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
-import java.io.Serializable;
 
-public class ResourceDefinition implements Serializable {
-
-  @NotNull private String resourceId;
-  @NotNull private String displayName;
+@Schema(name = "ResourceCount", description = "Represents resource data counts for a study")
+public class ResourceCountDTO {
+  private String resourceId;
+  private String displayName;
   private String description;
-  @NotNull private ResourceType resourceType;
+  private String resourceType;
   private String priority;
   private Boolean openByDefault;
-
-  @Schema(hidden = true)
-  @NotNull
-  private String cancerStudyIdentifier;
-
+  private String studyId;
   private String customMetaData;
+  private Integer sampleCount;
+  private Integer patientCount;
 
   public String getResourceId() {
     return resourceId;
@@ -43,11 +39,11 @@ public class ResourceDefinition implements Serializable {
     this.description = description;
   }
 
-  public ResourceType getResourceType() {
+  public String getResourceType() {
     return resourceType;
   }
 
-  public void setResourceType(ResourceType resourceType) {
+  public void setResourceType(String resourceType) {
     this.resourceType = resourceType;
   }
 
@@ -67,20 +63,12 @@ public class ResourceDefinition implements Serializable {
     this.openByDefault = openByDefault;
   }
 
-  public String getCancerStudyIdentifier() {
-    return cancerStudyIdentifier;
-  }
-
-  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
-    this.cancerStudyIdentifier = cancerStudyIdentifier;
-  }
-
   public String getStudyId() {
-    return cancerStudyIdentifier;
+    return studyId;
   }
 
   public void setStudyId(String studyId) {
-    this.cancerStudyIdentifier = studyId;
+    this.studyId = studyId;
   }
 
   public String getCustomMetaData() {
@@ -89,5 +77,21 @@ public class ResourceDefinition implements Serializable {
 
   public void setCustomMetaData(String customMetaData) {
     this.customMetaData = customMetaData;
+  }
+
+  public Integer getSampleCount() {
+    return sampleCount;
+  }
+
+  public void setSampleCount(Integer sampleCount) {
+    this.sampleCount = sampleCount;
+  }
+
+  public Integer getPatientCount() {
+    return patientCount;
+  }
+
+  public void setPatientCount(Integer patientCount) {
+    this.patientCount = patientCount;
   }
 }

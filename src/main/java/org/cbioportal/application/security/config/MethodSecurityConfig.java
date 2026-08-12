@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -24,10 +23,9 @@ public class MethodSecurityConfig {
       @Value("${app.name:}") String appName,
       @Value("${filter_groups_by_appname:true}") String doFilterGroupsByAppName,
       @Value("${always_show_study_group:}") String alwaysShowCancerStudyGroup,
-      CacheMapUtil cacheMapUtil,
-      Environment environment) {
+      CacheMapUtil cacheMapUtil) {
     return new CancerStudyPermissionEvaluator(
-        appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, cacheMapUtil, environment);
+        appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, cacheMapUtil);
   }
 
   @Bean

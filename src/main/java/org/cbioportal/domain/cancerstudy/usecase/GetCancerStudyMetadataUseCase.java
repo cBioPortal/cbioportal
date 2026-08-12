@@ -46,6 +46,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class GetCancerStudyMetadataUseCase {
 
+  /** SpEL condition granting access when the user has READ permission on the filtered study. */
+  private static final String HAS_PERMISSION_TO_READ =
+      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ)";
+
+  /** SpEL condition granting access when the user has LIST permission on the filtered study. */
+  private static final String HAS_PERMISSION_TO_LIST =
+      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).LIST)";
+
   /**
    * SpEL condition granting access when the {@code skin.home_page.show_unauthorized_studies}
    * property is enabled and the user has at least LIST permission. Used to grey out studies the
@@ -87,10 +95,12 @@ public class GetCancerStudyMetadataUseCase {
    * @see CancerStudyMetadata
    */
   @PostFilter(
-      "hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).READ) or "
-          + "("
+      HAS_PERMISSION_TO_READ
+          + " or ("
           + SHOW_UNAUTHORIZED_STUDIES_CONDITION
-          + " and hasPermission(filterObject, T(org.cbioportal.legacy.utils.security.AccessLevel).LIST))")
+          + " and "
+          + HAS_PERMISSION_TO_LIST
+          + ")")
   public List<CancerStudyMetadata> execute(
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
     List<ResourceCount> resourceCounts = getResourceCountsForAllStudies(projectionType);

@@ -2,7 +2,7 @@
 
 This document provides technical information about the Model Context Protocol (MCP) servers and architecture that power AI integrations with cBioPortal.
 
-> **Note:** All these are prototypes and work in progress. Features and functionality are actively being developed and improved.
+> **Note:** The cBioPortal MCP servers power the live cBioPortalChat interface and remain in active development, so their interfaces may still change.
 
 ## What is MCP?
 
@@ -12,9 +12,14 @@ For details on how MCP powers the cBioPortal chat interface, see the [Chat Inter
 
 ## Available MCP Servers
 
-### cBioPortal MCP Servers in Development
+### cBioPortal MCP Servers
 
-These MCP servers are early prototypes developed by the cBioPortal team and are in active development.
+The live **cBioPortalChat** bot is a single agent that uses **both** of the cBioPortal MCP servers below at the same time — it is one bot with two MCP servers:
+
+- **`cbioportal-mcp`** powers the database-query capability (referred to as the "database MCP" in the [Chat Interface documentation](chat-interface.md)).
+- **`cbioportal-navigator`** powers the link-generation capability (the "navigator MCP").
+
+The agent decides which of the two to call for each turn. Both servers are developed by the cBioPortal team and remain in active development.
 
 #### cbioportal-mcp
 

@@ -10,7 +10,7 @@
 - [News](https://docs.cbioportal.org/news.md): v7.0.0 Release: MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal. This release was made possible through a partnership with ClickHouse — read the case study to learn how ClickHouse accelerates cancer research at MSK.
 - [Genie News](https://docs.cbioportal.org/news-genie.md): Public Release 19.0 of AACR Project GENIE:
 - [API and API Clients](https://docs.cbioportal.org/web-api-and-clients.md): cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visualizations/reports.
-- [AI Integrations](https://docs.cbioportal.org/ai-integrations/readme.md): The cBioPortal community is exploring the use of large language models (LLMs) to make cancer genomics data more accessible and easier to explore.
+- [AI Integrations](https://docs.cbioportal.org/ai-integrations/readme.md): The cBioPortal community uses large language models (LLMs) to make cancer genomics data more accessible and easier to explore. The cBioPortalChat interface is live and open to everyone.
 - [Deployment](https://docs.cbioportal.org/deployment/readme.md): Private instances of cBioPortal are maintained by institutions and companies around the world.
 - [Architecture Overview](https://docs.cbioportal.org/architecture-overview.md): cBioPortal consists of the following components:
 - [Hardware Requirements](https://docs.cbioportal.org/hardware-requirements.md): Hardware requirements will vary depending on the volume of users you anticipate will access your cBioPortal instance and the amount of data loaded in the portal.
@@ -35,7 +35,7 @@
 
 ## AI Integrations
 
-- [Chat Interface](https://docs.cbioportal.org/ai-integrations/chat-interface.md): We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development.
+- [Chat Interface](https://docs.cbioportal.org/ai-integrations/chat-interface.md): cBioPortalChat is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It's live and open to everyone — just open the chat and start asking questions.
 - [Model Context Protocol (MCP)](https://docs.cbioportal.org/ai-integrations/mcp.md): This document provides technical information about the Model Context Protocol (MCP) servers and architecture that power AI integrations with cBioPortal.
 
 ## Deployment

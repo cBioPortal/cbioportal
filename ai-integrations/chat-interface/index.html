@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839867144322">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -15,7 +15,7 @@
     <!-- Primary Meta Tags -->
     <title>Chat Interface</title>
     <meta name="title" content="Chat Interface">
-    <meta name="description" content="We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development.">
+    <meta name="description" content="cBioPortalChat is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It's live and open to everyone — just open the chat and start asking questions.">
 
     <!-- Canonical -->
     <link rel="canonical" href="https://docs.cbioportal.org/ai-integrations/chat-interface/">
@@ -25,7 +25,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://docs.cbioportal.org/ai-integrations/chat-interface/">
     <meta property="og:title" content="Chat Interface">
-    <meta property="og:description" content="We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development.">
+    <meta property="og:description" content="cBioPortalChat is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It's live and open to everyone — just open the chat and start asking questions.">
     <meta property="og:site_name" content="cBioPortal Docs">
     <meta property="og:locale" content="en_US">
 
@@ -33,7 +33,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://docs.cbioportal.org/ai-integrations/chat-interface/">
     <meta name="twitter:title" content="Chat Interface">
-    <meta name="twitter:description" content="We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development.">
+    <meta name="twitter:description" content="cBioPortalChat is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It's live and open to everyone — just open the chat and start asking questions.">
 
     <!-- Alternate Markdown -->
     <link rel="alternate" type="text/markdown" href="https://docs.cbioportal.org/ai-integrations/chat-interface.md">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.839867144322" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839867144322" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839867144322" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -227,12 +227,9 @@
 
                 <!-- Page content  -->
 <h1 id="chat-interface">Chat Interface</h1>
-<p>We&#x27;re developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We&#x27;re looking for early test users to give us feedback and help guide future development. If that sounds like you, sign up <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform">here</a>.</p>
-<blockquote>
-<p><strong>Note:</strong> This is a prototype and work in progress. Features and functionality are actively being developed and improved.</p>
-</blockquote>
+<p><strong>cBioPortalChat</strong> is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It&#x27;s live and open to everyone — just <a href="https://chat.cbioportal.org/">open the chat</a> and start asking questions.</p>
 <h2 id="what-is-the-chat-interface">What is the Chat Interface?</h2>
-<p>The cBioPortal chat interface (<strong>cBioPortalChat</strong>) is an experimental platform that lets you ask cBioPortal questions in plain English. It uses <a href="https://www.anthropic.com/claude">Claude</a> (Anthropic&#x27;s LLM, provided via Amazon Bedrock) and combines two capabilities in a single agent:</p>
+<p>The cBioPortal chat interface (<strong>cBioPortalChat</strong>) lets you ask cBioPortal questions in plain English. It uses <a href="https://www.anthropic.com/claude">Claude</a> (Anthropic&#x27;s LLM, provided via Amazon Bedrock) and combines two capabilities in a single agent:</p>
 <ul>
 <li><strong>Database queries</strong> — answers about studies, patients, samples, mutations, copy-number changes, clinical attributes, and treatments by querying cBioPortal&#x27;s underlying database.</li>
 <li><strong>Web navigation</strong> — generates direct links into cBioPortal views (study summaries, OncoPrint, patient view, group comparison) when you describe what you want to look at.</li>
@@ -271,7 +268,7 @@
 </ul>
 <h2 id="getting-started">Getting Started</h2>
 <ol>
-<li>Fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform">this form</a> to request access. We onboard new users in groups — we appreciate your patience until we get in touch.</li>
+<li>Open <a href="https://chat.cbioportal.org/">cBioPortalChat</a>.</li>
 <li>Type your question in the chat input.</li>
 <li>Review the AI-generated response.</li>
 <li>Ask follow-up questions to dive deeper.</li>

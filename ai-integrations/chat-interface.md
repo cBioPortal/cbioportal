@@ -1,12 +1,10 @@
 # Chat Interface
 
-We're developing an AI-powered chat interface that lets users explore cBioPortal data with natural language. We're looking for early test users to give us feedback and help guide future development. If that sounds like you, sign up [here](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform).
-
-> **Note:** This is a prototype and work in progress. Features and functionality are actively being developed and improved.
+**cBioPortalChat** is an AI-powered chat interface that lets you explore cBioPortal data with natural language. It's live and open to everyone — just [open the chat](https://chat.cbioportal.org/) and start asking questions.
 
 ## What is the Chat Interface?
 
-The cBioPortal chat interface (**cBioPortalChat**) is an experimental platform that lets you ask cBioPortal questions in plain English. It uses [Claude](https://www.anthropic.com/claude) (Anthropic's LLM, provided via Amazon Bedrock) and combines two capabilities in a single agent:
+The cBioPortal chat interface (**cBioPortalChat**) lets you ask cBioPortal questions in plain English. It uses [Claude](https://www.anthropic.com/claude) (Anthropic's LLM, provided via Amazon Bedrock) and combines two capabilities in a single agent:
 
 - **Database queries** — answers about studies, patients, samples, mutations, copy-number changes, clinical attributes, and treatments by querying cBioPortal's underlying database.
 - **Web navigation** — generates direct links into cBioPortal views (study summaries, OncoPrint, patient view, group comparison) when you describe what you want to look at.
@@ -46,7 +44,7 @@ You don't need to pick which one you want — the agent decides which tools to c
 
 ## Getting Started
 
-1. Fill out [this form](https://docs.google.com/forms/d/e/1FAIpQLSfQ53xWgzZRu5qMINOqZCfK_8StG7bjbtJ7WsQM9fZpe1bq3A/viewform) to request access. We onboard new users in groups — we appreciate your patience until we get in touch.
+1. Open [cBioPortalChat](https://chat.cbioportal.org/).
 2. Type your question in the chat input.
 3. Review the AI-generated response.
 4. Ask follow-up questions to dive deeper.

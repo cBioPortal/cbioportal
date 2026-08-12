@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839699310912">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839867144322">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.839699310912" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.839867144322" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.839867144322" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839699310912" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.839867144322" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -229,14 +229,19 @@
 <h1 id="model-context-protocol-mcp">Model Context Protocol (MCP)</h1>
 <p>This document provides technical information about the Model Context Protocol (MCP) servers and architecture that power AI integrations with cBioPortal.</p>
 <blockquote>
-<p><strong>Note:</strong> All these are prototypes and work in progress. Features and functionality are actively being developed and improved.</p>
+<p><strong>Note:</strong> The cBioPortal MCP servers power the live cBioPortalChat interface and remain in active development, so their interfaces may still change.</p>
 </blockquote>
 <h2 id="what-is-mcp">What is MCP?</h2>
 <p>The Model Context Protocol (MCP) is a standard protocol that enables AI assistants to interact with external data sources and tools. MCP servers act as bridges between AI models (like Claude) and databases, APIs, or other services, allowing the AI to access and query data in a structured way.</p>
 <p>For details on how MCP powers the cBioPortal chat interface, see the <a href="../chat-interface/">Chat Interface documentation</a>.</p>
 <h2 id="available-mcp-servers">Available MCP Servers</h2>
-<h3 id="cbioportal-mcp-servers-in-development">cBioPortal MCP Servers in Development</h3>
-<p>These MCP servers are early prototypes developed by the cBioPortal team and are in active development.</p>
+<h3 id="cbioportal-mcp-servers">cBioPortal MCP Servers</h3>
+<p>The live <strong>cBioPortalChat</strong> bot is a single agent that uses <strong>both</strong> of the cBioPortal MCP servers below at the same time — it is one bot with two MCP servers:</p>
+<ul>
+<li><strong><code translate="no" v-pre>cbioportal-mcp</code></strong> powers the database-query capability (referred to as the &quot;database MCP&quot; in the <a href="../chat-interface/">Chat Interface documentation</a>).</li>
+<li><strong><code translate="no" v-pre>cbioportal-navigator</code></strong> powers the link-generation capability (the &quot;navigator MCP&quot;).</li>
+</ul>
+<p>The agent decides which of the two to call for each turn. Both servers are developed by the cBioPortal team and remain in active development.</p>
 <h4 id="cbioportal-mcp">cbioportal-mcp</h4>
 <p>A specialized MCP server that wraps the ClickHouse database connection with cBioPortal-specific knowledge.</p>
 <p><strong>Repository</strong>: <a href="https://github.com/cBioPortal/cbioportal-mcp">https://github.com/cBioPortal/cbioportal-mcp</a></p>

@@ -60,7 +60,8 @@ public class GetCancerStudyMetadataUseCase {
    * user is not authorized to READ on the homepage, as done by the frontend.
    */
   private static final String SHOW_UNAUTHORIZED_STUDIES_CONDITION =
-      "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies', 'false')))";
+      "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies',"
+          + " 'false')))";
 
   private final CancerStudyRepository studyRepository;
 

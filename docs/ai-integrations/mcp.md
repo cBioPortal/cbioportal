@@ -14,7 +14,7 @@ For details on how MCP powers the cBioPortal chat interface, see the [Chat Inter
 
 ### cBioPortal MCP Servers
 
-The live **cBioPortalChat** bot is a single agent that uses **both** of the cBioPortal MCP servers below at the same time — it is one bot with two MCP servers, not two separate bots:
+The live **cBioPortalChat** bot is a single agent that uses **both** of the cBioPortal MCP servers below at the same time — it is one bot with two MCP servers:
 
 - **`cbioportal-mcp`** powers the database-query capability (referred to as the "database MCP" in the [Chat Interface documentation](chat-interface.md)).
 - **`cbioportal-navigator`** powers the link-generation capability (the "navigator MCP").

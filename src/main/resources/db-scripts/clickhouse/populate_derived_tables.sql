@@ -4,9 +4,11 @@
 -- This script does NOT define table structure — derived table DDL lives in
 -- db-scripts/clickhouse/init/schema.sql (and, when it changes, in a
 -- db-scripts/clickhouse/migrate/migrate_schema.sql section), versioned together with every
--- other table under the single db_schema_version. This script only clears and repopulates data,
--- and is safe to call repeatedly, any time (e.g. after importing a study, or as a manual
--- rebuild step) — it does not need its own version number.
+-- other table under the single db_schema_version. This script only clears and repopulates data
+-- (e.g. after importing a study, or as a manual rebuild step) — it does not need its own version
+-- number. Only run it while no backend web service is connected to this database in production:
+-- it TRUNCATEs derived tables before repopulating them, so a live instance querying the database
+-- mid-run will see empty or partially-rebuilt derived tables and surface errors.
 --
 -- Callers: metaImport.py's rebuild_derived_tables.py after every import, migrate_db.py
 -- --populate-derived-tables after a migration, docker-compose's fresh-install init scripts, or
@@ -16,18 +18,20 @@ SET function_sleep_max_microseconds_per_block = 3600000000;
 
 -- Clear derived tables before repopulating — this script doesn't recreate table structure, so
 -- data needs to be explicitly cleared rather than relying on a DROP+CREATE to do it implicitly.
-TRUNCATE TABLE IF EXISTS sample_to_gene_panel_derived;
-TRUNCATE TABLE IF EXISTS gene_panel_to_gene_derived;
-TRUNCATE TABLE IF EXISTS sample_derived;
-TRUNCATE TABLE IF EXISTS genomic_event_derived;
-TRUNCATE TABLE IF EXISTS clinical_data_derived;
-TRUNCATE TABLE IF EXISTS clinical_event_derived;
-TRUNCATE TABLE IF EXISTS clinical_event_data_derived;
-TRUNCATE TABLE IF EXISTS genetic_alteration_derived;
-TRUNCATE TABLE IF EXISTS generic_assay_data_derived;
-TRUNCATE TABLE IF EXISTS mutation_derived;
-TRUNCATE TABLE IF EXISTS generic_assay_profile_entity_derived;
-TRUNCATE TABLE IF EXISTS generic_assay_meta_derived;
+-- alter_sync = 2 forces TRUNCATE to block until fully applied (on all replicas, in a replicated
+-- setup) before returning, so the INSERTs below never race a still-in-progress TRUNCATE.
+TRUNCATE TABLE IF EXISTS sample_to_gene_panel_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS gene_panel_to_gene_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS sample_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS genomic_event_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_event_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_event_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS genetic_alteration_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS mutation_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_profile_entity_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_meta_derived SETTINGS alter_sync = 2;
 
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;

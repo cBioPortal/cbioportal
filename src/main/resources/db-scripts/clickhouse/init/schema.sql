@@ -43,8 +43,10 @@
 -- This includes the derived tables (denormalized tables that exist purely for query
 -- performance, named with a `_derived` suffix) alongside the base tables, so their structure is
 -- versioned under the same single db_schema_version as everything else. Derived tables are
--- created here empty; db-scripts/clickhouse/populate_derived_tables.sql fills them in and is
--- safe to re-run any time (see docs/deployment/clickhouse/README.md §7).
+-- created here empty; db-scripts/clickhouse/populate_derived_tables.sql fills them in and can be
+-- re-run any time there is no backend web service connected to this database in production —
+-- running it while a live instance is serving traffic will surface errors from queries hitting
+-- empty or partially-repopulated derived tables (see docs/deployment/clickhouse/README.md §7).
 --
 -- --------------------------------------------------------
 DROP TABLE IF EXISTS allele_specific_copy_number;

@@ -281,8 +281,11 @@ There is a single `db_schema_version` covering both base and derived tables — 
 *structure* is defined in `schema.sql` alongside every other table, so a derived-table structure
 change ships as an ordinary `migrate_schema.sql` section like any other schema change. Derived
 table *data* is repopulated separately by `db-scripts/clickhouse/populate_derived_tables.sql`,
-which doesn't have its own version — it's safe to run any time (after an import, after a
-migration, or manually) since it only clears and rebuilds data, never structure.
+which doesn't have its own version — it only clears and rebuilds data, never structure, and can
+be run any time (after an import, after a migration, or manually) **as long as no backend web
+service is connected to the database in production**. It `TRUNCATE`s derived tables before
+repopulating them, so a live instance querying the database mid-run will see empty or
+partially-rebuilt derived tables and surface errors — take the web service offline first.
 
 **Docker Compose deployments:** `git pull` the latest `cbioportal-docker-compose` master, then
 `docker compose up`. The migration step runs automatically before the `cbioportal` service starts;

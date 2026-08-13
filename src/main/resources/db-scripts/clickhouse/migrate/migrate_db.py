@@ -132,7 +132,13 @@ def write_client_config(ch_props):
 
 
 def _base_cmd(ch_props):
-    return ['clickhouse', 'client', '--config-file', ch_props['config_path']]
+    # mutations_sync=2 forces ALTER TABLE ... UPDATE/DELETE (mutations) to block until fully
+    # applied (on all replicas, in a replicated setup) before the statement returns, instead of
+    # ClickHouse's default fire-and-forget behavior. This closes a race within a single migration
+    # section that has multiple statements: without it, a later statement in the same section
+    # could run against data an earlier UPDATE/DELETE in that section hasn't actually applied yet.
+    return ['clickhouse', 'client', '--config-file', ch_props['config_path'],
+            '--mutations_sync', '2']
 
 
 def _run_client(ch_props, extra_args, input_text=None):
@@ -170,8 +176,11 @@ def get_current_db_schema_version(ch_props):
 def wait_for_mutations(ch_props, timeout_secs=300, poll_interval_secs=2):
     """Block until all ClickHouse mutations in this database have completed.
 
-    ALTER TABLE ... UPDATE/DELETE are async mutations in ClickHouse — a section isn't
-    actually done just because the client returned.
+    ALTER TABLE ... UPDATE/DELETE are async mutations in ClickHouse by default. _base_cmd()
+    already sets mutations_sync=2, which forces our own UPDATE/DELETE statements to block until
+    applied before returning — so this is now a secondary safety net (e.g. against a mutation
+    left pending by something outside this run) rather than the primary synchronization
+    mechanism.
     """
     deadline = time.time() + timeout_secs
     while time.time() < deadline:
@@ -196,8 +205,11 @@ def apply_section(ch_props, section):
 
 
 def populate_derived_tables(ch_props, populate_derived_tables_sql_filepath=None):
-    """Repopulate derived tables by running populate_derived_tables.sql. Safe to call any time —
-    it clears and rebuilds derived table data from scratch, and doesn't touch table structure."""
+    """Repopulate derived tables by running populate_derived_tables.sql. Clears and rebuilds
+    derived table data from scratch (doesn't touch table structure), so it's safe from a database
+    consistency standpoint to call any time — but only call this while no backend web service is
+    connected to the database in production, since queries against the empty/partially-rebuilt
+    derived tables mid-run will error."""
     filepath = populate_derived_tables_sql_filepath or DEFAULT_POPULATE_DERIVED_TABLES_SQL
     if not os.path.exists(filepath):
         raise RuntimeError(f"Could not find populate_derived_tables.sql at {filepath}")

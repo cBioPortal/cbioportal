@@ -275,6 +275,57 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
+## Pathology Slide Data
+
+Whole-slide image (WSI) hierarchy, cBioPortal associations, and source-bound
+pixel artifacts are imported from a study-level metadata/data pair. The
+format follows the clinical data-file convention: four tab-delimited
+attribute metadata rows, an uppercase field-name row, and then one data row
+per slide placement.
+
+### Meta file
+
+The metadata file is named `meta_wsi.txt` and has these fields:
+
+```text
+cancer_study_identifier: brca_tcga_pub
+genetic_alteration_type: PATHOLOGY_SLIDES
+datatype: WSI
+data_filename: data_wsi.txt
+format_version: 1
+```
+
+`format_version` fixes the column names, order, and validation rules. A loader
+must reject unsupported versions rather than guessing how to interpret them.
+
+### Data file
+
+The data file is named `data_wsi.txt`. Its first four rows contain display
+names, descriptions, data types, and priorities. Every value in those rows
+starts with `#`. The fifth row contains the following fields in exactly this
+order:
+
+```text
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>PROCEDURE_DATE_DAYS<TAB>TIMEPOINT_SOURCE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE
+```
+
+The required values are `PATIENT_ID`, `IMAGE_ID`, `PART_KEY`, `BLOCK_KEY`,
+`MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, and `CAN_SERVE_TILES`.
+`IMAGE_ID` is unique within a study. All rows for one patient must use the same
+optional `REFERENCE_SAMPLE_ID`.
+
+`MATCH_LEVEL` is one of `BLOCK`, `PART`, or `UNMATCHED`. A matched row requires
+`SAMPLE_ID`; an `UNMATCHED` row requires it to be empty. Empty fields represent
+null values. Boolean values are `TRUE` or `FALSE`, number fields contain base-10
+integers, and `TILE_METADATA_JSON` contains one compact JSON object. Tabs and
+newlines are not allowed inside values.
+
+When `CAN_SERVE_TILES` is `TRUE`, `SOURCE_URL`, `TILE_METADATA_JSON`,
+`THUMBNAIL_URL`, positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
+`THUMBNAIL_CONTENT_TYPE` are all required. This ensures the cBioPortal backend
+can return a complete access bundle while the tile server receives only the
+exact source URL and its short-lived authorization token.
+
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 

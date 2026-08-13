@@ -4,10 +4,9 @@ This E2E fixture is designed to be portable, minimal, and compatible with the
 existing cBioPortal API E2E style.
 
 The dedicated CircleCI job runs this fixture in authenticated WSI mode. The
-local tile contract fixture validates the same version-1 JWT and trusted
-study-to-resource index contract as the companion tile server; it is not a
-public-mode production substitute. WSI is login-only, including for public
-studies.
+local tile contract fixture validates the same source-bound version-2 JWT as
+the companion tile server; it is not a public-mode production substitute. WSI
+is login-only, including for public studies.
 
 ## Public source
 
@@ -28,9 +27,8 @@ level:
 - `BLOCK`
 - `UNMATCHED`
 
-The CI seed also adds private `wsi_ci_study_b` with a separate patient and
-slide. The test user is authorized for the public A study only, so a study-A
-capability must not read the B patient or slide resources.
+The CI seed retains a second non-public study only as an authorization-negative
+control; no private slide source or patient data is used by the public fixture.
 
 ## Contract shape
 
@@ -41,7 +39,7 @@ v2 hierarchy endpoint:
 - slide placement fields (`sampleId`, `matchLevel`, `specimenKey`, and tile
   availability) are carried on each nested slide
 
-Protected tile-server routes are expected to bind the token's `study_id` to
-the trusted index for `/patient`, `/slides/{id}/dbmeta`, thumbnails, tiles,
-warmup, metadata, and filtered search. A client-supplied `studyId` is only a
-consistency check.
+The v2 access endpoint returns the exact source URL, intrinsic tile metadata,
+thumbnail artifact, and a short-lived capability. The tile server receives
+only that bundle and serves `/tiles/zxy` and `/thumbnails`; it does not expose
+hierarchy, search, patient, or slide metadata routes.

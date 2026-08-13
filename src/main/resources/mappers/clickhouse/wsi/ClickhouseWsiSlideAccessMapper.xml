@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiSlideAccessMapper">
+    <select id="getSlideAccess" resultType="hashmap">
+        SELECT
+            slide.image_id AS image_id,
+            slide.can_serve_tiles AS can_serve_tiles,
+            slide.source_url AS source_url,
+            slide.tile_metadata_json AS tile_metadata_json,
+            slide.thumbnail_url AS thumbnail_url,
+            slide.thumbnail_width AS thumbnail_width,
+            slide.thumbnail_height AS thumbnail_height,
+            slide.thumbnail_content_type AS thumbnail_content_type
+        FROM cancer_study study
+        INNER JOIN (
+            SELECT cancer_study_id, argMax(release_id, (released_at, release_id)) AS release_id
+            FROM wsi_release
+            GROUP BY cancer_study_id
+        ) active_release ON active_release.cancer_study_id = study.cancer_study_id
+        INNER JOIN wsi_slide slide
+            ON slide.cancer_study_id = active_release.cancer_study_id
+           AND slide.release_id = active_release.release_id
+           AND slide.image_id = #{imageId}
+        WHERE study.cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+</mapper>

@@ -281,8 +281,8 @@ Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
 tables `wsi_release`, `wsi_release_patient`, `wsi_part`,
 `wsi_block`, `wsi_slide`, and `wsi_slide_placement`. The active release is
 selected per internal cancer-study ID; the companion `cbioportal-tile-server`
-loader validates and publishes one append-only release plus the trusted
-study-to-resource index.
+loader validates and publishes one append-only release including source URLs,
+intrinsic tile metadata, and thumbnail artifact fields.
 
 Clients use `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`. The response is
 pathology-only; portal clinical labels and pathology timeline events continue
@@ -300,40 +300,42 @@ wsi.access-token-ttl-seconds=300
 The tile server must use the matching values:
 
 ```text
-WSI_AUTH_REQUIRED=true
 WSI_AUTH_SECRET=<same-secret>
 WSI_AUTH_AUDIENCE=cbioportal-wsi
-WSI_AUTH_MAX_TTL=900
-WSI_RESOURCE_INDEX_FILE=<loader-published-index>
+WSI_AUTH_MAX_TTL=300
+WSI_ALLOWED_SOURCE_SCHEMES=s3
 ```
 
 The secret bytes and audience must match exactly, and the cBioPortal TTL must
-not exceed `WSI_AUTH_MAX_TTL`. Setting only
-`msk.wsi.tile_server.url` configures a frontend URL; it does not configure an
-authenticated or isolated production deployment.
+not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only source URLs and
+v2 capabilities; it does not load a hierarchy, metadata backend, or resource
+index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
+ClickHouse WSI release must also contain the source URL, tile metadata, and
+thumbnail artifact fields.
 
 WSI is login-only, including for public studies. Anonymous users receive
 `401`, authenticated users without study access receive `403`, authenticated
 blank study IDs receive `400`, and a nonexistent study deliberately returns
-`403` to avoid an existence oracle. The capability contract is version 1 and
-contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `wsi_auth_version=1`,
+`403` to avoid an existence oracle. The capability contract is version 2 and
+contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `image_id`, exact SHA-256
+bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
 `iat`, and `exp`.
 
 Before enabling the Pathology Slides feature for a private study:
 
-1. Deploy the tile-server loader that validates the entire JSONL input, rejects
-   duplicate `(study_id, patient_id)` rows, and publishes a trusted index for
-   every patient, sample, and slide.
-2. Ensure the tile server independently checks that index for patient
-   hierarchy, slide metadata, thumbnails, tiles, warmup, raw slide metadata,
-   and search. A client-supplied `studyId` query parameter is only a
-   consistency check; it is never the authorization source.
-3. Configure protected responses as private/no-store or private-cacheable as
-   documented by the tile server. They must not be publicly cached.
+1. Deploy the tile-server loader that validates the study's complete
+   `meta_wsi.txt` and `data_wsi.txt` pair and loads `source_url`,
+   `tile_metadata_json`, `thumbnail_url`, dimensions, and content type into
+   each servable slide row.
+2. Ensure the backend access endpoint returns no pixel bundle when any of
+   those fields is missing. The browser must obtain a fresh bundle for each
+   slide and send its exact source URL to the tile server.
+3. Configure protected pixel responses as private/cacheable and hierarchy or
+   access responses as private/no-store. They must not be publicly cached.
 
 The release model uses a unique release ID for every load. All rows are
 inserted under that ID, and the release row is inserted only after the complete
-snapshot is accepted. A retry therefore creates a new release ID and corrected
+study data is accepted. A retry therefore creates a new release ID and corrected
 rows win; partial rows are orphaned and invisible. The backend query uses
 deterministic `argMax` keys and restricts reads to the latest completed release,
 so historical duplicates do not fall through to an unordered `LIMIT 1`. A

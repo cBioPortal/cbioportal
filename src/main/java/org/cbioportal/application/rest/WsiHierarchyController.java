@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,6 +48,9 @@ public class WsiHierarchyController {
   }
 
   @GetMapping("/{studyId}/{patientId}")
+  @PreAuthorize(
+      "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
+          + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<WsiHierarchy> getPatientHierarchy(
       @PathVariable String studyId, @PathVariable String patientId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -85,9 +89,10 @@ public class WsiHierarchyController {
       hierarchy = fetchLocalBridgeHierarchy(studyId, patientId);
     }
 
-    if (authentication == null
-        || !authentication.isAuthenticated()
-        || authentication instanceof AnonymousAuthenticationToken) {
+    // Local no-auth stacks are explicitly allowed to expose the materialized
+    // hierarchy.  Keep the anonymous 401 response for normal deployments,
+    // but do not undo the opt-in bypass after the repository/bridge lookup.
+    if (anonymous && !localAuthBypass) {
       if (hierarchy == null) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .header(HttpHeaders.CACHE_CONTROL, "private, no-store")

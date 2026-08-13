@@ -280,8 +280,8 @@ After importing studies and rebuilding derived tables, you can verify that your 
 Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
 tables `wsi_release`, `wsi_release_patient`, `wsi_part`,
 `wsi_block`, `wsi_slide`, and `wsi_slide_placement`. The active release is
-selected per internal cancer-study ID; the companion `cbioportal-tile-server`
-loader validates and publishes one append-only release including source URLs,
+selected per internal cancer-study ID; the cBioPortal core study importer
+validates and publishes one append-only release including source URLs,
 intrinsic tile metadata, and thumbnail artifact fields.
 
 Clients use `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`. The response is
@@ -323,10 +323,14 @@ bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
 
 Before enabling the Pathology Slides feature for a private study:
 
-1. Deploy the tile-server loader that validates the study's complete
-   `meta_wsi.txt` and `data_wsi.txt` pair and loads `source_url`,
+1. Use the standard cBioPortal core study importer to validate the study's
+   complete `meta_wsi.txt` and `data_wsi.txt` pair and load `source_url`,
    `tile_metadata_json`, `thumbnail_url`, dimensions, and content type into
-   each servable slide row.
+   each servable slide row:
+
+   ```bash
+   metaImport.py -s /path/to/study
+   ```
 2. Ensure the backend access endpoint returns no pixel bundle when any of
    those fields is missing. The browser must obtain a fresh bundle for each
    slide and send its exact source URL to the tile server.
@@ -344,7 +348,7 @@ treat an error response as an availability failure.
 
 For an existing installation created with the pre-release-ID schema,
 perform the WSI table migration/rebuild before enabling private-study WSI.
-The loader can add the new column for compatibility, but an old
+The core importer does not create or migrate production WSI tables; an old
 `ReplacingMergeTree` release table must not be treated as the new append-only
 release table until it has been rebuilt with the current schema.
 

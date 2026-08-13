@@ -295,8 +295,9 @@ data_filename: data_wsi.txt
 format_version: 1
 ```
 
-`format_version` fixes the column names, order, and validation rules. A loader
-must reject unsupported versions rather than guessing how to interpret them.
+`format_version` fixes the column names, order, and validation rules. The
+cBioPortal core importer rejects unsupported versions rather than guessing how
+to interpret them.
 
 ### Data file
 

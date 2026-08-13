@@ -23,7 +23,14 @@
             slide.is_ihc AS is_ihc,
             slide.magnification AS magnification,
             slide.file_size_bytes AS file_size_bytes,
-            slide.can_serve_tiles AS can_serve_tiles,
+            (
+                slide.can_serve_tiles
+                AND notEmpty(ifNull(slide.source_url, ''))
+                AND notEmpty(ifNull(slide.tile_metadata_json, ''))
+                AND notEmpty(ifNull(slide.thumbnail_url, ''))
+                AND slide.thumbnail_width > 0
+                AND slide.thumbnail_height > 0
+            ) AS can_serve_tiles,
             slide.barcode AS barcode,
             slide.slide_type AS slide_type,
             placement.match_level AS match_level,

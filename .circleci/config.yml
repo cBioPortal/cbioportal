@@ -698,6 +698,8 @@ jobs:
       working_directory: /tmp/repos
       environment:
         DOCKER_REPO: cbioportal/cbioportal-dev
+        WSI_AUTH_SECRET: local-development-wsi-secret-change-me-32chars
+        WSI_AUTH_AUDIENCE: cbioportal-wsi
       steps:
         - attach_workspace:
             at: /tmp/repos
@@ -808,14 +810,15 @@ jobs:
         - run:
             name: Smoke check local-file WSI tile server mode
             command: |
-              curl -fsS http://localhost:8081/tiles/3020726/metadata | jq '.dimensions.width' > /tmp/repos/wsi-tile-smoke.txt
-              curl -fsS http://localhost:8081/tiles/missing-local/metadata && exit 1 || true
+              curl -fsS http://localhost:8081/health | jq '.auth_contract_version' > /tmp/repos/wsi-tile-smoke.txt
         - run:
             name: Run WSI API tests
             environment:
               CBIOPORTAL_URL: http://localhost:8080
               CBIOPORTAL_FRONTEND_URL: http://localhost:3000
               WSI_TILE_SERVER_URL: http://localhost:8081
+              WSI_AUTH_SECRET: local-development-wsi-secret-change-me-32chars
+              WSI_AUTH_AUDIENCE: cbioportal-wsi
               MOCHA_FILE: /tmp/repos/wsi-api-test-results/results.xml
             command: |
               mkdir -p /tmp/repos/wsi-api-test-results

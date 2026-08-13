@@ -1,5 +1,8 @@
 services:
   cbioportal:
+    environment:
+      WSI_AUTH_SECRET: ${WSI_AUTH_SECRET}
+      WSI_AUTH_AUDIENCE: ${WSI_AUTH_AUDIENCE:-cbioportal-wsi}
     # The web-and-data runtime is JRE-only; bypass the legacy entrypoint's
     # `jar uf` step and launch the exploded Spring Boot classpath directly.
     entrypoint: []
@@ -20,6 +23,9 @@ services:
       --spring.datasource.clickhouse.password=$${CLICKHOUSE_PASSWORD}
       --spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
       --bitly.access.token=local-ci-unused-token
+      --wsi.access-token-secret=$${WSI_AUTH_SECRET}
+      --wsi.access-token-audience=$${WSI_AUTH_AUDIENCE}
+      --wsi.local-auth-bypass=true
       --clickhouse_mode=true
       --spring.profiles.active=clickhouse"
   cbioportal-database:

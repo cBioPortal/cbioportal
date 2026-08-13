@@ -391,7 +391,13 @@ CREATE TABLE wsi_slide (
     file_size_bytes Nullable(UInt64),
     can_serve_tiles Bool,
     barcode Nullable(String),
-    slide_type Nullable(String)
+    slide_type Nullable(String),
+    source_url Nullable(String),
+    tile_metadata_json Nullable(String),
+    thumbnail_url Nullable(String),
+    thumbnail_width Nullable(UInt32),
+    thumbnail_height Nullable(UInt32),
+    thumbnail_content_type Nullable(String)
 ) ENGINE = MergeTree()
 ORDER BY (cancer_study_id, release_id, patient_id, image_id);
 

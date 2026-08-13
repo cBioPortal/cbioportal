@@ -88,7 +88,11 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       return null;
     }
     if (type == String.class) {
-      return type.cast(value.toString());
+      String stringValue = value.toString();
+      // ClickHouse's toString(Nullable(String)) materializes NULL as an empty
+      // string. Normalize it back to null so left-joined empty hierarchy rows
+      // do not become phantom samples/slides in the domain model.
+      return type.cast(stringValue.isEmpty() ? null : stringValue);
     }
     return type.cast(value);
   }

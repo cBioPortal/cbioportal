@@ -283,6 +283,16 @@ format follows the clinical data-file convention: four tab-delimited
 attribute metadata rows, an uppercase field-name row, and then one data row
 per slide placement.
 
+The artifact fields in this pair are produced upstream. A separate scheduled
+thumbnail batch reads eligible slide inventory/source rows, writes master
+JPEGs to the S3/Dell ECS-compatible object store, and populates
+`cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with the artifact
+URI, `TILE_METADATA_JSON`, dimensions, and content type. The Databricks
+canonical-association query joins those registry rows before exporting this
+file. The cBioPortal frontend only consumes the resulting access bundle; it
+does not generate or upload thumbnails. Runtime/on-demand thumbnail workers
+are not the production publication path.
+
 ### Meta file
 
 The metadata file is named `meta_wsi.txt` and has these fields:

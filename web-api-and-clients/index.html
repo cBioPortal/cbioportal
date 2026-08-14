@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.839970408562">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840054802025">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.839970408562" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.840054802025" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.839970408562" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.840054802025" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.839970408562" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.839970408562" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.840054802025" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.840054802025" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -230,6 +230,12 @@
 <h1 id="api-and-api-clients">API and API Clients</h1>
 <p>cBioPortal provides a REST API for programmatic access to the data. The visualizations one can see on the website leverage the same API. By connecting to the API directly, anyone can build their own visualizations/reports.</p>
 <p>Please see the full reference documentation for the API <a href="https://www.cbioportal.org/api/swagger-ui/index.html">here</a>.</p>
+<h2 id="model-context-protocol-mcp">Model Context Protocol (MCP)</h2>
+<p>In addition to the REST API, cBioPortal exposes a <strong><a href="../ai-integrations/mcp/">Model Context Protocol (MCP)</a></strong> endpoint so AI assistants and agents can query the data directly. A hosted instance backed by the cBioPortal database is available at:</p>
+<div id="model-context-protocol-mcp-code-1" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-none"><code v-pre class="language-none">https://mcp.cbioportal.org/db/mcp</code></pre>
+</doc-codeblock></div>
+<p>Point an MCP-compatible client at that URL (streamable HTTP) to query studies, samples, mutations, and clinical attributes in natural language. The endpoint requires authentication via Google sign-in (the only provider supported at the moment); MCP clients that support OAuth are prompted to sign in and register automatically on first connect. For the full list of MCP servers and how to build your own integration, see the <a href="../ai-integrations/mcp/">Model Context Protocol documentation</a>.</p>
 <h2 id="api-clients">API Clients</h2>
 <p>The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool <code translate="no" v-pre>curl</code> for downloading data on the command line or use another language such as <code translate="no" v-pre>Python</code> or <code translate="no" v-pre>R</code> to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. <a href="https://swagger.io/tools/swagger-codegen/">https://swagger.io/tools/swagger-codegen/</a>). Do reach out if you&#x27;d like us to add a language.</p>
 <h3 id="r-clients">R clients</h3>

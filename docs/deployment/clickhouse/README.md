@@ -302,6 +302,11 @@ run derivation through your own tooling against ClickHouse Cloud). The backend r
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
 
+For **ClickHouse Cloud** specifically, set `CLICKHOUSE_SECURE=true` (in addition to the usual
+`CLICKHOUSE_HOST`/`CLICKHOUSE_NATIVE_PORT`/`CLICKHOUSE_USER`/`CLICKHOUSE_PASSWORD`/`CLICKHOUSE_DB`)
+so `migrate_db.py` connects over TLS — Cloud's native port (typically `9440`) is TLS-only and will
+reject a plain connection.
+
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
 ClickHouse deployment) still require the manual re-import process, since no migration path exists
 for versions prior to `3.0.0`:

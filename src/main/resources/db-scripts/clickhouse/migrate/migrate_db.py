@@ -12,6 +12,9 @@ deployments may run derived-table population as a separate manual step.
 ClickHouse connection is configured via environment variables, matching the convention used by
 cbioportal-core's rebuild_derived_tables.py:
     CLICKHOUSE_HOST, CLICKHOUSE_NATIVE_PORT, CLICKHOUSE_USER, CLICKHOUSE_PASSWORD, CLICKHOUSE_DB
+Optionally, set CLICKHOUSE_SECURE=true to connect over TLS (required for ClickHouse Cloud, whose
+native port — typically 9440 — is TLS-only). Unset/false for a plain local/self-hosted ClickHouse
+on its default native port (9000).
 
 Credentials are written to a temporary clickhouse-client config file (mode 0600) rather than
 passed as command-line arguments, since subprocess argv is visible to other users on the host via
@@ -114,6 +117,9 @@ def get_clickhouse_props():
         ch_props[key] = value
     if missing:
         raise RuntimeError(f"ClickHouse properties not set: {', '.join(missing)}")
+    # Optional: required for ClickHouse Cloud, whose native port (typically 9440) is TLS-only.
+    # Unset/false for a plain local/self-hosted ClickHouse on its default native port (9000).
+    ch_props['secure'] = os.environ.get('CLICKHOUSE_SECURE', '').lower() in ('1', 'true', 'yes')
     return ch_props
 
 
@@ -135,6 +141,8 @@ def write_client_config(ch_props):
             f.write(f"host: \"{_yaml_double_quoted(ch_props['host'])}\"\n")
             f.write(f"port: {ch_props['port']}\n")
             f.write(f"database: \"{_yaml_double_quoted(ch_props['database'])}\"\n")
+            if ch_props['secure']:
+                f.write("secure: true\n")
     except Exception:
         os.remove(path)
         raise

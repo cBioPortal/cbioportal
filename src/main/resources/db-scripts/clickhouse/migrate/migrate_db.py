@@ -32,6 +32,7 @@ END = '\033[0m'
 
 SECTION_HEADER_RE = re.compile(r'^##\s*db_schema_version:\s*(\S+)\s*$')
 DESCRIPTION_RE = re.compile(r'^##\s*description:\s*(.*)$')
+DIRECTIVE_LINE_RE = re.compile(r'^##')
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_MIGRATE_SCHEMA_SQL = os.path.join(SCRIPT_DIR, 'migrate_schema.sql')
@@ -79,6 +80,16 @@ def parse_migrate_schema_sql(filepath):
         if desc_match:
             current['description'] = desc_match.group(1).strip()
             continue
+        if DIRECTIVE_LINE_RE.match(line):
+            # A `##`-prefixed line inside a section that isn't a recognized directive is almost
+            # certainly an authoring mistake (e.g. a multi-line description) — fail loudly instead
+            # of silently folding it into the section's SQL, where it would be swallowed as a
+            # harmless-looking comment sent to the server without anyone noticing the intended
+            # content never made it into the description.
+            raise RuntimeError(
+                f"Unrecognized '##' directive line in section {current['version']}: {line!r}. "
+                f"Descriptions must be a single line — put everything on the '## description:' "
+                f"line itself.")
         sql_lines.append(line)
     flush()
 

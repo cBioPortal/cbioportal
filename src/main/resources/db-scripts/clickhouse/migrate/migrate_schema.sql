@@ -26,6 +26,5 @@
 -- skipped automatically — do not remove or renumber old sections once released.
 
 ## db_schema_version: 3.0.0
-## description: ClickHouse-native migration era begins; collapse derived_table_schema_version
-##   into the single db_schema_version (fresh installs never had this column — see schema.sql)
+## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;

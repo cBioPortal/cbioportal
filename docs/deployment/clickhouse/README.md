@@ -313,6 +313,23 @@ index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
 ClickHouse WSI release must also contain the source URL, tile metadata, and
 thumbnail artifact fields.
 
+### Upstream thumbnail publication
+
+The ClickHouse release depends on a separate scheduled thumbnail workload. It
+must read eligible inventory/source rows, generate master JPEGs in the
+S3/Dell ECS-compatible object store, and populate
+`cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with
+`artifact_uri`, `tile_metadata_json`, dimensions, and content type before the
+Databricks canonical-association refresh runs. The canonical export then
+passes `SOURCE_URL`, `TILE_METADATA_JSON`, `THUMBNAIL_URL`, dimensions, and
+content type to the standard cBioPortal core importer.
+
+Neither the frontend nor the online tile-server API is a production thumbnail
+publisher. The frontend only requests `/thumbnails`; the tile-server
+on-demand worker is limited to development/rehearsal or controlled remediation
+and does not populate the registry. A missing registry row or missing metadata
+must be fixed in the scheduled batch before importing a new WSI release.
+
 WSI is login-only, including for public studies. Anonymous users receive
 `401`, authenticated users without study access receive `403`, authenticated
 blank study IDs receive `400`, and a nonexistent study deliberately returns

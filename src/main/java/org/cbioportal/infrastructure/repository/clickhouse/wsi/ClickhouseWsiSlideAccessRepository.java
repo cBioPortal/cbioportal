@@ -24,36 +24,17 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   @Override
   public WsiSlideAccess getSlideAccess(String studyId, String imageId) {
     Map<String, Object> row = mapper.getSlideAccess(studyId, imageId);
-    if (row == null || !boolValue(row.get("can_serve_tiles"))) {
+    if (!isServableRow(row, objectMapper)) {
       return null;
     }
     String sourceUrl = stringValue(row.get("source_url"));
     String metadataJson = stringValue(row.get("tile_metadata_json"));
     String thumbnailUrl = stringValue(row.get("thumbnail_url"));
-    if (sourceUrl == null || metadataJson == null || thumbnailUrl == null) {
-      return null;
-    }
     try {
       WsiTileMetadata metadata = objectMapper.readValue(metadataJson, WsiTileMetadata.class);
       int width = numberValue(row.get("thumbnail_width"));
       int height = numberValue(row.get("thumbnail_height"));
       String contentType = stringValue(row.get("thumbnail_content_type"));
-      if (metadata == null
-          || metadata.dimensions() == null
-          || metadata.dimensions().width() <= 0
-          || metadata.dimensions().height() <= 0
-          || metadata.levels() <= 0
-          || metadata.levelDimensions() == null
-          || metadata.levelDimensions().isEmpty()
-          || metadata.maxZoom() < 0
-          || metadata.tileSize() <= 0
-          || width <= 0
-          || height <= 0
-          || width > 8192
-          || height > 8192
-          || contentType == null) {
-        return null;
-      }
       return new WsiSlideAccess(
           imageId,
           sourceUrl,
@@ -65,6 +46,44 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     } catch (JsonProcessingException | RuntimeException exception) {
       return null;
     }
+  }
+
+  static boolean isServableRow(Map<String, Object> row, ObjectMapper objectMapper) {
+    if (row == null || !boolValue(row.get("can_serve_tiles"))) {
+      return false;
+    }
+    String sourceUrl = stringValue(row.get("source_url"));
+    String metadataJson = stringValue(row.get("tile_metadata_json"));
+    String thumbnailUrl = stringValue(row.get("thumbnail_url"));
+    String contentType = stringValue(row.get("thumbnail_content_type"));
+    int width = numberValue(row.get("thumbnail_width"));
+    int height = numberValue(row.get("thumbnail_height"));
+    if (sourceUrl == null || metadataJson == null || thumbnailUrl == null
+        || contentType == null || width <= 0 || height <= 0
+        || width > 8192 || height > 8192) {
+      return false;
+    }
+    try {
+      return validMetadata(objectMapper.readValue(metadataJson, WsiTileMetadata.class));
+    } catch (JsonProcessingException | RuntimeException exception) {
+      return false;
+    }
+  }
+
+  private static boolean validMetadata(WsiTileMetadata metadata) {
+    if (metadata == null
+        || metadata.dimensions() == null
+        || metadata.dimensions().width() <= 0
+        || metadata.dimensions().height() <= 0
+        || metadata.levels() <= 0
+        || metadata.levelDimensions() == null
+        || metadata.levelDimensions().size() != metadata.levels()
+        || metadata.maxZoom() < 0
+        || metadata.tileSize() <= 0) {
+      return false;
+    }
+    return metadata.levelDimensions().stream()
+        .allMatch(level -> level != null && level.width() > 0 && level.height() > 0);
   }
 
   private static String stringValue(Object value) {

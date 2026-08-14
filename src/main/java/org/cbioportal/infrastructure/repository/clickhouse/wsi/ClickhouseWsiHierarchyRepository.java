@@ -1,5 +1,6 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.wsi.WsiBlock;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Repository;
 public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository {
 
   private final ClickhouseWsiHierarchyMapper mapper;
+  private final ObjectMapper objectMapper = new ObjectMapper();
 
   public ClickhouseWsiHierarchyRepository(ClickhouseWsiHierarchyMapper mapper) {
     this.mapper = mapper;
@@ -65,7 +67,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               boolValue(row, "is_ihc"),
               value(row, "magnification", String.class),
               longValue(row, "file_size_bytes"),
-              boolValue(row, "can_serve_tiles"),
+              ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper),
               value(row, "barcode", String.class),
               value(row, "slide_type", String.class),
               sampleKey,

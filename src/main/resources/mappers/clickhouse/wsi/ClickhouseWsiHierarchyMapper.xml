@@ -30,7 +30,16 @@
                 AND notEmpty(ifNull(slide.thumbnail_url, ''))
                 AND slide.thumbnail_width > 0
                 AND slide.thumbnail_height > 0
+                AND slide.thumbnail_width <= 8192
+                AND slide.thumbnail_height <= 8192
+                AND notEmpty(ifNull(slide.thumbnail_content_type, ''))
             ) AS can_serve_tiles,
+            slide.source_url AS source_url,
+            slide.tile_metadata_json AS tile_metadata_json,
+            slide.thumbnail_url AS thumbnail_url,
+            slide.thumbnail_width AS thumbnail_width,
+            slide.thumbnail_height AS thumbnail_height,
+            slide.thumbnail_content_type AS thumbnail_content_type,
             slide.barcode AS barcode,
             slide.slide_type AS slide_type,
             placement.match_level AS match_level,

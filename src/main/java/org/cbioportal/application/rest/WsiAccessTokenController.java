@@ -61,7 +61,7 @@ public class WsiAccessTokenController {
    */
   @GetMapping("/v2/slides/{studyId}/{imageId}/access")
   @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', "
+      "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<?> issueSlideAccess(
       @PathVariable String studyId, @PathVariable String imageId) {

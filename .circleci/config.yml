@@ -764,9 +764,13 @@ jobs:
               corepack enable
               corepack prepare pnpm@10.33.0 --activate
               rm -rf /tmp/repos/cbioportal-frontend-wsi
-              git clone --depth 1 --branch feature/native-wsi-viewer \
+              git clone --filter=blob:none --no-checkout \
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
+              git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
+                72a9744b1663c0ba24e68886f08eae7988214b7f
+              git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
+                72a9744b1663c0ba24e68886f08eae7988214b7f
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

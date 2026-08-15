@@ -1,5 +1,5 @@
 ## August 14, 2026
-*   **New: [AI integrations](https://docs.cbioportal.org/ai-integrations/) for cBioPortal.** Two ways to explore cBioPortal data conversationally:
+*   **New: [AI integrations](https://docs.cbioportal.org/ai-integrations/).** Two ways to explore cBioPortal conversationally:
     * [**cBioPortalChat**](https://chat.cbioportal.org): a web-based assistant. Ask about studies, mutations, clinical attributes, or cohorts in natural language and get answers with direct links back into cBioPortal.
     * [**MCP server**](https://docs.cbioportal.org/ai-integrations/mcp/): connect your own LLM (e.g. Claude, ChatGPT or Copilot) directly to cBioPortal via the [Model Context Protocol](https://modelcontextprotocol.io/). Google login required on first connect.
 

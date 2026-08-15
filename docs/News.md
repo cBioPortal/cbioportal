@@ -1,3 +1,8 @@
+## August 15, 2026
+*   **New: AI integrations for cBioPortal.** Two ways to explore cBioPortal data conversationally, both powered by Claude:
+    * [**cBioPortalChat**](https://chat.cbioportal.org): a web-based assistant. Ask about studies, mutations, clinical attributes, or cohorts in natural language and get answers with direct links back into cBioPortal. See the [chat interface documentation](https://docs.cbioportal.org/ai-integrations/chat-interface/) for more.
+    * **MCP server** at `https://mcp.cbioportal.org/db/mcp/`: connect Claude Desktop, Claude Code, or claude.ai's hosted connector directly to cBioPortal via the [Model Context Protocol](https://modelcontextprotocol.io/). Google login required on first connect. See the [MCP documentation](https://docs.cbioportal.org/ai-integrations/mcp/) for setup and a demo.
+
 ## May 26, 2026
 *   **v7.0.0 Release:** MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal. This release was made possible through a partnership with [ClickHouse](https://clickhouse.com/) — read the [case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) to learn how ClickHouse accelerates cancer research at MSK.
 *   **Seed database relocated:** The seed database has been moved and reorganized for ClickHouse compatibility. See the [Migration Guide](Migration-v6-to-v7.md) for details on upgrading from v6.x.

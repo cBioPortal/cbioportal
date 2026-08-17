@@ -3,6 +3,8 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -38,18 +40,23 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
     // Builtin columns (only 'type' — patientId/sampleId have too many values)
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
+      ResourceTableQuery queryWithoutOwnFilter = withoutFilterOnColumn(query, entry.getKey());
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(query, entry.getValue());
+          mapper.getResourceTableFacetValues(queryWithoutOwnFilter, entry.getValue());
       if (values != null && !values.isEmpty()) {
         facets.put(entry.getKey(), values);
       }
     }
 
-    // Dynamic metadata columns — discover keys then get distinct values for each
+    // Dynamic metadata columns — discover keys then get distinct values for each.
+    // Keys are discovered against the fully-filtered query so that filtering by
+    // one metadata column doesn't surface unrelated keys that only exist elsewhere.
     List<String> metadataKeys = mapper.getResourceTableMetadataKeys(query);
     if (metadataKeys != null) {
       for (String key : metadataKeys) {
-        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(query, key);
+        ResourceTableQuery queryWithoutOwnFilter = withoutFilterOnColumn(query, "metadata:" + key);
+        List<ResourceFacetOption> values =
+            mapper.getResourceTableMetadataFacetValues(queryWithoutOwnFilter, key);
         if (values != null && !values.isEmpty()) {
           facets.put("metadata:" + key, values);
         }
@@ -57,6 +64,36 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     return facets;
+  }
+
+  /**
+   * Returns a copy of the query with any filter on the given column removed, so that a column's own
+   * facet values are computed independently of its own active selection (otherwise deselecting an
+   * option would make it disappear from the facet list entirely, instead of remaining available to
+   * re-select).
+   */
+  private ResourceTableQuery withoutFilterOnColumn(ResourceTableQuery query, String columnId) {
+    if (query.filters() == null || query.filters().isEmpty()) {
+      return query;
+    }
+    List<ResourceColumnFilter> filtersWithoutColumn =
+        query.filters().stream()
+            .filter(filter -> filter == null || !columnId.equals(filter.columnId()))
+            .collect(Collectors.toList());
+    if (filtersWithoutColumn.size() == query.filters().size()) {
+      return query;
+    }
+    return new ResourceTableQuery(
+        query.studyIds(),
+        query.resourceId(),
+        query.patientIds(),
+        query.sampleIds(),
+        query.search(),
+        query.pageNumber(),
+        query.pageSize(),
+        query.sortBy(),
+        query.direction(),
+        filtersWithoutColumn);
   }
 
   @Override

@@ -4,6 +4,16 @@ cBioPortal provides a REST API for programmatic access to the data. The visualiz
 
 Please see the full reference documentation for the API [here](https://www.cbioportal.org/api/swagger-ui/index.html).
 
+## Model Context Protocol (MCP)
+
+In addition to the REST API, cBioPortal exposes a **[Model Context Protocol (MCP)](/ai-integrations/mcp.md)** endpoint so AI assistants and agents can query the data directly. A hosted instance backed by the cBioPortal database is available at:
+
+```
+https://mcp.cbioportal.org/db/mcp
+```
+
+Point an MCP-compatible client at that URL (streamable HTTP) to query studies, samples, mutations, and clinical attributes in natural language. The endpoint requires authentication via Google sign-in (the only provider supported at the moment); MCP clients that support OAuth are prompted to sign in and register automatically on first connect. For the full list of MCP servers and how to build your own integration, see the [Model Context Protocol documentation](/ai-integrations/mcp.md).
+
 ## API Clients
 
 The cBioPortal REST API is described using Swagger/OpenAPI, which allows one to generate a client in most programming languages. One can use the command line tool `curl` for downloading data on the command line or use another language such as `Python` or `R` to make visualizations. We list some common examples below, but if your language is not listed, there is likely a client generator available elsewhere (see e.g. https://swagger.io/tools/swagger-codegen/). Do reach out if you'd like us to add a language.

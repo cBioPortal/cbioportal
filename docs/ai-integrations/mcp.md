@@ -27,6 +27,17 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 
 **Repository**: [https://github.com/cBioPortal/cbioportal-mcp](https://github.com/cBioPortal/cbioportal-mcp)
 
+**Hosted endpoint**: A hosted instance backed by the cBioPortal database is available at `https://mcp.cbioportal.org/db/mcp` (streamable HTTP). Point an MCP-compatible client at this URL to query studies, samples, mutations, and clinical attributes in natural language. The endpoint requires authentication via Google sign-in (the only provider supported at the moment). MCP clients that support OAuth are prompted to sign in and register automatically on first connect.
+
+The demo below adds the hosted endpoint as a custom connector in an MCP client (Claude) and asks it which studies are available:
+
+<video controls muted playsinline style="max-width: 100%; height: auto;">
+  <source src="https://github.com/user-attachments/assets/abd9fca3-c777-48c1-8a67-8efaed8d6b0a" type="video/mp4">
+  Your browser does not support embedded video. <a href="https://github.com/user-attachments/assets/abd9fca3-c777-48c1-8a67-8efaed8d6b0a">Watch the demo</a>.
+</video>
+
+If you'd rather not connect your own client, you can try the same database MCP through the hosted [cBioPortalChat](chat-interface.md) interface at [https://chat.cbioportal.org](https://chat.cbioportal.org).
+
 **Key Features**:
 - Wraps the `mcp-clickhouse` server for ClickHouse database connectivity
 - Includes cBioPortal-specific system prompts that teach the AI about cancer genomics data structures

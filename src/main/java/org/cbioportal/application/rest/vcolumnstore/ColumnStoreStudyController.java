@@ -17,11 +17,14 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,15 +54,21 @@ public class ColumnStoreStudyController {
   private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
 
   private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
+  private final PermissionEvaluator permissionEvaluator;
 
   /**
-   * Constructs a new {@link ColumnStoreStudyController} with the specified use case.
+   * Constructs a new {@link ColumnStoreStudyController}, with the specified use case and an
+   * optional permission evaluator.
    *
    * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study
    *     metadata.
+   * @param permissionEvaluator defines the permission of the cancer study.
    */
-  public ColumnStoreStudyController(GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase) {
+  public ColumnStoreStudyController(
+      GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
+      @Autowired(required = false) PermissionEvaluator permissionEvaluator) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
+    this.permissionEvaluator = permissionEvaluator;
   }
 
   /**
@@ -129,10 +138,29 @@ public class ColumnStoreStudyController {
       headers.add(TOTAL_COUNT_HEADER, String.valueOf(studies.size()));
     }
 
-    List<CancerStudyMetadataDTO> responseBody =
-        (projection == ProjectionType.META)
-            ? List.of()
-            : CancerStudyMetadataMapper.INSTANCE.toDtos(studies);
+    List<CancerStudyMetadataDTO> responseBody;
+    if (projection == ProjectionType.META) {
+      responseBody = List.of();
+    } else {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      responseBody =
+          studies.stream()
+              .map(
+                  study -> {
+                    // Default to true if security is disabled (permissionEvaluator is null)
+                    boolean hasReadPermission = true;
+                    if (permissionEvaluator != null && authentication != null) {
+                      hasReadPermission =
+                          permissionEvaluator.hasPermission(
+                              authentication,
+                              study.cancerStudyIdentifier(),
+                              "CancerStudyId",
+                              org.cbioportal.legacy.utils.security.AccessLevel.READ);
+                    }
+                    return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
+                  })
+              .toList();
+    }
 
     return ResponseEntity.ok().headers(headers).body(responseBody);
   }
@@ -146,7 +174,6 @@ public class ColumnStoreStudyController {
   public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
       throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
-    // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
     var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);
   }

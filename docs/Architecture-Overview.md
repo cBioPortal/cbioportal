@@ -32,9 +32,6 @@ The ClickHouse database used by cBioPortal stores data in two layers:
 
 For more on ClickHouse architecture, deployment options, and sizing guidance, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
 
-The backend is organized as a multi-module Maven project.
-See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
-
 ## Validator
 The
 [validator](https://github.com/cBioPortal/cbioportal-core/tree/main/scripts/importer)

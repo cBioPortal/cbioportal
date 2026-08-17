@@ -389,7 +389,21 @@ CREATE TABLE wsi_slide (
     thumbnail_url Nullable(String),
     thumbnail_width Nullable(UInt32),
     thumbnail_height Nullable(UInt32),
-    thumbnail_content_type Nullable(String)
+    thumbnail_content_type Nullable(String),
+    PROJECTION wsi_slide_by_access (
+        SELECT
+            cancer_study_id,
+            release_id,
+            image_id,
+            can_serve_tiles,
+            source_url,
+            tile_metadata_json,
+            thumbnail_url,
+            thumbnail_width,
+            thumbnail_height,
+            thumbnail_content_type
+        ORDER BY (cancer_study_id, release_id, image_id)
+    )
 ) ENGINE = MergeTree()
 ORDER BY (cancer_study_id, release_id, patient_id, image_id);
 

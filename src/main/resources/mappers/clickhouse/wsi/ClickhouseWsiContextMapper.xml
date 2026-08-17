@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiContextMapper">
+    <select id="getStudyContext" resultType="hashmap">
+        SELECT
+            study.cancer_study_id AS cancer_study_id,
+            active_release.release_id AS release_id
+        FROM cancer_study study
+        INNER JOIN (
+            SELECT
+                cancer_study_id,
+                argMax(release_id, (released_at, release_id)) AS release_id
+            FROM wsi_release
+            GROUP BY cancer_study_id
+        ) active_release
+            ON active_release.cancer_study_id = study.cancer_study_id
+        WHERE study.cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+
+    <select id="getPatientContext" resultType="hashmap">
+        SELECT
+            study.cancer_study_id AS cancer_study_id,
+            portal_patient.internal_id AS patient_id,
+            active_release.release_id AS release_id
+        FROM cancer_study study
+        INNER JOIN patient portal_patient
+            ON portal_patient.cancer_study_id = study.cancer_study_id
+           AND portal_patient.stable_id = #{patientId}
+        INNER JOIN (
+            SELECT
+                cancer_study_id,
+                argMax(release_id, (released_at, release_id)) AS release_id
+            FROM wsi_release
+            GROUP BY cancer_study_id
+        ) active_release
+            ON active_release.cancer_study_id = study.cancer_study_id
+        WHERE study.cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+</mapper>

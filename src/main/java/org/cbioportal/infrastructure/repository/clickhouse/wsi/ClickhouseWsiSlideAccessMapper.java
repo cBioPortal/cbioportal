@@ -7,5 +7,7 @@ import org.apache.ibatis.annotations.Param;
 public interface ClickhouseWsiSlideAccessMapper {
 
   Map<String, Object> getSlideAccess(
-      @Param("studyId") String studyId, @Param("imageId") String imageId);
+      @Param("studyInternalId") long studyInternalId,
+      @Param("releaseId") String releaseId,
+      @Param("imageId") String imageId);
 }

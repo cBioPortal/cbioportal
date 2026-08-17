@@ -1,6 +1,5 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.wsi.WsiBlock;
@@ -15,15 +14,25 @@ import org.springframework.stereotype.Repository;
 public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository {
 
   private final ClickhouseWsiHierarchyMapper mapper;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ClickhouseWsiContextMapper contextMapper;
 
-  public ClickhouseWsiHierarchyRepository(ClickhouseWsiHierarchyMapper mapper) {
+  public ClickhouseWsiHierarchyRepository(
+      ClickhouseWsiHierarchyMapper mapper, ClickhouseWsiContextMapper contextMapper) {
     this.mapper = mapper;
+    this.contextMapper = contextMapper;
   }
 
   @Override
   public WsiHierarchy getPatientHierarchy(String studyId, String patientId) {
-    List<Map<String, Object>> rows = mapper.getPatientHierarchy(studyId, patientId);
+    Map<String, Object> context = contextMapper.getPatientContext(studyId, patientId);
+    if (context == null) {
+      return null;
+    }
+    List<Map<String, Object>> rows =
+        mapper.getPatientHierarchy(
+            contextLongValue(context, "cancer_study_id"),
+            value(context, "release_id", String.class),
+            contextLongValue(context, "patient_id"));
     if (rows.isEmpty()) {
       return null;
     }
@@ -67,7 +76,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               boolValue(row, "is_ihc"),
               value(row, "magnification", String.class),
               longValue(row, "file_size_bytes"),
-              ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper),
+              boolValue(row, "can_serve_tiles"),
               value(row, "barcode", String.class),
               value(row, "slide_type", String.class),
               sampleKey,
@@ -107,6 +116,11 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   private static Long longValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value == null ? null : ((Number) value).longValue();
+  }
+
+  private static long contextLongValue(Map<String, Object> row, String key) {
+    Object value = row.get(key);
+    return value == null ? 0L : ((Number) value).longValue();
   }
 
   private static boolean boolValue(Map<String, Object> row, String key) {

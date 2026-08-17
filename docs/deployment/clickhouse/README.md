@@ -369,6 +369,23 @@ The core importer does not create or migrate production WSI tables; an old
 `ReplacingMergeTree` release table must not be treated as the new append-only
 release table until it has been rebuilt with the current schema.
 
+### WSI serving query plan and projection
+
+The hierarchy and slide-access repositories first resolve the internal study,
+patient, and active-release identifiers. They then pass those constants into
+the WSI-table subqueries so ClickHouse can prune by the MergeTree primary keys;
+the hierarchy query does not fetch or parse tile metadata or thumbnail
+artifacts. Slide access uses the `wsi_slide_by_access` projection, ordered by
+`(cancer_study_id, release_id, image_id)`, because slide access does not include
+patient ID.
+
+The projection is additive and is included in the backend and core test
+schemas. Existing deployments must materialize it as part of the normal
+blue/green ClickHouse rebuild before switching the active database. Do not add
+it by mutating the active production database during serving hours. Validate
+the new database with `EXPLAIN indexes=1` and confirm that the hierarchy tables
+are filtered by study/release/patient and slide access uses the projection.
+
 ---
 
 ## 12. Version Migration

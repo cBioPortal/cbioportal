@@ -23,68 +23,66 @@
             slide.is_ihc AS is_ihc,
             slide.magnification AS magnification,
             slide.file_size_bytes AS file_size_bytes,
-            (
-                slide.can_serve_tiles
-                AND notEmpty(ifNull(slide.source_url, ''))
-                AND notEmpty(ifNull(slide.tile_metadata_json, ''))
-                AND notEmpty(ifNull(slide.thumbnail_url, ''))
-                AND slide.thumbnail_width > 0
-                AND slide.thumbnail_height > 0
-                AND slide.thumbnail_width <= 8192
-                AND slide.thumbnail_height <= 8192
-                AND notEmpty(ifNull(slide.thumbnail_content_type, ''))
-            ) AS can_serve_tiles,
-            slide.source_url AS source_url,
-            slide.tile_metadata_json AS tile_metadata_json,
-            slide.thumbnail_url AS thumbnail_url,
-            slide.thumbnail_width AS thumbnail_width,
-            slide.thumbnail_height AS thumbnail_height,
-            slide.thumbnail_content_type AS thumbnail_content_type,
+            slide.can_serve_tiles AS can_serve_tiles,
             slide.barcode AS barcode,
             slide.slide_type AS slide_type,
             placement.match_level AS match_level,
             placement.specimen_key AS specimen_key,
             placement.procedure_date_days AS procedure_date_days,
             placement.timepoint_source AS timepoint_source
-        FROM cancer_study study
-        INNER JOIN patient portal_patient
-            ON portal_patient.cancer_study_id = study.cancer_study_id
-        INNER JOIN (
-            SELECT
-                cancer_study_id,
-                argMax(release_id, (released_at, release_id)) AS release_id
-            FROM wsi_release
-            GROUP BY cancer_study_id
-        ) active_release
-            ON active_release.cancer_study_id = study.cancer_study_id
-        INNER JOIN wsi_release_patient ps
-            ON ps.cancer_study_id = active_release.cancer_study_id
-           AND ps.release_id = active_release.release_id
-           AND ps.patient_id = portal_patient.internal_id
+        FROM (
+            SELECT *
+            FROM wsi_release_patient
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND release_id = #{releaseId}
+                AND patient_id = #{patientInternalId}
+        ) ps
         LEFT JOIN sample ref_sample ON ref_sample.internal_id = ps.reference_sample_id
-        LEFT JOIN wsi_part part
+        LEFT JOIN (
+            SELECT *
+            FROM wsi_part
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND release_id = #{releaseId}
+                AND patient_id = #{patientInternalId}
+        ) part
             ON part.cancer_study_id = ps.cancer_study_id
            AND part.patient_id = ps.patient_id
            AND part.release_id = ps.release_id
-        LEFT JOIN wsi_block block
+        LEFT JOIN (
+            SELECT *
+            FROM wsi_block
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND release_id = #{releaseId}
+                AND patient_id = #{patientInternalId}
+        ) block
             ON block.cancer_study_id = part.cancer_study_id
            AND block.patient_id = part.patient_id
            AND block.release_id = part.release_id
            AND block.part_key = part.part_key
-        LEFT JOIN wsi_slide_placement placement
+        LEFT JOIN (
+            SELECT *
+            FROM wsi_slide_placement
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND release_id = #{releaseId}
+                AND patient_id = #{patientInternalId}
+        ) placement
             ON placement.cancer_study_id = block.cancer_study_id
            AND placement.patient_id = block.patient_id
            AND placement.release_id = block.release_id
            AND placement.part_key = block.part_key
            AND placement.block_key = block.block_key
-        LEFT JOIN wsi_slide slide
+        LEFT JOIN (
+            SELECT *
+            FROM wsi_slide
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND release_id = #{releaseId}
+                AND patient_id = #{patientInternalId}
+        ) slide
             ON slide.cancer_study_id = placement.cancer_study_id
            AND slide.patient_id = placement.patient_id
            AND slide.release_id = placement.release_id
            AND slide.image_id = placement.image_id
         LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id
-        WHERE study.cancer_study_identifier = #{studyId}
-          AND portal_patient.stable_id = #{patientId}
         ORDER BY sample_id, part.part_key, block.block_key, slide.image_id
     </select>
 </mapper>

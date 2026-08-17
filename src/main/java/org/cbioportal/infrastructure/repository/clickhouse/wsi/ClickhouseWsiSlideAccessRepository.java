@@ -13,17 +13,29 @@ import org.springframework.stereotype.Repository;
 public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessRepository {
 
   private final ClickhouseWsiSlideAccessMapper mapper;
+  private final ClickhouseWsiContextMapper contextMapper;
   private final ObjectMapper objectMapper;
 
   public ClickhouseWsiSlideAccessRepository(
-      ClickhouseWsiSlideAccessMapper mapper, ObjectMapper objectMapper) {
+      ClickhouseWsiSlideAccessMapper mapper,
+      ClickhouseWsiContextMapper contextMapper,
+      ObjectMapper objectMapper) {
     this.mapper = mapper;
+    this.contextMapper = contextMapper;
     this.objectMapper = objectMapper;
   }
 
   @Override
   public WsiSlideAccess getSlideAccess(String studyId, String imageId) {
-    Map<String, Object> row = mapper.getSlideAccess(studyId, imageId);
+    Map<String, Object> context = contextMapper.getStudyContext(studyId);
+    if (context == null) {
+      return null;
+    }
+    Map<String, Object> row =
+        mapper.getSlideAccess(
+            longValue(context.get("cancer_study_id")),
+            stringValue(context.get("release_id")),
+            imageId);
     if (!isServableRow(row, objectMapper)) {
       return null;
     }
@@ -92,6 +104,10 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
 
   private static int numberValue(Object value) {
     return value instanceof Number ? ((Number) value).intValue() : 0;
+  }
+
+  private static long longValue(Object value) {
+    return value == null ? 0L : ((Number) value).longValue();
   }
 
   private static boolean boolValue(Object value) {

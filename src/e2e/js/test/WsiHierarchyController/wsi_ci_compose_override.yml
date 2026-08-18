@@ -3,6 +3,10 @@ services:
     environment:
       WSI_AUTH_SECRET: ${WSI_AUTH_SECRET}
       WSI_AUTH_AUDIENCE: ${WSI_AUTH_AUDIENCE:-cbioportal-wsi}
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_fixture:/tmp/wsi-loader-fixture:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_control_fixture:/tmp/wsi-loader-control-fixture:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/clickhouse.sql:/tmp/wsi-clickhouse.sql:ro
     # The web-and-data runtime is JRE-only; bypass the legacy entrypoint's
     # `jar uf` step and launch the exploded Spring Boot classpath directly.
     entrypoint: []

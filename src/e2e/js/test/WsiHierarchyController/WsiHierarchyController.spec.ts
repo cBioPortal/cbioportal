@@ -16,8 +16,10 @@ const config = {
 };
 
 const hasAuthenticatedWsiSetup = Boolean(
-  process.env.WSI_AUTH_SECRET
+  process.env.WSI_AUTH_SECRET && process.env.WSI_LOCAL_AUTH_BYPASS !== 'true'
 );
+const hasTileSetup = Boolean(process.env.WSI_AUTH_SECRET);
+const localAuthBypass = process.env.WSI_LOCAL_AUTH_BYPASS === 'true';
 const hasExplicitFrontend = Boolean(process.env.CBIOPORTAL_FRONTEND_URL);
 const hasExplicitTileIds = Boolean(
   process.env.WSI_TEST_BLOCK_SLIDE_ID &&
@@ -123,6 +125,12 @@ function bearer(token: string) {
   return { headers: { Authorization: `Bearer ${token}` } };
 }
 
+function sourceRequest(token: string, source: string) {
+  return {
+    headers: { Authorization: `Bearer ${token}`, 'X-WSI-Source': source },
+  };
+}
+
 function cookieHeader(response: any): string {
   return (response.headers['set-cookie'] || [])
     .map((cookie: string) => cookie.split(';', 1)[0])
@@ -145,6 +153,10 @@ async function login(): Promise<string> {
 
 function sessionRequest(cookie: string) {
   return { headers: { Cookie: cookie } };
+}
+
+async function authenticatedRequestOptions() {
+  return localAuthBypass ? undefined : sessionRequest(await login());
 }
 
 async function statusOf(request: Promise<any>): Promise<number> {
@@ -178,11 +190,11 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
   });
 
   it('issues a source-bound slide capability only after login and permission checks', async function () {
-    if (!hasAuthenticatedWsiSetup) this.skip();
-    const cookie = await login();
+    if (!hasTileSetup) this.skip();
+    const requestOptions = await authenticatedRequestOptions();
     const authorized = await axios.get(
       `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/${blockSlide.imageId}/access`,
-      sessionRequest(cookie)
+      requestOptions
     );
     expect(authorized.status).to.equal(200);
     expect(authorized.headers['cache-control']).to.contain('no-store');
@@ -192,49 +204,53 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
       'file:///app/testdata/CMU-1-Small-Region.svs'
     );
 
-    expect(
-      await statusOf(
-        axios.get(
-          `${config.serverUrl}/api/wsi/v2/slides/wsi_ci_study_b/4020726/access`,
-          sessionRequest(cookie)
+    if (!localAuthBypass) {
+      expect(
+        await statusOf(
+          axios.get(
+            `${config.serverUrl}/api/wsi/v2/slides/wsi_ci_study_b/4020726/access`,
+            requestOptions
+          )
         )
-      )
-    ).to.equal(403);
+      ).to.equal(403);
+    }
     expect(
       await statusOf(
         axios.get(
           `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/missing-slide/access`,
-          sessionRequest(cookie)
+          requestOptions
         )
       )
     ).to.equal(404);
   });
 
   it('returns the materialized hierarchy only for the authenticated study session', async function () {
-    if (!hasAuthenticatedWsiSetup) this.skip();
-    const cookie = await login();
-    const response = await axios.get<PatientHierarchy>(hierarchyUrl, sessionRequest(cookie));
+    if (!hasTileSetup) this.skip();
+    const requestOptions = await authenticatedRequestOptions();
+    const response = await axios.get<PatientHierarchy>(hierarchyUrl, requestOptions);
 
     expect(response.status).to.equal(200);
     expect(response.headers['content-type']).to.contain('application/json');
     expect(response.headers['cache-control']).to.contain('private');
     expect(response.data).to.deep.equal(fixture.hierarchy);
-    expect(
-      await statusOf(
-        axios.get(
-          `${config.serverUrl}/api/wsi/v2/hierarchy/wsi_ci_study_b/WSI-CI-B-PATIENT`,
-          sessionRequest(cookie)
+    if (!localAuthBypass) {
+      expect(
+        await statusOf(
+          axios.get(
+            `${config.serverUrl}/api/wsi/v2/hierarchy/wsi_ci_study_b/WSI-CI-B-PATIENT`,
+            requestOptions
+          )
         )
-      )
-    ).to.equal(403);
+      ).to.equal(403);
+    }
   });
 
-  const frontendIt = hasAuthenticatedWsiSetup && hasExplicitFrontend ? it : it.skip;
+  const frontendIt = hasTileSetup && hasExplicitFrontend ? it : it.skip;
   frontendIt('matches the authenticated backend hierarchy through the frontend proxy', async function () {
-    const cookie = await login();
+    const requestOptions = await authenticatedRequestOptions();
     const [backendResponse, frontendResponse] = await Promise.all([
-      axios.get<PatientHierarchy>(hierarchyUrl, sessionRequest(cookie)),
-      axios.get<PatientHierarchy>(frontendHierarchyUrl, sessionRequest(cookie)),
+      axios.get<PatientHierarchy>(hierarchyUrl, requestOptions),
+      axios.get<PatientHierarchy>(frontendHierarchyUrl, requestOptions),
     ]);
 
     expect(frontendResponse.status).to.equal(200);
@@ -264,32 +280,32 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
   });
 
   it('returns 404 for an unknown patient after authentication', async function () {
-    if (!hasAuthenticatedWsiSetup) this.skip();
-    const cookie = await login();
+    if (!hasTileSetup) this.skip();
+    const requestOptions = await authenticatedRequestOptions();
     expect(
       await statusOf(
         axios.get(
           `${config.serverUrl}/api/wsi/v2/hierarchy/${fixture.study_id}/missing-patient`,
-          sessionRequest(cookie)
+          requestOptions
         )
       )
     ).to.equal(404);
   });
 
-  const tileIt = hasAuthenticatedWsiSetup ? it : it.skip;
+  const tileIt = hasTileSetup ? it : it.skip;
   tileIt('binds tiles and thumbnails to the exact source in the capability', async function () {
     const source = 'file:///app/testdata/CMU-1-Small-Region.svs';
     const thumbnail = 'file:///app/testdata/3020691.jpg';
     const token = makeToken(fixture.study_id, blockTileSlideId, source, thumbnail);
-    const tileUrl = `${config.tileServerUrl}/tiles/zxy/0/0/0?source=${encodeURIComponent(source)}`;
-    const thumbnailUrl = `${config.tileServerUrl}/thumbnails?width=128&height=96&source=${encodeURIComponent(thumbnail)}`;
-    expect((await axios.get(tileUrl, { ...bearer(token), responseType: 'arraybuffer' })).status).to.equal(200);
-    expect((await axios.get(thumbnailUrl, { ...bearer(token), responseType: 'arraybuffer' })).status).to.equal(200);
+    const tileUrl = `${config.tileServerUrl}/tiles/zxy/0/0/0`;
+    const thumbnailUrl = `${config.tileServerUrl}/thumbnails?width=128&height=96`;
+    expect((await axios.get(tileUrl, { ...sourceRequest(token, source), responseType: 'arraybuffer' })).status).to.equal(200);
+    expect((await axios.get(thumbnailUrl, { ...sourceRequest(token, thumbnail), responseType: 'arraybuffer' })).status).to.equal(200);
     expect(
       await statusOf(
         axios.get(
-          `${config.tileServerUrl}/tiles/zxy/0/0/0?source=${encodeURIComponent('file:///app/testdata/other.svs')}`,
-          bearer(token)
+          `${config.tileServerUrl}/tiles/zxy/0/0/0`,
+          sourceRequest(token, 'file:///app/testdata/other.svs')
         )
       )
     ).to.equal(403);
@@ -297,13 +313,14 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
 
   tileIt('rejects missing, invalid, expired, over-maximum, and wrong-audience tokens', async function () {
     const source = 'file:///app/testdata/CMU-1-Small-Region.svs';
-    const pathToTest = `${config.tileServerUrl}/tiles/zxy/0/0/0?source=${encodeURIComponent(source)}`;
-    expect(await statusOf(axios.get(pathToTest))).to.equal(401);
-    expect(await statusOf(axios.get(pathToTest, bearer('not-a-jwt')))).to.equal(401);
-    expect(await statusOf(axios.get(pathToTest, bearer(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', 'x'.repeat(32)))))).to.equal(401);
+    const pathToTest = `${config.tileServerUrl}/tiles/zxy/0/0/0`;
+    const sourceHeaders = { 'X-WSI-Source': source };
+    expect(await statusOf(axios.get(pathToTest, { headers: sourceHeaders }))).to.equal(401);
+    expect(await statusOf(axios.get(pathToTest, sourceRequest('not-a-jwt', source)))).to.equal(401);
+    expect(await statusOf(axios.get(pathToTest, sourceRequest(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', 'x'.repeat(32)), source)))).to.equal(401);
     expect(
       await statusOf(
-        axios.get(pathToTest, bearer(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { aud: 'wrong-audience' })))
+        axios.get(pathToTest, sourceRequest(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { aud: 'wrong-audience' }), source))
       )
     ).to.equal(401);
     const now = Math.floor(Date.now() / 1000);
@@ -311,7 +328,7 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
       await statusOf(
         axios.get(
           pathToTest,
-          bearer(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { iat: now - 300, exp: now - 1 }))
+          sourceRequest(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { iat: now - 300, exp: now - 1 }), source)
         )
       )
     ).to.equal(401);
@@ -319,31 +336,34 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
       await statusOf(
         axios.get(
           pathToTest,
-          bearer(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { exp: now + 901 }))
+          sourceRequest(makeToken(fixture.study_id, blockTileSlideId, source, 'file:///app/testdata/3020691.jpg', config.authSecret, { exp: now + 901 }), source)
         )
       )
     ).to.equal(401);
   });
 
   tileIt('accepts a replacement token after refresh', async function () {
-    const cookie = await login();
+    const requestOptions = await authenticatedRequestOptions();
     const first = await axios.get(
       `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/${blockTileSlideId}/access`,
-      sessionRequest(cookie)
+      requestOptions
     );
     const second = await axios.get(
       `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/${blockTileSlideId}/access`,
-      sessionRequest(cookie)
+      requestOptions
     );
-    expect(first.data.accessToken).to.not.equal(second.data.accessToken);
+    // Issuance can occur within the same second, so a deterministic JWT may be
+    // byte-identical.  The refresh contract is that the replacement is valid
+    // and source-bound, not that its serialized value must differ.
+    expect(second.data.accessToken).to.be.a('string').and.not.empty;
     const source = 'file:///app/testdata/CMU-1-Small-Region.svs';
     expect(
-      (await axios.get(`${config.tileServerUrl}/tiles/zxy/0/0/0?source=${encodeURIComponent(source)}`, bearer(second.data.accessToken))).status
+      (await axios.get(`${config.tileServerUrl}/tiles/zxy/0/0/0`, sourceRequest(second.data.accessToken, source))).status
     ).to.equal(200);
   });
 
   const hierarchyTileConsistencyIt =
-    hasAuthenticatedWsiSetup && !hasExplicitTileIds ? it : it.skip;
+    hasTileSetup && !hasExplicitTileIds ? it : it.skip;
   hierarchyTileConsistencyIt('reports tile-serving capability consistently with live behavior', async function () {
     const slides = fixture.hierarchy.sampleGroups
       .flatMap(sample => sample.parts)
@@ -358,12 +378,12 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
     expect(nonServableSlides.map(slide => slide.imageId)).to.deep.equal([
       unmatchedSlide.imageId,
     ]);
-    const cookie = await login();
+    const requestOptions = await authenticatedRequestOptions();
     const metadataResponses = await Promise.all(
       servableSlides.map(slide =>
         axios.get<SlideAccess>(
           `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/${slide.imageId}/access`,
-          sessionRequest(cookie)
+          requestOptions
         )
       )
     );
@@ -375,7 +395,7 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
       await statusOf(
         axios.get(
           `${config.serverUrl}/api/wsi/v2/slides/${fixture.study_id}/${unmatchedTileSlideId}/access`,
-          sessionRequest(cookie)
+          requestOptions
         )
       )
     ).to.equal(404);

@@ -3,19 +3,15 @@ package org.cbioportal.application.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiThumbnail;
 import org.cbioportal.domain.wsi.WsiTileMetadata;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
-import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.junit.After;
 import org.junit.Test;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 public class WsiAccessTokenControllerTest {
-
-  private final CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator =
-      mock(CancerStudyPermissionEvaluator.class);
 
   private final WsiSlideAccessRepository wsiSlideAccessRepository =
       mock(WsiSlideAccessRepository.class);
@@ -45,15 +38,7 @@ public class WsiAccessTokenControllerTest {
     ReflectionTestUtils.setField(plainController, "accessTokenAudience", "cbioportal-wsi");
     ReflectionTestUtils.setField(plainController, "accessTokenTtlSeconds", 300);
     ReflectionTestUtils.setField(
-        plainController, "cancerStudyPermissionEvaluator", cancerStudyPermissionEvaluator);
-    ReflectionTestUtils.setField(
         plainController, "wsiSlideAccessRepository", wsiSlideAccessRepository);
-    when(cancerStudyPermissionEvaluator.hasPermission(
-            any(Authentication.class),
-            eq("study-1"),
-            eq("CancerStudyId"),
-            eq(AccessLevel.READ)))
-        .thenReturn(true);
 
     WsiTileMetadata metadata =
         new WsiTileMetadata(

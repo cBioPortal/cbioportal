@@ -8,7 +8,7 @@ import { TestUtils } from '../../src/utils';
 describe('ColumnStoreCoExpressionController E2E Tests', () => {
 
   // Base URL for the co-expression endpoint
-  const CO_EXPRESSION_URL = `${config.serverUrl}/api/column-store/molecular-profiles/co-expressions/fetch`;
+  const CO_EXPRESSION_URL = `${config.serverUrl}/api/molecular-profiles/co-expressions/fetch`;
 
   /**
    * Helper function to call the co-expression fetch endpoint

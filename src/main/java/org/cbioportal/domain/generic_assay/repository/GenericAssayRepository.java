@@ -55,6 +55,17 @@ public interface GenericAssayRepository {
       List<GenericAssayDataFilter> genericAssayDataFilters);
 
   /**
+   * Retrieves counts for all entities in a generic assay profile based on the study view filter
+   * context and a single profile type.
+   *
+   * @param studyViewFilterContext The filter criteria for the study view.
+   * @param profileType The profile type suffix to aggregate.
+   * @return a list of {@link GenericAssayDataCountItem} representing assay data counts.
+   */
+  List<GenericAssayDataCountItem> getGenericAssayDataCountsByProfileType(
+      StudyViewFilterContext studyViewFilterContext, String profileType);
+
+  /**
    * Retrieves distinct generic assay entity stable IDs associated with the given molecular profile
    * IDs via generic_assay_profile_entity_derived.
    *
@@ -70,7 +81,14 @@ public interface GenericAssayRepository {
    * @param stableIds the list of entity stable IDs
    * @return a list of {@link GenericAssayMeta} with properties pre-populated
    */
-  List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
+  default List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds) {
+    return getGenericAssayMetaByStableIds(stableIds, null, null, null);
+  }
+
+  List<GenericAssayMeta> getGenericAssayMetaByStableIds(
+      List<String> stableIds, String searchTerm, Integer pageSize, Integer offset);
+
+  Integer countGenericAssayMetaByStableIds(List<String> stableIds, String searchTerm);
 
   /**
    * Retrieves generic assay meta data for entities belonging to the given molecular profile IDs in
@@ -82,6 +100,18 @@ public interface GenericAssayRepository {
    * @param stableIds optional additional filter; pass {@code null} to return all entities
    * @return a list of {@link GenericAssayMeta} with properties pre-populated
    */
+  default List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds) {
+    return getGenericAssayMetaByProfileIds(profileIds, stableIds, null, null, null);
+  }
+
   List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
-      List<String> profileIds, List<String> stableIds);
+      List<String> profileIds,
+      List<String> stableIds,
+      String searchTerm,
+      Integer pageSize,
+      Integer offset);
+
+  Integer countGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds, String searchTerm);
 }

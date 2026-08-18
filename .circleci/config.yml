@@ -239,22 +239,71 @@ jobs:
             app_type: "web-and-data"
             push: "true"
 
-    run_e2e_localdb_tests:
-      working_directory: /tmp/repos
+    # Playwright localdb e2e, ported from cbioportal-frontend's
+    # e2e_localdb_shards. Identical to the frontend job EXCEPT the backend
+    # under test is this PR's freshly-built image (loaded from the
+    # build_web_and_data_image tar and exposed via DOCKER_IMAGE_CBIOPORTAL)
+    # rather than the published cbioportal/cbioportal:master. The frontend
+    # code/specs/dist come from cbioportal-frontend master (persisted into
+    # the workspace by build_frontend), so a backend PR only varies the
+    # backend image — exactly the localdb gate we want.
+    #
+    # 12 parallel shards; each boots its own cbioportal+keycloak+clickhouse
+    # stack and runs ~1/12 of tests/local. The user-facing verdict is the
+    # downstream e2e_localdb_merge job, which merges every shard's blob
+    # report into one HTML report and fails on any test failure.
+    e2e_localdb_shards:
       machine:
         image: ubuntu-2204:2024.08.1
       resource_class: large
+      parallelism: 12
+      working_directory: /tmp/repos
       environment:
+        BACKEND_PORT: 8080
+        FRONTEND_PORT: 3000
         DOCKER_REPO: cbioportal/cbioportal-dev
         DOCKER_IMAGE_MYSQL: cbioportal/mysql:8.0-database-test
+        DOCKER_COMPOSE_REF: master
+        APP_CBIOPORTAL_CORE_BRANCH: main
+        CI: 'true'
+        LOCALDEV: '1'
+        CBIOPORTAL_URL: http://localhost:8080
+        # Route screenshot baselines to the committed `__snapshots__/` dir.
+        PW_DOCKER: '1'
+        # Opt this job into running tests/local/** (excluded by default in
+        # the Playwright config so the remote suite doesn't pick them up).
+        PW_LOCAL: '1'
       steps:
         - attach_workspace:
             at: /tmp/repos
         - run:
-            name: Load cbioportal image
+            name: Load cbioportal image built from this PR
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG.tar
+        - run:
+            name: Install Node.js 22.18.0
+            command: |
+              curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+              nvm install 22.18.0
+              nvm use 22.18.0
+              nvm alias default 22.18.0
+              node -v
+              npm -v
+        - run:
+            name: Enable pnpm via corepack
+            # build_frontend already persisted cbioportal-frontend's root
+            # node_modules (incl. http-server for serveDistLocalDb) and dist
+            # into the workspace, so no root `pnpm install` is needed here —
+            # but the pnpm shim lives under nvm's bin dir and must be put on
+            # PATH on every machine before any `pnpm`/`npx` call.
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              corepack enable
         - run:
             name: Generate keycloak config
             environment:
@@ -264,15 +313,56 @@ jobs:
               cd cbioportal-test
               ./utils/gen-keycloak-config.sh --studies="$STUDIES" --template='/tmp/repos/cbioportal-docker-compose/dev/keycloak/keycloak-config.json' --out='/tmp/repos/keycloak-config-generated.json'
         - run:
-            name: Start backend server with keycloak
+            name: Start backend server with keycloak (PR image)
+            # Backgrounded so Playwright/Chromium install below overlaps with
+            # the ~80s backend boot; the connection checks further down gate
+            # on readiness. DOCKER_IMAGE_CBIOPORTAL points at the PR image
+            # loaded above, NOT cbioportal/cbioportal:master.
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
               APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
-              DOCKER_COMPOSE_REF: 'master'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
               nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+        - run:
+            name: Install Playwright suite dependencies
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              pnpm install --frozen-lockfile --ignore-workspace
+        - restore_cache:
+            name: Restore Playwright browser cache
+            keys:
+              - v1-playwright-browsers-{{ checksum "cbioportal-frontend/end-to-end-test-playwright/pnpm-lock.yaml" }}
+        - run:
+            name: Install Playwright Chromium browser
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            # ubuntu-2204 holds the dpkg lock via apt-daily timers after boot;
+            # stop them and pass DPkg::Lock::Timeout so apt waits cleanly with
+            # progress output instead of tripping the no-output timeout.
+            no_output_timeout: 20m
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              sudo systemctl stop unattended-upgrades.service apt-daily.service apt-daily-upgrade.service apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
+              sudo killall apt apt-get 2>/dev/null || true
+              APT_OPTS='-o DPkg::Lock::Timeout=600 -o Dpkg::Use-Pty=0'
+              sudo apt-get $APT_OPTS update
+              npx playwright install chromium
+              sudo apt-get $APT_OPTS install -y \
+                libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+                libxkbcommon0 libatspi2.0-0 libxcomposite1 libxdamage1 \
+                libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 \
+                libasound2
+        - save_cache:
+            name: Save Playwright browser cache
+            key: v1-playwright-browsers-{{ checksum "cbioportal-frontend/end-to-end-test-playwright/pnpm-lock.yaml" }}
+            paths:
+              - ~/.cache/ms-playwright
         - run:
             name: Check keycloak connection at localhost
             command: |
@@ -282,55 +372,254 @@ jobs:
             name: Check backend connection at localhost
             command: |
               cd cbioportal-test
-              ./utils/check-connection.sh --url=localhost:8080 --max_retries=50
+              ./utils/check-connection.sh --url=localhost:${BACKEND_PORT} --max_retries=250
         - run:
-            name: Run end-2-end tests with studies in local database
-            environment:
-              CBIOPORTAL_URL: http://localhost:8080
-              JUNIT_REPORT_PATH: ./local/junit/
-              SCREENSHOT_DIRECTORY: ./local/screenshots
-              PORTAL_SOURCE_DIR: /tmp/repos/cbioportal-frontend
-              TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
-              FRONTEND_TEST_DO_NOT_LOAD_EXTERNAL_FRONTEND: true
-              SPEC_FILE_PATTERN: ./local/specs/**/*.spec.js
+            name: Start frontend dist server (pnpm serveDistLocalDb) on https://localhost:3000
+            background: true
+            working_directory: /tmp/repos/cbioportal-frontend
             command: |
-              cd $PORTAL_SOURCE_DIR && \
-              $TEST_HOME/docker_compose/test.sh
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              pnpm run serveDistLocalDb
         - run:
-            name: Make sure all screenshots are tracked (otherwise the test will always be successful)
-            environment:
-              TEST_HOME: /tmp/repos/cbioportal-frontend/end-to-end-test/local
+            name: Wait for frontend server to be reachable
             command: |
-              cd cbioportal-frontend
-              for f in end-to-end-test/local/screenshots/reference/*.png; do
-                git ls-files --error-unmatch $f > /dev/null 2> /dev/null ||
-                (echo -e "\033[0;31m $f not tracked \033[0m" && touch screenshots_not_tracked);
-              done;
-              ls screenshots_not_tracked > /dev/null 2> /dev/null && exit 1 || exit 0
+              for i in $(seq 1 120); do
+                if curl -k -sf https://localhost:3000/ > /dev/null; then
+                  echo "Frontend server up after ~$((i*2))s"
+                  exit 0
+                fi
+                sleep 2
+              done
+              echo "FAILED: frontend server didn't come up after ~4 minutes"
+              exit 1
+        - run:
+            name: Run Playwright localdb shard
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            environment:
+              PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/junit.xml
+              # 'missing' still FAILS the shard (non-retriable) when a
+              # baseline is absent — it just also writes the generated PNG
+              # and uploads it via the `snapshots` artifact below so you can
+              # download + commit it rather than regenerating locally.
+              # Existing committed baselines are compared normally and fail
+              # on drift. (Unlike 'all'/'changed', which would pass on a
+              # missing baseline and make the screenshot assertion vacuous.)
+              PW_UPDATE_SNAPSHOTS: missing
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              # Playwright shards are 1-based; CIRCLE_NODE_INDEX is 0-based.
+              SHARD_NUM=$((CIRCLE_NODE_INDEX + 1))
+              echo "Running Playwright shard ${SHARD_NUM}/${CIRCLE_NODE_TOTAL}"
+              mkdir -p test-results blob-report
+              set +e
+              # --workers=2 lets 2 spec files in a shard run concurrently;
+              # resource_class large (4 vCPU/8GB) is shared with the mysql +
+              # cbioportal + keycloak + clickhouse containers, so we cap at 2.
+              npx playwright test tests/local \
+                --shard="${SHARD_NUM}/${CIRCLE_NODE_TOTAL}" \
+                --workers=2 \
+                --reporter=list,junit,blob
+              EXIT=$?
+              set -e
+              # uniquify the blob name so the merge job's downloads don't
+              # collide on a shared blob-report/*.zip filename.
+              mv blob-report/report-*.zip blob-report/blob-${CIRCLE_NODE_INDEX}.zip || true
+              # Exit 0 here so the store_* steps below run on failure too; the
+              # trailing `when: always` step re-exits with the real code so the
+              # shard is correctly red and "Rerun failed only" can target it.
+              echo "$EXIT" > /tmp/playwright_exit
+              if [ "$EXIT" != "0" ]; then
+                echo "*** TESTS FAILED on this shard (exit $EXIT). Blobs will still be persisted."
+              fi
+              exit 0
+        - store_test_results:
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/test-results
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/test-results
+            destination: test-results
+        # Persist the blob report as a CircleCI artifact (not a workspace) —
+        # the merge job is intentionally not requires:-chained to this job, so
+        # it fetches blobs via the public artifacts API instead.
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/blob-report
+            destination: blob-report
+        - store_artifacts:
+            # Auto-generated screenshot baselines for new localdb specs —
+            # download and commit these into cbioportal-frontend, then drop
+            # PW_UPDATE_SNAPSHOTS=missing above.
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/tests/__snapshots__
+            destination: snapshots
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
-        -  store_artifacts:
-             path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/screenshots
-             destination: /screenshots
-        -  store_artifacts:
-             path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/image-compare
-             destination: /image-compare
-        -  store_artifacts:
-             path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/errorShots
-             destination: /errorShots
+        - run:
+            name: Propagate Playwright exit code
+            when: always
+            command: |
+              EXIT=$(cat /tmp/playwright_exit 2>/dev/null || echo 1)
+              if [ "$EXIT" = "0" ]; then
+                echo "Playwright shard exit: 0"
+                exit 0
+              fi
+              echo "================================================================"
+              echo "Tests failed in this shard (Playwright exit $EXIT)."
+              echo "This is ONE OF $CIRCLE_NODE_TOTAL parallel shards. The"
+              echo "consolidated, screenshot-diff-rich HTML report lives in the"
+              echo "'e2e_localdb_merge' job → Artifacts tab → playwright-report/index.html."
+              echo "Only 'e2e_localdb_merge' needs to be required for branch protection."
+              echo "================================================================"
+              exit $EXIT
+
+    # The user-facing Playwright localdb status check. Merges every shard's
+    # blob report into one HTML report (with the screenshot diff UI) and
+    # fails the build when any test failed. Intentionally has NO `requires:`
+    # on e2e_localdb_shards — it polls the CircleCI API for the shards' job
+    # terminal state and merges even when shards are red (`requires:` only
+    # chains on success, which would skip this job exactly when it's most
+    # useful). Unlike the frontend's merge job (which `checkout`s the
+    # frontend repo), this runs inside the backend repo, so it clones
+    # cbioportal-frontend master to get the end-to-end-test-playwright
+    # package needed to run `playwright merge-reports`.
+    e2e_localdb_merge:
+      docker:
+        - image: ghcr.io/cbioportal/cbioportal-frontend-playwright-ci:v1.59.1-jammy
+      resource_class: medium
+      working_directory: /tmp/repos
+      environment:
+        HOME: /tmp
+        # Must match parallelism on e2e_localdb_shards.
+        EXPECTED_SHARDS: '12'
+      steps:
+        - run:
+            name: Install jq (not present in the Playwright Docker image)
+            command: apt-get update && apt-get install -y jq
+        - run:
+            name: Clone cbioportal-frontend master for the Playwright test package
+            command: |
+              git clone --depth 1 -b master --single-branch https://github.com/cBioPortal/cbioportal-frontend.git
+        - run:
+            name: Wait for all e2e_localdb_shards parallel runs to terminate
+            command: |
+              API="https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job"
+              TERMINAL_RE='^(success|failed|canceled|unauthorized|not_run|terminated-unknown)$'
+              DEADLINE=$(( $(date +%s) + 60 * 60 * 2 ))   # 2h cap
+              POLL_INTERVAL=30
+              while :; do
+                if [ "$(date +%s)" -gt "$DEADLINE" ]; then
+                  echo "ERROR: shards did not reach terminal state within 2h — bailing"
+                  exit 1
+                fi
+                BODY=$(curl -fsS "$API" || true)
+                if [ -z "$BODY" ]; then
+                  echo "API call failed; retrying in ${POLL_INTERVAL}s"
+                  sleep "$POLL_INTERVAL"
+                  continue
+                fi
+                STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .status' | head -n1)
+                JOB_NUMBER=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .job_number' | head -n1)
+                if [ -z "$STATUS" ]; then
+                  echo "e2e_localdb_shards not yet visible in workflow — waiting"
+                  sleep "$POLL_INTERVAL"
+                  continue
+                fi
+                if echo "$STATUS" | grep -qE "$TERMINAL_RE"; then
+                  echo "e2e_localdb_shards terminal status: $STATUS  (job_number=$JOB_NUMBER)"
+                  echo "$JOB_NUMBER" > /tmp/shards_job_number
+                  break
+                fi
+                echo "e2e_localdb_shards status: $STATUS — waiting ${POLL_INTERVAL}s"
+                sleep "$POLL_INTERVAL"
+              done
+        - run:
+            name: Download per-shard blob artifacts from the shards job
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            command: |
+              JOB_NUMBER=$(cat /tmp/shards_job_number)
+              : "${JOB_NUMBER:?missing shards job_number from previous step}"
+              API="https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${JOB_NUMBER}/artifacts"
+              mkdir -p blob-report
+              cd blob-report
+              URLS=$(curl -fsS "$API" | jq -r '.items[] | select(.path | startswith("blob-report/")) | select(.path | endswith(".zip")) | .url')
+              COUNT=$(echo "$URLS" | grep -c . || true)
+              echo "Found $COUNT blob artifacts on job ${JOB_NUMBER}."
+              if [ "$COUNT" = "0" ]; then
+                echo "ERROR: no blob-report artifacts on the shards job. Cannot merge."
+                exit 1
+              fi
+              echo "$URLS" | while read -r URL; do
+                [ -z "$URL" ] && continue
+                echo "GET $URL"
+                curl -fsSLO --retry 3 --retry-delay 2 "$URL"
+              done
+              ls -la
+        - run:
+            name: Install dependencies
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            command: pnpm install --frozen-lockfile --ignore-workspace
+        - run:
+            name: Merge per-shard blob reports and fail the build if any test failed
+            working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
+            command: |
+              mkdir -p test-results
+              if ! ls blob-report/*.zip >/dev/null 2>&1; then
+                  echo "ERROR: no blob-report/*.zip files locally after download step."
+                  exit 1
+              fi
+              ACTUAL=$(ls blob-report/*.zip | wc -l)
+              echo "Found $ACTUAL of $EXPECTED_SHARDS expected shard blobs."
+              if [ "$ACTUAL" -lt "$EXPECTED_SHARDS" ]; then
+                  echo "WARNING: missing $((EXPECTED_SHARDS - ACTUAL)) shard blob(s) — merging with what we have."
+                  ls blob-report/
+              fi
+
+              # Force junit.xml and results.json to absolute paths — with
+              # CLI-supplied reporters, merge-reports builds them without a
+              # configDir, making relative PLAYWRIGHT_*_OUTPUT_NAME unreliable.
+              JUNIT="$PWD/test-results/junit.xml"
+              JSON="$PWD/test-results/results.json"
+              export PLAYWRIGHT_JUNIT_OUTPUT_FILE="$JUNIT"
+              export PLAYWRIGHT_JSON_OUTPUT_FILE="$JSON"
+              rm -f "$JUNIT" "$JSON"
+
+              pnpm exec playwright merge-reports --reporter=html,junit,json blob-report
+
+              if [ ! -s "$JUNIT" ]; then
+                  echo "ERROR: merge-reports did not produce a junit.xml at $JUNIT"
+                  ls -la test-results/ || true
+                  exit 1
+              fi
+              if [ ! -s "$JSON" ]; then
+                  echo "ERROR: merge-reports did not produce a results.json at $JSON"
+                  ls -la test-results/ || true
+                  exit 1
+              fi
+
+              # Count <failure>/<error> tags rather than the testsuites
+              # failures="N" attribute, which has read back as 0 in merged
+              # reports even when individual testsuites carry failures.
+              FAILS=$(grep -cE '<failure([ />]|$)' "$JUNIT" || true)
+              ERRS=$(grep -cE '<error([ />]|$)' "$JUNIT" || true)
+              echo "merged junit: $JUNIT  (<failure>=$FAILS <error>=$ERRS)"
+              echo "merged json:  $JSON  ($(wc -c < "$JSON") bytes)"
+              echo "Browse the merged report from this job's Artifacts tab → playwright-report/index.html"
+              # Fail if any blobs were missing so the workflow never appears
+              # green when shards are absent.
+              if [ "$ACTUAL" -lt "$EXPECTED_SHARDS" ]; then
+                echo "Failing merge because $((EXPECTED_SHARDS - ACTUAL)) shard blob(s) were missing."
+                exit 1
+              fi
+              [ "$FAILS" = "0" ] && [ "$ERRS" = "0" ]
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/playwright-report
+            destination: playwright-report
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/test-results
+            destination: test-results
         - store_test_results:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit
-        - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit
-        - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/shared/imageCompare.html
-            destination: /imageCompare.html
-        - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/completeResults.json
-            destination: /completeResults.json
-        - store_artifacts:
-            path: /tmp/repos/cbioportal-frontend/end-to-end-test/local/junit/errors/
-            destination: /errors
+            path: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright/test-results
 
     run_api_tests:
       machine:
@@ -353,10 +642,17 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
+              # Public read-only staging ClickHouse. Hardcoded rather than read from the
+              # clickhouse-public-staging-ro-user context because CircleCI does not pass
+              # context env vars to forked-PR builds. The remote-clickhouse override pushes
+              # these into the container, replacing the local .env default.
+              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
+              CLICKHOUSE_USER: "apitests"
+              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
-              nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
@@ -543,10 +839,19 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
-        - run_e2e_localdb_tests:
+        # Playwright localdb e2e, replacing the retired WDIO run_e2e_localdb_tests.
+        # Shards need the frontend dist/specs (build_frontend) and the PR's
+        # backend image tar (build_web_and_data_image); cbioportal-test +
+        # cbioportal-frontend reach the shards through the workspace closure.
+        - e2e_localdb_shards:
             requires:
               - build_frontend
               - build_web_and_data_image
+        # Intentionally NOT requiring e2e_localdb_shards: this job polls the
+        # CircleCI API for the shards' terminal state and merges, so the
+        # merged HTML report is produced even when shards are red. This is
+        # the check to mark required for branch protection.
+        - e2e_localdb_merge
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user

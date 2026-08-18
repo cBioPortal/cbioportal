@@ -1,27 +1,30 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.domain.coexpression.usecase.FetchCoExpressionsUseCase;
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@InternalApi
+@Tag(name = "Co-Expressions", description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 @Validated
 public class ColumnStoreCoExpressionController {
 
@@ -31,10 +34,10 @@ public class ColumnStoreCoExpressionController {
     this.fetchCoExpressionsUseCase = fetchCoExpressionsUseCase;
   }
 
-  @Hidden
   @PreAuthorize(
       "hasPermission(#molecularProfileIdA, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ) and hasPermission(#molecularProfileIdB, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  @PostMapping(
+  @RequestMapping(
+      method = RequestMethod.POST,
       value = "/molecular-profiles/co-expressions/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

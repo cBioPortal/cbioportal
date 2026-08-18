@@ -32,8 +32,8 @@ public class GenericAssayMyBatisRepository implements GenericAssayRepository {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   public List<GenericAssayAdditionalProperty> getGenericAssayAdditionalproperties(
-      List<String> stableIds) {
-    return genericAssayMapper.getGenericAssayAdditionalproperties(stableIds);
+      List<String> stableIds, List<String> propertyNames) {
+    return genericAssayMapper.getGenericAssayAdditionalproperties(stableIds, propertyNames);
   }
 
   @Override

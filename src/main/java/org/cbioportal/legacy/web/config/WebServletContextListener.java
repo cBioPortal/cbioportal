@@ -4,11 +4,16 @@ import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 import java.io.*;
 import java.util.Properties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.ObjectUtils;
 
 /** Created by Hongxin Zhang on 11/15/19. */
 public class WebServletContextListener implements ServletContextListener, InitializingBean {
+
+  private static final Logger log = LoggerFactory.getLogger(WebServletContextListener.class);
+
   private Boolean showOncokb;
 
   private String oncokbToken;
@@ -21,7 +26,7 @@ public class WebServletContextListener implements ServletContextListener, Initia
 
   @Override
   public void contextDestroyed(ServletContextEvent arg0) {
-    System.out.println("ServletContextListener destroyed");
+    log.info("ServletContextListener destroyed");
   }
 
   // Run this before web application is started
@@ -45,15 +50,15 @@ public class WebServletContextListener implements ServletContextListener, Initia
     if (ObjectUtils.isEmpty(this.oncokbToken)
         && (ObjectUtils.isEmpty(this.oncokbURL)
             || this.oncokbURL.equalsIgnoreCase(DEFAULT_ONCOKB_URL))) {
-      System.out.println(
+      log.warn(
           "----------------------------------------------------------------------------------------------------------------");
       // oncokb.org is deprecated, www.oncokb.org should be used
-      System.out.println(
+      log.warn(
           "-- You are connecting to the OncoKB public instance which does not include any therapeutic information.");
-      System.out.println(
+      log.warn(
           "-- Please consider obtaining a license to support future OncoKB development by following https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.");
-      System.out.println("-- Thank you.");
-      System.out.println(
+      log.warn("-- Thank you.");
+      log.warn(
           "----------------------------------------------------------------------------------------------------------------");
     }
   }
@@ -90,7 +95,7 @@ public class WebServletContextListener implements ServletContextListener, Initia
       properties.load(resourceInputStream);
       resourceInputStream.close();
     } catch (IOException e) {
-      System.out.println("Error loading properties file: " + e.getMessage());
+      log.error("Error loading properties file: {}", e.getMessage(), e);
     }
 
     return properties;

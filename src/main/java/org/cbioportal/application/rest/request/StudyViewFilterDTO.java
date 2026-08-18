@@ -14,11 +14,14 @@ import org.cbioportal.legacy.model.StudyViewStructuralVariantFilter;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssaySelectionFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssaySelectionValue;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.MutationDataFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.filter.AndedPatientTreatmentFilters;
 import org.cbioportal.legacy.web.parameter.filter.AndedSampleTreatmentFilters;
+import org.springframework.util.StringUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
@@ -42,6 +45,7 @@ public class StudyViewFilterDTO {
   private List<List<String>> genomicProfiles;
   private List<GenomicDataFilter> genomicDataFilters;
   private List<GenericAssayDataFilter> genericAssayDataFilters;
+  private List<GenericAssaySelectionFilter> genericAssaySelectionFilters;
   private List<List<String>> caseLists;
   private List<ClinicalDataFilter> customDataFilters;
   private AlterationFilter alterationFilter;
@@ -66,6 +70,33 @@ public class StudyViewFilterDTO {
   @AssertTrue
   private boolean isEitherValueOrRangePresentInGenericAssayDataIntervalFilters() {
     return validateDataFilters(genericAssayDataFilters);
+  }
+
+  @AssertTrue
+  private boolean isGenericAssaySelectionFiltersValid() {
+    return genericAssaySelectionFilters == null
+        || genericAssaySelectionFilters.stream().allMatch(this::isValidGenericAssaySelectionFilter);
+  }
+
+  private boolean isValidGenericAssaySelectionFilter(GenericAssaySelectionFilter filter) {
+    return filter != null
+        && StringUtils.hasText(filter.getProfileType())
+        && filter.getPatientLevel() != null
+        && filter.getValues() != null
+        && !filter.getValues().isEmpty()
+        && filter.getValues().stream().allMatch(this::isValidGenericAssaySelectionGroup);
+  }
+
+  private boolean isValidGenericAssaySelectionGroup(List<GenericAssaySelectionValue> group) {
+    return group != null
+        && !group.isEmpty()
+        && group.stream().allMatch(this::isValidGenericAssaySelectionValue);
+  }
+
+  private boolean isValidGenericAssaySelectionValue(GenericAssaySelectionValue value) {
+    return value != null
+        && StringUtils.hasText(value.getStableId())
+        && StringUtils.hasText(value.getValue());
   }
 
   @AssertTrue
@@ -176,6 +207,15 @@ public class StudyViewFilterDTO {
 
   public void setGenericAssayDataFilters(List<GenericAssayDataFilter> genericAssayDataFilters) {
     this.genericAssayDataFilters = genericAssayDataFilters;
+  }
+
+  public List<GenericAssaySelectionFilter> getGenericAssaySelectionFilters() {
+    return genericAssaySelectionFilters;
+  }
+
+  public void setGenericAssaySelectionFilters(
+      List<GenericAssaySelectionFilter> genericAssaySelectionFilters) {
+    this.genericAssaySelectionFilters = genericAssaySelectionFilters;
   }
 
   public List<ClinicalDataFilter> getCustomDataFilters() {

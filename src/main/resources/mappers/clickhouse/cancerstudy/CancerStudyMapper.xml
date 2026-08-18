@@ -139,19 +139,17 @@
         cs.status AS status,
         cs.import_date AS importDate,
         reference_genome.name AS referenceGenome,
-        allSampleCount,
-        type_of_cancer.name AS type_of_cancer_name,
-        type_of_cancer.dedicated_color AS type_of_cancer_dedicated_color,
-        type_of_cancer.short_name AS type_of_cancer_short_name,
-        type_of_cancer.parent AS type_of_cancer_parent
+        allSampleCount
 
         FROM cancer_study AS cs
         INNER JOIN reference_genome ON reference_genome.reference_genome_id = cs.reference_genome_id
-        INNER JOIN type_of_cancer ON cs.type_of_cancer_id = type_of_cancer.type_of_cancer_id
         INNER JOIN sample_counts ON sample_counts.cancer_study_id = cs.cancer_study_id
+        <if test="sortAndSearchCriteria.isSearchable()">
+            INNER JOIN type_of_cancer ON cs.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+        </if>
         <where>
             <if test="studyIds != null and !studyIds.isEmpty()">
-                cancer_study.cancer_study_identifier IN
+                cs.cancer_study_identifier IN
                 <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
             <if test="sortAndSearchCriteria.isSearchable()">
@@ -168,7 +166,7 @@
                 ORDER BY ${sortAndSearchCriteria.sortField} ${sortAndSearchCriteria.sortOrder}
             </when>
             <when test="sortAndSearchCriteria.isSearchable()">
-                ORDER BY cancer_study.name ASC
+                ORDER BY cs.name ASC
             </when>
         </choose>
     </select>
@@ -221,7 +219,6 @@
             <arg column="importDate" javaType="java.util.Date" />
             <arg column="allSampleCount" javaType="int" />
             <arg column="referenceGenome" javaType="String" />
-            <arg javaType="org.cbioportal.domain.cancerstudy.TypeOfCancer" resultMap="TypeOfCancerResultMap"/>
         </constructor>
     </resultMap>
 

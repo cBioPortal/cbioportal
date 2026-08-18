@@ -43,7 +43,7 @@ export enum EnrichmentType {
 
 /**
  * CancerType - Cancer type information
- * Source: Derived from API response at /api/column-store/studies
+ * Source: Derived from API response at /api/studies
  */
 export interface CancerType {
   /** Cancer type ID */
@@ -60,7 +60,7 @@ export interface CancerType {
 
 /**
  * CancerStudyMetadataDTO - Cancer study metadata with detailed statistics
- * Source: Derived from API response at /api/column-store/studies?projection=DETAILED
+ * Source: Derived from API response at /api/studies?projection=DETAILED
  * All fields are required unless marked optional
  */
 export interface CancerStudyMetadataDTO {
@@ -120,7 +120,7 @@ export interface CancerStudyMetadataDTO {
 
 /**
  * Gene - Gene information
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  */
 export interface Gene {
   /** Entrez Gene ID */
@@ -133,7 +133,7 @@ export interface Gene {
 
 /**
  * AlleleSpecificCopyNumber - Allele-specific copy number data
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  * Note: This field can be null even in DETAILED projection
  */
 export interface AlleleSpecificCopyNumber {
@@ -143,7 +143,7 @@ export interface AlleleSpecificCopyNumber {
 
 /**
  * MutationDTO - Mutation data transfer object
- * Source: Derived from API response at /api/column-store/mutations/fetch
+ * Source: Derived from API response at /api/mutations/fetch
  * Different projection types (ID, SUMMARY, DETAILED) expose different fields
  */
 export interface MutationDTO {
@@ -284,6 +284,44 @@ export interface ClinicalDataCount {
   value: string;
   /** Number of samples/patients with this value */
   count: number;
+}
+
+/**
+ * GenePanelData - Gene panel profiling status for one (sample, molecular profile) pair.
+ * Source: https://www.cbioportal.org/api/v3/api-docs/public (GenePanelData schema)
+ * Required fields: molecularProfileId, sampleId, patientId, studyId, profiled
+ */
+export interface GenePanelData {
+  /** Molecular profile stable id (e.g. "acc_tcga_mutations") */
+  molecularProfileId: string;
+  /** Sample stable id */
+  sampleId: string;
+  /** Patient stable id */
+  patientId: string;
+  /** Study stable id */
+  studyId: string;
+  /** Whether the sample is profiled in this molecular profile */
+  profiled: boolean;
+  /** Gene panel stable id; absent/null when whole-genome profiled */
+  genePanelId?: string;
+  /** Base64(sampleId + studyId) */
+  uniqueSampleKey: string;
+  /** Base64(patientId + studyId) */
+  uniquePatientKey: string;
+}
+
+/**
+ * GenericAssayMeta - Metadata for a generic assay entity.
+ * Source: https://www.cbioportal.org/api/v3/api-docs/public (GenericAssayMeta schema)
+ * Required fields: stableId
+ */
+export interface GenericAssayMeta {
+  /** Generic assay entity stable id */
+  stableId: string;
+  /** Entity type (e.g. "GENERIC_ASSAY") */
+  entityType: string;
+  /** Arbitrary key->value annotation properties (e.g. NAME, DESCRIPTION, URL, GENE_SYMBOL) */
+  genericEntityMetaProperties: { [key: string]: string };
 }
 
 /**

@@ -99,7 +99,8 @@ public class StudyControllerTest {
         .thenReturn(cancerStudyList);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -150,7 +151,8 @@ public class StudyControllerTest {
         .thenReturn(new ArrayList<>());
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk());
   }
 
@@ -174,7 +176,8 @@ public class StudyControllerTest {
         .thenReturn(new ArrayList<>());
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/studies").accept(MediaType.APPLICATION_JSON))
+        .perform(
+            MockMvcRequestBuilders.get("/api/legacy/studies").accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
     ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);
@@ -190,7 +193,7 @@ public class StudyControllerTest {
     Mockito.when(studyService.getMetaStudies(Mockito.any())).thenReturn(baseMeta);
 
     mockMvc
-        .perform(MockMvcRequestBuilders.get("/api/studies").param("projection", "META"))
+        .perform(MockMvcRequestBuilders.get("/api/legacy/studies").param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
   }
@@ -204,7 +207,7 @@ public class StudyControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isNotFound())
         .andExpect(
@@ -242,7 +245,7 @@ public class StudyControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/studies/test_study_id")
+            MockMvcRequestBuilders.get("/api/legacy/studies/test_study_id")
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(

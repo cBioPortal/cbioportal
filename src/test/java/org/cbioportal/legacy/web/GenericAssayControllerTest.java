@@ -72,7 +72,7 @@ public class GenericAssayControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
+            MockMvcRequestBuilders.get("/api/legacy/generic-assay-meta/" + PROF_ID)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -109,7 +109,7 @@ public class GenericAssayControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.get(
-                    "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+                    "/api/legacy/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
@@ -147,7 +147,7 @@ public class GenericAssayControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/generic_assay_meta/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/generic_assay_meta/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

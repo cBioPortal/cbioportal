@@ -2,6 +2,7 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -11,6 +12,8 @@ import org.cbioportal.application.rest.mapper.MutationMapper;
 import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.domain.mutation.usecase.MutationUseCases;
 import org.cbioportal.legacy.model.meta.MutationMeta;
+import org.cbioportal.legacy.web.config.PublicApiTags;
+import org.cbioportal.legacy.web.config.annotation.PublicApi;
 import org.cbioportal.legacy.web.parameter.*;
 import org.cbioportal.legacy.web.parameter.sort.MutationSortBy;
 import org.cbioportal.shared.MutationQueryOptions;
@@ -42,8 +45,10 @@ import org.springframework.web.bind.annotation.*;
  *
  * @see MutationDTO
  */
+@PublicApi
+@Tag(name = PublicApiTags.MUTATIONS, description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnStoreMutationController {
   private final MutationUseCases mutationUseCases;
 
@@ -62,8 +67,6 @@ public class ColumnStoreMutationController {
    *
    * @param interceptedMutationMultipleStudyFilter security-intercepted filter for permission
    *     validation
-   * @param mutationMultipleStudyFilter filter containing patient/sample identifiers and attribute
-   *     IDs
    * @param projection level of detail for the response data
    * @return ResponseEntity containing list of Mutation data DTOs, or empty body with count header
    *     for META projection
@@ -72,7 +75,7 @@ public class ColumnStoreMutationController {
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/mutations/fetch",
+      value = "/not-ready-yet/mutations/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -88,14 +91,6 @@ public class ColumnStoreMutationController {
           @RequestBody(required = false)
           MutationMultipleStudyFilter
               interceptedMutationMultipleStudyFilter, // This is being intercepted will leave this
-      @Parameter(
-              required = true,
-              description =
-                  "List of Molecular Profile IDs or List of Molecular Profile ID / Sample ID pairs,"
-                      + " and List of Entrez Gene IDs")
-          @Valid
-          @RequestBody(required = false)
-          MutationMultipleStudyFilter mutationMultipleStudyFilter,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           ProjectionType projection,

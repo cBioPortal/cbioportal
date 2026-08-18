@@ -46,6 +46,7 @@ insert into genetic_entity (id,entity_type,stable_id) values (31,'GENERIC_ASSAY'
 insert into genetic_entity (id,entity_type,stable_id) values (32,'GENERIC_ASSAY','2p_status');
 insert into genetic_entity (id,entity_type,stable_id) values (33,'GENERIC_ASSAY','9p_status');
 insert into genetic_entity (id,entity_type,stable_id) values (34,'GENERIC_ASSAY','10p_status');
+insert into genetic_entity (id,entity_type,stable_id) values (35,'GENERIC_ASSAY','sample_dup_status');
 
 -- hugo_gene_symbol should be UPPERCASE
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(207,'AKT1',1,'protein-coding');
@@ -99,6 +100,7 @@ insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,geneti
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab) values (17,'genie_public_cna',3,'COPY_NUMBER_ALTERATION','discrete','Copy-number alterations','Copy number alterations (amplifications and deletions) from targeted sequencing.',1);
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (18,'acc_tcga_armlevel_cna',2,'GENERIC_ASSAY','CATEGORICAL','Putative arm-level copy-number from GISTIC','Putative arm-level copy-number from GISTIC 2.0.',1,'ARMLEVEL_CNA');
 insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type,patient_level) values (19,'study_genie_pub_distant_mets',3,'GENERIC_ASSAY','CATEGORICAL','Patient-level information on distant mets','Patient-level information on distant mets from GENIE BPC NSCLC Public',1,'DISTANT_METS',1);
+insert into genetic_profile (genetic_profile_id,stable_id,cancer_study_id,genetic_alteration_type,datatype,name,description,show_profile_in_analysis_tab,generic_assay_type) values (20,'study_genie_pub_sample_level_assay',3,'GENERIC_ASSAY','CATEGORICAL','Sample-level generic assay duplicates','Sample-level generic assay duplicates for sample counting coverage',1,'SAMPLE_LEVEL_ASSAY');
 
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (2,'1,2,3,4,5,6,7,8,9,10,11,12,13,14,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values (3,'2,3,6,8,9,10,12,13,');
@@ -111,6 +113,7 @@ insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) val
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(10,'1,2,3,4,5,6,7,8,9,10,11,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(18,'15,16,17,19,');
 insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(19,'301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,');
+insert into genetic_profile_samples (genetic_profile_id,ordered_sample_list) values(20,'321,322,325,326,');
 
 insert into patient (internal_id,stable_id,cancer_study_id) values (1,'tcga-a1-a0sb',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (2,'tcga-a1-a0sd',1);
@@ -600,10 +603,11 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (14,1,'1,-1,NA,2,0,-2,1,NA,-1,0,2,-2,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (15,1,'-0.8097,0.7360,-0.1260,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,30,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,NA,');
-insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Loss,Gain,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,32,'Loss,Unchanged,Unchanged,NA,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,33,'Loss,Gain,Unchanged,Unchanged,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (18,34,'Gain,Unchanged,Unchanged,NA,');
 insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (19,31,'No,NA,NA,NA,NA,NA,No,NA,NA,NA,No,No,NA,NA,NA,NA,NA,No,NA,No,No,NA,No,No,Yes,NA,No,');
+insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) values (20,35,'Loss,Gain,Loss,Gain,');
 
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (1,207,-2);
 insert into cna_event (cna_event_id,entrez_gene_id,alteration) values (2,208,2);

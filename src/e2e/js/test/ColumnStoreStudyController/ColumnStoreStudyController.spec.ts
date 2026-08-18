@@ -12,7 +12,7 @@ describe('ColumnStoreStudyController E2E Tests', () => {
   describe('testGetAllStudies', () => {
     it('should return all studies with detailed projection', async () => {
       // Build the URL for fetching all studies with detailed projection
-      const url = `${config.serverUrl}/api/column-store/studies?projection=DETAILED`;
+      const url = `${config.serverUrl}/api/studies?projection=DETAILED`;
 
       // Call the studies endpoint to get all study metadata
       const response = await axios.get<CancerStudyMetadataDTO[]>(url);
@@ -56,7 +56,7 @@ describe('ColumnStoreStudyController E2E Tests', () => {
     const KNOWN_STUDY_ID = 'acc_tcga';
 
     it('should return a study with required fields', async () => {
-      const url = `${config.serverUrl}/api/column-store/studies/${KNOWN_STUDY_ID}`;
+      const url = `${config.serverUrl}/api/studies/${KNOWN_STUDY_ID}`;
       const response = await axios.get<CancerStudyMetadataDTO>(url);
       const study = response.data;
 
@@ -71,7 +71,7 @@ describe('ColumnStoreStudyController E2E Tests', () => {
 
     it('should return 404 for a non-existent study', async () => {
       try {
-        await axios.get(`${config.serverUrl}/api/column-store/studies/nonexistent_study_xyz`);
+        await axios.get(`${config.serverUrl}/api/studies/nonexistent_study_xyz`);
         expect.fail('Expected 404');
       } catch (error: any) {
         // Distinguish HTTP error responses from network/transport failures
@@ -83,10 +83,10 @@ describe('ColumnStoreStudyController E2E Tests', () => {
     it('should return data consistent with the list endpoint', async () => {
       // Fetch the same study from both the single and list endpoints
       const singleResponse = await axios.get<CancerStudyMetadataDTO>(
-        `${config.serverUrl}/api/column-store/studies/${KNOWN_STUDY_ID}`
+        `${config.serverUrl}/api/studies/${KNOWN_STUDY_ID}`
       );
       const listResponse = await axios.get<CancerStudyMetadataDTO[]>(
-        `${config.serverUrl}/api/column-store/studies?projection=DETAILED`
+        `${config.serverUrl}/api/studies?projection=DETAILED`
       );
 
       const listStudy = _.find(listResponse.data, { studyId: KNOWN_STUDY_ID });

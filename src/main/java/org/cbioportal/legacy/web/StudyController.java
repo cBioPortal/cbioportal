@@ -3,6 +3,7 @@ package org.cbioportal.legacy.web;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -89,8 +90,9 @@ public class StudyController {
     }
   }
 
+  @Hidden
   @RequestMapping(
-      value = "/studies",
+      value = "/legacy/studies",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get all studies")
@@ -157,10 +159,11 @@ public class StudyController {
     }
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/studies/{studyId}",
+      value = "/legacy/studies/{studyId}",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Get a study")

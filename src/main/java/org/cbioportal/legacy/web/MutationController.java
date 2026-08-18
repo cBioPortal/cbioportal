@@ -211,6 +211,7 @@ public class MutationController {
     }
   }
 
+  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(

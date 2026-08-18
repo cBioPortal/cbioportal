@@ -160,7 +160,10 @@
             <!-- Apply Generic Assay Data Filter -->
             <if test="studyViewFilterContext.genericAssayDataFilters != null and !studyViewFilterContext.genericAssayDataFilters.isEmpty()">
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyGenericAssayDataFilter"/>
-            </if>            
+            </if>
+            <if test="studyViewFilterContext.genericAssaySelectionFilters != null and !studyViewFilterContext.genericAssaySelectionFilters.isEmpty()">
+                <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyGenericAssaySelectionFilter"/>
+            </if>
             <!-- Apply Clinical Data Filter -->
             <if test="studyViewFilterContext.clinicalDataFilters != null and !studyViewFilterContext.clinicalDataFilters.isEmpty()">
                 <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyClinicalDataCountFilter"/>
@@ -684,6 +687,72 @@
                 )
             </foreach>
         </if>
+    </sql>
+
+    <sql id="applyGenericAssaySelectionFilter">
+        <foreach item="genericAssaySelectionFilter" collection="studyViewFilterContext.genericAssaySelectionFilters" open="INTERSECT" separator="INTERSECT">
+            <foreach item="selectionGroup" collection="genericAssaySelectionFilter.values" open="(" separator="INTERSECT" close=")">
+                SELECT DISTINCT sd.sample_unique_id
+                FROM sample_derived sd
+                WHERE
+                <choose>
+                    <when test="genericAssaySelectionFilter.patientLevel">
+                        sd.patient_unique_id IN (
+                            SELECT DISTINCT patient_unique_id
+                            FROM generic_assay_data_derived gad
+                            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectMatchingGenericAssaySelections"/>
+                        )
+                    </when>
+                    <otherwise>
+                        sd.sample_unique_id IN (
+                            SELECT DISTINCT sample_unique_id
+                            FROM generic_assay_data_derived gad
+                            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.selectMatchingGenericAssaySelections"/>
+                        )
+                    </otherwise>
+                </choose>
+            </foreach>
+        </foreach>
+    </sql>
+
+    <sql id="selectMatchingGenericAssaySelections">
+        <where>
+            gad.profile_type = #{genericAssaySelectionFilter.profileType}
+            AND gad.datatype != 'LIMIT-VALUE'
+            <if test="studyViewFilterContext.customDataFilterCancerStudies != null and !studyViewFilterContext.customDataFilterCancerStudies.isEmpty()">
+                AND gad.sample_unique_id IN (
+                    SELECT sample_unique_id
+                    FROM sample_derived
+                    WHERE cancer_study_identifier IN
+                    <foreach item="studyId" collection="studyViewFilterContext.customDataFilterCancerStudies" open="(" separator="," close=")">
+                        #{studyId}
+                    </foreach>
+                )
+            </if>
+            AND
+            <foreach item="selectionValue" collection="selectionGroup" open="((" separator=") OR (" close="))">
+                gad.entity_stable_id = #{selectionValue.stableId}
+                AND
+                <choose>
+                    <when test="selectionValue.value == 'NA'">
+                        (
+                            gad.value IS NULL
+                            OR
+                            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                                <property name="attribute_value" value="gad.value"/>
+                            </include> = 'NA'
+                        )
+                    </when>
+                    <otherwise>
+                        lower(
+                            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.normalizeAttributeValue">
+                                <property name="attribute_value" value="gad.value"/>
+                            </include>
+                        ) = lower(#{selectionValue.value})
+                    </otherwise>
+                </choose>
+            </foreach>
+        </where>
     </sql>
     
     <sql id="selectAllGenericAssays">

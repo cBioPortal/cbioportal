@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupFilter;
 import org.springframework.http.MediaType;
@@ -28,8 +30,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@InternalApi
+@Tag(name = "Alteration Enrichments", description = " ")
 @RestController
-@RequestMapping("/api/column-store")
+@RequestMapping("/api")
 public class ColumnarStoreAlterationEnrichmentController {
 
   private final GetAlterationEnrichmentsUseCase getAlterationEnrichmentsUseCase;

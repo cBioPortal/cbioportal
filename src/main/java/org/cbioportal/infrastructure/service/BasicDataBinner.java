@@ -36,7 +36,6 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.DataBinner;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -54,7 +53,6 @@ public class BasicDataBinner {
   private final CustomDataService customDataService;
   private final StudyViewFilterUtil studyViewFilterUtil;
 
-  @Autowired
   public BasicDataBinner(
       StudyViewService studyViewService,
       DataBinner dataBinner,

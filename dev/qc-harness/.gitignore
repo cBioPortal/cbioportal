@@ -1,0 +1,8 @@
+# Local secrets and run artifacts — never commit.
+config.env
+*.jar
+*.log
+results-*.jsonl
+corpus*.tsv
+work/
+__pycache__/

@@ -24,15 +24,10 @@
 package org.cbioportal.legacy.model;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
-import java.util.Map;
 
 public class StructuralVariant extends UniqueKeyBase implements Serializable {
-
-  private static final ObjectMapper ANNOTATION_JSON_MAPPER = new ObjectMapper();
 
   private String molecularProfileId;
   private String sampleId;
@@ -81,13 +76,9 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
   private String driverTiersFilterAnn;
   private String svStatus;
 
-  @JsonIgnore
-  @Schema(hidden = true)
-  private String annotationJson;
-
-  @JsonProperty
-  @Schema(type = "object", description = "Custom columns from annotation namespaces")
-  private Map<String, Map<String, Object>> namespaceColumns;
+  @JsonRawValue
+  @Schema(type = "java.util.Map")
+  private Object annotationJson;
 
   public String getMolecularProfileId() {
     return molecularProfileId;
@@ -457,28 +448,11 @@ public class StructuralVariant extends UniqueKeyBase implements Serializable {
     this.site2RegionNumber = site2RegionNumber;
   }
 
-  public String getAnnotationJson() {
+  public Object getAnnotationJson() {
     return annotationJson;
   }
 
   public void setAnnotationJson(String annotationJson) {
     this.annotationJson = annotationJson;
-  }
-
-  public Map<String, Map<String, Object>> getNamespaceColumns() {
-    if (namespaceColumns == null && annotationJson != null) {
-      try {
-        namespaceColumns =
-            ANNOTATION_JSON_MAPPER.readValue(
-                annotationJson, new TypeReference<Map<String, Map<String, Object>>>() {});
-      } catch (Exception ignored) {
-        return null;
-      }
-    }
-    return namespaceColumns;
-  }
-
-  public void setNamespaceColumns(Map<String, Map<String, Object>> namespaceColumns) {
-    this.namespaceColumns = namespaceColumns;
   }
 }

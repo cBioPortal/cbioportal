@@ -1,6 +1,5 @@
 package org.cbioportal.legacy.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -12,11 +11,7 @@ public class ResourceDefinition implements Serializable {
   @NotNull private ResourceType resourceType;
   private String priority;
   private Boolean openByDefault;
-
-  @Schema(hidden = true)
-  @NotNull
-  private String cancerStudyIdentifier;
-
+  @NotNull private String cancerStudyIdentifier;
   private String customMetaData;
 
   public String getResourceId() {
@@ -73,14 +68,6 @@ public class ResourceDefinition implements Serializable {
 
   public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
     this.cancerStudyIdentifier = cancerStudyIdentifier;
-  }
-
-  public String getStudyId() {
-    return cancerStudyIdentifier;
-  }
-
-  public void setStudyId(String studyId) {
-    this.cancerStudyIdentifier = studyId;
   }
 
   public String getCustomMetaData() {

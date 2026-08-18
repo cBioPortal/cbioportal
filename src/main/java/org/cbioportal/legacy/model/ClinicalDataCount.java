@@ -1,11 +1,9 @@
 package org.cbioportal.legacy.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
 public class ClinicalDataCount implements Serializable {
 
-  @Schema(hidden = true)
   private String attributeId;
 
   private String value;

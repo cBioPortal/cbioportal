@@ -1,13 +1,10 @@
 package org.cbioportal.legacy.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 
 public class Geneset implements Serializable {
 
-  @Schema(hidden = true)
   private Integer internalId;
-
   private String genesetId;
   private String name;
   private String description;

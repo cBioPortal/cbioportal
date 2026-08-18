@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.DiscreteCopyNumberDataMapper;
+import org.cbioportal.application.rest.response.DiscreteCopyNumberDataDTO;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.DiscreteCopyNumberService;
@@ -55,8 +57,8 @@ public class DiscreteCopyNumberController {
       content =
           @Content(
               array =
-                  @ArraySchema(schema = @Schema(implementation = DiscreteCopyNumberData.class))))
-  public ResponseEntity<List<DiscreteCopyNumberData>> getDiscreteCopyNumbersInMolecularProfile(
+                  @ArraySchema(schema = @Schema(implementation = DiscreteCopyNumberDataDTO.class))))
+  public ResponseEntity<List<DiscreteCopyNumberDataDTO>> getDiscreteCopyNumbersInMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_gistic")
           @PathVariable
           String molecularProfileId,
@@ -85,12 +87,13 @@ public class DiscreteCopyNumberController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
-              molecularProfileId,
-              sampleListId,
-              null,
-              discreteCopyNumberEventType.getAlterationTypes(),
-              projection.name()),
+          DiscreteCopyNumberDataMapper.INSTANCE.toDtos(
+              discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                  molecularProfileId,
+                  sampleListId,
+                  null,
+                  discreteCopyNumberEventType.getAlterationTypes(),
+                  projection.name())),
           HttpStatus.OK);
     }
   }
@@ -110,8 +113,8 @@ public class DiscreteCopyNumberController {
       content =
           @Content(
               array =
-                  @ArraySchema(schema = @Schema(implementation = DiscreteCopyNumberData.class))))
-  public ResponseEntity<List<DiscreteCopyNumberData>> fetchDiscreteCopyNumbersInMolecularProfile(
+                  @ArraySchema(schema = @Schema(implementation = DiscreteCopyNumberDataDTO.class))))
+  public ResponseEntity<List<DiscreteCopyNumberDataDTO>> fetchDiscreteCopyNumbersInMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_gistic")
           @PathVariable
           String molecularProfileId,
@@ -170,7 +173,8 @@ public class DiscreteCopyNumberController {
                 projection.name());
       }
 
-      return new ResponseEntity<>(discreteCopyNumberDataList, HttpStatus.OK);
+      return new ResponseEntity<>(
+          DiscreteCopyNumberDataMapper.INSTANCE.toDtos(discreteCopyNumberDataList), HttpStatus.OK);
     }
   }
 }

@@ -1,14 +1,11 @@
 package org.cbioportal.legacy.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class GenePanelToGene implements Serializable {
 
-  @Schema(hidden = true)
   private String genePanelId;
-
   @NotNull private Integer entrezGeneId;
   @NotNull private String hugoGeneSymbol;
 

@@ -18,6 +18,7 @@ echo "TRUNCATE."
 FILES_TO_CHECK=(
     "${DIR}/../src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql"
     "${DIR}/../src/main/resources/db-scripts/clickhouse/migrate/migrate_schema.sql"
+    "${DIR}/../src/test/resources/clickhouse/populate_derived_tables.sql"
 )
 
 found_violation=0

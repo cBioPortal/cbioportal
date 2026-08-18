@@ -79,7 +79,18 @@ public interface ClickhouseGenericAssayMapper {
    * @param stableIds the list of entity stable IDs
    * @return a list of {@link GenericAssayMeta} with properties pre-populated
    */
-  List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds);
+  default List<GenericAssayMeta> getGenericAssayMetaByStableIds(List<String> stableIds) {
+    return getGenericAssayMetaByStableIds(stableIds, null, null, null);
+  }
+
+  List<GenericAssayMeta> getGenericAssayMetaByStableIds(
+      @Param("stableIds") List<String> stableIds,
+      @Param("searchTerm") String searchTerm,
+      @Param("pageSize") Integer pageSize,
+      @Param("offset") Integer offset);
+
+  Integer countGenericAssayMetaByStableIds(
+      @Param("stableIds") List<String> stableIds, @Param("searchTerm") String searchTerm);
 
   /**
    * Resolves profile IDs → entity stable IDs via generic_assay_profile_entity_derived and joins
@@ -89,6 +100,20 @@ public interface ClickhouseGenericAssayMapper {
    * @param stableIds optional additional stable ID filter; {@code null} means no filter
    * @return a list of {@link GenericAssayMeta} with properties pre-populated
    */
+  default List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
+      List<String> profileIds, List<String> stableIds) {
+    return getGenericAssayMetaByProfileIds(profileIds, stableIds, null, null, null);
+  }
+
   List<GenericAssayMeta> getGenericAssayMetaByProfileIds(
-      @Param("profileIds") List<String> profileIds, @Param("stableIds") List<String> stableIds);
+      @Param("profileIds") List<String> profileIds,
+      @Param("stableIds") List<String> stableIds,
+      @Param("searchTerm") String searchTerm,
+      @Param("pageSize") Integer pageSize,
+      @Param("offset") Integer offset);
+
+  Integer countGenericAssayMetaByProfileIds(
+      @Param("profileIds") List<String> profileIds,
+      @Param("stableIds") List<String> stableIds,
+      @Param("searchTerm") String searchTerm);
 }

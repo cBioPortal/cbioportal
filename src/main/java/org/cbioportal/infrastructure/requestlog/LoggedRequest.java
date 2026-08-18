@@ -49,6 +49,13 @@ public class LoggedRequest {
   /** HTTP status returned for this observation. */
   private int responseStatus;
 
+  /**
+   * Elapsed duration of the request in milliseconds, measured from just before the filter chain is
+   * invoked to just after it returns. Recorded with {@link System#nanoTime()} and converted to
+   * milliseconds to avoid clock-skew and leap-second issues.
+   */
+  private long durationMs;
+
   /** When this observation was captured. */
   private Instant seen;
 
@@ -146,6 +153,14 @@ public class LoggedRequest {
 
   public void setResponseStatus(int responseStatus) {
     this.responseStatus = responseStatus;
+  }
+
+  public long getDurationMs() {
+    return durationMs;
+  }
+
+  public void setDurationMs(long durationMs) {
+    this.durationMs = durationMs;
   }
 
   public Instant getSeen() {

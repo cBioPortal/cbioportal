@@ -1,3 +1,8 @@
+## August 14, 2026
+*   **New: [AI integrations](https://docs.cbioportal.org/ai-integrations/).** Two ways to explore cBioPortal conversationally:
+    * [**cBioPortalChat**](https://chat.cbioportal.org): a web-based assistant. Ask about studies, mutations, clinical attributes, or cohorts in natural language and get answers with direct links back into cBioPortal.
+    * [**MCP server**](https://docs.cbioportal.org/ai-integrations/mcp/): connect your own LLM (e.g. Claude, ChatGPT or Copilot) directly to cBioPortal via the [Model Context Protocol](https://modelcontextprotocol.io/). Google login required on first connect.
+
 ## May 26, 2026
 *   **v7.0.0 Release:** MySQL has been dropped as the database backend. ClickHouse is now the sole database for cBioPortal. This release was made possible through a partnership with [ClickHouse](https://clickhouse.com/) — read the [case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) to learn how ClickHouse accelerates cancer research at MSK.
 *   **Seed database relocated:** The seed database has been moved and reorganized for ClickHouse compatibility. See the [Migration Guide](Migration-v6-to-v7.md) for details on upgrading from v6.x.

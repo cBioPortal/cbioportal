@@ -301,25 +301,22 @@
                 typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseMapTypeHandler"/>
     </resultMap>
 
-    <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap">
-        SELECT
-            entity_stable_id AS stableId,
-            entity_type AS entityType,
-            properties
-        FROM generic_assay_meta_derived
-        WHERE entity_stable_id IN
-            <foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
-        <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
-        ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
-    </select>
+    <!-- alias is the (optionally empty) table-alias-plus-dot prefix, e.g. "gam." or "" -->
+    <sql id="GenericAssayMetaSearchPredicate">
+        <if test="searchTerm != null and searchTerm != ''">
+            AND (
+                ${alias}entity_stable_id ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(${alias}properties['NAME'], '') ILIKE concat('%', #{searchTerm}, '%')
+                OR ifNull(${alias}properties['DESCRIPTION'], '') ILIKE concat('%', #{searchTerm}, '%')
+            )
+        </if>
+    </sql>
 
-    <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
-        SELECT
-            gam.entity_stable_id AS stableId,
-            gam.entity_type AS entityType,
-            gam.properties
-        FROM generic_assay_meta_derived gam
-        WHERE gam.entity_stable_id IN (
+    <!-- resolves gam.entity_stable_id to those in the given profiles, optionally further
+         restricted to the given stableIds; shared by the get/count profile-id queries below
+         so their entity-resolution logic can't drift apart -->
+    <sql id="GenericAssayEntityIdsForProfileIds">
+        gam.entity_stable_id IN (
             SELECT DISTINCT entity_stable_id
             FROM generic_assay_profile_entity_derived
             WHERE profile_stable_id IN
@@ -329,8 +326,60 @@
             AND gam.entity_stable_id IN
                 <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
         </if>
+    </sql>
+
+    <select id="getGenericAssayMetaByStableIds" resultMap="GenericAssayMetaResultMap">
+        SELECT
+            entity_stable_id AS stableId,
+            entity_type AS entityType,
+            properties
+        FROM generic_assay_meta_derived
+        WHERE entity_stable_id IN
+            <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        <include refid="GenericAssayMetaSearchPredicate">
+            <property name="alias" value=""/>
+        </include>
+        <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
+        ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countGenericAssayMetaByStableIds" resultType="int">
+        SELECT count()
+        FROM generic_assay_meta_derived
+        WHERE entity_stable_id IN
+            <foreach item="item" collection="stableIds" open="(" separator="," close=")">#{item}</foreach>
+        <include refid="GenericAssayMetaSearchPredicate">
+            <property name="alias" value=""/>
+        </include>
+    </select>
+
+    <select id="getGenericAssayMetaByProfileIds" resultMap="GenericAssayMetaResultMap">
+        SELECT
+            gam.entity_stable_id AS stableId,
+            gam.entity_type AS entityType,
+            gam.properties
+        FROM generic_assay_meta_derived gam
+        WHERE <include refid="GenericAssayEntityIdsForProfileIds"/>
+        <include refid="GenericAssayMetaSearchPredicate">
+            <property name="alias" value="gam."/>
+        </include>
         <!-- Sort numerically by leading digits, then lexicographically (e.g. 1p, 2p, ... 10p, not 10p, 1p, 2p) -->
         ORDER BY toUInt32OrZero(extract(gam.entity_stable_id, '^[0-9]+')) ASC, gam.entity_stable_id ASC
+        <if test="pageSize != null and offset != null">
+            LIMIT #{pageSize} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="countGenericAssayMetaByProfileIds" resultType="int">
+        SELECT count()
+        FROM generic_assay_meta_derived gam
+        WHERE <include refid="GenericAssayEntityIdsForProfileIds"/>
+        <include refid="GenericAssayMetaSearchPredicate">
+            <property name="alias" value="gam."/>
+        </include>
     </select>
 
 </mapper>

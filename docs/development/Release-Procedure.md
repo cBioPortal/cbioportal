@@ -57,7 +57,7 @@ See also: https://github.com/cBioPortal/cbioportal/releases
 
 ### cBioPortal Database Version Numbers
 
-cBioPortal database version numbers are different version numbers than the software version numbers, it's only updated when developers make database scheme changes, please see [cBioPortal Database Versioning](Database-Versioning.md)
+cBioPortal database version numbers are different version numbers than the software version numbers, it's only updated when developers make database scheme changes, please see [cBioPortal Database Versioning](/development/Database-Versioning.md)
 
 ## User announcements
 

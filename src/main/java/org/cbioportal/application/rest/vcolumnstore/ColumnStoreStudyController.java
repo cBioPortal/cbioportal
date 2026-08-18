@@ -17,11 +17,14 @@ import org.cbioportal.legacy.web.parameter.PagingConstants;
 import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,15 +54,21 @@ public class ColumnStoreStudyController {
   private static final String TOTAL_COUNT_HEADER = "X-Total-Count";
 
   private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
+  private final PermissionEvaluator permissionEvaluator;
 
   /**
-   * Constructs a new {@link ColumnStoreStudyController} with the specified use case.
+   * Constructs a new {@link ColumnStoreStudyController}, with the specified use case and an
+   * optional permission evaluator.
    *
    * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study
    *     metadata.
+   * @param permissionEvaluator defines the permission of the cancer study.
    */
-  public ColumnStoreStudyController(GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase) {
+  public ColumnStoreStudyController(
+      GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
+      @Autowired(required = false) PermissionEvaluator permissionEvaluator) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
+    this.permissionEvaluator = permissionEvaluator;
   }
 
   /**
@@ -75,6 +84,10 @@ public class ColumnStoreStudyController {
    *     ProjectionType#SUMMARY}.
    * @param sortBy the name of the property that the result list is sorted by. This parameter is
    *     optional.
+   * @param pageSize the maximum number of items to return per page. When {@code null}, all results
+   *     are returned. Must be between {@code 1} and {@link PagingConstants#MAX_PAGE_SIZE}.
+   * @param pageNumber the 1-based page number to return. {@code null} and {@code 0} are both
+   *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
    *     and an HTTP status code {@link HttpStatus#OK}.
@@ -118,21 +131,51 @@ public class ColumnStoreStudyController {
 
     var studies = getCancerStudyMetadataUseCase.execute(projection, sortAndSearchCriteria);
 
-    // Pagination should be handled at the DB layer, but currently our query is not
-    // setup to handle this with authorization
+    // Pagination is applied in-memory after authorization filtering (@PostFilter on the use case
+    // removes studies the caller cannot read). True DB-level pagination is not yet possible here
+    // because the authorized study set is only known after @PostFilter runs.
+    //
+    // pageNumber is 1-based. Values <= 0 and null are treated as page 1 (offset 0) for backward
+    // compatibility. Long arithmetic prevents overflow when pageSize * pageNumber is large.
+    // Capture total count before pagination so META headers report the full
+    // authorized study count, not the number of items on the current page.
+    int totalCount = studies.size();
     if (pageSize != null) {
-      studies = studies.stream().limit(pageSize).toList();
+      long offset =
+          (pageNumber != null && pageNumber > 0) ? (long) pageSize * (pageNumber - 1) : 0L;
+      int fromIndex = (int) Math.min(offset, studies.size());
+      int toIndex = (int) Math.min(offset + pageSize, studies.size());
+      studies = studies.subList(fromIndex, toIndex);
     }
     var headers = new HttpHeaders();
     if (projection == ProjectionType.META) {
-      headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(studies.size()));
-      headers.add(TOTAL_COUNT_HEADER, String.valueOf(studies.size()));
+      headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalCount));
+      headers.add(TOTAL_COUNT_HEADER, String.valueOf(totalCount));
     }
 
-    List<CancerStudyMetadataDTO> responseBody =
-        (projection == ProjectionType.META)
-            ? List.of()
-            : CancerStudyMetadataMapper.INSTANCE.toDtos(studies);
+    List<CancerStudyMetadataDTO> responseBody;
+    if (projection == ProjectionType.META) {
+      responseBody = List.of();
+    } else {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      responseBody =
+          studies.stream()
+              .map(
+                  study -> {
+                    // Default to true if security is disabled (permissionEvaluator is null)
+                    boolean hasReadPermission = true;
+                    if (permissionEvaluator != null && authentication != null) {
+                      hasReadPermission =
+                          permissionEvaluator.hasPermission(
+                              authentication,
+                              study.cancerStudyIdentifier(),
+                              "CancerStudyId",
+                              org.cbioportal.legacy.utils.security.AccessLevel.READ);
+                    }
+                    return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
+                  })
+              .toList();
+    }
 
     return ResponseEntity.ok().headers(headers).body(responseBody);
   }
@@ -146,7 +189,6 @@ public class ColumnStoreStudyController {
   public ResponseEntity<CancerStudyMetadataDTO> getStudy(@PathVariable String studyId)
       throws StudyNotFoundException {
     var study = getCancerStudyMetadataUseCase.getStudy(studyId);
-    // @PreAuthorize ensures the caller has READ access, so readPermission is always true here
     var dto = CancerStudyMetadataMapper.INSTANCE.toDto(study, true);
     return ResponseEntity.ok(dto);
   }

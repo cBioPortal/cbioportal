@@ -506,7 +506,9 @@ public class StudyViewController {
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(operationId = "fetchCNAGenes", description = "Fetch CNA genes by study view filter")
+  @Operation(
+      operationId = "fetchLegacyCNAGenes",
+      description = "Fetch CNA genes by study view filter")
   @ApiResponse(
       responseCode = "200",
       description = "OK",

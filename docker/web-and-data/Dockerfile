@@ -11,6 +11,7 @@
 # NOTE: the .git folder is included in the build stage (the git-commit-id Maven
 # plugin needs it), but excluded from the final image. No confidential
 # information is exposed. (see: stackoverflow.com/questions/56278325)
+ARG CORE_REPOSITORY=cBioPortal/cbioportal-core
 ARG CORE_BRANCH=main
 
 FROM maven:3-eclipse-temurin-21 AS build
@@ -42,12 +43,13 @@ RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/appl
     && (cd target/dependency && jar -xf ../*-exec.jar)
 
 FROM maven:3-eclipse-temurin-21 AS build-core
+ARG CORE_REPOSITORY
 ARG CORE_BRANCH
 # This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
-ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
+ADD https://api.github.com/repos/${CORE_REPOSITORY}/commits/${CORE_BRANCH} /dev/null
 # We touch application.properties here just to get cbioportal-core building
 # Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
-RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
+RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/${CORE_REPOSITORY}.git /cbioportal-core \
     && touch /cbioportal-core/src/main/resources/application.properties \
     && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
     && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt

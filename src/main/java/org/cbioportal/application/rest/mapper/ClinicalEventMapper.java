@@ -16,7 +16,10 @@ public interface ClinicalEventMapper {
   @Mapping(target = "endNumberOfDaysSinceDiagnosis", source = "stopDate")
   @Mapping(
       target = "uniquePatientKey",
-      expression = "java(Encoder.calculateBase64(event.getPatientId(), event.getStudyId()))")
+      expression =
+          "java(event.getUniquePatientKey() != null ? event.getUniquePatientKey() : "
+              + "(event.getPatientId() == null || event.getStudyId() == null ? null "
+              + ": Encoder.calculateBase64(event.getPatientId(), event.getStudyId())))")
   ClinicalEventDTO toDto(ClinicalEvent event);
 
   List<ClinicalEventDTO> toDtos(List<ClinicalEvent> events);

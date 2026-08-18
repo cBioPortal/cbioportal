@@ -20,6 +20,7 @@ public record CopyNumberCountByGeneDTO(
     Integer alteration,
     String cytoband) {
   @JsonProperty("uniqueEventKey")
+  @Schema(hidden = true)
   public String uniqueEventKey() {
     if (entrezGeneId == null || alteration == null) {
       return null;
@@ -28,11 +29,13 @@ public record CopyNumberCountByGeneDTO(
   }
 
   @JsonProperty("hugoGeneSymbols")
+  @Schema(hidden = true)
   public String[] hugoGeneSymbols() {
     return hugoGeneSymbol == null ? null : new String[] {hugoGeneSymbol};
   }
 
   @JsonProperty("entrezGeneIds")
+  @Schema(hidden = true)
   public Integer[] entrezGeneIds() {
     return entrezGeneId == null ? null : new Integer[] {entrezGeneId};
   }

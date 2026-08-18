@@ -18,16 +18,19 @@ public record AlterationCountByGeneDTO(
     String hugoGeneSymbol,
     BigDecimal qValue) {
   @JsonProperty("uniqueEventKey")
+  @Schema(hidden = true)
   public String uniqueEventKey() {
     return hugoGeneSymbol;
   }
 
   @JsonProperty("hugoGeneSymbols")
+  @Schema(hidden = true)
   public String[] hugoGeneSymbols() {
     return hugoGeneSymbol == null ? null : new String[] {hugoGeneSymbol};
   }
 
   @JsonProperty("entrezGeneIds")
+  @Schema(hidden = true)
   public Integer[] entrezGeneIds() {
     return entrezGeneId == null ? null : new Integer[] {entrezGeneId};
   }

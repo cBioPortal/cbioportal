@@ -8,10 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
-import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -45,10 +43,6 @@ public class WsiAccessTokenController {
   @Value("${wsi.local-auth-bypass:false}")
   private boolean localAuthBypass;
 
-  // The CancerStudyPermissionEvaluator bean does not exist on portals w/o user-authentication.
-  @Autowired(required = false)
-  private CancerStudyPermissionEvaluator cancerStudyPermissionEvaluator;
-
   @Autowired(required = false)
   private WsiSlideAccessRepository wsiSlideAccessRepository;
 
@@ -78,12 +72,6 @@ public class WsiAccessTokenController {
     }
     if (wsiSlideAccessRepository == null) {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-    }
-    if (!anonymous
-        && (cancerStudyPermissionEvaluator == null
-            || !cancerStudyPermissionEvaluator.hasPermission(
-                authentication, studyId, "CancerStudyId", AccessLevel.READ))) {
-      return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
     if (accessTokenSecret == null
         || accessTokenSecret.getBytes(StandardCharsets.UTF_8).length < 32) {

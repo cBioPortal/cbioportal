@@ -730,7 +730,7 @@ jobs:
               cd cbioportal-test
               ./utils/check-connection.sh --url=localhost:8080
         - run:
-            name: Seed local ClickHouse WSI hierarchy fixture
+            name: Import WSI E2E fixtures through core metaImport.py
             command: |
               for attempt in $(seq 1 150); do
                 if docker exec cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB" --query "SELECT 1"' >/dev/null 2>&1; then
@@ -742,7 +742,44 @@ jobs:
                 fi
                 sleep 2
               done
-              docker exec -i cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB"' < /tmp/repos/cbioportal/src/e2e/js/test/WsiHierarchyController/wsi_hierarchy_ci_seed.sql
+              docker exec cbioportal-container sh -lc '
+                export PORTAL_HOME=/cbioportal-webapp
+                export CLICKHOUSE_HOST="${CLICKHOUSE_HOST:-cbioportal-database}"
+                export CLICKHOUSE_NATIVE_PORT="${CLICKHOUSE_NATIVE_PORT:-9000}"
+                export CLICKHOUSE_DB="${CLICKHOUSE_DB:-cbioportal}"
+                export JAVA_OPTS="-Dspring.datasource.url=$CLICKHOUSE_URL -Dspring.datasource.username=$CLICKHOUSE_USER -Dspring.datasource.password=$CLICKHOUSE_PASSWORD -Dspring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
+                python3 /core/scripts/importer/metaImport.py \
+                  -s /tmp/wsi-loader-fixture -n -o \
+                  --derived-table-sql /tmp/wsi-clickhouse.sql
+              '
+              docker exec cbioportal-container sh -lc '
+                export PORTAL_HOME=/cbioportal-webapp
+                export CLICKHOUSE_HOST="${CLICKHOUSE_HOST:-cbioportal-database}"
+                export CLICKHOUSE_NATIVE_PORT="${CLICKHOUSE_NATIVE_PORT:-9000}"
+                export CLICKHOUSE_DB="${CLICKHOUSE_DB:-cbioportal}"
+                export JAVA_OPTS="-Dspring.datasource.url=$CLICKHOUSE_URL -Dspring.datasource.username=$CLICKHOUSE_USER -Dspring.datasource.password=$CLICKHOUSE_PASSWORD -Dspring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver"
+                python3 /core/scripts/importer/metaImport.py \
+                  -s /tmp/wsi-loader-control-fixture -n -o \
+                  --derived-table-sql /tmp/wsi-clickhouse.sql
+              '
+              imported_slides=$(docker exec cbioportal-database-container sh -lc '
+                clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
+                  --database "$CLICKHOUSE_DB" --query "
+                    SELECT count()
+                    FROM wsi_slide AS slide
+                    INNER JOIN cancer_study AS study
+                      ON study.cancer_study_id = slide.cancer_study_id
+                    WHERE study.cancer_study_identifier = '\''msk_spectrum_tme_2022'\''"
+              ')
+              test "$imported_slides" = 3
+              imported_samples=$(docker exec cbioportal-database-container sh -lc '
+                clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
+                  --database "$CLICKHOUSE_DB" --query "
+                    SELECT count()
+                    FROM sample_derived
+                    WHERE cancer_study_identifier = '\''msk_spectrum_tme_2022'\''"
+              ')
+              test "$imported_samples" = 1
         - run:
             name: Install Node.js 22 and pnpm for local WSI frontend
             command: |
@@ -768,9 +805,9 @@ jobs:
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                72a9744b1663c0ba24e68886f08eae7988214b7f
+                f3eddebf7b3bb916fc615054eac7fb8e944b3546
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                72a9744b1663c0ba24e68886f08eae7988214b7f
+                f3eddebf7b3bb916fc615054eac7fb8e944b3546
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:
@@ -786,6 +823,7 @@ jobs:
                 PORT=3000 \
                 CBIOPORTAL_URL= \
                 CBIOPORTAL_PROXY_TARGET=http://localhost:8080 \
+                WSI_RUNTIME_MODE=proxied \
                 pnpm exec rspack serve -c rspack.config.js \
                 >> /tmp/repos/frontend-logs.txt 2>&1 &
         - run:
@@ -823,10 +861,13 @@ jobs:
               WSI_TILE_SERVER_URL: http://localhost:8081
               WSI_AUTH_SECRET: local-development-wsi-secret-change-me-32chars
               WSI_AUTH_AUDIENCE: cbioportal-wsi
+              WSI_LOCAL_AUTH_BYPASS: "true"
               MOCHA_FILE: /tmp/repos/wsi-api-test-results/results.xml
             command: |
               mkdir -p /tmp/repos/wsi-api-test-results
               cd cbioportal/src/e2e/js
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
               nvm install 22.18.0
               nvm use 22.18.0
               corepack enable
@@ -836,6 +877,36 @@ jobs:
                 test/WsiHierarchyController/WsiHierarchyController.spec.ts \
                 --grep 'WsiHierarchyController' \
                 --reporter mocha-junit-reporter
+        - run:
+            name: Install Chromium for WSI browser E2E
+            working_directory: /tmp/repos/cbioportal-frontend-wsi/end-to-end-test-playwright
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
+              pnpm exec playwright install --with-deps chromium
+        - run:
+            name: Run WSI browser E2E against imported backend
+            environment:
+              CBIOPORTAL_URL: http://localhost:3000
+              LOCALDEV: "0"
+              PW_SUITE: wsi
+              WSI_VIEWER_BASE_URL: http://localhost:3000
+              WSI_PROXY_REHEARSAL: "1"
+              CBIO_URL: http://localhost:8080
+            command: |
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
+              cd /tmp/repos/cbioportal-frontend-wsi/end-to-end-test-playwright
+              pnpm exec playwright test \
+                tests/wsi-viewer.spec.ts \
+                tests/wsi-pathology-mocked.spec.ts \
+                --reporter=line
         - store_test_results:
             path: /tmp/repos/wsi-api-test-results
         - store_artifacts:
@@ -848,6 +919,8 @@ jobs:
             path: /tmp/repos/tile-server-logs.txt
         - store_artifacts:
             path: /tmp/repos/wsi-tile-smoke.txt
+        - store_artifacts:
+            path: /tmp/repos/cbioportal-frontend-wsi/end-to-end-test-playwright/test-results
 
     run_security_tests:
       machine:

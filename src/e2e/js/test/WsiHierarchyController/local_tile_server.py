@@ -78,7 +78,16 @@ class Handler(BaseHTTPRequestHandler):
         path = parsed.path
         query = {key: values[0] for key, values in parse_qs(parsed.query).items()}
         parts = path.strip("/").split("/")
-        source = query.get("source", "")
+        if path == "/health":
+            body = json.dumps(
+                {"status": "ok", "auth_contract_version": 2}
+            ).encode()
+            self.send_bytes(body, "application/json")
+            return
+        # The production tile contract binds the source in a request header.
+        # Keep the query parameter as a compatibility path for older local
+        # callers, but exercise the same header contract as the real service.
+        source = self.headers.get("X-WSI-Source", query.get("source", ""))
         if parts[:2] == ["tiles", "zxy"] and len(parts) == 5:
             if source and self.authorize(source, "tile") is not None:
                 self.send_bytes(JPEG_BYTES, "image/jpeg")

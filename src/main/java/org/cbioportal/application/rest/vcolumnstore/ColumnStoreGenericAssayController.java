@@ -160,9 +160,6 @@ public class ColumnStoreGenericAssayController {
     if (totalCount != null) {
       headers.add(HeaderKeyConstants.TOTAL_COUNT, totalCount.toString());
     }
-    return ResponseEntity.ok()
-        .headers(headers)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(data);
+    return ResponseEntity.ok().headers(headers).contentType(MediaType.APPLICATION_JSON).body(data);
   }
 }

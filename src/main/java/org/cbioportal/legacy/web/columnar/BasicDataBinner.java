@@ -123,40 +123,41 @@ public class BasicDataBinner {
     switch (dataBinCountFilter) {
       // TODO: first case is to support clinical data, but clinical data is not using this now. We
       // should update controller to use this method later
-      case ClinicalDataBinCountFilter clinicalDataBinCountFilter
-          when !customDataService.getCustomDataSessions(uniqueKeys).isEmpty() -> {
+      case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
         Map<String, CustomDataSession> customDataSessions =
             customDataService.getCustomDataSessions(uniqueKeys);
-        List<SampleIdentifier> unfilteredSampleIdentifiers =
-            studyViewColumnarService.getFilteredSamples(partialFilter).stream()
-                .map(
-                    sample ->
-                        studyViewFilterUtil.buildSampleIdentifier(
-                            sample.getCancerStudyIdentifier(), sample.getStableId()))
-                .toList();
-        unfilteredClinicalDataCounts =
-            customDataFilterUtil.getCustomDataCounts(
-                unfilteredSampleIdentifiers, customDataSessions);
-        List<SampleIdentifier> filteredSampleIdentifiers =
-            studyViewColumnarService.getFilteredSamples(studyViewFilter).stream()
-                .map(
-                    sample ->
-                        studyViewFilterUtil.buildSampleIdentifier(
-                            sample.getCancerStudyIdentifier(), sample.getStableId()))
-                .toList();
-        filteredClinicalDataCounts =
-            customDataFilterUtil.getCustomDataCounts(filteredSampleIdentifiers, customDataSessions);
-        attributeDatatypeMap =
-            customDataSessions.entrySet().stream()
-                .collect(toMap(Map.Entry::getKey, NewClinicalDataBinUtil::getDataType));
-      }
-      case ClinicalDataBinCountFilter clinicalDataBinCountFilter -> {
-        unfilteredClinicalDataCounts =
-            studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
-        filteredClinicalDataCounts =
-            studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
-        attributeDatatypeMap =
-            studyViewColumnarService.getClinicalAttributeDatatypeMap(studyViewFilter);
+        if (!customDataSessions.isEmpty()) {
+          List<SampleIdentifier> unfilteredSampleIdentifiers =
+              studyViewColumnarService.getFilteredSamples(partialFilter).stream()
+                  .map(
+                      sample ->
+                          studyViewFilterUtil.buildSampleIdentifier(
+                              sample.getCancerStudyIdentifier(), sample.getStableId()))
+                  .toList();
+          unfilteredClinicalDataCounts =
+              customDataFilterUtil.getCustomDataCounts(
+                  unfilteredSampleIdentifiers, customDataSessions);
+          List<SampleIdentifier> filteredSampleIdentifiers =
+              studyViewColumnarService.getFilteredSamples(studyViewFilter).stream()
+                  .map(
+                      sample ->
+                          studyViewFilterUtil.buildSampleIdentifier(
+                              sample.getCancerStudyIdentifier(), sample.getStableId()))
+                  .toList();
+          filteredClinicalDataCounts =
+              customDataFilterUtil.getCustomDataCounts(
+                  filteredSampleIdentifiers, customDataSessions);
+          attributeDatatypeMap =
+              customDataSessions.entrySet().stream()
+                  .collect(toMap(Map.Entry::getKey, NewClinicalDataBinUtil::getDataType));
+        } else {
+          unfilteredClinicalDataCounts =
+              studyViewColumnarService.getClinicalDataCounts(partialFilter, uniqueKeys);
+          filteredClinicalDataCounts =
+              studyViewColumnarService.getClinicalDataCounts(studyViewFilter, uniqueKeys);
+          attributeDatatypeMap =
+              studyViewColumnarService.getClinicalAttributeDatatypeMap(studyViewFilter);
+        }
       }
       case GenomicDataBinCountFilter genomicDataBinCountFilter -> {
         unfilteredClinicalDataCounts =
@@ -245,22 +246,26 @@ public class BasicDataBinner {
               .removeIf(f -> f.getAttributeId().equals(clinicalDataBinFilter.getAttributeId()));
         }
       }
-      case GenomicDataBinFilter genomicDataBinFilter
-          when studyViewFilter.getGenomicDataFilters() != null ->
+      case GenomicDataBinFilter genomicDataBinFilter -> {
+        if (studyViewFilter.getGenomicDataFilters() != null) {
           studyViewFilter
               .getGenomicDataFilters()
               .removeIf(
                   f ->
                       f.getHugoGeneSymbol().equals(genomicDataBinFilter.getHugoGeneSymbol())
                           && f.getProfileType().equals(genomicDataBinFilter.getProfileType()));
-      case GenericAssayDataBinFilter genericAssayDataBinFilter
-          when studyViewFilter.getGenericAssayDataFilters() != null ->
+        }
+      }
+      case GenericAssayDataBinFilter genericAssayDataBinFilter -> {
+        if (studyViewFilter.getGenericAssayDataFilters() != null) {
           studyViewFilter
               .getGenericAssayDataFilters()
               .removeIf(
                   f ->
                       f.getStableId().equals(genericAssayDataBinFilter.getStableId())
                           && f.getProfileType().equals(genericAssayDataBinFilter.getProfileType()));
+        }
+      }
       default -> {
         // Do not remove any filters
       }

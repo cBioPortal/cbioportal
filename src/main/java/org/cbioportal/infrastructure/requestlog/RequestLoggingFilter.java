@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +49,27 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
   private final RequestLoggingProperties properties;
   private final Set<String> redactHeaders;
   private final Set<String> redactParams;
+  private final LongSupplier clock;
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
   public RequestLoggingFilter(
       RequestLogService requestLogService, RequestLoggingProperties properties) {
+    this(requestLogService, properties, System::nanoTime);
+  }
+
+  /**
+   * Package-private constructor for testing: accepts a custom {@link LongSupplier} so tests can
+   * inject deterministic, distinct nanosecond timestamps without relying on real wall time.
+   */
+  RequestLoggingFilter(
+      RequestLogService requestLogService,
+      RequestLoggingProperties properties,
+      LongSupplier clock) {
     this.requestLogService = requestLogService;
     this.properties = properties;
     this.redactHeaders = toLowerCaseSet(properties.getRedactHeaders());
     this.redactParams = toLowerCaseSet(properties.getRedactParams());
+    this.clock = clock;
   }
 
   private static Set<String> toLowerCaseSet(List<String> values) {
@@ -79,11 +93,13 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         request instanceof ContentCachingRequestWrapper ccrw
             ? ccrw
             : new ContentCachingRequestWrapper(request, properties.getMaxBodyBytes());
+    long startNs = clock.getAsLong();
     try {
       filterChain.doFilter(wrapped, response);
     } finally {
+      long durationMs = (clock.getAsLong() - startNs) / 1_000_000L;
       try {
-        requestLogService.save(capture(wrapped, response));
+        requestLogService.save(capture(wrapped, response, durationMs));
       } catch (RuntimeException ex) {
         // Capturing must never break the response.
         LOG.debug("Failed to capture request for logging", ex);
@@ -92,7 +108,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
   }
 
   private LoggedRequest capture(
-      ContentCachingRequestWrapper request, HttpServletResponse response) {
+      ContentCachingRequestWrapper request, HttpServletResponse response, long durationMs) {
     String method = request.getMethod();
     String path = request.getRequestURI();
     String contentType = request.getContentType();
@@ -130,6 +146,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     logged.setBody(body);
     logged.setBodyTruncated(truncated);
     logged.setResponseStatus(response.getStatus());
+    logged.setDurationMs(durationMs);
     logged.setSeen(Instant.now());
     return logged;
   }

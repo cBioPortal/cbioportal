@@ -106,7 +106,7 @@ public class ColumnStoreGenericAssayController {
             searchTerm,
             pageSize,
             pageNumber);
-    return streamJson(result, totalCount);
+    return buildResponse(result, totalCount);
   }
 
   // PreAuthorize is removed for performance reason
@@ -126,7 +126,7 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
-    return streamJson(
+    return buildResponse(
         getGenericAssayMetaUseCase.execute(
             null, Arrays.asList(molecularProfileId), projection.name()),
         null);
@@ -148,13 +148,13 @@ public class ColumnStoreGenericAssayController {
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
-    return streamJson(
+    return buildResponse(
         getGenericAssayMetaUseCase.execute(
             Arrays.asList(genericAssayStableId), null, projection.name()),
         null);
   }
 
-  private ResponseEntity<List<GenericAssayMeta>> streamJson(
+  private ResponseEntity<List<GenericAssayMeta>> buildResponse(
       List<GenericAssayMeta> data, Integer totalCount) {
     HttpHeaders headers = new HttpHeaders();
     if (totalCount != null) {

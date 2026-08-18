@@ -713,6 +713,21 @@ jobs:
               # for this fully local WSI job.
               docker load -i $DOCKER_TAG.tar
         - run:
+            name: Rebuild image with the native WSI core importer
+            no_output_timeout: 30m
+            command: |
+              set -o pipefail
+              export DOCKER_TAG=$CIRCLE_SHA1
+              export WSI_CORE_REPOSITORY=raylim/cbioportal-core
+              export WSI_CORE_BRANCH=agent/wsi-native-import
+              : > /tmp/repos/wsi-image-build.log
+              docker build \
+                --build-arg CORE_REPOSITORY="$WSI_CORE_REPOSITORY" \
+                --build-arg CORE_BRANCH="$WSI_CORE_BRANCH" \
+                --tag "$DOCKER_REPO:$DOCKER_TAG" \
+                --file /tmp/repos/cbioportal/docker/web-and-data/Dockerfile \
+                /tmp/repos/cbioportal 2>&1 | tee /tmp/repos/wsi-image-build.log
+        - run:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"
@@ -732,6 +747,8 @@ jobs:
         - run:
             name: Import WSI E2E fixtures through core metaImport.py
             command: |
+              set -euo pipefail
+              : > /tmp/repos/wsi-import.log
               for attempt in $(seq 1 150); do
                 if docker exec cbioportal-database-container sh -lc 'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" --database "$CLICKHOUSE_DB" --query "SELECT 1"' >/dev/null 2>&1; then
                   break
@@ -751,7 +768,7 @@ jobs:
                 python3 /core/scripts/importer/metaImport.py \
                   -s /tmp/wsi-loader-fixture -n -o \
                   --derived-table-sql /tmp/wsi-clickhouse.sql
-              '
+              ' 2>&1 | tee -a /tmp/repos/wsi-import.log
               docker exec cbioportal-container sh -lc '
                 export PORTAL_HOME=/cbioportal-webapp
                 export CLICKHOUSE_HOST="${CLICKHOUSE_HOST:-cbioportal-database}"
@@ -761,7 +778,7 @@ jobs:
                 python3 /core/scripts/importer/metaImport.py \
                   -s /tmp/wsi-loader-control-fixture -n -o \
                   --derived-table-sql /tmp/wsi-clickhouse.sql
-              '
+              ' 2>&1 | tee -a /tmp/repos/wsi-import.log
               imported_slides=$(docker exec cbioportal-database-container sh -lc '
                 clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
                   --database "$CLICKHOUSE_DB" --query "
@@ -780,6 +797,18 @@ jobs:
                     WHERE cancer_study_identifier = '\''msk_spectrum_tme_2022'\''"
               ')
               test "$imported_samples" = 1
+        - run:
+            name: Capture WSI diagnostics
+            when: always
+            command: |
+              {
+                echo '=== docker ps -a ==='
+                docker ps -a
+                echo '=== cbioportal container logs ==='
+                docker logs cbioportal-container 2>&1 || true
+                echo '=== database container logs ==='
+                docker logs cbioportal-database-container 2>&1 || true
+              } > /tmp/repos/wsi-diagnostics.txt 2>&1
         - run:
             name: Install Node.js 22 and pnpm for local WSI frontend
             command: |
@@ -913,6 +942,12 @@ jobs:
             path: /tmp/repos/wsi-api-test-results
         - store_artifacts:
             path: /tmp/repos/docker-compose-logs.txt
+        - store_artifacts:
+            path: /tmp/repos/wsi-image-build.log
+        - store_artifacts:
+            path: /tmp/repos/wsi-import.log
+        - store_artifacts:
+            path: /tmp/repos/wsi-diagnostics.txt
         - store_artifacts:
             path: /tmp/repos/frontend-logs.txt
         - store_artifacts:

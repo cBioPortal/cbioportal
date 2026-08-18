@@ -263,6 +263,48 @@ public class ClickhouseResourceDataMapperTest {
     assertThat(sampleFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb-01", 1L));
   }
 
+  @Test
+  public void
+      getResourceTableMetadataFacetValues_activeFilterOnOtherMetadataColumn_doesNotCorruptValues() {
+    // Regression test: an active filter on "metadata:stain" used to hijack the
+    // "metadataKey" MyBatis parameter (via a same-named <bind>) used by the facet-value
+    // SELECT clause, so facet values for "magnification" would incorrectly come back as
+    // "stain" values instead. See ApplyStringFilterOnMetadata in ResourceDataMapper.xml.
+    ResourceColumnFilter stainFilter =
+        new ResourceColumnFilter("metadata:stain", "equals", List.of("HE"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(stainFilter));
+
+    List<ResourceFacetOption> magnificationFacets =
+        mapper.getResourceTableMetadataFacetValues(query, "magnification");
+
+    assertThat(magnificationFacets)
+        .containsExactlyInAnyOrder(
+            new ResourceFacetOption("20x", 1L), new ResourceFacetOption("40x", 1L));
+  }
+
+  @Test
+  public void getResourceTableRows_searchMatchesMetadataValue() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, "40x", 0, 10, null, null, null);
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).metadata().get("magnification")).isEqualTo("40x");
+  }
+
   // ---- Count queries ----
 
   @Test

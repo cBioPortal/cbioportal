@@ -916,6 +916,8 @@ jobs:
               corepack enable
               corepack prepare pnpm@10.33.0 --activate
               pnpm install --frozen-lockfile --ignore-workspace
+              export DEBIAN_FRONTEND=noninteractive
+              export NEEDRESTART_MODE=a
               pnpm exec playwright install --with-deps chromium
         - run:
             name: Run WSI browser E2E against imported backend

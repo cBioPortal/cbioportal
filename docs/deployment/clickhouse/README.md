@@ -307,6 +307,18 @@ For **ClickHouse Cloud** specifically, set `CLICKHOUSE_SECURE=true` (in addition
 so `migrate_db.py` connects over TLS — Cloud's native port (typically `9440`) is TLS-only and will
 reject a plain connection.
 
+**Required permissions:** `migrate_db.py` polls `system.mutations` to know when an
+`ALTER TABLE ... UPDATE`/`DELETE`/`DROP COLUMN` has finished applying, in addition to whatever
+privileges it needs to actually run the migration's own statements. On ClickHouse Cloud (and any
+self-hosted instance with RBAC locked down beyond the default user), the ClickHouse user running
+`migrate_db.py` needs an explicit grant to read that system table, or the run fails partway
+through with an `ACCESS_DENIED` error even though the migration's own `ALTER`/`DROP COLUMN`
+statements already succeeded:
+
+```sql
+GRANT SHOW COLUMNS, SELECT ON system.mutations TO <your_clickhouse_user>;
+```
+
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
 ClickHouse deployment) still require the manual re-import process, since no migration path exists
 for versions prior to `3.0.0`:

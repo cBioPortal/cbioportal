@@ -7,7 +7,8 @@ strictly in ascending order. See the header of migrate_schema.sql for the sectio
 
 With --populate-derived-tables, also repopulates derived tables (populate_derived_tables.sql)
 after a run that actually applied one or more migration sections. Off by default, since some
-deployments may run derived-table population as a separate manual step.
+deployments may run derived-table population as a separate manual step. Add --force to repopulate
+derived tables even when there were no pending migrations (e.g. to rebuild them on demand).
 
 ClickHouse connection is configured via environment variables, matching the convention used by
 cbioportal-core's rebuild_derived_tables.py:
@@ -244,9 +245,9 @@ def populate_derived_tables(ch_props, populate_derived_tables_sql_filepath=None)
 
 
 def run_migrations(migrate_schema_sql_filepath=None, populate_derived_tables_flag=False,
-                    populate_derived_tables_sql_filepath=None):
+                    populate_derived_tables_sql_filepath=None, force=False):
     """Apply any pending migrations (and optionally repopulate derived tables if anything was
-    applied). Returns True on success, False on failure."""
+    applied, or unconditionally if force=True). Returns True on success, False on failure."""
     config_path = None
     try:
         filepath = migrate_schema_sql_filepath or DEFAULT_MIGRATE_SCHEMA_SQL
@@ -271,8 +272,13 @@ def run_migrations(migrate_schema_sql_filepath=None, populate_derived_tables_fla
             for section in pending:
                 apply_section(ch_props, section)
 
-        if populate_derived_tables_flag and pending:
-            populate_derived_tables(ch_props, populate_derived_tables_sql_filepath)
+        if populate_derived_tables_flag:
+            if pending:
+                populate_derived_tables(ch_props, populate_derived_tables_sql_filepath)
+            elif force:
+                print("No pending migrations, but --force was passed — repopulating derived "
+                      "tables anyway.")
+                populate_derived_tables(ch_props, populate_derived_tables_sql_filepath)
 
         return True
     except Exception as e:
@@ -300,12 +306,21 @@ def main():
         default=None,
         help="Path to populate_derived_tables.sql (defaults to the file next to this script's "
              "parent directory); only used with --populate-derived-tables")
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help="With --populate-derived-tables, repopulate derived tables even if there were no "
+             "pending migrations to apply. Useful for rebuilding derived tables on demand "
+             "without a real schema change to trigger it. No effect without "
+             "--populate-derived-tables, and no effect on which migrate_schema.sql sections get "
+             "applied — migrations are always applied strictly based on db_schema_version.")
     args = parser.parse_args()
 
     success = run_migrations(
         args.migrate_schema_sql,
         populate_derived_tables_flag=args.populate_derived_tables,
-        populate_derived_tables_sql_filepath=args.populate_derived_tables_sql)
+        populate_derived_tables_sql_filepath=args.populate_derived_tables_sql,
+        force=args.force)
     sys.exit(0 if success else 1)
 
 

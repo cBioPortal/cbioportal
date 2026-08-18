@@ -69,6 +69,7 @@
           OR rdata.SAMPLE_ID LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.TYPE LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.URL LIKE CONCAT('%', #{query.search}, '%')
+          OR (rdata.METADATA IS NOT NULL AND position(rdata.METADATA, #{query.search}) > 0)
         )
       </if>
       <if test="query.filters != null and !query.filters.isEmpty()">
@@ -92,7 +93,7 @@
                 <include refid="ApplyStringFilterOnDisplayName"/>
               </when>
               <when test="filter.columnId != null and filter.columnId.startsWith('metadata:')">
-                <bind name="metadataKey" value="filter.columnId.substring(9)"/>
+                <bind name="metadataFilterKey" value="filter.columnId.substring(9)"/>
                 <include refid="ApplyStringFilterOnMetadata"/>
               </when>
               <otherwise>
@@ -135,31 +136,38 @@
     </include>
   </sql>
 
+  <!--
+    Uses the "metadataFilterKey" bind variable set by callers of this fragment (see the
+    metadata:* branch in ResourceTableBaseFilters). Do NOT rename this to "metadataKey":
+    that name collides with the "metadataKey" @Param used by getResourceTableMetadataFacetValues,
+    and MyBatis <bind> variables are statement-scoped, so a same-named bind here would silently
+    override that parameter's value when both appear in the same rendered SQL statement.
+  -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and (filter.values == null || filter.values.isEmpty())">
         1 = 0
       </when>
       <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
       </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) != #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) != #{filter.values[0]}
       </when>
       <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) NOT IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) NOT IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) = #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) = #{filter.values[0]}
       </when>
       <otherwise>
         1 = 1

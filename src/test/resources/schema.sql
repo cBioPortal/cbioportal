@@ -612,6 +612,28 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
+CREATE TABLE resource_data (
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID`      String,
+    `CANCER_STUDY_ID`  Int64,
+    `ENTITY_TYPE`      String,
+    `PATIENT_ID`       Nullable(String),
+    `SAMPLE_ID`        Nullable(String),
+    `URL`              String,
+    `DISPLAY_NAME`     Nullable(String),
+    `TYPE`             Nullable(String),
+    `METADATA`         Nullable(String),
+    `PRIORITY`         Int32 DEFAULT 0
+) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
+
+-- In tests, resource_data_unified is a simple alias for resource_data.
+-- In production, this is a UNION ALL view over resource_data + legacy tables.
+CREATE VIEW resource_data_unified AS
+    SELECT
+        RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
+        PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA, PRIORITY
+    FROM resource_data;
+
 CREATE TABLE resource_patient (
     `internal_id` Int64,
     `resource_id` String,

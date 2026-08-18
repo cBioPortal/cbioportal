@@ -49,9 +49,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     // Dynamic metadata columns — discover keys then get distinct values for each.
-    // Keys are discovered against the fully-filtered query so that filtering by
-    // one metadata column doesn't surface unrelated keys that only exist elsewhere.
-    List<String> metadataKeys = mapper.getResourceTableMetadataKeys(query);
+    // Key discovery ignores ALL column-level filters (but keeps resourceId/study/patient/
+    // sample/search scoping) so that the set of available metadata columns stays stable
+    // regardless of the current filter selection — e.g. deselecting every option in one
+    // column's filter (which zeroes out matching rows) must not make other metadata
+    // columns disappear from the table / "Add columns" list.
+    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
+    List<String> metadataKeys = mapper.getResourceTableMetadataKeys(queryWithoutColumnFilters);
     if (metadataKeys != null) {
       for (String key : metadataKeys) {
         ResourceTableQuery queryWithoutOwnFilter = withoutFilterOnColumn(query, "metadata:" + key);
@@ -64,6 +68,24 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     return facets;
+  }
+
+  /** Returns a copy of the query with all column-level filters removed. */
+  private ResourceTableQuery withoutColumnFilters(ResourceTableQuery query) {
+    if (query.filters() == null || query.filters().isEmpty()) {
+      return query;
+    }
+    return new ResourceTableQuery(
+        query.studyIds(),
+        query.resourceId(),
+        query.patientIds(),
+        query.sampleIds(),
+        query.search(),
+        query.pageNumber(),
+        query.pageSize(),
+        query.sortBy(),
+        query.direction(),
+        List.of());
   }
 
   /**

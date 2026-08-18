@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "ResourceCount", description = "Represents resource data counts for a study")
@@ -67,8 +68,18 @@ public class ResourceCountDTO {
     return studyId;
   }
 
+  @JsonProperty("cancerStudyIdentifier")
+  public String getCancerStudyIdentifier() {
+    return studyId;
+  }
+
   public void setStudyId(String studyId) {
     this.studyId = studyId;
+  }
+
+  @JsonProperty("cancerStudyIdentifier")
+  public void setCancerStudyIdentifier(String cancerStudyIdentifier) {
+    this.studyId = cancerStudyIdentifier;
   }
 
   public String getCustomMetaData() {

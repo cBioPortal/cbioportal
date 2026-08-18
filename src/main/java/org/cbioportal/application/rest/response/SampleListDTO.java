@@ -10,7 +10,7 @@ public class SampleListDTO {
   private String studyId;
   @JsonIgnore private Integer listId;
   private String category;
-  private CancerStudyDTO study;
+  @JsonIgnore private CancerStudyDTO study;
   private String name;
   private String description;
   private Integer sampleCount;

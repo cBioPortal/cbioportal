@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.util.Set;
@@ -15,4 +16,19 @@ public record AlterationCountByGeneDTO(
     Set<String> matchingGenePanelIds,
     Integer entrezGeneId,
     String hugoGeneSymbol,
-    BigDecimal qValue) {}
+    BigDecimal qValue) {
+  @JsonProperty("uniqueEventKey")
+  public String uniqueEventKey() {
+    return hugoGeneSymbol;
+  }
+
+  @JsonProperty("hugoGeneSymbols")
+  public String[] hugoGeneSymbols() {
+    return hugoGeneSymbol == null ? null : new String[] {hugoGeneSymbol};
+  }
+
+  @JsonProperty("entrezGeneIds")
+  public Integer[] entrezGeneIds() {
+    return entrezGeneId == null ? null : new Integer[] {entrezGeneId};
+  }
+}

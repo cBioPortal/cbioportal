@@ -14,9 +14,10 @@ public class PatientDTO {
   @JsonIgnore
   private Integer internalId;
 
-  private CancerStudyDTO cancerStudy;
+  @JsonIgnore private CancerStudyDTO cancerStudy;
 
   @Schema(hidden = true)
+  @JsonIgnore
   private CancerStudyDTO study;
 
   public String getPatientId() {

@@ -15,7 +15,7 @@ public interface ClinicalDataMapper {
   @Mapping(
       target = "uniqueSampleKey",
       expression =
-          "java( Encoder.calculateBase64(clinicalData.sampleId()," + "clinicalData.studyId()) )")
+          "java(clinicalData.sampleId() == null ? null : Encoder.calculateBase64(clinicalData.sampleId(), clinicalData.studyId()))")
   @Mapping(
       target = "uniquePatientKey",
       expression =

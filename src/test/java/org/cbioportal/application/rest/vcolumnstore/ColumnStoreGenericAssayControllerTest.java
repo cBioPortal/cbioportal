@@ -27,7 +27,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -65,16 +64,10 @@ public class ColumnStoreGenericAssayControllerTest {
 
     when(getGenericAssayMetaUseCase.execute(any(), any(), any())).thenReturn(genericAssayMetaItems);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
-                    .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.get("/api/generic-assay-meta/" + PROF_ID)
+                .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -99,17 +92,11 @@ public class ColumnStoreGenericAssayControllerTest {
     when(getGenericAssayMetaUseCase.execute(any(), any(), any()))
         .thenReturn(genericAssayMetaSingleItem);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.get(
-                        "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
-                    .accept(MediaType.APPLICATION_JSON))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.get(
+                    "/api/generic-assay-meta/generic-assay/" + GENERIC_ASSAY_STABLE_ID_2)
+                .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -136,19 +123,13 @@ public class ColumnStoreGenericAssayControllerTest {
     when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
-                    .with(csrf())
-                    .accept(MediaType.APPLICATION_JSON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -181,22 +162,16 @@ public class ColumnStoreGenericAssayControllerTest {
     when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
-                    .queryParam("searchTerm", "tp53")
-                    .queryParam("pageSize", "100")
-                    .queryParam("pageNumber", "1")
-                    .with(csrf())
-                    .accept(MediaType.APPLICATION_JSON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                .queryParam("searchTerm", "tp53")
+                .queryParam("pageSize", "100")
+                .queryParam("pageNumber", "1")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string("total-count", "250"))
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
@@ -219,23 +194,17 @@ public class ColumnStoreGenericAssayControllerTest {
     when(getGenericAssayMetaUseCase.execute(any(), any(), any(), any(), any(), any()))
         .thenReturn(genericAssayMetaItems);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
-                    .queryParam("searchTerm", "tp53")
-                    .queryParam("pageSize", "100")
-                    .queryParam("pageNumber", "0")
-                    .queryParam("projection", "ID")
-                    .with(csrf())
-                    .accept(MediaType.APPLICATION_JSON)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/generic-assay-meta/fetch")
+                .queryParam("searchTerm", "tp53")
+                .queryParam("pageSize", "100")
+                .queryParam("pageNumber", "0")
+                .queryParam("projection", "ID")
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(genericAssayMetaFilter)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string("total-count", "5"));
 

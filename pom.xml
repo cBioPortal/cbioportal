@@ -99,9 +99,12 @@
     <bouncy_castle.version>1.78</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <tomcat.version>10.1.55</tomcat.version>
-    <!-- CVE fix ahead of the Spring Boot BOM: 4.1.135 (managed by Boot 3.5.16)
-         misses the Bzip2Decoder event-loop hang, GHSA-558v-64gr-wgg4 -->
+    <!-- CVE fixes ahead of the Spring Boot BOM: netty 4.1.135 (managed by Boot
+         3.5.16) misses the Bzip2Decoder event-loop hang (GHSA-558v-64gr-wgg4),
+         and jackson 2.21.4 is flagged for two @JsonView bypasses fixed in
+         2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w) -->
     <netty.version>4.1.136.Final</netty.version>
+    <jackson-bom.version>2.21.6</jackson-bom.version>
     <velocity.version>2.4</velocity.version>
     <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged
          by GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6; 5.6.x is the httpclient5 line

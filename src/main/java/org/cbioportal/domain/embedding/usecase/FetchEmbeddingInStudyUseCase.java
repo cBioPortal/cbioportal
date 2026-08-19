@@ -9,6 +9,12 @@ import org.cbioportal.domain.embedding.repository.EmbeddingRepository;
 import org.cbioportal.domain.embedding.util.EmbeddingUtil;
 import org.springframework.stereotype.Service;
 
+/**
+ * Use case for retrieving embedding (dimensionality-reduction) data for one or more studies. This
+ * class fetches the flat, denormalized rows from the {@link EmbeddingRepository} and reshapes
+ * them into the {@link Embedding} aggregate the API layer expects, computing patient/sample
+ * counts and deduplicating embedding metadata along the way.
+ */
 @Service
 public class FetchEmbeddingInStudyUseCase {
 
@@ -21,21 +27,23 @@ public class FetchEmbeddingInStudyUseCase {
   /**
    * Executes the use case to retrieve embedding data based on study and filter criteria.
    *
-   * <p>This method passes information from api into the repository layer.
+   * <p>This method passes the filter criteria into the repository layer to fetch the raw,
+   * per-point rows, then uses {@link EmbeddingUtil} to:
    *
    * <ul>
-   *   <li>
-   *   <li>
-   *   <li>
-   *   <li>
+   *   <li>count the distinct patients and samples represented
+   *   <li>extract the per-point coordinate/attribute data
+   *   <li>collect the distinct study IDs represented
+   *   <li>deduplicate the embedding metadata (name, description, entity type, etc.) into a single
+   *       {@link EmbeddingDefinition}
    * </ul>
    *
-   * @param reductionTechnique
-   * @param entityType
-   * @param studyIds
-   * @return list of {@link } objects matching the given filter and search criteria
-   * @see
-   * @see
+   * @param reductionTechnique the dimensionality-reduction technique to filter by (e.g. "umap",
+   *     "pca"), or {@code null} to include all
+   * @param entityType the entity type to filter by (e.g. "PATIENT", "SAMPLE"), or {@code null} to
+   *     include all
+   * @param studyIds the study IDs to fetch embedding data for
+   * @return the assembled {@link Embedding} containing per-point data plus study/sample counts
    */
   public Embedding execute(String reductionTechnique, String entityType, List<String> studyIds) {
     List<EmbeddingRow> embeddingRows =
@@ -48,6 +56,8 @@ public class FetchEmbeddingInStudyUseCase {
     List<EmbeddingDefinition> embeddingDefinitions =
         EmbeddingUtil.getUniqueEmbeddingDefinitions(embeddingRows);
 
+    // The filter (reductionTechnique/entityType) is expected to narrow results to a single
+    // embedding definition; only the first is used even if the query somehow returns more.
     return new Embedding(
         studyIdentifier,
         totalNumOfPSample,

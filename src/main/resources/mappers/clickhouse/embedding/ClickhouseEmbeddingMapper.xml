@@ -57,6 +57,11 @@
     </select>
 
 
+    <!--
+        Constructor args are bound positionally to EmbeddingRow's canonical constructor, not by
+        name — the order below must exactly match the record's field order, regardless of what
+        each column happens to be aliased as.
+    -->
     <resultMap id="embeddingRowResultMap" type="org.cbioportal.domain.embedding.EmbeddingRow">
         <constructor>
             <arg column="internalId" javaType="Integer"/>

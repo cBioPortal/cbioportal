@@ -4,6 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
+/**
+ * Request body for {@code POST /study/embeddings}. {@code studyIds} is required and must be
+ * non-empty; {@code reductionTechnique} and {@code embeddingType} are optional filters — when
+ * omitted, the query matches all values for that field.
+ */
 public class EmbeddingFilter {
   @NotNull
   @Size(min = 1)

@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.*;
  * <p>This controller is only active when the "clickhouse" profile is enabled and requires
  * appropriate read permissions for the requested cancer studies.
  *
- * <p>// * @see EmbeddingDataDTO
+ * @see EmbeddingDTO
  */
 @InternalApi
 @Tag(name = InternalApiTags.EMBEDDING, description = "Embedding data")
@@ -44,21 +44,20 @@ public class ColumnStoreEmbeddingController {
   /**
    * Constructs a new {@link ColumnStoreEmbeddingController} with the specified use case.
    *
-   * @param
+   * @param embeddingUseCases the use cases used to fetch embedding data for a study
    */
   public ColumnStoreEmbeddingController(EmbeddingUseCases embeddingUseCases) {
     this.embeddingUseCases = embeddingUseCases;
   }
 
   /**
-   * Fetch Embedding entrezGeneIds
+   * Fetches embedding (dimensionality-reduction) coordinates for one or more studies, optionally
+   * filtered by reduction technique (e.g. "umap", "pca") and entity type (e.g. "PATIENT",
+   * "SAMPLE").
    *
-   * @param
-   * @param
-   * @return ResponseEntity containing list of embedding data DTOs
+   * @param embeddingFilter the study IDs and optional reduction technique / entity type filters
+   * @return a {@link ResponseEntity} wrapping the {@link EmbeddingDTO} for the requested studies
    */
-  @InternalApi
-  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -70,7 +69,7 @@ public class ColumnStoreEmbeddingController {
       @Valid @RequestBody(required = true) EmbeddingFilter embeddingFilter) {
 
     EmbeddingDTO embeddingDTO =
-        EmbeddingMapper.INSTANCE.toEmbeddingDTOO(
+        EmbeddingMapper.INSTANCE.toEmbeddingDTO(
             embeddingUseCases
                 .fetchEmbeddingInStudyUseCase()
                 .execute(

@@ -5,6 +5,11 @@ import org.cbioportal.domain.embedding.EmbeddingRow;
 import org.cbioportal.domain.embedding.repository.EmbeddingRepository;
 import org.springframework.stereotype.Repository;
 
+/**
+ * ClickHouse-backed implementation of {@link EmbeddingRepository}. Delegates to the MyBatis {@link
+ * ClickhouseEmbeddingMapper}, which runs the actual SQL against the column-store embedding
+ * tables.
+ */
 @Repository
 public class ClickhouseEmbeddingRepository implements EmbeddingRepository {
 
@@ -15,10 +20,11 @@ public class ClickhouseEmbeddingRepository implements EmbeddingRepository {
   }
 
   /**
-   * @param reductionTechnique
-   * @param entityType
-   * @param studyIds
-   * @return
+   * @param reductionTechnique the dimensionality-reduction technique to filter by, or {@code
+   *     null} to include all
+   * @param entityType the entity type to filter by, or {@code null} to include all
+   * @param studyIds the study IDs to fetch embedding data for
+   * @return the matching rows, one per embedded point
    */
   @Override
   public List<EmbeddingRow> getEmbeddingDataInStudy(

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * Use case for retrieving embedding (dimensionality-reduction) data for one or more studies. This
- * class fetches the flat, denormalized rows from the {@link EmbeddingRepository} and reshapes
- * them into the {@link Embedding} aggregate the API layer expects, computing patient/sample
- * counts and deduplicating embedding metadata along the way.
+ * class fetches the flat, denormalized rows from the {@link EmbeddingRepository} and reshapes them
+ * into the {@link Embedding} aggregate the API layer expects, computing patient/sample counts and
+ * deduplicating embedding metadata along the way.
  */
 @Service
 public class FetchEmbeddingInStudyUseCase {
@@ -27,8 +27,8 @@ public class FetchEmbeddingInStudyUseCase {
   /**
    * Executes the use case to retrieve embedding data based on study and filter criteria.
    *
-   * <p>This method passes the filter criteria into the repository layer to fetch the raw,
-   * per-point rows, then uses {@link EmbeddingUtil} to:
+   * <p>This method passes the filter criteria into the repository layer to fetch the raw, per-point
+   * rows, then uses {@link EmbeddingUtil} to:
    *
    * <ul>
    *   <li>count the distinct patients and samples represented

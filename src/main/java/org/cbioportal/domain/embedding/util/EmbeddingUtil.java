@@ -6,8 +6,8 @@ import org.cbioportal.domain.embedding.EmbeddingDefinition;
 import org.cbioportal.domain.embedding.EmbeddingRow;
 
 /**
- * Static helpers for reshaping the flat {@link EmbeddingRow} rows returned by the repository
- * (one row per point, denormalized with study/embedding metadata repeated on every row) into the
+ * Static helpers for reshaping the flat {@link EmbeddingRow} rows returned by the repository (one
+ * row per point, denormalized with study/embedding metadata repeated on every row) into the
  * aggregated shapes {@link org.cbioportal.domain.embedding.usecase.FetchEmbeddingInStudyUseCase}
  * needs.
  */

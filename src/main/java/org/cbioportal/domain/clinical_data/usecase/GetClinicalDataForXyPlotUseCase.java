@@ -9,6 +9,8 @@ import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,6 +20,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GetClinicalDataForXyPlotUseCase {
+
+  private static final Logger log = LoggerFactory.getLogger(GetClinicalDataForXyPlotUseCase.class);
 
   private final GetPatientClinicalDataUseCase getPatientClinicalDataUseCase;
   private final GetSampleClinicalDataUseCase getSampleClinicalDataUseCase;
@@ -137,26 +141,43 @@ public class GetClinicalDataForXyPlotUseCase {
                 Collectors.groupingBy(
                     Sample::patientStableId, Collectors.groupingBy(Sample::cancerStudyIdentifier)));
 
-    // Put all clinical data into sample form
+    // Put all clinical data into sample form.
+    // Guard against two edge cases that would otherwise cause silent data loss or an NPE:
+    //   1. The patient has no entry in the sample map at all (patientToSamples returns null).
+    //   2. The patient exists in the map but has no samples for the requested study.
+    // Both cases are logged as warnings because they indicate a potential data integrity problem.
     for (ClinicalData d : patientClinicalDataList) {
-      List<Sample> samplesForPatient = patientToSamples.get(d.patientId()).get(d.studyId());
-      if (samplesForPatient != null) {
-        for (Sample s : samplesForPatient) {
-          ClinicalData newData =
-              new ClinicalData(
-                  s.internalId(),
-                  s.stableId(),
-                  d.patientId(),
-                  d.studyId(),
-                  d.attrId(),
-                  d.attrValue());
-          sampleClinicalDataList.add(newData);
-        }
-      } else {
-        // TODO: Ignoring for now rather than throwing an error
-        // patient has no samples - this shouldn't happen and could affect the integrity
-        // of the data analysis
-        // return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+      Map<String, List<Sample>> samplesByStudy = patientToSamples.get(d.patientId());
+      if (samplesByStudy == null) {
+        log.warn(
+            "Patient '{}' has patient-level clinical data (attribute '{}') but no samples "
+                + "in the filtered set — skipping XY plot data point. "
+                + "This may indicate a data integrity issue.",
+            d.patientId(),
+            d.attrId());
+        continue;
+      }
+      List<Sample> samplesForPatient = samplesByStudy.get(d.studyId());
+      if (samplesForPatient == null) {
+        log.warn(
+            "Patient '{}' has no samples in study '{}' for clinical attribute '{}' "
+                + "— skipping XY plot data point. "
+                + "This may indicate a data integrity issue.",
+            d.patientId(),
+            d.studyId(),
+            d.attrId());
+        continue;
+      }
+      for (Sample s : samplesForPatient) {
+        ClinicalData newData =
+            new ClinicalData(
+                s.internalId(),
+                s.stableId(),
+                d.patientId(),
+                d.studyId(),
+                d.attrId(),
+                d.attrValue());
+        sampleClinicalDataList.add(newData);
       }
     }
 

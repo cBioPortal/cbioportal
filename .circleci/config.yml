@@ -92,7 +92,7 @@ jobs:
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
-              FRONTEND_REPO_SHA: 575200bfcaf0d94971b6cfecb11bb618c9a1f790
+              FRONTEND_REPO_SHA: 9e413476fc4b4247cd6a87d82dcc5603a5bc987a
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
               git -C cbioportal-frontend fetch --depth 1 origin ${FRONTEND_REPO_SHA}
@@ -849,9 +849,9 @@ jobs:
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                575200bfcaf0d94971b6cfecb11bb618c9a1f790
+                9e413476fc4b4247cd6a87d82dcc5603a5bc987a
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                575200bfcaf0d94971b6cfecb11bb618c9a1f790
+                9e413476fc4b4247cd6a87d82dcc5603a5bc987a
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

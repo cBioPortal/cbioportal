@@ -641,6 +641,13 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
+              # Forked pull-request jobs do not receive the ClickHouse context.
+              # Pass the read-only staging connection explicitly so the remote
+              # ClickHouse compose override does not fall back to the disabled
+              # local database hostname.
+              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
+              CLICKHOUSE_USER: "apitests"
+              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
@@ -834,9 +841,9 @@ jobs:
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                f3eddebf7b3bb916fc615054eac7fb8e944b3546
+                f0ace2589e97218684ada3913ffaaa85d1b30561
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                f3eddebf7b3bb916fc615054eac7fb8e944b3546
+                f0ace2589e97218684ada3913ffaaa85d1b30561
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

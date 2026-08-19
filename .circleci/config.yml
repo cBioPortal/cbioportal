@@ -350,8 +350,13 @@ jobs:
               sudo systemctl stop unattended-upgrades.service apt-daily.service apt-daily-upgrade.service apt-daily.timer apt-daily-upgrade.timer 2>/dev/null || true
               sudo killall apt apt-get 2>/dev/null || true
               APT_OPTS='-o DPkg::Lock::Timeout=600 -o Dpkg::Use-Pty=0'
-              sudo apt-get $APT_OPTS update
-              npx playwright install chromium
+              BROWSER_CACHE="$HOME/.cache/ms-playwright"
+              if find "$BROWSER_CACHE" -maxdepth 1 -type d -name 'chromium-*' -print -quit 2>/dev/null | grep -q .; then
+                echo "Playwright Chromium cache hit — skipping browser download"
+              else
+                sudo apt-get $APT_OPTS update
+                npx playwright install chromium
+              fi
               sudo apt-get $APT_OPTS install -y \
                 libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
                 libxkbcommon0 libatspi2.0-0 libxcomposite1 libxdamage1 \

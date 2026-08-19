@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840397096343">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840480286625">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.840397096343" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.840480286625" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.840397096343" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.840480286625" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.840397096343" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.840397096343" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.840480286625" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.840480286625" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -302,7 +302,7 @@ clickhouse client --host &lt;hostname&gt; --port &lt;port&gt; --user &lt;user&gt
 <p>ClickHouse stores two categories of tables:</p>
 <ul>
 <li><strong>Base tables</strong> — Store the raw study data as imported: cancer studies, samples, patients, genetic profiles, mutations, copy-number alterations, clinical data, etc. These are populated by <code translate="no" v-pre>metaImport.py</code> during study import.</li>
-<li><strong>Derived tables</strong> — Precomputed, denormalized tables built from the base tables by running <code translate="no" v-pre>clickhouse.sql</code>. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See <doc-anchor-trigger to="#7-notes-on-derived-tables">section 7</doc-anchor-trigger> for details.</li>
+<li><strong>Derived tables</strong> — Precomputed, denormalized tables built from the base tables. Their structure is defined in <code translate="no" v-pre>schema.sql</code> alongside every other table; their data is populated by running <code translate="no" v-pre>populate_derived_tables.sql</code>. These accelerate Study View queries by collapsing joins across multiple base tables into a single table scan. See <doc-anchor-trigger to="#7-notes-on-derived-tables">section 7</doc-anchor-trigger> for details.</li>
 </ul>
 <h3 id="how-components-connect">How Components Connect</h3>
 <div id="how-components-connect-code-1" class="codeblock-wrapper"><doc-codeblock>
@@ -353,9 +353,9 @@ docker compose exec cbioportal-database \
 <h2 id="5-relevant-data-files">5. Relevant Data Files</h2>
 <p>After running the <code translate="no" v-pre>init.sh</code> script from the Docker Compose steps above, you will notice several new files present in the <code translate="no" v-pre>data/</code> directory. These include:</p>
 <ul>
-<li><strong>schema.sql</strong> -- This is the base schema for the cBioPortal database.</li>
+<li><strong>schema.sql</strong> -- This is the base schema for the cBioPortal database, including the (empty) derived table definitions.</li>
 <li><strong>seed.sql.gz</strong> -- This contains the latest &quot;seed data&quot; for this version of the schema, including reference data like gene symbols.</li>
-<li><strong>clickhouse.sql</strong> -- This script is responsible for creating &quot;derived tables&quot; that the cBioPortal web application uses to load pages faster. Refer below for more info on derived tables.</li>
+<li><strong>populate_derived_tables.sql</strong> -- This script populates the &quot;derived tables&quot; that the cBioPortal web application uses to load pages faster. It doesn&#x27;t define table structure (that&#x27;s in <code translate="no" v-pre>schema.sql</code>) — it&#x27;s just data population, safe to run repeatedly. Refer below for more info on derived tables.</li>
 <li><strong>clickhouse_user_settings.xml</strong> -- This file contains the default settings that are assigned to the ClickHouse user in the newly created database.</li>
 </ul>
 <hr>
@@ -368,9 +368,55 @@ docker compose exec cbioportal-database \
 <p>Derived tables are <strong>standalone tables</strong> that function analogously to materialized views — they pre-join and denormalize data from the base cBioPortal tables. They exist purely for query performance — when a user opens the Study View, cBioPortal queries derived tables instead of joining many base tables at runtime.</p>
 <p>Without derived tables, every Study View page load would need to join across genetic_profiles, genetic_alterations, samples, patients, and clinical data on the fly. Derived tables collapse these joins into precomputed structures, making queries 10–100× faster. Unlike database-level materialized views, derived tables have no built-in automatic refresh mechanism — they must be rebuilt explicitly when data changes.</p>
 <h3 id="when-derived-tables-are-built">When Derived Tables Are Built</h3>
+<retype-table copy-text="| Scenario | Derived tables rebuilt? | Why |
+|---|---|---|
+| First-ever `docker compose up` (empty ClickHouse volume) | Yes | The fresh-install init scripts load `schema.sql` (creates derived tables, empty) then run `populate_derived_tables.sql` as part of first-time database setup. |
+| `docker compose up` on an existing, already-initialized database, no pending migration | No | Docker's init scripts only run once against an empty data volume; nothing else rebuilds derived tables on a plain restart. |
+| After importing a study (`metaImport.py`) | Yes, automatically | `metaImport.py` repopulates derived tables after every successful import, unless you pass `--no-derive-tables` (see below). |
+| After `docker compose up` applies a pending schema migration | Yes, automatically | `migrate_db.py` is invoked with `--populate-derived-tables` in `cbioportal-docker-compose`, so it repopulates derived tables whenever a migration run actually applied one or more `migrate_schema.sql` sections. See [§12 Version Migration](#12-version-migration). |
+| Manual deployments running `migrate_db.py` directly (no docker-compose) | No, unless you opt in | `migrate_db.py` does **not** repopulate derived tables by default — pass `--populate-derived-tables`, or rebuild them yourself as a separate step. See [§12 Version Migration](#12-version-migration). |">
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Derived tables rebuilt?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First-ever <code translate="no" v-pre>docker compose up</code> (empty ClickHouse volume)</td>
+<td>Yes</td>
+<td>The fresh-install init scripts load <code translate="no" v-pre>schema.sql</code> (creates derived tables, empty) then run <code translate="no" v-pre>populate_derived_tables.sql</code> as part of first-time database setup.</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>docker compose up</code> on an existing, already-initialized database, no pending migration</td>
+<td>No</td>
+<td>Docker&#x27;s init scripts only run once against an empty data volume; nothing else rebuilds derived tables on a plain restart.</td>
+</tr>
+<tr>
+<td>After importing a study (<code translate="no" v-pre>metaImport.py</code>)</td>
+<td>Yes, automatically</td>
+<td><code translate="no" v-pre>metaImport.py</code> repopulates derived tables after every successful import, unless you pass <code translate="no" v-pre>--no-derive-tables</code> (see below).</td>
+</tr>
+<tr>
+<td>After <code translate="no" v-pre>docker compose up</code> applies a pending schema migration</td>
+<td>Yes, automatically</td>
+<td><code translate="no" v-pre>migrate_db.py</code> is invoked with <code translate="no" v-pre>--populate-derived-tables</code> in <code translate="no" v-pre>cbioportal-docker-compose</code>, so it repopulates derived tables whenever a migration run actually applied one or more <code translate="no" v-pre>migrate_schema.sql</code> sections. See <doc-anchor-trigger to="#12-version-migration">§12 Version Migration</doc-anchor-trigger>.</td>
+</tr>
+<tr>
+<td>Manual deployments running <code translate="no" v-pre>migrate_db.py</code> directly (no docker-compose)</td>
+<td>No, unless you opt in</td>
+<td><code translate="no" v-pre>migrate_db.py</code> does <strong>not</strong> repopulate derived tables by default — pass <code translate="no" v-pre>--populate-derived-tables</code>, or rebuild them yourself as a separate step. See <doc-anchor-trigger to="#12-version-migration">§12 Version Migration</doc-anchor-trigger>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</retype-table>
 <p>By default, <code translate="no" v-pre>metaImport.py</code> <strong>automatically rebuilds derived tables</strong> after every import. This ensures query performance stays fast after loading new studies.</p>
 <h3 id="skipping-derived-table-rebuild---no-derive-tables-and-derive-tables">Skipping Derived Table Rebuild (<code translate="no" v-pre>--no-derive-tables</code> and <code translate="no" v-pre>derive-tables</code>)</h3>
-<p>The <code translate="no" v-pre>derive-tables</code> command recreates all derived table structures based on all study data in the database. Normally, it&#x27;s not necessary to run since <code translate="no" v-pre>metaImport.py</code> will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:</p>
+<p>The <code translate="no" v-pre>derive-tables</code> command repopulates all derived tables based on all study data currently in the database (table structure is unaffected — that&#x27;s defined in <code translate="no" v-pre>schema.sql</code>). Normally, it&#x27;s not necessary to run since <code translate="no" v-pre>metaImport.py</code> will automatically do so every time a study is imported. However, if you are importing many studies in a batch, you can skip the derived table rebuild after each import to save time, only doing it once at the end:</p>
 <div id="skipping-derived-table-rebuild---no-derive-tables-and-derive-tables-code-1" class="codeblock-wrapper"><doc-codeblock>
 <pre translate="no" class="language-bash"><code v-pre class="language-bash">docker compose exec cbioportal metaImport.py -s /study/study1 -o --no-derive-tables
 docker compose exec cbioportal metaImport.py -s /study/study2 -o --no-derive-tables
@@ -432,17 +478,55 @@ docker compose exec cbioportal metaImport.py derive-tables</code></pre>
 <p>After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided <a href="https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations">here</a>.</p>
 <hr>
 <h2 id="12-version-migration">12. Version Migration</h2>
-<blockquote>
-<p><span class="docs-emoji">&#x26A0;&#xFE0F;</span> <strong>There is currently no automated mechanism for migrating data between ClickHouse versions.</strong></p>
-</blockquote>
-<p>A migration tool for in-place schema upgrades is under development and will be available when the first update to the base table schema (<code translate="no" v-pre>DB_SCHEMA_VERSION</code>) is released. There will be no updates to the base table schema before this tool is ready. Derived table schema updates (tracked by <code translate="no" v-pre>DERIVED_TABLE_SCHEMA_VERSION</code>) can be applied by simply rebuilding your derived tables. Stay tuned to the <a href="https://docs.cbioportal.org/news/">cBioPortal release notes</a> for updates.</p>
-<p>If you upgrade to a newer version of cBioPortal that includes schema changes, you will need to:</p>
+<p>Starting with <code translate="no" v-pre>DB_SCHEMA_VERSION</code> <code translate="no" v-pre>3.0.0</code>, in-place schema upgrades are handled by
+<code translate="no" v-pre>db-scripts/clickhouse/migrate/migrate_schema.sql</code> (a forward-only, version-tagged set of SQL
+sections) applied by <code translate="no" v-pre>db-scripts/clickhouse/migrate/migrate_db.py</code>. The runner reads the current
+<code translate="no" v-pre>db_schema_version</code> from the <code translate="no" v-pre>info</code> table, skips sections already applied, and applies the rest in
+order, advancing <code translate="no" v-pre>db_schema_version</code> itself after each section succeeds.</p>
+<p>There is a single <code translate="no" v-pre>db_schema_version</code> covering both base and derived tables — derived table
+<em>structure</em> is defined in <code translate="no" v-pre>schema.sql</code> alongside every other table, so a derived-table structure
+change ships as an ordinary <code translate="no" v-pre>migrate_schema.sql</code> section like any other schema change. Derived
+table <em>data</em> is repopulated separately by <code translate="no" v-pre>db-scripts/clickhouse/populate_derived_tables.sql</code>,
+which doesn&#x27;t have its own version — it only clears and rebuilds data, never structure, and can
+be run any time (after an import, after a migration, or manually) <strong>as long as no backend web
+service is connected to the database in production</strong>. It <code translate="no" v-pre>TRUNCATE</code>s derived tables before
+repopulating them, so a live instance querying the database mid-run will see empty or
+partially-rebuilt derived tables and surface errors — take the web service offline first.</p>
+<p><strong>Docker Compose deployments:</strong> <code translate="no" v-pre>git pull</code> the latest <code translate="no" v-pre>cbioportal-docker-compose</code> master, then
+<code translate="no" v-pre>docker compose up</code>. The migration step runs automatically before the <code translate="no" v-pre>cbioportal</code> service starts;
+on a fresh install it&#x27;s a safe no-op since <code translate="no" v-pre>schema.sql</code> already seeds <code translate="no" v-pre>info</code> at the current
+version. It also repopulates derived tables automatically whenever a migration run actually
+applies one or more sections — you don&#x27;t need a separate manual step.</p>
+<p><strong>Manual deployments (e.g. ClickHouse Cloud, Kubernetes, or any setup that doesn&#x27;t go through
+<code translate="no" v-pre>cbioportal-docker-compose</code>):</strong> run <code translate="no" v-pre>migrate_db.py</code> directly against your database before deploying
+the new cBioPortal backend image. By default <code translate="no" v-pre>migrate_db.py</code> only touches base tables — pass
+<code translate="no" v-pre>--populate-derived-tables</code> if you want it to also repopulate derived tables in the same run when
+migrations were applied; otherwise, rebuild derived tables yourself as a separate step (e.g. if you
+run derivation through your own tooling against ClickHouse Cloud). The backend refuses to start
+against a <code translate="no" v-pre>db_schema_version</code> that doesn&#x27;t match its build&#x27;s <code translate="no" v-pre>db.version</code> unless
+<code translate="no" v-pre>db.suppress_schema_version_mismatch_errors=true</code> is set.</p>
+<p>For <strong>ClickHouse Cloud</strong> specifically, set <code translate="no" v-pre>CLICKHOUSE_SECURE=true</code> (in addition to the usual
+<code translate="no" v-pre>CLICKHOUSE_HOST</code>/<code translate="no" v-pre>CLICKHOUSE_NATIVE_PORT</code>/<code translate="no" v-pre>CLICKHOUSE_USER</code>/<code translate="no" v-pre>CLICKHOUSE_PASSWORD</code>/<code translate="no" v-pre>CLICKHOUSE_DB</code>)
+so <code translate="no" v-pre>migrate_db.py</code> connects over TLS — Cloud&#x27;s native port (typically <code translate="no" v-pre>9440</code>) is TLS-only and will
+reject a plain connection.</p>
+<p><strong>Required permissions:</strong> <code translate="no" v-pre>migrate_db.py</code> polls <code translate="no" v-pre>system.mutations</code> to know when an
+<code translate="no" v-pre>ALTER TABLE ... UPDATE</code>/<code translate="no" v-pre>DELETE</code>/<code translate="no" v-pre>DROP COLUMN</code> has finished applying, in addition to whatever
+privileges it needs to actually run the migration&#x27;s own statements. On ClickHouse Cloud (and any
+self-hosted instance with RBAC locked down beyond the default user), the ClickHouse user running
+<code translate="no" v-pre>migrate_db.py</code> needs an explicit grant to read that system table, or the run fails partway
+through with an <code translate="no" v-pre>ACCESS_DENIED</code> error even though the migration&#x27;s own <code translate="no" v-pre>ALTER</code>/<code translate="no" v-pre>DROP COLUMN</code>
+statements already succeeded:</p>
+<div id="12-version-migration-code-1" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-sql"><code v-pre class="language-sql">GRANT SHOW COLUMNS, SELECT ON system.mutations TO &lt;your_clickhouse_user&gt;;</code></pre>
+</doc-codeblock></div>
+<p>Upgrades from <strong>before</strong> <code translate="no" v-pre>3.0.0</code> (i.e. the original v6→v7 migration, or any pre-migration-tooling
+ClickHouse deployment) still require the manual re-import process, since no migration path exists
+for versions prior to <code translate="no" v-pre>3.0.0</code>:</p>
 <ol>
 <li>Export your study data (study files).</li>
 <li>Initialize a fresh ClickHouse database with the new schema.</li>
 <li>Re-import all studies using <code translate="no" v-pre>metaImport.py -s ...</code>.</li>
 </ol>
-<p>This manual process will only be necessary for the initial v6→v7 migration and during the development period before the schema migration tool is released.</p>
 <hr>
 <h2 id="13-further-reading">13. Further Reading</h2>
 <ul>

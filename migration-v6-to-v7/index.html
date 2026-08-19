@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840397096343">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840480286625">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.840397096343" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.840480286625" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.840397096343" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.840480286625" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.840397096343" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.840397096343" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.840480286625" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.840480286625" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -246,9 +246,9 @@
 <p>Follow the <a href="../deployment/clickhouse/#4-docker-compose-setup">ClickHouse Setup Guide</a> to:</p>
 <ol>
 <li>Create a ClickHouse database and user.</li>
-<li>Load the cBioPortal schema (<code translate="no" v-pre>clickhouse.sql</code>).</li>
+<li>Load the cBioPortal schema (<code translate="no" v-pre>schema.sql</code>) — this also creates the (empty) derived tables.</li>
 <li>Load the seed database (reference data like genes, cancer types).</li>
-<li>Create derived tables.</li>
+<li>Populate derived tables (<code translate="no" v-pre>populate_derived_tables.sql</code>).</li>
 </ol>
 <h3 id="step-2-re-import-all-studies">Step 2: Re-Import All Studies</h3>
 <p>For each study, run a full import using <code translate="no" v-pre>metaImport.py</code>:</p>

@@ -19,7 +19,7 @@ public final class SampleClinicalDataCollectionMapper {
             .collect(
                 Collectors.toMap(
                     Map.Entry::getKey,
-                    e -> LegacyClinicalDataMapper.INSTANCE.toDtos(e.getValue())));
+                    e -> LegacyClinicalDataMapper.INSTANCE.toDtosForTable(e.getValue())));
 
     return new SampleClinicalDataCollectionDTO(mapped);
   }

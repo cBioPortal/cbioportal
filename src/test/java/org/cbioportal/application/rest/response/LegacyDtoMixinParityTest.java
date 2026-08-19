@@ -26,7 +26,7 @@ public class LegacyDtoMixinParityTest {
   }
 
   @Test
-  public void patientDtoDoesNotExposeLegacyIgnoredStudyObjects() {
+  public void patientDtoExposesCancerStudyInDetailedProjection() {
     PatientDTO dto = new PatientDTO();
     dto.setPatientId("patient_1");
     dto.setStudyId("study_1");
@@ -37,7 +37,7 @@ public class LegacyDtoMixinParityTest {
 
     assertTrue(json.has("patientId"));
     assertTrue(json.has("studyId"));
-    assertFalse(json.has("cancerStudy"));
+    assertTrue(json.has("cancerStudy"));
     assertFalse(json.has("study"));
   }
 }

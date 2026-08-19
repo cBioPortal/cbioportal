@@ -1,5 +1,6 @@
 package org.cbioportal.application.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -64,6 +65,7 @@ public class ResourceCountDTO {
     this.openByDefault = openByDefault;
   }
 
+  @JsonIgnore
   public String getStudyId() {
     return studyId;
   }

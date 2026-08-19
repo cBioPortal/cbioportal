@@ -1,6 +1,5 @@
 package org.cbioportal.domain.cancerstudy;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 public record ResourceCount(
@@ -14,10 +13,4 @@ public record ResourceCount(
     String customMetaData,
     Integer sampleCount,
     Integer patientCount)
-    implements Serializable {
-
-  @JsonProperty("studyId")
-  public String studyId() {
-    return cancerStudyIdentifier;
-  }
-}
+    implements Serializable {}

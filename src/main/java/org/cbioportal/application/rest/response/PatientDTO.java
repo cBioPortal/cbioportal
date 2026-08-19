@@ -14,7 +14,7 @@ public class PatientDTO {
   @JsonIgnore
   private Integer internalId;
 
-  @JsonIgnore private CancerStudyDTO cancerStudy;
+  private CancerStudyDTO cancerStudy;
 
   @Schema(hidden = true)
   @JsonIgnore

@@ -12,7 +12,7 @@
 
   <groupId>io.github.cbioportal</groupId>
   <artifactId>cbioportal</artifactId>
-  <version>v7.0.7-SNAPSHOT</version>
+  <version>v7.1.0</version>
   <packaging>jar</packaging>
   <description>cBioPortal for Cancer Genomics</description>
 
@@ -28,7 +28,7 @@
     <!-- TODO replace with version of cbioportal frontend with compatible login url-->
     <frontend.groupId>io.github.cbioportal</frontend.groupId>
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-    <frontend.version>v7.0.6</frontend.version>
+    <frontend.version>v7.1.0</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC WITH src/main/resources/db-scripts/clickhouse/init/schema.sql
          AND src/main/resources/db-scripts/clickhouse/migrate/migrate_schema.sql -->
     <db.version>3.0.0</db.version>

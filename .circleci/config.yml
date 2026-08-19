@@ -92,8 +92,11 @@ jobs:
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
+              FRONTEND_REPO_SHA: 1ab44f9d504d32cf2951b889d636d5efeaa173cc
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
+              git -C cbioportal-frontend fetch --depth 1 origin ${FRONTEND_REPO_SHA}
+              git -C cbioportal-frontend checkout --detach ${FRONTEND_REPO_SHA}
         - persist_to_workspace:
             root: /tmp/repos
             paths:

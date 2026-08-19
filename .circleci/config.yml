@@ -841,9 +841,9 @@ jobs:
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                aa75d75f01cf46a5e60cabd13f7c9b15952bd8cb
+                ede14431912a136d82eee38d0bddc7441edac783
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                aa75d75f01cf46a5e60cabd13f7c9b15952bd8cb
+                ede14431912a136d82eee38d0bddc7441edac783
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

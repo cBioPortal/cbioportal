@@ -897,6 +897,10 @@ jobs:
             name: Smoke check local-file WSI tile server mode
             command: |
               curl -fsS http://localhost:8081/health | jq '.auth_contract_version' > /tmp/repos/wsi-tile-smoke.txt
+        - restore_cache:
+            name: Restore Playwright browser cache for WSI E2E
+            keys:
+              - v1-playwright-browsers-{{ checksum "cbioportal-frontend-wsi/end-to-end-test-playwright/pnpm-lock.yaml" }}
         - run:
             name: Run WSI API tests
             environment:
@@ -924,6 +928,7 @@ jobs:
         - run:
             name: Install Chromium for WSI browser E2E
             working_directory: /tmp/repos/cbioportal-frontend-wsi/end-to-end-test-playwright
+            no_output_timeout: 20m
             command: |
               export NVM_DIR="$HOME/.nvm"
               [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -931,9 +936,19 @@ jobs:
               corepack enable
               corepack prepare pnpm@10.33.0 --activate
               pnpm install --frozen-lockfile --ignore-workspace
-              export DEBIAN_FRONTEND=noninteractive
-              export NEEDRESTART_MODE=a
-              pnpm exec playwright install --with-deps chromium
+              BROWSER_CACHE="$HOME/.cache/ms-playwright"
+              if find "$BROWSER_CACHE" -maxdepth 1 -type d -name 'chromium-*' -print -quit 2>/dev/null | grep -q .; then
+                echo "Playwright Chromium cache hit — skipping browser download"
+              else
+                export DEBIAN_FRONTEND=noninteractive
+                export NEEDRESTART_MODE=a
+                pnpm exec playwright install --with-deps chromium
+              fi
+        - save_cache:
+            name: Save Playwright browser cache for WSI E2E
+            key: v1-playwright-browsers-{{ checksum "cbioportal-frontend-wsi/end-to-end-test-playwright/pnpm-lock.yaml" }}
+            paths:
+              - ~/.cache/ms-playwright
         - run:
             name: Run WSI browser E2E against imported backend
             environment:

@@ -119,6 +119,7 @@
              INNER JOIN sample s ON s.internal_id = rs.internal_id
              INNER JOIN patient p ON p.internal_id = s.patient_id
              INNER JOIN cancer_study cs ON cs.cancer_study_id = p.cancer_study_id
+             AND rd.cancer_study_id = cs.cancer_study_id
     </sql>
 
     <sql id="selectPatientResourceCounts">
@@ -132,8 +133,9 @@
         FROM cancer_study cs
              INNER JOIN patient p ON cs.cancer_study_id = p.cancer_study_id
              LEFT JOIN sample s ON p.internal_id = s.patient_id
-             INNER JOIN resource_patient rp ON rp.internal_id = s.patient_id
+             INNER JOIN resource_patient rp ON rp.internal_id = p.internal_id
              INNER JOIN resource_definition rd ON rd.resource_id = rp.resource_id
+             AND rd.cancer_study_id = cs.cancer_study_id
     </sql>
 
     <select id="getStudies" resultType="org.cbioportal.legacy.model.CancerStudy">

@@ -101,6 +101,11 @@
     <mapstruct.version>1.6.3</mapstruct.version>
     <tomcat.version>10.1.45</tomcat.version>
     <velocity.version>2.4</velocity.version>
+    <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged
+         by GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6; 5.6.x is the httpclient5 line
+         built against httpcore5 5.4.x -->
+    <httpclient5.version>5.6.4</httpclient5.version>
+    <httpcore5.version>5.4.3</httpcore5.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -375,19 +380,22 @@
       <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
       <version>${sentry.version}</version>
     </dependency>
+    <!-- Runtime scope: the HTTP transport for clickhouse-jdbc (the "http" classifier
+         does not bundle it). Versions pinned via httpclient5.version/httpcore5.version
+         properties to stay clear of GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. -->
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.clickhouse</groupId>
       <artifactId>clickhouse-jdbc</artifactId>
       <version>0.6.2</version>
-      <!-- use uber jar with all dependencies included, change classifier
-      to http for smaller jar -->
-      <classifier>all</classifier>
+      <!-- the "http" classifier does not shade Apache HttpClient (the "all" uber jar
+      bundles a vulnerable httpcore5 that Maven cannot override); the HTTP transport
+      is supplied by the explicit httpclient5 dependency instead -->
+      <classifier>http</classifier>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>

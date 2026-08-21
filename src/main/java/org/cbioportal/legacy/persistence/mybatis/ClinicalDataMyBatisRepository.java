@@ -1,8 +1,10 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.ibatis.session.ResultHandler;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
@@ -199,6 +201,27 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     } else {
       return clinicalDataMapper.getPatientClinicalData(
           studyIds, ids, attributeIds, projection, 0, 0, null, null);
+    }
+  }
+
+  @Override
+  public void streamClinicalData(
+      List<String> studyIds,
+      List<String> ids,
+      List<String> attributeIds,
+      String clinicalDataType,
+      String projection,
+      Consumer<ClinicalData> consumer) {
+    if (ids.isEmpty()) {
+      return;
+    }
+    ResultHandler<ClinicalData> handler = context -> consumer.accept(context.getResultObject());
+    if (clinicalDataType.equals(PersistenceConstants.SAMPLE_CLINICAL_DATA_TYPE)) {
+      clinicalDataMapper.getSampleClinicalData(
+          studyIds, ids, attributeIds, projection, 0, 0, null, null, handler);
+    } else {
+      clinicalDataMapper.getPatientClinicalData(
+          studyIds, ids, attributeIds, projection, 0, 0, null, null, handler);
     }
   }
 

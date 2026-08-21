@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
+import org.apache.ibatis.session.ResultHandler;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
@@ -17,6 +18,23 @@ public interface ClinicalDataMapper {
       String sortBy,
       String direction);
 
+  /**
+   * Streaming overload of {@link #getSampleClinicalData}: routes to the same SQL statement but
+   * passes each mapped row to {@code handler} instead of building a list, so a large result set is
+   * never materialized in memory.
+   */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
+  void getSampleClinicalData(
+      List<String> studyIds,
+      List<String> sampleIds,
+      List<String> attributeIds,
+      String projection,
+      Integer limit,
+      Integer offset,
+      String sortBy,
+      String direction,
+      ResultHandler<ClinicalData> handler);
+
   BaseMeta getMetaSampleClinicalData(
       List<String> studyIds, List<String> sampleIds, List<String> attributeIds);
 
@@ -29,6 +47,19 @@ public interface ClinicalDataMapper {
       Integer offset,
       String sortBy,
       String direction);
+
+  /** Streaming overload of {@link #getPatientClinicalData}; see {@link #getSampleClinicalData}. */
+  @SuppressWarnings("java:S107") // streaming overload mirrors the many-arg non-streaming method
+  void getPatientClinicalData(
+      List<String> studyIds,
+      List<String> patientIds,
+      List<String> attributeIds,
+      String projection,
+      Integer limit,
+      Integer offset,
+      String sortBy,
+      String direction,
+      ResultHandler<ClinicalData> handler);
 
   List<ClinicalData> getSampleClinicalTable(
       List<String> studyIds,

@@ -26,6 +26,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -314,8 +315,15 @@ public class ClinicalDataControllerTest {
     patientClinicalData2.setAttrValue(TEST_ATTR_VALUE_2);
     patientClinicalData2.setInternalId(TEST_INTERNAL_ID_2);
     patientClinicalDataList.add(patientClinicalData2);
-    when(clinicalDataService.fetchClinicalData(any(), any(), any(), any(), any()))
-        .thenReturn(patientClinicalDataList);
+    // The endpoint now streams; feed the data to the consumer the controller supplies.
+    org.mockito.Mockito.doAnswer(
+            invocation -> {
+              java.util.function.Consumer<ClinicalData> consumer = invocation.getArgument(5);
+              patientClinicalDataList.forEach(consumer);
+              return null;
+            })
+        .when(clinicalDataService)
+        .streamClinicalData(any(), any(), any(), any(), any(), any());
 
     List<ClinicalDataIdentifier> clinicalDataIdentifiers = new ArrayList<>();
     ClinicalDataIdentifier clinicalDataIdentifier1 = new ClinicalDataIdentifier();
@@ -329,14 +337,20 @@ public class ClinicalDataControllerTest {
     ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter = new ClinicalDataMultiStudyFilter();
     clinicalDataMultiStudyFilter.setIdentifiers(clinicalDataIdentifiers);
 
+    MvcResult mvcResult =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.post("/api/clinical-data/fetch")
+                    .with(csrf())
+                    .param("clinicalDataType", "PATIENT")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
+            .andExpect(MockMvcResultMatchers.request().asyncStarted())
+            .andReturn();
+
     mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/api/clinical-data/fetch")
-                .with(csrf())
-                .param("clinicalDataType", "PATIENT")
-                .accept(MediaType.APPLICATION_JSON)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(clinicalDataMultiStudyFilter)))
+        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

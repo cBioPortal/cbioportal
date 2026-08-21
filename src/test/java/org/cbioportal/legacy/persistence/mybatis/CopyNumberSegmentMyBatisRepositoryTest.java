@@ -256,6 +256,29 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
   }
 
   @Test
+  public void streamCopyNumberSegments() {
+
+    List<String> studyIds = new ArrayList<>();
+    studyIds.add("study_tcga_pub");
+    studyIds.add("acc_tcga");
+    List<String> sampleIds = new ArrayList<>();
+    sampleIds.add("TCGA-A1-A0SB-01");
+    sampleIds.add("TCGA-A1-B0SO-01");
+
+    // Streams each row to the consumer; assert the streamed rows match the expected segments
+    // (same inputs/assertions as fetchCopyNumberSegments above).
+    List<CopyNumberSeg> streamed = new ArrayList<>();
+    copyNumberSegmentMyBatisRepository.streamCopyNumberSegments(
+        studyIds, sampleIds, null, "SUMMARY", streamed::add);
+    streamed = sortedResult(streamed);
+
+    Assert.assertEquals(3, streamed.size());
+    Assert.assertEquals("TCGA-A1-A0SB-01", streamed.get(0).getSampleStableId());
+    Assert.assertEquals("TCGA-A1-A0SB-01", streamed.get(1).getSampleStableId());
+    Assert.assertEquals("TCGA-A1-B0SO-01", streamed.get(2).getSampleStableId());
+  }
+
+  @Test
   public void fetchMetaCopyNumberSegments() throws Exception {
 
     List<String> studyIds = new ArrayList<>();

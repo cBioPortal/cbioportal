@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
@@ -72,6 +73,14 @@ public interface ClinicalDataService {
       List<String> attributeIds,
       String clinicalDataType,
       String projection);
+
+  void streamClinicalData(
+      List<String> studyIds,
+      List<String> ids,
+      List<String> attributeIds,
+      String clinicalDataType,
+      String projection,
+      Consumer<ClinicalData> consumer);
 
   BaseMeta fetchMetaClinicalData(
       List<String> studyIds, List<String> ids, List<String> attributeIds, String clinicalDataType);

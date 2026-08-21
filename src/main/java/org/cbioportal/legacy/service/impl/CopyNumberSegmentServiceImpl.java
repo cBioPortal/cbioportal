@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service.impl;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.cbioportal.legacy.model.CopyNumberSeg;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.CopyNumberSegmentRepository;
@@ -52,6 +53,18 @@ public class CopyNumberSegmentServiceImpl implements CopyNumberSegmentService {
 
     return copyNumberSegmentRepository.fetchCopyNumberSegments(
         studyIds, sampleIds, chromosome, projection);
+  }
+
+  @Override
+  public void streamCopyNumberSegments(
+      List<String> studyIds,
+      List<String> sampleIds,
+      String chromosome,
+      String projection,
+      Consumer<CopyNumberSeg> consumer) {
+
+    copyNumberSegmentRepository.streamCopyNumberSegments(
+        studyIds, sampleIds, chromosome, projection, consumer);
   }
 
   @Override

@@ -16,5 +16,6 @@ public interface ViolinPlotService {
       BigDecimal numCurvePoints,
       Boolean useLogScale,
       BigDecimal sigmaMultiplier,
-      StudyViewFilter studyViewFilter);
+      StudyViewFilter studyViewFilter,
+      Boolean patientAttribute);
 }

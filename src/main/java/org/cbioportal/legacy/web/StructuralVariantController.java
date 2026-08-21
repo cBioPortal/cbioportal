@@ -34,6 +34,8 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.StructuralVariantMapper;
+import org.cbioportal.application.rest.response.StructuralVariantDTO;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.cbioportal.legacy.service.StructuralVariantService;
 import org.cbioportal.legacy.web.config.InternalApiTags;
@@ -74,8 +76,8 @@ public class StructuralVariantController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = StructuralVariant.class))))
-  public ResponseEntity<List<StructuralVariant>> fetchStructuralVariants(
+              array = @ArraySchema(schema = @Schema(implementation = StructuralVariantDTO.class))))
+  public ResponseEntity<List<StructuralVariantDTO>> fetchStructuralVariants(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -112,6 +114,7 @@ public class StructuralVariantController {
             interceptedStructuralVariantFilter.getEntrezGeneIds(),
             interceptedStructuralVariantFilter.getStructuralVariantQueries());
 
-    return new ResponseEntity<>(structuralVariantList, HttpStatus.OK);
+    return new ResponseEntity<>(
+        StructuralVariantMapper.INSTANCE.toDtos(structuralVariantList), HttpStatus.OK);
   }
 }

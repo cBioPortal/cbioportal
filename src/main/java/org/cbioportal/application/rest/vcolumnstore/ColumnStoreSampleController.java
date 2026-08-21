@@ -74,7 +74,7 @@ public class ColumnStoreSampleController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleDTO.class))))
   public ResponseEntity<List<SampleDTO>> getSamplesByKeyword(
       @Parameter(description = "Search keyword that applies to the study ID")
           @RequestParam(required = false)
@@ -147,7 +147,7 @@ public class ColumnStoreSampleController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleDTO.class))))
   public ResponseEntity<List<SampleDTO>> fetchSamples(
       @Parameter(required = true, description = "List of sample identifiers")
           @Valid
@@ -175,7 +175,7 @@ public class ColumnStoreSampleController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleDTO.class))))
   public ResponseEntity<List<SampleDTO>> getAllSamplesInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
@@ -226,7 +226,7 @@ public class ColumnStoreSampleController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = Sample.class)))
+      content = @Content(schema = @Schema(implementation = SampleDTO.class)))
   public ResponseEntity<SampleDTO> getSampleInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
@@ -249,7 +249,7 @@ public class ColumnStoreSampleController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Sample.class))))
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleDTO.class))))
   public ResponseEntity<List<SampleDTO>> getAllSamplesOfPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,

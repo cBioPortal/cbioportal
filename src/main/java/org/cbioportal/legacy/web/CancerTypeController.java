@@ -10,7 +10,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
-import org.cbioportal.legacy.model.TypeOfCancer;
+import org.cbioportal.application.rest.mapper.TypeOfCancerMapper;
+import org.cbioportal.application.rest.response.TypeOfCancerDTO;
 import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -49,8 +50,8 @@ public class CancerTypeController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = TypeOfCancer.class))))
-  public ResponseEntity<List<TypeOfCancer>> getAllCancerTypes(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = TypeOfCancerDTO.class))))
+  public ResponseEntity<List<TypeOfCancerDTO>> getAllCancerTypes(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           final Projection projection,
@@ -77,12 +78,13 @@ public class CancerTypeController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          cancerTypeService.getAllCancerTypes(
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          TypeOfCancerMapper.INSTANCE.toDtos(
+              cancerTypeService.getAllCancerTypes(
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -95,11 +97,13 @@ public class CancerTypeController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = String.class)))
-  public ResponseEntity<TypeOfCancer> getCancerType(
+      content = @Content(schema = @Schema(implementation = TypeOfCancerDTO.class)))
+  public ResponseEntity<TypeOfCancerDTO> getCancerType(
       @Parameter(required = true, description = "Cancer Type ID e.g. acc") @PathVariable
           final String cancerTypeId)
       throws CancerTypeNotFoundException {
-    return new ResponseEntity<>(cancerTypeService.getCancerType(cancerTypeId), HttpStatus.OK);
+    return new ResponseEntity<>(
+        TypeOfCancerMapper.INSTANCE.toDto(cancerTypeService.getCancerType(cancerTypeId)),
+        HttpStatus.OK);
   }
 }

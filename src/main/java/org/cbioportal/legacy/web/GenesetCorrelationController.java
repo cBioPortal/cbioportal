@@ -33,7 +33,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
-import org.cbioportal.legacy.model.GenesetCorrelation;
+import org.cbioportal.application.rest.mapper.GenesetCorrelationMapper;
+import org.cbioportal.application.rest.response.GenesetCorrelationDTO;
 import org.cbioportal.legacy.service.GenesetCorrelationService;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
@@ -76,8 +77,8 @@ public class GenesetCorrelationController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = GenesetCorrelation.class))))
-  public ResponseEntity<List<GenesetCorrelation>> fetchCorrelatedGenes(
+              array = @ArraySchema(schema = @Schema(implementation = GenesetCorrelationDTO.class))))
+  public ResponseEntity<List<GenesetCorrelationDTO>> fetchCorrelatedGenes(
       @Parameter(required = true, description = "Gene set ID, e.g. HINATA_NFKB_MATRIX.")
           @PathVariable
           String genesetId,
@@ -108,19 +109,22 @@ public class GenesetCorrelationController {
 
     if (sampleListId != null && sampleListId.trim().length() > 0) {
       return new ResponseEntity<>(
-          genesetCorrelationService.fetchCorrelatedGenes(
-              genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue()),
+          GenesetCorrelationMapper.INSTANCE.toDtos(
+              genesetCorrelationService.fetchCorrelatedGenes(
+                  genesetId, geneticProfileId, sampleListId, correlationThreshold.doubleValue())),
           HttpStatus.OK);
     }
     if (sampleIds != null && sampleIds.size() > 0) {
       return new ResponseEntity<>(
-          genesetCorrelationService.fetchCorrelatedGenes(
-              genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue()),
+          GenesetCorrelationMapper.INSTANCE.toDtos(
+              genesetCorrelationService.fetchCorrelatedGenes(
+                  genesetId, geneticProfileId, sampleIds, correlationThreshold.doubleValue())),
           HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          genesetCorrelationService.fetchCorrelatedGenes(
-              genesetId, geneticProfileId, correlationThreshold.doubleValue()),
+          GenesetCorrelationMapper.INSTANCE.toDtos(
+              genesetCorrelationService.fetchCorrelatedGenes(
+                  genesetId, geneticProfileId, correlationThreshold.doubleValue())),
           HttpStatus.OK);
     }
   }

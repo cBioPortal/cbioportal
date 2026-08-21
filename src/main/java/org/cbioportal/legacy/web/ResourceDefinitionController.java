@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.ResourceDefinition;
+import org.cbioportal.application.rest.mapper.ResourceDefinitionMapper;
+import org.cbioportal.application.rest.response.ResourceDefinitionDTO;
 import org.cbioportal.legacy.service.ResourceDefinitionService;
 import org.cbioportal.legacy.service.exception.ResourceDefinitionNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -89,8 +90,8 @@ public class ResourceDefinitionController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinition.class))))
-  public ResponseEntity<List<ResourceDefinition>> getAllResourceDefinitionsInStudy(
+              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinitionDTO.class))))
+  public ResponseEntity<List<ResourceDefinitionDTO>> getAllResourceDefinitionsInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -116,13 +117,14 @@ public class ResourceDefinitionController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          resourceDefinitionService.getAllResourceDefinitionsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ResourceDefinitionMapper.INSTANCE.toDtos(
+              resourceDefinitionService.getAllResourceDefinitionsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -142,15 +144,17 @@ public class ResourceDefinitionController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = ResourceDefinition.class)))
-  public ResponseEntity<ResourceDefinition> getResourceDefinitionInStudy(
+      content = @Content(schema = @Schema(implementation = ResourceDefinitionDTO.class)))
+  public ResponseEntity<ResourceDefinitionDTO> getResourceDefinitionInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Resource ID") @PathVariable String resourceId)
       throws StudyNotFoundException, ResourceDefinitionNotFoundException {
 
     return new ResponseEntity<>(
-        resourceDefinitionService.getResourceDefinition(studyId, resourceId), HttpStatus.OK);
+        ResourceDefinitionMapper.INSTANCE.toDto(
+            resourceDefinitionService.getResourceDefinition(studyId, resourceId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -171,8 +175,8 @@ public class ResourceDefinitionController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinition.class))))
-  public ResponseEntity<List<ResourceDefinition>> fetchResourceDefinitions(
+              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinitionDTO.class))))
+  public ResponseEntity<List<ResourceDefinitionDTO>> fetchResourceDefinitions(
       @Parameter(required = true, description = "List of Study IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -183,7 +187,8 @@ public class ResourceDefinitionController {
       throws StudyNotFoundException {
 
     return new ResponseEntity<>(
-        resourceDefinitionService.fetchResourceDefinitions(studyIds, projection.name()),
+        ResourceDefinitionMapper.INSTANCE.toDtos(
+            resourceDefinitionService.fetchResourceDefinitions(studyIds, projection.name())),
         HttpStatus.OK);
   }
 }

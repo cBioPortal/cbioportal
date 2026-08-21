@@ -3,6 +3,7 @@ package org.cbioportal.application.rest.request;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Size;
@@ -34,7 +35,10 @@ public class StudyViewFilterDTO {
   private List<String> studyIds;
 
   private List<ClinicalDataFilter> clinicalDataFilters;
+
+  @JsonDeserialize(contentUsing = GeneFilterDeserializer.class)
   private List<GeneFilter> geneFilters;
+
   @Valid private List<StudyViewStructuralVariantFilter> structuralVariantFilters;
   private AndedSampleTreatmentFilters sampleTreatmentFilters;
   private AndedSampleTreatmentFilters sampleTreatmentGroupFilters;

@@ -59,7 +59,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
   @Value("${dat.ttl_seconds:-1}")
   private int datTtlSeconds;
 
-  @Value("${dat.uuid.max_number_per_user:-1}")
+  @Value("${dat.uuid.max_number_per_user:1}")
   private int maxNumberOfAccessTokens;
 
   private static final Logger log = LoggerFactory.getLogger(UuidDataAccessTokenServiceImpl.class);

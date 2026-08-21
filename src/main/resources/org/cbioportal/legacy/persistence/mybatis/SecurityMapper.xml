@@ -14,19 +14,19 @@
 
     <select id="getPortalUser" resultType="org.cbioportal.legacy.model.User">
         SELECT
-            LOWER(email) AS email,
-            name,
-            enabled
-        FROM users
-        WHERE email = #{username}
+            LOWER(u.email) AS email,
+            u.name,
+            u.enabled
+        FROM users as u
+        WHERE LOWER(u.email) = LOWER(#{username})
     </select>
 
     <select id="getPortalUserAuthorities" resultMap="userAuthoritiesResultMap">
         SELECT
-            LOWER(email) AS email,
-            authority
-        FROM authorities
-        WHERE email = #{username}
+            LOWER(a.email) AS email,
+            a.authority
+        FROM authorities as a
+        WHERE LOWER(a.email) = LOWER(#{username})
     </select>
 
     <insert id="addPortalUser">

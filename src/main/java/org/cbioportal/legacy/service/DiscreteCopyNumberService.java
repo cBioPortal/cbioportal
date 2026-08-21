@@ -40,6 +40,12 @@ public interface DiscreteCopyNumberService {
       List<Integer> alterationTypes,
       String projection);
 
+  BaseMeta getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      List<Integer> alterationTypes);
+
   List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
       List<String> molecularProfileIds,
       List<String> sampleIds,

@@ -18,11 +18,11 @@ public abstract class AbstractTestcontainers {
           .withUsername("cbio_user")
           .withPassword("P@ssword1")
           .withClasspathResourceMapping(
-              "clickhouse_cgds.sql", "/docker-entrypoint-initdb.d/a_schema.sql", BindMode.READ_ONLY)
+              "schema.sql", "/docker-entrypoint-initdb.d/a_schema.sql", BindMode.READ_ONLY)
           .withClasspathResourceMapping(
               "clickhouse_data.sql", "/docker-entrypoint-initdb.d/b_schema.sql", BindMode.READ_ONLY)
           .withClasspathResourceMapping(
-              "clickhouse/clickhouse.sql",
+              "clickhouse/populate_derived_tables.sql",
               "/docker-entrypoint-initdb.d/c_schema.sql",
               BindMode.READ_ONLY);
 

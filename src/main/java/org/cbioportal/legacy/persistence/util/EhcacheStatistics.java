@@ -38,6 +38,8 @@ import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.ehcache.config.ResourceType;
 import org.ehcache.core.statistics.*;
 import org.ehcache.impl.internal.statistics.DefaultStatisticsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,6 +48,8 @@ import org.springframework.stereotype.Component;
     name = "persistence.cache_type",
     havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhcacheStatistics {
+
+  private static final Logger log = LoggerFactory.getLogger(EhcacheStatistics.class);
 
   private static String TIER_NOT_IN_USE = "Tier not in use";
 
@@ -68,7 +72,7 @@ public class EhcacheStatistics {
         statisticsService.cacheAdded(cacheName, ehcache);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      log.error("Error initializing Ehcache statistics service", e);
     }
   }
 

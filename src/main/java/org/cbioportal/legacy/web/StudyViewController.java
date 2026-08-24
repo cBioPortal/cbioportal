@@ -2,6 +2,7 @@ package org.cbioportal.legacy.web;
 
 import static java.util.stream.Collectors.toSet;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -29,6 +30,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
+import org.cbioportal.application.rest.mapper.SampleClinicalDataCollectionMapper;
+import org.cbioportal.application.rest.response.SampleClinicalDataCollectionDTO;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
 import org.cbioportal.legacy.model.AlterationFilter;
@@ -136,10 +139,11 @@ public class StudyViewController {
     return instance;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/clinical-data-counts/fetch",
+      value = "/legacy/clinical-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -208,10 +212,11 @@ public class StudyViewController {
     return result;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/clinical-data-bin-counts/fetch",
+      value = "/legacy/clinical-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -263,6 +268,7 @@ public class StudyViewController {
         false);
   }
 
+  //  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -314,10 +320,11 @@ public class StudyViewController {
     return new ResponseEntity<>(clinicalDataBins, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>',T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/mutated-genes/fetch",
+      value = "/legacy/mutated-genes/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -372,10 +379,11 @@ public class StudyViewController {
     return alterationCountByGenes;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/structuralvariant-genes/fetch",
+      value = "/legacy/structuralvariant-genes/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -490,14 +498,17 @@ public class StudyViewController {
     return new ArrayList<>();
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/cna-genes/fetch",
+      value = "/legacy/cna-genes/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(description = "Fetch CNA genes by study view filter")
+  @Operation(
+      operationId = "fetchLegacyCNAGenes",
+      description = "Fetch CNA genes by study view filter")
   @ApiResponse(
       responseCode = "200",
       description = "OK",
@@ -547,10 +558,11 @@ public class StudyViewController {
     return copyNumberCountByGenes;
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/filtered-samples/fetch",
+      value = "/legacy/filtered-samples/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -593,10 +605,11 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/molecular-profile-sample-counts/fetch",
+      value = "/legacy/molecular-profile-sample-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -662,10 +675,11 @@ public class StudyViewController {
     return Double.parseDouble(c.getAttrValue());
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/clinical-data-density-plot/fetch",
+      value = "/legacy/clinical-data-density-plot/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -952,10 +966,11 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/clinical-data-violin-plots/fetch",
+      value = "/legacy/clinical-data-violin-plots/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1137,10 +1152,11 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/sample-lists-counts/fetch",
+      value = "/legacy/sample-lists-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1215,10 +1231,11 @@ public class StudyViewController {
         .toList();
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/genomic-data-bin-counts/fetch",
+      value = "/legacy/genomic-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1251,10 +1268,11 @@ public class StudyViewController {
         HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/genomic-data-counts/fetch",
+      value = "/legacy/genomic-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1317,10 +1335,11 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/generic-assay-data-counts/fetch",
+      value = "/legacy/generic-assay-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1382,10 +1401,11 @@ public class StudyViewController {
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/generic-assay-data-bin-counts/fetch",
+      value = "/legacy/generic-assay-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1431,8 +1451,8 @@ public class StudyViewController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = SampleClinicalDataCollection.class)))
-  public ResponseEntity<SampleClinicalDataCollection> fetchClinicalDataClinicalTable(
+      content = @Content(schema = @Schema(implementation = SampleClinicalDataCollectionDTO.class)))
+  public ResponseEntity<SampleClinicalDataCollectionDTO> fetchClinicalDataClinicalTable(
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
@@ -1489,7 +1509,9 @@ public class StudyViewController {
     HttpHeaders responseHeaders = new HttpHeaders();
     responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalNumberOfResults));
     return new ResponseEntity<>(
-        aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
+        SampleClinicalDataCollectionMapper.toDto(aggregatedClinicalDataByUniqueSampleKey),
+        responseHeaders,
+        HttpStatus.OK);
   }
 
   // Only cache when:
@@ -1520,10 +1542,11 @@ public class StudyViewController {
         sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, sortDirection);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/clinical-event-type-counts/fetch",
+      value = "/legacy/clinical-event-type-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -1570,10 +1593,11 @@ public class StudyViewController {
     return clinicalEventService.getClinicalEventTypeCounts(studyIds, sampleIds);
   }
 
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/mutation-data-counts/fetch",
+      value = "/legacy/mutation-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

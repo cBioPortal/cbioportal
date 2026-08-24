@@ -16,7 +16,7 @@ We are curious to learn more about you! We would love to help you get started! T
 2. Knowledge about cancer genomics but no to little engineering experience
 3. No engineering nor cancer genomics experience but an eagerness to contribute
 
-if you feel like you don't fall into any of these categories, please reach out so you can help us update the above list 🙂! Note that there are many contributions that can be made to an open source commmunity without coding a single line of code. You can reach us through our [public slack channel](https://slack.cbioportal.org).
+if you feel like you don't fall into any of these categories, please reach out so you can help us update the above list 🙂! Note that there are many contributions that can be made to an open source community without coding a single line of code. You can reach us through our [public slack channel](https://slack.cbioportal.org).
 
 # Join the Slack!
 
@@ -37,7 +37,7 @@ From the [GitHub Help Page of Using Pull Requests](https://help.github.com/artic
  * Familiarize yourself with the [project documentation](https://docs.cbioportal.org), including the [Feature Development Guide](https://docs.cbioportal.org/development/feature-development-guide/), the [Architecture docs](https://docs.cbioportal.org/2.1-deployment/architecture-overview), the [backend code organization](https://docs.cbioportal.org/development/backend-code-organization/) and [backend development guidelines](https://docs.cbioportal.org/development/backend-development-guidelines/).
  * Find a [good first issue](https://github.com/cBioPortal/cbioportal/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc+label%3A%22good+first+issue%22) to start with
  * Check if the issue will require frontend or backend changes. If it is for the frontend look at how to set up the [frontend repo](https://github.com/cbioPortal/cbioportal-frontend/) instead
- * Fork the cbioportal or cbioportal-frontend project on GitHub depending on what your working on.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
+ * Fork the cbioportal or cbioportal-frontend project on GitHub depending on what you're working on.  For general instructions on forking a GitHub project, see [Forking a Repo](https://help.github.com/articles/fork-a-repo/) and [Syncing a fork](https://help.github.com/articles/syncing-a-fork/).
  * Reach out on slack or our [Google user group](https://groups.google.com/g/cbioportal) if you run into any issues
 
 ### Documentation

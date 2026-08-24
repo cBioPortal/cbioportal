@@ -1,0 +1,7 @@
+{
+  "sampleMolecularIdentifiers": [
+    { "molecularProfileId": "acc_tcga_mutations", "sampleId": "TCGA-OR-A5J1-01" },
+    { "molecularProfileId": "acc_tcga_mutations", "sampleId": "TCGA-OR-A5J2-01" },
+    { "molecularProfileId": "acc_tcga_mutations", "sampleId": "TCGA-OR-A5J3-01" }
+  ]
+}

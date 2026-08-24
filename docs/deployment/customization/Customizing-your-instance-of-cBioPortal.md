@@ -7,7 +7,7 @@ customize the web page cosmetics, such as custom images,
 texts, which tabs are visible, etc.
 Nearly all the skins properties have defaults, which can be overwritten by
 changing the `application.properties` file located in `$PORTAL_HOME`--see
-[the deployment manual](../deploy-without-docker/Deploying.md). If your cBioPortal instance
+[the deployment manual](/legacy/deployment/deploy-without-docker/Deploying.md). If your cBioPortal instance
 does not yet contain a `application.properties` file, you can copy
 `src/main/resources/application.properties.EXAMPLE` and edit it.
 
@@ -300,7 +300,7 @@ To add images or other files to the Docker image one can mount them inside the `
 
 Creating you own local news/about or FAQ page involves three steps. For example, to create your own news page:
 
-1. Copy `<cbioportal_source_folder>/portal/src/main/webapp/content/news.html` to `news_XXXX.html`
+1. Copy `<cbioportal_source_folder>/src/main/resources/webapp/content/news.html` to `news_XXXX.html`
 2. Modify `news_XXXX.html` as needed.
 3. Edit the `application.properties` file and change the `skin.documentation.news` property, giving it the name of your news HTML component.
 

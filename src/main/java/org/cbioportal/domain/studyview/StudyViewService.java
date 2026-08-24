@@ -286,6 +286,17 @@ public class StudyViewService {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition =
           "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
+  public List<GenericAssayDataCountItem> getGenericAssayDataCounts(
+      StudyViewFilter studyViewFilter, String profileType) {
+    return genericAssayUseCases
+        .getGenericAssayDataCountsByProfileTypeUseCase()
+        .execute(buildStudyViewFilterContext(studyViewFilter), profileType);
+  }
+
+  @Cacheable(
+      cacheResolver = "staticRepositoryCacheOneResolver",
+      condition =
+          "@cacheEnabledConfig.getEnabledClickhouse() && @studyViewFilterUtil.isUnfilteredQuery(#studyViewFilter)")
   public List<GenomicDataCountItem> getMutationCountsByGeneSpecific(
       StudyViewFilter studyViewFilter, List<GenomicDataFilter> genomicDataFilters) {
     List<GenomicDataCountItem> genomicDataCountItemList = new ArrayList<>();

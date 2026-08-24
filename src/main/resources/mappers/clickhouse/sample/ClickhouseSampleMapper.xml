@@ -134,6 +134,7 @@
             <include refid="sampleColumnsId" />
         FROM sample_derived
         <include refid="filterBySampleListId" />
+        ORDER BY cancer_study_identifier ASC, sample_stable_id ASC
     </select>
 
     <select id="getSummarySamplesBySampleListIds" resultMap="SummarySampleResultMap">
@@ -141,6 +142,7 @@
             <include refid="sampleColumnsSummary" />
         FROM sample_derived
         <include refid="filterBySampleListId" />
+        ORDER BY cancer_study_identifier ASC, sample_stable_id ASC
     </select>
 
     <select id="getDetailedSamplesBySampleListIds" resultMap="DetailedSampleResultMap">
@@ -148,6 +150,7 @@
             <include refid="sampleColumnsDetailed" />
         <include refid="fromJoinedTable" />
         <include refid="filterBySampleListId" />
+        ORDER BY sample_derived.cancer_study_identifier ASC, sample_stable_id ASC
     </select>
 
     <select id="getMetaSamples" resultType="org.cbioportal.legacy.model.meta.BaseMeta">

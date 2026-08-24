@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,6 +13,7 @@ import java.util.List;
 import org.cbioportal.legacy.model.CoExpression;
 import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.service.CoExpressionService;
+import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.cbioportal.legacy.web.parameter.CoExpressionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +29,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @InternalApi
+@Hidden
 @RestController()
-@RequestMapping("/api")
+@RequestMapping("/api/legacy")
 @Validated
+@ConditionalOnProperty(name = "coexpression_enabled", havingValue = "true")
 @Tag(name = "Co-Expressions", description = " ")
 public class CoExpressionController {
 

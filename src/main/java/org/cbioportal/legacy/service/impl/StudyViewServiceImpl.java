@@ -116,7 +116,7 @@ public class StudyViewServiceImpl implements StudyViewService {
         genePanelService
             .fetchGenePanelDataInMultipleMolecularProfiles(molecularProfileSampleIdentifiers)
             .stream()
-            .filter(GenePanelData::getProfiled)
+            .filter(d -> Boolean.TRUE.equals(d.getProfiled()))
             .collect(Collectors.groupingBy(GenePanelData::getMolecularProfileId))
             .entrySet()
             .stream()

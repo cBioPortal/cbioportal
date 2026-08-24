@@ -155,6 +155,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     skin_citation_rule_text("skin.citation_rule_text", null),
     skin_geneset_hierarchy_default_p_value("skin.geneset_hierarchy.default_p_value", null),
     skin_geneset_hierarchy_default_gsva_score("skin.geneset_hierarchy.default_gsva_score", null),
+    generic_assay_display_text("generic_assay_display_text", null),
     app_version("app.version", null),
     frontendSentryEndpoint("sentryjs.frontend_project_endpoint", null),
 
@@ -268,10 +269,26 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
         return String.valueOf(!propertyValue.isEmpty());
       case "frontendUrl":
         return getFrontendUrl(propertyValue);
+      case "skin_hide_download_controls":
+        return getSkinHideDownloadControlsValue(propertyValue);
       // For others, just return the value in the properties file.
       default:
         return propertyValue;
     }
+  }
+
+  public static String getSkinHideDownloadControlsValue(String propertyValue) {
+    if (propertyValue == null) {
+      return null;
+    }
+    propertyValue = propertyValue.trim();
+    if (propertyValue.equalsIgnoreCase("true")) {
+      return "hide";
+    }
+    if (propertyValue.equalsIgnoreCase("false")) {
+      return "show";
+    }
+    return propertyValue;
   }
 
   private String enableOncoKBandHotspots(String enableOncoKBandHotspots) {

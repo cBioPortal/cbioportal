@@ -76,7 +76,9 @@ public class ProfiledCasesCounter<T extends AlterationCountBase> {
     }
 
     List<GenePanelData> genePanelData =
-        genePanelDataList.stream().filter(GenePanelData::getProfiled).collect(Collectors.toList());
+        genePanelDataList.stream()
+            .filter(d -> Boolean.TRUE.equals(d.getProfiled()))
+            .collect(Collectors.toList());
 
     Set<String> profiledCases =
         genePanelData.stream()

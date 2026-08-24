@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.ClinicalEventMapper;
+import org.cbioportal.application.rest.response.ClinicalEventDTO;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.service.ClinicalEventService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
@@ -51,6 +53,13 @@ public class ClinicalEventController {
 
   @Autowired private ClinicalEventService clinicalEventService;
 
+  // Study-wide clinical events can number in the millions (e.g. large MSK cohorts).
+  // Cap paging below the shared 10M PagingConstants default so a single unpaginated
+  // request cannot materialize the whole table in heap and OOM the backend; callers
+  // needing everything must page through with pageSize/pageNumber.
+  public static final int CLINICAL_EVENT_MAX_PAGE_SIZE = 100000;
+  private static final String CLINICAL_EVENT_DEFAULT_PAGE_SIZE = "100000";
+
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
@@ -62,8 +71,8 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsOfPatientInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> getAllClinicalEventsOfPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. lgg_ucsf_2014") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Patient ID e.g. P01") @PathVariable
@@ -98,14 +107,15 @@ public class ClinicalEventController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalEventService.getAllClinicalEventsOfPatientInStudy(
-              studyId,
-              patientId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ClinicalEventMapper.INSTANCE.toDtos(
+              clinicalEventService.getAllClinicalEventsOfPatientInStudy(
+                  studyId,
+                  patientId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -121,17 +131,17 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> getAllClinicalEventsInStudy(
       @Parameter(required = true, description = "Study ID e.g. lgg_ucsf_2014") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
       @Parameter(description = "Page size of the result list")
-          @Max(PagingConstants.MAX_PAGE_SIZE)
+          @Max(CLINICAL_EVENT_MAX_PAGE_SIZE)
           @Min(PagingConstants.MIN_PAGE_SIZE)
-          @RequestParam(defaultValue = PagingConstants.DEFAULT_PAGE_SIZE)
+          @RequestParam(defaultValue = CLINICAL_EVENT_DEFAULT_PAGE_SIZE)
           Integer pageSize,
       @Parameter(description = "Page number of the result list")
           @Min(PagingConstants.MIN_PAGE_NUMBER)
@@ -152,13 +162,14 @@ public class ClinicalEventController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalEventService.getAllClinicalEventsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ClinicalEventMapper.INSTANCE.toDtos(
+              clinicalEventService.getAllClinicalEventsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -175,8 +186,8 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> fetchClinicalEventsMeta(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> fetchClinicalEventsMeta(
       @Parameter(required = true, description = "clinical events Request")
           @Valid
           @RequestBody(required = false)
@@ -193,7 +204,9 @@ public class ClinicalEventController {
           ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
 
     return new ResponseEntity<>(
-        cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest), HttpStatus.OK);
+        ClinicalEventMapper.INSTANCE.toDtos(
+            cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest)),
+        HttpStatus.OK);
   }
 
   @Cacheable(

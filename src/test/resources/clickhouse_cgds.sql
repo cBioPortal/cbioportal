@@ -235,7 +235,7 @@ CREATE TABLE genetic_profile_samples
 CREATE TABLE gene_panel
 (
     internal_id Int32,
-    stable_id     Nullable(String),
+    stable_id     String,
     name          Nullable(String),
     description Nullable(String)
 ) ENGINE = MergeTree() ORDER BY internal_id;

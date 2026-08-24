@@ -103,8 +103,8 @@ public class ClickhouseGenomicDataMapperTest {
             genomicDataFilterMutation);
     Map<String, Integer> expectedMutationCounts = new HashMap<>();
     expectedMutationCounts.put("mutatedCount", 2);
-    expectedMutationCounts.put("notMutatedCount", 8);
-    expectedMutationCounts.put("notProfiledCount", 5);
+    expectedMutationCounts.put("notMutatedCount", 9);
+    expectedMutationCounts.put("notProfiledCount", 4);
     assertThat(actualMutationCounts)
         .usingRecursiveComparison()
         .ignoringCollectionOrder()
@@ -129,7 +129,7 @@ public class ClickhouseGenomicDataMapperTest {
                 "AKT1",
                 "mutations",
                 List.of(
-                    new GenomicDataCount("nonsense mutation", "nonsense_mutation", 2, 1),
+                    new GenomicDataCount("nonsense mutation", "nonsense_mutation", 1, 1),
                     new GenomicDataCount("missense mutation", "missense_mutation", 1, 1))));
     assertThat(actualMutationCountsByType)
         .usingRecursiveComparison()
@@ -161,7 +161,7 @@ public class ClickhouseGenomicDataMapperTest {
                     new GenomicDataCount(
                         "nonsense mutation",
                         "nonsense_mutation",
-                        2,
+                        1,
                         1,
                         List.of("study_tcga_pub_tcga-a1-a0sb-01")),
                     new GenomicDataCount(
@@ -180,8 +180,8 @@ public class ClickhouseGenomicDataMapperTest {
                     new GenomicDataCount(
                         "Not Mutated",
                         "NOT_MUTATED",
-                        8,
-                        8,
+                        9,
+                        9,
                         List.of(
                             "study_tcga_pub_tcga-a1-a0sj-01",
                             "study_tcga_pub_tcga-a1-a0sh-01",
@@ -190,7 +190,8 @@ public class ClickhouseGenomicDataMapperTest {
                             "study_tcga_pub_tcga-a1-a0sk-01",
                             "study_tcga_pub_tcga-a1-a0si-01",
                             "study_tcga_pub_tcga-a1-a0sp-01",
-                            "study_tcga_pub_tcga-a1-a0se-01")))));
+                            "study_tcga_pub_tcga-a1-a0se-01",
+                            "study_tcga_pub_tcga-a1-a0sn-01")))));
 
     List<GenomicDataCountItem> expectedNotProfiledCounts =
         List.of(
@@ -201,11 +202,10 @@ public class ClickhouseGenomicDataMapperTest {
                     new GenomicDataCount(
                         "Not Profiled",
                         "NOT_PROFILED",
-                        5,
-                        5,
+                        4,
+                        4,
                         List.of(
                             "study_tcga_pub_tcga-a1-a0sb-02",
-                            "study_tcga_pub_tcga-a1-a0sn-01",
                             "study_tcga_pub_tcga-a1-a0sq-01",
                             "study_tcga_pub_tcga-a1-a0sf-01",
                             "study_tcga_pub_tcga-a1-a0sg-01")))));
@@ -413,6 +413,6 @@ public class ClickhouseGenomicDataMapperTest {
             .get()
             .getCount()
             .intValue();
-    assertEquals(10, sizeMutations);
+    assertEquals(9, sizeMutations);
   }
 }

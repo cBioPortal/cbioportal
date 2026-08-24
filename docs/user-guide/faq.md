@@ -11,6 +11,7 @@
     * [Does the portal work on all browsers and operating systems?](/user-guide/faq.md#does-the-portal-work-on-all-browsers-and-operating-systems)
     * [How do I cite the cBioPortal?](/user-guide/faq.md#how-do-i-cite-the-cbioportal)
     * [Can I use figures from the cBioPortal in my publications or presentations?](/user-guide/faq.md#can-i-use-figures-from-the-cbioportal-in-my-publications-or-presentations)
+    * [Do I need permission or a license to use the cBioPortal logo or figures or data?](/user-guide/faq.md#do-i-need-permission-or-a-license-to-use-the-cbioportal-logo-or-figures-or-data)
     * [Can I save or bookmark my results in cBioPortal?](/user-guide/faq.md#can-i-save-or-bookmark-my-results-in-cbioportal)
     * [How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?](/user-guide/faq.md#how-is-the-cbioportal-for-cancer-genomics-different-from-the-genomic-data-commons-gdc)
     * [Does the cBioPortal provide a Web Service API? R interface? MATLAB interface?](/user-guide/faq.md#does-the-cbioportal-provide-a-web-service-api-r-interface-matlab-interface)
@@ -120,6 +121,12 @@ Please cite the following portal papers:
 Remember also to cite the source of the data if you are using a publicly available dataset.
 #### Can I use figures from the cBioPortal in my publications or presentations?
 Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available in SVG or PDF format for easier scaling and editing). When you do, please cite cBioPortal (see the previous question for full citation instructions).
+#### Do I need permission or a license to use the cBioPortal logo or figures or data?
+The use of our logo is governed by our open source license. You are welcome to use the logo as-is for references to our website. If you decide to modify the logo, we ask that you reach out to us first.
+
+You are free to use figures from cBioPortal, there is no copyright permission required. However you must provide proper citation for the cBioPortal and the original data source as described [above](#how-do-i-cite-the-cbioportal).
+
+Unless otherwise noted, data in cBioPortal are available under the ODC Open Database License with no restrictions on the use of the data, as long as you properly give attribution to the original studies. There are some studies that restrict the commercial use of the data, but that will be explicitly mentioned in the study information.
 #### Can I save or bookmark my results in cBioPortal?
 You can bookmark your query results and share the URL with collaborators. We store all queries via Session IDs, and these are saved indefinitely. Use the bookmark tab to retrieve the full link, or generate a short link via the bit.ly link generator.
 #### How is the cBioPortal for Cancer Genomics different from the Genomic Data Commons (GDC)?

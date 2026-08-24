@@ -116,7 +116,7 @@ running on HTTPS directly from Tomcat, then you need to import your certificate 
 See [this Tomcat documentation page](https://tomcat.apache.org/tomcat-8.0-doc/ssl-howto.html) for more details.
 
 :warning: An extra warning for when configuring HTTPS for Tomcat: use the same password for 
-both keystore and secure-key. This seems to be an extra restriction by Tomcat.
+both keystore and secure-key.
 
 
 ## Modifying configuration
@@ -222,7 +222,7 @@ skin.login.contact_html=If you think you have received this message in error, pl
 You are now ready to go.
 
 Rebuild the WAR file and follow the [Deployment with authentication
-steps](/deployment/deploy-without-docker/Deploying.md#required-login) using `authenticate=saml`.
+steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) using `authenticate=saml`.
 
 Then, go to:  [http://localhost:8080/](http://localhost:8080/).
 

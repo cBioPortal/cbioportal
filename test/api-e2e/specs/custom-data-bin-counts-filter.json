@@ -103,7 +103,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -239,7 +239,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -471,7 +471,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -613,7 +613,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -767,7 +767,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -1087,7 +1087,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018",
@@ -1334,7 +1334,7 @@
                         }
                     }
                 },
-                "url": "/api/column-store/clinical-data-counts/fetch?",
+                "url": "/api/clinical-data-counts/fetch?",
                 "label": "ClinicalDataCounts",
                 "studies": [
                     "coadread_tcga_pan_can_atlas_2018"

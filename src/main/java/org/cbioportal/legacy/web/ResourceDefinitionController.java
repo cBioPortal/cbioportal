@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.ResourceDefinition;
+import org.cbioportal.application.rest.mapper.ResourceDefinitionMapper;
+import org.cbioportal.application.rest.response.ResourceDefinitionDTO;
 import org.cbioportal.legacy.service.ResourceDefinitionService;
 import org.cbioportal.legacy.service.exception.ResourceDefinitionNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -41,10 +42,44 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = InternalApiTags.RESOURCE_DEFINITIONS, description = " ")
 public class ResourceDefinitionController {
 
+  /** SpEL condition granting access when the user has READ permission on the study. */
+  private static final String HAS_PERMISSION_TO_READ =
+      "hasPermission(#studyId, 'CancerStudyId',"
+          + " T(org.cbioportal.legacy.utils.security.AccessLevel).READ)";
+
+  /** SpEL condition granting access when the user has LIST permission on the study. */
+  private static final String HAS_PERMISSION_TO_LIST =
+      "hasPermission(#studyId, 'CancerStudyId',"
+          + " T(org.cbioportal.legacy.utils.security.AccessLevel).LIST)";
+
+  /** SpEL condition granting access when the user has READ permission on all the studies. */
+  private static final String HAS_PERMISSION_TO_READ_STUDIES =
+      "hasPermission(#studyIds, 'Collection<CancerStudyId>',"
+          + " T(org.cbioportal.legacy.utils.security.AccessLevel).READ)";
+
+  /** SpEL condition granting access when the user has LIST permission on all the studies. */
+  private static final String HAS_PERMISSION_TO_LIST_STUDIES =
+      "hasPermission(#studyIds, 'Collection<CancerStudyId>',"
+          + " T(org.cbioportal.legacy.utils.security.AccessLevel).LIST)";
+
+  /**
+   * SpEL condition granting access when the {@code skin.home_page.show_unauthorized_studies}
+   * property is enabled and the user has at least LIST permission. Used to grey out studies the
+   * user is not authorized to READ on the homepage, as done by the frontend.
+   */
+  private static final String SHOW_UNAUTHORIZED_STUDIES_CONDITION =
+      "(new java.lang.Boolean(@environment.getProperty('skin.home_page.show_unauthorized_studies',"
+          + " 'false')))";
+
   @Autowired private ResourceDefinitionService resourceDefinitionService;
 
   @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      HAS_PERMISSION_TO_READ
+          + " or ("
+          + SHOW_UNAUTHORIZED_STUDIES_CONDITION
+          + " and "
+          + HAS_PERMISSION_TO_LIST
+          + ")")
   @RequestMapping(
       value = "/studies/{studyId}/resource-definitions",
       method = RequestMethod.GET,
@@ -55,8 +90,8 @@ public class ResourceDefinitionController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinition.class))))
-  public ResponseEntity<List<ResourceDefinition>> getAllResourceDefinitionsInStudy(
+              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinitionDTO.class))))
+  public ResponseEntity<List<ResourceDefinitionDTO>> getAllResourceDefinitionsInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -82,19 +117,25 @@ public class ResourceDefinitionController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          resourceDefinitionService.getAllResourceDefinitionsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ResourceDefinitionMapper.INSTANCE.toDtos(
+              resourceDefinitionService.getAllResourceDefinitionsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
 
   @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      HAS_PERMISSION_TO_READ
+          + " or ("
+          + SHOW_UNAUTHORIZED_STUDIES_CONDITION
+          + " and "
+          + HAS_PERMISSION_TO_LIST
+          + ")")
   @RequestMapping(
       value = "/studies/{studyId}/resource-definitions/{resourceId}",
       method = RequestMethod.GET,
@@ -103,19 +144,26 @@ public class ResourceDefinitionController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = ResourceDefinition.class)))
-  public ResponseEntity<ResourceDefinition> getResourceDefinitionInStudy(
+      content = @Content(schema = @Schema(implementation = ResourceDefinitionDTO.class)))
+  public ResponseEntity<ResourceDefinitionDTO> getResourceDefinitionInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Resource ID") @PathVariable String resourceId)
       throws StudyNotFoundException, ResourceDefinitionNotFoundException {
 
     return new ResponseEntity<>(
-        resourceDefinitionService.getResourceDefinition(studyId, resourceId), HttpStatus.OK);
+        ResourceDefinitionMapper.INSTANCE.toDto(
+            resourceDefinitionService.getResourceDefinition(studyId, resourceId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
-      "hasPermission(#studyIds, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      HAS_PERMISSION_TO_READ_STUDIES
+          + " or ("
+          + SHOW_UNAUTHORIZED_STUDIES_CONDITION
+          + " and "
+          + HAS_PERMISSION_TO_LIST_STUDIES
+          + ")")
   @RequestMapping(
       value = "/resource-definitions/fetch",
       method = RequestMethod.POST,
@@ -127,8 +175,8 @@ public class ResourceDefinitionController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinition.class))))
-  public ResponseEntity<List<ResourceDefinition>> fetchResourceDefinitions(
+              array = @ArraySchema(schema = @Schema(implementation = ResourceDefinitionDTO.class))))
+  public ResponseEntity<List<ResourceDefinitionDTO>> fetchResourceDefinitions(
       @Parameter(required = true, description = "List of Study IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -139,7 +187,8 @@ public class ResourceDefinitionController {
       throws StudyNotFoundException {
 
     return new ResponseEntity<>(
-        resourceDefinitionService.fetchResourceDefinitions(studyIds, projection.name()),
+        ResourceDefinitionMapper.INSTANCE.toDtos(
+            resourceDefinitionService.fetchResourceDefinitions(studyIds, projection.name())),
         HttpStatus.OK);
   }
 }

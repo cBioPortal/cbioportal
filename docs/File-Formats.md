@@ -27,13 +27,13 @@
 
 # Introduction
 
-This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](Data-Loading.md#preparing-study-data).
+This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](data-loading/README.md#preparing-study-data).
 
 # Formats
 
 ## Cancer Study
 
-As described in the [Data Loading tool](Data-Loading.md) page, the following file is needed to describe the cancer study:
+As described in the [Data Loading tool](data-loading/README.md) page, the following file is needed to describe the cancer study:
 
 ### Meta file
 This file contains metadata about the cancer study. The file contains the following fields:
@@ -131,31 +131,32 @@ The first four rows of the clinical data file contain tab-delimited metadata abo
 - Row 2: **The attribute Descriptions**: Long(er) description of each clinical attribute
 - Row 3: **The attribute Datatype**: The datatype of each clinical attribute (must be one of:  STRING, NUMBER, BOOLEAN)
 - Row 4: **The attribute Priority**: A number which indicates the importance of each attribute.  In the future, higher priority attributes will appear in more prominent places than lower priority ones on relevant pages (such as the [Study View](https://www.cbioportal.org/study?id=brca_tcga)). A higher number indicates a higher priority.
-    ```
-    To promote certain chart in study view, please increase priority to a certain number. The higher the score, the higher priority it will be displayed in the study view.
-    If you want to hide chart, please set the priority to 0. For combination chart, as long as one of the clinical attribute has been set to 0, it will be hidden.
     
-    Currently, we preassigned priority to few charts, but as long as you assign a priority except than 1, these preassigned priorities will be overwritten.
+    To promote a chart in Study View, increase its priority value. To hide a chart, set its priority to 0. For combination charts, the chart is hidden when any of the clinical attributes used by the chart has priority 0.
     
-    CANCER_TYPE: 3000, CANCER_TYPE_DETAILED: 2000,
-    Overall survival plot: 400 (This is combination of OS_MONTH and OS_STATUS) 
-    Disease Free Survival Plot: 300 (This is combination of DFS_MONTH and DFS_STATUS) 
-    Mutation Count vs. CNA Scatter Plot: 200,
-    Mutated Genes Table: 90, CNA Genes Table: 80, study_id: 70, # of Samples Per Patient: 40,
-    With Mutation Data Pie Chart: 60, With CNA Data Pie Chart: 50, 
-    Mutation Count Bar Chart: 30, CNA Bar Chart: 20,
-    GENDER: 9, SEX: 9, AGE: 8
-    ```
+    cBioPortal preassigns priority values to a few charts. Assigning any priority other than 1 overrides these defaults:
     
-    Please note: 
-    Priority is not the sole factor determining which chart will be displayed first.
-    A layout algorithm in study view also makes a minor adjustment on the layout.
-    The algorithm tries to fit all charts into a 2 by 2 matrix (Mutated Genes Table occupies 2 by 2 space).
-    When a chart can not be fitted in the first matrix, the second matrixed will be generated. 
-    And the second matrix will have lower priority than the first one. 
-    If later chart can fit into the first matrix, then its priority will be promoted.
-    
-    Please see [here](/deployment/customization/Studyview.md) for more detailed information about how study view utilize priority and how the layout is calculated based on priority.
+    | Chart or attribute | Default priority |
+    | --- | --- |
+    | CANCER_TYPE | 3000 |
+    | CANCER_TYPE_DETAILED | 2000 |
+    | Overall survival plot (OS_MONTH and OS_STATUS) | 400 |
+    | Disease-free survival plot (DFS_MONTH and DFS_STATUS) | 300 |
+    | Mutation Count vs. CNA Scatter Plot | 200 |
+    | Mutated Genes Table | 90 |
+    | CNA Genes Table | 80 |
+    | study_id | 70 |
+    | With Mutation Data Pie Chart | 60 |
+    | With CNA Data Pie Chart | 50 |
+    | # of Samples Per Patient | 40 |
+    | Mutation Count Bar Chart | 30 |
+    | CNA Bar Chart | 20 |
+    | GENDER and SEX | 9 |
+    | AGE | 8 |
+
+    Priority is not the only factor determining which chart is displayed first. A layout algorithm in Study View also adjusts chart placement. The layout is arranged on a grid of chart slots: most charts occupy a single 1 by 1 slot, while the Mutated Genes Table spans a 2 by 2 block of slots. When a chart cannot be placed in the first grid, an additional grid is generated with lower priority than the first one. If a later chart can still fit into the first grid, then its priority is promoted.
+
+    See [Study View customization](/deployment/customization/Studyview.md) for more detailed information about how Study View uses priority and how the layout is calculated.
 - Row 5: **The attribute name for the database**: This name should be in upper case.
 - Row 6: This is the first row that contains actual data.
 
@@ -269,13 +270,13 @@ These columns can be in either the patient or sample file.
 ### Custom columns in clinical data
 cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
 
-The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See GET /api/ at [https://cdd.cbioportal.mskcc.org/swagger-ui.html](https://cdd.cbioportal.mskcc.org/swagger-ui.html#!/clinical-data-dictionary-controller/getClinicalAttributeMetadataBySearchTermsUsingPOST) for the data dictionary of all known clinical attributes.
+The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and should be followed to make the clinical data comparable between studies. This dictionary provides a definition whether an attribute should be defined on the patient or sample level, as well as provides a name, description and datatype. The data curator can choose to ignore these proposed definitions, but not following this dictionary might make comparing data between studies more difficult. It should however not break any cBioPortal functionality. See the [Clinical Data Dictionary endpoint](https://cdd.cbioportal.mskcc.org/swagger-ui.html#!/clinical-data-dictionary-controller/getClinicalAttributeMetadataBySearchTermsUsingPOST) for the data dictionary of all known clinical attributes.
 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
 ## Discrete Copy Number Data
-The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
+The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 
 ### Wide vs Long format
 For CNA data two formats are supported: the wide, and the long format:
@@ -782,7 +783,7 @@ the [mutation table](https://www.cbioportal.org/index.do?cancer_study_list=acc_t
 See [Custom namespace columns](#custom-namespace-columns) for more information on adding custom columns to data files.
 
 ### Allele specific copy number (ASCN) annotations
-Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-mutation-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
+Allele specific copy number (ASCN) annotation is also supported and may be added using namespaces, described [here](#adding-annotation-columns-through-namespaces). If ASCN data is present in the cBioPortal mutation data file, the deployed cBioPortal instance will display additional columns in the mutation table showing ASCN data.
 
 **The ASCN columns below are optional by default. If `ascn` is a defined namespace in `meta_mutations_extended.txt`, then these columns are ALL required.**
 
@@ -1355,7 +1356,7 @@ rank<TAB>gene<TAB>N<TAB>n<TAB>p<TAB>q
 Gene panel functionality can specify which genes are assayed on a panel and assign samples and genetic profiles (such as mutation data) to a panel.
 
 To include gene panel data in your instance, the following data and/or configurations can be used:
-1. **Gene panel file**: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: [Import-Gene-Panels](Import-Gene-Panels.md).
+1. **Gene panel file**: This file contains the genes on the gene panel. A panel can be used for multiple studies within the instance and should be loaded prior to loading a study with gene panel data. For information on the format and import process please visit: [Import-Gene-Panels](data-loading/Import-Gene-Panels.md).
 2. **Gene panel matrix file**: This file is used to specify which samples are sequenced on which gene panel in which genetic profile. This is recommended for mutation and structural variant data, because the MAF and structural variant formats are unable to include samples which are sequenced but contain no called mutations, and only a single gene panel can be defined in the meta file. For other genetic profiles, columns can be added to specify their gene panel, but a property can also be added to their respective meta file, because these data files contain all profiled samples. Although the gene panel matrix functionality overlaps with the case list functionality, a case list for mutations (`_sequenced`) and Structural variants (`_sv`) is also required.
 3. **Gene panel property in meta file**: Adding the `gene_panel:` property to the meta file of data profile will assign all samples from that profile to the gene panel. In this case it is not necessary to include a column for this profile in the gene panel matrix file.
 
@@ -1396,7 +1397,7 @@ data_filename: data_gene_panel_matrix.txt
 If all samples in a genetic profile have the same gene panel associated with them, an optional field can be specified in the meta data file of that datatype called **gene_panel:**. If this is present, all samples in this data file will be assigned to this gene panel for this specific profile.
 
 ## Gene Set Data
-A description of importing gene sets (which are required before loading gene set study) can be found [here](Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
+A description of importing gene sets (which are required before loading gene set study) can be found [here](data-loading/Import-Gene-Sets.md). This page also contains a decription to import gene set hierarchy data, which is required to show a hierarchical tree on the query page to select gene sets.
 
 cBioPortal supports GSVA scores and GSVA-like scores, such as ssGSEA. The [Gene Set Variation Analysis](https://www.bioconductor.org/packages/release/bioc/html/GSVA.html) method in R (GSVA, [Hänzelmann, 2013](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-14-7)) can calculate several types of scores (specified with the `methods=` argument) and outputs a score between -1 and 1. The GSVA method also calculates a p-value per score using a bootstrapping method.
 
@@ -1620,24 +1621,28 @@ in the meta file will make cBioPortal interpret the data as Mutational Signature
 #### Mutational Signature meta files
 The mutational signature meta files follow the same convention as the [Generic Assay Meta file](#generic-assay-meta-file),
 however there are some key differences:
-- `genetic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
-- `datatype` should be set to `LIMIT_VALUE`
-- `stable_id` values should end with: `_{filetype}_{identifier}`, where:
-  - `filetype` is either `contribution`, `pvalue` or `counts`
-  - `identifier` is consistent between files belonging to the same analysis
-  - Multiple signatures can be added to a single study, as long as they have different identifiers in their stable id (e.g., `contribution_SBS` and `contribution_DBS`)
-- In `generic_entity_meta_properties` the `NAME` value is required. The `DESCRIPTION` and `URL` values can be added 
-  to display more information and link to external resources in the mutational signatures tab.
+- `generic_assay_type` should be set to `MUTATIONAL_SIGNATURE`
+- `datatype` should be set to `LIMIT-VALUE`
+- `stable_id` values should end with `_{filetype}_{version}`, where:
+  - `filetype` is `contribution`, `pvalue`, or `counts`
+  - `version` is the analysis/version label shown in the UI (for example `v2`, `v3`, `SBS`, `DBS`, or `ID`)
+  - Profiles that belong to the same mutational-signature analysis should use the same trailing `version` value across contribution/pvalue/count files
+  - Different mutational-signature analyses in the same study should use different trailing `version` values
+- Example `stable_id` values: `mutational_signatures_contribution_v2`, `mutational_signatures_pvalue_v2`, `mutational_signatures_counts_v2`
+- Contribution and pvalue profiles belonging to the same analysis should use the same trailing `version` value.
+- In `generic_entity_meta_properties` the `NAME` value is required. `DESCRIPTION` and `URL` are recommended so the patient-view mutational-signature tab can show descriptive text and an external link for a selected signature.
+- If you want the patient-view legend/color grouping to reflect a signature category, encode it in `NAME` as `ENTITY_NAME (CATEGORY)`, since the frontend derives the category from the text in parentheses.
 
 #### Mutational Signature data files
 The mutational signature data files follow the same convention as the [Generic Assay Data file](#generic-assay-data-file).
 Each collection of mutational signatures can consist of up to three different data files, each with an accompanying meta file.
 - Signature _contribution_ file (**required**)
-  - Data file containing the contribution of each signature-sample pair. Values are expected to be 0 ≥ x ≥ 1.
+  - Data file containing the contribution of each signature-sample pair. Values are expected to be `0 <= x <= 1`.
 - Signature _pvalue_ file (optional)
-  - Data file containing p-values for each signature-sample pair. Values below 0.05 will be shown as significant.
+  - Data file containing p-values for each signature-sample pair. Values below `0.05` will be shown as significant.
 - Mutational _counts_ matrix file (optional)
   - Data file containing nucleotide changes of a sample. cBioPortal has specific visualization options for single-base substitutions (96 channels), double-base substitutions (72 channels) and insertion/deletions (83 channels), following the signatures defined by [COSMIC](https://cancer.sanger.ac.uk/signatures/). But other channels can also be used. Values are expected to be positive integers.
+  - Counts profiles belonging to the same analysis should use the same trailing `version` value.
 
 ## Resource Data
 

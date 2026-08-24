@@ -30,18 +30,18 @@ To disable the chart, set the priority to -1.(Currently disables charts for sing
 
 Currently, we preassigned priority to few charts, but as long as you assign a priority in the database except than 1, these preassigned priorities will be overwritten.
 
-| Chart name(clinical attribute ID)                          	| Frontend default priority 	| Additional Info                                   |
-|------------------------------------------------------------	|---------------------------	|-------------------------------------------------	|
-| CANCER_TYPE                                                	| 3000                      	|                                                 	|
-| CANCER_TYPE_DETAILED                                       	| 2000                      	|                                                 	|
-| Overall Survival Plot                                      	| 400                       	| This is combination of OS_MONTH and OS_STATUS   	|
-| Disease Free Survival Plot                                 	| 300                       	| This is combination of DFS_MONTH and DFS_STATUS 	|
-| Mutation Count vs. Fraction of Genome Altered Density Plot 	| 200                       	|                                                 	|
-| Mutated Genes Table                                        	| 90                        	|                                                 	|
-| CNA Genes Table                                            	| 80                        	|                                                 	|
-| Cancer Studies                                             	| 70                        	|                                                 	|
-| Number of Samples Per Patient                                 | 40                        	|                                                 	|
-| Mutation Count Bar Chart                                   	| 30                        	|                                                 	|
-| CNA Bar Chart                                              	| 20                        	|                                                 	|
-| GENDER, SEX                                                	| 9                         	|                                                 	|
-| AGE                                                        	| 8                         	|                                                 	|
+| Chart name (clinical attribute ID)                          | Frontend default priority | Additional Info                                   |
+|-------------------------------------------------------------|---------------------------|---------------------------------------------------|
+| CANCER_TYPE                                                 | 3000                      |                                                   |
+| CANCER_TYPE_DETAILED                                        | 2000                      |                                                   |
+| Overall Survival Plot                                       | 400                       | This is combination of OS_MONTH and OS_STATUS     |
+| Disease Free Survival Plot                                  | 300                       | This is combination of DFS_MONTH and DFS_STATUS   |
+| Mutation Count vs. Fraction of Genome Altered Density Plot  | 200                       |                                                   |
+| Mutated Genes Table                                         | 90                        |                                                   |
+| CNA Genes Table                                             | 80                        |                                                   |
+| Cancer Studies                                              | 70                        |                                                   |
+| Number of Samples Per Patient                               | 40                        |                                                   |
+| Mutation Count Bar Chart                                    | 30                        |                                                   |
+| CNA Bar Chart                                               | 20                        |                                                   |
+| GENDER, SEX                                                 | 9                         |                                                   |
+| AGE                                                         | 8                         |                                                   |

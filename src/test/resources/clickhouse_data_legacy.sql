@@ -49,12 +49,6 @@ insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(26155,'NOC2L',14,'protein-coding');
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2064,'ERBB2',15,'protein-coding');
 insert into gene (entrez_gene_id,hugo_gene_symbol,genetic_entity_id,type) values(2886,'GRB7',16,'protein-coding');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(3677745,'D45A',79501,1,'OR4F5 D45 missense');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(426644,'G145C',79501,1,'OR4F5 G145 missense');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(460103,'P23P',148398,1,'SAMD11 P23 silent');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010395,'S146S',26155,1,'NOC2L S146 silent');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(1290240,'M1T',26155,1,'NOC2L truncating');
-insert into cosmic_mutation (cosmic_mutation_id,protein_change,entrez_gene_id,count,keyword) values(4010425,'Q197*',26155,1,'NOC2L truncating');
 
 insert into gene_alias (entrez_gene_id,gene_alias) values (207,'AKT alias');
 insert into gene_alias (entrez_gene_id,gene_alias) values (207,'AKT alias2');

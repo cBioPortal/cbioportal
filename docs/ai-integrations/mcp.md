@@ -2,7 +2,7 @@
 
 This document provides technical information about the Model Context Protocol (MCP) servers and architecture that power AI integrations with cBioPortal.
 
-> **Note:** All these are prototypes and work in progress. Features and functionality are actively being developed and improved.
+> **Note:** The cBioPortal MCP servers power the live cBioPortalChat interface and remain in active development, so their interfaces may still change.
 
 ## What is MCP?
 
@@ -12,15 +12,31 @@ For details on how MCP powers the cBioPortal chat interface, see the [Chat Inter
 
 ## Available MCP Servers
 
-### cBioPortal MCP Servers in Development
+### cBioPortal MCP Servers
 
-These MCP servers are early prototypes developed by the cBioPortal team and are in active development.
+The live **cBioPortalChat** bot is a single agent that uses **both** of the cBioPortal MCP servers below at the same time — it is one bot with two MCP servers:
+
+- **`cbioportal-mcp`** powers the database-query capability (referred to as the "database MCP" in the [Chat Interface documentation](chat-interface.md)).
+- **`cbioportal-navigator`** powers the link-generation capability (the "navigator MCP").
+
+The agent decides which of the two to call for each turn. Both servers are developed by the cBioPortal team and remain in active development.
 
 #### cbioportal-mcp
 
 A specialized MCP server that wraps the ClickHouse database connection with cBioPortal-specific knowledge.
 
 **Repository**: [https://github.com/cBioPortal/cbioportal-mcp](https://github.com/cBioPortal/cbioportal-mcp)
+
+**Hosted endpoint**: A hosted instance backed by the cBioPortal database is available at `https://mcp.cbioportal.org/db/mcp` (streamable HTTP). Point an MCP-compatible client at this URL to query studies, samples, mutations, and clinical attributes in natural language. The endpoint requires authentication via Google sign-in (the only provider supported at the moment). MCP clients that support OAuth are prompted to sign in and register automatically on first connect.
+
+The demo below adds the hosted endpoint as a custom connector in an MCP client (Claude) and asks it which studies are available:
+
+<video controls muted playsinline style="max-width: 100%; height: auto;">
+  <source src="https://github.com/user-attachments/assets/abd9fca3-c777-48c1-8a67-8efaed8d6b0a" type="video/mp4">
+  Your browser does not support embedded video. <a href="https://github.com/user-attachments/assets/abd9fca3-c777-48c1-8a67-8efaed8d6b0a">Watch the demo</a>.
+</video>
+
+If you'd rather not connect your own client, you can try the same database MCP through the hosted [cBioPortalChat](chat-interface.md) interface at [https://chat.cbioportal.org](https://chat.cbioportal.org).
 
 **Key Features**:
 - Wraps the `mcp-clickhouse` server for ClickHouse database connectivity
@@ -30,6 +46,8 @@ A specialized MCP server that wraps the ClickHouse database connection with cBio
 - Includes MCP Inspector for debugging and monitoring
 
 **How it works**: The server acts as an intermediary that combines ClickHouse database access with domain-specific instructions, allowing researchers and clinicians to query complex genomic datasets through conversational interfaces without writing SQL directly.
+
+**Backing data store**: The server queries the ClickHouse database for AI agents. It has direct access to the same database tables used by the cBioPortal web application. See the [ClickHouse Setup Guide](/deployment/clickhouse/README.md) to set one up.
 
 **Configuration**: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).
 
@@ -66,7 +84,7 @@ To build an MCP integration with cBioPortal:
 2. **Access data** through:
    - [REST API](../web-API-and-Clients.md) - Programmatic access
    - [DataHub](https://github.com/cBioPortal/datahub) - Bulk data downloads
-   - ClickHouse database - Direct queries (not publicly accessible; contact us to discuss options)
+   - ClickHouse database - Direct queries (not publicly accessible; contact us to discuss options). For details on setting up ClickHouse for your own MCP deployment, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
 
 ## Resources
 

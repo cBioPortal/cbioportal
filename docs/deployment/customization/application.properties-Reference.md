@@ -4,34 +4,112 @@ This page describes the main properties within application.properties. Note that
 
 ## Database Settings
 
-```
-db.user=
-db.password=
-db.connection_string=
-db.driver=[this is the name of your JDBC driver, e.g., com.mysql.jdbc.Driver]
-```
+cBioPortal connects to ClickHouse via Spring Boot's standard datasource properties. Configure these in `application.properties`:
 
-The format of the `db.connection_string` is:
-```
-jdbc:mysql://<host>:<port>/<database name>?<parameter1>&<parameter2>&<parameter...>
+```properties
+spring.datasource.url=jdbc:ch://<host>:<port>/<database>
+spring.datasource.username=<your-db-user>
+spring.datasource.password=<your-db-password>
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 For example:
 
-```
-jdbc:mysql://localhost:3306/cbiodb?zeroDateTimeBehavior=convertToNull&useSSL=false
-```
-
-:warning: The fields `db.host` and `db.portal_db_name` and `db.use_ssl` are deprecated. It is required to configure the database connection using
-the `db.connection_string` instead.
-
-`db.tomcat_resource_name` is required in order to work with the tomcat database connection pool and should have the default value jdbc/cbioportal in order to work correctly with the your WAR file.
-
-```
-db.tomcat_resource_name=jdbc/cbioportal
+```properties
+spring.datasource.url=jdbc:ch://localhost:8123/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
 ## cBioPortal Customization
+
+### Logging
+
+```properties
+# Root logging level (INFO, DEBUG, WARN, ERROR)
+logging.level.root=INFO
+```
+
+### Cache Configuration
+
+```properties
+# Cache type: ehcache-heap, ehcache-disk, ehcache-hybrid, redis, or no-cache
+persistence.cache_type=no-cache
+
+# Enable cache statistics endpoint
+# cache.statistics_endpoint_enabled=false
+
+# Enable cache management endpoint
+# cache.endpoint.enabled=true
+
+# API key for cache management endpoint access
+# cache.endpoint.api-key=<uuid>
+```
+
+### OncoKB
+
+```properties
+# Enable OncoKB annotations
+show.oncokb=true
+
+# OncoKB public API URL
+oncokb.public_api.url=https://public.api.oncokb.org/api/v1
+
+# Your OncoKB token (required for therapeutic data)
+oncokb.token=
+```
+
+### Genome Nexus
+
+```properties
+# Show Genome Nexus annotation columns in mutation table
+# show.genomenexus.annotation_sources=mutation_assessor
+
+# Default isoform override source (uniprot or mskcc)
+# genomenexus.isoform_override_source=mskcc
+```
+
+### Session Service
+
+```properties
+# URL for session service (used for saving/sharing queries)
+session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
+
+# Optional basic auth for session service
+# session.service.user=
+# session.service.password=
+```
+
+### Server Configuration
+
+```properties
+# Connection timeout in ms
+server.tomcat.connection-timeout=20000
+
+# Max HTTP response header size
+server.tomcat.max-http-response-header-size=16384
+
+# Max HTTP request header size
+server.max-http-request-header-size=16384
+
+# Enable response compression
+server.compression.enabled=true
+```
+
+### Swagger / API Docs
+
+```properties
+# Swagger UI path
+# springdoc.swagger-ui.path=/api/swagger-ui
+
+# API docs path
+# springdoc.api-docs.path=/api/v2/api-docs
+```
+
+### Full Reference
+
+For a complete list of all available properties, see the [application.properties.EXAMPLE](https://github.com/cBioPortal/cbioportal/blob/master/src/main/resources/application.properties.EXAMPLE) file in the cbioportal repository.
 
 ### Hide tabs (pages)
 
@@ -83,7 +161,7 @@ default_cross_cancer_study_list_name=
 
 ### Quick Search (BETA)
 
-![Quick search example](/images/previews/quick\_search\_example.png)
+![Quick search example](/images/previews/quick_search_example.png)
 
 Enable or disable the quick search with the following:
 
@@ -277,7 +355,7 @@ survival.show_p_q_values_in_survival_type_table=
 
 ### Set the initial x-axis limit for the survival plot
 
-By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival\_x\_axis\_limit.png)
+By default, the initial x-axis limit for a survival plot is the time of the latest event in the data. With this setting, you can make the initial x-axis limit be smaller than that. ![Survival x-axis limit examples](/images/previews/survival_x_axis_limit.png)
 
 ```
 # Set initial x-axis limit for survival plot (by default, initial limit will be the latest event in the data)
@@ -365,7 +443,7 @@ googleplus.consumer.secret=2jCfg4SPWdGfXF44WC588dK
 
 (note: these are just examples, you need to get your own) You will also need to go to "Google+ API" and click Enable button. In case of problems make sure to enable DEBUG logging for org.springframework.social and org.springframework.security.web.authentication.
 
-To activate password authentication follow the [Deployment with authentication steps](../deploy-without-docker/Deploying.md#required-login) and set `authenticate=googleplus`.
+To activate password authentication follow the [Deployment with authentication steps](/legacy/deployment/deploy-without-docker/Deploying.md#with-authentication) and set `authenticate=googleplus`.
 
 In addition, set this property in `application.properties`:
 
@@ -562,7 +640,9 @@ cBioPortal is supported on the backend with Ehcache or Redis. These caches are c
 
 The cache type is set using `persistence.cache_type`. Valid values are `no-cache`, `redis` (redis), `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), and `ehache-hybrid` (ehcache disk + heap). By default, `persistence.cache_type` is set to `no-cache` which disables the cache. When the cache is disabled, no responses will be stored in the cache.
 
-:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](../deploy-without-docker/Build-from-Source.md#building-with-maven)).
+:warning: the 'redis' caching option will likely cause a conflict when installing the portal in a Tomcat installation which uses redisson for session management. If you plan to deploy cbioportal to such a system, avoid the 'redis' caching option for `persistence.cache_type` and be sure to build cbioportal.war with the maven option `-Dexclude-redisson` (see [Building with Maven](/legacy/deployment/deploy-without-docker/Build-from-Source.md#building-with-maven)).
+
+> ⚠️ **Legacy (pre-v7):** This note describes a standalone-Tomcat WAR deployment. v7 ships an executable jar (`<packaging>jar</packaging>`) and no longer defines the `-Dexclude-redisson` build flag, so this workaround does not apply to a v7 Docker deployment. Left here pending confirmation of the equivalent v7 guidance.
 
 ```
 persistence.cache_type=[no-cache or ehache-heap or ehcache-disk or ehcache-hybrid or redis]
@@ -629,6 +709,8 @@ For more information on Redis, refer to the official documentation [here](https:
 To cache with Ehcache set `persistence.cache_type` to `ehache-heap` (ehcache heap-only), `ehache-disk` (ehcache disk-only), or `ehache-hybrid` (ehcache disk + heap).
 
 Ehcache initializes caches using a template found in an Ehcache xml configuration file. When caching is enabled, set `ehcache.xml_configuration` to the name of the Ehcache xml configuration file. The default provided is `ehcache.xml`; to change the cache template, directly edit this file. Alternatively, you can create your own Ehcache xml configuration file, place it under `/persistence/persistence-api/src/main/resources/` and set `ehcache.xml_configuration` to `/[Ehcache xml configuration filename]`.
+
+> ⚠️ **Path may be outdated:** `/persistence/persistence-api/src/main/resources/` refers to the pre-v7 multi-module Maven layout, which no longer exists in the single-module v7 build (no `ehcache.xml` was found under `src/` on the current default branch). The correct location for a custom Ehcache configuration in v7 needs to be confirmed by a maintainer.
 
 ```
 ehcache.xml_configuration=
@@ -822,3 +904,25 @@ uptime_robot_api_key=RlrzpsmAn
 Both properties are required to enable the integration. When configured, the portal will automatically fetch and display active events as banners at the top of the page.
 
 See [UptimeRobot Integration](../integration-with-other-webservices/UptimeRobot-Integration.md) for setup instructions.
+
+## Search Engine Sitemaps and robots.txt (SEO)
+
+### Background
+
+To make study and patient pages discoverable by search engines, the backend can serve a `robots.txt` and XML sitemaps directly. `robots.txt` steers crawlers (it disallows `/proxy/`, sets a crawl delay, and advertises the sitemap), while the sitemaps enumerate every study-summary and patient page URL. Patient sitemaps are paginated so no file exceeds the sitemaps.org limit of 50,000 URLs.
+
+### Properties
+
+* `sitemaps`: when `true`, the backend serves `/robots.txt`, `/sitemap_index.xml`, and `/sitemap_study.xml`. Defaults to `false`, in which case all three return 404.
+
+The emitted `robots.txt` policy is tunable without code changes:
+
+* `robots.disallow_paths`: comma-separated path prefixes disallowed for all crawlers. Defaults to `/proxy/` (external OncoKB/Genome Nexus annotation — the heaviest crawl fan-out, and no indexable content). `/api/` is intentionally left crawlable, since study/patient pages are a client-rendered SPA whose content is populated by `/api/` requests.
+* `robots.crawl_delay`: `Crawl-delay` value (seconds) emitted for all crawlers. Defaults to `5`; set blank to omit the directive.
+* `robots.disallow_user_agents`: comma-separated crawler User-Agent names to block entirely (each is emitted as its own `User-agent: <name>` / `Disallow: /` group, before the shared policy). Empty by default.
+
+### Behavior
+
+* Intended for public portals, but safe to enable anywhere: the sitemap index is built from an **anonymous** study listing, so it advertises only public studies, and `/sitemap_study.xml` is guarded by a study-level authorization check, so an anonymous crawler can enumerate patients of public studies only. Enabling it never exposes non-public data.
+* `robots.txt` keeps `/api/` crawlable on purpose: study and patient pages are a client-rendered SPA whose content is populated by `/api/` requests, so disallowing `/api/` would make crawlers index empty pages.
+* The sitemap files are served with `X-Robots-Tag: noindex` so the sitemaps themselves are not indexed.

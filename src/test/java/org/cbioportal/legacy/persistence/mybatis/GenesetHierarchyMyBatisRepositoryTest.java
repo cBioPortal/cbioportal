@@ -44,7 +44,7 @@ public class GenesetHierarchyMyBatisRepositoryTest {
     Assert.assertEquals(3, result.size());
     // ordered by parentNodeName, nodeName, so Root node and then Sub node A and B:
     Assert.assertEquals("Root node", result.get(0).getNodeName());
-    Assert.assertEquals(null, result.get(0).getParentNodeName());
+    Assert.assertEquals("", result.get(0).getParentNodeName());
     Assert.assertEquals("Sub node A", result.get(1).getNodeName());
     Assert.assertEquals("Root node", result.get(1).getParentNodeName());
     Assert.assertEquals("Sub node B", result.get(2).getNodeName());

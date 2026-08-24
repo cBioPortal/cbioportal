@@ -11,7 +11,7 @@ We gratefully acknowledge a large collection of open source languages, tools and
 * [Mocha](https://mochajs.org/), [Chai](https://www.chaijs.com/) and [Selenium](https://selenium.dev/)
 * [D3](https://d3js.org/), [Victory.js](https://formidable.com/open-source/victory/) and [Chart JS](https://www.chartjs.org/)
 * [Spring](https://spring.io/) and [Hibernate](https://hibernate.org/)
-* [MySQL](https://www.mysql.com/) and [MongoDB](https://www.mongodb.com/)
+* [MySQL](https://www.mysql.com/), [ClickHouse](https://clickhouse.com/) and [MongoDB](https://www.mongodb.com/)
 
 We also gratefully acknowledge the following service providers:
 

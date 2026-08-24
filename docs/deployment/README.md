@@ -2,10 +2,14 @@
 
 Private instances of cBioPortal are maintained by institutions and companies [around the world](https://www.cbioportal.org/installations).
 
-An instance can be deployed using Docker **(recommended)** or by building and deploying from source. The source code of cBioPortal is [available](https://github.com/cBioPortal/cbioportal) on GitHub under the terms of [Affero GPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html).
+As of v7, the only officially supported method to deploy cBioPortal is through Docker. The source code of cBioPortal is [available](https://github.com/cBioPortal/cbioportal) on GitHub under the terms of [Affero GPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
-To deploy cBioPortal instance on a Kubernetes cluster, we also provide [official Helm charts](https://artifacthub.io/packages/search?org=cbioportal). You can follow the installation guide [here](./kubernetes/README.md).
+Please note that installing a local version requires system administration skills; for example, installing and configuring Docker and ClickHouse. With limited resources, we cannot provide technical support on system administration.
 
-This section contains instructions for all of the above paths.
+v7 replaced MySQL with [ClickHouse](https://clickhouse.com/), which is now the only supported database. Run it self-hosted, as the Docker Compose setup does by default, or on [ClickHouse Cloud](https://clickhouse.com/cloud), which is what backs cbioportal.org and genie.cbioportal.org.
 
-Please note that installing a local version requires system administration skills; for example, installing and configuring Tomcat and MySQL. With limited resources, we cannot provide technical support on system administration.
+## Deployment Overview
+
+- **[Deploy with Docker](/deployment/docker/README.md)** — Quick start with Docker Compose
+- **[ClickHouse Setup](/deployment/clickhouse/README.md)** — Hosting options and architecture
+- **[Migrating from v6 (MySQL) to v7 (ClickHouse)](/Migration-v6-to-v7.md)** — Upgrade path for existing installations

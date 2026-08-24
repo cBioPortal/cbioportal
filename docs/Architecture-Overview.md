@@ -33,7 +33,7 @@ The ClickHouse database used by cBioPortal stores data in two layers:
 For more on ClickHouse architecture, deployment options, and sizing guidance, see the [ClickHouse Setup Guide](/deployment/clickhouse/README.md).
 
 The backend is organized as a single-module Spring Boot application with
-package-based application, domain, infrastructure, and legacy layers.
+package-based application, domain, infrastructure, legacy and shared layers.
 See [cBioPortal backend code organization](./development/Backend-Code-Organization.md).
 
 ## Validator

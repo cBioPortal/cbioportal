@@ -30,6 +30,8 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
+import org.cbioportal.application.rest.mapper.SampleClinicalDataCollectionMapper;
+import org.cbioportal.application.rest.response.SampleClinicalDataCollectionDTO;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
 import org.cbioportal.legacy.model.AlterationFilter;
@@ -504,7 +506,9 @@ public class StudyViewController {
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(description = "Fetch CNA genes by study view filter")
+  @Operation(
+      operationId = "fetchLegacyCNAGenes",
+      description = "Fetch CNA genes by study view filter")
   @ApiResponse(
       responseCode = "200",
       description = "OK",
@@ -1447,8 +1451,8 @@ public class StudyViewController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = SampleClinicalDataCollection.class)))
-  public ResponseEntity<SampleClinicalDataCollection> fetchClinicalDataClinicalTable(
+      content = @Content(schema = @Schema(implementation = SampleClinicalDataCollectionDTO.class)))
+  public ResponseEntity<SampleClinicalDataCollectionDTO> fetchClinicalDataClinicalTable(
       @Parameter(required = true, description = "Study view filter")
           @Valid
           @RequestBody(required = false)
@@ -1505,7 +1509,9 @@ public class StudyViewController {
     HttpHeaders responseHeaders = new HttpHeaders();
     responseHeaders.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalNumberOfResults));
     return new ResponseEntity<>(
-        aggregatedClinicalDataByUniqueSampleKey, responseHeaders, HttpStatus.OK);
+        SampleClinicalDataCollectionMapper.toDto(aggregatedClinicalDataByUniqueSampleKey),
+        responseHeaders,
+        HttpStatus.OK);
   }
 
   // Only cache when:

@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.ClinicalAttributeCountMapper;
+import org.cbioportal.application.rest.response.ClinicalAttributeCountDTO;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.web.config.InternalApiTags;
@@ -54,8 +56,8 @@ public class ClinicalAttributeCountController {
       content =
           @Content(
               array =
-                  @ArraySchema(schema = @Schema(implementation = ClinicalAttributeCount.class))))
-  public ResponseEntity<List<ClinicalAttributeCount>> getClinicalAttributeCounts(
+                  @ArraySchema(schema = @Schema(implementation = ClinicalAttributeCountDTO.class))))
+  public ResponseEntity<List<ClinicalAttributeCountDTO>> getClinicalAttributeCounts(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -89,6 +91,7 @@ public class ClinicalAttributeCountController {
           clinicalAttributeService.getClinicalAttributeCountsBySampleIds(studyIds, sampleIds);
     }
 
-    return new ResponseEntity<>(clinicalAttributeCountList, HttpStatus.OK);
+    return new ResponseEntity<>(
+        ClinicalAttributeCountMapper.INSTANCE.toDtos(clinicalAttributeCountList), HttpStatus.OK);
   }
 }

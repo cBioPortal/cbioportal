@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.application.rest.mapper.CancerStudyMapper;
+import org.cbioportal.application.rest.response.CancerStudyDTO;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.service.StudyService;
@@ -100,8 +102,8 @@ public class StudyController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudy.class))))
-  public ResponseEntity<List<CancerStudy>> getAllStudies(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudyDTO.class))))
+  public ResponseEntity<List<CancerStudyDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
           @RequestParam(required = false)
           String keyword,
@@ -135,7 +137,8 @@ public class StudyController {
         && pageNumber == 0
         && sortBy == null
         && direction == Direction.ASC) {
-      return new ResponseEntity<>(defaultResponse, HttpStatus.OK);
+      return new ResponseEntity<>(
+          CancerStudyMapper.INSTANCE.toDtosFromCancerStudies(defaultResponse), HttpStatus.OK);
     } else authentication = SecurityContextHolder.getContext().getAuthentication();
 
     if (projection == Projection.META) {
@@ -146,15 +149,16 @@ public class StudyController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          studyService.getAllStudies(
-              keyword,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name(),
-              authentication,
-              getAccessLevel()),
+          CancerStudyMapper.INSTANCE.toDtosFromCancerStudies(
+              studyService.getAllStudies(
+                  keyword,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name(),
+                  authentication,
+                  getAccessLevel())),
           HttpStatus.OK);
     }
   }
@@ -170,13 +174,14 @@ public class StudyController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = CancerStudy.class)))
-  public ResponseEntity<CancerStudy> getStudy(
+      content = @Content(schema = @Schema(implementation = CancerStudyDTO.class)))
+  public ResponseEntity<CancerStudyDTO> getStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId)
       throws StudyNotFoundException {
 
-    return new ResponseEntity<>(studyService.getStudy(studyId), HttpStatus.OK);
+    return new ResponseEntity<>(
+        CancerStudyMapper.INSTANCE.toDto(studyService.getStudy(studyId)), HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -191,8 +196,8 @@ public class StudyController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudy.class))))
-  public ResponseEntity<List<CancerStudy>> fetchStudies(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudyDTO.class))))
+  public ResponseEntity<List<CancerStudyDTO>> fetchStudies(
       @Parameter(required = true, description = "List of Study IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -209,7 +214,9 @@ public class StudyController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          studyService.fetchStudies(studyIds, projection.name()), HttpStatus.OK);
+          CancerStudyMapper.INSTANCE.toDtosFromCancerStudies(
+              studyService.fetchStudies(studyIds, projection.name())),
+          HttpStatus.OK);
     }
   }
 

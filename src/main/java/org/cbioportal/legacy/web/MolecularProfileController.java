@@ -12,6 +12,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.MolecularProfileMapper;
+import org.cbioportal.application.rest.response.MolecularProfileDTO;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.MolecularProfileService;
@@ -58,8 +60,9 @@ public class MolecularProfileController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
-  public ResponseEntity<List<MolecularProfile>> getAllMolecularProfiles(
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MolecularProfileDTO.class))))
+  public ResponseEntity<List<MolecularProfileDTO>> getAllMolecularProfiles(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
@@ -86,12 +89,13 @@ public class MolecularProfileController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          molecularProfileService.getAllMolecularProfiles(
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          MolecularProfileMapper.INSTANCE.toDtos(
+              molecularProfileService.getAllMolecularProfiles(
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -106,15 +110,17 @@ public class MolecularProfileController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = MolecularProfile.class)))
-  public ResponseEntity<MolecularProfile> getMolecularProfile(
+      content = @Content(schema = @Schema(implementation = MolecularProfileDTO.class)))
+  public ResponseEntity<MolecularProfileDTO> getMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
           String molecularProfileId)
       throws MolecularProfileNotFoundException {
 
     return new ResponseEntity<>(
-        molecularProfileService.getMolecularProfile(molecularProfileId), HttpStatus.OK);
+        MolecularProfileMapper.INSTANCE.toDto(
+            molecularProfileService.getMolecularProfile(molecularProfileId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -128,8 +134,9 @@ public class MolecularProfileController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
-  public ResponseEntity<List<MolecularProfile>> getAllMolecularProfilesInStudy(
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MolecularProfileDTO.class))))
+  public ResponseEntity<List<MolecularProfileDTO>> getAllMolecularProfilesInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -162,13 +169,14 @@ public class MolecularProfileController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          molecularProfileService.getAllMolecularProfilesInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          MolecularProfileMapper.INSTANCE.toDtos(
+              molecularProfileService.getAllMolecularProfilesInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -185,8 +193,9 @@ public class MolecularProfileController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = MolecularProfile.class))))
-  public ResponseEntity<List<MolecularProfile>> fetchMolecularProfiles(
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MolecularProfileDTO.class))))
+  public ResponseEntity<List<MolecularProfileDTO>> fetchMolecularProfiles(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -233,7 +242,8 @@ public class MolecularProfileController {
             molecularProfileService.getMolecularProfiles(
                 interceptedMolecularProfileFilter.getMolecularProfileIds(), projection.name());
       }
-      return new ResponseEntity<>(molecularProfiles, HttpStatus.OK);
+      return new ResponseEntity<>(
+          MolecularProfileMapper.INSTANCE.toDtos(molecularProfiles), HttpStatus.OK);
     }
   }
 }

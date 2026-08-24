@@ -75,7 +75,7 @@
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
     <testcontainers.version>1.21.4</testcontainers.version>
-    <opensaml.version>4.1.1</opensaml.version>
+    <opensaml.version>4.3.2</opensaml.version>
 
     <!-- Third Party -->
     <redisson.version>3.22.0</redisson.version>
@@ -96,7 +96,9 @@
     <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-    <bouncy_castle.version>1.78</bouncy_castle.version>
+    <!-- 1.84 clears CVE-2025-14813 (critical, GOST 28147 keystream reuse, fixed
+         1.80.2) plus the 1.79/1.84 medium advisories -->
+    <bouncy_castle.version>1.84</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
     <tomcat.version>10.1.55</tomcat.version>
     <!-- CVE fixes ahead of the Spring Boot BOM: netty 4.1.135 (managed by Boot
@@ -111,6 +113,10 @@
          built against httpcore5 5.4.x -->
     <httpclient5.version>5.6.4</httpclient5.version>
     <httpcore5.version>5.4.3</httpcore5.version>
+    <!-- CVE fixes ahead of the Spring Boot BOM (log4j 2.24.3, commons-lang3 3.17.0):
+         log4j-api < 2.25.5 and commons-lang3 < 3.18.0 are flagged as medium -->
+    <log4j2.version>2.25.5</log4j2.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -837,11 +843,10 @@
   </pluginRepositories>
 
   <repositories>
-    <!-- needed for the opensaml dependency -->
+    <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
     <repository>
       <id>shiboleth</id>
-      <url>
-        https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+      <url>https://build.shibboleth.net/maven/releases/</url>
     </repository>
     <!-- needed for keycloak test containers -->
     <repository>

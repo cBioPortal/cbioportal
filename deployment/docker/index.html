@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840902930302">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.840919618224">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.840902930302" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.840919618224" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.840902930302" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.840919618224" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.840902930302" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.840902930302" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.840919618224" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.840919618224" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -341,6 +341,9 @@ docker compose down -v</code></pre>
 <p>For a full overview of available properties — custom logos, external databases, authentication, and more — see the <a href="../customization/customizing-your-instance-of-cbioportal/">customization documentation</a>.</p>
 <p><strong>Memory:</strong> On systems with 4 GiB or more to spare, set <code translate="no" v-pre>-Xms</code> and <code translate="no" v-pre>-Xmx</code> to the same value in <code translate="no" v-pre>docker-compose.yml</code> to improve performance of memory-intensive features (e.g. the co-expression tab). If you are on macOS or Windows, see <a href="notes-for-non-linux/">Notes for non-Linux systems</a> for how to increase memory allocated to the Docker VM.</p>
 <p><strong>OncoKB:</strong> To enable OncoKB annotations, obtain a data access token via <a href="../integration-with-other-webservices/oncokb-data-access/">OncoKB Data Access</a> and add it to <code translate="no" v-pre>application.properties</code>.</p>
+<h3 id="clickhouse-cloud">Clickhouse Cloud</h3>
+<p><a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse" height="40" /></a></p>
+<p>The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, one can use Clickhouse as a managed service via <a href="https://clickhouse.com/cloud">Clickhouse Cloud</a> — it removes the operational overhead of running and scaling Clickhouse yourself. Update the clickhouse database credentials in the <a href="https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env">.env</a> to match your Clickhouse Cloud database credentials. For the clickhouse sync step to work properly, your credentials should have both <code translate="no" v-pre>read</code> and <code translate="no" v-pre>write</code> permissions.</p>
 <h2 id="further-reading">Further Reading</h2>
 <ul>
 <li><a href="import_test_data/">Importing test data</a> — detailed import tutorial</li>

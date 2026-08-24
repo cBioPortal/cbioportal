@@ -148,6 +148,12 @@ For a full overview of available properties — custom logos, external databases
 
 **OncoKB:** To enable OncoKB annotations, obtain a data access token via [OncoKB Data Access](/deployment/integration-with-other-webservices/OncoKB-Data-Access.md) and add it to `application.properties`.
 
+### Clickhouse Cloud
+
+<a href="https://clickhouse.com/cloud"><img src="../../images/clickhouse-logo.svg" alt="ClickHouse" height="40" /></a>
+
+The Clickhouse setup mentioned above is fully compatible with a remote Clickhouse database. For production environments, one can use Clickhouse as a managed service via [Clickhouse Cloud](https://clickhouse.com/cloud) — it removes the operational overhead of running and scaling Clickhouse yourself. Update the clickhouse database credentials in the [.env](https://github.com/cBioPortal/cbioportal-docker-compose/blob/master/.env) to match your Clickhouse Cloud database credentials. For the clickhouse sync step to work properly, your credentials should have both `read` and `write` permissions.
+
 ## Further Reading
 
 - [Importing test data](import_test_data.md) — detailed import tutorial

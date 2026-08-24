@@ -75,7 +75,7 @@
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
     <testcontainers.version>1.21.4</testcontainers.version>
-    <opensaml.version>4.1.1</opensaml.version>
+    <opensaml.version>4.3.2</opensaml.version>
 
     <!-- Third Party -->
     <redisson.version>3.22.0</redisson.version>
@@ -843,11 +843,10 @@
   </pluginRepositories>
 
   <repositories>
-    <!-- needed for the opensaml dependency -->
+    <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
     <repository>
       <id>shiboleth</id>
-      <url>
-        https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+      <url>https://build.shibboleth.net/maven/releases/</url>
     </repository>
     <!-- needed for keycloak test containers -->
     <repository>

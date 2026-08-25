@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.GenericAssayMetaMapper;
+import org.cbioportal.application.rest.response.GenericAssayMetaDTO;
 import org.cbioportal.domain.generic_assay.usecase.GetGenericAssayMetaUseCase;
 import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -68,7 +70,8 @@ public class ColumnStoreGenericAssayController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = GenericAssayMetaDTO.class))))
   public ResponseEntity<StreamingResponseBody> fetchGenericAssayMeta(
       @Parameter(required = true, description = "List of Molecular Profile ID or List of Stable ID")
           @Valid
@@ -111,7 +114,7 @@ public class ColumnStoreGenericAssayController {
             searchTerm,
             pageSize,
             pageNumber);
-    return streamJson(result, totalCount);
+    return streamJson(GenericAssayMetaMapper.INSTANCE.toDTOs(result), totalCount);
   }
 
   // PreAuthorize is removed for performance reason
@@ -124,7 +127,8 @@ public class ColumnStoreGenericAssayController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = GenericAssayMetaDTO.class))))
   public ResponseEntity<StreamingResponseBody> getGenericAssayMeta(
       @Parameter(required = true, description = "Molecular Profile ID") @PathVariable
           String molecularProfileId,
@@ -132,8 +136,9 @@ public class ColumnStoreGenericAssayController {
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
     return streamJson(
-        getGenericAssayMetaUseCase.execute(
-            null, Arrays.asList(molecularProfileId), projection.name()),
+        GenericAssayMetaMapper.INSTANCE.toDTOs(
+            getGenericAssayMetaUseCase.execute(
+                null, Arrays.asList(molecularProfileId), projection.name())),
         null);
   }
 
@@ -146,7 +151,8 @@ public class ColumnStoreGenericAssayController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = GenericAssayMeta.class))))
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = GenericAssayMetaDTO.class))))
   public ResponseEntity<StreamingResponseBody> getGenericAssayMetaByStableId(
       @Parameter(required = false, description = "Generic Assay stable ID") @PathVariable
           String genericAssayStableId,
@@ -154,13 +160,14 @@ public class ColumnStoreGenericAssayController {
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection) {
     return streamJson(
-        getGenericAssayMetaUseCase.execute(
-            Arrays.asList(genericAssayStableId), null, projection.name()),
+        GenericAssayMetaMapper.INSTANCE.toDTOs(
+            getGenericAssayMetaUseCase.execute(
+                Arrays.asList(genericAssayStableId), null, projection.name())),
         null);
   }
 
   private ResponseEntity<StreamingResponseBody> streamJson(
-      List<GenericAssayMeta> data, Integer totalCount) {
+      List<GenericAssayMetaDTO> data, Integer totalCount) {
     HttpHeaders headers = new HttpHeaders();
     if (totalCount != null) {
       headers.add(HeaderKeyConstants.TOTAL_COUNT, totalCount.toString());

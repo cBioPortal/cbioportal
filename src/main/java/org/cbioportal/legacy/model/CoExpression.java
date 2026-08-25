@@ -12,9 +12,11 @@ public class CoExpression implements Serializable {
   @NotNull private EntityType geneticEntityType;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
+  @NotNull
   private BigDecimal spearmansCorrelation;
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
+  @NotNull
   private BigDecimal pValue;
 
   public String getGeneticEntityId() {

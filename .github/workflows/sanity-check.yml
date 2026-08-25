@@ -13,3 +13,4 @@ jobs:
         working-directory: ./cbioportal
         run: |
           bash test/test_db_version.sh
+          bash test/test_truncate_sync_settings.sh

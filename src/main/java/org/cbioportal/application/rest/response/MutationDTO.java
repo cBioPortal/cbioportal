@@ -1,5 +1,9 @@
 package org.cbioportal.application.rest.response;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Map;
+
+@Schema(name = "Mutation", description = "Represents a mutation")
 public record MutationDTO(
     String uniqueSampleKey,
     String uniquePatientKey,
@@ -34,4 +38,5 @@ public record MutationDTO(
     Integer proteinPosStart,
     Integer proteinPosEnd,
     String keyword,
-    AlleleSpecificCopyNumberDTO alleleSpecificCopyNumber) {}
+    AlleleSpecificCopyNumberDTO alleleSpecificCopyNumber,
+    Map<String, Object> namespaceColumns) {}

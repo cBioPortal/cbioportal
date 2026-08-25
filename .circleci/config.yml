@@ -740,15 +740,27 @@ jobs:
               cat pr_report.sbom | jq
         - run:
             name: Analyze and report results
+            # Severity-aware gate: fail only on new CRITICAL/HIGH findings (the
+            # same threshold the security badge uses); new MEDIUM/LOW findings
+            # are printed as warnings but do not block. Without this, a change
+            # that removes severe CVEs can be rejected over unfixable low-grade
+            # distro advisories it happens to surface (e.g. swapping a base
+            # image trades Go-stdlib HIGHs for no-fix-available Ubuntu MEDIUMs).
             command: |
               DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom master_report.sbom)
-              COUNT=$(echo $DIFF | jq 'length')
-              if [ "$COUNT" -gt 0 ]; then
-                printf "New vulnerabilities found: $COUNT\n"
-                jq '.[] | select(.source_id as $a | '"$DIFF"' | index($a))' pr_report.sbom
+              NEW=$(jq --argjson ids "$DIFF" '[.[] | select(.source_id as $a | $ids | index($a))]' pr_report.sbom)
+              SEVERE_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length')
+              OTHER_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity != "CRITICAL" and .severity != "HIGH")] | length')
+              if [ "$OTHER_COUNT" -gt 0 ]; then
+                printf "WARNING: %s new MEDIUM/LOW vulnerabilities found (not blocking):\n" "$OTHER_COUNT"
+                echo "$NEW" | jq '.[] | select(.severity != "CRITICAL" and .severity != "HIGH")'
+              fi
+              if [ "$SEVERE_COUNT" -gt 0 ]; then
+                printf "New CRITICAL/HIGH vulnerabilities found: %s\n" "$SEVERE_COUNT"
+                echo "$NEW" | jq '.[] | select(.severity == "CRITICAL" or .severity == "HIGH")'
                 exit 1
               else
-                echo "No new vulnerabilities found!"
+                echo "No new CRITICAL/HIGH vulnerabilities found!"
                 echo "Individual reports for master and pr have been saved under the Artifacts tab."
                 exit 0
               fi

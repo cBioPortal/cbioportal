@@ -25,6 +25,7 @@ public class CorsConfig {
 
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(parsedAllowedOrigins);
+    configuration.setAllowCredentials(true);
     configuration.setAllowedMethods(List.of("GET", "POST", "HEAD", "OPTIONS"));
     configuration.setAllowedHeaders(
         List.of(

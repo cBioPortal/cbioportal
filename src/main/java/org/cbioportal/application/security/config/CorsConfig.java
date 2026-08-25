@@ -25,7 +25,10 @@ public class CorsConfig {
 
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(parsedAllowedOrigins);
-    configuration.setAllowCredentials(true);
+    // Spring rejects allowCredentials=true with the wildcard origin used by
+    // the public deployments. Enable credentials only for explicit origins
+    // such as the beta Netlify preview.
+    configuration.setAllowCredentials(!parsedAllowedOrigins.contains("*"));
     configuration.setAllowedMethods(List.of("GET", "POST", "HEAD", "OPTIONS"));
     configuration.setAllowedHeaders(
         List.of(

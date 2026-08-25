@@ -32,7 +32,11 @@ RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/appl
 # JRE (not JDK) runtime: this image only runs the prebuilt jar, so the JDK's
 # compiler/dev tooling is not needed. Shenandoah GC is included in the standard
 # Temurin JRE.
-FROM eclipse-temurin:21-jre
+# Pinned to the noble (Ubuntu 24.04) variant: the floating 21-jre tag now points
+# to a rockcraft-built Ubuntu base that ships Canonical's Pebble service manager
+# (a Go binary this image never runs), whose Go stdlib CVEs keep the Docker
+# Scout scan -- and the README security badge -- red.
+FROM eclipse-temurin:21-jre-noble
 
 ENV PORTAL_WEB_HOME=/cbioportal-webapp
 RUN mkdir -p $PORTAL_WEB_HOME

@@ -37,6 +37,7 @@ public class CorsConfig {
             "Accept",
             "X-Requested-With",
             "Content-Type",
+            "Authorization",
             "Access-Control-Request-Method",
             "Access-Control-Request-Headers",
             "Content-Encoding",

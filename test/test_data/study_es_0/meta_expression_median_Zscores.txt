@@ -6,4 +6,4 @@ source_stable_id: mrna
 profile_description: mRNA expression levels (Agilent microarray) Z-Score normalized (https://github.com/cBioPortal/cbioportal/blob/master/docs/File-Formats.md#z-score-instructions).
 show_profile_in_analysis_tab: true
 profile_name: mRNA expression (microarray) Z-Score normalized
-data_filename: data_expression_median_Zscores.txt
+data_filename: data_mrna_median_Zscores.txt

@@ -30,6 +30,88 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
     assertFalse(ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
   }
 
+  @Test
+  public void acceptsSafeMinimumLevelWithinZoomRange() {
+    assertTrue(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(
+                validMetadata().replace(
+                    "\"max_zoom\":0", "\"max_zoom\":4,\"safe_min_level\":2")),
+            objectMapper));
+  }
+
+  @Test
+  public void rejectsSafeMinimumLevelAboveZoomRange() {
+    assertFalse(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(
+                validMetadata().replace(
+                    "\"max_zoom\":0", "\"max_zoom\":4,\"safe_min_level\":5")),
+            objectMapper));
+  }
+
+  @Test
+  public void acceptsCurrentTileMetadataSchema() {
+    String metadata = validMetadata().replace(
+        "\"tile_size\":256",
+        "\"tile_size\":256,\"tile_metadata_schema_version\":2"
+            + ",\"decode_policy_version\":\"geometry-v2;tile-max=16777216;thumbnail-max=16777216\""
+            + ",\"max_decode_pixels\":16777216,\"thumbnail_max_decode_pixels\":16777216");
+    assertTrue(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(metadata),
+            objectMapper));
+  }
+
+  @Test
+  public void rejectsCurrentTileMetadataWithoutSafeMinimumLevel() {
+    String metadata = validMetadata()
+        .replace("\"safe_min_level\":0,", "")
+        .replace(
+            "\"tile_size\":256",
+            "\"tile_size\":256,\"tile_metadata_schema_version\":2"
+                + ",\"decode_policy_version\":\"geometry-v2;tile-max=16777216;thumbnail-max=16777216\""
+                + ",\"max_decode_pixels\":16777216,\"thumbnail_max_decode_pixels\":16777216");
+    assertFalse(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(metadata), objectMapper));
+  }
+
+  @Test
+  public void rejectsUnknownTileMetadataSchema() {
+    assertFalse(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(
+                validMetadata().replace(
+                    "\"tile_size\":256",
+                    "\"tile_size\":256,\"tile_metadata_schema_version\":99")),
+            objectMapper));
+  }
+
+  @Test
+  public void acceptsCurrentDecodePolicy() {
+    String metadata = validMetadata().replace(
+        "\"tile_size\":256",
+        "\"tile_size\":256,\"tile_metadata_schema_version\":2"
+            + ",\"decode_policy_version\":\"geometry-v2;tile-max=16777216;thumbnail-max=16777216\""
+            + ",\"max_decode_pixels\":16777216,\"thumbnail_max_decode_pixels\":16777216");
+    assertTrue(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(metadata), objectMapper));
+  }
+
+  @Test
+  public void rejectsNonCurrentDecodePolicy() {
+    String metadata = validMetadata().replace(
+        "\"tile_size\":256",
+        "\"tile_size\":256,\"tile_metadata_schema_version\":2"
+            + ",\"decode_policy_version\":\"geometry-v2;tile-max=4194304;thumbnail-max=4194304\""
+            + ",\"max_decode_pixels\":16777216,\"thumbnail_max_decode_pixels\":16777216");
+    assertFalse(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            row(metadata), objectMapper));
+  }
+
   private static Map<String, Object> row(String metadata) {
     Map<String, Object> row = new HashMap<>();
     row.put("can_serve_tiles", true);
@@ -45,6 +127,7 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
   private static String validMetadata() {
     return "{\"dimensions\":{\"width\":256,\"height\":256},"
         + "\"levels\":1,\"level_dimensions\":[{\"width\":256,\"height\":256}],"
-        + "\"max_zoom\":0,\"tile_size\":256}";
+        + "\"level_downsamples\":[1.0],\"max_zoom\":0,"
+        + "\"safe_min_level\":0,\"tile_size\":256}";
   }
 }

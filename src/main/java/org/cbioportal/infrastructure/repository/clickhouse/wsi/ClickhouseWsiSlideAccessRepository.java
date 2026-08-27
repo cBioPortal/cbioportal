@@ -12,6 +12,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessRepository {
 
+  private static final int TILE_METADATA_SCHEMA_VERSION = 2;
+  private static final int MAX_DECODE_PIXELS = 16_777_216;
+  private static final String DECODE_POLICY_VERSION =
+      "geometry-v2;tile-max=16777216;thumbnail-max=16777216";
+
   private final ClickhouseWsiSlideAccessMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
   private final ObjectMapper objectMapper;
@@ -83,6 +88,10 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   }
 
   private static boolean validMetadata(WsiTileMetadata metadata) {
+    boolean isCurrentSchema =
+        metadata != null
+            && metadata.tileMetadataSchemaVersion() != null
+            && metadata.tileMetadataSchemaVersion() == TILE_METADATA_SCHEMA_VERSION;
     if (metadata == null
         || metadata.dimensions() == null
         || metadata.dimensions().width() <= 0
@@ -91,6 +100,22 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
         || metadata.levelDimensions() == null
         || metadata.levelDimensions().size() != metadata.levels()
         || metadata.maxZoom() < 0
+        || (metadata.safeMinLevel() != null
+            && (metadata.safeMinLevel() < 0 || metadata.safeMinLevel() > metadata.maxZoom()))
+        || (metadata.tileMetadataSchemaVersion() != null
+            && metadata.tileMetadataSchemaVersion() != TILE_METADATA_SCHEMA_VERSION)
+        || (isCurrentSchema
+            && (metadata.safeMinLevel() == null
+                || metadata.levelDownsamples() == null
+                || metadata.levelDownsamples().size() != metadata.levels()
+                || metadata.levelDownsamples().stream()
+                    .anyMatch(value -> value == null || !Double.isFinite(value) || value <= 0)))
+        || (isCurrentSchema
+            && (metadata.maxDecodePixels() == null
+                || metadata.maxDecodePixels() != MAX_DECODE_PIXELS
+                || metadata.thumbnailMaxDecodePixels() == null
+                || metadata.thumbnailMaxDecodePixels() != MAX_DECODE_PIXELS
+                || !DECODE_POLICY_VERSION.equals(metadata.decodePolicyVersion())))
         || metadata.tileSize() <= 0) {
       return false;
     }

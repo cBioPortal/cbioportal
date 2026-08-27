@@ -50,7 +50,12 @@ public class WsiAccessTokenControllerTest {
             256,
             new WsiTileMetadata.Mpp(0.5, 0.5),
             20,
-            "aperio");
+            "aperio",
+            null,
+            null,
+            null,
+            null,
+            null);
     WsiSlideAccess sourceAccess =
         new WsiSlideAccess(
             "slide-1",

@@ -3,8 +3,6 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -38,29 +36,30 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   public Map<String, List<ResourceFacetOption>> getResourceTableFacets(ResourceTableQuery query) {
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
 
+    // Facet options (both which metadata columns exist, and each column's distinct values) are
+    // always computed against the query with ALL column-level filters removed (only
+    // resourceId/study/patient/sample/search scoping kept). This keeps every filter dropdown
+    // showing its full, stable option set regardless of what's currently selected in ANY column
+    // (itself or another) — e.g. deselecting every option in one column (a "1 = 0" filter that
+    // zeroes out all matching rows) must not make that column's own options, or any other
+    // column's options/keys, disappear.
+    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
+
     // Builtin columns (only 'type' — patientId/sampleId have too many values)
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
-      ResourceTableQuery queryWithoutOwnFilter = withoutFilterOnColumn(query, entry.getKey());
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(queryWithoutOwnFilter, entry.getValue());
+          mapper.getResourceTableFacetValues(queryWithoutColumnFilters, entry.getValue());
       if (values != null && !values.isEmpty()) {
         facets.put(entry.getKey(), values);
       }
     }
 
     // Dynamic metadata columns — discover keys then get distinct values for each.
-    // Key discovery ignores ALL column-level filters (but keeps resourceId/study/patient/
-    // sample/search scoping) so that the set of available metadata columns stays stable
-    // regardless of the current filter selection — e.g. deselecting every option in one
-    // column's filter (which zeroes out matching rows) must not make other metadata
-    // columns disappear from the table / "Add columns" list.
-    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
     List<String> metadataKeys = mapper.getResourceTableMetadataKeys(queryWithoutColumnFilters);
     if (metadataKeys != null) {
       for (String key : metadataKeys) {
-        ResourceTableQuery queryWithoutOwnFilter = withoutFilterOnColumn(query, "metadata:" + key);
         List<ResourceFacetOption> values =
-            mapper.getResourceTableMetadataFacetValues(queryWithoutOwnFilter, key);
+            mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, key);
         if (values != null && !values.isEmpty()) {
           facets.put("metadata:" + key, values);
         }
@@ -86,36 +85,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         query.sortBy(),
         query.direction(),
         List.of());
-  }
-
-  /**
-   * Returns a copy of the query with any filter on the given column removed, so that a column's own
-   * facet values are computed independently of its own active selection (otherwise deselecting an
-   * option would make it disappear from the facet list entirely, instead of remaining available to
-   * re-select).
-   */
-  private ResourceTableQuery withoutFilterOnColumn(ResourceTableQuery query, String columnId) {
-    if (query.filters() == null || query.filters().isEmpty()) {
-      return query;
-    }
-    List<ResourceColumnFilter> filtersWithoutColumn =
-        query.filters().stream()
-            .filter(filter -> filter == null || !columnId.equals(filter.columnId()))
-            .collect(Collectors.toList());
-    if (filtersWithoutColumn.size() == query.filters().size()) {
-      return query;
-    }
-    return new ResourceTableQuery(
-        query.studyIds(),
-        query.resourceId(),
-        query.patientIds(),
-        query.sampleIds(),
-        query.search(),
-        query.pageNumber(),
-        query.pageSize(),
-        query.sortBy(),
-        query.direction(),
-        filtersWithoutColumn);
   }
 
   @Override

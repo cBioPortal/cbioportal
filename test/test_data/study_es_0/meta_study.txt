@@ -1,4 +1,4 @@
-type_of_cancer: brca-es0
+type_of_cancer: brca
 cancer_study_identifier: study_es_0
 name: Test study es_0
 description: Test study es_0

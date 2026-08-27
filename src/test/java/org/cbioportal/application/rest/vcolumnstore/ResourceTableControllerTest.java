@@ -25,7 +25,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -58,19 +57,13 @@ public class ResourceTableControllerTest {
 
     ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_ID), null, null);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/resource-table/tabs/fetch")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(request)))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/tabs/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -88,19 +81,13 @@ public class ResourceTableControllerTest {
   public void fetchResourceTableTabs_emptyBody_returnsEmptyList() throws Exception {
     Mockito.when(getResourceTableTabsUseCase.execute(Mockito.any())).thenReturn(List.of());
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/resource-table/tabs/fetch")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content("{}"))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/tabs/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content("{}"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
   }
@@ -146,19 +133,13 @@ public class ResourceTableControllerTest {
         new ResourceTableQuery(
             List.of(STUDY_ID), RESOURCE_ID, null, null, null, 0, 10, null, null, null);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/resource-table/query/fetch")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(query)))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/query/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(query)))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -184,19 +165,13 @@ public class ResourceTableControllerTest {
 
     Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(emptyResult);
 
-    MvcResult mvcResult =
-        mockMvc
-            .perform(
-                MockMvcRequestBuilders.post("/api/resource-table/query/fetch")
-                    .with(csrf())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .content("{}"))
-            .andExpect(MockMvcResultMatchers.request().asyncStarted())
-            .andReturn();
-
     mockMvc
-        .perform(MockMvcRequestBuilders.asyncDispatch(mvcResult))
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/query/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content("{}"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.totalRowCount").value(0))
         .andExpect(MockMvcResultMatchers.jsonPath("$.rows", Matchers.hasSize(0)));

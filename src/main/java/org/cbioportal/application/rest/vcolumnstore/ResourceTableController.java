@@ -17,6 +17,8 @@ import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableTabsUseCase;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -31,6 +33,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @Tag(name = "Resource Table", description = "Server-side paginated resource table endpoints")
 public class ResourceTableController {
+
+  // TEMPORARY diagnostic logging for the empty-tabs-response investigation; remove once resolved.
+  private static final Logger DEBUG_LOG = LoggerFactory.getLogger(ResourceTableController.class);
 
   private final GetResourceTableTabsUseCase getTabsUseCase;
   private final GetResourceTableDataUseCase getDataUseCase;
@@ -58,7 +63,13 @@ public class ResourceTableController {
       @Parameter(hidden = true) @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
       @Valid @RequestBody(required = false) ResourceTabsRequest request) {
-    return ResponseEntity.ok(getTabsUseCase.execute(request));
+    DEBUG_LOG.info(
+        "TEMP-DEBUG fetchResourceTableTabs received request={} involvedCancerStudies={}",
+        request,
+        involvedCancerStudies);
+    List<ResourceTableTab> result = getTabsUseCase.execute(request);
+    DEBUG_LOG.info("TEMP-DEBUG fetchResourceTableTabs returning {} tabs", result.size());
+    return ResponseEntity.ok(result);
   }
 
   @Hidden

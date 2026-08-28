@@ -152,6 +152,7 @@
                     <foreach item="item" collection="internalIds" open="(" separator="," close=")">#{item}</foreach>
             </if>
         </where>
+        ORDER BY sample.internal_id ASC
     </select>
 
     <select id="getSamplesOfPatients" resultType="org.cbioportal.legacy.model.Sample">

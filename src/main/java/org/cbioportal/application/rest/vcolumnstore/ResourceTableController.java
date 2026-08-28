@@ -57,8 +57,18 @@ public class ResourceTableController {
   public ResponseEntity<List<ResourceTableTab>> fetchResourceTableTabs(
       @Parameter(hidden = true) @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
-      @Valid @RequestBody(required = false) ResourceTabsRequest request) {
-    return ResponseEntity.ok(getTabsUseCase.execute(request));
+      // InvolvedCancerStudyExtractorInterceptor already consumed the request body once (via
+      // request.getInputStream()) to extract studyIds for the @PreAuthorize check above and
+      // cached the parsed result as this request attribute. The underlying input stream is
+      // exhausted by that point, so a plain @RequestBody parameter here would always bind to
+      // null/empty - use the intercepted, already-parsed object instead (same pattern as e.g.
+      // ClinicalDataController#fetchClinicalData).
+      @Parameter(hidden = true)
+          @Valid
+          @RequestAttribute(required = false, value = "interceptedResourceTabsRequest")
+          ResourceTabsRequest interceptedResourceTabsRequest,
+      @Parameter(hidden = true) @RequestBody(required = false) ResourceTabsRequest request) {
+    return ResponseEntity.ok(getTabsUseCase.execute(interceptedResourceTabsRequest));
   }
 
   @Hidden
@@ -77,7 +87,13 @@ public class ResourceTableController {
   public ResponseEntity<ResourceTableResult> fetchResourceTableData(
       @Parameter(hidden = true) @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
-      @Valid @RequestBody(required = false) ResourceTableQuery query) {
-    return ResponseEntity.ok(getDataUseCase.execute(query));
+      // See fetchResourceTableTabs above: the security interceptor already consumed the request
+      // body once to populate this attribute; use it instead of re-parsing via @RequestBody.
+      @Parameter(hidden = true)
+          @Valid
+          @RequestAttribute(required = false, value = "interceptedResourceTableQuery")
+          ResourceTableQuery interceptedResourceTableQuery,
+      @Parameter(hidden = true) @RequestBody(required = false) ResourceTableQuery query) {
+    return ResponseEntity.ok(getDataUseCase.execute(interceptedResourceTableQuery));
   }
 }

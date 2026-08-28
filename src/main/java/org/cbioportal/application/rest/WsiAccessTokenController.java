@@ -90,7 +90,10 @@ public class WsiAccessTokenController {
    * The capability is bound to the exact source and thumbnail URLs so a valid token cannot be
    * replayed against another object.
    */
-  @GetMapping("/v2/slides/{studyId}/{imageId}/access")
+  @GetMapping({
+    "/slides/{studyId}/{imageId}/access",
+    "/v2/slides/{studyId}/{imageId}/access"
+  })
   @PreAuthorize(
       "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

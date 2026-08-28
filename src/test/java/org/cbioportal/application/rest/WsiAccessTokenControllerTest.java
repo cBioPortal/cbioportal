@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 
 public class WsiAccessTokenControllerTest {
 
@@ -87,6 +89,20 @@ public class WsiAccessTokenControllerTest {
     assertTrue(decodedPayload.contains("\"image_id\":\"slide-1\""));
     assertTrue(decodedPayload.contains("\"scope\":\"wsi:read\""));
     assertTrue(decodedPayload.contains("\"wsi_auth_version\":2"));
+  }
+
+  @Test
+  public void exposesVersionedAndCompatibilitySlideAccessRoutes() throws Exception {
+    GetMapping mapping =
+        WsiAccessTokenController.class
+            .getMethod("issueSlideAccess", String.class, String.class)
+            .getAnnotation(GetMapping.class);
+
+    assertNotNull(mapping);
+    assertTrue(
+        Arrays.asList(mapping.value()).contains("/slides/{studyId}/{imageId}/access"));
+    assertTrue(
+        Arrays.asList(mapping.value()).contains("/v2/slides/{studyId}/{imageId}/access"));
   }
 
   @Test

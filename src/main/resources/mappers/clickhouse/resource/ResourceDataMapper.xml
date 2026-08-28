@@ -51,18 +51,41 @@
       <foreach item="studyId" collection="query.studyIds" open="(" separator="," close=")">
         #{studyId}
       </foreach>
-      <if test="query.patientIds != null and !query.patientIds.isEmpty()">
-        AND rdata.PATIENT_ID IN
-        <foreach item="patientId" collection="query.patientIds" open="(" separator="," close=")">
-          #{patientId}
-        </foreach>
-      </if>
-      <if test="query.sampleIds != null and !query.sampleIds.isEmpty()">
-        AND rdata.SAMPLE_ID IN
-        <foreach item="sampleId" collection="query.sampleIds" open="(" separator="," close=")">
-          #{sampleId}
-        </foreach>
-      </if>
+      <!-- resource_data rows are either patient-level (SAMPLE_ID IS NULL) or sample-level
+           (SAMPLE_ID set). A cohort is expressed as a patientIds list plus a sampleIds list, so a
+           row must match on whichever level it lives at: patient-level rows match by PATIENT_ID,
+           sample-level rows match by SAMPLE_ID. ANDing both lists together (as this used to do)
+           silently excluded every patient-level row whenever both lists were supplied, because
+           "SAMPLE_ID IN (...)" is never true for a NULL SAMPLE_ID. -->
+      <choose>
+        <when test="(query.patientIds != null and !query.patientIds.isEmpty()) and (query.sampleIds != null and !query.sampleIds.isEmpty())">
+          AND (
+            (rdata.SAMPLE_ID IS NOT NULL AND rdata.SAMPLE_ID IN
+              <foreach item="sampleId" collection="query.sampleIds" open="(" separator="," close=")">
+                #{sampleId}
+              </foreach>
+            )
+            OR
+            (rdata.SAMPLE_ID IS NULL AND rdata.PATIENT_ID IN
+              <foreach item="patientId" collection="query.patientIds" open="(" separator="," close=")">
+                #{patientId}
+              </foreach>
+            )
+          )
+        </when>
+        <when test="query.patientIds != null and !query.patientIds.isEmpty()">
+          AND rdata.PATIENT_ID IN
+          <foreach item="patientId" collection="query.patientIds" open="(" separator="," close=")">
+            #{patientId}
+          </foreach>
+        </when>
+        <when test="query.sampleIds != null and !query.sampleIds.isEmpty()">
+          AND rdata.SAMPLE_ID IN
+          <foreach item="sampleId" collection="query.sampleIds" open="(" separator="," close=")">
+            #{sampleId}
+          </foreach>
+        </when>
+      </choose>
       <if test="query.search != null and query.search != ''">
         AND (
           rdata.PATIENT_ID LIKE CONCAT('%', #{query.search}, '%')
@@ -249,18 +272,39 @@
       <foreach item="studyId" collection="request.studyIds" open="(" separator="," close=")">
         #{studyId}
       </foreach>
-      <if test="request.patientIds != null and !request.patientIds.isEmpty()">
-        AND rdata.PATIENT_ID IN
-        <foreach item="patientId" collection="request.patientIds" open="(" separator="," close=")">
-          #{patientId}
-        </foreach>
-      </if>
-      <if test="request.sampleIds != null and !request.sampleIds.isEmpty()">
-        AND rdata.SAMPLE_ID IN
-        <foreach item="sampleId" collection="request.sampleIds" open="(" separator="," close=")">
-          #{sampleId}
-        </foreach>
-      </if>
+      <!-- See ResourceTableBaseFilters for why patientIds/sampleIds must be OR'd (by row level),
+           not AND'd: resource_data rows are either patient-level (SAMPLE_ID IS NULL) or
+           sample-level, and ANDing both lists silently excludes all patient-level rows whenever
+           both lists are supplied (the normal case for a cohort request). -->
+      <choose>
+        <when test="(request.patientIds != null and !request.patientIds.isEmpty()) and (request.sampleIds != null and !request.sampleIds.isEmpty())">
+          AND (
+            (rdata.SAMPLE_ID IS NOT NULL AND rdata.SAMPLE_ID IN
+              <foreach item="sampleId" collection="request.sampleIds" open="(" separator="," close=")">
+                #{sampleId}
+              </foreach>
+            )
+            OR
+            (rdata.SAMPLE_ID IS NULL AND rdata.PATIENT_ID IN
+              <foreach item="patientId" collection="request.patientIds" open="(" separator="," close=")">
+                #{patientId}
+              </foreach>
+            )
+          )
+        </when>
+        <when test="request.patientIds != null and !request.patientIds.isEmpty()">
+          AND rdata.PATIENT_ID IN
+          <foreach item="patientId" collection="request.patientIds" open="(" separator="," close=")">
+            #{patientId}
+          </foreach>
+        </when>
+        <when test="request.sampleIds != null and !request.sampleIds.isEmpty()">
+          AND rdata.SAMPLE_ID IN
+          <foreach item="sampleId" collection="request.sampleIds" open="(" separator="," close=")">
+            #{sampleId}
+          </foreach>
+        </when>
+      </choose>
     </where>
     GROUP BY rdata.RESOURCE_ID
     ORDER BY resourceId

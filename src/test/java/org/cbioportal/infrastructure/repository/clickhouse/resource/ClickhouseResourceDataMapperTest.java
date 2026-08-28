@@ -87,7 +87,53 @@ public class ClickhouseResourceDataMapperTest {
     assertThat(heSlide.totalCount()).isEqualTo(1);
   }
 
+  @Test
+  public void
+      getResourceTableTabs_filteredByPatientIdsAndSampleIds_includesPatientLevelResources() {
+    // Regression test: CT_SCAN's row is patient-level (SAMPLE_ID IS NULL). Cohort requests
+    // always carry both a patientIds list and a sampleIds list, so this must still match
+    // patient-level rows by PATIENT_ID even though a sampleIds list is also supplied (previously
+    // ANDing "PATIENT_ID IN (...)" with "SAMPLE_ID IN (...)" silently excluded every
+    // patient-level row, since "SAMPLE_ID IN (...)" is never true for a NULL SAMPLE_ID).
+    ResourceTabsRequest request =
+        new ResourceTabsRequest(
+            List.of(STUDY_TCGA_PUB), List.of("tcga-a1-a0sb"), List.of("tcga-a1-a0sb-01"));
+
+    List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
+
+    List<String> ids = tabs.stream().map(ResourceTableTab::resourceId).toList();
+    assertThat(ids).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN");
+    ResourceTableTab ctScan =
+        tabs.stream().filter(t -> t.resourceId().equals("CT_SCAN")).findFirst().orElseThrow();
+    assertThat(ctScan.totalCount()).isEqualTo(1);
+  }
+
   // ---- Row queries ----
+
+  @Test
+  public void
+      getResourceTableRows_filteredByPatientIdsAndSampleIds_includesPatientLevelResources() {
+    // Same regression as the tabs test above, but for the ResourceTableBaseFilters fragment
+    // shared by rows/facets/counts.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "CT_SCAN",
+            List.of("tcga-a1-a0sb"),
+            List.of("tcga-a1-a0sb-01"),
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).resourceId()).isEqualTo("CT_SCAN");
+    assertThat(rows.get(0).sampleId()).isNull();
+  }
 
   @Test
   public void getResourceTableRows_returnsRowsForResourceId() {

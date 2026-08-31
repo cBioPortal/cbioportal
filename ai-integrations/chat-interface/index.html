@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841092315749">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841515898891">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.841092315749" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.841515898891" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841092315749" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841515898891" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841092315749" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841515898891" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -279,6 +279,22 @@
 <li><strong>Use the thumbs up/down buttons</strong> — every chat response has <span class="docs-emoji">&#x1F44D;</span> / <span class="docs-emoji">&#x1F44E;</span> buttons. Please use them to rate quality and accuracy. This feedback directly improves the agent&#x27;s answers.</li>
 <li><strong>Report issues or suggestions</strong> — for anything beyond a quick rating, please reach out through the <a href="https://groups.google.com/g/cbioportal">cBioPortal Google Group</a>.</li>
 </ul>
+<h2 id="privacy">Privacy</h2>
+<p>cBioPortalChat is operated by the cBioPortal team. To provide the service and improve it over time, we collect and store the following:</p>
+<ul>
+<li><strong>Your account identifier</strong> — you sign in with Google; we store your Google account email and display name to identify your conversations across sessions.</li>
+<li><strong>Your conversations</strong> — the full text of every message you send and every response the AI generates is stored in our database, so you can revisit past chats and so we can debug and improve the assistant. <strong>Team members may read individual conversations</strong> during triage of thumbs-down feedback, quality evaluation, or investigation of production issues.</li>
+<li><strong>Feedback signals</strong> — your <span class="docs-emoji">&#x1F44D;</span> / <span class="docs-emoji">&#x1F44E;</span> ratings on responses are stored alongside the conversation they refer to and used to prioritize improvements to prompts, tools, and evaluation suites.</li>
+<li><strong>Usage metrics</strong> — page views and session information are collected via Google Analytics to understand aggregate usage patterns. We also record model-call metadata (input/output token counts, latency, cost) via <a href="https://langfuse.com/">Langfuse</a> for cost tracking and performance monitoring; conversation text is included in these Langfuse traces.</li>
+</ul>
+<p>Data flow to third parties during normal operation:</p>
+<ul>
+<li><strong>Amazon Bedrock (AWS)</strong> — the text of every message you send is sent to AWS Bedrock in the <code translate="no" v-pre>us-east-1</code> region to generate the AI response. AWS&#x27;s <a href="https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html">Bedrock data protection documentation</a> covers how Bedrock handles inputs and outputs; the short version is that content processed through the service is not used to train the underlying models and is not shared with model providers.</li>
+<li><strong>Anthropic</strong> — the underlying model (Claude Sonnet) is Anthropic&#x27;s, but requests are served through Bedrock and do not reach Anthropic&#x27;s own API; Anthropic does not receive your data.</li>
+<li><strong>Google</strong> — used only for sign-in (OAuth) and analytics.</li>
+</ul>
+<p>We do <strong>not</strong> sell your data, share it with advertising networks, or provide it to third parties beyond the infrastructure providers above. Data is retained indefinitely today so we can debug regressions and evaluate model changes; contact us via the <a href="https://groups.google.com/g/cbioportal">Google Group</a> if you&#x27;d like your account and conversation history deleted.</p>
+<p>Do not paste protected health information (PHI), personally identifying information about patients, or other sensitive data into the chat. cBioPortalChat is a research tool for exploring published cancer-genomics datasets.</p>
 <h2 id="technical-details">Technical Details</h2>
 <h3 id="architecture">Architecture</h3>
 <ul>

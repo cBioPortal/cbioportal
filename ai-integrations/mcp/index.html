@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841092315749">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841515898891">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.841092315749" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.841515898891" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841092315749" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841515898891" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841092315749" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841515898891" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -279,6 +279,23 @@
 <p><strong>Maintainer</strong>: <a href="https://biomcp.org/">BioMCP community</a></p>
 <p><strong>Website</strong>: <a href="https://biomcp.org/backend-services-reference/03-cbioportal/">https://biomcp.org/backend-services-reference/03-cbioportal/</a></p>
 <p>For more details on features and technical implementation, see the <a href="https://biomcp.org/backend-services-reference/03-cbioportal/">official BioMCP documentation</a>.</p>
+<h2 id="privacy">Privacy</h2>
+<p>The hosted <code translate="no" v-pre>cbioportal-mcp</code> endpoint at <code translate="no" v-pre>https://mcp.cbioportal.org/db/mcp/</code> is operated by the cBioPortal team. When you connect an MCP client to it, we collect and store the following:</p>
+<ul>
+<li><strong>Your account identifier</strong> — the OAuth flow authenticates you via Google; we store your Google account email and stable subject ID on every tool call so we can attribute traffic and rate-limit.</li>
+<li><strong>Tool call metadata</strong> — per request we record the tool name, arguments, response status, latency, and the MCP client that made the call (Claude Desktop / claude.ai / Claude Code / etc.). This lands in Datadog for operational monitoring and debugging.</li>
+<li><strong>Database query text</strong> — every ClickHouse query the server runs against cBioPortal&#x27;s data warehouse is logged in ClickHouse&#x27;s own <code translate="no" v-pre>system.query_log</code> (query text, duration, rows read; no result data).</li>
+</ul>
+<p>Unlike the <a href="../chat-interface/">chat interface</a>, the MCP server <strong>does not see or store the conversation you&#x27;re having with your AI client</strong>. Your prompts and the model&#x27;s responses are exchanged directly between your client (Claude Desktop, claude.ai, etc.) and its own model backend; the cBioPortal MCP server only receives the tool calls the model chooses to make. We can see <em>what tool was called with what arguments</em> — for example, the SQL a client asked us to run — but not the natural-language question that triggered it or the interpretation the model returned to you.</p>
+<p>Data flow to third parties:</p>
+<ul>
+<li><strong>Google</strong> — used only for sign-in (OAuth). Your Google account email + subject ID reach our server as part of the OAuth token.</li>
+<li><strong>Amazon Bedrock, Anthropic, OpenAI, etc.</strong> — the MCP server does not talk to any AI model itself. Whatever model your client uses is between you and that provider; consult its privacy policy separately.</li>
+<li><strong>Datadog</strong> — tool call telemetry (tool name, args, user email, latency, status) is stored in our Datadog organization for operational monitoring.</li>
+<li><strong>ClickHouse Cloud</strong> — the underlying database provider stores query logs as part of standard operation.</li>
+</ul>
+<p>We do <strong>not</strong> sell your data or share it with parties beyond the infrastructure providers above. Contact us via the <a href="https://groups.google.com/g/cbioportal">Google Group</a> if you&#x27;d like your tool-call history purged or your Google account&#x27;s authorization revoked.</p>
+<p>Do not paste protected health information (PHI), personally identifying information about patients, or other sensitive data into the queries you ask your MCP client to run against this endpoint. The hosted MCP is a research tool for exploring published cancer-genomics datasets.</p>
 <h2 id="building-your-own-mcp-integration">Building Your Own MCP Integration</h2>
 <p>To build an MCP integration with cBioPortal:</p>
 <ol>

@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataSchema;
+import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -54,19 +57,85 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
       }
     }
 
-    // Dynamic metadata columns — discover keys then get distinct values for each.
-    List<String> metadataKeys = mapper.getResourceTableMetadataKeys(queryWithoutColumnFilters);
-    if (metadataKeys != null) {
-      for (String key : metadataKeys) {
-        List<ResourceFacetOption> values =
-            mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, key);
-        if (values != null && !values.isEmpty()) {
-          facets.put("metadata:" + key, values);
-        }
+    // Dynamic metadata columns classified as categorical only — numeric columns are exposed via
+    // getResourceTableFacetRanges() instead of an enumerated value list (which would be huge/
+    // unhelpful for a continuous measurement column).
+    for (Map.Entry<String, ResourceMetadataKeyStats> entry :
+        classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
+      if (isNumericColumn(entry.getValue(), queryWithoutColumnFilters, entry.getKey())) {
+        continue;
+      }
+      List<ResourceFacetOption> values =
+          mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, entry.getKey());
+      if (values != null && !values.isEmpty()) {
+        facets.put("metadata:" + entry.getKey(), values);
       }
     }
 
     return facets;
+  }
+
+  @Override
+  public Map<String, ResourceNumericRange> getResourceTableFacetRanges(ResourceTableQuery query) {
+    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
+    Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
+
+    for (Map.Entry<String, ResourceMetadataKeyStats> entry :
+        classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
+      ResourceMetadataKeyStats stats = entry.getValue();
+      if (isNumericColumn(stats, queryWithoutColumnFilters, entry.getKey())) {
+        facetRanges.put(
+            "metadata:" + entry.getKey(),
+            new ResourceNumericRange(stats.minValue(), stats.maxValue()));
+      }
+    }
+
+    return facetRanges;
+  }
+
+  /**
+   * Returns per-key stats for every metadata key discovered in the current tab, keyed by the raw
+   * metadata key (not prefixed with "metadata:").
+   */
+  private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(ResourceTableQuery query) {
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
+    if (stats != null) {
+      for (ResourceMetadataKeyStats stat : stats) {
+        byKey.put(stat.key(), stat);
+      }
+    }
+    return byKey;
+  }
+
+  /**
+   * Decides whether a metadata key should be treated as numeric, combining an optional {@code
+   * resource_definition.custom_metadata} schema override with auto-detection:
+   *
+   * <ul>
+   *   <li>Schema declares "string" -> always categorical (explicit override wins).
+   *   <li>Schema declares "number" -> numeric, but only if at least one value actually parsed (a
+   *       usable min/max range exists); otherwise falls back to categorical since a numeric filter
+   *       with no range would be useless.
+   *   <li>No schema entry for this key -> pure auto-detection (numeric only if every non-blank
+   *       value parsed as a number).
+   * </ul>
+   */
+  private boolean isNumericColumn(
+      ResourceMetadataKeyStats stats, ResourceTableQuery query, String key) {
+    String declaredType = getDeclaredMetadataTypes(query).get(key);
+    if ("string".equals(declaredType)) {
+      return false;
+    }
+    if ("number".equals(declaredType)) {
+      return stats.hasUsableNumericRange();
+    }
+    return stats.isAutoDetectedNumeric();
+  }
+
+  private Map<String, String> getDeclaredMetadataTypes(ResourceTableQuery query) {
+    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    return ResourceMetadataSchema.parseDeclaredTypes(customMetadata);
   }
 
   /** Returns a copy of the query with all column-level filters removed. */

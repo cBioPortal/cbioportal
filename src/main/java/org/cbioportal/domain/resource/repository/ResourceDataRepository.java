@@ -3,6 +3,7 @@ package org.cbioportal.domain.resource.repository;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -14,6 +15,8 @@ public interface ResourceDataRepository {
   List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query);
 
   Map<String, List<ResourceFacetOption>> getResourceTableFacets(ResourceTableQuery query);
+
+  Map<String, ResourceNumericRange> getResourceTableFacetRanges(ResourceTableQuery query);
 
   long getResourceTableRowCount(ResourceTableQuery query);
 

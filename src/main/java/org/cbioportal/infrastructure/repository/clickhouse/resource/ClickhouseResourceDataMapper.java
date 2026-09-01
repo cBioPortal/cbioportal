@@ -4,6 +4,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -35,9 +36,5 @@ public interface ClickhouseResourceDataMapper {
    */
   List<String> getResourceDefinitionCustomMetadata(@Param("query") ResourceTableQuery query);
 
-  long getResourceTableRowCount(@Param("query") ResourceTableQuery query);
-
-  long getResourceTablePatientCount(@Param("query") ResourceTableQuery query);
-
-  long getResourceTableSampleCount(@Param("query") ResourceTableQuery query);
+  ResourceTableCounts getResourceTableCounts(@Param("query") ResourceTableQuery query);
 }

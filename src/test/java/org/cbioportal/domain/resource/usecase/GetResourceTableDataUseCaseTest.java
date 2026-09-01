@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceTableCounts;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableResult;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -38,11 +40,10 @@ public class GetResourceTableDataUseCaseTest {
         Map.of("metadata:pages", new ResourceNumericRange(1.0, 10.0));
 
     when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
-    when(resourceDataRepository.getResourceTableRowCount(query)).thenReturn(2L);
-    when(resourceDataRepository.getResourceTablePatientCount(query)).thenReturn(1L);
-    when(resourceDataRepository.getResourceTableSampleCount(query)).thenReturn(2L);
-    when(resourceDataRepository.getResourceTableFacets(query)).thenReturn(facets);
-    when(resourceDataRepository.getResourceTableFacetRanges(query)).thenReturn(facetRanges);
+    when(resourceDataRepository.getResourceTableCounts(query))
+        .thenReturn(new ResourceTableCounts(2L, 1L, 2L));
+    when(resourceDataRepository.getResourceTableMetadata(query))
+        .thenReturn(new ResourceTableMetadataView(List.of(), facets, facetRanges));
 
     ResourceTableResult result = useCase.execute(query);
 

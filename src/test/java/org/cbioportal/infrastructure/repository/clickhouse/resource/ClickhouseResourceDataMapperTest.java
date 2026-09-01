@@ -6,6 +6,7 @@ import java.util.List;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -360,7 +361,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    long count = mapper.getResourceTableRowCount(query);
+    long count = mapper.getResourceTableCounts(query).rowCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -371,7 +372,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    long count = mapper.getResourceTablePatientCount(query);
+    long count = mapper.getResourceTableCounts(query).patientCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -382,7 +383,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    long count = mapper.getResourceTableSampleCount(query);
+    long count = mapper.getResourceTableCounts(query).sampleCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -394,8 +395,9 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
 
-    long patientCount = mapper.getResourceTablePatientCount(query);
-    long sampleCount = mapper.getResourceTableSampleCount(query);
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query);
+    long patientCount = counts.patientCount();
+    long sampleCount = counts.sampleCount();
 
     assertThat(patientCount).isZero();
     assertThat(sampleCount).isZero();
@@ -615,6 +617,6 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(scoreFilter, doseFilter));
 
-    assertThat(mapper.getResourceTableRowCount(query)).isEqualTo(1L);
+    assertThat(mapper.getResourceTableCounts(query).rowCount()).isEqualTo(1L);
   }
 }

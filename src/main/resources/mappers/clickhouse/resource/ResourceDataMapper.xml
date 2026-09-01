@@ -125,8 +125,7 @@
               <when test="filter.columnId == 'displayName'">
                 <include refid="ApplyStringFilterOnDisplayName"/>
               </when>
-              <when test="filter.columnId != null and filter.columnId.startsWith('metadata:')">
-                <bind name="metadataFilterKey" value="filter.columnId.substring(9)"/>
+              <when test="filter.metadataColumn()">
                 <include refid="ApplyStringFilterOnMetadata"/>
               </when>
               <otherwise>
@@ -170,11 +169,15 @@
   </sql>
 
   <!--
-    Uses the "metadataFilterKey" bind variable set by callers of this fragment (see the
-    metadata:* branch in ResourceTableBaseFilters). Do NOT rename this to "metadataKey":
-    that name collides with the "metadataKey" @Param used by getResourceTableMetadataFacetValues,
-    and MyBatis <bind> variables are statement-scoped, so a same-named bind here would silently
-    override that parameter's value when both appear in the same rendered SQL statement.
+    Reads the target metadata key straight off the <foreach> item as #{filter.metadataKey}
+    (ResourceColumnFilter.getMetadataKey() strips the "metadata:" prefix).
+
+    Do NOT reintroduce a <bind> for this key. MyBatis <bind> variables are statement-scoped and
+    resolved from the *final* bindings map, whereas <foreach> item properties are renamed per
+    iteration. A <bind> set inside the filters loop therefore made every metadata condition in
+    the statement read back the LAST filter's key, so two simultaneous metadata filters both
+    applied to the same column and silently dropped matching rows. It also collides with the
+    "metadataKey" @Param used by getResourceTableMetadataFacetValues.
   -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
@@ -182,19 +185,19 @@
         1 = 0
       </when>
       <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
       </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) != #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) != #{filter.values[0]}
       </when>
       <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) NOT IN
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) NOT IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
@@ -206,11 +209,11 @@
         filter today.
       -->
       <when test="filter.operator == 'between' and filter.values != null and filter.values.size() == 2">
-        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}))
+        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}))
         BETWEEN toFloat64(#{filter.values[0]}) AND toFloat64(#{filter.values[1]})
       </when>
       <when test="filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) = #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) = #{filter.values[0]}
       </when>
       <otherwise>
         1 = 1

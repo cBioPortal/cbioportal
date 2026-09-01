@@ -507,4 +507,113 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(rows).isEmpty();
   }
+
+  // ---- Multiple simultaneous metadata filters ----
+  //
+  // Regression tests for a MyBatis <bind> scoping bug: ApplyStringFilterOnMetadata used a
+  // statement-scoped "metadataFilterKey" <bind> set inside the filters <foreach>. Because
+  // <bind> values are resolved from the *final* DynamicContext bindings (unlike <foreach>
+  // item variables, which MyBatis renames per iteration), every metadata condition in the
+  // rendered statement read back the LAST filter's key. Two metadata filters therefore both
+  // applied to the same column, silently dropping rows that should have matched.
+
+  @Test
+  public void getResourceTableRows_twoCategoricalMetadataFilters_eachAppliesToItsOwnColumn() {
+    ResourceColumnFilter stainFilter =
+        new ResourceColumnFilter("metadata:stain", "in", List.of("HE"));
+    ResourceColumnFilter magnificationFilter =
+        new ResourceColumnFilter("metadata:magnification", "in", List.of("20x"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(stainFilter, magnificationFilter));
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).metadata()).containsEntry("stain", "HE");
+    assertThat(rows.get(0).metadata()).containsEntry("magnification", "20x");
+  }
+
+  @Test
+  public void getResourceTableRows_numericAndCategoricalMetadataFilters_bothApplyToOwnColumn() {
+    // RADIOLOGY rows: (dose_id=1001, score=85) and (dose_id=1002, score=42).
+    ResourceColumnFilter scoreFilter =
+        new ResourceColumnFilter("metadata:score", "between", List.of("40", "90"));
+    ResourceColumnFilter doseFilter =
+        new ResourceColumnFilter("metadata:dose_id", "in", List.of("1001"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(scoreFilter, doseFilter));
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
+  }
+
+  @Test
+  public void getResourceTableRows_twoNumericMetadataFilters_eachAppliesToItsOwnColumn() {
+    ResourceColumnFilter scoreFilter =
+        new ResourceColumnFilter("metadata:score", "between", List.of("80", "90"));
+    ResourceColumnFilter doseFilter =
+        new ResourceColumnFilter("metadata:dose_id", "between", List.of("1000", "1001"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(scoreFilter, doseFilter));
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
+    assertThat(rows.get(0).metadata()).containsEntry("score", "85");
+  }
+
+  @Test
+  public void getResourceTableRowCount_twoMetadataFilters_matchesRowQuery() {
+    ResourceColumnFilter scoreFilter =
+        new ResourceColumnFilter("metadata:score", "between", List.of("40", "90"));
+    ResourceColumnFilter doseFilter =
+        new ResourceColumnFilter("metadata:dose_id", "in", List.of("1001"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(scoreFilter, doseFilter));
+
+    assertThat(mapper.getResourceTableRowCount(query)).isEqualTo(1L);
+  }
 }

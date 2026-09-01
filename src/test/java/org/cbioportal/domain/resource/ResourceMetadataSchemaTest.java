@@ -14,7 +14,8 @@ public class ResourceMetadataSchemaTest {
             """
             {"version":1,"fields":[
               {"key":"stain","type":"string","label":"Stain",
-               "description":"Histology stain","filterable":true}
+               "description":"Histology stain","filterable":true,
+               "visibleByDefault":true}
             ]}""");
 
     assertThat(schema.version()).isEqualTo(1);
@@ -25,6 +26,7 @@ public class ResourceMetadataSchemaTest {
     assertThat(field.label()).isEqualTo("Stain");
     assertThat(field.description()).isEqualTo("Histology stain");
     assertThat(field.filterable()).isTrue();
+    assertThat(field.visibleByDefault()).isTrue();
   }
 
   @Test
@@ -47,6 +49,7 @@ public class ResourceMetadataSchemaTest {
     assertThat(field.label()).isNull();
     assertThat(field.description()).isNull();
     assertThat(field.filterable()).isNull();
+    assertThat(field.visibleByDefault()).isNull();
   }
 
   @Test

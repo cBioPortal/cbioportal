@@ -199,10 +199,27 @@ public class ClickhouseResourceDataRepositoryTest {
   }
 
   @Test
-  public void getResourceTableMetadataColumns_metadataColumnsAreHiddenByDefault() {
+  public void metadataColumns_hiddenUnlessTheContractOptsThemIn() {
+    // RADIOLOGY's contract marks only "score" visibleByDefault; everything else, declared or
+    // discovered, stays hidden so a resource with many keys cannot bury the builtin columns.
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    List<ResourceColumnInfo> columns = repository.getResourceTableMetadata(query).columns();
+
+    assertThat(columns)
+        .filteredOn(ResourceColumnInfo::visibleByDefault)
+        .extracting(ResourceColumnInfo::id)
+        .containsExactly("metadata:score");
+  }
+
+  @Test
+  public void metadataColumns_hiddenByDefaultWhenNoContract() {
+    // HE_SLIDE has no custom_metadata at all.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
     assertThat(repository.getResourceTableMetadata(query).columns())
         .noneMatch(ResourceColumnInfo::visibleByDefault);

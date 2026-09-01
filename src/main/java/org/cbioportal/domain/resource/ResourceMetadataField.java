@@ -13,4 +13,9 @@ package org.cbioportal.domain.resource;
  * corresponding decision to auto-detection rather than forcing a default.
  */
 public record ResourceMetadataField(
-    String key, String type, String label, String description, Boolean filterable) {}
+    String key,
+    String type,
+    String label,
+    String description,
+    Boolean filterable,
+    Boolean visibleByDefault) {}

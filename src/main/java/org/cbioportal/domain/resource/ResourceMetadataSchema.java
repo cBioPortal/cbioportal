@@ -60,7 +60,8 @@ public record ResourceMetadataSchema(Integer version, List<ResourceMetadataField
                 text(field, "type"),
                 text(field, "label"),
                 text(field, "description"),
-                bool(field, "filterable")));
+                bool(field, "filterable"),
+                bool(field, "visibleByDefault")));
       }
       JsonNode versionNode = root.get("version");
       Integer version = versionNode != null && versionNode.isInt() ? versionNode.asInt() : null;

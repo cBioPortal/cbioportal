@@ -162,9 +162,10 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
               context.isNumeric(key) ? "number" : "string",
               context.isFilterable(key),
               true,
-              // Metadata columns stay opt-in; a resource can carry many keys and showing them all
-              // by default would bury the builtin columns.
-              false,
+              // Metadata columns stay opt-in: a resource can carry many keys and showing them all
+              // would bury the builtin columns. A curator opts individual columns in by declaring
+              // "visibleByDefault": true in the contract.
+              field != null && Boolean.TRUE.equals(field.visibleByDefault()),
               field != null ? field.description() : null));
     }
     return columns;

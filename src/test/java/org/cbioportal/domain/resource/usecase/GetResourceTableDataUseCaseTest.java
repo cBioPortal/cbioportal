@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableResult;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -33,16 +34,20 @@ public class GetResourceTableDataUseCaseTest {
         Map.of(
             "patientId", List.of(new ResourceFacetOption("tcga-a1-a0sb", 1L)),
             "type", List.of(new ResourceFacetOption("IMAGE", 2L)));
+    Map<String, ResourceNumericRange> facetRanges =
+        Map.of("metadata:pages", new ResourceNumericRange(1.0, 10.0));
 
     when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
     when(resourceDataRepository.getResourceTableRowCount(query)).thenReturn(2L);
     when(resourceDataRepository.getResourceTablePatientCount(query)).thenReturn(1L);
     when(resourceDataRepository.getResourceTableSampleCount(query)).thenReturn(2L);
     when(resourceDataRepository.getResourceTableFacets(query)).thenReturn(facets);
+    when(resourceDataRepository.getResourceTableFacetRanges(query)).thenReturn(facetRanges);
 
     ResourceTableResult result = useCase.execute(query);
 
     assertThat(result.facets()).isEqualTo(facets);
+    assertThat(result.facetRanges()).isEqualTo(facetRanges);
     assertThat(result.totalRowCount()).isEqualTo(2L);
     assertThat(result.filteredPatientCount()).isEqualTo(1L);
     assertThat(result.filteredSampleCount()).isEqualTo(2L);

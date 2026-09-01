@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -41,10 +42,10 @@ public class ClickhouseResourceDataMapperTest {
 
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
-    // expect 3 distinct resourceIds in the test data
-    assertThat(tabs).hasSize(3);
+    // expect 4 distinct resourceIds in the test data
+    assertThat(tabs).hasSize(4);
     List<String> ids = tabs.stream().map(ResourceTableTab::resourceId).toList();
-    assertThat(ids).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN", "FIGURES");
+    assertThat(ids).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN", "FIGURES", "RADIOLOGY");
   }
 
   @Test
@@ -398,5 +399,112 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(patientCount).isZero();
     assertThat(sampleCount).isZero();
+  }
+
+  // ---- Numeric metadata detection / filtering ----
+
+  @Test
+  public void getResourceTableMetadataKeyStats_numericKey_allValuesParse() {
+    // FIGURES rows have {"pages": 10} and {"pages": 25} — both parse as numbers.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
+
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+
+    ResourceMetadataKeyStats pages =
+        stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
+    assertThat(pages.nonBlankCount()).isEqualTo(2);
+    assertThat(pages.numericCount()).isEqualTo(2);
+    assertThat(pages.minValue()).isEqualTo(10.0);
+    assertThat(pages.maxValue()).isEqualTo(25.0);
+    assertThat(pages.isAutoDetectedNumeric()).isTrue();
+  }
+
+  @Test
+  public void getResourceTableMetadataKeyStats_unitSuffixedValues_notAutoDetectedNumeric() {
+    // HE_SLIDE rows have {"magnification": "20x"} / {"magnification": "40x"} — the "x" suffix
+    // means toFloat64OrNull can't parse them, so this key should stay categorical.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+
+    ResourceMetadataKeyStats magnification =
+        stats.stream().filter(s -> s.key().equals("magnification")).findFirst().orElseThrow();
+    assertThat(magnification.nonBlankCount()).isEqualTo(2);
+    assertThat(magnification.numericCount()).isZero();
+    assertThat(magnification.isAutoDetectedNumeric()).isFalse();
+  }
+
+  @Test
+  public void getResourceDefinitionCustomMetadata_returnsSchemaJson_whenPresent() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+
+    assertThat(customMetadata).contains("dose_id").contains("score");
+  }
+
+  @Test
+  public void getResourceDefinitionCustomMetadata_returnsNull_whenNotSet() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+
+    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+
+    assertThat(customMetadata).isNull();
+  }
+
+  @Test
+  public void getResourceTableRows_metadataBetweenFilter_matchesNumericRange() {
+    ResourceColumnFilter betweenFilter =
+        new ResourceColumnFilter("metadata:pages", "between", List.of("5", "15"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "FIGURES",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(betweenFilter));
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).metadata().get("pages")).isEqualTo(10);
+  }
+
+  @Test
+  public void getResourceTableRows_metadataBetweenFilter_excludesUnparseableValues() {
+    // A "between" filter on a non-numeric key (magnification has unit-suffixed strings) should
+    // exclude every row, since toFloat64OrNull(...) is NULL for all of them — matching the same
+    // "blank/unparseable excluded" semantics as the categorical filter.
+    ResourceColumnFilter betweenFilter =
+        new ResourceColumnFilter("metadata:magnification", "between", List.of("0", "100"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(betweenFilter));
+
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+
+    assertThat(rows).isEmpty();
   }
 }

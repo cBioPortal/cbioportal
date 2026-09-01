@@ -36,6 +36,16 @@
     </constructor>
   </resultMap>
 
+  <resultMap id="ResourceMetadataKeyStatsResultMap" type="org.cbioportal.domain.resource.ResourceMetadataKeyStats">
+    <constructor>
+      <arg column="metaKey" javaType="String"/>
+      <arg column="nonBlankCount" javaType="_long"/>
+      <arg column="numericCount" javaType="_long"/>
+      <arg column="minValue" javaType="java.lang.Double"/>
+      <arg column="maxValue" javaType="java.lang.Double"/>
+    </constructor>
+  </resultMap>
+
   <sql id="ResourceTableFromClause">
     FROM resource_data rdata
     INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
@@ -188,6 +198,16 @@
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
+      </when>
+      <!--
+        Numeric range filter (from the dual-handle slider). toFloat64OrNull(...) returns NULL for
+        blank/unparseable values, so "NULL BETWEEN x AND y" evaluates to NULL/false and those rows
+        are excluded once the filter is active — same exclusion semantics as the categorical
+        filter today.
+      -->
+      <when test="filter.operator == 'between' and filter.values != null and filter.values.size() == 2">
+        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}))
+        BETWEEN toFloat64(#{filter.values[0]}) AND toFloat64(#{filter.values[1]})
       </when>
       <when test="filter.values != null and !filter.values.isEmpty()">
         JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataFilterKey}) = #{filter.values[0]}
@@ -348,14 +368,34 @@
     ORDER BY value ASC
   </select>
 
-  <select id="getResourceTableMetadataKeys" resultType="String">
-    SELECT DISTINCT metaKey FROM (
-      SELECT arrayJoin(JSONExtractKeys(ifNull(rdata.METADATA, '{}'))) AS metaKey
-      <include refid="ResourceTableFromClause"/>
-      <include refid="ResourceTableBaseFilters"/>
-      AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
-    ) sub
+  <select id="getResourceTableMetadataKeyStats" resultMap="ResourceMetadataKeyStatsResultMap">
+    SELECT metaKey,
+      countIf(rawValue != '') AS nonBlankCount,
+      countIf(rawValue != '' AND parsedValue IS NOT NULL) AS numericCount,
+      min(parsedValue) AS minValue,
+      max(parsedValue) AS maxValue
+    FROM (
+      SELECT metaKey,
+        JSONExtractString(metadataJson, metaKey) AS rawValue,
+        toFloat64OrNull(JSONExtractString(metadataJson, metaKey)) AS parsedValue
+      FROM (
+        SELECT ifNull(rdata.METADATA, '{}') AS metadataJson,
+               arrayJoin(JSONExtractKeys(ifNull(rdata.METADATA, '{}'))) AS metaKey
+        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+        AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
+      ) keys
+    ) vals
+    GROUP BY metaKey
     ORDER BY metaKey ASC
+  </select>
+
+  <select id="getResourceDefinitionCustomMetadata" resultType="String">
+    SELECT rdef.custom_metadata AS customMetadata
+    <include refid="ResourceTableFromClause"/>
+    <include refid="ResourceTableBaseFilters"/>
+    AND rdef.custom_metadata IS NOT NULL AND rdef.custom_metadata != ''
+    LIMIT 1
   </select>
 
   <select id="getResourceTableRowCount" resultType="long">

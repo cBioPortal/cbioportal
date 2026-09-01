@@ -1,9 +1,12 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataField;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataSchema;
 import org.cbioportal.domain.resource.ResourceNumericRange;
@@ -12,10 +15,14 @@ import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ClickhouseResourceDataRepository implements ResourceDataRepository {
+  private static final Logger LOG = LoggerFactory.getLogger(ClickhouseResourceDataRepository.class);
+
   // Only non-ID builtin columns that benefit from categorical filtering
   private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.TYPE");
 
@@ -62,7 +69,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // unhelpful for a continuous measurement column).
     for (Map.Entry<String, ResourceMetadataKeyStats> entry :
         classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
-      if (isNumericColumn(entry.getValue(), queryWithoutColumnFilters, entry.getKey())) {
+      if (isNumericColumn(entry.getValue(), queryWithoutColumnFilters, entry.getKey())
+          || !isFilterable(queryWithoutColumnFilters, entry.getKey())) {
         continue;
       }
       List<ResourceFacetOption> values =
@@ -83,7 +91,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     for (Map.Entry<String, ResourceMetadataKeyStats> entry :
         classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
       ResourceMetadataKeyStats stats = entry.getValue();
-      if (isNumericColumn(stats, queryWithoutColumnFilters, entry.getKey())) {
+      if (isNumericColumn(stats, queryWithoutColumnFilters, entry.getKey())
+          && isFilterable(queryWithoutColumnFilters, entry.getKey())) {
         facetRanges.put(
             "metadata:" + entry.getKey(),
             new ResourceNumericRange(stats.minValue(), stats.maxValue()));
@@ -91,6 +100,59 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     return facetRanges;
+  }
+
+  @Override
+  public List<ResourceColumnInfo> getResourceTableMetadataColumns(ResourceTableQuery query) {
+    // Column existence comes from the data, never from the contract: a declared key nobody
+    // imported would be an empty column, and an undeclared key still has to show up.
+    ResourceTableQuery scoped = withoutColumnFilters(query);
+    Map<String, ResourceMetadataKeyStats> statsByKey = classifyMetadataKeys(scoped);
+    Map<String, ResourceMetadataField> declared = getSchema(scoped).fieldsByKey();
+
+    // Declared fields first, in the curator's declaration order, then whatever else the data
+    // turned up, alphabetically — so a partial contract still produces a coherent ordering.
+    List<String> ordered = new ArrayList<>();
+    for (String key : declared.keySet()) {
+      if (statsByKey.containsKey(key)) {
+        ordered.add(key);
+      }
+    }
+    statsByKey.keySet().stream()
+        .filter(key -> !declared.containsKey(key))
+        .sorted(String.CASE_INSENSITIVE_ORDER)
+        .forEach(ordered::add);
+
+    List<ResourceColumnInfo> columns = new ArrayList<>();
+    for (String key : ordered) {
+      ResourceMetadataField field = declared.get(key);
+      boolean numeric = isNumericColumn(statsByKey.get(key), scoped, key);
+      columns.add(
+          new ResourceColumnInfo(
+              ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
+              field != null && field.label() != null && !field.label().isBlank()
+                  ? field.label()
+                  : key,
+              ResourceColumnInfo.SOURCE_METADATA,
+              numeric ? "number" : "string",
+              isFilterable(scoped, key),
+              true,
+              // Metadata columns stay opt-in; a resource can carry many keys and showing them all
+              // by default would bury the builtin columns.
+              false,
+              field != null ? field.description() : null));
+    }
+    return columns;
+  }
+
+  /**
+   * Whether a metadata column may be filtered. Only an explicit {@code "filterable": false} in the
+   * contract turns filtering off; an absent contract or an absent flag leaves it on, which is the
+   * behavior every existing resource already has.
+   */
+  private boolean isFilterable(ResourceTableQuery query, String key) {
+    ResourceMetadataField field = getSchema(query).fieldsByKey().get(key);
+    return field == null || field.filterable() == null || field.filterable();
   }
 
   /**
@@ -123,7 +185,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    */
   private boolean isNumericColumn(
       ResourceMetadataKeyStats stats, ResourceTableQuery query, String key) {
-    String declaredType = getDeclaredMetadataTypes(query).get(key);
+    ResourceMetadataField field = getSchema(query).fieldsByKey().get(key);
+    String declaredType = field != null ? field.type() : null;
     if ("string".equals(declaredType)) {
       return false;
     }
@@ -133,9 +196,22 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return stats.isAutoDetectedNumeric();
   }
 
-  private Map<String, String> getDeclaredMetadataTypes(ResourceTableQuery query) {
-    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
-    return ResourceMetadataSchema.parseDeclaredTypes(customMetadata);
+  private ResourceMetadataSchema getSchema(ResourceTableQuery query) {
+    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    if (customMetadata == null || customMetadata.isEmpty()) {
+      return ResourceMetadataSchema.empty();
+    }
+    if (customMetadata.size() > 1) {
+      // The contract is per (resource_id, cancer_study_id), so a multi-study cohort can hand us
+      // several. Picking one is wrong either way; the mapper orders them so at least the choice is
+      // stable rather than arbitrary, and the disagreement is worth surfacing.
+      LOG.warn(
+          "Resource '{}' has {} differing custom_metadata contracts across the selected studies;"
+              + " using the first by study identifier.",
+          query.resourceId(),
+          customMetadata.size());
+    }
+    return ResourceMetadataSchema.parse(customMetadata.get(0));
   }
 
   /** Returns a copy of the query with all column-level filters removed. */

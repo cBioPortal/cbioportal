@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
+import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableQuery;
@@ -126,5 +127,114 @@ public class ClickhouseResourceDataRepositoryTest {
     Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
 
     assertThat(ranges).containsEntry("metadata:score", new ResourceNumericRange(42.0, 85.0));
+  }
+
+  // ---- custom_metadata contract drives metadata column presentation ----
+
+  @Test
+  public void getResourceTableMetadataColumns_usesContractLabelAndDescription() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    ResourceColumnInfo score = columnById(query, "metadata:score");
+
+    assertThat(score.label()).isEqualTo("Dose Score");
+    assertThat(score.description()).isEqualTo("Radiation dose score");
+    assertThat(score.source()).isEqualTo(ResourceColumnInfo.SOURCE_METADATA);
+    assertThat(score.dataType()).isEqualTo("number");
+  }
+
+  @Test
+  public void getResourceTableMetadataColumns_fallsBackToRawKeyWhenUndeclared() {
+    // "aperture" is present in the data but absent from RADIOLOGY's contract.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    ResourceColumnInfo aperture = columnById(query, "metadata:aperture");
+
+    assertThat(aperture.label()).isEqualTo("aperture");
+    assertThat(aperture.description()).isNull();
+    assertThat(aperture.filterable()).isTrue();
+  }
+
+  @Test
+  public void getResourceTableMetadataColumns_ordersDeclaredFieldsFirstThenDiscovered() {
+    // Contract order is score, dose_id, operator; "aperture" is undeclared and sorts after them.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    List<String> ids =
+        repository.getResourceTableMetadataColumns(query).stream()
+            .map(ResourceColumnInfo::id)
+            .toList();
+
+    assertThat(ids)
+        .containsExactly(
+            "metadata:score", "metadata:dose_id", "metadata:operator", "metadata:aperture");
+  }
+
+  @Test
+  public void getResourceTableMetadataColumns_sortsAlphabeticallyWhenNoContract() {
+    // HE_SLIDE has no custom_metadata at all, so the pre-contract behavior must be preserved.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+
+    List<ResourceColumnInfo> columns = repository.getResourceTableMetadataColumns(query);
+
+    assertThat(columns.stream().map(ResourceColumnInfo::id).toList())
+        .containsExactly("metadata:magnification", "metadata:stain");
+    assertThat(columns).allMatch(ResourceColumnInfo::filterable);
+    assertThat(columns.get(0).label()).isEqualTo("magnification");
+  }
+
+  @Test
+  public void getResourceTableMetadataColumns_metadataColumnsAreHiddenByDefault() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    assertThat(repository.getResourceTableMetadataColumns(query))
+        .noneMatch(ResourceColumnInfo::visibleByDefault);
+  }
+
+  @Test
+  public void filterableFalse_marksColumnUnfilterableAndSkipsItsFacets() {
+    // RADIOLOGY's contract sets "filterable": false on "operator": the column still exists and
+    // still renders, it just gets no filter control and costs no facet aggregation.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    ResourceColumnInfo operator = columnById(query, "metadata:operator");
+    Map<String, List<ResourceFacetOption>> facets = repository.getResourceTableFacets(query);
+
+    assertThat(operator.filterable()).isFalse();
+    assertThat(facets).doesNotContainKey("metadata:operator");
+    assertThat(facets).containsKey("metadata:dose_id");
+  }
+
+  @Test
+  public void filterableFalse_alsoSuppressesTheNumericRange() {
+    // The gate has to cover facetRanges too, otherwise a non-filterable numeric column would still
+    // render a range slider.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
+
+    assertThat(ranges).containsKey("metadata:score");
+    assertThat(ranges).doesNotContainKey("metadata:operator");
+  }
+
+  private ResourceColumnInfo columnById(ResourceTableQuery query, String id) {
+    return repository.getResourceTableMetadataColumns(query).stream()
+        .filter(c -> c.id().equals(id))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("no metadata column " + id));
   }
 }

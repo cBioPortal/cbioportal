@@ -33,7 +33,7 @@ public interface ClickhouseResourceDataMapper {
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any
    * study/row in scope has one set. Returns null when no override schema is present.
    */
-  String getResourceDefinitionCustomMetadata(@Param("query") ResourceTableQuery query);
+  List<String> getResourceDefinitionCustomMetadata(@Param("query") ResourceTableQuery query);
 
   long getResourceTableRowCount(@Param("query") ResourceTableQuery query);
 

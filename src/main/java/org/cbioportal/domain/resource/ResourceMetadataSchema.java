@@ -2,56 +2,90 @@ package org.cbioportal.domain.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Parses the optional JSON-schema-like contract that curators may put in {@code
- * resource_definition.custom_metadata} to explicitly declare a metadata key's type, e.g.:
+ * The optional JSON contract a curator may put in {@code resource_definition.custom_metadata} to
+ * describe the metadata keys a resource's rows carry, e.g.:
  *
  * <pre>{@code
  * {
  *   "version": 1,
  *   "fields": [
- *     { "key": "magnification", "type": "number", ... },
- *     { "key": "dose_id", "type": "string", ... }
+ *     { "key": "stain", "type": "string", "label": "Stain", "filterable": true },
+ *     { "key": "magnification", "type": "number", "label": "Magnification" }
  *   ]
  * }
  * }</pre>
  *
- * This is purely an optional override on top of auto-detection (see {@link
- * ResourceMetadataKeyStats}) — a curator can force a numeric-looking key to stay categorical (or
- * vice versa). Any parse error or missing schema is treated as "no override" so auto-detection
- * behavior is unaffected.
+ * <p>The contract decorates columns; it does not create them. Column existence always comes from
+ * the keys actually discovered in the data, so a contract that declares a key nobody imported adds
+ * nothing, and data with no contract behaves exactly as it did before contracts existed.
+ *
+ * <p>Parsing is deliberately lenient: unknown members are ignored and any malformed document is
+ * treated as "no contract" so a bad curator edit can never break the resource table.
  */
-public final class ResourceMetadataSchema {
+public record ResourceMetadataSchema(Integer version, List<ResourceMetadataField> fields) {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final ResourceMetadataSchema EMPTY = new ResourceMetadataSchema(null, List.of());
 
-  private ResourceMetadataSchema() {}
+  public static ResourceMetadataSchema empty() {
+    return EMPTY;
+  }
 
-  /** Returns a map of metadata key -> declared "type" (e.g. "number", "string"), or empty. */
-  public static Map<String, String> parseDeclaredTypes(String customMetadataJson) {
-    Map<String, String> declaredTypes = new HashMap<>();
+  public static ResourceMetadataSchema parse(String customMetadataJson) {
     if (customMetadataJson == null || customMetadataJson.isBlank()) {
-      return declaredTypes;
+      return EMPTY;
     }
     try {
       JsonNode root = OBJECT_MAPPER.readTree(customMetadataJson);
-      JsonNode fields = root.get("fields");
-      if (fields != null && fields.isArray()) {
-        for (JsonNode field : fields) {
-          JsonNode keyNode = field.get("key");
-          JsonNode typeNode = field.get("type");
-          if (keyNode != null && typeNode != null) {
-            declaredTypes.put(keyNode.asText(), typeNode.asText());
-          }
-        }
+      JsonNode fieldsNode = root.get("fields");
+      if (fieldsNode == null || !fieldsNode.isArray()) {
+        return EMPTY;
       }
+      List<ResourceMetadataField> fields = new ArrayList<>();
+      for (JsonNode field : fieldsNode) {
+        String key = text(field, "key");
+        if (key == null || key.isBlank()) {
+          // A field declaration with no key cannot be matched to anything; skip it rather than
+          // discarding the whole contract.
+          continue;
+        }
+        fields.add(
+            new ResourceMetadataField(
+                key,
+                text(field, "type"),
+                text(field, "label"),
+                text(field, "description"),
+                bool(field, "filterable")));
+      }
+      JsonNode versionNode = root.get("version");
+      Integer version = versionNode != null && versionNode.isInt() ? versionNode.asInt() : null;
+      return new ResourceMetadataSchema(version, List.copyOf(fields));
     } catch (Exception e) {
-      // Malformed custom_metadata should never break the resource table; just fall back to
-      // auto-detection for every key.
-      return new HashMap<>();
+      return EMPTY;
     }
-    return declaredTypes;
+  }
+
+  /** Declared fields by key, in declaration order. */
+  public Map<String, ResourceMetadataField> fieldsByKey() {
+    Map<String, ResourceMetadataField> byKey = new LinkedHashMap<>();
+    for (ResourceMetadataField field : fields) {
+      byKey.putIfAbsent(field.key(), field);
+    }
+    return byKey;
+  }
+
+  private static String text(JsonNode node, String member) {
+    JsonNode value = node.get(member);
+    return value != null && value.isTextual() ? value.asText() : null;
+  }
+
+  private static Boolean bool(JsonNode node, String member) {
+    JsonNode value = node.get(member);
+    return value != null && value.isBoolean() ? value.asBoolean() : null;
   }
 }

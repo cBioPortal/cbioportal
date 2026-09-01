@@ -41,7 +41,7 @@ public class GetResourceTableDataUseCaseTest {
 
     when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
     when(resourceDataRepository.getResourceTableCounts(query))
-        .thenReturn(new ResourceTableCounts(2L, 1L, 2L));
+        .thenReturn(new ResourceTableCounts(2L, 1L, 2L, 1L, 1L, 5L));
     when(resourceDataRepository.getResourceTableMetadata(query))
         .thenReturn(new ResourceTableMetadataView(List.of(), facets, facetRanges));
 

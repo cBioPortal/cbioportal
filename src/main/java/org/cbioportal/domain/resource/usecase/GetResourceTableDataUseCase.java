@@ -27,7 +27,7 @@ public class GetResourceTableDataUseCase {
         || query.resourceId() == null
         || query.resourceId().isBlank()) {
       return new ResourceTableResult(
-          List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of());
+          List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of(), Map.of());
     }
 
     List<ResourceTableRow> rows = resourceDataRepository.getResourceTableRows(query);
@@ -44,7 +44,8 @@ public class GetResourceTableDataUseCase {
         counts.patientCount(),
         counts.sampleCount(),
         metadata.facets(),
-        metadata.facetRanges());
+        metadata.facetRanges(),
+        counts.distinctValueCounts());
   }
 
   private static List<ResourceColumnInfo> builtinColumns() {

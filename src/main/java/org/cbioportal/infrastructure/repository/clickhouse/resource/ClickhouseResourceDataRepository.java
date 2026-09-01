@@ -32,6 +32,47 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     this.mapper = mapper;
   }
 
+  /**
+   * The two things every metadata-column decision needs, resolved once per call.
+   *
+   * <p>Both used to be fetched inside the per-key loops, which turned each request into dozens of
+   * identical ClickHouse round trips: the contract lookup alone ran once per key per predicate, and
+   * every one of those queries carried the request's full patient/sample IN lists just to return a
+   * single unchanging string.
+   */
+  private record MetadataContext(
+      ResourceMetadataSchema schema, Map<String, ResourceMetadataKeyStats> statsByKey) {
+
+    boolean isNumeric(String key) {
+      ResourceMetadataKeyStats stats = statsByKey.get(key);
+      if (stats == null) {
+        return false;
+      }
+      ResourceMetadataField field = schema.fieldsByKey().get(key);
+      String declaredType = field != null ? field.type() : null;
+      if ("string".equals(declaredType)) {
+        return false;
+      }
+      if ("number".equals(declaredType)) {
+        return stats.hasUsableNumericRange();
+      }
+      return stats.isAutoDetectedNumeric();
+    }
+
+    /**
+     * Only an explicit {@code "filterable": false} turns filtering off; an absent contract or an
+     * absent flag leaves it on, which is what every existing resource already has.
+     */
+    boolean isFilterable(String key) {
+      ResourceMetadataField field = schema.fieldsByKey().get(key);
+      return field == null || field.filterable() == null || field.filterable();
+    }
+  }
+
+  private MetadataContext resolveMetadataContext(ResourceTableQuery scoped) {
+    return new MetadataContext(getSchema(scoped), classifyMetadataKeys(scoped));
+  }
+
   @Override
   public List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request) {
     return mapper.getResourceTableTabs(request);
@@ -67,16 +108,15 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // Dynamic metadata columns classified as categorical only — numeric columns are exposed via
     // getResourceTableFacetRanges() instead of an enumerated value list (which would be huge/
     // unhelpful for a continuous measurement column).
-    for (Map.Entry<String, ResourceMetadataKeyStats> entry :
-        classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
-      if (isNumericColumn(entry.getValue(), queryWithoutColumnFilters, entry.getKey())
-          || !isFilterable(queryWithoutColumnFilters, entry.getKey())) {
+    MetadataContext context = resolveMetadataContext(queryWithoutColumnFilters);
+    for (String key : context.statsByKey().keySet()) {
+      if (context.isNumeric(key) || !context.isFilterable(key)) {
         continue;
       }
       List<ResourceFacetOption> values =
-          mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, entry.getKey());
+          mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, key);
       if (values != null && !values.isEmpty()) {
-        facets.put("metadata:" + entry.getKey(), values);
+        facets.put(ResourceColumnInfo.METADATA_COLUMN_PREFIX + key, values);
       }
     }
 
@@ -88,13 +128,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
 
-    for (Map.Entry<String, ResourceMetadataKeyStats> entry :
-        classifyMetadataKeys(queryWithoutColumnFilters).entrySet()) {
+    MetadataContext context = resolveMetadataContext(queryWithoutColumnFilters);
+    for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
+      String key = entry.getKey();
       ResourceMetadataKeyStats stats = entry.getValue();
-      if (isNumericColumn(stats, queryWithoutColumnFilters, entry.getKey())
-          && isFilterable(queryWithoutColumnFilters, entry.getKey())) {
+      if (context.isNumeric(key) && context.isFilterable(key)) {
         facetRanges.put(
-            "metadata:" + entry.getKey(),
+            ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
             new ResourceNumericRange(stats.minValue(), stats.maxValue()));
       }
     }
@@ -107,8 +147,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // Column existence comes from the data, never from the contract: a declared key nobody
     // imported would be an empty column, and an undeclared key still has to show up.
     ResourceTableQuery scoped = withoutColumnFilters(query);
-    Map<String, ResourceMetadataKeyStats> statsByKey = classifyMetadataKeys(scoped);
-    Map<String, ResourceMetadataField> declared = getSchema(scoped).fieldsByKey();
+    MetadataContext context = resolveMetadataContext(scoped);
+    Map<String, ResourceMetadataKeyStats> statsByKey = context.statsByKey();
+    Map<String, ResourceMetadataField> declared = context.schema().fieldsByKey();
 
     // Declared fields first, in the curator's declaration order, then whatever else the data
     // turned up, alphabetically — so a partial contract still produces a coherent ordering.
@@ -126,7 +167,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<ResourceColumnInfo> columns = new ArrayList<>();
     for (String key : ordered) {
       ResourceMetadataField field = declared.get(key);
-      boolean numeric = isNumericColumn(statsByKey.get(key), scoped, key);
+      boolean numeric = context.isNumeric(key);
       columns.add(
           new ResourceColumnInfo(
               ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
@@ -135,7 +176,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
                   : key,
               ResourceColumnInfo.SOURCE_METADATA,
               numeric ? "number" : "string",
-              isFilterable(scoped, key),
+              context.isFilterable(key),
               true,
               // Metadata columns stay opt-in; a resource can carry many keys and showing them all
               // by default would bury the builtin columns.
@@ -143,16 +184,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
               field != null ? field.description() : null));
     }
     return columns;
-  }
-
-  /**
-   * Whether a metadata column may be filtered. Only an explicit {@code "filterable": false} in the
-   * contract turns filtering off; an absent contract or an absent flag leaves it on, which is the
-   * behavior every existing resource already has.
-   */
-  private boolean isFilterable(ResourceTableQuery query, String key) {
-    ResourceMetadataField field = getSchema(query).fieldsByKey().get(key);
-    return field == null || field.filterable() == null || field.filterable();
   }
 
   /**
@@ -168,32 +199,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
       }
     }
     return byKey;
-  }
-
-  /**
-   * Decides whether a metadata key should be treated as numeric, combining an optional {@code
-   * resource_definition.custom_metadata} schema override with auto-detection:
-   *
-   * <ul>
-   *   <li>Schema declares "string" -> always categorical (explicit override wins).
-   *   <li>Schema declares "number" -> numeric, but only if at least one value actually parsed (a
-   *       usable min/max range exists); otherwise falls back to categorical since a numeric filter
-   *       with no range would be useless.
-   *   <li>No schema entry for this key -> pure auto-detection (numeric only if every non-blank
-   *       value parsed as a number).
-   * </ul>
-   */
-  private boolean isNumericColumn(
-      ResourceMetadataKeyStats stats, ResourceTableQuery query, String key) {
-    ResourceMetadataField field = getSchema(query).fieldsByKey().get(key);
-    String declaredType = field != null ? field.type() : null;
-    if ("string".equals(declaredType)) {
-      return false;
-    }
-    if ("number".equals(declaredType)) {
-      return stats.hasUsableNumericRange();
-    }
-    return stats.isAutoDetectedNumeric();
   }
 
   private ResourceMetadataSchema getSchema(ResourceTableQuery query) {

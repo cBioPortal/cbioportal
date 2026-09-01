@@ -393,12 +393,22 @@
     ORDER BY metaKey ASC
   </select>
 
+  <!--
+    The custom_metadata contract is per (resource_id, cancer_study_id), so a multi-study cohort can
+    have several differing ones for the same resource. Return the distinct contracts ordered by the
+    first study that declares each, so the caller's choice is stable instead of arbitrary and it can
+    tell that the studies disagree.
+  -->
   <select id="getResourceDefinitionCustomMetadata" resultType="String">
-    SELECT rdef.custom_metadata AS customMetadata
-    <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceTableBaseFilters"/>
-    AND rdef.custom_metadata IS NOT NULL AND rdef.custom_metadata != ''
-    LIMIT 1
+    SELECT customMetadata FROM (
+      SELECT rdef.custom_metadata AS customMetadata,
+             min(cs.cancer_study_identifier) AS firstStudy
+      <include refid="ResourceTableFromClause"/>
+      <include refid="ResourceTableBaseFilters"/>
+      AND rdef.custom_metadata IS NOT NULL AND rdef.custom_metadata != ''
+      GROUP BY rdef.custom_metadata
+    ) contracts
+    ORDER BY firstStudy ASC
   </select>
 
   <select id="getResourceTableRowCount" resultType="long">

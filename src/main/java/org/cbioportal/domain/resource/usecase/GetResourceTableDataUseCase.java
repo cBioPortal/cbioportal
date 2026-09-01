@@ -1,5 +1,6 @@
 package org.cbioportal.domain.resource.usecase;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
@@ -37,9 +38,11 @@ public class GetResourceTableDataUseCase {
         resourceDataRepository.getResourceTableFacets(query);
     Map<String, ResourceNumericRange> facetRanges =
         resourceDataRepository.getResourceTableFacetRanges(query);
+    List<ResourceColumnInfo> columns = new ArrayList<>(builtinColumns());
+    columns.addAll(resourceDataRepository.getResourceTableMetadataColumns(query));
     return new ResourceTableResult(
         List.of(),
-        defaultColumns(),
+        List.copyOf(columns),
         rows,
         totalRowCount,
         patientCount,
@@ -48,14 +51,47 @@ public class GetResourceTableDataUseCase {
         facetRanges);
   }
 
-  private static List<ResourceColumnInfo> defaultColumns() {
+  private static List<ResourceColumnInfo> builtinColumns() {
     return List.of(
-        new ResourceColumnInfo("patientId", "Patient ID", "builtin", "string", true, true, true),
-        new ResourceColumnInfo("sampleId", "Sample ID", "builtin", "string", true, true, true),
-        new ResourceColumnInfo("url", "Link", "builtin", "link", false, false, true),
         new ResourceColumnInfo(
-            "displayName", "Display Name", "builtin", "string", true, true, true),
-        new ResourceColumnInfo("type", "Type", "builtin", "string", true, true, true),
-        new ResourceColumnInfo("priority", "Priority", "builtin", "number", false, true, false));
+            "patientId",
+            "Patient ID",
+            ResourceColumnInfo.SOURCE_BUILTIN,
+            "string",
+            true,
+            true,
+            true,
+            null),
+        new ResourceColumnInfo(
+            "sampleId",
+            "Sample ID",
+            ResourceColumnInfo.SOURCE_BUILTIN,
+            "string",
+            true,
+            true,
+            true,
+            null),
+        new ResourceColumnInfo(
+            "url", "Link", ResourceColumnInfo.SOURCE_BUILTIN, "link", false, false, true, null),
+        new ResourceColumnInfo(
+            "displayName",
+            "Display Name",
+            ResourceColumnInfo.SOURCE_BUILTIN,
+            "string",
+            true,
+            true,
+            true,
+            null),
+        new ResourceColumnInfo(
+            "type", "Type", ResourceColumnInfo.SOURCE_BUILTIN, "string", true, true, true, null),
+        new ResourceColumnInfo(
+            "priority",
+            "Priority",
+            ResourceColumnInfo.SOURCE_BUILTIN,
+            "number",
+            false,
+            true,
+            false,
+            null));
   }
 }

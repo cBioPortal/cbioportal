@@ -444,9 +444,10 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
 
-    assertThat(customMetadata).contains("dose_id").contains("score");
+    assertThat(customMetadata).hasSize(1);
+    assertThat(customMetadata.get(0)).contains("dose_id").contains("score");
   }
 
   @Test
@@ -455,9 +456,9 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    String customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
 
-    assertThat(customMetadata).isNull();
+    assertThat(customMetadata).isEmpty();
   }
 
   @Test

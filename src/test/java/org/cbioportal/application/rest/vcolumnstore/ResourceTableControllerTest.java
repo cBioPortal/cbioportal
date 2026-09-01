@@ -125,7 +125,8 @@ public class ResourceTableControllerTest {
                 Map.of("stain", "HE")));
 
     ResourceTableResult result =
-        new ResourceTableResult(List.of(), List.of(), rows, 2L, 2L, 2L, Map.of(), Map.of());
+        new ResourceTableResult(
+            List.of(), List.of(), rows, 2L, 2L, 2L, Map.of(), Map.of(), Map.of());
 
     Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(result);
 
@@ -161,7 +162,8 @@ public class ResourceTableControllerTest {
   @WithMockUser
   public void fetchResourceTableData_nullQuery_returnsEmptyResult() throws Exception {
     ResourceTableResult emptyResult =
-        new ResourceTableResult(List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of());
+        new ResourceTableResult(
+            List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of(), Map.of());
 
     Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(emptyResult);
 

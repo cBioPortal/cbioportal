@@ -11,4 +11,5 @@ public record ResourceTableResult(
     long filteredPatientCount,
     long filteredSampleCount,
     Map<String, List<ResourceFacetOption>> facets,
-    Map<String, ResourceNumericRange> facetRanges) {}
+    Map<String, ResourceNumericRange> facetRanges,
+    Map<String, Long> distinctValueCounts) {}

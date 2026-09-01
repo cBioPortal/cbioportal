@@ -385,11 +385,18 @@
     countDistinctIf keeps the per-count row qualification that the separate queries expressed with
     an outer WHERE: patients are counted across patient- and sample-level rows, samples only over
     sample-level ones.
+
+    The uniqExact columns let the response hide a builtin column that carries the same value in
+    every row, which conveys nothing. They ride along on a scan that already happens, so they cost
+    no extra round trip.
   -->
   <select id="getResourceTableCounts" resultType="org.cbioportal.domain.resource.ResourceTableCounts">
     SELECT count(*) AS rowCount,
            countDistinctIf(rdata.PATIENT_ID, rdata.PATIENT_ID IS NOT NULL AND rdata.ENTITY_TYPE IN ('PATIENT', 'SAMPLE')) AS patientCount,
-           countDistinctIf(rdata.SAMPLE_ID, rdata.SAMPLE_ID IS NOT NULL AND rdata.ENTITY_TYPE = 'SAMPLE') AS sampleCount
+           countDistinctIf(rdata.SAMPLE_ID, rdata.SAMPLE_ID IS NOT NULL AND rdata.ENTITY_TYPE = 'SAMPLE') AS sampleCount,
+           uniqExact(coalesce(rdef.display_name, rdata.RESOURCE_ID)) AS distinctResourceDisplayNames,
+           uniqExact(rdata.ENTITY_TYPE) AS distinctScopes,
+           uniqExact(ifNull(rdata.DISPLAY_NAME, '')) AS distinctDisplayNames
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
   </select>

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
-import org.cbioportal.domain.resource.ResourceFacetOption;
-import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceTableCounts;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableResult;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -31,24 +31,20 @@ public class GetResourceTableDataUseCase {
     }
 
     List<ResourceTableRow> rows = resourceDataRepository.getResourceTableRows(query);
-    long totalRowCount = resourceDataRepository.getResourceTableRowCount(query);
-    long patientCount = resourceDataRepository.getResourceTablePatientCount(query);
-    long sampleCount = resourceDataRepository.getResourceTableSampleCount(query);
-    Map<String, List<ResourceFacetOption>> facets =
-        resourceDataRepository.getResourceTableFacets(query);
-    Map<String, ResourceNumericRange> facetRanges =
-        resourceDataRepository.getResourceTableFacetRanges(query);
+    ResourceTableCounts counts = resourceDataRepository.getResourceTableCounts(query);
+    ResourceTableMetadataView metadata = resourceDataRepository.getResourceTableMetadata(query);
+
     List<ResourceColumnInfo> columns = new ArrayList<>(builtinColumns());
-    columns.addAll(resourceDataRepository.getResourceTableMetadataColumns(query));
+    columns.addAll(metadata.columns());
     return new ResourceTableResult(
         List.of(),
         List.copyOf(columns),
         rows,
-        totalRowCount,
-        patientCount,
-        sampleCount,
-        facets,
-        facetRanges);
+        counts.rowCount(),
+        counts.patientCount(),
+        counts.sampleCount(),
+        metadata.facets(),
+        metadata.facetRanges());
   }
 
   private static List<ResourceColumnInfo> builtinColumns() {

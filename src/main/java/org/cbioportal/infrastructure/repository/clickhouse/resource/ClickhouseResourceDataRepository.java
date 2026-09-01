@@ -10,6 +10,8 @@ import org.cbioportal.domain.resource.ResourceMetadataField;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataSchema;
 import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceTableCounts;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -84,70 +86,53 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   @Override
-  public Map<String, List<ResourceFacetOption>> getResourceTableFacets(ResourceTableQuery query) {
+  public ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
+    // Facets and key discovery are always computed against the query with ALL column-level filters
+    // removed (only resourceId/study/patient/sample/search scoping kept). This keeps every filter
+    // dropdown showing its full, stable option set regardless of what is currently selected in ANY
+    // column, itself or another — e.g. deselecting every option in one column (a "1 = 0" filter
+    // that zeroes out all matching rows) must not make that column's own options, or any other
+    // column's options or keys, disappear.
+    ResourceTableQuery scoped = withoutColumnFilters(query);
+    MetadataContext context = resolveMetadataContext(scoped);
+
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
-
-    // Facet options (both which metadata columns exist, and each column's distinct values) are
-    // always computed against the query with ALL column-level filters removed (only
-    // resourceId/study/patient/sample/search scoping kept). This keeps every filter dropdown
-    // showing its full, stable option set regardless of what's currently selected in ANY column
-    // (itself or another) — e.g. deselecting every option in one column (a "1 = 0" filter that
-    // zeroes out all matching rows) must not make that column's own options, or any other
-    // column's options/keys, disappear.
-    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
-
-    // Builtin columns (only 'type' — patientId/sampleId have too many values)
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(queryWithoutColumnFilters, entry.getValue());
+          mapper.getResourceTableFacetValues(scoped, entry.getValue());
       if (values != null && !values.isEmpty()) {
         facets.put(entry.getKey(), values);
       }
     }
 
-    // Dynamic metadata columns classified as categorical only — numeric columns are exposed via
-    // getResourceTableFacetRanges() instead of an enumerated value list (which would be huge/
-    // unhelpful for a continuous measurement column).
-    MetadataContext context = resolveMetadataContext(queryWithoutColumnFilters);
-    for (String key : context.statsByKey().keySet()) {
-      if (context.isNumeric(key) || !context.isFilterable(key)) {
-        continue;
-      }
-      List<ResourceFacetOption> values =
-          mapper.getResourceTableMetadataFacetValues(queryWithoutColumnFilters, key);
-      if (values != null && !values.isEmpty()) {
-        facets.put(ResourceColumnInfo.METADATA_COLUMN_PREFIX + key, values);
-      }
-    }
-
-    return facets;
-  }
-
-  @Override
-  public Map<String, ResourceNumericRange> getResourceTableFacetRanges(ResourceTableQuery query) {
-    ResourceTableQuery queryWithoutColumnFilters = withoutColumnFilters(query);
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
-
-    MetadataContext context = resolveMetadataContext(queryWithoutColumnFilters);
     for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
       String key = entry.getKey();
-      ResourceMetadataKeyStats stats = entry.getValue();
-      if (context.isNumeric(key) && context.isFilterable(key)) {
-        facetRanges.put(
-            ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
-            new ResourceNumericRange(stats.minValue(), stats.maxValue()));
+      String columnId = ResourceColumnInfo.METADATA_COLUMN_PREFIX + key;
+      if (!context.isFilterable(key)) {
+        continue;
+      }
+      if (context.isNumeric(key)) {
+        // Numeric columns get a min/max range instead of an enumerated value list, which would be
+        // huge and unhelpful for a continuous measurement.
+        ResourceMetadataKeyStats stats = entry.getValue();
+        facetRanges.put(columnId, new ResourceNumericRange(stats.minValue(), stats.maxValue()));
+      } else {
+        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(scoped, key);
+        if (values != null && !values.isEmpty()) {
+          facets.put(columnId, values);
+        }
       }
     }
 
-    return facetRanges;
+    return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
   }
 
-  @Override
-  public List<ResourceColumnInfo> getResourceTableMetadataColumns(ResourceTableQuery query) {
-    // Column existence comes from the data, never from the contract: a declared key nobody
-    // imported would be an empty column, and an undeclared key still has to show up.
-    ResourceTableQuery scoped = withoutColumnFilters(query);
-    MetadataContext context = resolveMetadataContext(scoped);
+  /**
+   * Column existence comes from the data, never from the contract: a declared key nobody imported
+   * would be an empty column, and an undeclared key still has to show up.
+   */
+  private List<ResourceColumnInfo> metadataColumns(MetadataContext context) {
     Map<String, ResourceMetadataKeyStats> statsByKey = context.statsByKey();
     Map<String, ResourceMetadataField> declared = context.schema().fieldsByKey();
 
@@ -167,7 +152,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<ResourceColumnInfo> columns = new ArrayList<>();
     for (String key : ordered) {
       ResourceMetadataField field = declared.get(key);
-      boolean numeric = context.isNumeric(key);
       columns.add(
           new ResourceColumnInfo(
               ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
@@ -175,7 +159,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
                   ? field.label()
                   : key,
               ResourceColumnInfo.SOURCE_METADATA,
-              numeric ? "number" : "string",
+              context.isNumeric(key) ? "number" : "string",
               context.isFilterable(key),
               true,
               // Metadata columns stay opt-in; a resource can carry many keys and showing them all
@@ -238,17 +222,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   @Override
-  public long getResourceTableRowCount(ResourceTableQuery query) {
-    return mapper.getResourceTableRowCount(query);
-  }
-
-  @Override
-  public long getResourceTablePatientCount(ResourceTableQuery query) {
-    return mapper.getResourceTablePatientCount(query);
-  }
-
-  @Override
-  public long getResourceTableSampleCount(ResourceTableQuery query) {
-    return mapper.getResourceTableSampleCount(query);
+  public ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query);
+    return counts == null ? ResourceTableCounts.empty() : counts;
   }
 }

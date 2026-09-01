@@ -55,7 +55,8 @@ public class ClickhouseResourceDataRepositoryTest {
             null,
             List.of(zeroingFilter));
 
-    Map<String, List<ResourceFacetOption>> facets = repository.getResourceTableFacets(query);
+    Map<String, List<ResourceFacetOption>> facets =
+        repository.getResourceTableMetadata(query).facets();
 
     assertThat(facets).containsKey("metadata:magnification");
     assertThat(facets.get("metadata:magnification"))
@@ -71,7 +72,8 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
 
-    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
+    Map<String, ResourceNumericRange> ranges =
+        repository.getResourceTableMetadata(query).facetRanges();
 
     assertThat(ranges).containsEntry("metadata:pages", new ResourceNumericRange(10.0, 25.0));
   }
@@ -83,7 +85,8 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
 
-    Map<String, List<ResourceFacetOption>> facets = repository.getResourceTableFacets(query);
+    Map<String, List<ResourceFacetOption>> facets =
+        repository.getResourceTableMetadata(query).facets();
 
     assertThat(facets).doesNotContainKey("metadata:pages");
   }
@@ -96,7 +99,8 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
+    Map<String, ResourceNumericRange> ranges =
+        repository.getResourceTableMetadata(query).facetRanges();
 
     assertThat(ranges).doesNotContainKey("metadata:magnification");
   }
@@ -109,8 +113,10 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
-    Map<String, List<ResourceFacetOption>> facets = repository.getResourceTableFacets(query);
+    Map<String, ResourceNumericRange> ranges =
+        repository.getResourceTableMetadata(query).facetRanges();
+    Map<String, List<ResourceFacetOption>> facets =
+        repository.getResourceTableMetadata(query).facets();
 
     assertThat(ranges).doesNotContainKey("metadata:dose_id");
     assertThat(facets).containsKey("metadata:dose_id");
@@ -124,7 +130,8 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
+    Map<String, ResourceNumericRange> ranges =
+        repository.getResourceTableMetadata(query).facetRanges();
 
     assertThat(ranges).containsEntry("metadata:score", new ResourceNumericRange(42.0, 85.0));
   }
@@ -167,7 +174,7 @@ public class ClickhouseResourceDataRepositoryTest {
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
     List<String> ids =
-        repository.getResourceTableMetadataColumns(query).stream()
+        repository.getResourceTableMetadata(query).columns().stream()
             .map(ResourceColumnInfo::id)
             .toList();
 
@@ -183,7 +190,7 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    List<ResourceColumnInfo> columns = repository.getResourceTableMetadataColumns(query);
+    List<ResourceColumnInfo> columns = repository.getResourceTableMetadata(query).columns();
 
     assertThat(columns.stream().map(ResourceColumnInfo::id).toList())
         .containsExactly("metadata:magnification", "metadata:stain");
@@ -197,7 +204,7 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    assertThat(repository.getResourceTableMetadataColumns(query))
+    assertThat(repository.getResourceTableMetadata(query).columns())
         .noneMatch(ResourceColumnInfo::visibleByDefault);
   }
 
@@ -210,7 +217,8 @@ public class ClickhouseResourceDataRepositoryTest {
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
     ResourceColumnInfo operator = columnById(query, "metadata:operator");
-    Map<String, List<ResourceFacetOption>> facets = repository.getResourceTableFacets(query);
+    Map<String, List<ResourceFacetOption>> facets =
+        repository.getResourceTableMetadata(query).facets();
 
     assertThat(operator.filterable()).isFalse();
     assertThat(facets).doesNotContainKey("metadata:operator");
@@ -225,14 +233,15 @@ public class ClickhouseResourceDataRepositoryTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    Map<String, ResourceNumericRange> ranges = repository.getResourceTableFacetRanges(query);
+    Map<String, ResourceNumericRange> ranges =
+        repository.getResourceTableMetadata(query).facetRanges();
 
     assertThat(ranges).containsKey("metadata:score");
     assertThat(ranges).doesNotContainKey("metadata:operator");
   }
 
   private ResourceColumnInfo columnById(ResourceTableQuery query, String id) {
-    return repository.getResourceTableMetadataColumns(query).stream()
+    return repository.getResourceTableMetadata(query).columns().stream()
         .filter(c -> c.id().equals(id))
         .findFirst()
         .orElseThrow(() -> new AssertionError("no metadata column " + id));

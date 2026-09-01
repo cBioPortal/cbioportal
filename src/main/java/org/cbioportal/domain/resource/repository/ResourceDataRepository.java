@@ -1,10 +1,8 @@
 package org.cbioportal.domain.resource.repository;
 
 import java.util.List;
-import java.util.Map;
-import org.cbioportal.domain.resource.ResourceColumnInfo;
-import org.cbioportal.domain.resource.ResourceFacetOption;
-import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceTableCounts;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -15,20 +13,13 @@ public interface ResourceDataRepository {
 
   List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query);
 
-  Map<String, List<ResourceFacetOption>> getResourceTableFacets(ResourceTableQuery query);
-
-  Map<String, ResourceNumericRange> getResourceTableFacetRanges(ResourceTableQuery query);
+  /** Row, patient and sample counts for the filtered set, in one pass. */
+  ResourceTableCounts getResourceTableCounts(ResourceTableQuery query);
 
   /**
-   * Presentation info for the dynamic metadata columns discovered in the current tab, in display
-   * order, merging auto-detection with the optional {@code resource_definition.custom_metadata}
-   * contract.
+   * Metadata column info, categorical facets and numeric ranges together. They share the contract
+   * and key-stats lookups, so resolving them in one call is what keeps a request from re-fetching
+   * the same two things for every question it asks.
    */
-  List<ResourceColumnInfo> getResourceTableMetadataColumns(ResourceTableQuery query);
-
-  long getResourceTableRowCount(ResourceTableQuery query);
-
-  long getResourceTablePatientCount(ResourceTableQuery query);
-
-  long getResourceTableSampleCount(ResourceTableQuery query);
+  ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query);
 }

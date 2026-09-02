@@ -8,7 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import org.cbioportal.legacy.model.GenesetMolecularData;
+import org.cbioportal.application.rest.mapper.GenesetMolecularDataMapper;
+import org.cbioportal.application.rest.response.GenesetMolecularDataDTO;
 import org.cbioportal.legacy.service.GenesetDataService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
@@ -50,8 +51,9 @@ public class GenesetDataController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = GenesetMolecularData.class))))
-  public ResponseEntity<List<GenesetMolecularData>> fetchGeneticDataItems(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = GenesetMolecularDataDTO.class))))
+  public ResponseEntity<List<GenesetMolecularDataDTO>> fetchGeneticDataItems(
       @Parameter(required = true, description = "Genetic profile ID, e.g. gbm_tcga_gsva_scores")
           @PathVariable
           String geneticProfileId,
@@ -70,17 +72,19 @@ public class GenesetDataController {
     if (genesetDataFilterCriteria.getSampleListId() != null
         && genesetDataFilterCriteria.getSampleListId().trim().length() > 0) {
       return new ResponseEntity<>(
-          genesetDataService.fetchGenesetData(
-              geneticProfileId,
-              genesetDataFilterCriteria.getSampleListId(),
-              genesetDataFilterCriteria.getGenesetIds()),
+          GenesetMolecularDataMapper.INSTANCE.toDtos(
+              genesetDataService.fetchGenesetData(
+                  geneticProfileId,
+                  genesetDataFilterCriteria.getSampleListId(),
+                  genesetDataFilterCriteria.getGenesetIds())),
           HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          genesetDataService.fetchGenesetData(
-              geneticProfileId,
-              genesetDataFilterCriteria.getSampleIds(),
-              genesetDataFilterCriteria.getGenesetIds()),
+          GenesetMolecularDataMapper.INSTANCE.toDtos(
+              genesetDataService.fetchGenesetData(
+                  geneticProfileId,
+                  genesetDataFilterCriteria.getSampleIds(),
+                  genesetDataFilterCriteria.getGenesetIds())),
           HttpStatus.OK);
     }
   }

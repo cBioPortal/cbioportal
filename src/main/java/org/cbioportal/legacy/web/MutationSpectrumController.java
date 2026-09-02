@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.MutationSpectrumMapper;
+import org.cbioportal.application.rest.response.MutationSpectrumDTO;
 import org.cbioportal.legacy.model.MutationSpectrum;
 import org.cbioportal.legacy.service.MutationSpectrumService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
@@ -47,8 +49,9 @@ public class MutationSpectrumController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationSpectrum.class))))
-  public ResponseEntity<List<MutationSpectrum>> fetchMutationSpectrums(
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MutationSpectrumDTO.class))))
+  public ResponseEntity<List<MutationSpectrumDTO>> fetchMutationSpectrums(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
           String molecularProfileId,
@@ -69,6 +72,7 @@ public class MutationSpectrumController {
               molecularProfileId, mutationSpectrumFilter.getSampleIds());
     }
 
-    return new ResponseEntity<>(mutationSpectrums, HttpStatus.OK);
+    return new ResponseEntity<>(
+        MutationSpectrumMapper.INSTANCE.toDtos(mutationSpectrums), HttpStatus.OK);
   }
 }

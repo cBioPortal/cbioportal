@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -65,5 +66,25 @@ public class FrontendPropertiesServiceImplTest {
     } finally {
       Files.deleteIfExists(runtimeFile);
     }
+  }
+
+  @Test
+  public void getSkinHideDownloadControlsValueShouldMapBooleanValuesToFrontendValues() {
+    assertEquals("hide", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue("true"));
+    assertEquals("hide", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(" TRUE "));
+    assertEquals("show", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue("false"));
+    assertEquals("show", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(" FALSE "));
+  }
+
+  @Test
+  public void getSkinHideDownloadControlsValueShouldPreserveFrontendEnumValues() {
+    assertEquals("show", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue("show"));
+    assertEquals("data", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue("data"));
+    assertEquals("hide", FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue("hide"));
+  }
+
+  @Test
+  public void getSkinHideDownloadControlsValueShouldPreserveNull() {
+    assertNull(FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(null));
   }
 }

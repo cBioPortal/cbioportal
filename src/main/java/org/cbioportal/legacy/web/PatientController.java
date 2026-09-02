@@ -13,7 +13,8 @@ import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.application.rest.mapper.PatientMapper;
+import org.cbioportal.application.rest.response.PatientDTO;
 import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -59,8 +60,8 @@ public class PatientController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
-  public ResponseEntity<List<Patient>> getAllPatients(
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientDTO.class))))
+  public ResponseEntity<List<PatientDTO>> getAllPatients(
       @Parameter(description = "Search keyword that applies to ID of the patients")
           @RequestParam(required = false)
           String keyword,
@@ -91,13 +92,14 @@ public class PatientController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          patientService.getAllPatients(
-              keyword,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          PatientMapper.INSTANCE.toDtos(
+              patientService.getAllPatients(
+                  keyword,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -112,8 +114,8 @@ public class PatientController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
-  public ResponseEntity<List<Patient>> getAllPatientsInStudy(
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientDTO.class))))
+  public ResponseEntity<List<PatientDTO>> getAllPatientsInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -143,13 +145,14 @@ public class PatientController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          patientService.getAllPatientsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          PatientMapper.INSTANCE.toDtos(
+              patientService.getAllPatientsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -164,8 +167,8 @@ public class PatientController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = Patient.class)))
-  public ResponseEntity<Patient> getPatientInStudy(
+      content = @Content(schema = @Schema(implementation = PatientDTO.class)))
+  public ResponseEntity<PatientDTO> getPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Patient ID e.g. TCGA-OR-A5J2") @PathVariable
@@ -173,7 +176,8 @@ public class PatientController {
       throws PatientNotFoundException, StudyNotFoundException {
 
     return new ResponseEntity<>(
-        patientService.getPatientInStudy(studyId, patientId), HttpStatus.OK);
+        PatientMapper.INSTANCE.toDto(patientService.getPatientInStudy(studyId, patientId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -186,8 +190,8 @@ public class PatientController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Patient.class))))
-  public ResponseEntity<List<Patient>> fetchPatients(
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = PatientDTO.class))))
+  public ResponseEntity<List<PatientDTO>> fetchPatients(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -231,7 +235,9 @@ public class PatientController {
       // TODO: since we are already extracting the studyIds in the interceptor, we might not need to
       // use the service here
       return new ResponseEntity<>(
-          patientService.fetchPatients(studyIds, patientIds, projection.name()), HttpStatus.OK);
+          PatientMapper.INSTANCE.toDtos(
+              patientService.fetchPatients(studyIds, patientIds, projection.name())),
+          HttpStatus.OK);
     }
   }
 

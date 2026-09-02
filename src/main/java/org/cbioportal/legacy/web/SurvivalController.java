@@ -11,6 +11,8 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.LegacyClinicalDataMapper;
+import org.cbioportal.application.rest.response.ClinicalDataDTO;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.service.ClinicalEventService;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
@@ -54,8 +56,8 @@ public class SurvivalController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> fetchSurvivalData(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> fetchSurvivalData(
       @Parameter(required = true, description = "Survival Data Request")
           @Valid
           @RequestBody(required = false)
@@ -70,7 +72,9 @@ public class SurvivalController {
           @RequestAttribute(required = false, value = "interceptedSurvivalRequest")
           SurvivalRequest interceptedSurvivalRequest) {
 
-    return new ResponseEntity<>(cachedSurvivalData(interceptedSurvivalRequest), HttpStatus.OK);
+    return new ResponseEntity<>(
+        LegacyClinicalDataMapper.INSTANCE.toDtos(cachedSurvivalData(interceptedSurvivalRequest)),
+        HttpStatus.OK);
   }
 
   @Cacheable(

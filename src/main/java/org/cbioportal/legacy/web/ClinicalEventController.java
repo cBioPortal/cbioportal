@@ -13,6 +13,8 @@ import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.ClinicalEventMapper;
+import org.cbioportal.application.rest.response.ClinicalEventDTO;
 import org.cbioportal.legacy.model.ClinicalEvent;
 import org.cbioportal.legacy.service.ClinicalEventService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
@@ -69,8 +71,8 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsOfPatientInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> getAllClinicalEventsOfPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. lgg_ucsf_2014") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Patient ID e.g. P01") @PathVariable
@@ -105,14 +107,15 @@ public class ClinicalEventController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalEventService.getAllClinicalEventsOfPatientInStudy(
-              studyId,
-              patientId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ClinicalEventMapper.INSTANCE.toDtos(
+              clinicalEventService.getAllClinicalEventsOfPatientInStudy(
+                  studyId,
+                  patientId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -128,8 +131,8 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> getAllClinicalEventsInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> getAllClinicalEventsInStudy(
       @Parameter(required = true, description = "Study ID e.g. lgg_ucsf_2014") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -159,13 +162,14 @@ public class ClinicalEventController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalEventService.getAllClinicalEventsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ClinicalEventMapper.INSTANCE.toDtos(
+              clinicalEventService.getAllClinicalEventsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -182,8 +186,8 @@ public class ClinicalEventController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEvent.class))))
-  public ResponseEntity<List<ClinicalEvent>> fetchClinicalEventsMeta(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalEventDTO.class))))
+  public ResponseEntity<List<ClinicalEventDTO>> fetchClinicalEventsMeta(
       @Parameter(required = true, description = "clinical events Request")
           @Valid
           @RequestBody(required = false)
@@ -200,7 +204,9 @@ public class ClinicalEventController {
           ClinicalEventAttributeRequest interceptedClinicalEventAttributeRequest) {
 
     return new ResponseEntity<>(
-        cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest), HttpStatus.OK);
+        ClinicalEventMapper.INSTANCE.toDtos(
+            cachedClinicalEventsMeta(interceptedClinicalEventAttributeRequest)),
+        HttpStatus.OK);
   }
 
   @Cacheable(

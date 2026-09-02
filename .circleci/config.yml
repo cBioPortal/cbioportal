@@ -649,14 +649,13 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # Forked pull-request jobs do not receive the ClickHouse context.
-              # Pass the read-only staging connection explicitly so the remote
-              # ClickHouse compose override does not fall back to the disabled
-              # local database hostname.
-              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
-              CLICKHOUSE_USER: "apitests"
-              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
+              # The clickhouse-public-staging-ro-user context supplies a
+              # migrated 3.1 read-only clone. Do not embed a stale database
+              # URL or credentials in the repository.
             command: |
+              : "${CLICKHOUSE_URL:?CLICKHOUSE_URL must come from the migrated 3.1 CI context}"
+              : "${CLICKHOUSE_USER:?CLICKHOUSE_USER must come from the migrated 3.1 CI context}"
+              : "${CLICKHOUSE_PASSWORD:?CLICKHOUSE_PASSWORD must come from the migrated 3.1 CI context}"
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
               nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
@@ -733,12 +732,14 @@ jobs:
             command: |
               set -o pipefail
               export DOCKER_TAG=$CIRCLE_SHA1
-              export WSI_CORE_REPOSITORY=raylim/cbioportal-core
-              export WSI_CORE_BRANCH=agent/wsi-native-import
+              export WSI_CORE_REPOSITORY=cBioPortal/cbioportal-core
+              # Pin the exact core PR commit so this test is reproducible and
+              # cannot silently follow a mutable personal-fork branch.
+              export WSI_CORE_REF=88ad87a35da766849f5f3df46e40badbc23446f2
               : > /tmp/repos/wsi-image-build.log
               docker build \
                 --build-arg CORE_REPOSITORY="$WSI_CORE_REPOSITORY" \
-                --build-arg CORE_BRANCH="$WSI_CORE_BRANCH" \
+                --build-arg CORE_REF="$WSI_CORE_REF" \
                 --tag "$DOCKER_REPO:$DOCKER_TAG" \
                 --file /tmp/repos/cbioportal/docker/web-and-data/Dockerfile \
                 /tmp/repos/cbioportal 2>&1 | tee /tmp/repos/wsi-image-build.log

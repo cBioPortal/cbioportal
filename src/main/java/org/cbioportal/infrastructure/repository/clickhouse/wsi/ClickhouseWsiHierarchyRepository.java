@@ -17,6 +17,18 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
 
   private static final Pattern ABSOLUTE_DATE = Pattern.compile(
       "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
+  private static final Pattern MONTH_FIRST_DATE = Pattern.compile(
+      "(?<!\\d)(?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern DAY_FIRST_DATE = Pattern.compile(
+      "(?<!\\d)(?:0?[1-9]|[12]\\d|3[01])[-_/](?:0?[1-9]|1[0-2])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern NAMED_MONTH_DATE = Pattern.compile(
+      "(?i)(?<![a-z0-9])(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|"
+          + "may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|"
+          + "nov(?:ember)?|dec(?:ember)?)\\s+(?:0?[1-9]|[12]\\d|3[01])(?:st|nd|rd|th)?"
+          + "(?:,)?\\s+(?:19|20)\\d{2}|(?:0?[1-9]|[12]\\d|3[01])[-/\\s]+"
+          + "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
+          + "jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|"
+          + "dec(?:ember)?)[-/\\s]+(?:19|20)\\d{2})(?![a-z0-9])");
   private static final Pattern COMPACT_DATE = Pattern.compile(
       "(?<!\\d)(?:19|20)\\d{6}(?!\\d)");
   private static final Pattern LABELLED_MRN = Pattern.compile(
@@ -145,12 +157,19 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       }
       String text = entry.getValue().toString();
       if (LABELLED_MRN.matcher(text).find()
-          || ABSOLUTE_DATE.matcher(text).find()
+          || containsAbsoluteDate(text)
           || COMPACT_DATE.matcher(text).find()) {
         return false;
       }
     }
     return true;
+  }
+
+  private static boolean containsAbsoluteDate(String value) {
+    return ABSOLUTE_DATE.matcher(value).find()
+        || MONTH_FIRST_DATE.matcher(value).find()
+        || DAY_FIRST_DATE.matcher(value).find()
+        || NAMED_MONTH_DATE.matcher(value).find();
   }
 
   private static final class WsiSampleGroupBuilder {

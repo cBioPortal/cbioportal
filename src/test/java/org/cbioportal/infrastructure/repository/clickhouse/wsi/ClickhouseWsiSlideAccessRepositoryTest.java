@@ -143,6 +143,18 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
   }
 
   @Test
+  public void rejectsCommonAbsoluteDateFormatsInTileMetadata() {
+    for (String date : new String[] {
+        "2024-01-31", "01/31/2024", "31/01/2024", "January 31, 2024", "31 January 2024"
+    }) {
+      Map<String, Object> row = row(validMetadata().replace(
+          "\"tile_size\":256", "\"tile_size\":256,\"vendor\":\"" + date + "\""));
+      assertFalse("date should be rejected: " + date,
+          ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
+    }
+  }
+
+  @Test
   public void rejectsThumbnailMimeTypeThatDoesNotMatchExtension() {
     Map<String, Object> row = row(validMetadata());
     row.put("thumbnail_content_type", "image/png");

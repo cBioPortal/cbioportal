@@ -25,6 +25,18 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   private static final Set<String> THUMBNAIL_EXTENSIONS = Set.of("jpg", "jpeg", "png");
   private static final Pattern ABSOLUTE_DATE = Pattern.compile(
       "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
+  private static final Pattern MONTH_FIRST_DATE = Pattern.compile(
+      "(?<!\\d)(?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern DAY_FIRST_DATE = Pattern.compile(
+      "(?<!\\d)(?:0?[1-9]|[12]\\d|3[01])[-_/](?:0?[1-9]|1[0-2])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern NAMED_MONTH_DATE = Pattern.compile(
+      "(?i)(?<![a-z0-9])(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|"
+          + "may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|"
+          + "nov(?:ember)?|dec(?:ember)?)\\s+(?:0?[1-9]|[12]\\d|3[01])(?:st|nd|rd|th)?"
+          + "(?:,)?\\s+(?:19|20)\\d{2}|(?:0?[1-9]|[12]\\d|3[01])[-/\\s]+"
+          + "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
+          + "jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|"
+          + "dec(?:ember)?)[-/\\s]+(?:19|20)\\d{2})(?![a-z0-9])");
   private static final Pattern COMPACT_DATE = Pattern.compile(
       "(?<!\\d)(?:19|20)\\d{6}(?!\\d)");
   private static final Pattern LABELLED_MRN = Pattern.compile(
@@ -165,8 +177,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       if (prefixEnv != null && !approvedPrefix(value, prefixEnv)) {
         return false;
       }
-      if (ABSOLUTE_DATE.matcher(value).find()
-          || ABSOLUTE_DATE.matcher(path).find()
+      if (containsAbsoluteDate(value)
+          || containsAbsoluteDate(path)
           || COMPACT_DATE.matcher(value).find()
           || COMPACT_DATE.matcher(path).find()
           || LABELLED_MRN.matcher(value).find()
@@ -197,6 +209,13 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       }
     }
     return false;
+  }
+
+  private static boolean containsAbsoluteDate(String value) {
+    return ABSOLUTE_DATE.matcher(value).find()
+        || MONTH_FIRST_DATE.matcher(value).find()
+        || DAY_FIRST_DATE.matcher(value).find()
+        || NAMED_MONTH_DATE.matcher(value).find();
   }
 
   private static boolean artifactPolicyConfigured() {
@@ -247,7 +266,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (node.isTextual()) {
       String value = node.asText();
       return LABELLED_MRN.matcher(value).find()
-          || ABSOLUTE_DATE.matcher(value).find()
+          || containsAbsoluteDate(value)
           || COMPACT_DATE.matcher(value).find();
     }
     if (node.isObject() || node.isArray()) {

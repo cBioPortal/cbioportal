@@ -56,7 +56,11 @@ RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/${CORE_REPOSI
 
 # JRE (not JDK) runtime: the final image only runs prebuilt jars, so the JDK's
 # compiler/dev tooling is not needed.
-FROM eclipse-temurin:21-jre
+# Pinned to the noble (Ubuntu 24.04) variant: the floating 21-jre tag now points
+# to a rockcraft-built Ubuntu base that ships Canonical's Pebble service manager
+# (a Go binary this image never runs), whose Go stdlib CVEs keep the Docker
+# Scout scan -- and the README security badge -- red.
+FROM eclipse-temurin:21-jre-noble
 
 # Runtime system dependencies. Kept in their own early layer so they stay cached
 # across application source changes. Build-only toolchain (build-essential,

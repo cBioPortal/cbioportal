@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.SampleList;
+import org.cbioportal.application.rest.mapper.SampleListMapper;
+import org.cbioportal.application.rest.response.SampleListDTO;
 import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -53,8 +54,9 @@ public class SampleListController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleList.class))))
-  public ResponseEntity<List<SampleList>> getAllSampleLists(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = SampleListDTO.class))))
+  public ResponseEntity<List<SampleListDTO>> getAllSampleLists(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
@@ -81,12 +83,13 @@ public class SampleListController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          sampleListService.getAllSampleLists(
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          SampleListMapper.INSTANCE.toDtos(
+              sampleListService.getAllSampleLists(
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -101,13 +104,15 @@ public class SampleListController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = SampleList.class)))
-  public ResponseEntity<SampleList> getSampleList(
+      content = @Content(schema = @Schema(implementation = SampleListDTO.class)))
+  public ResponseEntity<SampleListDTO> getSampleList(
       @Parameter(required = true, description = "Sample List ID e.g. acc_tcga_all") @PathVariable
           String sampleListId)
       throws SampleListNotFoundException {
 
-    return new ResponseEntity<>(sampleListService.getSampleList(sampleListId), HttpStatus.OK);
+    return new ResponseEntity<>(
+        SampleListMapper.INSTANCE.toDto(sampleListService.getSampleList(sampleListId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -120,8 +125,9 @@ public class SampleListController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleList.class))))
-  public ResponseEntity<List<SampleList>> getAllSampleListsInStudy(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = SampleListDTO.class))))
+  public ResponseEntity<List<SampleListDTO>> getAllSampleListsInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -151,13 +157,14 @@ public class SampleListController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          sampleListService.getAllSampleListsInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          SampleListMapper.INSTANCE.toDtos(
+              sampleListService.getAllSampleListsInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -193,8 +200,9 @@ public class SampleListController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleList.class))))
-  public ResponseEntity<List<SampleList>> fetchSampleLists(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = SampleListDTO.class))))
+  public ResponseEntity<List<SampleListDTO>> fetchSampleLists(
       @Parameter(required = true, description = "List of sample list IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -204,6 +212,8 @@ public class SampleListController {
           Projection projection) {
 
     return new ResponseEntity<>(
-        sampleListService.fetchSampleLists(sampleListIds, projection.name()), HttpStatus.OK);
+        SampleListMapper.INSTANCE.toDtos(
+            sampleListService.fetchSampleLists(sampleListIds, projection.name())),
+        HttpStatus.OK);
   }
 }

@@ -46,8 +46,10 @@ export enum EnrichmentType {
  * Source: Derived from API response at /api/studies
  */
 export interface CancerType {
-  /** Cancer type ID */
-  id: string;
+  /** Cancer type ID (legacy shape may use `id`) */
+  cancerTypeId?: string;
+  /** Legacy cancer type ID field from older responses */
+  id?: string;
   /** Cancer type name */
   name: string;
   /** Dedicated color for visualization */
@@ -217,10 +219,10 @@ export interface CoExpression {
   geneticEntityId: string;
   /** Entity type (always "GENE" for gene co-expression) */
   geneticEntityType: string;
-  /** Spearman's rank correlation coefficient */
-  spearmansCorrelation: number;
-  /** Statistical significance p-value */
-  pValue: number;
+  /** Spearman's rank correlation coefficient (omitted/null for uncorrelatable genes) */
+  spearmansCorrelation?: number | null;
+  /** Statistical significance p-value (omitted/null for uncorrelatable genes) */
+  pValue?: number | null;
 }
 
 /**

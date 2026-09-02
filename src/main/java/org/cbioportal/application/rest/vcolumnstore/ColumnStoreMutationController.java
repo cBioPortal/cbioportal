@@ -2,6 +2,10 @@ package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -79,6 +83,11 @@ public class ColumnStoreMutationController {
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
   public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")

@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(uses = GenePanelToGeneMapper.class)
 public interface GenePanelMapper {
   GenePanelMapper INSTANCE = Mappers.getMapper(GenePanelMapper.class);
 

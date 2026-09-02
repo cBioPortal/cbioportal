@@ -3,14 +3,13 @@ package org.cbioportal.application.rest.response;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import org.cbioportal.legacy.model.GenePanelToGene;
 
 @Schema(name = "GenePanel", description = "Represents a gene panel")
 public class GenePanelDTO {
   private String genePanelId;
   @JsonIgnore private Integer internalId;
   private String description;
-  private List<GenePanelToGene> genes;
+  private List<GenePanelToGeneDTO> genes;
 
   public String getGenePanelId() {
     return genePanelId;
@@ -36,11 +35,11 @@ public class GenePanelDTO {
     this.description = description;
   }
 
-  public List<GenePanelToGene> getGenes() {
+  public List<GenePanelToGeneDTO> getGenes() {
     return genes;
   }
 
-  public void setGenes(List<GenePanelToGene> genes) {
+  public void setGenes(List<GenePanelToGeneDTO> genes) {
     this.genes = genes;
   }
 }

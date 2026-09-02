@@ -275,33 +275,47 @@
 
     <!-- for /clinical-data-counts/fetch (returns ClinicalData) which will then be converted to clinicalDataCountItems -->
     <select id="getClinicalDataCountsByStudyViewFilter" resultMap="ClinicalDataCountItemResultMap">
-        <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
-            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
-                <property name="type" value="sample"/>
-                <property name="attributeIds" value="sampleAttributeIds"/>
-                <property name="isConflicting" value="false"/>
-            </include>
-        </if>
+        <choose>
+            <!-- ClickHouse rejects an empty prepared statement. A study can legitimately have no
+                 clinical attributes (for example, a WSI-only study), so return an empty result
+                 set instead of emitting an empty query. -->
+            <when test="(sampleAttributeIds == null or sampleAttributeIds.isEmpty()) and (patientAttributeIds == null or patientAttributeIds.isEmpty()) and (conflictingAttributeIds == null or conflictingAttributeIds.isEmpty())">
+                SELECT
+                    CAST('' AS String) AS attributeId,
+                    CAST('' AS String) AS value,
+                    CAST(0 AS INTEGER) AS count
+                WHERE 1 = 0
+            </when>
+            <otherwise>
+                <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">
+                    <include refid="getClinicalDataCountsQueryByStudyViewFilter">
+                        <property name="type" value="sample"/>
+                        <property name="attributeIds" value="sampleAttributeIds"/>
+                        <property name="isConflicting" value="false"/>
+                    </include>
+                </if>
 
-        <if test="patientAttributeIds != null and !patientAttributeIds.isEmpty()">
-            <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">UNION ALL</if>
-            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
-                <property name="type" value="patient"/>
-                <property name="attributeIds" value="patientAttributeIds"/>
-                <property name="isConflicting" value="false"/>
-            </include>
-        </if>
+                <if test="patientAttributeIds != null and !patientAttributeIds.isEmpty()">
+                    <if test="sampleAttributeIds != null and !sampleAttributeIds.isEmpty()">UNION ALL</if>
+                    <include refid="getClinicalDataCountsQueryByStudyViewFilter">
+                        <property name="type" value="patient"/>
+                        <property name="attributeIds" value="patientAttributeIds"/>
+                        <property name="isConflicting" value="false"/>
+                    </include>
+                </if>
 
-        <if test="conflictingAttributeIds != null and !conflictingAttributeIds.isEmpty()">
-            <if test="(sampleAttributeIds != null and !sampleAttributeIds.isEmpty()) or (patientAttributeIds != null and !patientAttributeIds.isEmpty())">
-                UNION ALL
-            </if>
-            <include refid="getClinicalDataCountsQueryByStudyViewFilter">
-                <property name="type" value="patient"/>
-                <property name="attributeIds" value="conflictingAttributeIds"/>
-                <property name="isConflicting" value="true"/>
-            </include>
-        </if>
+                <if test="conflictingAttributeIds != null and !conflictingAttributeIds.isEmpty()">
+                    <if test="(sampleAttributeIds != null and !sampleAttributeIds.isEmpty()) or (patientAttributeIds != null and !patientAttributeIds.isEmpty())">
+                        UNION ALL
+                    </if>
+                    <include refid="getClinicalDataCountsQueryByStudyViewFilter">
+                        <property name="type" value="patient"/>
+                        <property name="attributeIds" value="conflictingAttributeIds"/>
+                        <property name="isConflicting" value="true"/>
+                    </include>
+                </if>
+            </otherwise>
+        </choose>
     </select>
 
     <sql id="getClinicalDataCountsQueryByStudyViewFilter">

@@ -2,6 +2,8 @@ package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.cbioportal.domain.wsi.WsiBlock;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.WsiPart;
@@ -12,6 +14,17 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository {
+
+  private static final Pattern ABSOLUTE_DATE = Pattern.compile(
+      "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
+  private static final Pattern COMPACT_DATE = Pattern.compile(
+      "(?<!\\d)(?:19|20)\\d{6}(?!\\d)");
+  private static final Pattern LABELLED_MRN = Pattern.compile(
+      "(?i)\\b(?:mrn|medical[ _-]?record(?:[ _-]?number)?)\\b\\s*[:=#-]?\\s*\\d{4,}");
+  private static final Set<String> APPROVED_IDENTIFIER_FIELDS = Set.of(
+      "patient_id", "reference_sample_id", "sample_id", "image_id");
+  private static final Set<String> NON_TEXT_FIELDS = Set.of(
+      "is_hne", "is_ihc", "file_size_bytes", "can_serve_tiles");
 
   private final ClickhouseWsiHierarchyMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
@@ -31,7 +44,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     List<Map<String, Object>> rows =
         mapper.getPatientHierarchy(
             contextLongValue(context, "cancer_study_id"),
-            value(context, "release_id", String.class),
             contextLongValue(context, "patient_id"));
     if (rows.isEmpty()) {
       return null;
@@ -40,6 +52,9 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     Map<String, Object> first = rows.get(0);
     Map<String, WsiSampleGroupBuilder> samples = new java.util.LinkedHashMap<>();
     for (Map<String, Object> row : rows) {
+      if (!isDeidentifiedRow(row)) {
+        return null;
+      }
       if (value(row, "image_id", String.class) == null) {
         continue;
       }
@@ -81,9 +96,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               value(row, "slide_type", String.class),
               sampleKey,
               value(row, "match_level", String.class),
-              value(row, "specimen_key", String.class),
-              intValue(row, "procedure_date_days"),
-              value(row, "timepoint_source", String.class)));
+              value(row, "specimen_key", String.class)));
     }
 
     List<WsiSampleGroup> sampleGroups =
@@ -108,11 +121,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     return type.cast(value);
   }
 
-  private static Integer intValue(Map<String, Object> row, String key) {
-    Object value = row.get(key);
-    return value == null ? null : ((Number) value).intValue();
-  }
-
   private static Long longValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value == null ? null : ((Number) value).longValue();
@@ -126,6 +134,23 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   private static boolean boolValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value instanceof Boolean ? (Boolean) value : value != null && ((Number) value).intValue() != 0;
+  }
+
+  private static boolean isDeidentifiedRow(Map<String, Object> row) {
+    for (Map.Entry<String, Object> entry : row.entrySet()) {
+      if (APPROVED_IDENTIFIER_FIELDS.contains(entry.getKey())
+          || NON_TEXT_FIELDS.contains(entry.getKey())
+          || entry.getValue() == null) {
+        continue;
+      }
+      String text = entry.getValue().toString();
+      if (LABELLED_MRN.matcher(text).find()
+          || ABSOLUTE_DATE.matcher(text).find()
+          || COMPACT_DATE.matcher(text).find()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static final class WsiSampleGroupBuilder {

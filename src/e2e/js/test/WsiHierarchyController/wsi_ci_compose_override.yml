@@ -3,6 +3,11 @@ services:
     environment:
       WSI_AUTH_SECRET: ${WSI_AUTH_SECRET}
       WSI_AUTH_AUDIENCE: ${WSI_AUTH_AUDIENCE:-cbioportal-wsi}
+      # The fixture's WSI artifacts are published under this audited, local
+      # file URI namespace. Keep the same fail-closed artifact policy used by
+      # production so CI exercises the exact portal access contract.
+      WSI_ALLOWED_SOURCE_PREFIXES: ${WSI_ALLOWED_SOURCE_PREFIXES:-file:///app/testdata/}
+      WSI_ALLOWED_THUMBNAIL_PREFIXES: ${WSI_ALLOWED_THUMBNAIL_PREFIXES:-file:///app/testdata/}
     volumes:
       - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_fixture:/tmp/wsi-loader-fixture:ro
       - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_control_fixture:/tmp/wsi-loader-control-fixture:ro

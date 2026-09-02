@@ -49,8 +49,8 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void readsOnlyActiveReleaseVersion() {
-    WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_versioned_study", "VERSIONED-PATIENT");
+  public void readsTheStudySnapshot() {
+    WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_snapshot_study", "SNAPSHOT-PATIENT");
 
     assertEquals(1, hierarchy.sampleGroups().size());
     assertEquals(
@@ -67,7 +67,7 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void returnsNullWhenReleaseIsMissing() {
-    assertNull(repository.getPatientHierarchy("wsi_missing_release_study", "MISSING-RELEASE"));
+  public void returnsNullWhenWsiDataIsMissing() {
+    assertNull(repository.getPatientHierarchy("wsi_missing_data_study", "MISSING-DATA"));
   }
 }

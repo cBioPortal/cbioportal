@@ -17,7 +17,22 @@ public record WsiTileMetadata(
     @JsonProperty("tile_size") int tileSize,
     Mpp mpp,
     @JsonProperty("objective_power") Integer objectivePower,
-    String vendor) {
+    String vendor,
+    @JsonProperty("safe_min_level")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Integer safeMinLevel,
+    @JsonProperty("tile_metadata_schema_version")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Integer tileMetadataSchemaVersion,
+    @JsonProperty("decode_policy_version")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    String decodePolicyVersion,
+    @JsonProperty("max_decode_pixels")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Integer maxDecodePixels,
+    @JsonProperty("thumbnail_max_decode_pixels")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Integer thumbnailMaxDecodePixels) {
 
   @JsonInclude(JsonInclude.Include.ALWAYS)
   public record Dimensions(int width, int height) {}

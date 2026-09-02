@@ -14,7 +14,6 @@
             slide.thumbnail_content_type AS thumbnail_content_type
         FROM wsi_slide slide
         PREWHERE slide.cancer_study_id = #{studyInternalId}
-            AND slide.release_id = #{releaseId}
             AND slide.image_id = #{imageId}
         LIMIT 1
     </select>

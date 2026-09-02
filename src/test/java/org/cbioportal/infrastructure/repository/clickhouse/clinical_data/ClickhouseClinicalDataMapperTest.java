@@ -36,6 +36,21 @@ public class ClickhouseClinicalDataMapperTest {
   @Autowired private ClickhouseClinicalDataMapper mapper;
 
   @Test
+  public void getClinicalDataCountsWithNoAttributesReturnsEmptyResult() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));
+
+    var clinicalDataCounts =
+        mapper.getClinicalDataCountsByStudyViewFilter(
+            StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList());
+
+    assertTrue(clinicalDataCounts.isEmpty());
+  }
+
+  @Test
   public void getMutationCounts() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_GENIE_PUB));

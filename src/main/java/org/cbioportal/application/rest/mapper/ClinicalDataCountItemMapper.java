@@ -6,7 +6,7 @@ import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(uses = ClinicalDataCountMapper.class)
 public interface ClinicalDataCountItemMapper {
   ClinicalDataCountItemMapper INSTANCE = Mappers.getMapper(ClinicalDataCountItemMapper.class);
 

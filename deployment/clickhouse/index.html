@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841691811919">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.841777862370">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.841691811919" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.841777862370" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841691811919" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.841777862370" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841691811919" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.841691811919" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.841777862370" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.841777862370" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -243,7 +243,8 @@
 <li><doc-anchor-trigger to="#10-data-safety-warnings">Data Safety Warnings</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#11-verifying-database-integrity">Verifying Database Integrity</doc-anchor-trigger></li>
 <li><doc-anchor-trigger to="#12-version-migration">Version Migration</doc-anchor-trigger></li>
-<li><doc-anchor-trigger to="#13-further-reading">Further Reading</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#13-recommended-clickhouse-privileges">Recommended Clickhouse Privileges</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#14-further-reading">Further Reading</doc-anchor-trigger></li>
 </ol>
 <hr>
 <h2 id="1-installing-the-clickhouse-cli">1. Installing the ClickHouse CLI</h2>
@@ -528,7 +529,51 @@ for versions prior to <code translate="no" v-pre>3.0.0</code>:</p>
 <li>Re-import all studies using <code translate="no" v-pre>metaImport.py -s ...</code>.</li>
 </ol>
 <hr>
-<h2 id="13-further-reading">13. Further Reading</h2>
+<h2 id="13-recommended-clickhouse-privileges">13. Recommended Clickhouse Privileges</h2>
+<p>Using the standard Docker Compose deployment approach, Clickhouse is deployed in a docker container
+which is initialized with a user named &#x27;cbio_user&#x27;. That user is automatically granted broad
+database privileges, including the ability to create/alter/destroy databases and tables, to read
+and write data from all databases on the Clickhouse service, and to create other users and manage
+their privileges. This may be appropriate for a single purpose database service running locally.</p>
+<p>For remote or multi-purpose Clickhouse services (such as a Clickhouse Cloud service), we recommend
+creating and configuring two Clickhouse users within the service for cBioPortal operations:</p>
+<ol>
+<li>a user with database read privileges for use with the cBioPortal web application</li>
+<li>a user with database read/write privileges for use with data import and migration operations</li>
+</ol>
+<p>Below are recommended privileges to be granted to these two users using the Clickhouse &#x27;GRANT&#x27;
+command. This can be done using the <code translate="no" v-pre>clickhouse client</code> command line interface tool using a user
+(such as the default user) with privileges to create and manage other users.</p>
+<p>In the example statements below, a database has already been created for use with a cBioPortal
+deployment with a command such as:</p>
+<p><code translate="no" v-pre>CREATE DATABASE my_cbioportal_db</code></p>
+<p>Users have also been created with commands such as:</p>
+<p><code translate="no" v-pre>CREATE USER my_cbioportal_user IDENTIFIED WITH sha256_password BY 'my_password_for_the_web_application'</code></p>
+<p><code translate="no" v-pre>CREATE USER my_cbioportal_admin IDENTIFIED WITH sha256_password BY 'my_password_for_importing_and_migrating'</code></p>
+<h3 id="web-application-user-privileges">web application user privileges</h3>
+<p>The web application generally needs only read privileges on the database tables:</p>
+<p><code translate="no" v-pre>GRANT SELECT ON my_cbioportal_db.* TO my_cbioportal_user</code></p>
+<p>Users who configure their portal to use UUID based data access tokens would need to grant write
+privileges for that table as well:</p>
+<p><code translate="no" v-pre>GRANT INSERT, ALTER, TRUNCATE ON my_cbioportal_db.data_access_tokens TO my_cbioportal_user</code></p>
+<h3 id="import-and-migration-user-privileges">import and migration user privileges</h3>
+<p>Importing data into the cBioPortal database, or migrating the database schema requires additional
+write privileges within the created cBioPortal database:</p>
+<p><code translate="no" v-pre>GRANT SHOW TABLES, SHOW COLUMNS, SELECT, INSERT, ALTER, CREATE TABLE, CREATE VIEW, DROP TABLE, DROP VIEW, TRUNCATE, OPTIMIZE ON my_cbioportal_db.* TO my_cbioportal_admin</code></p>
+<p>Additional system level monitoring privileges are required as well:</p>
+<p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.tables TO my_cbioportal_admin</code></p>
+<p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.parts TO my_cbioportal_admin</code></p>
+<p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.mutations TO my_cbioportal_admin</code></p>
+<p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.one TO my_cbioportal_admin</code></p>
+<p>For clickhouse server versions between 24.10 and 25.6:
+<code translate="no" v-pre>GRANT CLUSTER ON *.* TO my_cbioportal_admin</code></p>
+<p>For clickhouse server versions beginning with 25.7 and onward:
+<code translate="no" v-pre>GRANT READ ON REMOTE TO my_cbioportal_admin</code></p>
+<p>By using restricted-privilege Clickhouse users, a compromised user account would be limited to improper
+data access or disruption related to a particular cBioPortal deployment. Other databases operating on
+the Clickhouse service would be insulated.</p>
+<hr>
+<h2 id="14-further-reading">14. Further Reading</h2>
 <ul>
 <li><a href="https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research">cBioPortal deploys on ClickHouse Cloud — case study</a> — how MSK uses ClickHouse to power cbioportal.org</li>
 <li><a href="https://clickhouse.com/docs">ClickHouse Documentation</a> — official ClickHouse docs</li>

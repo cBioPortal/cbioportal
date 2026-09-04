@@ -1,0 +1,44 @@
+services:
+  cbioportal:
+    environment:
+      WSI_AUTH_SECRET: ${WSI_AUTH_SECRET}
+      WSI_AUTH_AUDIENCE: ${WSI_AUTH_AUDIENCE:-cbioportal-wsi}
+      # The fixture's WSI artifacts are published under this audited, local
+      # file URI namespace. Keep the same fail-closed artifact policy used by
+      # production so CI exercises the exact portal access contract.
+      WSI_ALLOWED_SOURCE_PREFIXES: ${WSI_ALLOWED_SOURCE_PREFIXES:-file:///app/testdata/}
+      WSI_ALLOWED_THUMBNAIL_PREFIXES: ${WSI_ALLOWED_THUMBNAIL_PREFIXES:-file:///app/testdata/}
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_fixture:/tmp/wsi-loader-fixture:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/e2e/js/test/WsiHierarchyController/wsi_loader_control_fixture:/tmp/wsi-loader-control-fixture:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/tmp/wsi-clickhouse.sql:ro
+    # The web-and-data runtime is JRE-only; bypass the legacy entrypoint's
+    # `jar uf` step and launch the exploded Spring Boot classpath directly.
+    entrypoint: []
+    command: >-
+      /bin/sh -c
+      "java -Xms2g -Xmx4g
+      -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*'
+      org.cbioportal.PortalApplication
+      --spring.config.location=file:/cbioportal-webapp/application.properties
+      --authenticate=false
+      --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
+      --spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+      --spring.datasource.url=$${CLICKHOUSE_URL}
+      --spring.datasource.username=$${CLICKHOUSE_USER}
+      --spring.datasource.password=$${CLICKHOUSE_PASSWORD}
+      --spring.datasource.clickhouse.url=$${CLICKHOUSE_URL}
+      --spring.datasource.clickhouse.username=$${CLICKHOUSE_USER}
+      --spring.datasource.clickhouse.password=$${CLICKHOUSE_PASSWORD}
+      --spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
+      --bitly.access.token=local-ci-unused-token
+      --wsi.access-token-secret=$${WSI_AUTH_SECRET}
+      --wsi.access-token-audience=$${WSI_AUTH_AUDIENCE}
+      --wsi.local-auth-bypass=true
+      --clickhouse_mode=true
+      --spring.profiles.active=clickhouse"
+  cbioportal-database:
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/seed-cbioportal_hg19_hg38_v2.14.5.sql.gz:/data/seed.sql.gz:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/data/clickhouse.sql:ro

@@ -276,15 +276,122 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
+## WSI hierarchy materialization and authenticated rollout
+
+Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
+tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`, and
+`wsi_slide_placement`. The cBioPortal core study importer validates and loads
+one complete snapshot including source URLs, intrinsic tile metadata, and
+thumbnail artifact fields.
+
+Clients use `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`. The response is
+pathology-only; portal clinical labels and pathology timeline events continue
+to come from the normal cBioPortal APIs.
+
+The cBioPortal properties for an authenticated deployment are:
+
+```properties
+msk.wsi.tile_server.url=https://cbioportal.example.org/wsi
+wsi.access-token-secret=<at-least-32-byte-secret>
+wsi.access-token-audience=cbioportal-wsi
+wsi.access-token-ttl-seconds=300
+```
+
+The tile server must use the matching values:
+
+```text
+WSI_AUTH_SECRET=<same-secret>
+WSI_AUTH_AUDIENCE=cbioportal-wsi
+WSI_AUTH_MAX_TTL=300
+WSI_ALLOWED_SOURCE_SCHEMES=s3
+```
+
+The secret bytes and audience must match exactly, and the cBioPortal TTL must
+not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only source URLs and
+v2 capabilities; it does not load a hierarchy, metadata backend, or resource
+index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
+ClickHouse WSI snapshot must also contain the source URL, tile metadata, and
+thumbnail artifact fields.
+
+### Upstream thumbnail publication
+
+The ClickHouse snapshot depends on a separate scheduled thumbnail workload. It
+must read eligible inventory/source rows, generate master JPEGs in the
+S3/Dell ECS-compatible object store, and populate
+`cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with
+`artifact_uri`, `tile_metadata_json`, dimensions, and content type before the
+Databricks canonical-association refresh runs. The canonical export then
+passes `SOURCE_URL`, `TILE_METADATA_JSON`, `THUMBNAIL_URL`, dimensions, and
+content type to the standard cBioPortal core importer.
+
+Neither the frontend nor the online tile-server API is a production thumbnail
+publisher. The frontend only requests `/thumbnails`; the tile-server
+on-demand worker is limited to development/rehearsal or controlled remediation
+and does not populate the registry. A missing registry row or missing metadata
+must be fixed in the scheduled batch before importing a new WSI snapshot.
+
+WSI is login-only, including for public studies. Anonymous users receive
+`401`, authenticated users without study access receive `403`, authenticated
+blank study IDs receive `400`, and a nonexistent study deliberately returns
+`403` to avoid an existence oracle. The capability contract is version 2 and
+contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `image_id`, exact SHA-256
+bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
+`iat`, and `exp`.
+
+Before enabling the Pathology Slides feature for a private study:
+
+1. Use the standard cBioPortal core study importer to validate the study's
+   complete `meta_wsi.txt`/`data_wsi.txt` pair together with the generated
+   pathology timeline pair. The WSI files load `source_url`,
+   `tile_metadata_json`, `thumbnail_url`, dimensions, and content type into
+   each servable slide row; diagnosis-relative procedure offsets are loaded as
+   timeline events. MRNs and absolute dates must not occur in the study files:
+
+   ```bash
+   metaImport.py -s /path/to/study
+   ```
+2. Ensure the backend access endpoint returns no pixel bundle when any of
+   those fields is missing. The browser must obtain a fresh bundle for each
+   slide and send its exact source URL to the tile server.
+3. Configure protected pixel responses as private/cacheable and hierarchy or
+   access responses as private/no-store. They must not be publicly cached.
+
+Blue/green promotion is the WSI visibility boundary. Build the inactive
+database from a fresh schema, import each complete WSI snapshot once, validate
+the result, and promote only after the build succeeds. If an import fails or a
+snapshot must be retried, discard and rebuild the inactive database; WSI is not
+an in-place incremental import and the importer does not replace existing rows.
+The core importer does not create or migrate production WSI tables.
+
+### WSI serving query plan and projection
+
+The hierarchy and slide-access repositories first resolve the internal study
+and patient identifiers. They then pass those constants into
+the WSI-table subqueries so ClickHouse can prune by the MergeTree primary keys;
+the hierarchy query does not fetch or parse tile metadata or thumbnail
+artifacts. Slide access uses the `wsi_slide_by_access` projection, ordered by
+`(cancer_study_id, image_id)`, because slide access does not include
+patient ID.
+
+The projection is included in both `init/schema.sql` and the `3.1.0` section of
+`migrate/migrate_schema.sql`. Fresh databases receive it during initialization;
+existing `3.0.0` databases receive it when the migration runner is executed
+before the new backend starts. WSI data is still imported and promoted through
+the normal blue/green workflow, and the core importer does not alter production
+schema. Validate the result with `EXPLAIN indexes=1` and confirm that the
+hierarchy tables are filtered by study/patient and slide access uses the
+projection.
+
 ---
 
 ## 12. Version Migration
 
-Starting with `DB_SCHEMA_VERSION` `3.0.0`, in-place schema upgrades are handled by
+Starting with `DB_SCHEMA_VERSION` `3.0.0`, supported in-place schema upgrades are handled by
 `db-scripts/clickhouse/migrate/migrate_schema.sql` (a forward-only, version-tagged set of SQL
 sections) applied by `db-scripts/clickhouse/migrate/migrate_db.py`. The runner reads the current
 `db_schema_version` from the `info` table, skips sections already applied, and applies the rest in
-order, advancing `db_schema_version` itself after each section succeeds.
+order, advancing `db_schema_version` itself after each section succeeds. Rebuild-only changes are
+still versioned here so an incompatible older database cannot start with a newer backend.
 
 There is a single `db_schema_version` covering both base and derived tables — derived table
 *structure* is defined in `schema.sql` alongside every other table, so a derived-table structure
@@ -310,6 +417,12 @@ migrations were applied; otherwise, rebuild derived tables yourself as a separat
 run derivation through your own tooling against ClickHouse Cloud). The backend refuses to start
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
+
+The `3.1.0` WSI snapshot schema is available both for fresh initialization and
+for in-place upgrades from `3.0.0`. The migration drops any legacy WSI
+release-based tables, recreates the empty snapshot tables and slide-access
+projection, and therefore discards existing WSI rows. Import WSI snapshots into
+the inactive blue/green database and promote it only after validation.
 
 For **ClickHouse Cloud** specifically, set `CLICKHOUSE_SECURE=true` (in addition to the usual
 `CLICKHOUSE_HOST`/`CLICKHOUSE_NATIVE_PORT`/`CLICKHOUSE_USER`/`CLICKHOUSE_PASSWORD`/`CLICKHOUSE_DB`)

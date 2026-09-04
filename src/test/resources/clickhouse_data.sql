@@ -452,6 +452,7 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'cente
 insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'center','ucsf');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'center','NA');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'center','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'wsi_slides','3');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'dead','True');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'dead','false');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'dead','TRUE');
@@ -550,6 +551,7 @@ insert into clinical_attribute_meta (attr_id,display_name,description,datatype,p
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('oct_embedded','oct embedded','oct embedded','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('pathology_report_file_name','pathology report file name','pathology report file name','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('sample_type','sample type','the type of sample (i.e.,normal,primary,met,recurrence).','string',0,'1',2);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('wsi_slides','WSI Slides per Patient','Number of whole slide images available for the patient.','number',1,'1',0);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('mutation_count','mutaiton count','mutation count','number',0,'30',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('age','age at metastatic diagnosis (years)','age at metastatic diagnosis (years)','number',1,'3',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('center','center','center of sequencing','string',1,'1',3);
@@ -678,6 +680,72 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (4,20,'name','larotrectinib');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (5,20,'description','trka/b/c inhibitor');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (6,20,'url','https://en.wikipedia.org/wiki/larotrectinib');
+-- WSI normalized hierarchy test data
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9001,'wsi_test_study','dummy','WSI test study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9002,'wsi_snapshot_study','dummy','WSI snapshot study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9003,'wsi_empty_hierarchy_study','dummy','WSI empty study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9004,'wsi_missing_data_study','dummy','WSI missing data study','normalized WSI fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'SNAPSHOT-PATIENT',9002);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9003,'EMPTY-PATIENT',9003);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-DATA',9004);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
+
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9001,9001,9001);
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9002,9002,9002);
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9003,9003,null);
+
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,'part::27','27','27','FALLOPIAN TUBE','right ovary',null,'right ovary');
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,'part::34','34','34','SMALL BOWEL','small bowel',null,'small bowel');
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9002,9002,'part::1','1','1','active part','active specimen',null,'active specimen');
+
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9001,9001,'part::27','block::4','4','4RO');
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9001,9001,'part::34','block::4','4','4RS');
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9002,9002,'part::1','block::1','1','active');
+
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,'3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,'3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9002,9002,'active-slide',null,null,false,false,null,null,false,null,null);
+
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
+values (9001,9001,'3020726','part::27','block::4',9001,'BLOCK','block::27::4');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
+values (9001,9001,'3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key, sample_id,match_level,specimen_key)
+values (9002,9002,'active-slide','part::1','block::1',9002,'PART','part::1');
+
 -- generic assay test data
 -- mutational signature test data
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (7,28,'name','mean_1');

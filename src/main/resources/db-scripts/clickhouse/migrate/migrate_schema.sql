@@ -28,3 +28,93 @@
 ## db_schema_version: 3.0.0
 ## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
+
+## db_schema_version: 3.1.0
+## description: Rebuild the de-identified WSI snapshot tables and slide-access projection
+-- WSI data is insert-only and is rebuilt in the inactive blue/green database. Drop both the
+-- legacy release-based layout and any partially created snapshot tables so this section cannot
+-- advance the schema version while leaving an incompatible WSI table behind.
+DROP TABLE IF EXISTS wsi_slide_placement SYNC;
+DROP TABLE IF EXISTS wsi_slide SYNC;
+DROP TABLE IF EXISTS wsi_block SYNC;
+DROP TABLE IF EXISTS wsi_part SYNC;
+DROP TABLE IF EXISTS wsi_patient SYNC;
+DROP TABLE IF EXISTS wsi_release_patient SYNC;
+DROP TABLE IF EXISTS wsi_release SYNC;
+
+CREATE TABLE IF NOT EXISTS wsi_patient (
+    cancer_study_id Int64,
+    patient_id Int64,
+    reference_sample_id Nullable(Int64)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id);
+
+CREATE TABLE IF NOT EXISTS wsi_part (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    part_number Nullable(String),
+    part_designator Nullable(String),
+    part_type Nullable(String),
+    part_description Nullable(String),
+    subspecialty Nullable(String),
+    path_dx_title Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key);
+
+CREATE TABLE IF NOT EXISTS wsi_block (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    block_key String,
+    block_number Nullable(String),
+    block_label Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key, block_key);
+
+CREATE TABLE IF NOT EXISTS wsi_slide (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    stain_name Nullable(String),
+    stain_group Nullable(String),
+    is_hne Bool,
+    is_ihc Bool,
+    magnification Nullable(String),
+    file_size_bytes Nullable(UInt64),
+    can_serve_tiles Bool,
+    barcode Nullable(String),
+    slide_type Nullable(String),
+    source_url Nullable(String),
+    tile_metadata_json Nullable(String),
+    thumbnail_url Nullable(String),
+    thumbnail_width Nullable(UInt32),
+    thumbnail_height Nullable(UInt32),
+    thumbnail_content_type Nullable(String),
+    PROJECTION wsi_slide_by_access (
+        SELECT
+            cancer_study_id,
+            image_id,
+            can_serve_tiles,
+            source_url,
+            tile_metadata_json,
+            thumbnail_url,
+            thumbnail_width,
+            thumbnail_height,
+            thumbnail_content_type
+        ORDER BY (cancer_study_id, image_id)
+    )
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
+
+CREATE TABLE IF NOT EXISTS wsi_slide_placement (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    part_key String,
+    block_key String,
+    sample_id Nullable(Int64),
+    match_level String,
+    specimen_key String
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);

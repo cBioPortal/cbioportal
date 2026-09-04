@@ -11,7 +11,9 @@
 # NOTE: the .git folder is included in the build stage (the git-commit-id Maven
 # plugin needs it), but excluded from the final image. No confidential
 # information is exposed. (see: stackoverflow.com/questions/56278325)
+ARG CORE_REPOSITORY=cBioPortal/cbioportal-core
 ARG CORE_BRANCH=main
+ARG CORE_REF=
 
 FROM maven:3-eclipse-temurin-21 AS build
 
@@ -37,17 +39,22 @@ COPY . .
 # final image cache dependency libs separately from application classes
 # (see: https://spring.io/guides/topicals/spring-boot-docker/).
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    && mvn -q package -DskipTests \
+    && mvn -q package -DskipTests -Dmaven.gitcommitid.skip=true \
     && mkdir -p target/dependency \
     && (cd target/dependency && jar -xf ../*-exec.jar)
 
 FROM maven:3-eclipse-temurin-21 AS build-core
+ARG CORE_REPOSITORY
 ARG CORE_BRANCH
-# This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
-ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
+ARG CORE_REF
 # We touch application.properties here just to get cbioportal-core building
 # Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
-RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
+RUN set -eu; \
+    checkout_ref="${CORE_REF:-$CORE_BRANCH}"; \
+    git init /cbioportal-core \
+    && git -C /cbioportal-core remote add origin "https://github.com/${CORE_REPOSITORY}.git" \
+    && git -C /cbioportal-core fetch --depth 1 origin "$checkout_ref" \
+    && git -C /cbioportal-core checkout --detach FETCH_HEAD \
     && touch /cbioportal-core/src/main/resources/application.properties \
     && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
     && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt

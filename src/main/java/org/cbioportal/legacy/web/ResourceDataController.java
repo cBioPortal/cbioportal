@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
 import java.util.Objects;
+import org.cbioportal.application.rest.mapper.ResourceDataMapper;
+import org.cbioportal.application.rest.response.ResourceDataDTO;
 import org.cbioportal.legacy.model.ResourceData;
 import org.cbioportal.legacy.service.ResourceDataService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
@@ -69,8 +71,8 @@ public class ResourceDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
-  public ResponseEntity<List<ResourceData>> getAllResourceDataOfSampleInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDataDTO.class))))
+  public ResponseEntity<List<ResourceDataDTO>> getAllResourceDataOfSampleInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01") @PathVariable
@@ -99,15 +101,16 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          resourceDataService.getAllResourceDataOfSampleInStudy(
-              studyId,
-              sampleId,
-              resourceId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ResourceDataMapper.INSTANCE.toDtos(
+              resourceDataService.getAllResourceDataOfSampleInStudy(
+                  studyId,
+                  sampleId,
+                  resourceId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -123,8 +126,8 @@ public class ResourceDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
-  public ResponseEntity<List<ResourceData>> getAllResourceDataOfPatientInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDataDTO.class))))
+  public ResponseEntity<List<ResourceDataDTO>> getAllResourceDataOfPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Patient ID e.g. TCGA-OR-A5J2") @PathVariable
@@ -153,15 +156,16 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          resourceDataService.getAllResourceDataOfPatientInStudy(
-              studyId,
-              patientId,
-              resourceId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ResourceDataMapper.INSTANCE.toDtos(
+              resourceDataService.getAllResourceDataOfPatientInStudy(
+                  studyId,
+                  patientId,
+                  resourceId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -177,8 +181,8 @@ public class ResourceDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
-  public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDataDTO.class))))
+  public ResponseEntity<List<ResourceDataDTO>> getAllStudyResourceDataInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Resource ID") @RequestParam(required = false) String resourceId,
@@ -205,14 +209,15 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          resourceDataService.getAllResourceDataForStudy(
-              studyId,
-              resourceId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          ResourceDataMapper.INSTANCE.toDtos(
+              resourceDataService.getAllResourceDataForStudy(
+                  studyId,
+                  resourceId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -229,8 +234,8 @@ public class ResourceDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceData.class))))
-  public ResponseEntity<List<ResourceData>> getAllStudyResourceDataInStudyPatientSample(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceDataDTO.class))))
+  public ResponseEntity<List<ResourceDataDTO>> getAllStudyResourceDataInStudyPatientSample(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Resource ID") @RequestParam(required = false) String resourceId,
@@ -257,15 +262,16 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          this.getInstance()
-              .cacheableFetchAllResourceDataForStudyPatientSample(
-                  studyId,
-                  resourceId,
-                  projection.name(),
-                  pageSize,
-                  pageNumber,
-                  sortBy == null ? null : sortBy.getOriginalValue(),
-                  direction.name()),
+          ResourceDataMapper.INSTANCE.toDtos(
+              this.getInstance()
+                  .cacheableFetchAllResourceDataForStudyPatientSample(
+                      studyId,
+                      resourceId,
+                      projection.name(),
+                      pageSize,
+                      pageNumber,
+                      sortBy == null ? null : sortBy.getOriginalValue(),
+                      direction.name())),
           HttpStatus.OK);
     }
   }

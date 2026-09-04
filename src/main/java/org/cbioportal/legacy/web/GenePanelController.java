@@ -50,6 +50,11 @@ public class GenePanelController {
       value = "/gene-panels/",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanelDTO.class))))
   public ResponseEntity<List<GenePanelDTO>> getAllGenePanels_trailing(
       @RequestParam(defaultValue = "SUMMARY") Projection projection,
       @Parameter(description = "Page size of the result list")

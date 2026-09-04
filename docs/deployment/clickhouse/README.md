@@ -16,7 +16,8 @@ Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) a
 10. [Data Safety Warnings](#10-data-safety-warnings)
 11. [Verifying Database Integrity](#11-verifying-database-integrity)
 12. [Version Migration](#12-version-migration)
-13. [Further Reading](#13-further-reading)
+13. [Recommended Clickhouse Privileges](#13-recommended-clickhouse-privileges)
+14. [Further Reading](#14-further-reading)
 
 ---
 
@@ -337,7 +338,76 @@ for versions prior to `3.0.0`:
 
 ---
 
-## 13. Further Reading
+## 13. Recommended Clickhouse Privileges
+
+Using the standard Docker Compose deployment approach, Clickhouse is deployed in a docker container
+which is initialized with a user named 'cbio_user'. That user is automatically granted broad
+database privileges, including the ability to create/alter/destroy databases and tables, to read
+and write data from all databases on the Clickhouse service, and to create other users and manage
+their privileges. This may be appropriate for a single purpose database service running locally.
+
+For remote or multi-purpose Clickhouse services (such as a Clickhouse Cloud service), we recommend
+creating and configuring two Clickhouse users within the service for cBioPortal operations:
+1. a user with database read privileges for use with the cBioPortal web application
+2. a user with database read/write privileges for use with data import and migration operations
+
+Below are recommended privileges to be granted to these two users using the Clickhouse 'GRANT'
+command. This can be done using the `clickhouse client` command line interface tool using a user
+(such as the default user) with privileges to create and manage other users.
+
+In the example statements below, a database has already been created for use with a cBioPortal
+deployment with a command such as:
+
+`CREATE DATABASE my_cbioportal_db`
+
+Users have also been created with commands such as:
+
+`CREATE USER my_cbioportal_user IDENTIFIED WITH sha256_password BY 'my_password_for_the_web_application'`
+
+`CREATE USER my_cbioportal_admin IDENTIFIED WITH sha256_password BY 'my_password_for_importing_and_migrating'`
+
+### web application user privileges
+
+The web application generally needs only read privileges on the database tables:
+
+`GRANT SELECT ON my_cbioportal_db.* TO my_cbioportal_user`
+
+Users who configure their portal to use UUID based data access tokens would need to grant write
+privileges for that table as well:
+
+`GRANT INSERT, ALTER, TRUNCATE ON my_cbioportal_db.data_access_tokens TO my_cbioportal_user`
+
+### import and migration user privileges
+
+Importing data into the cBioPortal database, or migrating the database schema requires additional
+write privileges within the created cBioPortal database:
+
+`GRANT SHOW TABLES, SHOW COLUMNS, SELECT, INSERT, ALTER, CREATE TABLE, CREATE VIEW, DROP TABLE, DROP VIEW,
+TRUNCATE, OPTIMIZE ON my_cbioportal_db.* TO my_cbioportal_admin`
+
+Additional system level monitoring privileges are required as well:
+
+`GRANT SHOW COLUMNS, SELECT ON system.tables TO my_cbioportal_admin`
+
+`GRANT SHOW COLUMNS, SELECT ON system.parts TO my_cbioportal_admin`
+
+`GRANT SHOW COLUMNS, SELECT ON system.mutations TO my_cbioportal_admin`
+
+`GRANT SHOW COLUMNS, SELECT ON system.one TO my_cbioportal_admin`
+
+For clickhouse server versions between 24.10 and 25.6:
+`GRANT CLUSTER ON *.* TO my_cbioportal_admin`
+
+For clickhouse server versions beginning with 25.7 and onward:
+`GRANT READ ON REMOTE TO my_cbioportal_admin`
+
+By using restricted-privilege Clickhouse users, a compromised user account would be limited to improper
+data access or disruption related to a particular cBioPortal deployment. Other databases operating on
+the Clickhouse service would be insulated.
+
+---
+
+## 14. Further Reading
 
 - [cBioPortal deploys on ClickHouse Cloud — case study](https://clickhouse.com/blog/how-memorial-sloan-kettering-cancer-center-is-using-clickhouse-to-accelerate-cancer-research) — how MSK uses ClickHouse to power cbioportal.org
 - [ClickHouse Documentation](https://clickhouse.com/docs) — official ClickHouse docs

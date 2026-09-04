@@ -660,7 +660,7 @@ public class StudyViewController {
   }
 
   private static boolean isLogScalePossibleForAttribute(String clinicalAttributeId) {
-    return clinicalAttributeId.equals("MUTATION_COUNT");
+    return true;
   }
 
   private static double logScale(double val) {

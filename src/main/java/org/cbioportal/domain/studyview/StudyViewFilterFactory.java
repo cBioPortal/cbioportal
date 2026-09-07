@@ -24,6 +24,13 @@ public abstract class StudyViewFilterFactory {
     List<CustomSampleIdentifier> customSampleIdentifiers =
         customDataFilterUtil.extractCustomDataSamples(base);
     List<String> involvedCancerStudies = customDataFilterUtil.extractInvolvedCancerStudies(base);
+    // Filter out genericAssayDataFilters with null or empty values to prevent SQL errors
+    if (base.getGenericAssayDataFilters() != null) {
+      base.setGenericAssayDataFilters(
+          base.getGenericAssayDataFilters().stream()
+              .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+              .collect(Collectors.toList()));
+    }
     CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter =
         CategorizedGenericAssayDataCountFilter.getBuilder(genericAssayProfilesMap, base).build();
 

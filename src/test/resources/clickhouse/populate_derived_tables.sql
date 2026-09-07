@@ -1,0 +1,509 @@
+-- Test fixture: populates derived tables for AbstractTestcontainers-based integration tests.
+-- Mirrors src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql — table structure
+-- lives in this module's src/test/resources/schema.sql instead (see that file's derived-table
+-- CREATE statements), this script only clears and repopulates data.
+
+TRUNCATE TABLE IF EXISTS sample_to_gene_panel_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS gene_panel_to_gene_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS sample_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS genomic_event_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_event_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS clinical_event_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS genetic_alteration_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_data_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS mutation_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_profile_entity_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS generic_assay_meta_derived SETTINGS alter_sync = 2;
+
+-- Force deduplication of ReplacingMergeTree source tables before building derived tables
+OPTIMIZE TABLE clinical_patient FINAL;
+OPTIMIZE TABLE clinical_sample FINAL;
+OPTIMIZE TABLE genetic_alteration FINAL;
+OPTIMIZE TABLE genetic_profile_samples FINAL;
+OPTIMIZE TABLE sample_profile FINAL;
+
+-- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
+-- this problem was handled in java at run time in legacy codebase
+-- this MUST BE RUN prior to creation of any derived table which relies on sample_profile table
+INSERT INTO sample_profile (sample_id, genetic_profile_id, panel_id)
+WITH missing_samples AS (
+    -- Select all members of lists of type '_sequenced' (mutation) which do NOT appear in sample_profile table for profiles of type mutation
+    SELECT
+        sample_id,
+        cs.cancer_study_identifier AS cancer_study_identifier,
+        CONCAT(cancer_study_identifier, '_mutations') as stable_id
+    FROM
+        sample_list_list sll
+            JOIN sample_list sl ON sl.list_id = sll.list_id
+            JOIN cancer_study cs ON cs.cancer_study_id = sl.cancer_study_id
+    WHERE
+            sl.stable_id LIKE '%_sequenced'
+      AND CONCAT(sll.sample_id,'-',cs.cancer_study_id) NOT IN (
+        SELECT
+            CONCAT(sp.sample_id,'-',cs.cancer_study_id)
+        FROM
+            sample_profile sp
+                JOIN genetic_profile gp ON gp.genetic_profile_id = sp.genetic_profile_id
+                JOIN cancer_study cs ON cs.cancer_study_id = gp.cancer_study_id
+        WHERE
+                gp.genetic_alteration_type = 'MUTATION_EXTENDED'
+    )
+)
+-- These are the missing items for the sample_profile table. They are missing because they were not included in matrix file
+-- perhaps because they have no associated mutations (even though they WERE profiled for mutation as indicated by presence in the case list file
+SELECT
+    ms.sample_id as sample_id,
+    gp.genetic_profile_id AS genetic_profile_id,
+    NULL AS panel_id
+FROM
+    missing_samples ms
+        JOIN genetic_profile gp ON ms.stable_id=gp.stable_id
+        JOIN cancer_study cs ON cs.cancer_study_id=gp.cancer_study_id;
+
+-- Re-optimize the sample_profile table after writing to it since it is backed by ReplacingMergeTree
+OPTIMIZE TABLE sample_profile FINAL;
+
+INSERT INTO sample_to_gene_panel_derived
+SELECT
+    concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+    genetic_alteration_type AS alteration_type,
+    -- If a mutation is found in a gene that is not in a gene panel we assume Whole Exome Sequencing WES
+    if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id) AS gene_panel_id,
+    cs.cancer_study_identifier AS cancer_study_identifier,
+    gp.stable_id AS genetic_profile_id
+FROM sample_profile sp
+         INNER JOIN genetic_profile gp ON sample_profile.genetic_profile_id = gp.genetic_profile_id
+         LEFT JOIN gene_panel ON sp.panel_id = gene_panel.internal_id
+         INNER JOIN sample ON sp.sample_id = sample.internal_id
+         INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id;
+
+INSERT INTO gene_panel_to_gene_derived
+SELECT
+    gp.stable_id AS gene_panel_id,
+    g.hugo_gene_symbol AS gene
+FROM gene_panel gp
+         INNER JOIN gene_panel_list gpl ON gp.internal_id = gpl.internal_id
+         INNER JOIN gene g ON g.entrez_gene_id = gpl.gene_id
+UNION ALL
+SELECT
+    'WES' AS gene_panel_id,
+    gene.hugo_gene_symbol AS gene
+FROM gene
+WHERE gene.entrez_gene_id > 0;
+
+INSERT INTO sample_derived
+WITH
+    sequenced_samples AS (
+        SELECT
+            sample.stable_id
+        FROM sample_list_list
+                 INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                 INNER JOIN sample ON sample_list_list.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+                 INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        WHERE sample_list.stable_id = concat(cancer_study.cancer_study_identifier, '_sequenced')
+    ),
+    cn_segment_samples AS (
+        SELECT
+            concat(cancer_study.cancer_study_identifier, '_', sample.stable_id) as segment_unique_id
+        FROM copy_number_seg
+                 INNER JOIN cancer_study ON copy_number_seg.cancer_study_id = cancer_study.cancer_study_id
+                 INNER JOIN sample ON copy_number_seg.sample_id = sample.internal_id
+                 INNER JOIN patient ON sample.patient_id = patient.internal_id
+    )
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       base64Encode(sample.stable_id)                            AS sample_unique_id_base64,
+       sample.stable_id                                          AS sample_stable_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+       base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
+       p.stable_id                                               AS patient_stable_id,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       sample.internal_id                                        AS internal_id,
+       -- fields below are needed for the SUMMARY projection
+       sample.patient_id                                         AS patient_internal_id,
+       sample.sample_type                                        AS sample_type,
+       -- fields below are needed for the DETAILED projection
+       if (sample.stable_id IN sequenced_samples, 1, 0)          AS sequenced,
+       if (sample_unique_id IN cn_segment_samples, 1, 0)         AS copy_number_segment_present
+FROM sample
+         INNER JOIN patient AS p ON sample.patient_id = p.internal_id
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;
+
+INSERT INTO genomic_event_derived
+-- Insert Mutations
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
+       gene.entrez_gene_id                                       AS entrez_gene_id,
+       if(gp.stable_id = '', 'WES', gp.stable_id)                  AS gene_panel_stable_id,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       g.stable_id                                               AS genetic_profile_stable_id,
+       'mutation'                                                AS variant_type,
+       me.protein_change                                         AS mutation_variant,
+       me.mutation_type                                          AS mutation_type,
+       mutation.mutation_status                                  AS mutation_status,
+       ada.driver_filter                                         AS driver_filter,
+       ada.driver_filter_annotation                              AS driver_filter_annotation,
+       ada.driver_tiers_filter                                   AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                        AS driver_tiers_filter_annotation,
+       NULL                                                      AS cna_alteration,
+       ''                                                        AS cna_cytoband,
+       ''                                                        AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
+FROM mutation
+         INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
+         INNER JOIN sample_profile sp
+                    ON mutation.sample_id = sp.sample_id AND mutation.genetic_profile_id = sp.genetic_profile_id
+         LEFT JOIN gene_panel gp ON sp.panel_id = gp.internal_id
+         LEFT JOIN genetic_profile g ON sp.genetic_profile_id = g.genetic_profile_id
+         INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
+         INNER JOIN sample ON mutation.sample_id = sample.internal_id
+         INNER JOIN patient on sample.patient_id = patient.internal_id
+         LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+         LEFT JOIN alteration_driver_annotation ada ON (mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id) AND (mutation.sample_id = alteration_driver_annotation.sample_id) AND (mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id);
+
+INSERT INTO genomic_event_derived
+-- Insert CNA Genes
+SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
+       gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
+       gene.entrez_gene_id                                       AS entrez_gene_id,
+       if(gp.stable_id = '', 'WES', gp.stable_id)                  AS gene_panel_stable_id,
+       cs.cancer_study_identifier                                AS cancer_study_identifier,
+       g.stable_id                                               AS genetic_profile_stable_id,
+       'cna'                                                     AS variant_type,
+       'NA'                                                      AS mutation_variant,
+       'NA'                                                      AS mutation_type,
+       'NA'                                                      AS mutation_status,
+       ada.driver_filter                                         AS driver_filter,
+       ada.driver_filter_annotation                              AS driver_filter_annotation,
+       ada.driver_tiers_filter                                   AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                        AS driver_tiers_filter_annotation,
+       ce.alteration                                             AS cna_alteration,
+       rgg.cytoband                                              AS cna_cytoband,
+       ''                                                        AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
+FROM cna_event ce
+         INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
+         INNER JOIN sample_profile sp ON sce.sample_id = sp.sample_id AND sce.genetic_profile_id = sp.genetic_profile_id
+         LEFT JOIN gene_panel gp ON sp.panel_id = gp.internal_id
+         INNER JOIN genetic_profile g ON sp.genetic_profile_id = g.genetic_profile_id
+         INNER JOIN cancer_study cs ON g.cancer_study_id = cs.cancer_study_id
+         INNER JOIN sample ON sce.sample_id = sample.internal_id
+         INNER JOIN patient on sample.patient_id = patient.internal_id
+         INNER JOIN gene ON ce.entrez_gene_id = gene.entrez_gene_id
+         INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id AND rgg.reference_genome_id = cs.reference_genome_id
+         LEFT JOIN alteration_driver_annotation ada ON (sce.genetic_profile_id = ada.genetic_profile_id) AND (sce.sample_id = ada.sample_id) AND (sce.cna_event_id = ada.alteration_event_id);
+
+INSERT INTO genomic_event_derived
+-- Insert Structural Variants Site1
+SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+       gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       gene.entrez_gene_id                                  AS entrez_gene_id,
+       if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id)  AS gene_panel_stable_id,
+       cs.cancer_study_identifier                           AS cancer_study_identifier,
+       gp.stable_id                                         AS genetic_profile_stable_id,
+       'structural_variant'                                 AS variant_type,
+       'NA'                                                 AS mutation_variant,
+       'NA'                                                 AS mutation_type,
+       sv.sv_status                                         AS mutation_status,
+       ada.driver_filter                                    AS driver_filter,
+       ada.driver_filter_annotation                         AS driver_filter_annotation,
+       ada.driver_tiers_filter                              AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                   AS driver_tiers_filter_annotation,
+       NULL                                                 AS cna_alteration,
+       ''                                                   AS cna_cytoband,
+       event_info                                           AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
+FROM structural_variant sv
+         INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
+         INNER JOIN sample s ON sv.sample_id = s.internal_id
+         INNER JOIN patient on s.patient_id = patient.internal_id
+         INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+         INNER JOIN gene ON sv.site1_entrez_gene_id = gene.entrez_gene_id
+         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+         LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
+
+INSERT INTO genomic_event_derived
+-- Insert Structural Variants Site2
+SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
+       gene.hugo_gene_symbol                                AS hugo_gene_symbol,
+       gene.entrez_gene_id                                  AS entrez_gene_id,
+       if(gene_panel.stable_id = '', 'WES', gene_panel.stable_id)  AS gene_panel_stable_id,
+       cs.cancer_study_identifier                           AS cancer_study_identifier,
+       gp.stable_id                                         AS genetic_profile_stable_id,
+       'structural_variant'                                 AS variant_type,
+       'NA'                                                 AS mutation_variant,
+       'NA'                                                 AS mutation_type,
+       sv.sv_status                                         AS mutation_status,
+       ada.driver_filter                                    AS driver_filter,
+       ada.driver_filter_annotation                         AS driver_filter_annotation,
+       ada.driver_tiers_filter                              AS driver_tiers_filter,
+       ada.driver_tiers_filter_annotation                   AS driver_tiers_filter_annotation,
+       NULL                                                 AS cna_alteration,
+       ''                                                   AS cna_cytoband,
+       event_info                                           AS sv_event_info,
+       concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
+       (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
+           SELECT gene_panel_id, gene
+           FROM gene_panel_to_gene_derived
+       ) AS off_panel
+FROM structural_variant sv
+         INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
+         INNER JOIN sample s ON sv.sample_id = s.internal_id
+         INNER JOIN patient on s.patient_id = patient.internal_id
+         INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+         INNER JOIN gene ON sv.site2_entrez_gene_id = gene.entrez_gene_id
+         INNER JOIN sample_profile ON s.internal_id = sample_profile.sample_id AND sample_profile.genetic_profile_id = sv.genetic_profile_id
+         LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+         LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id)
+WHERE
+        sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
+            OR sv.site1_entrez_gene_id IS NULL;
+
+-- Insert sample attribute data
+INSERT INTO TABLE clinical_data_derived
+SELECT sm.internal_id             AS internal_id,
+       sm.sample_unique_id        AS sample_unique_id,
+       sm.patient_unique_id       AS patient_unique_id,
+       cam.attr_id                AS attribute_name,
+       ifNull(csamp.attr_value, '')          AS attribute_value,
+       cs.cancer_study_identifier AS cancer_study_identifier,
+       'sample'                   AS type
+FROM sample_derived AS sm
+         INNER JOIN cancer_study AS cs
+                    ON sm.cancer_study_identifier = cs.cancer_study_identifier
+         INNER JOIN clinical_attribute_meta AS cam
+                         ON cs.cancer_study_id = cam.cancer_study_id
+         LEFT JOIN clinical_sample AS csamp
+                         ON (sm.internal_id = csamp.internal_id) AND (csamp.attr_id = cam.attr_id)
+WHERE cam.patient_attribute = 0;
+
+-- INSERT patient attribute data
+INSERT INTO TABLE clinical_data_derived
+SELECT p.internal_id                                        AS internal_id,
+       ''                                                   AS sample_unique_id,
+       concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
+       cam.attr_id                                          AS attribute_name,
+       ifNull(clinpat.attr_value, '')                       AS attribute_value,
+       cs.cancer_study_identifier                           AS cancer_study_identifier,
+       'patient'                                            AS type
+FROM patient AS p
+         INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id
+         INNER JOIN clinical_attribute_meta AS cam
+                         ON cs.cancer_study_id = cam.cancer_study_id
+         LEFT JOIN clinical_patient AS clinpat
+                         ON (p.internal_id = clinpat.internal_id) AND (clinpat.attr_id = cam.attr_id)
+WHERE cam.patient_attribute = 1;
+
+-- Creates and populates clinical_event_derived with a primary key for Clickhouse-only (original clinical_event table remains unchanged)
+
+-- Copy the data
+INSERT INTO clinical_event_derived
+SELECT
+    ce.clinical_event_id,
+    ce.patient_id,
+    p.stable_id AS patient_stable_id,
+    ce.start_date,
+    ce.stop_date,
+    ce.event_type,
+    cs.cancer_study_identifier
+FROM clinical_event ce
+    INNER JOIN patient p ON ce.patient_id = p.internal_id
+    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
+
+INSERT INTO clinical_event_data_derived
+SELECT
+    concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
+    ced.key AS key,
+    ced.value AS value,
+    ce.start_date AS start_date,
+    ifNull(ce.stop_date, 0) AS stop_date,
+    ce.event_type AS event_type,
+    cs.cancer_study_identifier
+FROM clinical_event_data ced
+    RIGHT JOIN clinical_event ce ON ced.clinical_event_id = ce.clinical_event_id
+    INNER JOIN patient p ON ce.patient_id = p.internal_id
+    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+SETTINGS join_algorithm = 'partial_merge';
+
+INSERT INTO TABLE genetic_alteration_derived
+SELECT
+    sample_unique_id,
+    cancer_study_identifier,
+    hugo_gene_symbol,
+    replaceOne(stable_id, concat(sd.cancer_study_identifier, '_'), '') as profile_type,
+    alteration_value
+FROM
+    (SELECT
+         sample_id,
+         hugo_gene_symbol,
+         stable_id,
+         alteration_value
+    FROM
+        (SELECT
+            g.hugo_gene_symbol AS hugo_gene_symbol,
+            gp.stable_id as stable_id,
+            arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS alteration_value,
+            arrayMap(x -> (x = '' ? NULL : toInt32(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
+        FROM
+            genetic_alteration ga
+            JOIN genetic_profile gp ON ga.genetic_profile_id=gp.genetic_profile_id
+            JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+            JOIN gene g ON ga.genetic_entity_id = g.genetic_entity_id
+        WHERE
+             gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'MUTATION_UNCALLED', 'STRUCTURAL_VARIANT'))
+            ARRAY JOIN alteration_value, sample_id
+    WHERE alteration_value != 'NA') AS subquery
+        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+
+INSERT INTO TABLE generic_assay_data_derived
+SELECT
+    sd.sample_unique_id as sample_unique_id,
+    sd.patient_unique_id as patient_unique_id,
+    genetic_entity_id,
+    value,
+    generic_assay_type,
+    profile_stable_id,
+    entity_stable_id,
+    datatype,
+    patient_level,
+    replaceOne(profile_stable_id, concat(cs.cancer_study_identifier, '_'), '') as profile_type
+FROM
+    (SELECT
+         sample_id,
+         genetic_entity_id,
+         value,
+         cancer_study_id,
+         generic_assay_type,
+         genetic_profile_id,
+         profile_stable_id,
+         entity_stable_id,
+         patient_level,
+         datatype
+     FROM
+         (SELECT
+              sample_id as sample_unique_id,
+              gp.cancer_study_id AS cancer_study_id,
+              ga.genetic_entity_id as genetic_entity_id,
+              gp.genetic_profile_id as genetic_profile_id,
+              gp.generic_assay_type as generic_assay_type,
+              gp.stable_id as profile_stable_id,
+              ge.stable_id as entity_stable_id,
+              gp.datatype as datatype,
+              gp.patient_level as patient_level,
+              arrayMap(x -> (x = '' ? NULL : x), splitByString(',', assumeNotNull(substring(ga.values, 1, -1)))) AS value,
+              arrayMap(x -> (x = '' ? NULL : toInt64(x)), splitByString(',', assumeNotNull(substring(gps.ordered_sample_list, 1, -1)))) AS sample_id
+          FROM
+
+              genetic_alteration ga
+              JOIN genetic_profile gp ON ga.genetic_profile_id=gp.genetic_profile_id
+              JOIN genetic_profile_samples gps ON gp.genetic_profile_id = gps.genetic_profile_id
+              JOIN genetic_entity ge on ga.genetic_entity_id = ge.id
+          WHERE
+              gp.generic_assay_type IS NOT NULL
+         )
+             ARRAY JOIN value, sample_id) AS subquery
+        JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
+        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+
+INSERT INTO mutation_derived
+SELECT
+    genetic_profile.stable_id AS molecularProfileId,
+    sample.stable_id AS sampleId,
+    sample.internal_id As sampleInternalId,
+    patient.stable_id AS patientId,
+    mutation.entrez_gene_id AS entrezGeneId,
+    cancer_study.cancer_study_identifier AS studyId,
+    mutation.center AS center,
+    mutation.mutation_status AS mutationStatus,
+    mutation.validation_status AS validationStatus,
+    mutation.tumor_alt_count AS tumorAltCount,
+    mutation.tumor_ref_count AS tumorRefCount,
+    mutation.normal_alt_count AS normalAltCount,
+    mutation.normal_ref_count AS normalRefCount,
+    mutation.amino_acid_change AS aminoAcidChange,
+    mutation_event.chr AS chr,
+    mutation_event.start_position AS startPosition,
+    mutation_event.end_position AS endPosition,
+    mutation_event.reference_allele AS referenceAllele,
+    mutation_event.tumor_seq_allele AS tumorSeqAllele,
+    mutation_event.protein_change AS proteinChange,
+    mutation_event.mutation_type AS mutationType,
+    mutation_event.ncbi_build AS ncbiBuild,
+    mutation_event.variant_type AS variantType,
+    mutation_event.refseq_mrna_id AS refseqMrnaId,
+    mutation_event.protein_pos_start AS proteinPosStart,
+    mutation_event.protein_pos_end AS proteinPosEnd,
+    mutation_event.keyword AS keyword,
+    mutation.annotation_json AS annotationJSON,
+    alteration_driver_annotation.driver_filter AS driverFilter,
+    alteration_driver_annotation.driver_filter_annotation AS driverFilterAnnotation,
+    alteration_driver_annotation.driver_tiers_filter AS driverTiersFilter,
+    alteration_driver_annotation.driver_tiers_filter_annotation AS driverTiersFilterAnnotation,
+    gene.entrez_gene_id AS `GENE.entrezGeneId`,
+    gene.hugo_gene_symbol AS `GENE.hugoGeneSymbol`,
+    gene.type AS `GENE.type`,
+    allele_specific_copy_number.ascn_integer_copy_number AS `alleleSpecificCopyNumber.ascnIntegerCopyNumber`,
+    nullIf(allele_specific_copy_number.ascn_method, '') AS `alleleSpecificCopyNumber.ascnMethod`,
+    allele_specific_copy_number.ccf_expected_copies_upper AS `alleleSpecificCopyNumber.ccfExpectedCopiesUpper`,
+    allele_specific_copy_number.ccf_expected_copies AS `alleleSpecificCopyNumber.ccfExpectedCopies`,
+    allele_specific_copy_number.clonal AS `alleleSpecificCopyNumber.clonal`,
+    allele_specific_copy_number.minor_copy_number AS `alleleSpecificCopyNumber.minorCopyNumber`,
+    allele_specific_copy_number.expected_alt_copies AS `alleleSpecificCopyNumber.expectedAltCopies`,
+    allele_specific_copy_number.total_copy_number AS `alleleSpecificCopyNumber.totalCopyNumber`
+FROM mutation
+         INNER JOIN genetic_profile ON mutation.genetic_profile_id = genetic_profile.genetic_profile_id
+         INNER JOIN sample ON mutation.sample_id = sample.internal_id
+         INNER JOIN patient ON sample.patient_id = patient.internal_id
+         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+         LEFT JOIN alteration_driver_annotation ON (mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id) AND (mutation.sample_id = alteration_driver_annotation.sample_id) AND (mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id)
+         INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
+         INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
+         LEFT JOIN allele_specific_copy_number ON (mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id) AND (mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id) AND (mutation.sample_id = allele_specific_copy_number.sample_id);
+
+INSERT INTO generic_assay_profile_entity_derived
+SELECT DISTINCT
+    gp.stable_id AS profile_stable_id,
+    ge.stable_id AS entity_stable_id
+FROM genetic_alteration ga
+    JOIN genetic_profile gp ON ga.genetic_profile_id = gp.genetic_profile_id
+    JOIN genetic_entity ge ON ga.genetic_entity_id = ge.id
+WHERE gp.genetic_alteration_type = 'GENERIC_ASSAY';
+
+INSERT INTO generic_assay_meta_derived
+SELECT
+    ge.stable_id AS entity_stable_id,
+    ge.entity_type AS entity_type,
+    CAST(
+        (groupArrayIf(gep.name, (gep.id != 0 OR gep.name != '') AND gep.value != ''), groupArrayIf(gep.value, (gep.id != 0 OR gep.name != '') AND gep.value != ''))
+        AS Map(String, String)
+    ) AS properties
+FROM genetic_entity ge
+LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
+WHERE ge.entity_type = 'GENERIC_ASSAY'
+GROUP BY ge.stable_id, ge.entity_type;
+
+OPTIMIZE TABLE sample_to_gene_panel_derived;
+OPTIMIZE TABLE gene_panel_to_gene_derived;
+OPTIMIZE TABLE sample_derived;
+OPTIMIZE TABLE genomic_event_derived;
+OPTIMIZE TABLE clinical_data_derived;
+OPTIMIZE TABLE clinical_event_derived;
+OPTIMIZE TABLE clinical_event_data_derived;
+OPTIMIZE TABLE genetic_alteration_derived;
+OPTIMIZE TABLE generic_assay_data_derived;
+OPTIMIZE TABLE generic_assay_profile_entity_derived;
+OPTIMIZE TABLE generic_assay_meta_derived;

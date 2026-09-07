@@ -137,26 +137,31 @@ public class GetClinicalDataForXyPlotUseCase {
                 Collectors.groupingBy(
                     Sample::patientStableId, Collectors.groupingBy(Sample::cancerStudyIdentifier)));
 
-    // Put all clinical data into sample form
+    // Put all clinical data into sample form.
+    // Guard against two edge cases that would otherwise cause a NullPointerException:
+    //   1. The patient has no entry in the sample map (patientToSamples.get() returns null).
+    //   2. The patient exists in the map but has no samples for the requested study.
+    // Both are legitimate states when samples are filtered out by the study view filter,
+    // so skipping silently is the correct behaviour here.
     for (ClinicalData d : patientClinicalDataList) {
-      List<Sample> samplesForPatient = patientToSamples.get(d.patientId()).get(d.studyId());
-      if (samplesForPatient != null) {
-        for (Sample s : samplesForPatient) {
-          ClinicalData newData =
-              new ClinicalData(
-                  s.internalId(),
-                  s.stableId(),
-                  d.patientId(),
-                  d.studyId(),
-                  d.attrId(),
-                  d.attrValue());
-          sampleClinicalDataList.add(newData);
-        }
-      } else {
-        // TODO: Ignoring for now rather than throwing an error
-        // patient has no samples - this shouldn't happen and could affect the integrity
-        // of the data analysis
-        // return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+      Map<String, List<Sample>> samplesByStudy = patientToSamples.get(d.patientId());
+      if (samplesByStudy == null) {
+        continue;
+      }
+      List<Sample> samplesForPatient = samplesByStudy.get(d.studyId());
+      if (samplesForPatient == null) {
+        continue;
+      }
+      for (Sample s : samplesForPatient) {
+        ClinicalData newData =
+            new ClinicalData(
+                s.internalId(),
+                s.stableId(),
+                d.patientId(),
+                d.studyId(),
+                d.attrId(),
+                d.attrValue());
+        sampleClinicalDataList.add(newData);
       }
     }
 

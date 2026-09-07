@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class ClinicalDataCount implements Serializable {
 
   private String attributeId;
+
   private String value;
   private Integer count;
 

@@ -34,9 +34,6 @@ public class InfoController {
   @Value("${db.version}")
   private String dbVersion;
 
-  @Value("${derived_table.version}")
-  private String derivedTableVersion;
-
   @Value("${git.branch:not set}")
   private String gitBranch;
 
@@ -84,9 +81,6 @@ public class InfoController {
       if (infoDb.getDbSchemaVersion() != null) {
         info.setDbVersion(infoDb.getDbSchemaVersion());
       }
-      if (infoDb.getDerivedTableSchemaVersion() != null) {
-        info.setDerivedTableVersion(infoDb.getDerivedTableSchemaVersion());
-      }
       if (infoDb.getGenesetVersion() != null) {
         info.setGenesetVersion(infoDb.getGenesetVersion());
       }
@@ -97,7 +91,6 @@ public class InfoController {
     // Property overrides
     info.setPortalVersion(portalVersion);
     if (dbVersion != null) info.setDbVersion(dbVersion);
-    if (derivedTableVersion != null) info.setDerivedTableVersion(derivedTableVersion);
     info.setGitBranch(gitBranch);
     info.setGitCommitId(gitCommitId);
     info.setGitCommitIdDescribe(gitCommitIdDescribe);

@@ -41,9 +41,9 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-// TODO
-// - consider extending extends ResponseEntityExceptionHandler
-// - check controllers for not catching exceptions themselves
+// Remaining TODOs:
+// - Consider extending ResponseEntityExceptionHandler for more complete Spring MVC coverage
+// - Audit controllers to ensure they are not swallowing exceptions before they reach here
 @ControllerAdvice({"org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore"})
 public class GlobalExceptionHandler {
 
@@ -170,9 +170,14 @@ public class GlobalExceptionHandler {
         break;
       }
     }
-    return new ResponseEntity<>(
-        new ErrorResponse(parameterName + " " + constraintViolation.getMessage()),
-        HttpStatus.BAD_REQUEST);
+    // parameterName may be null when the violated constraint is on a bean rather than a specific
+    // parameter (e.g. a class-level constraint). Omit the prefix in that case to avoid returning
+    // "null <message>" to clients.
+    String message =
+        parameterName != null
+            ? parameterName + " " + constraintViolation.getMessage()
+            : constraintViolation.getMessage();
+    return new ResponseEntity<>(new ErrorResponse(message), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -226,7 +231,9 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AccessForbiddenException.class)
   public ResponseEntity<ErrorResponse> handleAccessForbiddenException() {
     ErrorResponse response = new ErrorResponse("The access is forbidden.");
-    return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    // 403 Forbidden is the correct status for an authenticated user who lacks permission.
+    // 401 Unauthorized is reserved for unauthenticated requests.
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
   }
 
   @ExceptionHandler(TokenNotFoundException.class)

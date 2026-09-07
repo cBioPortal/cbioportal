@@ -202,8 +202,8 @@ public class ColumnStoreStudyController {
    * header.
    *
    * <p>Clients can use this endpoint to determine the number of studies that would be returned by
-   * {@link #getAllStudies(String, ProjectionType, StudySortBy, Direction)} without fetching the
-   * full list.
+   * {@link #getAllStudies(String, ProjectionType, StudySortBy, Integer, Integer, Direction)}
+   * without fetching the full list.
    *
    * @param keyword optional search keyword that filters studies by name or cancer type
    * @param sortBy optional property name used to sort the results

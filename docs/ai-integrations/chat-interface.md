@@ -56,6 +56,25 @@ The chat interface is actively being developed and improved. Your feedback drive
 - **Use the thumbs up/down buttons** — every chat response has 👍 / 👎 buttons. Please use them to rate quality and accuracy. This feedback directly improves the agent's answers.
 - **Report issues or suggestions** — for anything beyond a quick rating, please reach out through the [cBioPortal Google Group](https://groups.google.com/g/cbioportal).
 
+## Privacy
+
+cBioPortalChat is operated by the cBioPortal team. To provide the service and improve it over time, we collect and store the following:
+
+- **Your account identifier** — you sign in with Google; we store your Google account email and display name to identify your conversations across sessions.
+- **Your conversations** — the full text of every message you send and every response the AI generates is stored in our database, so you can revisit past chats and so we can debug and improve the assistant. **Team members may read individual conversations** during triage of thumbs-down feedback, quality evaluation, or investigation of production issues.
+- **Feedback signals** — your 👍 / 👎 ratings on responses are stored alongside the conversation they refer to and used to prioritize improvements to prompts, tools, and evaluation suites.
+- **Usage metrics** — page views and session information are collected via Google Analytics to understand aggregate usage patterns. We also record model-call metadata (input/output token counts, latency, cost) via [Langfuse](https://langfuse.com/) for cost tracking and performance monitoring; conversation text is included in these Langfuse traces.
+
+Data flow to third parties during normal operation:
+
+- **Amazon Bedrock (AWS)** — the text of every message you send is sent to AWS Bedrock in the `us-east-1` region to generate the AI response. AWS's [Bedrock data protection documentation](https://docs.aws.amazon.com/bedrock/latest/userguide/data-protection.html) covers how Bedrock handles inputs and outputs; the short version is that content processed through the service is not used to train the underlying models and is not shared with model providers.
+- **Anthropic** — the underlying model (Claude Sonnet) is Anthropic's, but requests are served through Bedrock and do not reach Anthropic's own API; Anthropic does not receive your data.
+- **Google** — used only for sign-in (OAuth) and analytics.
+
+We do **not** sell your data, share it with advertising networks, or provide it to third parties beyond the infrastructure providers above. Data is retained indefinitely today so we can debug regressions and evaluate model changes; contact us via the [Google Group](https://groups.google.com/g/cbioportal) if you'd like your account and conversation history deleted.
+
+Do not paste protected health information (PHI), personally identifying information about patients, or other sensitive data into the chat. cBioPortalChat is a research tool for exploring published cancer-genomics datasets.
+
 ## Technical Details
 
 ### Architecture

@@ -13,7 +13,8 @@ import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.cbioportal.legacy.model.CopyNumberSeg;
+import org.cbioportal.application.rest.mapper.CopyNumberSegMapper;
+import org.cbioportal.application.rest.response.CopyNumberSegDTO;
 import org.cbioportal.legacy.service.CopyNumberSegmentService;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -63,8 +64,8 @@ public class CopyNumberSegmentController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSeg.class))))
-  public ResponseEntity<List<CopyNumberSeg>> getCopyNumberSegmentsInSampleInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSegDTO.class))))
+  public ResponseEntity<List<CopyNumberSegDTO>> getCopyNumberSegmentsInSampleInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01") @PathVariable
@@ -100,15 +101,16 @@ public class CopyNumberSegmentController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(
-              studyId,
-              sampleId,
-              chromosome,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          CopyNumberSegMapper.INSTANCE.toDtos(
+              copyNumberSegmentService.getCopyNumberSegmentsInSampleInStudy(
+                  studyId,
+                  sampleId,
+                  chromosome,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -125,8 +127,8 @@ public class CopyNumberSegmentController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSeg.class))))
-  public ResponseEntity<List<CopyNumberSeg>> fetchCopyNumberSegments(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = CopyNumberSegDTO.class))))
+  public ResponseEntity<List<CopyNumberSegDTO>> fetchCopyNumberSegments(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -164,8 +166,9 @@ public class CopyNumberSegmentController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          copyNumberSegmentService.fetchCopyNumberSegments(
-              studyIds, sampleIds, chromosome, projection.name()),
+          CopyNumberSegMapper.INSTANCE.toDtos(
+              copyNumberSegmentService.fetchCopyNumberSegments(
+                  studyIds, sampleIds, chromosome, projection.name())),
           HttpStatus.OK);
     }
   }

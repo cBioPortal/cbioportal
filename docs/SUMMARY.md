@@ -62,6 +62,7 @@
 * [Development](development/README.md)
   * [Feature Development Guide](development/feature-development-guide.md)
   * [cBioPortal Database Versioning](development/Database-Versioning.md)
+  * [Backend Code Organization](development/Backend-Code-Organization.md)
   * [Backend Development Guidelines](development/Backend-Development-Guidelines.md)
   * [Build cBioPortal with a different frontend version](development/Build-Different-Frontend.md)
   * [Session Service](development/session-service-working.md)

@@ -2,6 +2,7 @@ package org.cbioportal.domain.studyview;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
@@ -55,6 +56,13 @@ public abstract class StudyViewFilterFactory {
       List<CustomSampleIdentifier> customSampleIdentifiers,
       List<String> involvedCancerStudies,
       CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter) {
+    // Filter out genomicDataFilters with null or empty values to prevent SQL errors
+    List<GenomicDataFilter> validGenomicDataFilters =
+        base.getGenomicDataFilters() == null
+            ? null
+            : base.getGenomicDataFilters().stream()
+                .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+                .collect(Collectors.toList());
     return new StudyViewFilterContext(
         base.getSampleIdentifiers(),
         base.getStudyIds(),
@@ -68,7 +76,7 @@ public abstract class StudyViewFilterFactory {
         base.getPatientTreatmentGroupFilters(),
         base.getPatientTreatmentTargetFilters(),
         base.getGenomicProfiles(),
-        base.getGenomicDataFilters(),
+        validGenomicDataFilters,
         base.getGenericAssayDataFilters(),
         base.getGenericAssaySelectionFilters(),
         base.getCaseLists(),

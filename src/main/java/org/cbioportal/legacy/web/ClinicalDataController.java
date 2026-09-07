@@ -13,7 +13,8 @@ import jakarta.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.cbioportal.legacy.model.ClinicalData;
+import org.cbioportal.application.rest.mapper.LegacyClinicalDataMapper;
+import org.cbioportal.application.rest.response.ClinicalDataDTO;
 import org.cbioportal.legacy.service.ClinicalDataService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
@@ -67,8 +68,8 @@ public class ClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfSampleInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> getAllClinicalDataOfSampleInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Sample ID e.g. TCGA-OR-A5J2-01") @PathVariable
@@ -105,15 +106,16 @@ public class ClinicalDataController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalDataService.getAllClinicalDataOfSampleInStudy(
-              studyId,
-              sampleId,
-              attributeId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          LegacyClinicalDataMapper.INSTANCE.toDtos(
+              clinicalDataService.getAllClinicalDataOfSampleInStudy(
+                  studyId,
+                  sampleId,
+                  attributeId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -129,8 +131,8 @@ public class ClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> getAllClinicalDataOfPatientInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> getAllClinicalDataOfPatientInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Patient ID e.g. TCGA-OR-A5J2") @PathVariable
@@ -167,15 +169,16 @@ public class ClinicalDataController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalDataService.getAllClinicalDataOfPatientInStudy(
-              studyId,
-              patientId,
-              attributeId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          LegacyClinicalDataMapper.INSTANCE.toDtos(
+              clinicalDataService.getAllClinicalDataOfPatientInStudy(
+                  studyId,
+                  patientId,
+                  attributeId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -191,8 +194,8 @@ public class ClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> getAllClinicalDataInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> getAllClinicalDataInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Attribute ID e.g. CANCER_TYPE") @RequestParam(required = false)
@@ -229,15 +232,16 @@ public class ClinicalDataController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalDataService.getAllClinicalDataInStudy(
-              studyId,
-              attributeId,
-              clinicalDataType.name(),
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          LegacyClinicalDataMapper.INSTANCE.toDtos(
+              clinicalDataService.getAllClinicalDataInStudy(
+                  studyId,
+                  attributeId,
+                  clinicalDataType.name(),
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -254,8 +258,8 @@ public class ClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> fetchAllClinicalDataInStudy(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> fetchAllClinicalDataInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Type of the clinical data") @RequestParam(defaultValue = "SAMPLE")
@@ -284,12 +288,13 @@ public class ClinicalDataController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalDataService.fetchAllClinicalDataInStudy(
-              studyId,
-              clinicalDataSingleStudyFilter.getIds(),
-              clinicalDataSingleStudyFilter.getAttributeIds(),
-              clinicalDataType.name(),
-              projection.name()),
+          LegacyClinicalDataMapper.INSTANCE.toDtos(
+              clinicalDataService.fetchAllClinicalDataInStudy(
+                  studyId,
+                  clinicalDataSingleStudyFilter.getIds(),
+                  clinicalDataSingleStudyFilter.getAttributeIds(),
+                  clinicalDataType.name(),
+                  projection.name())),
           HttpStatus.OK);
     }
   }
@@ -307,8 +312,8 @@ public class ClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
-  public ResponseEntity<List<ClinicalData>> fetchClinicalData(
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
+  public ResponseEntity<List<ClinicalDataDTO>> fetchClinicalData(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -355,12 +360,13 @@ public class ClinicalDataController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalDataService.fetchClinicalData(
-              studyIds,
-              ids,
-              interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
-              clinicalDataType.name(),
-              projection.name()),
+          LegacyClinicalDataMapper.INSTANCE.toDtos(
+              clinicalDataService.fetchClinicalData(
+                  studyIds,
+                  ids,
+                  interceptedClinicalDataMultiStudyFilter.getAttributeIds(),
+                  clinicalDataType.name(),
+                  projection.name())),
           HttpStatus.OK);
     }
   }

@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.cbioportal.application.rest.mapper.MutationMapper;
+import org.cbioportal.application.rest.response.MutationDTO;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.service.MutationService;
@@ -62,8 +64,9 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
-  public ResponseEntity<List<Mutation>> getMutationsInMolecularProfileBySampleListId(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
+  public ResponseEntity<List<MutationDTO>> getMutationsInMolecularProfileBySampleListId(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
           String molecularProfileId,
@@ -102,7 +105,7 @@ public class MutationController {
           HeaderKeyConstants.SAMPLE_COUNT, mutationMeta.getSampleCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
-      return new ResponseEntity<>(
+      List<Mutation> mutations =
           mutationService.getMutationsInMolecularProfileBySampleListId(
               molecularProfileId,
               sampleListId,
@@ -112,8 +115,8 @@ public class MutationController {
               pageSize,
               pageNumber,
               sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
-          HttpStatus.OK);
+              direction.name());
+      return new ResponseEntity<>(MutationMapper.INSTANCE.toDTOs(mutations), HttpStatus.OK);
     }
   }
 
@@ -128,8 +131,9 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
-  public ResponseEntity<List<Mutation>> fetchMutationsInMolecularProfile(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
+  public ResponseEntity<List<MutationDTO>> fetchMutationsInMolecularProfile(
       @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
           @PathVariable
           String molecularProfileId,
@@ -207,7 +211,7 @@ public class MutationController {
                 direction.name());
       }
 
-      return new ResponseEntity<>(mutations, HttpStatus.OK);
+      return new ResponseEntity<>(MutationMapper.INSTANCE.toDTOs(mutations), HttpStatus.OK);
     }
   }
 
@@ -223,8 +227,9 @@ public class MutationController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mutation.class))))
-  public ResponseEntity<List<Mutation>> fetchMutationsInMultipleMolecularProfiles(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = MutationDTO.class))))
+  public ResponseEntity<List<MutationDTO>> fetchMutationsInMultipleMolecularProfiles(
       @Parameter(hidden = true) // prevent reference to this attribute in the swagger-ui interface
           @RequestAttribute(required = false, value = "involvedCancerStudies")
           Collection<String> involvedCancerStudies,
@@ -318,7 +323,7 @@ public class MutationController {
                 direction.name());
       }
 
-      return new ResponseEntity<>(mutations, HttpStatus.OK);
+      return new ResponseEntity<>(MutationMapper.INSTANCE.toDTOs(mutations), HttpStatus.OK);
     }
   }
 

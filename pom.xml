@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.5.6</version>
+    <version>3.5.16</version>
   </parent>
 
   <groupId>io.github.cbioportal</groupId>
   <artifactId>cbioportal</artifactId>
-  <version>v7.0.7-SNAPSHOT</version>
+  <version>v7.1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>cBioPortal for Cancer Genomics</description>
 
@@ -28,16 +28,15 @@
     <!-- TODO replace with version of cbioportal frontend with compatible login url-->
     <frontend.groupId>io.github.cbioportal</frontend.groupId>
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-    <frontend.version>v7.0.6</frontend.version>
-    <!-- THIS SHOULD BE KEPT IN SYNC TO VERSION IN CGDS.SQL -->
-    <db.version>2.14.5</db.version>
-    <derived_table.version>1.0.11</derived_table.version>
+    <frontend.version>v7.1.1</frontend.version>
+    <!-- THIS SHOULD BE KEPT IN SYNC WITH src/main/resources/db-scripts/clickhouse/init/schema.sql
+         AND src/main/resources/db-scripts/clickhouse/migrate/migrate_schema.sql -->
+    <db.version>3.0.0</db.version>
 
     <!-- Version properties for dependencies that should have same version. -->
     <!-- The rest can be set in the dependencyManagement section -->
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
 
-    <jackson.version>2.12.5</jackson.version>
     <mysql-connector.version>8.0.28</mysql-connector.version>
     <mysql.version>8.2.0</mysql.version>
     <springfox.version>3.0.0</springfox.version>
@@ -76,7 +75,7 @@
     <io.swagger.version>1.6.3</io.swagger.version>
     <mybatis.starter.version>3.0.4</mybatis.starter.version>
     <testcontainers.version>1.21.4</testcontainers.version>
-    <opensaml.version>4.1.1</opensaml.version>
+    <opensaml.version>4.3.2</opensaml.version>
 
     <!-- Third Party -->
     <redisson.version>3.22.0</redisson.version>
@@ -97,10 +96,27 @@
     <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-    <bouncy_castle.version>1.78</bouncy_castle.version>
+    <!-- 1.84 clears CVE-2025-14813 (critical, GOST 28147 keystream reuse, fixed
+         1.80.2) plus the 1.79/1.84 medium advisories -->
+    <bouncy_castle.version>1.84</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <tomcat.version>10.1.45</tomcat.version>
+    <tomcat.version>10.1.55</tomcat.version>
+    <!-- CVE fixes ahead of the Spring Boot BOM: netty 4.1.135 (managed by Boot
+         3.5.16) misses the Bzip2Decoder event-loop hang (GHSA-558v-64gr-wgg4),
+         and jackson 2.21.4 is flagged for two @JsonView bypasses fixed in
+         2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w) -->
+    <netty.version>4.1.136.Final</netty.version>
+    <jackson-bom.version>2.21.6</jackson-bom.version>
     <velocity.version>2.4</velocity.version>
+    <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged
+         by GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6; 5.6.x is the httpclient5 line
+         built against httpcore5 5.4.x -->
+    <httpclient5.version>5.6.4</httpclient5.version>
+    <httpcore5.version>5.4.3</httpcore5.version>
+    <!-- CVE fixes ahead of the Spring Boot BOM (log4j 2.24.3, commons-lang3 3.17.0):
+         log4j-api < 2.25.5 and commons-lang3 < 3.18.0 are flagged as medium -->
+    <log4j2.version>2.25.5</log4j2.version>
+    <commons-lang3.version>3.18.0</commons-lang3.version>
 
     <!-- No sure what these are for -->
     <bundle.symbolicName.prefix>org.mskcc</bundle.symbolicName.prefix>
@@ -375,19 +391,22 @@
       <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
       <version>${sentry.version}</version>
     </dependency>
+    <!-- Runtime scope: the HTTP transport for clickhouse-jdbc (the "http" classifier
+         does not bundle it). Versions pinned via httpclient5.version/httpcore5.version
+         properties to stay clear of GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. -->
     <dependency>
       <groupId>org.apache.httpcomponents.client5</groupId>
       <artifactId>httpclient5</artifactId>
-      <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>com.clickhouse</groupId>
       <artifactId>clickhouse-jdbc</artifactId>
       <version>0.6.2</version>
-      <!-- use uber jar with all dependencies included, change classifier
-      to http for smaller jar -->
-      <classifier>all</classifier>
+      <!-- the "http" classifier does not shade Apache HttpClient (the "all" uber jar
+      bundles a vulnerable httpcore5 that Maven cannot override); the HTTP transport
+      is supplied by the explicit httpclient5 dependency instead -->
+      <classifier>http</classifier>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -500,10 +519,10 @@
         <targetPath>db-scripts</targetPath>
         <filtering>false</filtering>
         <includes>
-          <include>cgds.sql</include>
-          <include>migration.sql</include>
-          <include>clickhouse/clickhouse.sql</include>
+          <include>clickhouse/populate_derived_tables.sql</include>
           <include>clickhouse/materialized_views.sql</include>
+          <include>clickhouse/migrate/migrate_schema.sql</include>
+          <include>clickhouse/migrate/migrate_db.py</include>
         </includes>
       </resource>
     </resources>
@@ -824,11 +843,10 @@
   </pluginRepositories>
 
   <repositories>
-    <!-- needed for the opensaml dependency -->
+    <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
     <repository>
       <id>shiboleth</id>
-      <url>
-        https://build.shibboleth.net/nexus/content/repositories/releases/</url>
+      <url>https://build.shibboleth.net/maven/releases/</url>
     </repository>
     <!-- needed for keycloak test containers -->
     <repository>

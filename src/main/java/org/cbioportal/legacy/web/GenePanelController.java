@@ -12,7 +12,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.GenePanel;
+import org.cbioportal.application.rest.mapper.GenePanelMapper;
+import org.cbioportal.application.rest.response.GenePanelDTO;
 import org.cbioportal.legacy.service.GenePanelService;
 import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.web.config.PublicApiTags;
@@ -49,7 +50,7 @@ public class GenePanelController {
       value = "/gene-panels/",
       method = RequestMethod.GET,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<GenePanel>> getAllGenePanels_trailing(
+  public ResponseEntity<List<GenePanelDTO>> getAllGenePanels_trailing(
       @RequestParam(defaultValue = "SUMMARY") Projection projection,
       @Parameter(description = "Page size of the result list")
           @Max(PagingConstants.MAX_PAGE_SIZE)
@@ -74,8 +75,9 @@ public class GenePanelController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanel.class))))
-  public ResponseEntity<List<GenePanel>> getAllGenePanels(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanelDTO.class))))
+  public ResponseEntity<List<GenePanelDTO>> getAllGenePanels(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
@@ -102,12 +104,13 @@ public class GenePanelController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          genePanelService.getAllGenePanels(
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          GenePanelMapper.INSTANCE.toDtos(
+              genePanelService.getAllGenePanels(
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -120,14 +123,15 @@ public class GenePanelController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = GenePanel.class)))
-  public ResponseEntity<GenePanel> getGenePanel(
+      content = @Content(schema = @Schema(implementation = GenePanelDTO.class)))
+  public ResponseEntity<GenePanelDTO> getGenePanel(
       @Parameter(required = true, description = "Gene Panel ID e.g. NSCLC_UNITO_2016_PANEL")
           @PathVariable
           String genePanelId)
       throws GenePanelNotFoundException {
 
-    return new ResponseEntity<>(genePanelService.getGenePanel(genePanelId), HttpStatus.OK);
+    return new ResponseEntity<>(
+        GenePanelMapper.INSTANCE.toDto(genePanelService.getGenePanel(genePanelId)), HttpStatus.OK);
   }
 
   @RequestMapping(
@@ -139,8 +143,9 @@ public class GenePanelController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanel.class))))
-  public ResponseEntity<List<GenePanel>> fetchGenePanels(
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = GenePanelDTO.class))))
+  public ResponseEntity<List<GenePanelDTO>> fetchGenePanels(
       @Parameter(required = true, description = "List of Gene Panel IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -150,6 +155,8 @@ public class GenePanelController {
           Projection projection) {
 
     return new ResponseEntity<>(
-        genePanelService.fetchGenePanels(genePanelIds, projection.name()), HttpStatus.OK);
+        GenePanelMapper.INSTANCE.toDtos(
+            genePanelService.fetchGenePanels(genePanelIds, projection.name())),
+        HttpStatus.OK);
   }
 }

@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import org.cbioportal.application.rest.mapper.ClinicalDataMapper;
 import org.cbioportal.application.rest.response.ClinicalDataDTO;
-import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.ClinicalDataType;
 import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataMetaUseCase;
 import org.cbioportal.domain.clinical_data.usecase.FetchClinicalDataUseCase;
@@ -117,7 +116,7 @@ public class ColumnStoreClinicalDataController {
       responseCode = "200",
       description = "OK",
       content =
-          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalData.class))))
+          @Content(array = @ArraySchema(schema = @Schema(implementation = ClinicalDataDTO.class))))
   public ResponseEntity<List<ClinicalDataDTO>> fetchClinicalData(
       @Parameter(description = "Type of the clinical data") @RequestParam(defaultValue = "SAMPLE")
           ClinicalDataType clinicalDataType,

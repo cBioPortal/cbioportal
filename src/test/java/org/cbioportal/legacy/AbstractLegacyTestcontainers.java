@@ -25,7 +25,7 @@ public abstract class AbstractLegacyTestcontainers {
               "/docker-entrypoint-initdb.d/b_schema.sql",
               BindMode.READ_ONLY)
           .withClasspathResourceMapping(
-              "clickhouse/clickhouse.sql",
+              "clickhouse/populate_derived_tables.sql",
               "/docker-entrypoint-initdb.d/c_schema.sql",
               BindMode.READ_ONLY);
 

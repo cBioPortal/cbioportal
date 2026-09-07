@@ -24,9 +24,9 @@ If you no longer have the original study files for some studies, you can use the
 Follow the [ClickHouse Setup Guide](deployment/clickhouse/README.md#4-docker-compose-setup) to:
 
 1. Create a ClickHouse database and user.
-2. Load the cBioPortal schema (`clickhouse.sql`).
+2. Load the cBioPortal schema (`schema.sql`) — this also creates the (empty) derived tables.
 3. Load the seed database (reference data like genes, cancer types).
-4. Create derived tables.
+4. Populate derived tables (`populate_derived_tables.sql`).
 
 ### Step 2: Re-Import All Studies
 

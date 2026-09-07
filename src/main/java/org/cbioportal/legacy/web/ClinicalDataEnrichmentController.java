@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.map.MultiKeyMap;
+import org.cbioportal.application.rest.mapper.LegacyClinicalDataEnrichmentMapper;
+import org.cbioportal.application.rest.response.ClinicalDataEnrichmentDTO;
 import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalDataEnrichment;
 import org.cbioportal.legacy.model.Sample;
@@ -66,8 +68,8 @@ public class ClinicalDataEnrichmentController {
       content =
           @Content(
               array =
-                  @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichment.class))))
-  public ResponseEntity<List<ClinicalDataEnrichment>> fetchClinicalEnrichments(
+                  @ArraySchema(schema = @Schema(implementation = ClinicalDataEnrichmentDTO.class))))
+  public ResponseEntity<List<ClinicalDataEnrichmentDTO>> fetchClinicalEnrichments(
       @Parameter(required = true, description = "List of altered and unaltered Sample/Patient IDs")
           @Valid
           @RequestBody(required = false)
@@ -122,7 +124,10 @@ public class ClinicalDataEnrichmentController {
             .filter(validSamples -> validSamples.size() > 0)
             .collect(Collectors.toList());
 
-    return new ResponseEntity<>(fetchClinicalDataEnrichemnts(groupedSamples), HttpStatus.OK);
+    return new ResponseEntity<>(
+        LegacyClinicalDataEnrichmentMapper.INSTANCE.toDtos(
+            fetchClinicalDataEnrichemnts(groupedSamples)),
+        HttpStatus.OK);
   }
 
   private List<ClinicalDataEnrichment> fetchClinicalDataEnrichemnts(

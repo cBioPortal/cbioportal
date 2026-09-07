@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.ClinicalAttribute;
+import org.cbioportal.application.rest.mapper.LegacyClinicalAttributeMapper;
+import org.cbioportal.application.rest.response.ClinicalAttributeDTO;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -55,8 +56,8 @@ public class ClinicalAttributeController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttribute.class))))
-  public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributes(
+              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttributeDTO.class))))
+  public ResponseEntity<List<ClinicalAttributeDTO>> getAllClinicalAttributes(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
@@ -83,12 +84,13 @@ public class ClinicalAttributeController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalAttributeService.getAllClinicalAttributes(
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          LegacyClinicalAttributeMapper.INSTANCE.toDtos(
+              clinicalAttributeService.getAllClinicalAttributes(
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -105,8 +107,8 @@ public class ClinicalAttributeController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttribute.class))))
-  public ResponseEntity<List<ClinicalAttribute>> getAllClinicalAttributesInStudy(
+              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttributeDTO.class))))
+  public ResponseEntity<List<ClinicalAttributeDTO>> getAllClinicalAttributesInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(description = "Level of detail of the response")
@@ -139,13 +141,14 @@ public class ClinicalAttributeController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalAttributeService.getAllClinicalAttributesInStudy(
-              studyId,
-              projection.name(),
-              pageSize,
-              pageNumber,
-              sortBy == null ? null : sortBy.getOriginalValue(),
-              direction.name()),
+          LegacyClinicalAttributeMapper.INSTANCE.toDtos(
+              clinicalAttributeService.getAllClinicalAttributesInStudy(
+                  studyId,
+                  projection.name(),
+                  pageSize,
+                  pageNumber,
+                  sortBy == null ? null : sortBy.getOriginalValue(),
+                  direction.name())),
           HttpStatus.OK);
     }
   }
@@ -160,8 +163,8 @@ public class ClinicalAttributeController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = ClinicalAttribute.class)))
-  public ResponseEntity<ClinicalAttribute> getClinicalAttributeInStudy(
+      content = @Content(schema = @Schema(implementation = ClinicalAttributeDTO.class)))
+  public ResponseEntity<ClinicalAttributeDTO> getClinicalAttributeInStudy(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId,
       @Parameter(required = true, description = "Clinical Attribute ID e.g. CANCER_TYPE")
@@ -170,7 +173,9 @@ public class ClinicalAttributeController {
       throws ClinicalAttributeNotFoundException, StudyNotFoundException {
 
     return new ResponseEntity<>(
-        clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId), HttpStatus.OK);
+        LegacyClinicalAttributeMapper.INSTANCE.toDto(
+            clinicalAttributeService.getClinicalAttribute(studyId, clinicalAttributeId)),
+        HttpStatus.OK);
   }
 
   @PreAuthorize(
@@ -186,8 +191,8 @@ public class ClinicalAttributeController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttribute.class))))
-  public ResponseEntity<List<ClinicalAttribute>> fetchClinicalAttributes(
+              array = @ArraySchema(schema = @Schema(implementation = ClinicalAttributeDTO.class))))
+  public ResponseEntity<List<ClinicalAttributeDTO>> fetchClinicalAttributes(
       @Parameter(required = true, description = "List of Study IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
@@ -207,7 +212,8 @@ public class ClinicalAttributeController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name()),
+          LegacyClinicalAttributeMapper.INSTANCE.toDtos(
+              clinicalAttributeService.fetchClinicalAttributes(studyIds, projection.name())),
           HttpStatus.OK);
     }
   }

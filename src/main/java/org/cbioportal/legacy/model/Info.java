@@ -6,7 +6,6 @@ import java.io.Serializable;
 public class Info implements Serializable {
   @NotNull private String portalVersion;
   @NotNull private String dbVersion;
-  @NotNull private String derivedTableVersion;
   @NotNull private String genesetVersion;
   @NotNull private String geneTableVersion;
   @NotNull private String gitBranch;
@@ -114,14 +113,6 @@ public class Info implements Serializable {
 
   public void setDbVersion(String dbVersion) {
     this.dbVersion = dbVersion;
-  }
-
-  public String getDerivedTableVersion() {
-    return derivedTableVersion;
-  }
-
-  public void setDerivedTableVersion(String derivedTableVersion) {
-    this.derivedTableVersion = derivedTableVersion;
   }
 
   public String getGenesetVersion() {

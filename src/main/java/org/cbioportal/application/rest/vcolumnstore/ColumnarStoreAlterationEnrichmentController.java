@@ -13,8 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.cbioportal.application.rest.mapper.AlterationEnrichmentMapper;
+import org.cbioportal.application.rest.response.AlterationEnrichmentDTO;
 import org.cbioportal.domain.alteration.usecase.GetAlterationEnrichmentsUseCase;
-import org.cbioportal.legacy.model.AlterationEnrichment;
 import org.cbioportal.legacy.model.EnrichmentType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
@@ -58,8 +59,9 @@ public class ColumnarStoreAlterationEnrichmentController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = AlterationEnrichment.class))))
-  public ResponseEntity<Collection<AlterationEnrichment>> fetchAlterationEnrichments(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = AlterationEnrichmentDTO.class))))
+  public ResponseEntity<Collection<AlterationEnrichmentDTO>> fetchAlterationEnrichments(
       @Parameter(description = "Type of the enrichment e.g. SAMPLE or PATIENT")
           @RequestParam(defaultValue = "SAMPLE")
           EnrichmentType enrichmentType,
@@ -79,9 +81,10 @@ public class ColumnarStoreAlterationEnrichmentController {
                     MolecularProfileCasesGroupFilter::getMolecularProfileCaseIdentifiers));
 
     return ResponseEntity.ok(
-        getAlterationEnrichmentsUseCase.execute(
-            groupCaseIdentifierSet,
-            enrichmentType,
-            groupsAndAlterationTypes.getAlterationEventTypes()));
+        AlterationEnrichmentMapper.INSTANCE.toDTOs(
+            getAlterationEnrichmentsUseCase.execute(
+                groupCaseIdentifierSet,
+                enrichmentType,
+                groupsAndAlterationTypes.getAlterationEventTypes())));
   }
 }

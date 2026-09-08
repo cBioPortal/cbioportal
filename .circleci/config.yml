@@ -742,10 +742,10 @@ jobs:
                 echo "CLICKHOUSE staging context unavailable; running local API smoke checks"
                 curl -fsS http://localhost:8080/api/health | jq -e '.status == "UP"'
                 curl -fsS http://localhost:8080/api/info | jq -e --arg sha "$CIRCLE_SHA1" '.gitCommitId == $sha'
-                docker exec cbioportal-database-container clickhouse-client \
-                  --user=\"$CLICKHOUSE_USER\" --password=\"$CLICKHOUSE_PASSWORD\" \
-                  --database=\"$CLICKHOUSE_DB\" \
-                  --query='SELECT count() FROM db_schema_version' | grep -q '^[1-9]'
+                docker exec cbioportal-database-container sh -lc \
+                  'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
+                    --database "$CLICKHOUSE_DB" --query="SELECT count() FROM db_schema_version"' \
+                  | grep -q '^[1-9]'
               fi
 
         - store_test_results:

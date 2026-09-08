@@ -688,7 +688,9 @@ jobs:
             name: Wait for cbioportal to be live at localhost
             command: |
               cd cbioportal-test
-              ./utils/check-connection.sh --url=localhost:8080
+              # A fresh local ClickHouse seed can take several minutes to
+              # initialize on a clean CircleCI machine.
+              ./utils/check-connection.sh --url=localhost:8080 --max_retries=250
         - run:
             name: Confirm cbioportal config matches PR
             command: |

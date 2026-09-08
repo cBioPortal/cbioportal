@@ -744,7 +744,7 @@ jobs:
                 curl -fsS http://localhost:8080/api/info | jq -e --arg sha "$CIRCLE_SHA1" '.gitCommitId == $sha'
                 docker exec cbioportal-database-container sh -lc \
                   'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
-                    --database "$CLICKHOUSE_DB" --query="SELECT count() FROM db_schema_version"' \
+                    --database "$CLICKHOUSE_DB" --query="SELECT count() FROM info WHERE db_schema_version IS NOT NULL"' \
                   | grep -q '^[1-9]'
               fi
 

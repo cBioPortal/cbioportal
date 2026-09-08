@@ -423,6 +423,15 @@ release-based tables, recreates the empty snapshot tables and slide-access
 projection, and therefore discards existing WSI rows. Import WSI snapshots into
 the inactive blue/green database and promote it only after validation.
 
+Before a production migration, rehearse the exact candidate image against an
+isolated clone of the active production database. The `web-and-data` image
+contains `scripts/rehearse_clickhouse_production_clone.sh`; it refuses to write
+to the source database, requires a target name containing
+`migration_rehearsal`, clones base-table data with ClickHouse `CLONE AS`, and
+rebuilds derived tables only in the target. Run it from that exact immutable
+candidate image with the production Cloud connection settings and retain its
+schema/count evidence with the release record.
+
 For **ClickHouse Cloud** specifically, set `CLICKHOUSE_SECURE=true` (in addition to the usual
 `CLICKHOUSE_HOST`/`CLICKHOUSE_NATIVE_PORT`/`CLICKHOUSE_USER`/`CLICKHOUSE_PASSWORD`/`CLICKHOUSE_DB`)
 so `migrate_db.py` connects over TLS — Cloud's native port (typically `9440`) is TLS-only and will

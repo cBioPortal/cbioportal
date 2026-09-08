@@ -122,8 +122,10 @@ RUN mkdir -p $PORTAL_WEB_HOME
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib                $PORTAL_WEB_HOME/lib/
 COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/META-INF/
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
+COPY --from=build /cbioportal/scripts/rehearse_clickhouse_production_clone.sh /cbioportal/scripts/rehearse_clickhouse_production_clone.sh
 COPY --from=build /cbioportal/test/test_data/study_es_0     /cbioportal/test/study_es_0
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes            $PORTAL_WEB_HOME/
+RUN chmod 755 /cbioportal/scripts/rehearse_clickhouse_production_clone.sh
 
 # Launch via the exploded classpath using the boot jar's Start-Class
 # (org.cbioportal.PortalApplication, per the jar's MANIFEST).

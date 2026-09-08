@@ -392,6 +392,14 @@ jobs:
               cd cbioportal-test
               ./utils/check-connection.sh --url=localhost:${BACKEND_PORT} --max_retries=250
         - run:
+            name: Import local fixture studies
+            # The ClickHouse seed contains reference tables only. The local
+            # Playwright suite exercises study-level APIs, so load the fixture
+            # studies from cbioportal-test before starting the browser shards.
+            command: |
+              cd cbioportal-test
+              ./scripts/import-data.sh --studies=/tmp/repos/cbioportal-test/data/studies
+        - run:
             name: Start frontend dist server (pnpm serveDistLocalDb) on https://localhost:3000
             background: true
             working_directory: /tmp/repos/cbioportal-frontend

@@ -449,10 +449,17 @@ jobs:
               # Load the study-specific gene-set hierarchy used by GSVA tests.
               docker exec cbioportal-container sh -c 'cd /core/scripts && ./importGenesetData.pl --data /study/genesets/study_es_0_genesets.gmt --new-version msigdb_7.5.1 --sup /study/genesets/study_es_0_supp-genesets.txt --confirm-delete-all-genesets-hierarchy-genesetprofiles && ./importGenesetHierarchy.pl --data /study/genesets/study_es_0_tree.yaml'
 
+              # The importer JAR is currently released from cbioportal-core
+              # and may lag the portal repository's schema version.  Resolve
+              # the expected version from the exact PR checkout so the
+              # importer and the mounted schema perform the same check.
+              DB_VERSION=$(sed -n 's/.*<db.version>\([^<]*\)<\/db.version>.*/\1/p' /tmp/repos/cbioportal/pom.xml | head -1)
+              test -n "$DB_VERSION"
+
               for DIR in /tmp/repos/cbioportal-test/data/studies/*/; do
                 STUDY_NAME=$(basename "$DIR")
                 echo "Importing fixture study $STUDY_NAME"
-                docker exec cbioportal-container metaImport.py -u http://localhost:8082 -s "study/$STUDY_NAME/" -o
+                docker exec cbioportal-container metaImport.py -u http://localhost:8082 -s "study/$STUDY_NAME/" -o -jvo "-Ddb.version=$DB_VERSION"
               done
 
               docker exec cbioportal-container sh -c 'kill "$(cat /tmp/cbioportal-import.pid)" 2>/dev/null || true; rm -f /tmp/cbioportal-import.pid'

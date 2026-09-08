@@ -1,0 +1,9 @@
+# Keep local Playwright shards on the schema and seed checked out with the PR.
+# cbioportal-test's helper regenerates these files from the image, but fork
+# jobs cannot depend on that helper receiving the image variable correctly.
+services:
+  cbioportal-database:
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/seed-cbioportal_hg19_hg38_v2.14.5.sql.gz:/data/seed.sql.gz:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/data/clickhouse.sql:ro

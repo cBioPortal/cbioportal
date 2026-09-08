@@ -331,8 +331,9 @@ jobs:
               # docker-compose init scripts run `docker create :<sha>` and
               # silently leave the stale 3.0 seed/schema in place.
               export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}"
+              export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
               docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
-              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f /tmp/repos/cbioportal/.circleci/e2e-localdb-compose.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
             working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
@@ -679,6 +680,7 @@ jobs:
                 # this gate remains meaningful without distributing a
                 # credential or weakening the assertions.
                 export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}"
+                export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
                 docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
                 echo "CLICKHOUSE staging context unavailable; using the complete local ClickHouse seed"
                 # The web-and-data image is intentionally exploded (it does

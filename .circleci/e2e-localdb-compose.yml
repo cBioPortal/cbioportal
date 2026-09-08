@@ -2,6 +2,9 @@
 # cbioportal-test's helper regenerates these files from the image, but fork
 # jobs cannot depend on that helper receiving the image variable correctly.
 services:
+  cbioportal:
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/.circleci/local-clickhouse.properties:/cbioportal-webapp/application.properties:ro
   cbioportal-database:
     volumes:
       - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro

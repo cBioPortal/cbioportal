@@ -22,6 +22,8 @@ services:
         --spring.datasource.clickhouse.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
         --clickhouse_mode=true
         --spring.profiles.active=clickhouse
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/.circleci/local-clickhouse.properties:/cbioportal-webapp/application.properties:ro
   # The docker-compose helper regenerates these mounts from the image.  A fork
   # cannot rely on that helper's environment propagation, so pin the local
   # database inputs to the checked-out PR sources as well.  This keeps the

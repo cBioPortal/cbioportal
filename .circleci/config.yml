@@ -402,17 +402,6 @@ jobs:
             # normal metaImport path for each study.
             command: |
               set -euo pipefail
-              export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}"
-              export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
-              IMPORT_ROOT=$(mktemp -d)
-              git clone --depth 1 https://github.com/cbioportal/cbioportal-docker-compose.git "$IMPORT_ROOT/cbioportal-docker-compose"
-              cd "$IMPORT_ROOT/cbioportal-docker-compose"
-              {
-                echo
-                set | grep -e '^DOCKER' -e '^DB' -e '^APP'
-              } >> .env
-              ./init.sh
-
               STUDY_PATH=$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/study"}}{{.Source}}{{end}}{{end}}' cbioportal-container)
               test -n "$STUDY_PATH"
               cp -R /tmp/repos/cbioportal-test/data/studies/. "$STUDY_PATH/"
@@ -422,28 +411,16 @@ jobs:
               # Seed the two panels referenced by the fixture files. Resolve
               # their members against the PR's reference gene table.
               docker exec cbioportal-database-container clickhouse-client \
-                --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
-                --database "$CLICKHOUSE_DB" --multiquery \<<'SQL'
-              INSERT INTO gene_panel (internal_id, stable_id, description) VALUES
-                (1, 'TESTPANEL1', 'Example gene panel meta file for testing purposes.'),
-                (2, 'TESTPANEL2', 'Example gene panel meta file for testing purposes.');
-              INSERT INTO gene_panel_list (internal_id, gene_id)
-                SELECT 1, entrez_gene_id FROM gene
-                WHERE hugo_gene_symbol IN ('ABLIM1','ADAMTS20','CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10');
-              INSERT INTO gene_panel_list (internal_id, gene_id)
-                SELECT 2, entrez_gene_id FROM gene
-                WHERE hugo_gene_symbol IN ('CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10','FGFR3','PIEZO1');
-              SQL
+                --user cbio_user --password somepassword --database cbioportal --multiquery \
+                --query "INSERT INTO gene_panel (internal_id, stable_id, description) VALUES (1, 'TESTPANEL1', 'Example gene panel meta file for testing purposes.'), (2, 'TESTPANEL2', 'Example gene panel meta file for testing purposes.'); INSERT INTO gene_panel_list (internal_id, gene_id) SELECT 1, entrez_gene_id FROM gene WHERE hugo_gene_symbol IN ('ABLIM1','ADAMTS20','CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10'); INSERT INTO gene_panel_list (internal_id, gene_id) SELECT 2, entrez_gene_id FROM gene WHERE hugo_gene_symbol IN ('CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10','FGFR3','PIEZO1');"
 
               # Load the study-specific gene-set hierarchy used by GSVA tests.
-              docker compose -f docker-compose.yml -f dev/keycloak/keycloak.yml exec -T cbioportal \
-                sh -c 'cd /core/scripts && ./importGenesetData.pl --data /study/genesets/study_es_0_genesets.gmt --new-version msigdb_7.5.1 --sup /study/genesets/study_es_0_supp-genesets.txt --confirm-delete-all-genesets-hierarchy-genesetprofiles && ./importGenesetHierarchy.pl --data /study/genesets/study_es_0_tree.yaml'
+              docker exec cbioportal-container sh -c 'cd /core/scripts && ./importGenesetData.pl --data /study/genesets/study_es_0_genesets.gmt --new-version msigdb_7.5.1 --sup /study/genesets/study_es_0_supp-genesets.txt --confirm-delete-all-genesets-hierarchy-genesetprofiles && ./importGenesetHierarchy.pl --data /study/genesets/study_es_0_tree.yaml'
 
               for DIR in /tmp/repos/cbioportal-test/data/studies/*/; do
                 STUDY_NAME=$(basename "$DIR")
                 echo "Importing fixture study $STUDY_NAME"
-                docker compose -f docker-compose.yml -f dev/keycloak/keycloak.yml exec -T cbioportal \
-                  metaImport.py -u http://localhost:8080 -s "study/$STUDY_NAME/" -o
+                docker exec cbioportal-container metaImport.py -u http://localhost:8080 -s "study/$STUDY_NAME/" -o
               done
         - run:
             name: Start frontend dist server (pnpm serveDistLocalDb) on https://localhost:3000

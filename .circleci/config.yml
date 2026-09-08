@@ -414,14 +414,48 @@ jobs:
                 --user cbio_user --password somepassword --database cbioportal --multiquery \
                 --query "INSERT INTO gene_panel (internal_id, stable_id, description) VALUES (1, 'TESTPANEL1', 'Example gene panel meta file for testing purposes.'), (2, 'TESTPANEL2', 'Example gene panel meta file for testing purposes.'); INSERT INTO gene_panel_list (internal_id, gene_id) SELECT 1, entrez_gene_id FROM gene WHERE hugo_gene_symbol IN ('ABLIM1','ADAMTS20','CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10'); INSERT INTO gene_panel_list (internal_id, gene_id) SELECT 2, entrez_gene_id FROM gene WHERE hugo_gene_symbol IN ('CADM2','DTNB','KAT2A','MSH3','MYB','NPIPB15','OTOR','P2RY10','FGFR3','PIEZO1');"
 
+              # The browser stack deliberately runs with SAML enabled.  The
+              # importer validates each study through /api/info, however, and
+              # cannot authenticate to that local SAML provider.  Start a
+              # second application process on an unexposed port with auth
+              # disabled, sharing the same mounted config and ClickHouse.  The
+              # protected application on :8080 remains the one exercised by
+              # Playwright after this step completes.
+              docker exec cbioportal-container sh -c '
+                rm -f /tmp/cbioportal-import.pid /tmp/cbioportal-import.log
+                nohup java -Xms2g -Xmx4g -cp "/cbioportal-webapp:/cbioportal-webapp/lib/*" \
+                  org.cbioportal.PortalApplication \
+                  --spring.config.location=file:/cbioportal-webapp/application.properties \
+                  --dat.method=none --multithread.core_pool_size=1 \
+                  --authenticate=false --server.port=8082 \
+                  --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/ \
+                  --filter_groups_by_appname=false \
+                  >/tmp/cbioportal-import.log 2>&1 &
+                echo $! >/tmp/cbioportal-import.pid
+              '
+              for i in $(seq 1 150); do
+                if docker exec cbioportal-container curl -fsS http://localhost:8082/api/info >/tmp/cbioportal-import-info.json 2>/dev/null; then
+                  echo "No-auth importer application up after ~$((i*2))s"
+                  break
+                fi
+                if [ "$i" -eq 150 ]; then
+                  echo "No-auth importer application failed to start"
+                  docker exec cbioportal-container sh -c 'cat /tmp/cbioportal-import.log' || true
+                  exit 1
+                fi
+                sleep 2
+              done
+
               # Load the study-specific gene-set hierarchy used by GSVA tests.
               docker exec cbioportal-container sh -c 'cd /core/scripts && ./importGenesetData.pl --data /study/genesets/study_es_0_genesets.gmt --new-version msigdb_7.5.1 --sup /study/genesets/study_es_0_supp-genesets.txt --confirm-delete-all-genesets-hierarchy-genesetprofiles && ./importGenesetHierarchy.pl --data /study/genesets/study_es_0_tree.yaml'
 
               for DIR in /tmp/repos/cbioportal-test/data/studies/*/; do
                 STUDY_NAME=$(basename "$DIR")
                 echo "Importing fixture study $STUDY_NAME"
-                docker exec cbioportal-container metaImport.py -u http://localhost:8080 -s "study/$STUDY_NAME/" -o
+                docker exec cbioportal-container metaImport.py -u http://localhost:8082 -s "study/$STUDY_NAME/" -o
               done
+
+              docker exec cbioportal-container sh -c 'kill "$(cat /tmp/cbioportal-import.pid)" 2>/dev/null || true; rm -f /tmp/cbioportal-import.pid'
         - run:
             name: Start frontend dist server (pnpm serveDistLocalDb) on https://localhost:3000
             background: true

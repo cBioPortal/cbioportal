@@ -3,6 +3,10 @@
 services:
   cbioportal:
     entrypoint: []
+    environment:
+      # The Docker build deliberately skips git.properties generation; expose
+      # the immutable Circle revision so /api/info can still verify the image.
+      GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}
     command:
       - /bin/sh
       - -c

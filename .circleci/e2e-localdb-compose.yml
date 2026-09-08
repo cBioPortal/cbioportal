@@ -3,10 +3,21 @@
 # jobs cannot depend on that helper receiving the image variable correctly.
 services:
   cbioportal:
-    # The web-and-data PR image is already exploded; avoid the compose helper's
-    # importer-jar rewrite and launch the application directly, as in the API
-    # local override.
-    entrypoint: []
+    # Keep the compose entrypoint so importer scripts receive the mounted
+    # datasource settings injected into core-IMPORTER.jar. The stock keycloak
+    # command uses a relative config path that Spring cannot resolve from the
+    # image's working directory, so use the absolute mounted path here.
+    entrypoint: ["/cbioportal/entrypoint.sh"]
+    command: >-
+      /bin/sh -c "java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*'
+      org.cbioportal.PortalApplication --spring.config.location=file:/cbioportal-webapp/application.properties
+      --dat.method=none --multithread.core_pool_size=1 --authenticate=saml
+      --spring.security.saml2.relyingparty.registration.cbio-idp.assertingparty.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+      --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
+      --spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+      --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/local.crt
+      --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/local.key
+      --security.cors.allowed-origins=* --filter_groups_by_appname=false"
     environment:
       # Keep local browser shards tied to the backend image under test.
       GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}

@@ -884,10 +884,12 @@ jobs:
               git clone --filter=blob:none --no-checkout \
                 https://github.com/raylim/cbioportal-frontend.git \
                 /tmp/repos/cbioportal-frontend-wsi
+              # This immutable fork commit keeps WSI hierarchy assertions in
+              # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                ceaf8fee804bd202a9a5d194c091c9693e1aee1f
+                4ad770cd045d861d0e89f16e79ee0a17560bf631
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                ceaf8fee804bd202a9a5d194c091c9693e1aee1f
+                4ad770cd045d861d0e89f16e79ee0a17560bf631
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

@@ -423,7 +423,7 @@ jobs:
               # their members against the PR's reference gene table.
               docker exec cbioportal-database-container clickhouse-client \
                 --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
-                --database "$CLICKHOUSE_DB" --multiquery <<'SQL'
+                --database "$CLICKHOUSE_DB" --multiquery \<<'SQL'
               INSERT INTO gene_panel (internal_id, stable_id, description) VALUES
                 (1, 'TESTPANEL1', 'Example gene panel meta file for testing purposes.'),
                 (2, 'TESTPANEL2', 'Example gene panel meta file for testing purposes.');

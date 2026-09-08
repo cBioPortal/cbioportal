@@ -322,7 +322,11 @@ jobs:
             # loaded above, NOT cbioportal/cbioportal:master.
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
-              APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
+              # Use the same deterministic local ClickHouse settings mounted
+              # by the compose override. The frontend fixture properties point
+              # at a shared remote database and are not appropriate for local
+              # shards.
+              APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal/.circleci/local-clickhouse.properties'
             command: |
               cd cbioportal-test
               # Keep the image reference independent of step/job environment

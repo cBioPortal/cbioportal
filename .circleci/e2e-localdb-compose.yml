@@ -3,6 +3,10 @@
 # jobs cannot depend on that helper receiving the image variable correctly.
 services:
   cbioportal:
+    # The web-and-data PR image is already exploded; avoid the compose helper's
+    # importer-jar rewrite and launch the application directly, as in the API
+    # local override.
+    entrypoint: []
     environment:
       # Keep local browser shards tied to the backend image under test.
       GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}

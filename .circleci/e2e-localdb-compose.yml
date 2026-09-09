@@ -23,6 +23,7 @@ services:
       GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}
     volumes:
       - ${CBIOPORTAL_SOURCE_DIR}/.circleci/local-clickhouse.properties:/cbioportal-webapp/application.properties:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/cbioportal/populate_derived_tables.sql:ro
   cbioportal-database:
     volumes:
       - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro

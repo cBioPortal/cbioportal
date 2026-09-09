@@ -272,7 +272,7 @@ jobs:
         CBIOPORTAL_URL: http://localhost:8080
         # Route screenshot baselines to the committed `__snapshots__/` dir.
         PW_DOCKER: '1'
-        # Opt this job into running tests/local/** (excluded by default in
+        # Opt this job into the local Playwright tests (excluded by default in
         # the Playwright config so the remote suite doesn't pick them up).
         PW_LOCAL: '1'
       steps:
@@ -561,9 +561,20 @@ jobs:
               # --workers=2 lets 2 spec files in a shard run concurrently;
               # resource_class large (4 vCPU/8GB) is shared with the mysql +
               # cbioportal + keycloak + clickhouse containers, so we cap at 2.
-              npx playwright test tests/local \
+              # Most of tests/local is a remote-database visual regression
+              # suite. Those snapshots intentionally are not part of this
+              # isolated ClickHouse migration gate: they depend on the shared
+              # staging dataset and its historical UI baselines. Keep the
+              # tests that exercise this stack's backend revision, SAML study
+              # authorization, and virtual-study lifecycle here; the complete
+              # backend and WSI API suites run in their own required jobs.
+              npx playwright test \
+                tests/local/version.spec.ts \
+                tests/local/coad-study-access.spec.ts \
+                tests/local/virtual-study.spec.ts \
                 --shard="${SHARD_NUM}/${CIRCLE_NODE_TOTAL}" \
                 --workers=2 \
+                --pass-with-no-tests \
                 --reporter=list,junit,blob
               EXIT=$?
               set -e

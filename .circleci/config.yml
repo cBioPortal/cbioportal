@@ -459,7 +459,7 @@ jobs:
               for DIR in /tmp/repos/cbioportal-test/data/studies/*/; do
                 STUDY_NAME=$(basename "$DIR")
                 echo "Importing fixture study $STUDY_NAME"
-                docker exec cbioportal-container metaImport.py -u http://localhost:8082 -s "study/$STUDY_NAME/" -o -jvo "-Ddb.version=$DB_VERSION"
+                docker exec cbioportal-container metaImport.py -u http://localhost:8082 -s "study/$STUDY_NAME/" -o "-jvo=-Ddb.version=$DB_VERSION"
               done
 
               docker exec cbioportal-container sh -c 'kill "$(cat /tmp/cbioportal-import.pid)" 2>/dev/null || true; rm -f /tmp/cbioportal-import.pid'

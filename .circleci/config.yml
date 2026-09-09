@@ -323,11 +323,18 @@ jobs:
               STUDIES_JSON_ARRAY=$(printf '%s\n' $STUDIES | jq -R . | jq -s .)
               STUDIES_JSON_OBJECT=$(echo "$STUDIES_JSON_ARRAY" | jq '[.[] | {name: .}]')
               jq --argjson roles "$STUDIES_JSON_OBJECT" --argjson study_ids "$STUDIES_JSON_ARRAY" '
-                .roles.client.cbioportal = $roles
-                | .roles.client["cbioportal-saml"] = $roles
+                (.clients | map(select(.protocol == "saml") | .clientId)) as $saml_clients
+                | .roles.client |= with_entries(
+                    if .key as $client_id | ($saml_clients | index($client_id)) != null
+                    then .value = $roles
+                    else .
+                    end)
                 | .groups |= map(if .name == "PUBLIC_STUDIES"
-                    then .clientRoles.cbioportal = $study_ids
-                    | .clientRoles["cbioportal-saml"] = $study_ids
+                    then .clientRoles |= with_entries(
+                      if .key as $client_id | ($saml_clients | index($client_id)) != null
+                      then .value = $study_ids
+                      else .
+                      end)
                     else .
                   end)
               ' /tmp/repos/keycloak-config-generated.json > /tmp/repos/keycloak-config-generated-fixed.json

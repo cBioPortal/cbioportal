@@ -314,18 +314,20 @@ jobs:
               git clone https://github.com/cbioportal/cbioportal-docker-compose.git
               cd cbioportal-test
               ./utils/gen-keycloak-config.sh --studies="$STUDIES" --template='/tmp/repos/cbioportal-docker-compose/dev/keycloak/keycloak-config.json' --out='/tmp/repos/keycloak-config-generated.json'
-              # The generator in cbioportal-test still targets the legacy
-              # `cbioportal` client id, while the SAML template uses
-              # `cbioportal-saml`.  Copy the generated fixture roles onto the
-              # client that is actually mapped into the SAML assertion; without
-              # this, the test user can log in but every study-scoped API is
-              # filtered as unauthorized (403).
+              # The generator in cbioportal-test writes roles under the legacy
+              # `cbioportal` client id.  Current docker-compose templates may
+              # use either that id or `cbioportal-saml`; populate both so the
+              # test user's SAML assertion carries the fixture roles.  Without
+              # this, login succeeds but every study-scoped API is filtered as
+              # unauthorized (403).
               STUDIES_JSON_ARRAY=$(printf '%s\n' $STUDIES | jq -R . | jq -s .)
               STUDIES_JSON_OBJECT=$(echo "$STUDIES_JSON_ARRAY" | jq '[.[] | {name: .}]')
               jq --argjson roles "$STUDIES_JSON_OBJECT" --argjson study_ids "$STUDIES_JSON_ARRAY" '
-                .roles.client["cbioportal-saml"] = $roles
+                .roles.client.cbioportal = $roles
+                | .roles.client["cbioportal-saml"] = $roles
                 | .groups |= map(if .name == "PUBLIC_STUDIES"
-                    then .clientRoles["cbioportal-saml"] = $study_ids
+                    then .clientRoles.cbioportal = $study_ids
+                    | .clientRoles["cbioportal-saml"] = $study_ids
                     else .
                   end)
               ' /tmp/repos/keycloak-config-generated.json > /tmp/repos/keycloak-config-generated-fixed.json

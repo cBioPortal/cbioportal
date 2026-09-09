@@ -14,7 +14,7 @@ services:
       --dat.method=none --multithread.core_pool_size=1 --authenticate=saml
       --spring.security.saml2.relyingparty.registration.cbio-idp.assertingparty.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
       --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
-      --spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal-saml
+      --spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
       --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/local.crt
       --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/local.key
       --security.cors.allowed-origins=* --filter_groups_by_appname=false

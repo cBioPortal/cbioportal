@@ -495,6 +495,26 @@ jobs:
               done
 
               docker exec cbioportal-container sh -c 'kill "$(cat /tmp/cbioportal-import.pid)" 2>/dev/null || true; rm -f /tmp/cbioportal-import.pid'
+
+              # The protected portal was started before the fixture imports.
+              # Its static authorization maps are populated during startup,
+              # so they otherwise contain no studies and the study endpoint's
+              # @PostFilter removes every imported row. Restart after the
+              # import to rebuild those maps from the populated ClickHouse
+              # tables before the authenticated browser tests begin.
+              docker restart cbioportal-container >/dev/null
+              for i in $(seq 1 150); do
+                if curl -fsS http://localhost:${BACKEND_PORT}/api/health >/dev/null 2>&1; then
+                  echo "Protected portal restarted and healthy after ~$((i*2))s"
+                  break
+                fi
+                if [ "$i" -eq 150 ]; then
+                  echo "Protected portal failed to become healthy after restart"
+                  docker logs cbioportal-container 2>&1 | tail -200 || true
+                  exit 1
+                fi
+                sleep 2
+              done
         - run:
             name: Start frontend dist server (pnpm serveDistLocalDb) on https://localhost:3000
             background: true

@@ -17,7 +17,8 @@ services:
       --spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
       --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/local.crt
       --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/local.key
-      --security.cors.allowed-origins=* --filter_groups_by_appname=false"
+      --security.cors.allowed-origins=* --filter_groups_by_appname=false
+      --always_show_study_group=PUBLIC"
     environment:
       # Keep local browser shards tied to the backend image under test.
       GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}

@@ -353,6 +353,13 @@ jobs:
               export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}"
               export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
               docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
+              # cbioportal-test's compose helper only waits for the Keycloak
+              # TCP port.  Keycloak can still be importing the realm at that
+              # point, so its one-shot metadata download may capture a 404
+              # response and leave an empty SAML metadata file.  Wait for the
+              # actual descriptor before letting the helper download it.
+              sed -i '/utils\/check-connection.sh --url=localhost:8081/c\
+  i=0; while [ "$i" -lt 180 ]; do if curl -fsS http://localhost:8081/auth/realms/cbio/protocol/saml/descriptor 2>/dev/null | grep -q EntityDescriptor; then break; fi; i=$((i + 1)); sleep 2; done; if [ "$i" -ge 180 ]; then echo "Timed out waiting for Keycloak SAML metadata" >&2; exit 1; fi' scripts/docker-compose.sh
               nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f /tmp/repos/cbioportal/.circleci/e2e-localdb-compose.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies

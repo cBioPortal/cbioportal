@@ -39,7 +39,14 @@ COPY . .
 # final image cache dependency libs separately from application classes
 # (see: https://spring.io/guides/topicals/spring-boot-docker/).
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    && mvn -q package -DskipTests -Dmaven.gitcommitid.skip=true \
+    # Shibboleth's Maven repository can briefly return 403 while CI runners
+    # are downloading OpenSAML. Retry the package step so a transient mirror
+    # response does not strand the whole PR workflow.
+    && for attempt in 1 2 3 4 5; do \
+         mvn -q package -DskipTests -Dmaven.gitcommitid.skip=true && break; \
+         if [ "$attempt" -eq 5 ]; then exit 1; fi; \
+         sleep $((attempt * 15)); \
+       done \
     && mkdir -p target/dependency \
     && (cd target/dependency && jar -xf ../*-exec.jar)
 

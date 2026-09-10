@@ -26,13 +26,13 @@ There are several other data types for which there is no native support. However
 
 | Assay | External Viewer | Derived data to load into cBioPortal | Example cBioPortal Study |
 | --- | --- | --- | --- |
-| scRNAseq | CellxGene, Vitesssce, Broad Single Cell Portal | Cell fractions per sample, pseudobulk expression per gene per sample | [HTAN Vanderbilt (Cell, 2021)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) |
+| scRNAseq | [cBioPortal Cell Explorer](https://cell-explorer.cbioportal.org) ([source](https://github.com/cBioPortal/cbioportal-cell-explorer)), CellxGene, Vitessce, Broad Single Cell Portal | Cell fractions per sample, pseudobulk expression per gene per sample | [HTAN Vanderbilt (Cell, 2021)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) |
 | GeoMx | Minerva | RNA expression per Region of Interest | [Ovarian Cancer (Gray Foundation, Cancer Discov 2024)](https://www.cbioportal.org/study/summary?id=ovary_geomx_gray_foundation_2024) |
 | CyCIF/ORION | Minerva | Cell marker density in tumor regions | [Colorectal Adenocarcinoma (DFCI/Orion, 2024)](https://www.cbioportal.org/study/summary?id=crc_orion_2024) |
 | H&E | Minerva, CDSA| | [MSK SPECTRUM (Nature, 2022)](https://www.cbioportal.org/patient/openResource_HE?studyId=msk_spectrum_tme_2022&caseId=P-0042164) |
 | CT | OHIF | Tumor volume, density, etc. | [TCGA Pancan (Cell, 2021)](https://viewer.imaging.datacommons.cancer.gov/viewer/1.3.6.1.4.1.14519.5.2.1.8421.4017.206944705526266221852495854472) |
-| scDNAseq | CellxGene, Vitesssce, Broad Single Cell Portal | | |
-| scATACseq | CellxGene, Vitesssce, Broad Single Cell Portal | | |
+| scDNAseq | CellxGene, Vitessce, Broad Single Cell Portal | | |
+| scATACseq | CellxGene, Vitessce, Broad Single Cell Portal | | |
 | Tapestri | TBD | Protein expression per sample | TBD |
 | 3D CyCIF | TBD | TBD | TBD |
 | Your custom assay | Your custom viewer | Any sample-level or patient-level data | |

@@ -60,6 +60,13 @@ DROP TABLE IF EXISTS clinical_event;
 DROP TABLE IF EXISTS clinical_event_data;
 DROP TABLE IF EXISTS clinical_event_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
+DROP TABLE IF EXISTS wsi_slide_placement;
+DROP TABLE IF EXISTS wsi_slide;
+DROP TABLE IF EXISTS wsi_block;
+DROP TABLE IF EXISTS wsi_part;
+DROP TABLE IF EXISTS wsi_patient;
+DROP TABLE IF EXISTS wsi_release_patient;
+DROP TABLE IF EXISTS wsi_release;
 DROP TABLE IF EXISTS clinical_patient;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS cna_event;
@@ -329,8 +336,86 @@ CREATE TABLE IF NOT EXISTS generic_assay_profile_entity_derived
     profile_stable_id LowCardinality(String),
     entity_stable_id  String
 ) ENGINE = MergeTree()
-  ORDER BY (profile_stable_id, entity_stable_id);
+ORDER BY (profile_stable_id, entity_stable_id);
 
+CREATE TABLE wsi_patient (
+    cancer_study_id Int64,
+    patient_id Int64,
+    reference_sample_id Nullable(Int64)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id);
+
+CREATE TABLE wsi_part (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    part_number Nullable(String),
+    part_designator Nullable(String),
+    part_type Nullable(String),
+    part_description Nullable(String),
+    subspecialty Nullable(String),
+    path_dx_title Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key);
+
+CREATE TABLE wsi_block (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    block_key String,
+    block_number Nullable(String),
+    block_label Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key, block_key);
+
+CREATE TABLE wsi_slide (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    stain_name Nullable(String),
+    stain_group Nullable(String),
+    is_hne Bool,
+    is_ihc Bool,
+    magnification Nullable(String),
+    file_size_bytes Nullable(UInt64),
+    can_serve_tiles Bool,
+    barcode Nullable(String),
+    slide_type Nullable(String),
+    source_url Nullable(String),
+    tile_metadata_json Nullable(String),
+    thumbnail_url Nullable(String),
+    thumbnail_width Nullable(UInt32),
+    thumbnail_height Nullable(UInt32),
+    thumbnail_content_type Nullable(String),
+    PROJECTION wsi_slide_by_access (
+        SELECT
+            cancer_study_id,
+            image_id,
+            can_serve_tiles,
+            source_url,
+            tile_metadata_json,
+            thumbnail_url,
+            thumbnail_width,
+            thumbnail_height,
+            thumbnail_content_type
+        ORDER BY (cancer_study_id, image_id)
+    )
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
+
+CREATE TABLE wsi_slide_placement (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    part_key String,
+    block_key String,
+    sample_id Nullable(Int64),
+    match_level String,
+    specimen_key String
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+
+-- --------------------------------------------------------
 CREATE TABLE generic_entity_properties (
     `id` Int64,
     `genetic_entity_id` Int64,
@@ -759,4 +844,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.0.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.1.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

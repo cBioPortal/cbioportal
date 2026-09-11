@@ -57,6 +57,36 @@
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
+    <sql id="joinClinicalAttributeMetaForSampleDetailed">
+        LEFT JOIN clinical_attribute_meta meta_override
+            ON meta_override.attr_id = clinical_sample.attr_id
+            AND meta_override.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN clinical_attribute_meta ON clinical_sample.attr_id = clinical_attribute_meta.attr_id
+            AND (
+                cancer_study.cancer_study_id = clinical_attribute_meta.cancer_study_id
+                OR (
+                    clinical_attribute_meta.cancer_study_id = 0
+                    AND meta_override.attr_id IS NULL
+                )
+            )
+        INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+    </sql>
+
+    <sql id="joinClinicalAttributeMetaForPatientDetailed">
+        LEFT JOIN clinical_attribute_meta meta_override
+            ON meta_override.attr_id = clinical_patient.attr_id
+            AND meta_override.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN clinical_attribute_meta ON clinical_patient.attr_id = clinical_attribute_meta.attr_id
+            AND (
+                cancer_study.cancer_study_id = clinical_attribute_meta.cancer_study_id
+                OR (
+                    clinical_attribute_meta.cancer_study_id = 0
+                    AND meta_override.attr_id IS NULL
+                )
+            )
+        INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+    </sql>
+
     <sql id="whereSample">
         <where>
             <if test="sampleIds == null">
@@ -122,9 +152,7 @@
         </include>
         <include refid="fromSample"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN clinical_attribute_meta ON clinical_sample.attr_id = clinical_attribute_meta.attr_id
-            AND cancer_study.cancer_study_id = clinical_attribute_meta.cancer_study_id
-            INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+            <include refid="joinClinicalAttributeMetaForSampleDetailed"/>
         </if>
         <include refid="whereSample"/>
         <choose>
@@ -154,9 +182,7 @@
         </include>
         <include refid="fromPatient"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN clinical_attribute_meta ON clinical_patient.attr_id = clinical_attribute_meta.attr_id
-            AND cancer_study.cancer_study_id = clinical_attribute_meta.cancer_study_id
-            INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+            <include refid="joinClinicalAttributeMetaForPatientDetailed"/>
         </if>
         <include refid="wherePatient"/>
         <choose>
@@ -181,9 +207,7 @@
         <include refid="fromPatient"/>
             INNER JOIN sample ON patient.internal_id = sample.patient_id
         <if test="projection == 'DETAILED'">
-            INNER JOIN clinical_attribute_meta ON clinical_patient.attr_id = clinical_attribute_meta.attr_id
-            AND cancer_study.cancer_study_id = clinical_attribute_meta.cancer_study_id
-            INNER JOIN type_of_cancer ON cancer_study.type_of_cancer_id = type_of_cancer.type_of_cancer_id
+            <include refid="joinClinicalAttributeMetaForPatientDetailed"/>
         </if>
         <include refid="wherePatient"/>
         <if test="_parameter.containsKey('sortBy') and sortBy != null and projection != 'ID'">

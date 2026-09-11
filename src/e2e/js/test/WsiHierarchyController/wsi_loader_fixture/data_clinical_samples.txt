@@ -1,0 +1,6 @@
+#Patient Identifier	Sample Identifier
+#Patient identifier	Sample identifier
+#STRING	STRING
+#1	1
+PATIENT_ID	SAMPLE_ID
+P-0055908	P-0055908-T01-IM6

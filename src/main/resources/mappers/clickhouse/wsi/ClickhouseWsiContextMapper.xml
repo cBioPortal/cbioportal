@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiContextMapper">
+    <select id="getStudyContext" resultType="hashmap">
+        SELECT
+            study.cancer_study_id AS cancer_study_id
+        FROM cancer_study study
+        WHERE study.cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+
+    <select id="getPatientContext" resultType="hashmap">
+        SELECT
+            study.cancer_study_id AS cancer_study_id,
+            portal_patient.internal_id AS patient_id
+        FROM cancer_study study
+        INNER JOIN patient portal_patient
+            ON portal_patient.cancer_study_id = study.cancer_study_id
+           AND portal_patient.stable_id = #{patientId}
+        WHERE study.cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+</mapper>

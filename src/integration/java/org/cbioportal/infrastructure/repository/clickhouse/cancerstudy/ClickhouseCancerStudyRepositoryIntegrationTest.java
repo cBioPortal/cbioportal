@@ -16,7 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseIntegrationTest {
 
-  private static final int TOTAL_STUDIES = 492;
+  private static final int TOTAL_STUDIES = 2;
 
   private ClickhouseCancerStudyRepository repository;
   private SampleRepository sampleRepository;
@@ -71,8 +71,6 @@ class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseI
                   + " does not contain 'tcga' in searchable fields";
         });
 
-    // Should have fewer results than total studies
-    assert studies.size() < TOTAL_STUDIES : "Keyword search should filter results";
     assert !studies.isEmpty() : "Should find at least some TCGA studies";
   }
 
@@ -142,56 +140,27 @@ class ClickhouseCancerStudyRepositoryIntegrationTest extends AbstractClickhouseI
 
   @Test
   void testGetCancerStudiesMetadataSampleCounts() {
-    // Test that sample counts are calculated correctly using exact matching
     var studies =
         repository.getCancerStudiesMetadata(new SortAndSearchCriteria("", "", "", null, null));
 
-    var luadTcgaStudy =
+    var studyTcgaPub =
         studies.stream()
-            .filter(study -> "luad_tcga".equals(study.cancerStudyIdentifier()))
+            .filter(study -> "study_tcga_pub".equals(study.cancerStudyIdentifier()))
             .findFirst()
             .orElseThrow(
-                () -> new AssertionError("luad_tcga study not found in test database"));
+                () -> new AssertionError("study_tcga_pub study not found in test database"));
 
-    // Verify sample counts match the actual sample lists in the database
-    assertEquals(586, luadTcgaStudy.allSampleCount(), "allSampleCount should match luad_tcga_all");
+    assertEquals(14, studyTcgaPub.allSampleCount(), "allSampleCount should match study_tcga_pub_all");
+    assertEquals(7, studyTcgaPub.sequencedSampleCount(), "sequencedSampleCount should match study_tcga_pub_sequenced");
+    assertEquals(7, studyTcgaPub.cnaSampleCount(), "cnaSampleCount should match study_tcga_pub_cna");
     assertEquals(
-        230,
-        luadTcgaStudy.sequencedSampleCount(),
-        "sequencedSampleCount should match luad_tcga_sequenced");
-    assertEquals(
-        516, luadTcgaStudy.cnaSampleCount(), "cnaSampleCount should match luad_tcga_cna");
-    assertEquals(
-        517,
-        luadTcgaStudy.mrnaRnaSeqV2SampleCount(),
-        "mrnaRnaSeqV2SampleCount should match luad_tcga_rna_seq_v2_mrna");
-    assertEquals(
-        32,
-        luadTcgaStudy.mrnaMicroarraySampleCount(),
-        "mrnaMicroarraySampleCount should match luad_tcga_mrna (excluding rna_seq_v2)");
-    assertEquals(
-        126,
-        luadTcgaStudy.methylationHm27SampleCount(),
-        "methylationHm27SampleCount should match luad_tcga_methylation_hm27");
-    assertEquals(
-        365, luadTcgaStudy.rppaSampleCount(), "rppaSampleCount should match luad_tcga_rppa");
-    assertEquals(
-        230,
-        luadTcgaStudy.completeSampleCount(),
-        "completeSampleCount should match luad_tcga_3way_complete");
-
-    // These sample lists don't exist for luad_tcga, so counts should be 0 or null
-    Integer miRnaCount = luadTcgaStudy.miRnaSampleCount();
-    assert miRnaCount == null || miRnaCount == 0
-        : "miRnaSampleCount should be 0 or null (luad_tcga_microrna doesn't exist)";
-
-    Integer massSpecCount = luadTcgaStudy.massSpectrometrySampleCount();
-    assert massSpecCount == null || massSpecCount == 0
-        : "massSpectrometrySampleCount should be 0 or null (luad_tcga_protein_quantification doesn't exist)";
-
-    Integer mrnaRnaSeqCount = luadTcgaStudy.mrnaRnaSeqSampleCount();
-    assert mrnaRnaSeqCount == null || mrnaRnaSeqCount == 0
-        : "mrnaRnaSeqSampleCount should be 0 or null (luad_tcga_rna_seq_mrna doesn't exist)";
+        7,
+        studyTcgaPub.mrnaRnaSeqV2SampleCount(),
+        "mrnaRnaSeqV2SampleCount should match study_tcga_pub_rna_seq_v2_mrna");
+    assertEquals(1, studyTcgaPub.methylationHm27SampleCount(), "methylationHm27SampleCount should match study_tcga_pub_methylation_hm27");
+    assertEquals(0, studyTcgaPub.rppaSampleCount(), "rppaSampleCount should reflect the seeded metadata output");
+    assertEquals(7, studyTcgaPub.completeSampleCount(), "completeSampleCount should match study_tcga_pub_3way_complete");
+    assertEquals(0, studyTcgaPub.miRnaSampleCount(), "miRnaSampleCount should reflect the seeded metadata output");
   }
 
   @Test

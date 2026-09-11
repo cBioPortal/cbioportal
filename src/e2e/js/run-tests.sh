@@ -3,7 +3,7 @@
 # Test runner script for cBioPortal E2E tests
 
 # Set default server URL if not provided
-export CBIOPORTAL_URL="${CBIOPORTAL_URL:-http://localhost:8082}"
+export CBIOPORTAL_URL="${CBIOPORTAL_URL:-http://localhost:8080}"
 
 # Check if the server is responding
 echo "Checking if cBioPortal is running at $CBIOPORTAL_URL..."

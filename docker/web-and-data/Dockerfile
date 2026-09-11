@@ -11,7 +11,9 @@
 # NOTE: the .git folder is included in the build stage (the git-commit-id Maven
 # plugin needs it), but excluded from the final image. No confidential
 # information is exposed. (see: stackoverflow.com/questions/56278325)
+ARG CORE_REPOSITORY=cBioPortal/cbioportal-core
 ARG CORE_BRANCH=main
+ARG CORE_REF=
 
 FROM maven:3-eclipse-temurin-21 AS build
 
@@ -37,17 +39,29 @@ COPY . .
 # final image cache dependency libs separately from application classes
 # (see: https://spring.io/guides/topicals/spring-boot-docker/).
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    && mvn -q package -DskipTests \
+    # Shibboleth's Maven repository can briefly return 403 while CI runners
+    # are downloading OpenSAML. Retry the package step so a transient mirror
+    # response does not strand the whole PR workflow.
+    && for attempt in 1 2 3 4 5; do \
+         mvn -q package -DskipTests -Dmaven.gitcommitid.skip=true && break; \
+         if [ "$attempt" -eq 5 ]; then exit 1; fi; \
+         sleep $((attempt * 15)); \
+       done \
     && mkdir -p target/dependency \
     && (cd target/dependency && jar -xf ../*-exec.jar)
 
 FROM maven:3-eclipse-temurin-21 AS build-core
+ARG CORE_REPOSITORY
 ARG CORE_BRANCH
-# This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
-ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
+ARG CORE_REF
 # We touch application.properties here just to get cbioportal-core building
 # Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
-RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
+RUN set -eu; \
+    checkout_ref="${CORE_REF:-$CORE_BRANCH}"; \
+    git init /cbioportal-core \
+    && git -C /cbioportal-core remote add origin "https://github.com/${CORE_REPOSITORY}.git" \
+    && git -C /cbioportal-core fetch --depth 1 origin "$checkout_ref" \
+    && git -C /cbioportal-core checkout --detach FETCH_HEAD \
     && touch /cbioportal-core/src/main/resources/application.properties \
     && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
     && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt
@@ -115,8 +129,10 @@ RUN mkdir -p $PORTAL_WEB_HOME
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib                $PORTAL_WEB_HOME/lib/
 COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/META-INF/
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
+COPY --from=build /cbioportal/scripts/rehearse_clickhouse_production_clone.sh /cbioportal/scripts/rehearse_clickhouse_production_clone.sh
 COPY --from=build /cbioportal/test/test_data/study_es_0     /cbioportal/test/study_es_0
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes            $PORTAL_WEB_HOME/
+RUN chmod 755 /cbioportal/scripts/rehearse_clickhouse_production_clone.sh
 
 # Launch via the exploded classpath using the boot jar's Start-Class
 # (org.cbioportal.PortalApplication, per the jar's MANIFEST).

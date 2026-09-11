@@ -422,8 +422,7 @@ public class ColumnarStoreStudyViewController {
                 // migration
                 ));
 
-    // Only mutation count can use log scale
-    boolean useLogScale = logScale && numericalAttributeId.equals("MUTATION_COUNT");
+    boolean useLogScale = logScale;
 
     Set<Integer> sampleIdsSet = filteredSamples.stream().map(Sample::internalId).collect(toSet());
 

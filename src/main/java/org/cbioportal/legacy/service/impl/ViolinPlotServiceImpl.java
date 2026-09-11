@@ -107,6 +107,16 @@ public class ViolinPlotServiceImpl implements ViolinPlotService {
             }
           }
 
+          // If there are no valid numeric values, skip this category
+          if (valuesIndex == 0) {
+            return;
+          }
+
+          // Resize the values array to the actual number of valid entries
+          if (valuesIndex < values.length) {
+            values = Arrays.copyOf(values, valuesIndex);
+          }
+
           percentile.setData(values);
 
           double q1 = percentile.evaluate(25);

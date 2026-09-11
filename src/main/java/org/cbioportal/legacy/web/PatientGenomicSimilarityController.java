@@ -106,7 +106,7 @@ public class PatientGenomicSimilarityController {
       @Parameter(description = "Study ID", required = true) @PathVariable String studyId,
       @Valid @RequestBody PatientGenomicSimilarityRequest request) {
 
-    GenomicSimilarityResult result = getPatientGenomicSimilarityUseCase.execute(request);
+    GenomicSimilarityResult result = getPatientGenomicSimilarityUseCase.execute(studyId, request);
     return ResponseEntity.ok(result);
   }
 }

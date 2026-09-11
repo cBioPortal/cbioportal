@@ -34,6 +34,7 @@ package org.cbioportal.application.security.token;
 
 import static com.google.common.net.HttpHeaders.AUTHORIZATION;
 
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
@@ -53,6 +55,7 @@ import org.springframework.security.web.authentication.AbstractAuthenticationPro
 public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
   private DataAccessTokenService tokenService;
+  private boolean accessTokenRequired = false;
 
   private static final String BEARER = "Bearer";
 
@@ -68,19 +71,29 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
   }
 
   public TokenAuthenticationFilter(
-      String s, AuthenticationManager authenticationManager, DataAccessTokenService tokenService) {
+      String s,
+      AuthenticationManager authenticationManager,
+      DataAccessTokenService tokenService,
+      boolean accessTokenRequired) {
     super(s, authenticationManager);
     this.tokenService = tokenService;
+    this.accessTokenRequired = accessTokenRequired;
   }
 
   @Override
   protected boolean requiresAuthentication(
       HttpServletRequest request, HttpServletResponse response) {
-    // only required if we do see an authorization header
+    // only required if we do see an authorization header OR if configuration
+    // requires it
     String param = request.getHeader(AUTHORIZATION);
     if (param == null) {
+      if (accessTokenRequired) {
+        LOG.debug("attemptAuthentication(), authorization header is null, but token is required.");
+        return true;
+      }
       LOG.debug(
-          "attemptAuthentication(), authorization header is null, continue on to other security filters");
+          "attemptAuthentication(), authorization header is null, continue on to other security"
+              + " filters");
       return false;
     }
     return true;
@@ -94,7 +107,7 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
     String token = extractHeaderToken(request);
 
     if (token == null) {
-      LOG.error("No token was found in request header.");
+      LOG.debug("No token was found in request header.");
       throw new BadCredentialsException("No token was found in request header.");
     }
 
@@ -107,11 +120,29 @@ public class TokenAuthenticationFilter extends AbstractAuthenticationProcessingF
   protected void successfulAuthentication(
       HttpServletRequest request,
       HttpServletResponse response,
-      jakarta.servlet.FilterChain chain,
+      FilterChain chain,
       Authentication authResult)
       throws IOException, ServletException {
     super.successfulAuthentication(request, response, chain, authResult);
-    chain.doFilter(request, response);
+    boolean mdcSet = false;
+    if (authResult != null && authResult.getName() != null) {
+      String user = authResult.getName();
+      String authMethod = "token";
+      MDC.put("user", user);
+      MDC.put("auth_method", authMethod);
+      mdcSet = true;
+      // Map MDC context to Datadog active span for APM-level API usage telemetry.
+      // Safe no-op when Datadog agent is not present at runtime.
+      DatadogTraceService.tagCurrentSpan(user, authMethod);
+    }
+    try {
+      chain.doFilter(request, response);
+    } finally {
+      if (mdcSet) {
+        MDC.remove("user");
+        MDC.remove("auth_method");
+      }
+    }
   }
 
   /**

@@ -174,6 +174,36 @@
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
 
+    <!--
+        ClickHouse-optimized query for getGeneMolecularAlterationsInMultipleMolecularProfiles.
+        Returns per-sample rows from genetic_alteration_derived table.
+        The repository aggregates these into CSV format grouped by profile and gene.
+        Each row's 'values' field contains "sampleUniqueId|alterationValue" to be aggregated.
+    -->
+    <select id="getGeneMolecularAlterationsInMultipleMolecularProfilesClickHouse" 
+            resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
+        SELECT
+            g.entrez_gene_id AS "entrezGeneId",
+            gad.profile_type AS "molecularProfileId",
+            CONCAT(gad.sample_unique_id, '|', gad.alteration_value) AS "values"
+        FROM genetic_alteration_derived gad
+        LEFT JOIN gene g ON g.hugo_gene_symbol = gad.hugo_gene_symbol
+        <where>
+            <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+                gad.profile_type IN
+                <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                AND g.entrez_gene_id IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
     <select id="getGenesetMolecularAlterations" resultType="org.cbioportal.legacy.model.GenesetMolecularAlteration">
         SELECT
         geneset.external_id AS genesetId,
@@ -221,7 +251,7 @@
          it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
          opposed to a List. This method should be kept in sync with getGenericAssayMolecularAlterations above.
          (Attempts where made to share getGenericAssayMolecularAlterations between methods in MolecularDataMapper.java
-         all of which have failed).
+         all of which have failed)  :>.
     -->
     <select id="getGenericAssayMolecularAlterationsIter" resultType="org.cbioportal.legacy.model.GenericAssayMolecularAlteration">
         SELECT

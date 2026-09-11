@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.cbioportal.application.rest.mapper.ClinicalDataCountItemMapper;
+import org.cbioportal.application.rest.response.ClinicalDataCountItemDTO;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.service.CustomDataService;
@@ -64,8 +66,9 @@ public class CustomDataController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
-  public ResponseEntity<List<ClinicalDataCountItem>> fetchCustomDataCounts(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItemDTO.class))))
+  public ResponseEntity<List<ClinicalDataCountItemDTO>> fetchCustomDataCounts(
       @Parameter(required = true, description = "Custom data count filter")
           @Valid
           @RequestBody(required = false)
@@ -125,6 +128,6 @@ public class CustomDataController {
         studyViewFilterUtil.getClinicalDataCountsFromCustomData(
             customDataSessionsMap.values(), filteredSamplesMap, patients);
 
-    return new ResponseEntity<>(result, HttpStatus.OK);
+    return new ResponseEntity<>(ClinicalDataCountItemMapper.INSTANCE.toDTOs(result), HttpStatus.OK);
   }
 }

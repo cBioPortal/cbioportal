@@ -30,7 +30,9 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.apache.commons.math3.util.Pair;
+import org.cbioportal.application.rest.mapper.ClinicalDataCountItemMapper;
 import org.cbioportal.application.rest.mapper.SampleClinicalDataCollectionMapper;
+import org.cbioportal.application.rest.response.ClinicalDataCountItemDTO;
 import org.cbioportal.application.rest.response.SampleClinicalDataCollectionDTO;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationCountByStructuralVariant;
@@ -153,8 +155,9 @@ public class StudyViewController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItem.class))))
-  public ResponseEntity<List<ClinicalDataCountItem>> fetchClinicalDataCounts(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItemDTO.class))))
+  public ResponseEntity<List<ClinicalDataCountItemDTO>> fetchClinicalDataCounts(
       @Parameter(required = true, description = "Clinical data count filter")
           @Valid
           @RequestBody(required = false)
@@ -180,7 +183,7 @@ public class StudyViewController {
     List<ClinicalDataCountItem> result =
         this.getInstance()
             .cachedClinicalDataCounts(interceptedClinicalDataCountFilter, unfilteredQuery);
-    return new ResponseEntity<>(result, HttpStatus.OK);
+    return new ResponseEntity<>(ClinicalDataCountItemMapper.INSTANCE.toDTOs(result), HttpStatus.OK);
   }
 
   @Cacheable(

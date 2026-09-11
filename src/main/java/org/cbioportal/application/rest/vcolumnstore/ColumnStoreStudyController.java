@@ -1,6 +1,10 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -99,6 +103,13 @@ public class ColumnStoreStudyController {
       method = RequestMethod.GET,
       value = "/studies",
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = CancerStudyMetadataDTO.class))))
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
           @RequestParam(required = false)

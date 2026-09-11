@@ -1,6 +1,10 @@
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -43,6 +47,11 @@ public class ColumnStoreCoExpressionController {
       value = "/molecular-profiles/co-expressions/fetch",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(array = @ArraySchema(schema = @Schema(implementation = CoExpressionDTO.class))))
   public ResponseEntity<List<CoExpressionDTO>> fetchCoExpressions(
       @Parameter(required = true, description = "Molecular Profile ID A") @RequestParam
           String molecularProfileIdA,

@@ -142,6 +142,48 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void getMetaDiscreteCopyNumbersInMultipleMolecularProfilesHomdelOrAmp() {
+    List<String> profiles = Arrays.asList("profile1", "profile2");
+    List<String> samples = Arrays.asList("sample1", "sample2");
+    List<Integer> geneIds = Arrays.asList(0, 1);
+    List<Integer> alterationTypes = Arrays.asList(-2, 2);
+    BaseMeta expectedMeta = new BaseMeta();
+    expectedMeta.setTotalCount(3);
+
+    Mockito.when(
+            discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles, samples, geneIds, alterationTypes))
+        .thenReturn(expectedMeta);
+
+    BaseMeta actual =
+        discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes);
+
+    Assert.assertEquals(expectedMeta.getTotalCount(), actual.getTotalCount());
+  }
+
+  @Test
+  public void getMetaDiscreteCopyNumbersInMultipleMolecularProfilesAllAlterationTypes() {
+    List<String> profiles = Arrays.asList("profile1", "profile2");
+    List<String> samples = Arrays.asList("sample1", "sample2");
+    List<Integer> geneIds = Arrays.asList(0, 1);
+    List<Integer> alterationTypes = Arrays.asList(-2, -1, 0, 1, 2);
+    BaseMeta expectedMeta = new BaseMeta();
+    expectedMeta.setTotalCount(5);
+
+    Mockito.when(
+            discreteCopyNumberRepository.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+                profiles, samples, geneIds, alterationTypes))
+        .thenReturn(expectedMeta);
+
+    BaseMeta actual =
+        discreteCopyNumberService.getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+            profiles, samples, geneIds, alterationTypes);
+
+    Assert.assertEquals(expectedMeta.getTotalCount(), actual.getTotalCount());
+  }
+
+  @Test
   public void getDiscreteCopyNumbersInMultipleMolecularProfilesEmptyAlterationTypes() {
     List<GeneMolecularData> returned =
         Arrays.asList(

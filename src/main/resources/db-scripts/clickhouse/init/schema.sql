@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS mutation_event;
 DROP TABLE IF EXISTS patient;
 DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_sample;
@@ -637,6 +638,23 @@ CREATE TABLE resource_study (
     `resource_id` String,
     `url` String
 ) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
+-- Unified resource-table (all entity levels), superseding resource_sample/patient/study
+-- for new installs. The importer writes only to this table; the legacy split tables
+-- above are kept for backward-compat reads by older API code paths.
+CREATE TABLE resource_data (
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID` String,
+    `CANCER_STUDY_ID` Int32,
+    `ENTITY_TYPE` String,
+    `PATIENT_ID` Nullable(String),
+    `SAMPLE_ID` Nullable(String),
+    `URL` String,
+    `DISPLAY_NAME` Nullable(String),
+    `TYPE` Nullable(String),
+    `METADATA` Nullable(String),
+    `PRIORITY` Int32
+) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
 
 CREATE TABLE sample (
     `internal_id` Int64,

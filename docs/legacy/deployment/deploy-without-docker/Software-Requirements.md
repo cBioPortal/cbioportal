@@ -18,7 +18,7 @@ The session service uses MongoDB 3.6.6
 
 ## Java
 
-cBioPortal requires Java 12 and above.  The software can be found and download from the [Oracle](https://www.oracle.com/us/technologies/java/overview/index.html) website.
+cBioPortal requires Java 12 and above.  The software can be found and downloaded from the [Oracle](https://www.oracle.com/us/technologies/java/overview/index.html) website.
 
 On Ubuntu:  ```sudo apt-get install default-jdk```
 

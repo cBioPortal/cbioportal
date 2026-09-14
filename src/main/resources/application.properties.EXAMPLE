@@ -501,4 +501,27 @@ feature.study.export.timeout_ms=600000
 # robots.crawl_delay=5
 # robots.disallow_user_agents=PetalBot
 
+# Chat sidebar (experimental)
+# Access control is the portal session plus an allowlist, enforced on the proxy. The internal base
+# URL below must NOT be publicly reachable: the chat server has no authentication of its own.
+#
+# WARNING: with authenticate=false, or authenticate=optional_oauth2 without
+# security.method_authorization_enabled=true, method security is disabled portal-wide, the
+# allowlist is not enforced, and these endpoints are open to anyone who can reach the portal.
+# chat.sidebar.url=http://127.0.0.1:4000
+# Comma-separated users permitted to use the chat, matched case-insensitively against the name the
+# identity provider reports (an email address wherever user-name-attribute is email). Empty or
+# unset denies everyone, so a missing value closes the feature rather than opening it.
+# chat.sidebar.allowed_users=someone@example.org,someone-else@example.org
+# Connect timeout for the internal HTTP client.
+# chat.sidebar.connect_timeout_ms=5000
+# Timeout for the small JSON endpoints and for static bundle requests.
+# chat.sidebar.request_timeout_ms=10000
+# Ceiling on a single streamed chat response. Applied per request, independently of the global
+# async timeout that feature.study.export configures.
+# chat.sidebar.stream_timeout_ms=600000
+#
+# NOTE: do not add text/event-stream to server.compression.mime-types -- Tomcat would buffer the
+# chat stream in order to compress it, which defeats incremental token delivery.
+
 # EOL - Do not delete the following lines

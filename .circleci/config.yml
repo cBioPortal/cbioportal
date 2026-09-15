@@ -1238,14 +1238,18 @@ jobs:
             command: |
               IMAGE=$BASE_REPO:master-web-shenandoah
               docker pull $IMAGE
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
+              docker-scout cves "$IMAGE" --format sbom --output master_raw.sbom
+              jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" \
+                master_raw.sbom > master_report.sbom
               echo "Docker Scout Report for Master"
               cat master_report.sbom | jq
         - run:
             name: Run Docker Scout on PR
             command: |
               IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
+              docker-scout cves "$IMAGE" --format sbom --output pr_raw.sbom
+              jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" \
+                pr_raw.sbom > pr_report.sbom
               echo "Docker Scout Report for PR"
               cat pr_report.sbom | jq
         - run:

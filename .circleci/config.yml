@@ -1060,9 +1060,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                478e2c6584091ccc7974e903cb5905bc16aa50af
+                b2f14c21f356491a9a5e28177558bb2f1f50a096
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                478e2c6584091ccc7974e903cb5905bc16aa50af
+                b2f14c21f356491a9a5e28177558bb2f1f50a096
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:
@@ -1076,7 +1076,7 @@ jobs:
                 NODE_ENV=development \
                 HOST=0.0.0.0 \
                 PORT=3000 \
-                CBIOPORTAL_URL= \
+                CBIOPORTAL_URL=http://localhost:8080 \
                 CBIOPORTAL_PROXY_TARGET=http://localhost:8080 \
                 WSI_RUNTIME_MODE=proxied \
                 pnpm exec rspack serve -c rspack.config.js \
@@ -1093,6 +1093,20 @@ jobs:
                 cat /tmp/repos/frontend-logs.txt || true
                 echo "Frontend processes:"
                 ps aux | grep -E '[r]spack|[p]npm' || true
+                exit 1
+              fi
+              curl --fail --silent --show-error --insecure \
+                https://localhost:3000/ \
+                --output /tmp/repos/frontend-index.html
+              curl --fail --silent --show-error --insecure \
+                https://localhost:3000/reactapp/main.app.js \
+                --output /tmp/repos/frontend-main.app.js
+              if grep -Eq '__WSI_[A-Z_]+__' /tmp/repos/frontend-index.html; then
+                echo 'Frontend HTML contains unresolved WSI template variables'
+                exit 1
+              fi
+              if grep -q 'replace_me_env_cbioportal_url' /tmp/repos/frontend-main.app.js; then
+                echo 'Frontend bundle contains the placeholder cBioPortal API URL'
                 exit 1
               fi
         - run:

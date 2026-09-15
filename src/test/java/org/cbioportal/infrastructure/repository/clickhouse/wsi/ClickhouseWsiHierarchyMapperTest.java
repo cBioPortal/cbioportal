@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -69,5 +71,25 @@ public class ClickhouseWsiHierarchyMapperTest {
   @Test
   public void returnsNullWhenWsiDataIsMissing() {
     assertNull(repository.getPatientHierarchy("wsi_missing_data_study", "MISSING-DATA"));
+  }
+
+  @Test
+  public void derivesIhcTypeWhenLegacyRowHasNoSlideType() {
+    Map<String, Object> row = new HashMap<>();
+    row.put("is_hne", false);
+    row.put("is_ihc", true);
+    row.put("slide_type", null);
+
+    assertEquals("IHC", ClickhouseWsiHierarchyRepository.resolveSlideType(row));
+  }
+
+  @Test
+  public void usesOtherForUnclassifiedLegacyRow() {
+    Map<String, Object> row = new HashMap<>();
+    row.put("is_hne", false);
+    row.put("is_ihc", false);
+    row.put("slide_type", null);
+
+    assertEquals("Other", ClickhouseWsiHierarchyRepository.resolveSlideType(row));
   }
 }

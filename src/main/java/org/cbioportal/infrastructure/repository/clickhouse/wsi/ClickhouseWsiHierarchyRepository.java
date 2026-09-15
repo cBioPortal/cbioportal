@@ -105,7 +105,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               longValue(row, "file_size_bytes"),
               boolValue(row, "can_serve_tiles"),
               value(row, "barcode", String.class),
-              value(row, "slide_type", String.class),
+              resolveSlideType(row),
               sampleKey,
               value(row, "match_level", String.class),
               value(row, "specimen_key", String.class)));
@@ -146,6 +146,24 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   private static boolean boolValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value instanceof Boolean ? (Boolean) value : value != null && ((Number) value).intValue() != 0;
+  }
+
+  /**
+   * Older WSI snapshots did not populate slide_type, although the resolved
+   * boolean stain flags were present. Keep the API contract stable by deriving
+   * the type from those authoritative flags before falling back to the stored
+   * value. This prevents nullable legacy rows from being interpreted as H&E by
+   * clients.
+   */
+  static String resolveSlideType(Map<String, Object> row) {
+    if (boolValue(row, "is_ihc")) {
+      return "IHC";
+    }
+    if (boolValue(row, "is_hne")) {
+      return "H&E";
+    }
+    String slideType = value(row, "slide_type", String.class);
+    return slideType == null ? "Other" : slideType;
   }
 
   private static boolean isDeidentifiedRow(Map<String, Object> row) {

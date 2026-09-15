@@ -1110,6 +1110,16 @@ jobs:
                 echo 'Frontend bundle contains the placeholder cBioPortal API URL'
                 exit 1
               fi
+              portal_api_status=$(curl --silent --show-error --insecure \
+                --output /tmp/repos/frontend-proxied-api.json \
+                --write-out '%{http_code}' \
+                --header 'Origin: https://localhost:3000' \
+                'https://localhost:3000/api/studies?projection=SUMMARY&pageSize=1')
+              if [ "$portal_api_status" != 200 ]; then
+                echo "Same-origin frontend API proxy returned $portal_api_status"
+                cat /tmp/repos/frontend-proxied-api.json
+                exit 1
+              fi
         - run:
             name: Start local WSI tile contract fixture
             command: |

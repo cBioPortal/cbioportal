@@ -35,6 +35,8 @@ type Slide = {
   sampleId: string | null;
   matchLevel: 'PART' | 'BLOCK' | 'UNMATCHED';
   canServeTiles: boolean;
+  procedureDateDays: number | null;
+  timepointSource: string | null;
 };
 type Block = { slides: Slide[] };
 type Part = { blocks: Block[] };
@@ -286,6 +288,26 @@ describe('Authenticated WsiHierarchyController and tile contract', () => {
         expect(slide.sampleId).to.be.a('string').and.not.empty;
       }
     });
+  });
+
+  it('sources slide timepoints from the imported pathology timeline', async function () {
+    if (!hasTileSetup) this.skip();
+    const response = await axios.get<PatientHierarchy>(
+      hierarchyUrl,
+      await authenticatedRequestOptions()
+    );
+    const block = findSlide(response.data, 'BLOCK');
+    const part = findSlide(response.data, 'PART');
+    const unmatched = findSlide(response.data, 'UNMATCHED');
+
+    [block, part].forEach(slide => {
+      expect(slide.procedureDateDays).to.equal(-17);
+      expect(slide.timepointSource).to.equal(
+        'Procedure date relative to first ICD-O diagnosis'
+      );
+    });
+    expect(unmatched.procedureDateDays).to.equal(null);
+    expect(unmatched.timepointSource).to.equal(null);
   });
 
   it('returns 404 for an unknown patient after authentication', async function () {

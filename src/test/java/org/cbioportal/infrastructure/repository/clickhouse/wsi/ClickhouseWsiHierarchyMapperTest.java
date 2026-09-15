@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 import org.cbioportal.domain.wsi.WsiHierarchy;
+import org.cbioportal.domain.wsi.WsiSlide;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.junit.Test;
@@ -43,6 +44,17 @@ public class ClickhouseWsiHierarchyMapperTest {
             .anyMatch(
                 slide ->
                     slide.imageId().equals("3020726") && slide.sampleId().equals("WSI-SAMPLE")));
+
+    WsiSlide timedSlide =
+        hierarchy.sampleGroups().stream()
+            .flatMap(group -> group.parts().stream())
+            .flatMap(part -> part.blocks().stream())
+            .flatMap(block -> block.slides().stream())
+            .filter(slide -> slide.imageId().equals("3020726"))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(Integer.valueOf(-17), timedSlide.procedureDateDays());
+    assertEquals("Procedure date relative to first ICD-O diagnosis", timedSlide.timepointSource());
   }
 
   @Test
@@ -59,6 +71,17 @@ public class ClickhouseWsiHierarchyMapperTest {
     assertEquals(
         "active-slide",
         hierarchy.sampleGroups().get(0).parts().get(0).blocks().get(0).slides().get(0).imageId());
+    assertNull(
+        hierarchy
+            .sampleGroups()
+            .get(0)
+            .parts()
+            .get(0)
+            .blocks()
+            .get(0)
+            .slides()
+            .get(0)
+            .procedureDateDays());
   }
 
   @Test

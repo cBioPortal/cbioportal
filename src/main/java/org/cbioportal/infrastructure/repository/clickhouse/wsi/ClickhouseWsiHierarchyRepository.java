@@ -111,7 +111,9 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               resolveSlideType(row),
               sampleKey,
               value(row, "match_level", String.class),
-              value(row, "specimen_key", String.class)));
+              value(row, "specimen_key", String.class),
+              intValue(row, "procedure_date_days"),
+              value(row, "timepoint_source", String.class)));
     }
 
     List<WsiSampleGroup> sampleGroups =
@@ -137,6 +139,11 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   private static Long longValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value == null ? null : ((Number) value).longValue();
+  }
+
+  private static Integer intValue(Map<String, Object> row, String key) {
+    Object value = row.get(key);
+    return value == null ? null : ((Number) value).intValue();
   }
 
   private static long contextLongValue(Map<String, Object> row, String key) {

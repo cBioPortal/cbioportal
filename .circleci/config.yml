@@ -1021,6 +1021,33 @@ jobs:
                     WHERE cancer_study_identifier = '\''msk_spectrum_tme_2022'\''"
               ')
               test "$imported_samples" = 1
+              imported_pathology_events=$(docker exec cbioportal-database-container sh -lc '
+                clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
+                  --database "$CLICKHOUSE_DB" --query "
+                    SELECT count()
+                    FROM clinical_event AS event
+                    INNER JOIN patient
+                      ON patient.internal_id = event.patient_id
+                    INNER JOIN cancer_study AS study
+                      ON study.cancer_study_id = patient.cancer_study_id
+                    WHERE study.cancer_study_identifier = '\''msk_spectrum_tme_2022'\''
+                      AND upperUTF8(event.event_type) = '\''PATHOLOGY SLIDES'\''"
+              ')
+              test "$imported_pathology_events" = 3
+              curl -fsS \
+                http://localhost:8080/api/wsi/v2/hierarchy/msk_spectrum_tme_2022/P-0055908 \
+                | jq -e '
+                    [
+                      .sampleGroups[].parts[].blocks[].slides[]
+                      | select(.imageId == "3020726" or .imageId == "3020691")
+                      | select(
+                          .procedureDateDays == -17
+                          and .timepointSource
+                            == "Procedure date relative to first ICD-O diagnosis"
+                        )
+                    ]
+                    | length == 2
+                  '
         - run:
             name: Capture WSI diagnostics
             when: always
@@ -1060,9 +1087,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                e199b3400e9adb6eae4eb6736a5a81783f54928d
+                e2d568056ffda022443999cd39ec8a47e5246358
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                e199b3400e9adb6eae4eb6736a5a81783f54928d
+                e2d568056ffda022443999cd39ec8a47e5246358
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

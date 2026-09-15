@@ -27,7 +27,9 @@
             slide.barcode AS barcode,
             slide.slide_type AS slide_type,
             placement.match_level AS match_level,
-            placement.specimen_key AS specimen_key
+            placement.specimen_key AS specimen_key,
+            timepoint.procedure_date_days AS procedure_date_days,
+            timepoint.timepoint_source AS timepoint_source
         FROM (
             SELECT *
             FROM wsi_patient
@@ -72,6 +74,45 @@
            AND slide.patient_id = placement.patient_id
            AND slide.image_id = placement.image_id
         LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id
+        LEFT JOIN (
+            SELECT
+                event.patient_id AS patient_id,
+                toNullable(event.start_date) AS procedure_date_days,
+                nullIf(maxIf(data.value, upperUTF8(data.key) = 'SAMPLE_ID'), '') AS sample_id,
+                nullIf(maxIf(data.value, upperUTF8(data.key) = 'SUBTYPE'), '') AS subtype,
+                nullIf(maxIf(data.value, upperUTF8(data.key) = 'MATCH_LEVEL'), '') AS match_level,
+                coalesce(
+                    nullIf(maxIf(data.value, upperUTF8(data.key) = 'SPECIMEN_KEY'), ''),
+                    nullIf(
+                        decodeURLComponent(
+                            extractURLParameter(
+                                maxIf(data.value, upperUTF8(data.key) = 'LINKOUT'),
+                                'specimenKey'
+                            )
+                        ),
+                        ''
+                    )
+                ) AS specimen_key,
+                nullIf(maxIf(data.value, upperUTF8(data.key) = 'TIMEPOINT_SOURCE'), '') AS timepoint_source
+            FROM clinical_event event
+            INNER JOIN clinical_event_data data
+                ON data.clinical_event_id = event.clinical_event_id
+            WHERE upperUTF8(event.event_type) = 'PATHOLOGY SLIDES'
+            GROUP BY event.clinical_event_id, event.patient_id, event.start_date
+        ) timepoint
+            ON timepoint.patient_id = placement.patient_id
+           AND upperUTF8(timepoint.match_level) = placement.match_level
+           AND timepoint.specimen_key = placement.specimen_key
+           AND upperUTF8(timepoint.sample_id) = upperUTF8(
+                if(placement.sample_id IS NULL, 'Unmatched', toString(portal_sample.stable_id))
+           )
+           AND replaceAll(upperUTF8(timepoint.subtype), '&amp;', '') = multiIf(
+                slide.is_ihc,
+                'IHC',
+                slide.is_hne,
+                'HE',
+                'OTHER'
+           )
         ORDER BY sample_id, part.part_key, block.block_key, slide.image_id
     </select>
 </mapper>

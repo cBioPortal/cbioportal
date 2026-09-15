@@ -16,4 +16,6 @@ public record WsiSlide(
     String slideType,
     String sampleId,
     String matchLevel,
-    String specimenKey) {}
+    String specimenKey,
+    Integer procedureDateDays,
+    String timepointSource) {}

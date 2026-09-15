@@ -1060,9 +1060,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                b2f14c21f356491a9a5e28177558bb2f1f50a096
+                6adce9a73a2aa6e11f269e852a662cf787348b1a
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                b2f14c21f356491a9a5e28177558bb2f1f50a096
+                6adce9a73a2aa6e11f269e852a662cf787348b1a
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:
@@ -1078,6 +1078,7 @@ jobs:
                 PORT=3000 \
                 CBIOPORTAL_URL=http://localhost:8080 \
                 CBIOPORTAL_PROXY_TARGET=http://localhost:8080 \
+                WSI_TILE_PROXY_TARGET=http://localhost:8081 \
                 WSI_RUNTIME_MODE=proxied \
                 pnpm exec rspack serve -c rspack.config.js \
                 >> /tmp/repos/frontend-logs.txt 2>&1 &
@@ -1124,7 +1125,12 @@ jobs:
         - run:
             name: Smoke check local-file WSI tile server mode
             command: |
-              curl -fsS http://localhost:8081/health | jq '.auth_contract_version' > /tmp/repos/wsi-tile-smoke.txt
+              direct_contract=$(curl -fsS http://localhost:8081/health | jq -er '.auth_contract_version')
+              proxied_contract=$(curl -fsSk https://localhost:3000/wsi/health | jq -er '.auth_contract_version')
+              test "$direct_contract" = 2
+              test "$proxied_contract" = "$direct_contract"
+              printf 'direct=%s proxied=%s\n' "$direct_contract" "$proxied_contract" \
+                > /tmp/repos/wsi-tile-smoke.txt
         - restore_cache:
             name: Restore Playwright browser cache for WSI E2E
             keys:

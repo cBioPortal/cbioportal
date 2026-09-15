@@ -27,9 +27,8 @@ RUN mvn -q dependency:go-offline --fail-never
 ARG MAVEN_OPTS=-DskipTests
 COPY . .
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    # Shibboleth's Maven repository can briefly return 403 while CI runners
-    # are downloading OpenSAML. Retry the package step so a transient mirror
-    # response does not strand the whole PR workflow.
+    # Retry the package step so a transient external Maven repository response
+    # does not strand the whole PR workflow.
     && for attempt in 1 2 3 4 5; do \
          find /root/.m2 -name '*.lastUpdated' -delete; \
          mvn -U ${MAVEN_OPTS} -Dmaven.wagon.http.retryHandler.count=5 -q package && break; \

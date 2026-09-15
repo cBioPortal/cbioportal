@@ -324,7 +324,11 @@ PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>P
 ```
 
 The required values are `PATIENT_ID`, `IMAGE_ID`, `PART_KEY`, `BLOCK_KEY`,
-`MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, and `CAN_SERVE_TILES`.
+`MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, `SLIDE_TYPE`, and
+`CAN_SERVE_TILES`. `SLIDE_TYPE` is the controlled classification value and is
+one of `H&E`, `IHC`, or `Other`. `STAIN_NAME` and `STAIN_GROUP` are optional
+descriptive source labels, so values such as `H&E, Initial` and
+`H&E (Initial)` are valid and are not used as the classification contract.
 `IMAGE_ID` is unique within a study. All rows for one patient must use the same
 optional `REFERENCE_SAMPLE_ID`.
 

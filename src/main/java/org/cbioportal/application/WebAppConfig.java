@@ -66,7 +66,8 @@ public class WebAppConfig implements WebMvcConfigurer {
             "/ln**",
             "/webAPI**",
             "/news**",
-            "/visualize**");
+            "/visualize**",
+            "/oncotree2genes**");
 
     endpoints.forEach(route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));
   }

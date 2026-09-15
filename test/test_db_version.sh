@@ -80,7 +80,7 @@ pom_db_version_line=$(grep '<db.version>' ${DIR}/../pom.xml | tail -n 1)
 find_delimited_substrings "$pom_db_version_line" ">" "<"
 pom_db_version=${found_delimited_substrings[0]}
 
-# --- schema.sql: INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.0.0', ...); ---
+# --- schema.sql: INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('<version>', ...); ---
 schema_sql_info_line=$(grep 'INSERT INTO info' ${SCHEMA_SQL} | tail -n 1)
 find_delimited_substrings "$schema_sql_info_line" "'" "'"
 schema_sql_db_version=${found_delimited_substrings[0]}

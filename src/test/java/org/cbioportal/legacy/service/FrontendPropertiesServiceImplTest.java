@@ -17,6 +17,17 @@ import org.springframework.test.util.ReflectionTestUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class FrontendPropertiesServiceImplTest {
 
+  @Test
+  public void exposesImmutableWsiReleaseProperties() {
+    assertEquals(
+        "wsi.release-id",
+        FrontendPropertiesServiceImpl.FrontendProperty.wsi_release_id.getPropertyName());
+    assertEquals(
+        "wsi-serving-v2",
+        FrontendPropertiesServiceImpl.FrontendProperty.wsi_serving_contract_version
+            .getDefaultValue());
+  }
+
   @Mock private Environment env;
 
   @Test

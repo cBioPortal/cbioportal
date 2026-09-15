@@ -14,3 +14,4 @@ jobs:
         run: |
           bash test/test_db_version.sh
           bash test/test_truncate_sync_settings.sh
+          python3 test/test_clickhouse_wsi_schema_parity.py

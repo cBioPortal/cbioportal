@@ -27,7 +27,15 @@ RUN mvn -q dependency:go-offline --fail-never
 ARG MAVEN_OPTS=-DskipTests
 COPY . .
 RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties \
-    && mvn ${MAVEN_OPTS} -q package
+    # Shibboleth's Maven repository can briefly return 403 while CI runners
+    # are downloading OpenSAML. Retry the package step so a transient mirror
+    # response does not strand the whole PR workflow.
+    && for attempt in 1 2 3 4 5; do \
+         find /root/.m2 -name '*.lastUpdated' -delete; \
+         mvn -U ${MAVEN_OPTS} -Dmaven.wagon.http.retryHandler.count=5 -q package && break; \
+         if [ "$attempt" -eq 5 ]; then exit 1; fi; \
+         sleep $((attempt * 15)); \
+       done
 
 # JRE (not JDK) runtime: this image only runs the prebuilt jar, so the JDK's
 # compiler/dev tooling is not needed. Shenandoah GC is included in the standard

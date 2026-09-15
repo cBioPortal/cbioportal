@@ -1119,7 +1119,8 @@ jobs:
             name: Run WSI API tests
             environment:
               CBIOPORTAL_URL: http://localhost:8080
-              CBIOPORTAL_FRONTEND_URL: http://localhost:3000
+              CBIOPORTAL_FRONTEND_URL: https://localhost:3000
+              WSI_FRONTEND_ALLOW_SELF_SIGNED_TLS: "true"
               WSI_TILE_SERVER_URL: http://localhost:8081
               WSI_AUTH_SECRET: local-development-wsi-secret-change-me-32chars
               WSI_AUTH_AUDIENCE: cbioportal-wsi

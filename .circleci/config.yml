@@ -1060,9 +1060,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                93c36dc0f39ac53dcd42d2cb8f9ce076cb182e06
+                b0d8d80ed8275001cc9f932b367cb6a149927d9a
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                93c36dc0f39ac53dcd42d2cb8f9ce076cb182e06
+                b0d8d80ed8275001cc9f932b367cb6a149927d9a
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:
@@ -1085,7 +1085,10 @@ jobs:
             name: Wait for frontend to be live at localhost
             command: |
               cd cbioportal-test
-              if ! ./utils/check-connection.sh --url=localhost:3000 --max_retries=80; then
+              if ! ./utils/check-connection.sh \
+                --url=https://localhost:3000 \
+                --insecure=true \
+                --max_retries=80; then
                 echo "Frontend server log:"
                 cat /tmp/repos/frontend-logs.txt || true
                 echo "Frontend processes:"
@@ -1163,10 +1166,11 @@ jobs:
         - run:
             name: Run WSI browser E2E against imported backend
             environment:
-              CBIOPORTAL_URL: http://localhost:3000
+              CBIOPORTAL_URL: https://localhost:3000
               LOCALDEV: "0"
+              PW_IGNORE_HTTPS_ERRORS: "1"
               PW_SUITE: wsi
-              WSI_VIEWER_BASE_URL: http://localhost:3000
+              WSI_VIEWER_BASE_URL: https://localhost:3000
               WSI_PROXY_REHEARSAL: "1"
               CBIO_URL: http://localhost:8080
             command: |

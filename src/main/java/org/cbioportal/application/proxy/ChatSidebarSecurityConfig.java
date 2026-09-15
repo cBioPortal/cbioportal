@@ -1,7 +1,6 @@
 package org.cbioportal.application.proxy;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -21,8 +20,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @ConditionalOnProperty(name = "chat.sidebar.url")
 public class ChatSidebarSecurityConfig {
 
+  // Must sort ahead of OAuth2SecurityConfig's catch-all chain, whose bean is @Order(1). A larger
+  // value leaves this chain unreachable and fails startup.
   @Bean
-  @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
+  @Order(0)
   public SecurityFilterChain chatSidebarFilterChain(HttpSecurity http) throws Exception {
     return http.securityMatcher("/chat-sidebar/**")
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin))

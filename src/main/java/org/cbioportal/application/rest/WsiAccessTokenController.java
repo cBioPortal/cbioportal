@@ -53,7 +53,13 @@ public class WsiAccessTokenController {
    * The capability is bound to the exact source and thumbnail URLs so a valid token cannot be
    * replayed against another object.
    */
-  @GetMapping("/v2/slides/{studyId}/{imageId}/access")
+  @GetMapping({
+    "/v2/slides/{studyId}/{imageId}/access",
+    // Keep the pre-v2 route during the rolling frontend rollout. Both paths
+    // issue the same source-bound capability; removing this alias would make
+    // an older cached portal bundle render an empty viewer with 404s.
+    "/slides/{studyId}/{imageId}/access"
+  })
   @PreAuthorize(
       "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")

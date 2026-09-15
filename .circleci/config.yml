@@ -942,7 +942,7 @@ jobs:
               export WSI_CORE_REPOSITORY=raylim/cbioportal-core
               # Pin the exact core PR commit so this test is reproducible and
               # cannot silently follow a mutable personal-fork branch.
-              export WSI_CORE_REF=4ba4eeb4e2962b5db1049f1188775ffe4c2d6e0c
+              export WSI_CORE_REF=4d33c06c4c24a0e2626bf064e18cf80e7846229c
               : > /tmp/repos/wsi-image-build.log
               docker build \
                 --build-arg CORE_REPOSITORY="$WSI_CORE_REPOSITORY" \

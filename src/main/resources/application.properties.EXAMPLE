@@ -509,10 +509,33 @@ feature.study.export.timeout_ms=600000
 # security.method_authorization_enabled=true, method security is disabled portal-wide, the
 # allowlist is not enforced, and these endpoints are open to anyone who can reach the portal.
 # chat.sidebar.url=http://127.0.0.1:4000
-# Comma-separated users permitted to use the chat, matched case-insensitively against the name the
-# identity provider reports (an email address wherever user-name-attribute is email). Empty or
-# unset denies everyone, so a missing value closes the feature rather than opening it.
+# Access is granted by the two lists below. Both match case-insensitively against the name the
+# identity provider reports (an email address wherever user-name-attribute is email), and both
+# match only an address that GOOGLE reported: Google issues an address to whoever proved they
+# control it, whereas Entra lets a tenant set a user's email to a domain the tenant does not own,
+# so anyone could register a free tenant, claim a listed address and be let in. A tester who signs
+# in with Microsoft therefore never matches, however they are listed, even though that provider
+# does sign them into the portal.
+#
+# Empty or unset denies everyone, each list independently, so a missing value closes the feature
+# rather than opening it. The method-security warning above applies to both: where it applies,
+# neither list is consulted at all.
+#
+# Comma-separated individual addresses permitted to use the chat.
 # chat.sidebar.allowed_users=someone@example.org,someone-else@example.org
+# Comma-separated domains, every address at which is permitted. Matched exactly -- listing
+# example.org does not cover sub.example.org, which needs an entry of its own. A leading "@" or
+# "*@" is accepted and ignored.
+#
+# Know what an entry grants before adding one. It is not "whoever holds a mailbox there today":
+# Google verifies a non-Gmail address once at sign-up and never rechecks it, so someone who has
+# since left the institution keeps their account, and revoking their mailbox does nothing this
+# portal can observe. Where the domain is on Google Workspace instead, its admins can mint any
+# identity in it. Either way, editing this property is the only way to withdraw access.
+#
+# WARNING: never list a domain that anyone can register an address at (gmail.com, outlook.com,
+# ...). A single such entry opens the chat to the entire internet.
+# chat.sidebar.allowed_domains=example.org,sub.example.org
 # Connect timeout for the internal HTTP client.
 # chat.sidebar.connect_timeout_ms=5000
 # Timeout for the small JSON endpoints and for static bundle requests.

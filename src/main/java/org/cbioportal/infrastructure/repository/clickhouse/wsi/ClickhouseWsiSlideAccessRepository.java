@@ -141,8 +141,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
         || height > 8192) {
       return false;
     }
-    if (!safeArtifactUrl(sourceUrl, SOURCE_EXTENSIONS, null)
-        || !safeArtifactUrl(thumbnailUrl, THUMBNAIL_EXTENSIONS, null)) {
+    if (!safeArtifactUrl(sourceUrl, SOURCE_EXTENSIONS, "WSI_ALLOWED_SOURCE_PREFIXES")
+        || !safeArtifactUrl(thumbnailUrl, THUMBNAIL_EXTENSIONS, "WSI_ALLOWED_THUMBNAIL_PREFIXES")) {
       return false;
     }
     if (!thumbnailContentTypeMatches(thumbnailUrl, contentType)) {
@@ -198,8 +198,10 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
               .anyMatch(segment -> ".".equals(segment) || "..".equals(segment))) {
         return false;
       }
-      boolean approved = prefixEnv != null && approvedPrefix(value, prefixEnv);
-      if (prefixEnv != null && !approved) {
+      boolean policyConfigured =
+          prefixEnv != null && !System.getenv().getOrDefault(prefixEnv, "").isBlank();
+      boolean approved = policyConfigured && approvedPrefix(value, prefixEnv);
+      if (policyConfigured && !approved) {
         return false;
       }
       if ((!approved && (containsAbsoluteDate(value)

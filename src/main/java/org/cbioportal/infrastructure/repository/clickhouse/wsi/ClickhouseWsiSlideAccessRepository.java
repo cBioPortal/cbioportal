@@ -198,13 +198,14 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
               .anyMatch(segment -> ".".equals(segment) || "..".equals(segment))) {
         return false;
       }
-      if (prefixEnv != null && !approvedPrefix(value, prefixEnv)) {
+      boolean approved = prefixEnv != null && approvedPrefix(value, prefixEnv);
+      if (prefixEnv != null && !approved) {
         return false;
       }
-      if (containsAbsoluteDate(value)
+      if ((!approved && (containsAbsoluteDate(value)
           || containsAbsoluteDate(path)
           || COMPACT_DATE.matcher(value).find()
-          || COMPACT_DATE.matcher(path).find()
+          || COMPACT_DATE.matcher(path).find()))
           || LABELLED_MRN.matcher(value).find()
           || LABELLED_MRN.matcher(path).find()) {
         return false;

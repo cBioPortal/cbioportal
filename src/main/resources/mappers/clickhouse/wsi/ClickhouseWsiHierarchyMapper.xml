@@ -81,6 +81,7 @@
                 nullIf(maxIf(data.value, upperUTF8(data.key) = 'SAMPLE_ID'), '') AS sample_id,
                 nullIf(maxIf(data.value, upperUTF8(data.key) = 'SUBTYPE'), '') AS subtype,
                 nullIf(maxIf(data.value, upperUTF8(data.key) = 'MATCH_LEVEL'), '') AS match_level,
+                nullIf(maxIf(data.value, upperUTF8(data.key) = 'IMAGE_IDS'), '') AS image_ids,
                 coalesce(
                     nullIf(maxIf(data.value, upperUTF8(data.key) = 'SPECIMEN_KEY'), ''),
                     nullIf(
@@ -104,6 +105,11 @@
             ON timepoint.patient_id = placement.patient_id
            AND upperUTF8(timepoint.match_level) = placement.match_level
            AND timepoint.specimen_key = placement.specimen_key
+           AND (
+                (timepoint.image_ids IS NOT NULL
+                    AND has(JSONExtract(timepoint.image_ids, 'Array(String)'), toString(slide.image_id)))
+                OR timepoint.image_ids IS NULL
+           )
            AND upperUTF8(timepoint.sample_id) = upperUTF8(
                 if(placement.sample_id IS NULL, 'Unmatched', toString(portal_sample.stable_id))
            )

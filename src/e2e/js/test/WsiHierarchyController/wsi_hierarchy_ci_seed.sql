@@ -108,6 +108,7 @@ VALUES
   (990001, 'SPECIMEN', 'Part 27 / Block 4RO'),
   (990001, 'SUBTYPE', 'H&E'),
   (990001, 'TIMEPOINT_SOURCE', 'Procedure date relative to tumor sequencing'),
+  (990001, 'IMAGE_IDS', '["3020726"]'),
   (990001, 'LINKOUT', '/patient/wsiHESlides?studyId=msk_spectrum_tme_2022&caseId=P-0055908&sampleId=P-0055908-T01-IM6&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A27%3A%3A4'),
   (990002, 'IMAGE_COUNT', '1'),
   (990002, 'NON_SERVABLE_IMAGE_COUNT', '0'),
@@ -117,6 +118,7 @@ VALUES
   (990002, 'SPECIMEN', 'Part 27 / Block 1 RFIM'),
   (990002, 'SUBTYPE', 'H&E'),
   (990002, 'TIMEPOINT_SOURCE', 'Procedure date relative to tumor sequencing'),
+  (990002, 'IMAGE_IDS', '["3020691"]'),
   (990002, 'LINKOUT', '/patient/wsiHESlides?studyId=msk_spectrum_tme_2022&caseId=P-0055908&sampleId=P-0055908-T01-IM6&stainFilter=hne&matchLevel=PART&specimenKey=part%3A%3A27'),
   (990003, 'IMAGE_COUNT', '0'),
   (990003, 'NON_SERVABLE_IMAGE_COUNT', '1'),
@@ -126,7 +128,7 @@ VALUES
   (990003, 'SPECIMEN', 'Part 34 / Block 4RS'),
   (990003, 'SUBTYPE', 'H&E'),
   (990003, 'TIMEPOINT_SOURCE', 'Procedure date relative to tumor sequencing'),
-  (990003, 'LINKOUT', '/patient/wsiHESlides?studyId=msk_spectrum_tme_2022&caseId=P-0055908&stainFilter=hne&matchLevel=UNMATCHED&specimenKey=unmatched%3A%3A34%3A%3A4'),
+  (990003, 'IMAGE_IDS', '["3020648"]'),
   (990004, 'IMAGE_COUNT', '1'),
   (990004, 'NON_SERVABLE_IMAGE_COUNT', '0'),
   (990004, 'TOTAL_IMAGE_COUNT', '1'),
@@ -135,6 +137,7 @@ VALUES
   (990004, 'SPECIMEN', 'Part 1 / Block 1'),
   (990004, 'SUBTYPE', 'H&E'),
   (990004, 'TIMEPOINT_SOURCE', 'Procedure date relative to tumor sequencing'),
+  (990004, 'IMAGE_IDS', '["4020726"]'),
   (990004, 'LINKOUT', '/patient/wsiHESlides?studyId=wsi_ci_study_b&caseId=WSI-CI-B-PATIENT&sampleId=WSI-CI-B-SAMPLE&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A1%3A%3A1');
 
 -- Single snapshot for the MSK fixture, including one explicitly unmatched slide.

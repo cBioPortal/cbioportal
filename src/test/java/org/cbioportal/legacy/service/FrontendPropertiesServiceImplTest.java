@@ -23,7 +23,7 @@ public class FrontendPropertiesServiceImplTest {
         "wsi.release-id",
         FrontendPropertiesServiceImpl.FrontendProperty.wsi_release_id.getPropertyName());
     assertEquals(
-        "wsi-serving-v2",
+        "wsi-serving-v3",
         FrontendPropertiesServiceImpl.FrontendProperty.wsi_serving_contract_version
             .getDefaultValue());
   }

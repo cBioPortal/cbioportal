@@ -760,6 +760,8 @@ values (9001,'MATCH_LEVEL','BLOCK');
 insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'TIMEPOINT_SOURCE','Procedure date relative to first ICD-O diagnosis');
 insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'IMAGE_IDS','["3020726"]');
+insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'LINKOUT','/patient/wsiHESlides?studyId=wsi_test_study&caseId=WSI-PATIENT&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A27%3A%3A4&sampleId=WSI-SAMPLE');
 
 -- generic assay test data

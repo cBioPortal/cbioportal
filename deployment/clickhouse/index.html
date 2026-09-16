@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.842900252956">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.842901185815">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,12 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.842900252956" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.842901185815" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.842900252956" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.842901185815" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.842900252956" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.842900252956" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.842901185815" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.842901185815" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -566,7 +566,7 @@ write privileges within the created cBioPortal database:</p>
 <p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.mutations TO my_cbioportal_admin</code></p>
 <p><code translate="no" v-pre>GRANT SHOW COLUMNS, SELECT ON system.one TO my_cbioportal_admin</code></p>
 <p>For clickhouse server versions between 24.10 and 25.6:
-<code translate="no" v-pre>GRANT CLUSTER ON *.* TO my_cbioportal_admin</code></p>
+<code translate="no" v-pre>GRANT REMOTE ON *.* TO my_cbioportal_admin</code></p>
 <p>For clickhouse server versions beginning with 25.7 and onward:
 <code translate="no" v-pre>GRANT READ ON REMOTE TO my_cbioportal_admin</code></p>
 <p>By using restricted-privilege Clickhouse users, a compromised user account would be limited to improper

@@ -113,6 +113,7 @@
            AND upperUTF8(timepoint.sample_id) = upperUTF8(
                 if(placement.sample_id IS NULL, 'Unmatched', toString(portal_sample.stable_id))
            )
+           <!-- XML escapes the SQL ampersand; ClickHouse normalizes H&E to HE. -->
            AND replaceAll(upperUTF8(timepoint.subtype), '&amp;', '') = multiIf(
                 slide.is_ihc,
                 'IHC',

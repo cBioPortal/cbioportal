@@ -3,7 +3,16 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
     <select id="getPatientHierarchy" resultType="hashmap">
-        WITH timepoint_events AS (
+        WITH pathology_events AS (
+            SELECT
+                clinical_event_id,
+                patient_id,
+                start_date
+            FROM clinical_event
+            PREWHERE patient_id = #{patientInternalId}
+            WHERE upperUTF8(event_type) = 'PATHOLOGY SLIDES'
+        ),
+        timepoint_events AS (
             SELECT
                 event.patient_id AS patient_id,
                 toNullable(event.start_date) AS procedure_date_days,
@@ -24,11 +33,16 @@
                     )
                 ) AS specimen_key,
                 nullIf(maxIf(data.value, upperUTF8(data.key) = 'TIMEPOINT_SOURCE'), '') AS timepoint_source
-            FROM clinical_event event
-            INNER JOIN clinical_event_data data
+            FROM pathology_events event
+            INNER JOIN (
+                SELECT clinical_event_id, key, value
+                FROM clinical_event_data
+                WHERE clinical_event_id IN (
+                    SELECT clinical_event_id
+                    FROM pathology_events
+                )
+            ) data
                 ON data.clinical_event_id = event.clinical_event_id
-            WHERE event.patient_id = #{patientInternalId}
-              AND upperUTF8(event.event_type) = 'PATHOLOGY SLIDES'
             GROUP BY event.clinical_event_id, event.patient_id, event.start_date
         ),
         timepoint_exact AS (
@@ -122,7 +136,7 @@
            AND slide.patient_id = placement.patient_id
            AND slide.image_id = placement.image_id
         LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id
-        LEFT JOIN timepoint_exact
+        ANY LEFT JOIN timepoint_exact
             ON timepoint_exact.patient_id = placement.patient_id
            AND upperUTF8(timepoint_exact.match_level) = placement.match_level
            AND timepoint_exact.specimen_key = placement.specimen_key
@@ -138,7 +152,7 @@
                 'HE',
                 'OTHER'
            )
-        LEFT JOIN timepoint_legacy
+        ANY LEFT JOIN timepoint_legacy
             ON timepoint_legacy.patient_id = placement.patient_id
            AND upperUTF8(timepoint_legacy.match_level) = placement.match_level
            AND timepoint_legacy.specimen_key = placement.specimen_key

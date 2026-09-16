@@ -97,7 +97,8 @@
             FROM clinical_event event
             INNER JOIN clinical_event_data data
                 ON data.clinical_event_id = event.clinical_event_id
-            WHERE upperUTF8(event.event_type) = 'PATHOLOGY SLIDES'
+            WHERE event.patient_id = #{patientInternalId}
+              AND upperUTF8(event.event_type) = 'PATHOLOGY SLIDES'
             GROUP BY event.clinical_event_id, event.patient_id, event.start_date
         ) timepoint
             ON timepoint.patient_id = placement.patient_id

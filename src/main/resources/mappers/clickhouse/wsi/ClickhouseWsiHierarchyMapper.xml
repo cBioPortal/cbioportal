@@ -107,7 +107,10 @@
            AND timepoint.specimen_key = placement.specimen_key
            AND (
                 (timepoint.image_ids IS NOT NULL
-                    AND has(JSONExtract(timepoint.image_ids, 'Array(String)'), toString(slide.image_id)))
+                    AND has(
+                        JSONExtract(assumeNotNull(timepoint.image_ids), 'Array(String)'),
+                        toString(slide.image_id)
+                    ))
                 OR timepoint.image_ids IS NULL
            )
            AND upperUTF8(timepoint.sample_id) = upperUTF8(

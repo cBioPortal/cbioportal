@@ -324,20 +324,38 @@
         <if test="doSort">
             <choose>
                 <when test="sortBySampleId">
-                    ORDER BY sample.stable_id ${direction}
+                    ORDER BY sample.stable_id ${direction}, sample.internal_id ASC
                 </when>
                 <when test="sortByPatientId">
-                    ORDER BY patient.stable_id ${direction}
+                    ORDER BY patient.stable_id ${direction}, sample.internal_id ASC
                 </when>
                 <when test="sortByAttribute">
-                    ORDER BY sortData.sortAttrValue ${direction} NULLS LAST
+                    ORDER BY sortData.sortAttrValue ${direction} NULLS LAST, sample.internal_id ASC
                 </when>
-                <otherwise></otherwise>
+                <otherwise>
+                    ORDER BY sample.internal_id ASC
+                </otherwise>
             </choose>
+        </if>
+        <if test="!doSort">
+            ORDER BY sample.internal_id ASC
         </if>
         <if test="doPaginate">
             LIMIT #{limit} OFFSET #{offset}
         </if>
+    </select>
+
+    <select id="getVisibleSampleInternalIdCountForClinicalTable" resultType="Integer">
+        <bind name="doSearch" value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
+        SELECT COUNT(DISTINCT sample.internal_id)
+        FROM sample
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        <if test="doSearch">
+            INNER JOIN (<include refid="searchedAttributeData"/>) as searchData
+            ON sample.internal_id = searchData.sampleInternalId
+        </if>
+        <include refid="whereSample"/>
     </select>
 
     <sql id="searchedAttributeData">

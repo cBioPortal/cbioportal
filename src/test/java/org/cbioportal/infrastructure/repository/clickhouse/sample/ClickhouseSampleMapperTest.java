@@ -16,6 +16,7 @@ import org.cbioportal.legacy.web.parameter.CustomSampleIdentifier;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
 import org.cbioportal.legacy.web.parameter.GenericAssaySelectionFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssaySelectionValue;
+import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -1221,5 +1222,34 @@ public class ClickhouseSampleMapperTest {
     clinicalDataFilter.setValues(values);
 
     return clinicalDataFilter;
+  }
+
+  // Regression test for https://github.com/cBioPortal/cbioportal/issues/11206
+  // A genomicDataFilter without values (null or empty) should not cause a 500 error
+  @Test
+  public void getFilteredSamplesWithGenomicDataFilterWithNoValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+
+    // genomicDataFilter with null values
+    GenomicDataFilter filterWithNullValues = new GenomicDataFilter("TP53", "cna");
+    studyViewFilter.setGenomicDataFilters(List.of(filterWithNullValues));
+
+    // should not throw an exception and should return all samples (filter is ignored)
+    var filteredSamples =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(15, filteredSamples.size());
+
+    // genomicDataFilter with empty values list
+    GenomicDataFilter filterWithEmptyValues = new GenomicDataFilter("TP53", "cna", List.of());
+    studyViewFilter.setGenomicDataFilters(List.of(filterWithEmptyValues));
+
+    var filteredSamples2 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(15, filteredSamples2.size());
   }
 }

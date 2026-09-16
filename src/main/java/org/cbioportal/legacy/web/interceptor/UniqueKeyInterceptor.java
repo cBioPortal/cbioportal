@@ -13,7 +13,6 @@ import org.cbioportal.legacy.model.MrnaPercentile;
 import org.cbioportal.legacy.model.MutationSpectrum;
 import org.cbioportal.legacy.model.NumericGeneMolecularData;
 import org.cbioportal.legacy.model.Patient;
-import org.cbioportal.legacy.model.ResourceData;
 import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.StructuralVariant;
 import org.springframework.core.MethodParameter;
@@ -112,16 +111,6 @@ public class UniqueKeyInterceptor extends AbstractMappingJacksonResponseBodyAdvi
               calculateBase64(structuralVariant.getSampleId(), structuralVariant.getStudyId()));
           structuralVariant.setUniquePatientKey(
               calculateBase64(structuralVariant.getPatientId(), structuralVariant.getStudyId()));
-        } else if (object instanceof ResourceData) {
-          ResourceData resourceData = (ResourceData) object;
-          if (resourceData.getSampleId() != null) {
-            resourceData.setUniqueSampleKey(
-                calculateBase64(resourceData.getSampleId(), resourceData.getStudyId()));
-          }
-          if (resourceData.getPatientId() != null) {
-            resourceData.setUniquePatientKey(
-                calculateBase64(resourceData.getPatientId(), resourceData.getStudyId()));
-          }
         }
       }
     }

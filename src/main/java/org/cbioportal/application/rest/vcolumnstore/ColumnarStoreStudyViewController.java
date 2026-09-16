@@ -136,6 +136,10 @@ public class ColumnarStoreStudyViewController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = SampleDTO.class))))
   public ResponseEntity<List<SampleDTO>> fetchFilteredSamples(
       @RequestParam(defaultValue = "false") Boolean negateFilters,
       @RequestBody(required = false) StudyViewFilter studyViewFilter) {
@@ -150,6 +154,13 @@ public class ColumnarStoreStudyViewController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = AlterationCountByGeneDTO.class))))
   public ResponseEntity<List<AlterationCountByGeneDTO>> fetchMutatedGenes(
       @RequestBody(required = false) StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
@@ -191,6 +202,13 @@ public class ColumnarStoreStudyViewController {
   @Operation(operationId = "fetchCNAGenes", description = "Fetch copy-number altered genes")
   @PreAuthorize(
       "hasPermission(#studyViewFilter, 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = CopyNumberCountByGeneDTO.class))))
   public ResponseEntity<List<CopyNumberCountByGeneDTO>> fetchCnaGenes(
       @RequestBody(required = false) StudyViewFilter studyViewFilter)
       throws StudyNotFoundException {
@@ -231,6 +249,13 @@ public class ColumnarStoreStudyViewController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "hasPermission(#clinicalDataCountFilter, 'ClinicalDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = ClinicalDataCountItemDTO.class))))
   public ResponseEntity<List<ClinicalDataCountItemDTO>> fetchClinicalDataCounts(
       @RequestBody(required = false) ClinicalDataCountFilter clinicalDataCountFilter) {
 
@@ -272,6 +297,12 @@ public class ColumnarStoreStudyViewController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize(
       "hasPermission(#clinicalDataBinCountFilter, 'DataBinCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = ClinicalDataBinDTO.class))))
   public ResponseEntity<List<ClinicalDataBinDTO>> fetchClinicalDataBinCounts(
       @RequestParam(defaultValue = "DYNAMIC") DataBinMethod dataBinMethod,
       @RequestBody(required = false) ClinicalDataBinCountFilter clinicalDataBinCountFilter) {
@@ -543,6 +574,13 @@ public class ColumnarStoreStudyViewController {
   @Operation(description = "Fetch mutation data counts by GenomicDataCountFilter")
   @PreAuthorize(
       "hasPermission(#genomicDataCountFilter, 'GenomicDataCountFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = GenomicDataCountItemDTO.class))))
   public ResponseEntity<List<GenomicDataCountItemDTO>> fetchMutationDataCounts(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")

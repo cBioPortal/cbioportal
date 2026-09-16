@@ -34,7 +34,11 @@ public class StudyViewFilterFactoryTest {
 
     GenericAssayDataFilter filterWithNullValues =
         new GenericAssayDataFilter("stable_id", PROFILE_TYPE);
-    studyViewFilter.setGenericAssayDataFilters(List.of(filterWithNullValues));
+    GenericAssayDataFilter filterWithEmptyValues =
+        new GenericAssayDataFilter("stable_id", PROFILE_TYPE);
+    filterWithEmptyValues.setValues(List.of());
+    studyViewFilter.setGenericAssayDataFilters(
+        List.of(filterWithNullValues, filterWithEmptyValues));
 
     when(customDataFilterUtil.extractCustomDataSamples(studyViewFilter)).thenReturn(List.of());
     when(customDataFilterUtil.extractInvolvedCancerStudies(studyViewFilter))

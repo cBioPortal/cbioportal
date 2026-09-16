@@ -113,11 +113,7 @@
            AND upperUTF8(timepoint.sample_id) = upperUTF8(
                 if(placement.sample_id IS NULL, 'Unmatched', toString(portal_sample.stable_id))
            )
-           AND replaceAll(
-                replaceAll(upperUTF8(timepoint.subtype), '&AMP;', ''),
-                '&',
-                ''
-           ) = multiIf(
+           AND replaceAll(upperUTF8(timepoint.subtype), '&amp;', '') = multiIf(
                 slide.is_ihc,
                 'IHC',
                 slide.is_hne,

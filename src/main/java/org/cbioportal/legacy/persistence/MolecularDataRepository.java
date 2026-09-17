@@ -31,6 +31,17 @@ public interface MolecularDataRepository {
   List<GeneMolecularAlteration> getGeneMolecularAlterations(
       String molecularProfileId, List<Integer> entrezGeneIds, String projection);
 
+  /**
+   * Returns molecular alterations with values restricted to the requested zero-based positions in
+   * the profile's ordered sample list. This prevents patient-level requests from materializing the
+   * complete cohort value vector.
+   */
+  List<GeneMolecularAlteration> getGeneMolecularAlterationsForSampleIndices(
+      String molecularProfileId,
+      List<Integer> entrezGeneIds,
+      List<Integer> sampleIndices,
+      String projection);
+
   Iterable<GeneMolecularAlteration> getGeneMolecularAlterationsIterable(
       String molecularProfileId, List<Integer> entrezGeneIds, String projection);
 

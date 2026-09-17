@@ -16,6 +16,12 @@ public interface MolecularDataMapper {
   List<GeneMolecularAlteration> getGeneMolecularAlterations(
       String molecularProfileId, List<Integer> entrezGeneIds, String projection);
 
+  List<GeneMolecularAlteration> getGeneMolecularAlterationsForSampleIndices(
+      String molecularProfileId,
+      List<Integer> entrezGeneIds,
+      List<Integer> sampleIndices,
+      String projection);
+
   Cursor<GeneMolecularAlteration> getGeneMolecularAlterationsIter(
       String molecularProfileId, List<Integer> entrezGeneIds, String projection);
 

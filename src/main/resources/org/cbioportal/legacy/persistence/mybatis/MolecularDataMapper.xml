@@ -122,6 +122,45 @@
         <include refid="whereInSingleMolecularProfile"/>
     </select>
 
+    <!--
+      Patient-level requests must not split the complete cohort vector in the JVM. The profile's
+      ordered sample list is zero-based in the service, while ClickHouse arrayElement is one-based.
+      Keep the requested order so the service can use a compact index for the returned values.
+    -->
+    <select id="getGeneMolecularAlterationsForSampleIndices" resultType="org.cbioportal.legacy.model.GeneMolecularAlteration">
+        SELECT
+            gene.entrez_gene_id AS "entrezGeneId",
+            arrayStringConcat(
+                arrayMap(
+                    sampleIndex -> multiIf(
+                        isNull(accurateCastOrNull(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1), 'Float64')),
+                        arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1),
+                        toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1)) = 0,
+                        '0',
+                        abs(toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1))) &lt; 0.0001,
+                        concat(
+                            toString(round(toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1)) / pow(10, floor(log10(abs(toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1)))))), 3)),
+                            'e',
+                            toString(floor(log10(abs(toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1))))))
+                        ),
+                        toString(round(toFloat64OrZero(arrayElement(splitByChar(',', genetic_alteration.`values`), sampleIndex + 1)), 4))
+                    ),
+                    [<foreach item="sampleIndex" collection="sampleIndices" separator=",">#{sampleIndex}</foreach>]
+                ),
+                ','
+            ) AS "values"
+        <if test="projection == 'DETAILED'">
+            ,
+            <include refid="org.cbioportal.legacy.persistence.mybatis.GeneMapper.select">
+                <property name="prefix" value="GENE."/>
+            </include>
+        </if>
+        FROM genetic_alteration
+        INNER JOIN genetic_profile ON genetic_alteration.genetic_profile_id = genetic_profile.genetic_profile_id
+        INNER JOIN gene ON genetic_alteration.genetic_entity_id = gene.genetic_entity_id
+        <include refid="whereInSingleMolecularProfile"/>
+    </select>
+
     <!-- This routine is a copy of getGeneMolecularAlterations above.  This copy is necessary because
          it is backing a corresponding method in MolecularDataMapper.java which returns a Cursor as
          opposed to a List. This method should be kept in sync with getGeneMolecularAlterations above.

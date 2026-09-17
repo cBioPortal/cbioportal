@@ -272,7 +272,8 @@ public class MolecularDataServiceImpl implements MolecularDataService {
         Map<Integer, Integer> responseIndexes = new HashMap<>();
         List<Integer> requestedIndices = new ArrayList<>();
         for (Sample sample : samples) {
-          Integer profileIndex = internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
+          Integer profileIndex =
+              internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
           if (profileIndex != null && !responseIndexes.containsKey(sample.getInternalId())) {
             responseIndexes.put(sample.getInternalId(), requestedIndices.size());
             requestedIndices.add(profileIndex);

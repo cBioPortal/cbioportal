@@ -204,10 +204,11 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       if (policyConfigured && !approved) {
         return false;
       }
-      if ((!approved && (containsAbsoluteDate(value)
-          || containsAbsoluteDate(path)
-          || COMPACT_DATE.matcher(value).find()
-          || COMPACT_DATE.matcher(path).find()))
+      if ((!approved
+              && (containsAbsoluteDate(value)
+                  || containsAbsoluteDate(path)
+                  || COMPACT_DATE.matcher(value).find()
+                  || COMPACT_DATE.matcher(path).find()))
           || LABELLED_MRN.matcher(value).find()
           || LABELLED_MRN.matcher(path).find()) {
         return false;

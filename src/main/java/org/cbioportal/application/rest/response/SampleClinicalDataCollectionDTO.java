@@ -8,5 +8,4 @@ import java.util.Map;
     name = "SampleClinicalDataCollection",
     description = "Represents clinical data grouped by unique sample key")
 public record SampleClinicalDataCollectionDTO(
-    Map<String, List<ClinicalDataDTO>> byUniqueSampleKey,
-    List<String> orderedSampleKeys) {}
+    Map<String, List<ClinicalDataDTO>> byUniqueSampleKey, List<String> orderedSampleKeys) {}

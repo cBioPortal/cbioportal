@@ -54,14 +54,17 @@ public class CacheMapBuilder {
     return sampleListMap;
   }
 
-  public Map<String, CancerStudy> buildCancerStudyMap() {
-    Map<String, CancerStudy> cancerStudyMap =
-        studyRepository
-            .getAllStudies(
-                null, "SUMMARY", REPOSITORY_RESULT_LIMIT, REPOSITORY_RESULT_OFFSET, null, "ASC")
-            .stream()
+  /**
+   * Builds a cancer study map for permission evaluation only. Each CancerStudy has just
+   * cancerStudyIdentifier and groups populated -- see CancerStudyPermissionEvaluator, the sole
+   * consumer -- fetched via a join-free query instead of the full getAllStudies() projection, which
+   * joins sample lists/sample list membership for every study.
+   */
+  public Map<String, CancerStudy> buildCancerStudyPermissionMap() {
+    Map<String, CancerStudy> cancerStudyPermissionMap =
+        studyRepository.getStudyPermissions().stream()
             .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
-    LOG.debug("  cancer study map size: " + cancerStudyMap.size());
-    return cancerStudyMap;
+    LOG.debug("  cancer study permission map size: " + cancerStudyPermissionMap.size());
+    return cancerStudyPermissionMap;
   }
 }

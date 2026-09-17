@@ -66,6 +66,10 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
 
   @Autowired private CacheMapBuilder cacheMapBuilder;
 
+  // Cancer-study permissions have their own short-TTL cache, decoupled from the general
+  // Spring-managed cache's much longer TTL -- see CancerStudyPermissionCache.
+  @Autowired private CancerStudyPermissionCache cancerStudyPermissionCache;
+
   @PostConstruct
   public void init() {
     // Make sure the user does not have a conflicting configuration. Explode if there is.
@@ -101,12 +105,8 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
   }
 
   @Override
-  @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
-  public Map<String, CancerStudy> getCancerStudyMap() {
-    LOG.debug("Building cancerStudyMap (cache miss)");
-    return cacheMapBuilder.buildCancerStudyMap();
+  public Map<String, CancerStudy> getCancerStudyPermissionMap() {
+    return cancerStudyPermissionCache.getCancerStudyPermissionMap();
   }
 
   //  bean is only instantiated when there is user authorization

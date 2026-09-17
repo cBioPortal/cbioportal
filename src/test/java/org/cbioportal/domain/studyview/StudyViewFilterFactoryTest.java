@@ -97,4 +97,101 @@ public class StudyViewFilterFactoryTest {
             .getSampleCategoricalGenericAssayDataFilters()
             .size());
   }
+
+  // Regression test for the empty-list half of the null-or-empty predicate: a filter whose
+  // values were explicitly set to an empty list must be dropped exactly like a null-valued one.
+  @Test
+  public void makeFiltersOutGenericAssayDataFilterWithEmptyValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    GenericAssayDataFilter filterWithEmptyValues =
+        new GenericAssayDataFilter("stable_id", PROFILE_TYPE);
+    filterWithEmptyValues.setValues(List.of());
+    studyViewFilter.setGenericAssayDataFilters(List.of(filterWithEmptyValues));
+    stubCustomDataFilterUtil(studyViewFilter);
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(
+            studyViewFilter, customDataFilterUtil, categoricalGenericAssayProfilesMap());
+
+    assertTrue(context.genericAssayDataFilters().isEmpty());
+    assertTrue(
+        context
+            .categorizedGenericAssayDataCountFilter()
+            .getSampleCategoricalGenericAssayDataFilters()
+            .isEmpty());
+  }
+
+  // A request mixing a valid filter with null/empty-valued ones should keep only the valid one,
+  // rather than dropping the whole list or letting the invalid entries through.
+  @Test
+  public void makeKeepsOnlyValidGenericAssayDataFilterWhenMixedWithInvalidOnes() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    GenericAssayDataFilter filterWithNullValues =
+        new GenericAssayDataFilter("null_values_id", PROFILE_TYPE);
+    GenericAssayDataFilter filterWithEmptyValues =
+        new GenericAssayDataFilter("empty_values_id", PROFILE_TYPE);
+    filterWithEmptyValues.setValues(List.of());
+    GenericAssayDataFilter filterWithValues = new GenericAssayDataFilter("valid_id", PROFILE_TYPE);
+    DataFilterValue dataFilterValue = new DataFilterValue();
+    dataFilterValue.setValue("Gain");
+    filterWithValues.setValues(List.of(dataFilterValue));
+    studyViewFilter.setGenericAssayDataFilters(
+        List.of(filterWithNullValues, filterWithEmptyValues, filterWithValues));
+    stubCustomDataFilterUtil(studyViewFilter);
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(
+            studyViewFilter, customDataFilterUtil, categoricalGenericAssayProfilesMap());
+
+    assertEquals(1, context.genericAssayDataFilters().size());
+    assertEquals("valid_id", context.genericAssayDataFilters().getFirst().getStableId());
+    assertEquals(
+        1,
+        context
+            .categorizedGenericAssayDataCountFilter()
+            .getSampleCategoricalGenericAssayDataFilters()
+            .size());
+  }
+
+  // Regression test for the 4-argument overload used directly by mapper tests (e.g.
+  // ClickhouseSampleMapperTest#getFilteredSamplesWithGenomicDataFilterWithNoValues): it must
+  // apply the same null-or-empty drop rule at context construction, not just the overload above
+  // that also builds the categorized filter.
+  @Test
+  public void makeWithContextArgsFiltersOutGenericAssayDataFilterWithNullOrEmptyValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    GenericAssayDataFilter filterWithNullValues =
+        new GenericAssayDataFilter("null_values_id", PROFILE_TYPE);
+    GenericAssayDataFilter filterWithEmptyValues =
+        new GenericAssayDataFilter("empty_values_id", PROFILE_TYPE);
+    filterWithEmptyValues.setValues(List.of());
+    studyViewFilter.setGenericAssayDataFilters(
+        List.of(filterWithNullValues, filterWithEmptyValues));
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(
+            studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null);
+
+    assertTrue(context.genericAssayDataFilters().isEmpty());
+  }
+
+  private void stubCustomDataFilterUtil(StudyViewFilter studyViewFilter) {
+    when(customDataFilterUtil.extractCustomDataSamples(studyViewFilter)).thenReturn(List.of());
+    when(customDataFilterUtil.extractInvolvedCancerStudies(studyViewFilter))
+        .thenReturn(List.of(STUDY_ID));
+  }
+
+  private static Map<DataSource, List<MolecularProfile>> categoricalGenericAssayProfilesMap() {
+    MolecularProfile categoricalProfile = new MolecularProfile();
+    categoricalProfile.setStableId(STUDY_ID + "_" + PROFILE_TYPE);
+    categoricalProfile.setCancerStudyIdentifier(STUDY_ID);
+    categoricalProfile.setDatatype("CATEGORICAL");
+    return Map.of(DataSource.SAMPLE, List.of(categoricalProfile));
+  }
 }

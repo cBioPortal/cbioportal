@@ -17,6 +17,14 @@ public interface StudyMapper {
       String sortBy,
       String direction);
 
+  /**
+   * Returns the minimal per-study data needed to evaluate access permissions: cancer study id,
+   * stable identifier, and authorization groups. Unlike {@link #getStudies}, this does not join
+   * against sample lists/sample list membership, reference genome, or type of cancer, since none of
+   * that data is used for permission checks.
+   */
+  List<CancerStudy> getStudyPermissions();
+
   BaseMeta getMetaStudies(List<String> studyIds, String keyword);
 
   CancerStudy getStudy(String studyId, String projection);

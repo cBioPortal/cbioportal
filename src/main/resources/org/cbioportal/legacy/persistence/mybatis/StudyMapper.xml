@@ -168,6 +168,20 @@
         </if>
     </select>
 
+    <!--
+        Minimal, join-free query for permission evaluation (see CacheMapBuilder.buildCancerStudyMap
+        and CancerStudyPermissionEvaluator). getStudies() joins sample_list/sample_list_list/
+        reference_genome for every study, which is expensive at scale and unnecessary here since
+        only cancerStudyIdentifier and groups are ever read off the result.
+    -->
+    <select id="getStudyPermissions" resultType="org.cbioportal.legacy.model.CancerStudy">
+        SELECT
+            cancer_study.cancer_study_id AS cancerStudyId,
+            cancer_study.cancer_study_identifier AS cancerStudyIdentifier,
+            cancer_study.groups AS groups
+        FROM cancer_study
+    </select>
+
     <select id="getMetaStudies" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
         SELECT
         COUNT(*) AS totalCount

@@ -12,8 +12,12 @@ public interface DatabaseSwitchService {
   String getActiveDatabase();
 
   /**
-   * Points every new connection at {@code database} instead. Verifies the new database is reachable
-   * before committing to the switch; rolls back and throws {@link DatabaseSwitchException} if not.
+   * Points every new connection at {@code database} instead. Rejects with {@link
+   * IllegalArgumentException} unless {@code database} is one of the names configured in {@code
+   * database.endpoint.allowed_databases} -- an unset/empty allowlist rejects every switch, so this
+   * is opt-in on top of {@code database.endpoint.enabled}, not implied by it. Verifies the new
+   * database is reachable before committing to the switch; rolls back and throws {@link
+   * DatabaseSwitchException} if not.
    *
    * <p>Also flushes all Spring-managed caches, as a memory-reclaiming courtesy -- correctness does
    * not depend on this flush succeeding or on its timing relative to in-flight requests, since

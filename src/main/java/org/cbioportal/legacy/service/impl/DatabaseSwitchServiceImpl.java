@@ -1,14 +1,19 @@
 package org.cbioportal.legacy.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.persistence.config.DynamicDatabaseDataSource;
 import org.cbioportal.legacy.service.CacheService;
 import org.cbioportal.legacy.service.DatabaseSwitchService;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
 import org.cbioportal.legacy.service.exception.DatabaseSwitchException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -21,6 +26,23 @@ public class DatabaseSwitchServiceImpl implements DatabaseSwitchService {
 
   @Autowired private CacheService cacheService;
 
+  // Comma-separated allowlist of database names that switchDatabase() may target. Unset/empty
+  // means no database is allowed -- switching requires explicitly opting in, not just enabling
+  // the endpoint.
+  @Value("${database.endpoint.allowed_databases:}")
+  private String allowedDatabasesCsv;
+
+  private Set<String> allowedDatabases;
+
+  @PostConstruct
+  private void init() {
+    allowedDatabases =
+        Arrays.stream(allowedDatabasesCsv.split(","))
+            .map(String::trim)
+            .filter(name -> !name.isEmpty())
+            .collect(Collectors.toSet());
+  }
+
   @Override
   public String getActiveDatabase() {
     return firstDataSource().getDatabase();
@@ -29,6 +51,12 @@ public class DatabaseSwitchServiceImpl implements DatabaseSwitchService {
   @Override
   public void switchDatabase(String database)
       throws DatabaseSwitchException, CacheOperationException {
+    if (!allowedDatabases.contains(database)) {
+      throw new IllegalArgumentException(
+          "Database '"
+              + database
+              + "' is not in database.endpoint.allowed_databases; refusing to switch.");
+    }
     String previousDatabase = firstDataSource().getDatabase();
     applyDatabase(database);
     try {

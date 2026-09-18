@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.cbioportal.legacy.persistence.config.DynamicDatabaseDataSource;
 import org.cbioportal.legacy.service.CacheService;
@@ -41,6 +42,12 @@ public class DatabaseSwitchServiceImplTest {
     exportDataSource = new DynamicDatabaseDataSource(workingDelegate());
     ReflectionTestUtils.setField(
         service, "dynamicDataSources", List.of(mainDataSource, exportDataSource));
+    // @PostConstruct doesn't run under @InjectMocks -- seed the allowlist directly with every
+    // name the tests below switch to.
+    ReflectionTestUtils.setField(
+        service,
+        "allowedDatabases",
+        Set.of("cbioportal_v2", "does_not_exist", "not valid; drop table"));
   }
 
   private static DataSource workingDelegate() throws SQLException {
@@ -90,5 +97,55 @@ public class DatabaseSwitchServiceImplTest {
   public void failsClearlyWhenNoDataSourcesFound() {
     ReflectionTestUtils.setField(service, "dynamicDataSources", Collections.emptyList());
     service.getActiveDatabase();
+  }
+
+  @Test
+  public void switchDatabaseRejectsDatabaseNotInAllowlist() throws Exception {
+    ReflectionTestUtils.setField(service, "allowedDatabases", Set.of("cbioportal_v2"));
+
+    try {
+      service.switchDatabase("some_other_db");
+      fail("expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {
+      // expected
+    }
+
+    assertEquals(null, mainDataSource.getDatabase());
+    verify(cacheService, never()).clearCaches(true);
+  }
+
+  @Test
+  public void switchDatabaseRejectsEverythingWhenAllowlistIsEmpty() throws Exception {
+    ReflectionTestUtils.setField(service, "allowedDatabases", Set.of());
+
+    try {
+      service.switchDatabase("cbioportal_v2");
+      fail("expected IllegalArgumentException");
+    } catch (IllegalArgumentException expected) {
+      // expected
+    }
+  }
+
+  @Test
+  public void initParsesCommaSeparatedAllowlistTrimmingWhitespaceAndBlanks() {
+    DatabaseSwitchServiceImpl realService = new DatabaseSwitchServiceImpl();
+    ReflectionTestUtils.setField(
+        realService, "allowedDatabasesCsv", " cbioportal , cbioportal_v2,,  ");
+
+    ReflectionTestUtils.invokeMethod(realService, "init");
+
+    assertEquals(
+        Set.of("cbioportal", "cbioportal_v2"),
+        ReflectionTestUtils.getField(realService, "allowedDatabases"));
+  }
+
+  @Test
+  public void initProducesEmptyAllowlistWhenPropertyIsUnset() {
+    DatabaseSwitchServiceImpl realService = new DatabaseSwitchServiceImpl();
+    ReflectionTestUtils.setField(realService, "allowedDatabasesCsv", "");
+
+    ReflectionTestUtils.invokeMethod(realService, "init");
+
+    assertEquals(Set.of(), ReflectionTestUtils.getField(realService, "allowedDatabases"));
   }
 }

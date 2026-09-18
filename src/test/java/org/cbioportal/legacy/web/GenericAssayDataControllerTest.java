@@ -118,6 +118,12 @@ public class GenericAssayDataControllerTest {
         new GenericAssayDataMultipleStudyFilter();
     genericAssayDataMultipleStudyFilter.setSampleMolecularIdentifiers(
         createSampleMolecularIdentifiers());
+    genericAssayDataMultipleStudyFilter.setGenericAssayStableIds(
+        Arrays.asList(
+            GENERIC_ASSAY_STABLE_ID_1,
+            GENERIC_ASSAY_STABLE_ID_2,
+            GENERIC_ASSAY_STABLE_ID_3,
+            GENERIC_ASSAY_STABLE_ID_4));
 
     Mockito.when(
             genericAssayService.fetchGenericAssayData(

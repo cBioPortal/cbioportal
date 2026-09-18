@@ -51,6 +51,15 @@ public interface DiscreteCopyNumberRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
+  BaseMeta getMetaDiscreteCopyNumbersInMultipleMolecularProfiles(
+      List<String> molecularProfileIds,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      List<Integer> alterationTypes);
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   List<DiscreteCopyNumberData> getDiscreteCopyNumbersInMultipleMolecularProfilesByGeneQueries(
       List<String> molecularProfileIds,
       List<String> sampleIds,

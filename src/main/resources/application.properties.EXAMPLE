@@ -465,6 +465,11 @@ feature.study.export.timeout_ms=600000
 # default. The target table must already exist; create it with the provisioning script
 # src/main/resources/db-scripts/clickhouse/request_log.sql (the application does not create it).
 # request-logging.enabled=false
+
+# Rate-limit REST API and legacy webservice requests per remote IP address. Disabled by default.
+# rate-limit.enabled=false
+# rate-limit.requests-per-minute=60
+# rate-limit.burst-capacity=10
 # Target table; may be database-qualified. Defaults to cbioportal_qc.logged_requests (as created by
 # request_log.sql); the runtime datasource user needs INSERT on it.
 # request-logging.table=cbioportal_qc.logged_requests

@@ -75,7 +75,7 @@ public class DatabaseSwitchServiceImplTest {
   }
 
   @Test
-  public void switchDatabaseRollsBackWhenNewDatabaseIsUnreachable() throws Exception {
+  public void switchDatabaseNeverAppliesWhenNewDatabaseIsUnreachable() throws Exception {
     DataSource failingDelegate = mock(DataSource.class);
     when(failingDelegate.getConnection()).thenThrow(new SQLException("no such database"));
     DynamicDatabaseDataSource failing = new DynamicDatabaseDataSource(failingDelegate);
@@ -89,6 +89,8 @@ public class DatabaseSwitchServiceImplTest {
       // expected
     }
 
+    // Connectivity is verified before anything is applied, so a failed switch never touches the
+    // active database in the first place -- there is nothing to roll back.
     assertEquals("cbioportal", failing.getDatabase());
     verify(cacheService, never()).clearCaches(true);
   }
@@ -97,6 +99,16 @@ public class DatabaseSwitchServiceImplTest {
   public void failsClearlyWhenNoDataSourcesFound() {
     ReflectionTestUtils.setField(service, "dynamicDataSources", Collections.emptyList());
     service.getActiveDatabase();
+  }
+
+  @Test
+  public void switchDatabaseIsNoOpWhenAlreadyOnRequestedDatabase() throws Exception {
+    ReflectionTestUtils.setField(mainDataSource, "database", "cbioportal_v2");
+    ReflectionTestUtils.setField(exportDataSource, "database", "cbioportal_v2");
+
+    service.switchDatabase("cbioportal_v2");
+
+    verify(cacheService, never()).clearCaches(true);
   }
 
   @Test
@@ -128,7 +140,8 @@ public class DatabaseSwitchServiceImplTest {
 
   @Test
   public void initParsesCommaSeparatedAllowlistTrimmingWhitespaceAndBlanks() {
-    DatabaseSwitchServiceImpl realService = new DatabaseSwitchServiceImpl();
+    DatabaseSwitchServiceImpl realService =
+        new DatabaseSwitchServiceImpl(Collections.emptyList(), null);
     ReflectionTestUtils.setField(
         realService, "allowedDatabasesCsv", " cbioportal , cbioportal_v2,,  ");
 
@@ -141,7 +154,8 @@ public class DatabaseSwitchServiceImplTest {
 
   @Test
   public void initProducesEmptyAllowlistWhenPropertyIsUnset() {
-    DatabaseSwitchServiceImpl realService = new DatabaseSwitchServiceImpl();
+    DatabaseSwitchServiceImpl realService =
+        new DatabaseSwitchServiceImpl(Collections.emptyList(), null);
     ReflectionTestUtils.setField(realService, "allowedDatabasesCsv", "");
 
     ReflectionTestUtils.invokeMethod(realService, "init");

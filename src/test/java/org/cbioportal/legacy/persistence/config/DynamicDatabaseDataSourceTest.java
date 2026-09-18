@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Statement;
 import javax.sql.DataSource;
 import org.junit.Before;
@@ -69,5 +70,24 @@ public class DynamicDatabaseDataSourceTest {
   @Test(expected = IllegalArgumentException.class)
   public void rejectsDatabaseNameWithWhitespace() {
     dataSource.setDatabase("cbioportal v2");
+  }
+
+  @Test
+  public void verifyReachableDoesNotChangeActiveDatabase() throws Exception {
+    dataSource.verifyReachable("cbioportal_v2");
+
+    verify(statement).execute("USE cbioportal_v2");
+    assertNull(dataSource.getDatabase());
+  }
+
+  @Test(expected = SQLException.class)
+  public void verifyReachablePropagatesConnectionFailure() throws Exception {
+    when(delegate.getConnection()).thenThrow(new SQLException("no such database"));
+    dataSource.verifyReachable("does_not_exist");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void verifyReachableRejectsInvalidName() throws Exception {
+    dataSource.verifyReachable("bad; name");
   }
 }

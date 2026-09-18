@@ -11,7 +11,7 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
  * Wraps the portal's single JDBC {@link DataSource} so the ClickHouse database it points at can be
  * changed on a running instance, without restarting the app. Until {@link #setDatabase(String)} is
  * called, this behaves exactly like the wrapped {@link DataSource} -- every connection simply keeps
- * connecting to whatever database is baked into {@code spring.datasource.url}.
+ * connecting to whatever database the delegate {@link DataSource} was configured with.
  *
  * <p>After a switch, every newly obtained {@link Connection} runs a {@code USE <database>}
  * statement before being handed out, so callers never need to know the database changed.
@@ -20,7 +20,8 @@ import org.springframework.jdbc.datasource.DelegatingDataSource;
  */
 public class DynamicDatabaseDataSource extends DelegatingDataSource {
 
-  private static final Pattern VALID_DATABASE_NAME = Pattern.compile("[A-Za-z0-9_]+");
+  // \w is exactly [A-Za-z0-9_] under the default (non-UNICODE_CHARACTER_CLASS) flags used here.
+  private static final Pattern VALID_DATABASE_NAME = Pattern.compile("\\w+");
 
   private volatile String database;
 
@@ -34,18 +35,22 @@ public class DynamicDatabaseDataSource extends DelegatingDataSource {
   }
 
   public void setDatabase(String database) {
-    if (database == null || !VALID_DATABASE_NAME.matcher(database).matches()) {
-      throw new IllegalArgumentException(
-          "Invalid database name (must be non-empty and contain only letters, digits and "
-              + "underscores): "
-              + database);
-    }
+    requireValid(database);
     this.database = database;
   }
 
-  /** Reverts to the delegate's own default database (whatever spring.datasource.url points at). */
-  public void resetToDefault() {
-    this.database = null;
+  /**
+   * Confirms {@code database} is reachable through the underlying connection pool, without changing
+   * which database this wrapper is currently pointed at. Used to verify a candidate database before
+   * committing to a switch, so a bad candidate never becomes visible to any other caller of {@link
+   * #getConnection()}.
+   */
+  public void verifyReachable(String database) throws SQLException {
+    requireValid(database);
+    try (Connection connection = getTargetDataSource().getConnection();
+        Statement statement = connection.createStatement()) {
+      statement.execute("USE " + database);
+    }
   }
 
   @Override
@@ -61,10 +66,25 @@ public class DynamicDatabaseDataSource extends DelegatingDataSource {
   private Connection withActiveDatabase(Connection connection) throws SQLException {
     String activeDatabase = database;
     if (activeDatabase != null) {
+      // Re-validate immediately before building the dynamic SQL statement, right next to its use,
+      // even though setDatabase()/verifyReachable() already validated it -- defense in depth
+      // against this field ever being set some other way in the future. USE <db> cannot be
+      // parameterized via a JDBC bind variable (identifiers aren't values), so a strict allowlist
+      // pattern match is the standard mitigation for this kind of dynamic SQL.
+      requireValid(activeDatabase);
       try (Statement statement = connection.createStatement()) {
         statement.execute("USE " + activeDatabase);
       }
     }
     return connection;
+  }
+
+  private static void requireValid(String database) {
+    if (database == null || !VALID_DATABASE_NAME.matcher(database).matches()) {
+      throw new IllegalArgumentException(
+          "Invalid database name (must be non-empty and contain only letters, digits and "
+              + "underscores): "
+              + database);
+    }
   }
 }

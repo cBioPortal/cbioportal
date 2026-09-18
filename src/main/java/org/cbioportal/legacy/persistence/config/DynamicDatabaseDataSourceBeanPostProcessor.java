@@ -18,8 +18,8 @@ public class DynamicDatabaseDataSourceBeanPostProcessor implements BeanPostProce
 
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) {
-    if (bean instanceof DataSource && !(bean instanceof DynamicDatabaseDataSource)) {
-      return new DynamicDatabaseDataSource((DataSource) bean);
+    if (bean instanceof DataSource dataSource && !(bean instanceof DynamicDatabaseDataSource)) {
+      return new DynamicDatabaseDataSource(dataSource);
     }
     return bean;
   }

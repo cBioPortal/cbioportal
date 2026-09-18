@@ -60,11 +60,15 @@ public class CustomKeyGenerator implements KeyGenerator {
   // Scopes every cache key to the database it was computed against, so switching the active
   // database (see DatabaseSwitchServiceImpl) can never serve an entry that was computed against a
   // different one -- regardless of whether/when the cache gets explicitly flushed.
-  @Autowired private DataSource dataSource;
+  private final DataSource dataSource;
 
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
+
+  public CustomKeyGenerator(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
 
   public Object generate(Object target, Method method, Object... params) {
     if (!cacheEnabledConfig.isEnabled() && !cacheEnabledConfig.isEnabledClickhouse()) {
@@ -85,8 +89,8 @@ public class CustomKeyGenerator implements KeyGenerator {
   }
 
   private String activeDatabase() {
-    if (dataSource instanceof DynamicDatabaseDataSource) {
-      String database = ((DynamicDatabaseDataSource) dataSource).getDatabase();
+    if (dataSource instanceof DynamicDatabaseDataSource dynamicDatabaseDataSource) {
+      String database = dynamicDatabaseDataSource.getDatabase();
       if (database != null) {
         return database;
       }

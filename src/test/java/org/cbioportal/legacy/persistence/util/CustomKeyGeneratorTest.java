@@ -12,14 +12,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomKeyGeneratorTest {
 
-  @InjectMocks private CustomKeyGenerator customKeyGenerator;
+  private CustomKeyGenerator customKeyGenerator;
 
   @Mock private StudyRepository studyRepository;
 
@@ -33,6 +33,11 @@ public class CustomKeyGeneratorTest {
   @Before
   public void setUp() throws Exception {
     when(cacheEnabledConfig.isEnabled()).thenReturn(true);
+    customKeyGenerator = new CustomKeyGenerator(dataSource);
+    // CustomKeyGenerator's other dependencies are still field-injected in production (via Spring)
+    // -- wire them here directly since there's no container to do it for us.
+    ReflectionTestUtils.setField(customKeyGenerator, "cacheEnabledConfig", cacheEnabledConfig);
+    ReflectionTestUtils.setField(customKeyGenerator, "studyRepository", studyRepository);
   }
 
   @Test
@@ -79,8 +84,7 @@ public class CustomKeyGeneratorTest {
     DynamicDatabaseDataSource dynamicDataSource =
         new DynamicDatabaseDataSource(mock(DataSource.class));
     dynamicDataSource.setDatabase("cbioportal_v2");
-    org.springframework.test.util.ReflectionTestUtils.setField(
-        customKeyGenerator, "dataSource", dynamicDataSource);
+    ReflectionTestUtils.setField(customKeyGenerator, "dataSource", dynamicDataSource);
 
     Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
     Object key = customKeyGenerator.generate(this, functionToPass);
@@ -99,8 +103,7 @@ public class CustomKeyGeneratorTest {
   public void testGenerateProducesDifferentKeysForDifferentDatabases() throws Exception {
     DynamicDatabaseDataSource dynamicDataSource =
         new DynamicDatabaseDataSource(mock(DataSource.class));
-    org.springframework.test.util.ReflectionTestUtils.setField(
-        customKeyGenerator, "dataSource", dynamicDataSource);
+    ReflectionTestUtils.setField(customKeyGenerator, "dataSource", dynamicDataSource);
     Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
 
     dynamicDataSource.setDatabase("cbioportal");

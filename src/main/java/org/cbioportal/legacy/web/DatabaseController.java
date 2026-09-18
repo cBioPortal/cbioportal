@@ -10,15 +10,14 @@ import org.cbioportal.legacy.service.DatabaseSwitchService;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
 import org.cbioportal.legacy.service.exception.DatabaseSwitchException;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Database")
 public class DatabaseController {
 
-  @Autowired private DatabaseSwitchService databaseSwitchService;
+  private final DatabaseSwitchService databaseSwitchService;
 
   @Value("${database.endpoint.api-key:not set}")
   private String requiredApiKey;
@@ -36,10 +35,11 @@ public class DatabaseController {
   @Value("${database.endpoint.enabled:false}")
   private boolean databaseEndpointEnabled;
 
-  @RequestMapping(
-      value = "/api/database",
-      method = RequestMethod.GET,
-      produces = MediaType.TEXT_PLAIN_VALUE)
+  public DatabaseController(DatabaseSwitchService databaseSwitchService) {
+    this.databaseSwitchService = databaseSwitchService;
+  }
+
+  @GetMapping(value = "/api/database", produces = MediaType.TEXT_PLAIN_VALUE)
   @Operation(summary = "Get the database currently in use")
   @ApiResponse(
       responseCode = "200",
@@ -60,14 +60,11 @@ public class DatabaseController {
     }
     String activeDatabase = databaseSwitchService.getActiveDatabase();
     return new ResponseEntity<>(
-        activeDatabase == null ? "(default from spring.datasource.url)" : activeDatabase,
+        activeDatabase == null ? "(default database configured for this instance)" : activeDatabase,
         HttpStatus.OK);
   }
 
-  @RequestMapping(
-      value = "/api/database",
-      method = RequestMethod.PUT,
-      produces = MediaType.TEXT_PLAIN_VALUE)
+  @PutMapping(value = "/api/database", produces = MediaType.TEXT_PLAIN_VALUE)
   @Operation(summary = "Point this running instance at a different database, without restarting")
   @ApiResponse(
       responseCode = "200",

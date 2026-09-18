@@ -28,4 +28,6 @@ public interface StudyMapper {
   List<ResourceCount> getResourceCountsForAllStudies();
 
   List<ResourceCount> getResourceCounts(List<String> studyIds);
+
+  List<String> getUnavailableStudyIds();
 }

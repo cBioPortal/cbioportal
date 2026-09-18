@@ -13,21 +13,43 @@ import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 class GlobalExceptionHandlerTest {
 
   private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+  @Test
+  void handleAccessDeniedWithUnavailableStudyReturns423() {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setAttribute(CancerStudyPermissionEvaluator.UNAVAILABLE_STUDY_ATTRIBUTE, "study1");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    try {
+      ResponseEntity<ErrorResponse> response =
+          handler.handleAccessDeniedException(new AccessDeniedException("Denied"));
+      assertEquals(HttpStatus.LOCKED, response.getStatusCode());
+      assertNotNull(response.getBody());
+      assertEquals(
+          "Study study1 is being updated. Please check back later.",
+          response.getBody().getMessage());
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+    }
+  }
 
   // ── AccessForbiddenException ───────────────────────────────────────────────
 

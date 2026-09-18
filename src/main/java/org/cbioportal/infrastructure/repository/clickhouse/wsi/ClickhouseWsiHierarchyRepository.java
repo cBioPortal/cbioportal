@@ -113,7 +113,12 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               value(row, "match_level", String.class),
               value(row, "specimen_key", String.class),
               intValue(row, "procedure_date_days"),
-              value(row, "timepoint_source", String.class)));
+              value(row, "timepoint_source", String.class),
+              value(row, "date_kind", String.class),
+              value(row, "date_source", String.class),
+              value(row, "date_reason", String.class),
+              value(row, "date_status", String.class),
+              value(row, "coordinate_system", String.class)));
     }
 
     List<WsiSampleGroup> sampleGroups =
@@ -172,7 +177,14 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       return "H&E";
     }
     String slideType = value(row, "slide_type", String.class);
-    return slideType == null ? "Other" : slideType;
+    if ("H&E".equals(slideType)
+        || "IHC".equals(slideType)
+        || "Other".equals(slideType)
+        || "Unknown".equals(slideType)) {
+      return slideType;
+    }
+    // A legacy NULL or uncontrolled value is ambiguous, not a confirmed Other.
+    return "Unknown";
   }
 
   private static boolean isDeidentifiedRow(Map<String, Object> row) {

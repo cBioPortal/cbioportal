@@ -211,3 +211,31 @@ CREATE TABLE IF NOT EXISTS wsi_slide_placement (
     specimen_key String
 ) ENGINE = MergeTree()
 ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+
+## db_schema_version: 3.3.0
+## description: Distinguish positively identified non-H&E/IHC slides from unknown classifications
+ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_type_valid;
+ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_stain_flags_valid;
+ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_type_valid
+    CHECK slide_type IN ('H&E', 'IHC', 'Other', 'Unknown');
+ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_stain_flags_valid
+    CHECK NOT (is_hne AND is_ihc)
+        AND (slide_type != 'H&E' OR is_hne)
+        AND (slide_type != 'IHC' OR is_ihc)
+        AND (slide_type NOT IN ('Other', 'Unknown') OR NOT is_hne AND NOT is_ihc);
+
+## db_schema_version: 3.4.0
+## description: Store WSI timing provenance, including undated associations, outside clinical events
+CREATE TABLE IF NOT EXISTS wsi_slide_timing (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    timeline_start_days Nullable(Int64),
+    timeline_date_status String,
+    timeline_date_kind String,
+    timeline_date_source Nullable(String),
+    timeline_date_reason Nullable(String),
+    timeline_coordinate_system Nullable(String),
+    timepoint_source Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);

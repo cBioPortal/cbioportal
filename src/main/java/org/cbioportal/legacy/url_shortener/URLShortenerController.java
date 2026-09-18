@@ -17,7 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class URLShortenerController {
 
-  @Value("${bitly.access.token}")
+  // Bitly is optional in dev and in installations that do not expose the
+  // external shortener.  Keep the default in tracked source so a rebuilt
+  // image cannot regress to a mandatory, ignored local property.
+  @Value("${bitly.access.token:}")
   private String bitlyAccessToken;
 
   private Bitly bitly;

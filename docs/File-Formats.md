@@ -302,15 +302,16 @@ cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: PATHOLOGY_SLIDES
 datatype: WSI
 data_filename: data_wsi.txt
-format_version: 2
+format_version: 3
 ```
 
 `format_version` fixes the column names, order, and validation rules. The
 cBioPortal core importer rejects unsupported versions rather than guessing how
-to interpret them. Procedure timing is emitted separately as a standard
-`PATHOLOGY SLIDES` clinical timeline event: `START_DATE` receives the procedure
-offset relative to the first ICD-O diagnosis and `TIMEPOINT_SOURCE` records that
-diagnosis-relative provenance. MRNs and absolute dates are never emitted.
+to interpret them. Timing is carried in the WSI row and persisted in
+`wsi_slide_timing`: `TIMELINE_START_DAYS` is relative to the patient's first
+tumor-sequencing day zero, while the status, kind, source, reason, and
+coordinate-system fields preserve whether the date was recorded, estimated, or
+undated. Day `0` is a valid value. MRNs and absolute dates are never emitted.
 
 ### Data file
 
@@ -320,7 +321,7 @@ starts with `#`. The fifth row contains the following fields in exactly this
 order:
 
 ```text
-PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>TIMELINE_START_DAYS<TAB>TIMELINE_DATE_STATUS<TAB>TIMELINE_DATE_KIND<TAB>TIMELINE_DATE_SOURCE<TAB>TIMELINE_DATE_REASON<TAB>TIMELINE_COORDINATE_SYSTEM<TAB>TIMEPOINT_SOURCE
 ```
 
 The required values are `PATIENT_ID`, `IMAGE_ID`, `PART_KEY`, `BLOCK_KEY`,

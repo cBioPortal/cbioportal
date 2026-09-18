@@ -84,14 +84,41 @@
             slide.slide_type AS slide_type,
             placement.match_level AS match_level,
             placement.specimen_key AS specimen_key,
-            coalesce(
-                timepoint_exact.procedure_date_days,
-                timepoint_legacy.procedure_date_days
+            if(
+                coalesce(timing.timing_present, 0) = 0,
+                coalesce(timepoint_exact.procedure_date_days, timepoint_legacy.procedure_date_days),
+                timing.timeline_start_days
             ) AS procedure_date_days,
-            coalesce(
-                timepoint_exact.timepoint_source,
-                timepoint_legacy.timepoint_source
-            ) AS timepoint_source
+            if(
+                coalesce(timing.timing_present, 0) = 0,
+                coalesce(timepoint_exact.timepoint_source, timepoint_legacy.timepoint_source),
+                timing.timepoint_source
+            ) AS timepoint_source,
+            if(
+                coalesce(timing.timing_present, 0) = 0,
+                if(
+                    coalesce(timepoint_exact.procedure_date_days, timepoint_legacy.procedure_date_days) IS NULL,
+                    'UNDATED',
+                    'RECORDED'
+                ),
+                coalesce(timing.timeline_date_kind, 'UNDATED')
+            ) AS date_kind,
+            if(
+                coalesce(timing.timing_present, 0) = 0,
+                coalesce(timepoint_exact.timepoint_source, timepoint_legacy.timepoint_source),
+                timing.timeline_date_source
+            ) AS date_source,
+            if(coalesce(timing.timing_present, 0) = 0, NULL, timing.timeline_date_reason) AS date_reason,
+            if(
+                coalesce(timing.timing_present, 0) = 0,
+                if(
+                    coalesce(timepoint_exact.procedure_date_days, timepoint_legacy.procedure_date_days) IS NULL,
+                    'MISSING_PROCEDURE_DATE',
+                    'AVAILABLE'
+                ),
+                coalesce(timing.timeline_date_status, 'MISSING_PROCEDURE_DATE')
+            ) AS date_status,
+            if(coalesce(timing.timing_present, 0) = 0, NULL, timing.timeline_coordinate_system) AS coordinate_system
         FROM (
             SELECT *
             FROM wsi_patient
@@ -135,6 +162,15 @@
             ON slide.cancer_study_id = placement.cancer_study_id
            AND slide.patient_id = placement.patient_id
            AND slide.image_id = placement.image_id
+        LEFT JOIN (
+            SELECT *, 1 AS timing_present
+            FROM wsi_slide_timing
+            PREWHERE cancer_study_id = #{studyInternalId}
+                AND patient_id = #{patientInternalId}
+        ) timing
+            ON timing.cancer_study_id = placement.cancer_study_id
+           AND timing.patient_id = placement.patient_id
+           AND timing.image_id = placement.image_id
         LEFT JOIN sample portal_sample ON portal_sample.internal_id = placement.sample_id
         ANY LEFT JOIN timepoint_exact
             ON timepoint_exact.patient_id = placement.patient_id

@@ -109,12 +109,12 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void usesOtherForUnclassifiedLegacyRow() {
+  public void usesUnknownForUnclassifiedLegacyRow() {
     Map<String, Object> row = new HashMap<>();
     row.put("is_hne", false);
     row.put("is_ihc", false);
     row.put("slide_type", null);
 
-    assertEquals("Other", ClickhouseWsiHierarchyRepository.resolveSlideType(row));
+    assertEquals("Unknown", ClickhouseWsiHierarchyRepository.resolveSlideType(row));
   }
 }

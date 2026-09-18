@@ -53,6 +53,7 @@ DROP TABLE IF EXISTS clinical_event_data;
 DROP TABLE IF EXISTS clinical_event_data_derived;
 DROP TABLE IF EXISTS clinical_event_derived;
 DROP TABLE IF EXISTS wsi_slide_placement;
+DROP TABLE IF EXISTS wsi_slide_timing;
 DROP TABLE IF EXISTS wsi_slide;
 DROP TABLE IF EXISTS wsi_block;
 DROP TABLE IF EXISTS wsi_part;
@@ -379,11 +380,11 @@ CREATE TABLE wsi_slide (
     thumbnail_width Nullable(UInt32),
     thumbnail_height Nullable(UInt32),
     thumbnail_content_type Nullable(String),
-    CONSTRAINT wsi_slide_type_valid CHECK slide_type IN ('H&E', 'IHC', 'Other'),
+    CONSTRAINT wsi_slide_type_valid CHECK slide_type IN ('H&E', 'IHC', 'Other', 'Unknown'),
     CONSTRAINT wsi_slide_stain_flags_valid CHECK NOT (is_hne AND is_ihc)
         AND (slide_type != 'H&E' OR is_hne)
         AND (slide_type != 'IHC' OR is_ihc)
-        AND (slide_type != 'Other' OR NOT is_hne AND NOT is_ihc),
+        AND (slide_type NOT IN ('Other', 'Unknown') OR NOT is_hne AND NOT is_ihc),
     PROJECTION wsi_slide_by_access (
         SELECT
             cancer_study_id,
@@ -411,6 +412,20 @@ CREATE TABLE wsi_slide_placement (
     specimen_key String
 ) ENGINE = MergeTree()
 ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+
+CREATE TABLE wsi_slide_timing (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    timeline_start_days Nullable(Int64),
+    timeline_date_status String,
+    timeline_date_kind String,
+    timeline_date_source Nullable(String),
+    timeline_date_reason Nullable(String),
+    timeline_coordinate_system Nullable(String),
+    timepoint_source Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
 
 -- --------------------------------------------------------
 CREATE TABLE generic_entity_properties (

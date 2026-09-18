@@ -418,7 +418,7 @@ run derivation through your own tooling against ClickHouse Cloud). The backend r
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
 
-The `3.2.0` WSI snapshot schema is available both for fresh initialization and
+The `3.4.0` WSI snapshot schema is available both for fresh initialization and
 for in-place upgrades from `3.0.0`. The migration drops any legacy WSI
 release-based tables, recreates the empty snapshot tables and slide-access
 projection, and therefore discards existing WSI rows. Import WSI snapshots into

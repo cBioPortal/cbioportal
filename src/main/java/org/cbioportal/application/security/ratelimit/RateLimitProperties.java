@@ -8,6 +8,10 @@ public class RateLimitProperties {
   private boolean enabled = false;
   private int requestsPerMinute = 60;
   private int burstCapacity = 10;
+  private int maximumBuckets = 10_000;
+
+  public int getMaximumBuckets() { return maximumBuckets; }
+  public void setMaximumBuckets(int maximumBuckets) { this.maximumBuckets = maximumBuckets; }
 
   public boolean isEnabled() {
     return enabled;

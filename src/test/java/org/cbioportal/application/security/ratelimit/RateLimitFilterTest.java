@@ -18,7 +18,8 @@ class RateLimitFilterTest {
     properties.setBurstCapacity(1);
     RateLimitFilter filter =
         new RateLimitFilter(
-            new RateLimitService(properties.getRequestsPerMinute(), properties.getBurstCapacity()));
+            new RateLimitService(
+                properties.getRequestsPerMinute(), properties.getBurstCapacity(), 100));
     MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/studies");
     request.setRemoteAddr("198.51.100.10");
     AtomicInteger chainCalls = new AtomicInteger();

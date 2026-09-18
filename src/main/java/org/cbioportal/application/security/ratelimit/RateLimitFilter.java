@@ -26,14 +26,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
-    RateLimitDecision decision = rateLimitService.tryConsume(clientId(request));
+    String clientId = clientId(request);
+    if (clientId == null) { filterChain.doFilter(request, response); return; }
+    RateLimitDecision decision = rateLimitService.tryConsume(clientId);
     if (!decision.allowed()) {
       long retryAfterSeconds = decision.retryAfter().toSeconds();
       response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
       response.setHeader("Retry-After", Long.toString(retryAfterSeconds));
       LOG.warn(
           "Rate limit exceeded for client {} on {} {}",
-          clientId(request),
+          clientId,
           request.getMethod(),
           request.getRequestURI());
       return;
@@ -43,6 +45,6 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
   private String clientId(HttpServletRequest request) {
     String remoteAddress = request.getRemoteAddr();
-    return remoteAddress == null || remoteAddress.isBlank() ? "unknown" : remoteAddress;
+    return remoteAddress == null || remoteAddress.isBlank() ? null : remoteAddress;
   }
 }

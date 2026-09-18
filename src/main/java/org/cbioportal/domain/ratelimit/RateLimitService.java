@@ -2,23 +2,23 @@ package org.cbioportal.domain.ratelimit;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class RateLimitService {
 
   private static final long MILLIS_PER_MINUTE = Duration.ofMinutes(1).toMillis();
 
-  private final ConcurrentMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
+  private final Cache<String, TokenBucket> buckets;
   private final int requestsPerMinute;
   private final int burstCapacity;
   private final Clock clock;
 
-  public RateLimitService(int requestsPerMinute, int burstCapacity) {
-    this(requestsPerMinute, burstCapacity, Clock.systemUTC());
+  public RateLimitService(int requestsPerMinute, int burstCapacity, int maximumBuckets) {
+    this(requestsPerMinute, burstCapacity, maximumBuckets, Clock.systemUTC());
   }
 
-  RateLimitService(int requestsPerMinute, int burstCapacity, Clock clock) {
+  RateLimitService(int requestsPerMinute, int burstCapacity, int maximumBuckets, Clock clock) {
     if (requestsPerMinute <= 0) {
       throw new IllegalArgumentException("rate-limit.requests-per-minute must be positive");
     }
@@ -28,11 +28,11 @@ public class RateLimitService {
     this.requestsPerMinute = requestsPerMinute;
     this.burstCapacity = burstCapacity;
     this.clock = clock;
+    this.buckets = Caffeine.newBuilder().maximumSize(maximumBuckets).expireAfterAccess(Duration.ofHours(1)).build();
   }
 
   public RateLimitDecision tryConsume(String clientId) {
-    return buckets
-        .computeIfAbsent(clientId, ignored -> new TokenBucket(burstCapacity, clock.millis()))
+    return buckets.get(clientId, ignored -> new TokenBucket(burstCapacity, clock.millis()))
         .tryConsume(clock.millis(), requestsPerMinute);
   }
 

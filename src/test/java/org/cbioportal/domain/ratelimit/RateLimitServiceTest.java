@@ -15,7 +15,7 @@ class RateLimitServiceTest {
   @Test
   void rejectsAClientAfterItsBurstCapacityIsConsumed() {
     Clock clock = Clock.fixed(Instant.parse("2026-09-18T00:00:00Z"), ZoneOffset.UTC);
-    RateLimitService service = new RateLimitService(60, 2, clock);
+    RateLimitService service = new RateLimitService(60, 2, 100, clock);
 
     assertTrue(service.tryConsume("198.51.100.10").allowed());
     assertTrue(service.tryConsume("198.51.100.10").allowed());

@@ -221,26 +221,27 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       case MolecularProfile mp -> {
         var cs = mp.getCancerStudy();
         if (mp.getCancerStudy() == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(mp.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(mp.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case SampleList sl -> {
         var cs = sl.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(sl.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(sl.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case Patient p -> {
         var cs = p.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(p.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(p.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case CancerStudyMetadata csm -> {
-        extractedCancerStudy = cacheMapUtil.getCancerStudyMap().get(csm.cancerStudyIdentifier());
+        extractedCancerStudy =
+            cacheMapUtil.getCancerStudyPermissionMap().get(csm.cancerStudyIdentifier());
       }
 
       default ->
@@ -296,7 +297,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    */
   private CancerStudy extractCancerStudyById(String id, String targetType) {
     return switch (targetType) {
-      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyMap().get(id);
+      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyPermissionMap().get(id);
       case TARGET_TYPE_MOLECULAR_PROFILE_ID, TARGET_TYPE_GENETIC_PROFILE_ID -> {
         var mp = cacheMapUtil.getMolecularProfileMap().get(id);
         yield extractCancerStudy(mp);

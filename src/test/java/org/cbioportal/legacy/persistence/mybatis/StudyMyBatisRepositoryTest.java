@@ -148,6 +148,31 @@ public class StudyMyBatisRepositoryTest {
   }
 
   @Test
+  public void getStudyPermissions() throws Exception {
+
+    List<CancerStudy> result =
+        studyMyBatisRepository.getStudyPermissions().stream()
+            .sorted(Comparator.comparing(CancerStudy::getCancerStudyIdentifier))
+            .toList();
+
+    Assert.assertEquals(2, result.size());
+
+    CancerStudy accTcga = result.get(0);
+    Assert.assertEquals((Integer) 2, accTcga.getCancerStudyId());
+    Assert.assertEquals("acc_tcga", accTcga.getCancerStudyIdentifier());
+    Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", accTcga.getGroups());
+    // this projection intentionally omits everything not needed for permission checks
+    Assert.assertNull(accTcga.getName());
+    Assert.assertNull(accTcga.getTypeOfCancerId());
+    Assert.assertNull(accTcga.getPublicStudy());
+
+    CancerStudy studyTcgaPub = result.get(1);
+    Assert.assertEquals((Integer) 1, studyTcgaPub.getCancerStudyId());
+    Assert.assertEquals("study_tcga_pub", studyTcgaPub.getCancerStudyIdentifier());
+    Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", studyTcgaPub.getGroups());
+  }
+
+  @Test
   public void getMetaStudies() throws Exception {
 
     BaseMeta result = studyMyBatisRepository.getMetaStudies(null);

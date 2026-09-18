@@ -1139,6 +1139,9 @@ public class StudyViewController {
     boolean useLogScale =
         logScale && StudyViewController.isLogScalePossibleForAttribute(numericalAttributeId);
 
+    boolean bothPatientAttributes =
+        sampleAttributeIds.isEmpty() && patientAttributeIds.size() >= 2;
+
     Set<Integer> sampleIdsSet =
         filteredSamples.stream().map(s -> s.getInternalId()).collect(toSet());
     result =
@@ -1150,7 +1153,8 @@ public class StudyViewController {
             numCurvePoints,
             useLogScale,
             sigmaMultiplier,
-            interceptedStudyViewFilter);
+            interceptedStudyViewFilter,
+            bothPatientAttributes);
 
     return new ResponseEntity<>(result, HttpStatus.OK);
   }

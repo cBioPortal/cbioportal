@@ -5,7 +5,9 @@ import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetGenericAssayDataCountsByProfileTypeUseCase {
   private final GenericAssayRepository genericAssayRepository;

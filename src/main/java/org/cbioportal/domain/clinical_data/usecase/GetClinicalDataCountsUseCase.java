@@ -12,12 +12,14 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Use case for retrieving and processing clinical data counts. This class orchestrates the
  * retrieval of clinical data counts from the repository, normalizes the data, and ensures that
  * missing attributes are accounted for in the result.
  */
+@Transactional(readOnly = true)
 @Service
 public class GetClinicalDataCountsUseCase {
 

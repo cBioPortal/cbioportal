@@ -5,7 +5,9 @@ import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetAllSamplesUseCase {
   private final SampleRepository sampleRepository;

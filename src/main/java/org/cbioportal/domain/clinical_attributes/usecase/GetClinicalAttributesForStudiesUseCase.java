@@ -4,11 +4,13 @@ import java.util.List;
 import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.repository.ClinicalAttributesRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Use case for retrieving clinical attributes for specified studies. This class interacts with the
  * {@link ClinicalAttributesRepository} to fetch the required data.
  */
+@Transactional(readOnly = true)
 @Service
 public class GetClinicalAttributesForStudiesUseCase {
 

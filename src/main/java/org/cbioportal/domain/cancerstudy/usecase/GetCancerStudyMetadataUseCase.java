@@ -12,6 +12,7 @@ import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service class responsible for retrieving cancer study metadata based on the specified projection
@@ -43,6 +44,7 @@ import org.springframework.stereotype.Service;
  * @see ProjectionType
  * @see CancerStudyMetadata
  */
+@Transactional(readOnly = true)
 @Service
 public class GetCancerStudyMetadataUseCase {
 

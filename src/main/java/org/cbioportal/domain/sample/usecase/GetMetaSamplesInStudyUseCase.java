@@ -5,7 +5,9 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetMetaSamplesInStudyUseCase {
   private final SampleRepository sampleRepository;

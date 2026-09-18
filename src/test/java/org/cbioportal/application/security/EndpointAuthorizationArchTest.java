@@ -55,6 +55,8 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.ServerStatusController",
           "org.cbioportal.legacy.web.CacheController",
           "org.cbioportal.legacy.web.CacheStatsController",
+          // Admin-only, API-key gated, no study data (see CacheController above)
+          "org.cbioportal.legacy.web.DatabaseController",
           "org.cbioportal.legacy.web.StaticDataTimestampController",
           "org.cbioportal.legacy.web.TestController",
 

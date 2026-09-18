@@ -14,7 +14,7 @@ class RedisConfigTest {
   @Test
   void testRedisConfigWithInvalidRedisConnection() {
     // Test that we can create the Redis config components directly
-    RedisConfig redisConfig = new RedisConfig();
+    RedisConfig redisConfig = new RedisConfig(null);
 
     // Test that cache manager can be created (will use NoOpCacheManager when Redis is unavailable)
     CacheManager cacheManager = redisConfig.cacheManager();
@@ -39,7 +39,7 @@ class RedisConfigTest {
   @Test
   void testRedisConfigComponents() {
     // Test that all required components can be created
-    RedisConfig redisConfig = new RedisConfig();
+    RedisConfig redisConfig = new RedisConfig(null);
 
     // Test cache manager creation
     CacheManager cacheManager = redisConfig.cacheManager();
@@ -76,7 +76,7 @@ class RedisConfigTest {
   @Test
   void testCacheErrorHandlerBehavior() {
     // Test that cache error handler is properly configured
-    RedisConfig redisConfig = new RedisConfig();
+    RedisConfig redisConfig = new RedisConfig(null);
     CacheErrorHandler errorHandler = redisConfig.errorHandler();
     assertNotNull(errorHandler, "CacheErrorHandler should be created");
 
@@ -156,7 +156,7 @@ class RedisConfigTest {
 
   @Test
   void testCacheManagerWithValueLoader() {
-    RedisConfig redisConfig = new RedisConfig();
+    RedisConfig redisConfig = new RedisConfig(null);
     var cacheManager = redisConfig.cacheManager();
     var cache = cacheManager.getCache("test-cache");
     assertNotNull(cache, "Cache should be created");

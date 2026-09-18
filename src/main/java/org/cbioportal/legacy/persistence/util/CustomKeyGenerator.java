@@ -37,9 +37,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.CacheEnabledConfig;
 import org.cbioportal.legacy.persistence.StudyRepository;
+import org.cbioportal.legacy.persistence.config.DynamicDatabaseDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,21 +51,33 @@ import org.springframework.util.DigestUtils;
 public class CustomKeyGenerator implements KeyGenerator {
   public static final String CACHE_KEY_PARAM_DELIMITER = "_";
   public static final int PARAM_LENGTH_HASH_LIMIT = 1024;
+  private static final String DEFAULT_DATABASE_KEY_COMPONENT = "default";
 
   @Autowired private CacheEnabledConfig cacheEnabledConfig;
 
   @Autowired private StudyRepository studyRepository;
 
+  // Scopes every cache key to the database it was computed against, so switching the active
+  // database (see DatabaseSwitchServiceImpl) can never serve an entry that was computed against a
+  // different one -- regardless of whether/when the cache gets explicitly flushed.
+  private final DataSource dataSource;
+
   private static final ObjectMapper mapper = new ObjectMapper();
 
   private static final Logger LOG = LoggerFactory.getLogger(CustomKeyGenerator.class);
+
+  public CustomKeyGenerator(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
 
   public Object generate(Object target, Method method, Object... params) {
     if (!cacheEnabledConfig.isEnabled() && !cacheEnabledConfig.isEnabledClickhouse()) {
       return "";
     }
     String key =
-        target.getClass().getSimpleName()
+        activeDatabase()
+            + CACHE_KEY_PARAM_DELIMITER
+            + target.getClass().getSimpleName()
             + CACHE_KEY_PARAM_DELIMITER
             + method.getName()
             + CACHE_KEY_PARAM_DELIMITER
@@ -72,6 +86,16 @@ public class CustomKeyGenerator implements KeyGenerator {
                 .collect(Collectors.joining(CACHE_KEY_PARAM_DELIMITER));
     LOG.debug("Created key: " + key);
     return key;
+  }
+
+  private String activeDatabase() {
+    if (dataSource instanceof DynamicDatabaseDataSource dynamicDatabaseDataSource) {
+      String database = dynamicDatabaseDataSource.getDatabase();
+      if (database != null) {
+        return database;
+      }
+    }
+    return DEFAULT_DATABASE_KEY_COMPONENT;
   }
 
   private String exceptionlessWrite(Object toSerialize) {

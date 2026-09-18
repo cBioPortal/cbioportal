@@ -309,8 +309,8 @@ persistence.cache_type=no-cache
 
 # Lets a running instance be pointed at a different database (in the same ClickHouse cluster)
 # without restarting, via PUT /api/database?database=<name> (read back with GET /api/database).
-# Switching also flushes all caches, since cache keys don't include the database name. Disabled
-# by default.
+# Cache entries are scoped to the database they were computed against, so switching is always
+# cache-safe; the switch also flushes caches as a memory-reclaiming courtesy. Disabled by default.
 # database.endpoint.enabled=true
 # API key for access to the database-switch endpoint
 # database.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e

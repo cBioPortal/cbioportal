@@ -12,9 +12,14 @@ public interface DatabaseSwitchService {
   String getActiveDatabase();
 
   /**
-   * Points every new connection at {@code database} instead, then flushes all caches so nothing
-   * read from the previous database lingers. Verifies the new database is reachable before
-   * committing to the switch; rolls back and throws {@link DatabaseSwitchException} if not.
+   * Points every new connection at {@code database} instead. Verifies the new database is reachable
+   * before committing to the switch; rolls back and throws {@link DatabaseSwitchException} if not.
+   *
+   * <p>Also flushes all Spring-managed caches, as a memory-reclaiming courtesy -- correctness does
+   * not depend on this flush succeeding or on its timing relative to in-flight requests, since
+   * cache keys are scoped by the active database (see {@code CustomKeyGenerator}); entries from a
+   * database that's no longer active simply stop being looked up and are reclaimed by TTL or
+   * eviction on their own.
    */
   void switchDatabase(String database) throws DatabaseSwitchException, CacheOperationException;
 }

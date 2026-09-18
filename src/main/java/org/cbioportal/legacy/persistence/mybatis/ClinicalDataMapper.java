@@ -81,9 +81,6 @@ public interface ClinicalDataMapper {
       Boolean sortIsPatientAttr,
       String direction);
 
-  Integer getVisibleSampleInternalIdCountForClinicalTable(
-      List<String> studyIds, List<String> sampleIds, String projection, String searchTerm);
-
   List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
 
   List<ClinicalData> getPatientClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);

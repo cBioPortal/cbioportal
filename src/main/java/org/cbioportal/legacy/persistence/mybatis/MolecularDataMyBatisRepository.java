@@ -48,17 +48,6 @@ public class MolecularDataMyBatisRepository implements MolecularDataRepository {
   }
 
   @Override
-  public List<GeneMolecularAlteration> getGeneMolecularAlterationsForSampleIndices(
-      String molecularProfileId,
-      List<Integer> entrezGeneIds,
-      List<Integer> sampleIndices,
-      String projection) {
-
-    return molecularDataMapper.getGeneMolecularAlterationsForSampleIndices(
-        molecularProfileId, entrezGeneIds, sampleIndices, projection);
-  }
-
-  @Override
   // In order to return a cursor/iterator to the service layer, we need a transaction setup in the
   // service
   // layer. Currently, the bottom stackframe is CoExpressionService:getCoExpressions.  It is there

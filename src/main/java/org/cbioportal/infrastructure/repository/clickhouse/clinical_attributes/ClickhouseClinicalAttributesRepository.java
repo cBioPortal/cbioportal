@@ -42,12 +42,12 @@ public class ClickhouseClinicalAttributesRepository implements ClinicalAttribute
     Map<String, ClinicalDataType> attributeDatatypeMap = new HashMap<>();
 
     clinicalAttributesMap
-        .getOrDefault(DataSource.SAMPLE, List.of())
+        .get(DataSource.SAMPLE)
         .forEach(
             attribute -> attributeDatatypeMap.put(attribute.attrId(), ClinicalDataType.SAMPLE));
 
     clinicalAttributesMap
-        .getOrDefault(DataSource.PATIENT, List.of())
+        .get(DataSource.PATIENT)
         .forEach(
             attribute -> attributeDatatypeMap.put(attribute.attrId(), ClinicalDataType.PATIENT));
 

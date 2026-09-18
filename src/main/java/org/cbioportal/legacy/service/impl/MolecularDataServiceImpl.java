@@ -99,36 +99,12 @@ public class MolecularDataServiceImpl implements MolecularDataService {
       samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
     }
 
-    // For patient/sample-list requests, ask ClickHouse for only the selected positions. The
-    // legacy query returns a comma-separated vector for every sample in the cohort and splitting
-    // those vectors here can exceed the application's heap for large profiles.
-    List<Integer> requestedSampleIndices = new ArrayList<>();
-    Map<Integer, Integer> requestedSampleIndexMap = new HashMap<>();
-    if (sampleIds != null) {
-      for (Sample sample : samples) {
-        Integer profileIndex = internalSampleIdsMap.get(sample.getInternalId());
-        if (profileIndex != null) {
-          requestedSampleIndexMap.put(sample.getInternalId(), requestedSampleIndices.size());
-          requestedSampleIndices.add(profileIndex);
-        }
-      }
-      if (requestedSampleIndices.isEmpty()) {
-        return molecularDataList;
-      }
-    }
-
     List<GeneMolecularAlteration> molecularAlterations =
-        sampleIds == null
-            ? molecularDataRepository.getGeneMolecularAlterations(
-                molecularProfileId, entrezGeneIds, projection)
-            : molecularDataRepository.getGeneMolecularAlterationsForSampleIndices(
-                molecularProfileId, entrezGeneIds, requestedSampleIndices, projection);
+        molecularDataRepository.getGeneMolecularAlterations(
+            molecularProfileId, entrezGeneIds, projection);
 
     for (Sample sample : samples) {
-      Integer indexOfSampleId =
-          sampleIds == null
-              ? internalSampleIdsMap.get(sample.getInternalId())
-              : requestedSampleIndexMap.get(sample.getInternalId());
+      Integer indexOfSampleId = internalSampleIdsMap.get(sample.getInternalId());
       if (indexOfSampleId != null) {
         for (GeneMolecularAlteration molecularAlteration : molecularAlterations) {
           GeneMolecularData molecularData = new GeneMolecularData();
@@ -249,46 +225,18 @@ public class MolecularDataServiceImpl implements MolecularDataService {
       samples = sampleService.fetchSamples(studyIds, sampleIds, "ID");
     }
 
-    Map<String, Map<Integer, Integer>> responseSampleIndexMaps = new HashMap<>();
-    List<GeneMolecularAlteration> molecularAlterations = new ArrayList<>();
-    if (sampleIds == null) {
-      // Query each entrezGeneId separately so they can be cached. This unrestricted path retains
-      // the legacy cohort-vector behavior used by export/analysis callers.
-      molecularAlterations =
-          entrezGeneIds.stream()
-              .flatMap(
-                  gene ->
-                      molecularDataRepository
-                          .getGeneMolecularAlterationsInMultipleMolecularProfiles(
-                              distinctMolecularProfileIds,
-                              Collections.singletonList(gene),
-                              projection)
-                          .stream())
-              .collect(Collectors.toList());
-    } else {
-      // Restrict each profile query to the sample positions needed by this request. The returned
-      // values are compact and follow the sample order passed to the repository.
-      for (String molecularProfileId : distinctMolecularProfileIds) {
-        Map<Integer, Integer> responseIndexes = new HashMap<>();
-        List<Integer> requestedIndices = new ArrayList<>();
-        for (Sample sample : samples) {
-          Integer profileIndex =
-              internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
-          if (profileIndex != null && !responseIndexes.containsKey(sample.getInternalId())) {
-            responseIndexes.put(sample.getInternalId(), requestedIndices.size());
-            requestedIndices.add(profileIndex);
-          }
-        }
-        if (!requestedIndices.isEmpty()) {
-          responseSampleIndexMaps.put(molecularProfileId, responseIndexes);
-          List<GeneMolecularAlteration> profileAlterations =
-              molecularDataRepository.getGeneMolecularAlterationsForSampleIndices(
-                  molecularProfileId, entrezGeneIds, requestedIndices, projection);
-          profileAlterations.forEach(a -> a.setMolecularProfileId(molecularProfileId));
-          molecularAlterations.addAll(profileAlterations);
-        }
-      }
-    }
+    // query each entrezGeneId separately so they can be cached
+    List<GeneMolecularAlteration> molecularAlterations =
+        entrezGeneIds.stream()
+            .flatMap(
+                gene ->
+                    molecularDataRepository
+                        .getGeneMolecularAlterationsInMultipleMolecularProfiles(
+                            distinctMolecularProfileIds,
+                            Collections.singletonList(gene),
+                            projection)
+                        .stream())
+            .collect(Collectors.toList());
     Map<String, List<GeneMolecularAlteration>> molecularAlterationsMap =
         molecularAlterations.stream()
             .collect(groupingBy(GeneMolecularAlteration::getMolecularProfileId));
@@ -298,11 +246,7 @@ public class MolecularDataServiceImpl implements MolecularDataService {
           molecularProfileMapByStudyId.get(sample.getCancerStudyIdentifier())) {
         String molecularProfileId = molecularProfile.getStableId();
         Integer indexOfSampleId =
-            sampleIds == null
-                ? internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId())
-                : responseSampleIndexMaps
-                    .getOrDefault(molecularProfileId, Collections.emptyMap())
-                    .get(sample.getInternalId());
+            internalSampleIdsMap.get(molecularProfileId).get(sample.getInternalId());
         if (indexOfSampleId != null && molecularAlterationsMap.containsKey(molecularProfileId)) {
           for (GeneMolecularAlteration molecularAlteration :
               molecularAlterationsMap.get(molecularProfileId)) {

@@ -73,8 +73,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     List<Integer> entrezGeneIds = new ArrayList<>();
     entrezGeneIds.add(ENTREZ_GENE_ID_1);
-    when(molecularDataRepository.getGeneMolecularAlterationsForSampleIndices(
-            MOLECULAR_PROFILE_ID, entrezGeneIds, Arrays.asList(0), PROJECTION))
+    when(molecularDataRepository.getGeneMolecularAlterations(
+            MOLECULAR_PROFILE_ID, entrezGeneIds, PROJECTION))
         .thenReturn(molecularAlterationList);
 
     List<GeneMolecularData> result =
@@ -125,8 +125,8 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     List<Integer> entrezGeneIds = new ArrayList<>();
     entrezGeneIds.add(ENTREZ_GENE_ID_1);
-    when(molecularDataRepository.getGeneMolecularAlterationsForSampleIndices(
-            MOLECULAR_PROFILE_ID, entrezGeneIds, Arrays.asList(0), "ID"))
+    when(molecularDataRepository.getGeneMolecularAlterations(
+            MOLECULAR_PROFILE_ID, entrezGeneIds, "ID"))
         .thenReturn(molecularAlterationList);
 
     BaseMeta result =

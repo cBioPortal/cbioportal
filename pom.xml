@@ -843,15 +843,7 @@
   </pluginRepositories>
 
   <repositories>
-    <!--
-      OpenSAML is not published to Maven Central. Prefer the JBoss public
-      repository mirror because the upstream Shibboleth repository can reject
-      anonymous CI traffic; retain upstream as a fallback.
-    -->
-    <repository>
-      <id>jboss-public</id>
-      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
-    </repository>
+    <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
     <repository>
       <id>shiboleth</id>
       <url>https://build.shibboleth.net/maven/releases/</url>

@@ -10,7 +10,6 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
-import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
@@ -54,6 +53,7 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   String sortBy = "column name";
   String direction = "ASC";
   List<Integer> sampleInternalIds = Arrays.asList(0, 1);
+  List<Integer> sampleInternalIdsAll = Arrays.asList(0, 1, 2, 3);
 
   @Before
   public void init() {
@@ -475,23 +475,9 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Test
   public void fetchSampleClinicalTableHappyCase() {
 
-    Sample sample1 = new Sample();
-    sample1.setInternalId(0);
-    sample1.setStableId("SampleA");
-    sample1.setCancerStudyIdentifier("Study1");
-    Sample sample2 = new Sample();
-    sample2.setInternalId(1);
-    sample2.setStableId("SampleA");
-    sample2.setCancerStudyIdentifier("Study2");
-
-    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
-            sampleStudyIds, sampleIds, searchTerm))
-        .thenReturn(4);
     when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
-            sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction))
-        .thenReturn(sampleInternalIds);
-    when(sampleService.getSamplesByInternalIds(sampleInternalIds))
-        .thenReturn(List.of(sample1, sample2));
+            sampleStudyIds, sampleIds, null, null, searchTerm, sortBy, direction))
+        .thenReturn(sampleInternalIdsAll);
 
     when(clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(sampleInternalIds))
         .thenReturn(List.of(datum1, datum2));
@@ -566,22 +552,5 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
             .getLeft()
             .getByUniqueSampleKey()
             .size());
-  }
-
-  @Test
-  public void fetchSampleClinicalTableOutOfRangePagePreservesTotalCount() {
-    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
-            sampleStudyIds, sampleIds, searchTerm))
-        .thenReturn(501);
-    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
-            sampleStudyIds, sampleIds, pageSize, 25, searchTerm, sortBy, direction))
-        .thenReturn(Collections.emptyList());
-
-    ImmutablePair<SampleClinicalDataCollection, Integer> result =
-        clinicalDataService.fetchSampleClinicalTable(
-            sampleStudyIds, sampleIds, pageSize, 25, searchTerm, sortBy, direction);
-
-    Assert.assertEquals((Integer) 501, result.getRight());
-    Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());
   }
 }

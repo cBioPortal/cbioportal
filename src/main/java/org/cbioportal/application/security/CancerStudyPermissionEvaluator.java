@@ -194,9 +194,6 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
     try {
       Collection<CancerStudy> cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
-      if (cancerStudies.isEmpty()) {
-        return false;
-      }
       for (CancerStudy cs : cancerStudies) {
         if (cs == null || !hasAccessToCancerStudy(authentication, cs, (AccessLevel) permission)) {
           return false;

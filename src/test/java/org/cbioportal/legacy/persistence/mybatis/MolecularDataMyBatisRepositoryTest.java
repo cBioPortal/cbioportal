@@ -1,7 +1,6 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -70,21 +69,6 @@ public class MolecularDataMyBatisRepositoryTest {
             "study_tcga_pub_gistic", entrezGeneIds, "SUMMARY");
 
     getGeneMolecularAlterationsCommonTest(result);
-  }
-
-  @Test
-  public void getGeneMolecularAlterationsForSampleIndices() throws Exception {
-
-    List<Integer> entrezGeneIds = new ArrayList<>();
-    entrezGeneIds.add(207);
-
-    List<GeneMolecularAlteration> result =
-        molecularDataMyBatisRepository.getGeneMolecularAlterationsForSampleIndices(
-            "study_tcga_pub_gistic", entrezGeneIds, Arrays.asList(0, 2), "SUMMARY");
-
-    Assert.assertEquals(1, result.size());
-    Assert.assertEquals((Integer) 207, result.get(0).getEntrezGeneId());
-    Assert.assertArrayEquals(new String[] {"-0.4674", "-1.2266"}, result.get(0).getSplitValues());
   }
 
   @Test

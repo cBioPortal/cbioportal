@@ -54,7 +54,8 @@ public class ClickhouseWsiHierarchyMapperTest {
             .findFirst()
             .orElseThrow();
     assertEquals(Integer.valueOf(-17), timedSlide.procedureDateDays());
-    assertEquals("Procedure date relative to first ICD-O diagnosis", timedSlide.timepointSource());
+    assertEquals(
+        "Recorded procedure date relative to first tumor sequencing", timedSlide.timepointSource());
   }
 
   @Test

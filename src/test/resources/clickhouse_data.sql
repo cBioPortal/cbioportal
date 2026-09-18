@@ -746,9 +746,18 @@ insert into wsi_slide_placement
 (cancer_study_id,patient_id,image_id,part_key,block_key, sample_id,match_level,specimen_key)
 values (9002,9002,'active-slide','part::1','block::1',9002,'PART','part::1');
 
--- WSI timing is deliberately stored only in the standard pathology clinical
--- timeline stream. The hierarchy API joins this event back to its specimen;
--- no relative-date fields exist in the normalized WSI tables.
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9001,9001,'3020726',-17,'AVAILABLE','RECORDED','recorded_procedure_date',null,'patient_first_tumor_sequencing_day_zero','Recorded procedure date relative to first tumor sequencing');
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9001,9001,'3020648',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9002,9002,'active-slide',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+
+-- WSI timing is stored in the same validated v3 snapshot that produces the
+-- pathology timeline. The hierarchy reads this image-keyed timing row only.
 insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type)
 values (9001,9001,-17,null,'PATHOLOGY SLIDES');
 insert into clinical_event_data (clinical_event_id,key,value)
@@ -758,7 +767,7 @@ values (9001,'SUBTYPE','H&E');
 insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'MATCH_LEVEL','BLOCK');
 insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'TIMEPOINT_SOURCE','Procedure date relative to first ICD-O diagnosis');
+values (9001,'TIMEPOINT_SOURCE','Recorded procedure date relative to first tumor sequencing');
 insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'IMAGE_IDS','["3020726"]');
 insert into clinical_event_data (clinical_event_id,key,value)

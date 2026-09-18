@@ -214,7 +214,6 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     feature_study_export("feature.study.export", "false"),
 
     msk_wsi_tile_server_url("msk.wsi.tile_server.url", null),
-    wsi_release_id("wsi.release-id", null),
     wsi_backend_git_sha("wsi.backend-git-sha", null),
     wsi_serving_contract_version("wsi.serving-contract-version", "wsi-serving-v4");
 

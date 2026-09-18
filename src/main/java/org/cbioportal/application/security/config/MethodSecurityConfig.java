@@ -1,6 +1,7 @@
 package org.cbioportal.application.security.config;
 
 import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
+import org.cbioportal.application.security.UnavailableCancerStudyIds;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -23,9 +24,14 @@ public class MethodSecurityConfig {
       @Value("${app.name:}") String appName,
       @Value("${filter_groups_by_appname:true}") String doFilterGroupsByAppName,
       @Value("${always_show_study_group:}") String alwaysShowCancerStudyGroup,
-      CacheMapUtil cacheMapUtil) {
+      CacheMapUtil cacheMapUtil,
+      UnavailableCancerStudyIds unavailableCancerStudyIds) {
     return new CancerStudyPermissionEvaluator(
-        appName, doFilterGroupsByAppName, alwaysShowCancerStudyGroup, cacheMapUtil);
+        appName,
+        doFilterGroupsByAppName,
+        alwaysShowCancerStudyGroup,
+        cacheMapUtil,
+        unavailableCancerStudyIds);
   }
 
   @Bean

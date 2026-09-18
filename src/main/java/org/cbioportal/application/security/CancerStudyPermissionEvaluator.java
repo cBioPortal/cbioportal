@@ -61,6 +61,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a particular user has access to a
@@ -73,6 +75,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
   private final CacheMapUtil cacheMapUtil;
+  private final UnavailableCancerStudyIds unavailableCancerStudyIds;
 
   private static final String ALL_CANCER_STUDIES_ID = "all";
   private static final String ALL_TCGA_CANCER_STUDIES_ID = "all_tcga";
@@ -90,6 +93,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
   private static final String TARGET_TYPE_COLLECTION_OF_GENETIC_PROFILE_IDS =
       "Collection<GeneticProfileId>";
   private static final Logger log = LoggerFactory.getLogger(CancerStudyPermissionEvaluator.class);
+
+  public static final String UNAVAILABLE_STUDY_ATTRIBUTE =
+      "org.cbioportal.unavailableCancerStudyId";
 
   private final String APP_NAME;
   private String DEFAULT_APP_NAME = "public_portal";
@@ -114,11 +120,13 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       final String appName,
       final String doFilterGroupsByAppName,
       final String alwaysShowCancerStudyGroup,
-      final CacheMapUtil cacheMapUtil) {
+      final CacheMapUtil cacheMapUtil,
+      final UnavailableCancerStudyIds unavailableCancerStudyIds) {
     this.APP_NAME = appName;
     this.FILTER_GROUPS_BY_APP_NAME = doFilterGroupsByAppName;
     this.PUBLIC_CANCER_STUDIES_GROUP = alwaysShowCancerStudyGroup;
     this.cacheMapUtil = cacheMapUtil;
+    this.unavailableCancerStudyIds = unavailableCancerStudyIds;
   }
 
   /**
@@ -199,9 +207,26 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
           return false;
         }
       }
+      // Authorize the entire collection first so a forbidden study always takes precedence.
+      if (AccessLevel.READ == permission) {
+        for (CancerStudy cs : cancerStudies) {
+          if (unavailableCancerStudyIds.isUnavailable(cs.getCancerStudyIdentifier())) {
+            markStudyUnavailable(cs.getCancerStudyIdentifier());
+            return false;
+          }
+        }
+      }
       return true;
     } catch (Exception e) {
       return false;
+    }
+  }
+
+  private void markStudyUnavailable(String cancerStudyIdentifier) {
+    RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+    if (attributes != null) {
+      attributes.setAttribute(
+          UNAVAILABLE_STUDY_ATTRIBUTE, cancerStudyIdentifier, RequestAttributes.SCOPE_REQUEST);
     }
   }
 

@@ -6,6 +6,7 @@ import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
@@ -40,6 +41,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
 
 // Remaining TODOs:
 // - Consider extending ResponseEntityExceptionHandler for more complete Spring MVC coverage
@@ -210,9 +213,29 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(AccessDeniedException.class)
   public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+    // A denial caused by study unavailability gets its own status so the frontend can tell
+    // "temporarily unavailable" apart from "you have no access".
+    String unavailableStudyId = unavailableStudyIdOfCurrentRequest();
+    if (unavailableStudyId != null) {
+      return new ResponseEntity<>(
+          new ErrorResponse(
+              "Study " + unavailableStudyId + " is being updated. Please check back later."),
+          HttpStatus.LOCKED);
+    }
     return new ResponseEntity<>(
         new ErrorResponse("Access to the specified resource has been forbidden"),
         HttpStatus.FORBIDDEN);
+  }
+
+  private String unavailableStudyIdOfCurrentRequest() {
+    RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+    if (attributes == null) {
+      return null;
+    }
+    return (String)
+        attributes.getAttribute(
+            CancerStudyPermissionEvaluator.UNAVAILABLE_STUDY_ATTRIBUTE,
+            RequestAttributes.SCOPE_REQUEST);
   }
 
   @ExceptionHandler(DataAccessTokenNoUserIdentityException.class)

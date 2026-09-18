@@ -263,4 +263,10 @@
         ORDER BY resourceId
     </select>
 
+    <!-- Set.copyOf in the caller rejects nulls. -->
+    <select id="getUnavailableStudyIds" resultType="java.lang.String">
+        SELECT cancer_study_identifier FROM cancer_study
+        WHERE status IS NOT NULL AND status != 1 AND cancer_study_identifier IS NOT NULL
+    </select>
+
 </mapper>

@@ -1,9 +1,9 @@
 package org.cbioportal.domain.ratelimit;
 
-import java.time.Clock;
-import java.time.Duration;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Clock;
+import java.time.Duration;
 
 public class RateLimitService {
 
@@ -28,11 +28,16 @@ public class RateLimitService {
     this.requestsPerMinute = requestsPerMinute;
     this.burstCapacity = burstCapacity;
     this.clock = clock;
-    this.buckets = Caffeine.newBuilder().maximumSize(maximumBuckets).expireAfterAccess(Duration.ofHours(1)).build();
+    this.buckets =
+        Caffeine.newBuilder()
+            .maximumSize(maximumBuckets)
+            .expireAfterAccess(Duration.ofHours(1))
+            .build();
   }
 
   public RateLimitDecision tryConsume(String clientId) {
-    return buckets.get(clientId, ignored -> new TokenBucket(burstCapacity, clock.millis()))
+    return buckets
+        .get(clientId, ignored -> new TokenBucket(burstCapacity, clock.millis()))
         .tryConsume(clock.millis(), requestsPerMinute);
   }
 

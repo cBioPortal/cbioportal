@@ -15,7 +15,10 @@ public class RateLimitConfig {
 
   @Bean
   public RateLimitService rateLimitService(RateLimitProperties properties) {
-    return new RateLimitService(properties.getRequestsPerMinute(), properties.getBurstCapacity(), properties.getMaximumBuckets());
+    return new RateLimitService(
+        properties.getRequestsPerMinute(),
+        properties.getBurstCapacity(),
+        properties.getMaximumBuckets());
   }
 
   @Bean

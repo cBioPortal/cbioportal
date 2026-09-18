@@ -27,7 +27,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     String clientId = clientId(request);
-    if (clientId == null) { filterChain.doFilter(request, response); return; }
+    if (clientId == null) {
+      filterChain.doFilter(request, response);
+      return;
+    }
     RateLimitDecision decision = rateLimitService.tryConsume(clientId);
     if (!decision.allowed()) {
       long retryAfterSeconds = decision.retryAfter().toSeconds();

@@ -1106,7 +1106,6 @@ jobs:
                 CBIOPORTAL_URL=https://localhost:3000 \
                 CBIOPORTAL_PROXY_TARGET=http://localhost:8080 \
                 WSI_TILE_PROXY_TARGET=http://localhost:8081 \
-                WSI_RUNTIME_MODE=proxied \
                 pnpm exec rspack serve -c rspack.config.js \
                 >> /tmp/repos/frontend-logs.txt 2>&1 &
         - run:
@@ -1241,6 +1240,9 @@ jobs:
               pnpm exec playwright test \
                 tests/wsi-viewer.spec.ts \
                 tests/wsi-pathology-mocked.spec.ts \
+                tests/pathology-summary.spec.ts \
+                tests/pathology-study-clinical-data.spec.ts \
+                tests/pathology-timing-contract.spec.ts \
                 --reporter=line
         - store_test_results:
             path: /tmp/repos/wsi-api-test-results

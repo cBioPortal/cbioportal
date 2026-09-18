@@ -11,7 +11,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import java.util.List;
-import org.cbioportal.legacy.model.Geneset;
+import org.cbioportal.application.rest.mapper.GenesetMapper;
+import org.cbioportal.application.rest.response.GenesetDTO;
 import org.cbioportal.legacy.service.GenesetService;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
@@ -47,8 +48,8 @@ public class GenesetController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Geneset.class))))
-  public ResponseEntity<List<Geneset>> getAllGenesets(
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenesetDTO.class))))
+  public ResponseEntity<List<GenesetDTO>> getAllGenesets(
       @Parameter(description = "Level of detail of the response")
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection,
@@ -70,7 +71,9 @@ public class GenesetController {
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          genesetService.getAllGenesets(projection.name(), pageSize, pageNumber), HttpStatus.OK);
+          GenesetMapper.INSTANCE.toDtos(
+              genesetService.getAllGenesets(projection.name(), pageSize, pageNumber)),
+          HttpStatus.OK);
     }
   }
 
@@ -82,13 +85,14 @@ public class GenesetController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(schema = @Schema(implementation = Geneset.class)))
-  public ResponseEntity<Geneset> getGeneset(
+      content = @Content(schema = @Schema(implementation = GenesetDTO.class)))
+  public ResponseEntity<GenesetDTO> getGeneset(
       @Parameter(required = true, description = "Gene set ID e.g. GNF2_ZAP70") @PathVariable
           String genesetId)
       throws GenesetNotFoundException {
 
-    return new ResponseEntity<>(genesetService.getGeneset(genesetId), HttpStatus.OK);
+    return new ResponseEntity<>(
+        GenesetMapper.INSTANCE.toDto(genesetService.getGeneset(genesetId)), HttpStatus.OK);
   }
 
   @RequestMapping(
@@ -100,14 +104,15 @@ public class GenesetController {
   @ApiResponse(
       responseCode = "200",
       description = "OK",
-      content = @Content(array = @ArraySchema(schema = @Schema(implementation = Geneset.class))))
-  public ResponseEntity<List<Geneset>> fetchGenesets(
+      content = @Content(array = @ArraySchema(schema = @Schema(implementation = GenesetDTO.class))))
+  public ResponseEntity<List<GenesetDTO>> fetchGenesets(
       @Parameter(required = true, description = "List of Geneset IDs")
           @Size(min = 1, max = PagingConstants.MAX_PAGE_SIZE)
           @RequestBody
           List<String> genesetIds) {
 
-    return new ResponseEntity<>(genesetService.fetchGenesets(genesetIds), HttpStatus.OK);
+    return new ResponseEntity<>(
+        GenesetMapper.INSTANCE.toDtos(genesetService.fetchGenesets(genesetIds)), HttpStatus.OK);
   }
 
   @RequestMapping(

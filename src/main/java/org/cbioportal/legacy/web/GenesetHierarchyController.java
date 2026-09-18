@@ -33,7 +33,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
-import org.cbioportal.legacy.model.GenesetHierarchyInfo;
+import org.cbioportal.application.rest.mapper.GenesetHierarchyInfoMapper;
+import org.cbioportal.application.rest.response.GenesetHierarchyInfoDTO;
 import org.cbioportal.legacy.service.GenesetHierarchyService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
@@ -74,8 +75,9 @@ public class GenesetHierarchyController {
       description = "OK",
       content =
           @Content(
-              array = @ArraySchema(schema = @Schema(implementation = GenesetHierarchyInfo.class))))
-  public ResponseEntity<List<GenesetHierarchyInfo>> fetchGenesetHierarchyInfo(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = GenesetHierarchyInfoDTO.class))))
+  public ResponseEntity<List<GenesetHierarchyInfoDTO>> fetchGenesetHierarchyInfo(
       @Parameter(
               required = true,
               description =
@@ -119,18 +121,21 @@ public class GenesetHierarchyController {
 
     if (sampleListId != null && sampleListId.trim().length() > 0) {
       return new ResponseEntity<>(
-          genesetHierarchyService.fetchGenesetHierarchyInfo(
-              geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleListId),
+          GenesetHierarchyInfoMapper.INSTANCE.toDtos(
+              genesetHierarchyService.fetchGenesetHierarchyInfo(
+                  geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleListId)),
           HttpStatus.OK);
     } else if (sampleIds != null && sampleIds.size() > 0) {
       return new ResponseEntity<>(
-          genesetHierarchyService.fetchGenesetHierarchyInfo(
-              geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds),
+          GenesetHierarchyInfoMapper.INSTANCE.toDtos(
+              genesetHierarchyService.fetchGenesetHierarchyInfo(
+                  geneticProfileId, percentile, scoreThreshold, pvalueThreshold, sampleIds)),
           HttpStatus.OK);
     } else {
       return new ResponseEntity<>(
-          genesetHierarchyService.fetchGenesetHierarchyInfo(
-              geneticProfileId, percentile, scoreThreshold, pvalueThreshold),
+          GenesetHierarchyInfoMapper.INSTANCE.toDtos(
+              genesetHierarchyService.fetchGenesetHierarchyInfo(
+                  geneticProfileId, percentile, scoreThreshold, pvalueThreshold)),
           HttpStatus.OK);
     }
   }

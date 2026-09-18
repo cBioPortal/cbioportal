@@ -11,7 +11,7 @@ public final class SampleClinicalDataCollectionMapper {
 
   public static SampleClinicalDataCollectionDTO toDto(SampleClinicalDataCollection collection) {
     if (collection == null || collection.getByUniqueSampleKey() == null) {
-      return new SampleClinicalDataCollectionDTO(Collections.emptyMap());
+      return new SampleClinicalDataCollectionDTO(Collections.emptyMap(), Collections.emptyList());
     }
 
     Map<String, java.util.List<org.cbioportal.application.rest.response.ClinicalDataDTO>> mapped =
@@ -21,6 +21,6 @@ public final class SampleClinicalDataCollectionMapper {
                     Map.Entry::getKey,
                     e -> LegacyClinicalDataMapper.INSTANCE.toDtosForTable(e.getValue())));
 
-    return new SampleClinicalDataCollectionDTO(mapped);
+    return new SampleClinicalDataCollectionDTO(mapped, collection.getOrderedSampleKeys());
   }
 }

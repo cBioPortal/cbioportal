@@ -327,8 +327,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
     }
 
     if (visibleSampleInternalIds.isEmpty()) {
-      return new ImmutablePair<>(
-          SampleClinicalDataCollection.builder().build(), totalSampleCount);
+      return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), totalSampleCount);
     }
 
     return buildSampleClinicalDataCollection(visibleSampleInternalIds, totalSampleCount);
@@ -358,8 +357,7 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
             .collect(
                 Collectors.groupingBy(
                     clinicalDatum ->
-                        calculateBase64(
-                            clinicalDatum.getSampleId(), clinicalDatum.getStudyId()),
+                        calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId()),
                     LinkedHashMap::new,
                     Collectors.toList()));
     orderedSampleKeys.forEach(

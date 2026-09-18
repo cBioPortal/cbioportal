@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.842922327166">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.843072489645">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.842922327166" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.843072489645" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.842922327166" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.843072489645" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.842922327166" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.843072489645" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -264,13 +264,15 @@
 <p><strong>Backing data store</strong>: The server queries the ClickHouse database for AI agents. It has direct access to the same database tables used by the cBioPortal web application. See the <a href="../../deployment/clickhouse/">ClickHouse Setup Guide</a> to set one up.</p>
 <p><strong>Configuration</strong>: Uses environment variables for ClickHouse connection details and supports different transport protocols (stdio, HTTP, SSE).</p>
 <h4 id="cbioportal-navigator">cbioportal-navigator</h4>
-<p>An MCP server that enables AI agents to navigate and interact with the cBioPortal web interface.</p>
-<p><strong>Repository</strong>: <a href="https://github.com/fuzhaoyuan/cbioportal-navigator">https://github.com/fuzhaoyuan/cbioportal-navigator</a></p>
+<p>An MCP server that resolves natural language cancer genomics queries into structured cBioPortal URLs, enabling AI assistants to navigate users to the right pages.</p>
+<p><strong>Repository</strong>: <a href="https://github.com/cBioPortal/cbioportal-navigator">https://github.com/cBioPortal/cbioportal-navigator</a></p>
+<p><strong>Hosted endpoint</strong>: A hosted instance is available at <code translate="no" v-pre>https://mcp.cbioportal.org/navigator/mcp</code> (streamable HTTP). Point an MCP-compatible client at this URL to let your AI assistant generate cBioPortal links from natural language queries.</p>
 <p><strong>Key Features</strong>:</p>
 <ul>
-<li>Provides tools for navigating the cBioPortal website</li>
-<li>Enables AI agents to interact with the web interface programmatically</li>
-<li>Supports automated exploration of cBioPortal&#x27;s web-based features</li>
+<li>Resolves ambiguous queries (e.g. &quot;TCGA lung cancer&quot;) into specific studies, genes, and profiles</li>
+<li>Builds properly formatted cBioPortal URLs with complex filters and parameters</li>
+<li>Supports navigation to Study View, Patient View, Results View (OncoPrint), and Group Comparison pages</li>
+<li>Provides on-demand filter metadata (clinical attributes, generic assay profiles)</li>
 </ul>
 <h3 id="community-mcp-integrations">Community MCP Integrations</h3>
 <p>These integrations are maintained by the community and third-party developers.</p>
@@ -312,6 +314,7 @@
 <ul>
 <li><a href="https://modelcontextprotocol.io/">Model Context Protocol Specification</a></li>
 <li><a href="https://github.com/cBioPortal/cbioportal-mcp">cbioportal-mcp GitHub Repository</a></li>
+<li><a href="https://github.com/cBioPortal/cbioportal-navigator">cbioportal-navigator GitHub Repository</a></li>
 <li><a href="https://biomcp.org/">BioMCP Documentation</a></li>
 <li><a href="../../web-api-and-clients/">cBioPortal API Documentation</a></li>
 <li><a href="https://github.com/danny-avila/LibreChat">LibreChat Documentation</a></li>

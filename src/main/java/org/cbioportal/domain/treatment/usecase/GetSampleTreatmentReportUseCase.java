@@ -10,7 +10,9 @@ import org.cbioportal.legacy.model.SampleTreatmentRow;
 import org.cbioportal.legacy.model.TemporalRelation;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetSampleTreatmentReportUseCase {
   private final TreatmentRepository treatmentRepository;

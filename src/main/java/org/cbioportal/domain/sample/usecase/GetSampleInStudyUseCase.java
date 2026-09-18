@@ -6,7 +6,9 @@ import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetSampleInStudyUseCase {
   private final StudyService studyService;

@@ -10,12 +10,14 @@ import org.cbioportal.domain.sample.Sample;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Use case for retrieving and combining clinical data for an XY plot. This class orchestrates the
  * fetching of clinical data for both patients and samples, then combines them based on the provided
  * context and filter options, preparing them for XY plot visualization.
  */
+@Transactional(readOnly = true)
 @Service
 public class GetClinicalDataForXyPlotUseCase {
 

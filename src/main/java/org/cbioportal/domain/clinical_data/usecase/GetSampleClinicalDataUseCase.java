@@ -5,12 +5,14 @@ import org.cbioportal.domain.clinical_data.ClinicalData;
 import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Use case for retrieving clinical data for a sample from the repository. This class encapsulates
  * the business logic for fetching clinical data based on the provided study view filter context and
  * filtered attributes.
  */
+@Transactional(readOnly = true)
 @Service
 public class GetSampleClinicalDataUseCase {
 

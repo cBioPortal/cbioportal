@@ -4,7 +4,9 @@ import java.util.List;
 import org.cbioportal.domain.sample.repository.SampleRepository;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Service
 public class GetMetaSamplesUseCase {
   private final SampleRepository sampleRepository;

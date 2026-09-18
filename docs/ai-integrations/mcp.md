@@ -57,7 +57,7 @@ An MCP server that resolves natural language cancer genomics queries into struct
 
 **Repository**: [https://github.com/cBioPortal/cbioportal-navigator](https://github.com/cBioPortal/cbioportal-navigator)
 
-**Hosted endpoint**: A hosted instance is available at `https://mcp.cbioportal.org/navigator/mcp` (streamable HTTP). Point an MCP-compatible client at this URL to let your AI assistant generate cBioPortal links from natural language queries. Like the database MCP, authentication is via Google sign-in.
+**Hosted endpoint**: A hosted instance is available at `https://mcp.cbioportal.org/navigator/mcp` (streamable HTTP). Point an MCP-compatible client at this URL to let your AI assistant generate cBioPortal links from natural language queries.
 
 **Key Features**:
 - Resolves ambiguous queries (e.g. "TCGA lung cancer") into specific studies, genes, and profiles

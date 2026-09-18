@@ -53,14 +53,17 @@ If you'd rather not connect your own client, you can try the same database MCP t
 
 #### cbioportal-navigator
 
-An MCP server that enables AI agents to navigate and interact with the cBioPortal web interface.
+An MCP server that resolves natural language cancer genomics queries into structured cBioPortal URLs, enabling AI assistants to navigate users to the right pages.
 
-**Repository**: [https://github.com/fuzhaoyuan/cbioportal-navigator](https://github.com/fuzhaoyuan/cbioportal-navigator)
+**Repository**: [https://github.com/cBioPortal/cbioportal-navigator](https://github.com/cBioPortal/cbioportal-navigator)
+
+**Hosted endpoint**: A hosted instance is available at `https://mcp.cbioportal.org/navigator/mcp` (streamable HTTP). Point an MCP-compatible client at this URL to let your AI assistant generate cBioPortal links from natural language queries. Like the database MCP, authentication is via Google sign-in.
 
 **Key Features**:
-- Provides tools for navigating the cBioPortal website
-- Enables AI agents to interact with the web interface programmatically
-- Supports automated exploration of cBioPortal's web-based features
+- Resolves ambiguous queries (e.g. "TCGA lung cancer") into specific studies, genes, and profiles
+- Builds properly formatted cBioPortal URLs with complex filters and parameters
+- Supports navigation to Study View, Patient View, Results View (OncoPrint), and Group Comparison pages
+- Provides on-demand filter metadata (clinical attributes, generic assay profiles)
 
 ### Community MCP Integrations
 
@@ -111,6 +114,7 @@ To build an MCP integration with cBioPortal:
 
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
 - [cbioportal-mcp GitHub Repository](https://github.com/cBioPortal/cbioportal-mcp)
+- [cbioportal-navigator GitHub Repository](https://github.com/cBioPortal/cbioportal-navigator)
 - [BioMCP Documentation](https://biomcp.org/)
 - [cBioPortal API Documentation](../web-API-and-Clients.md)
 - [LibreChat Documentation](https://github.com/danny-avila/LibreChat)

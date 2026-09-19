@@ -1,0 +1,32 @@
+# Keep local Playwright shards on the schema and seed checked out with the PR.
+# cbioportal-test's helper regenerates these files from the image, but fork
+# jobs cannot depend on that helper receiving the image variable correctly.
+services:
+  cbioportal:
+    # Keep the compose entrypoint so importer scripts receive the mounted
+    # datasource settings injected into core-IMPORTER.jar. The stock keycloak
+    # command uses a relative config path that Spring cannot resolve from the
+    # image's working directory, so use the absolute mounted path here.
+    entrypoint: ["/cbioportal/entrypoint.sh"]
+    command: >-
+      /bin/sh -c "java -Xms2g -Xmx4g -cp '/cbioportal-webapp:/cbioportal-webapp/lib/*'
+      org.cbioportal.PortalApplication --spring.config.location=file:/cbioportal-webapp/application.properties
+      --dat.method=none --multithread.core_pool_size=1 --authenticate=saml
+      --spring.security.saml2.relyingparty.registration.cbio-idp.assertingparty.metadata-uri=classpath:/client-tailored-saml-idp-metadata.xml
+      --session.service.url=http://cbioportal-session:5001/api/sessions/my_portal/
+      --spring.security.saml2.relyingparty.registration.cbio-idp.entity-id=cbioportal
+      --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].certificate-location=classpath:/local.crt
+      --spring.security.saml2.relyingparty.registration.cbio-idp.signing.credentials[0].private-key-location=classpath:/local.key
+      --security.cors.allowed-origins=* --filter_groups_by_appname=false
+      --always_show_study_group=PUBLIC"
+    environment:
+      # Keep local browser shards tied to the backend image under test.
+      GIT_COMMIT_ID_FULL: ${CIRCLE_SHA1}
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/.circleci/local-clickhouse.properties:/cbioportal-webapp/application.properties:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/cbioportal/populate_derived_tables.sql:ro
+  cbioportal-database:
+    volumes:
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/schema.sql:/data/schema.sql:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/init/seed-cbioportal_hg19_hg38_v2.14.5.sql.gz:/data/seed.sql.gz:ro
+      - ${CBIOPORTAL_SOURCE_DIR}/src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql:/data/clickhouse.sql:ro

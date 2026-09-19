@@ -1029,10 +1029,10 @@ jobs:
               corepack enable
               corepack prepare pnpm@10.33.0 --activate
               declare -a CHILDREN=(
-                "foundation|4e3fb8033e992e3db96cd48ed98dfcba98d1ad34|src/shared/components/wsiViewer/WSIViewer.foundation.spec.tsx src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
-                "molecular|012d07f4cfebc1ea27a40d2722b1fd704efc55ae|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
-                "patient|7bb12d82380610bfeb5d40948a5d72da9fde2fef|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
-                "study|b44e19c705e80eda9272d629e8ee83d041540b14|src/pages/studyView/tabs/ClinicalDataTab.spec.ts"
+                "foundation|104ef66e3758464fc3e98bd2270efc3199329ed2|src/shared/components/wsiViewer/WSIViewer.foundation.spec.tsx src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
+                "molecular|29029ad7f63a96f73057f96df6d796fc83ec2541|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
+                "patient|8791fc10cbed033a5782b1d22334cc199416da25|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
+                "study|b000e928b31e9be17e736b51ada541c9cfc4eff5|src/pages/studyView/tabs/ClinicalDataTab.spec.ts"
               )
               for child in "${CHILDREN[@]}"; do
                 IFS='|' read -r name ref specs <<< "$child"
@@ -1065,9 +1065,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                79d9d604ebb547f728c98a5bce77a35375e1c9c9
+                1e88f5cef2b8a321517906224b0ff3f3aaacce2d
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                79d9d604ebb547f728c98a5bce77a35375e1c9c9
+                1e88f5cef2b8a321517906224b0ff3f3aaacce2d
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

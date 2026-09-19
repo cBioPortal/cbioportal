@@ -112,7 +112,7 @@ jobs:
               # The ordinary regression suite runs against the foundation
               # viewer. Feature children are exercised by the WSI integration
               # job below and are pinned independently there.
-              FRONTEND_REPO_SHA: 51404ac29e5f7941da44966aa8b93fb134719ca3
+              FRONTEND_REPO_SHA: c03f470e5a6e67b83f34ba40205129a831078101
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
               git -C cbioportal-frontend fetch --depth 1 origin ${FRONTEND_REPO_SHA}
@@ -1036,9 +1036,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                d6154754bc3c92141edd999a41f8a551eba8b153
+                9a020383613544323d0a6ae21228b84e307454bc
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                d6154754bc3c92141edd999a41f8a551eba8b153
+                9a020383613544323d0a6ae21228b84e307454bc
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

@@ -1019,6 +1019,38 @@ jobs:
               node -v
               pnpm -v
         - run:
+            name: Validate each WSI frontend child against the foundation
+            no_output_timeout: 30m
+            command: |
+              set -euo pipefail
+              export NVM_DIR="$HOME/.nvm"
+              [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+              nvm use 22.18.0
+              corepack enable
+              corepack prepare pnpm@10.33.0 --activate
+              declare -a CHILDREN=(
+                "foundation|4e3fb8033e992e3db96cd48ed98dfcba98d1ad34|src/shared/components/wsiViewer/WSIViewer.foundation.spec.tsx src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
+                "molecular|012d07f4cfebc1ea27a40d2722b1fd704efc55ae|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
+                "patient|7bb12d82380610bfeb5d40948a5d72da9fde2fef|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
+                "study|b44e19c705e80eda9272d629e8ee83d041540b14|src/pages/studyView/tabs/ClinicalDataTab.spec.ts"
+              )
+              for child in "${CHILDREN[@]}"; do
+                IFS='|' read -r name ref specs <<< "$child"
+                dir="/tmp/repos/cbioportal-frontend-wsi-$name"
+                rm -rf "$dir"
+                git clone --filter=blob:none --no-checkout \
+                  https://github.com/raylim/cbioportal-frontend.git "$dir"
+                git -C "$dir" fetch --depth 1 origin "$ref"
+                git -C "$dir" checkout --detach "$ref"
+                cd "$dir"
+                pnpm install --frozen-lockfile
+                if [ "$name" = "study" ]; then
+                  pnpm exec jest $specs --runInBand --env=jsdom --no-cache
+                else
+                  pnpm exec jest $specs --runInBand --no-cache
+                fi
+              done
+        - run:
             name: Checkout native WSI frontend for local integration
             command: |
               export NVM_DIR="$HOME/.nvm"

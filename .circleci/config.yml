@@ -107,7 +107,7 @@ jobs:
         - run:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
-              FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
+              FRONTEND_REPO_URL: https://github.com/raylim/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
               # The ordinary regression suite runs against the foundation
               # viewer. Feature children are exercised by the WSI integration

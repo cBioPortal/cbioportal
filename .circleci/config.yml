@@ -578,20 +578,9 @@ jobs:
               # --workers=2 lets 2 spec files in a shard run concurrently;
               # resource_class large (4 vCPU/8GB) is shared with the mysql +
               # cbioportal + keycloak + clickhouse containers, so we cap at 2.
-              # Most of tests/local is a remote-database visual regression
-              # suite. Those snapshots intentionally are not part of this
-              # isolated ClickHouse migration gate: they depend on the shared
-              # staging dataset and its historical UI baselines. Keep the
-              # tests that exercise this stack's backend revision, SAML study
-              # authorization, and virtual-study lifecycle here; the complete
-              # backend and WSI API suites run in their own required jobs.
-              npx playwright test \
-                tests/local/version.spec.ts \
-                tests/local/coad-study-access.spec.ts \
-                tests/local/virtual-study.spec.ts \
+              npx playwright test tests/local \
                 --shard="${SHARD_NUM}/${CIRCLE_NODE_TOTAL}" \
                 --workers=2 \
-                --pass-with-no-tests \
                 --reporter=list,junit,blob
               EXIT=$?
               set -e
@@ -807,11 +796,6 @@ jobs:
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG-web-shenandoah.tar
-              # Fork builds cannot receive the private staging context. Keep
-              # a fully local fallback available so the API suite still runs
-              # against the complete ClickHouse seed instead of failing before
-              # the application starts.
-              docker load -i $DOCKER_TAG.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -819,34 +803,13 @@ jobs:
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
             command: |
               cd cbioportal-test
-              if [ -n "${CLICKHOUSE_URL:-}" ]; then
-                # Trusted builds use the migrated, read-only staging clone
-                # supplied by the CircleCI context. Never put these values in
-                # repository files or logs.
-                : "${CLICKHOUSE_USER:?CLICKHOUSE_USER must come from the migrated 3.1 CI context}"
-                : "${CLICKHOUSE_PASSWORD:?CLICKHOUSE_PASSWORD must come from the migrated 3.1 CI context}"
-                export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}-web-shenandoah"
-                echo "Starting API tests against the migrated ClickHouse staging clone"
-                nohup ./scripts/docker-compose.sh \
-                  --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' \
-                  >> /tmp/repos/docker-compose-logs.txt 2>&1 &
-              else
-                # Forked PRs do not receive organization contexts. Exercise
-                # the same suite against the image's complete local seed so
-                # this gate remains meaningful without distributing a
-                # credential or weakening the assertions.
-                export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}"
-                export CBIOPORTAL_SOURCE_DIR=/tmp/repos/cbioportal
-                docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
-                echo "CLICKHOUSE staging context unavailable; using the complete local ClickHouse seed"
-                # The web-and-data image is intentionally exploded (it does
-                # not contain app.jar), while docker-compose's default web
-                # profile launches that jar. Use the checked-in override with
-                # the exploded classpath and authentication disabled.
-                nohup ./scripts/docker-compose.sh \
-                  --compose_extensions='-f /tmp/repos/cbioportal/.circleci/api-local-compose.yml' \
-                  >> /tmp/repos/docker-compose-logs.txt 2>&1 &
-              fi
+              : "${CLICKHOUSE_URL:?CLICKHOUSE_URL must come from the clickhouse-public-staging-ro-user context}"
+              : "${CLICKHOUSE_USER:?CLICKHOUSE_USER must come from the clickhouse-public-staging-ro-user context}"
+              : "${CLICKHOUSE_PASSWORD:?CLICKHOUSE_PASSWORD must come from the clickhouse-public-staging-ro-user context}"
+              export DOCKER_IMAGE_CBIOPORTAL="cbioportal/cbioportal-dev:${CIRCLE_SHA1:?CIRCLE_SHA1 is required}-web-shenandoah"
+              nohup ./scripts/docker-compose.sh \
+                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' \
+                >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
@@ -885,24 +848,7 @@ jobs:
               corepack enable
               corepack prepare yarn@1.22.22 --activate
               yarn install --frozen-lockfile
-              if [ -n "${CLICKHOUSE_URL:-}" ]; then
-                # The migrated staging context contains the complete API-test
-                # fixture set, so trusted runs execute the full suite.
-                yarn test -- --reporter mocha-junit-reporter
-              else
-                # Fork jobs cannot receive the private staging context.  The
-                # public seed is intentionally schema/reference data only and
-                # cannot satisfy tests that assert on hundreds of staging
-                # studies. Keep this gate meaningful with deterministic smoke
-                # checks instead of reporting misleading data-test failures.
-                echo "CLICKHOUSE staging context unavailable; running local API smoke checks"
-                curl -fsS http://localhost:8080/api/health | jq -e '.status == "UP"'
-                curl -fsS http://localhost:8080/api/info | jq -e --arg sha "$CIRCLE_SHA1" '.gitCommitId == $sha'
-                docker exec cbioportal-database-container sh -lc \
-                  'clickhouse-client --user "$CLICKHOUSE_USER" --password "$CLICKHOUSE_PASSWORD" \
-                    --database "$CLICKHOUSE_DB" --query="SELECT count() FROM info WHERE db_schema_version IS NOT NULL"' \
-                  | grep -q '^[1-9]'
-              fi
+              yarn test -- --reporter mocha-junit-reporter
 
         - store_test_results:
             path: /tmp/repos/api-test-results

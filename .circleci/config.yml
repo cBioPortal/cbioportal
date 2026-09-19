@@ -1030,7 +1030,7 @@ jobs:
               corepack prepare pnpm@10.33.0 --activate
               declare -a CHILDREN=(
                 "foundation|d4d7d453428cd82e150df69415850fca187fa8a0|src/shared/components/wsiViewer/WSIViewer.foundation.spec.tsx src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
-                "molecular|ccabd1267ac2136e14a952d58515df92a3d0f2ad|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
+                "molecular|05adef9f18ec6be98778d779437a5014783e73fe|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
                 "patient|06ee60703d39db21d43655b6e95855346bcb4afe|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx src/pages/patientView/PatientViewPageTabs.spec.tsx src/pages/patientView/PatientViewUrlWrapper.spec.ts src/pages/patientView/timeline/ClinicalEventsTables.spec.ts src/pages/patientView/timeline/TimelineWrapper.spec.ts"
                 "study|308d9fe34a3a067860334e4c4606c897bc1ef984|src/pages/studyView/tabs/ClinicalDataTab.spec.ts"
               )
@@ -1065,9 +1065,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                a6e987a22e9426b52de6da1e850359498fc3d3cb
+                1c9edb5b1832dd7d9c8c27ad87f69330b1474a89
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                a6e987a22e9426b52de6da1e850359498fc3d3cb
+                1c9edb5b1832dd7d9c8c27ad87f69330b1474a89
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

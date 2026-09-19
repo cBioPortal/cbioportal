@@ -109,7 +109,10 @@ jobs:
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
-              FRONTEND_REPO_SHA: ceaf8fee804bd202a9a5d194c091c9693e1aee1f
+              # The ordinary regression suite runs against the foundation
+              # viewer. Feature children are exercised by the WSI integration
+              # job below and are pinned independently there.
+              FRONTEND_REPO_SHA: 9506a6d173e69b8f2b107a45b3b5567394ae5c31
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
               git -C cbioportal-frontend fetch --depth 1 origin ${FRONTEND_REPO_SHA}
@@ -888,7 +891,7 @@ jobs:
               export WSI_CORE_REPOSITORY=raylim/cbioportal-core
               # Pin the exact core PR commit so this test is reproducible and
               # cannot silently follow a mutable personal-fork branch.
-              export WSI_CORE_REF=7316bd05542dbbf57bf29a6a74dfc4b600876b84
+              export WSI_CORE_REF=26ce16b30b5efbdcd74d11ca171eed66e6c32551
               : > /tmp/repos/wsi-image-build.log
               docker build \
                 --build-arg CORE_REPOSITORY="$WSI_CORE_REPOSITORY" \
@@ -1033,9 +1036,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                3e2f2846a1e081ededb77740b688ad0824d2efba
+                cc48c50646d1614fbd5528b22eccddd69c85f376
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                3e2f2846a1e081ededb77740b688ad0824d2efba
+                cc48c50646d1614fbd5528b22eccddd69c85f376
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

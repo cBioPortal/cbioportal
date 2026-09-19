@@ -1031,7 +1031,7 @@ jobs:
               declare -a CHILDREN=(
                 "foundation|104ef66e3758464fc3e98bd2270efc3199329ed2|src/shared/components/wsiViewer/WSIViewer.foundation.spec.tsx src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
                 "molecular|29029ad7f63a96f73057f96df6d796fc83ec2541|src/shared/components/wsiViewer/wsiAnnotationDataUtils.spec.ts"
-                "patient|8791fc10cbed033a5782b1d22334cc199416da25|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
+                "patient|8948302c5e8ac2f5d57b2f1694b1ab4de0648dae|src/shared/components/wsiViewer/wsiNavPanel.spec.tsx"
                 "study|b000e928b31e9be17e736b51ada541c9cfc4eff5|src/pages/studyView/tabs/ClinicalDataTab.spec.ts"
               )
               for child in "${CHILDREN[@]}"; do
@@ -1065,9 +1065,9 @@ jobs:
               # This immutable fork commit keeps WSI hierarchy assertions in
               # sync with the timeline-event timing contract in this PR.
               git -C /tmp/repos/cbioportal-frontend-wsi fetch --depth 1 origin \
-                1e88f5cef2b8a321517906224b0ff3f3aaacce2d
+                c7632cd4b1b24271971498ee0fa9acf2790df511
               git -C /tmp/repos/cbioportal-frontend-wsi checkout --detach \
-                1e88f5cef2b8a321517906224b0ff3f3aaacce2d
+                c7632cd4b1b24271971498ee0fa9acf2790df511
               cd /tmp/repos/cbioportal-frontend-wsi
               pnpm install --frozen-lockfile
         - run:

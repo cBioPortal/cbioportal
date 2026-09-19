@@ -107,12 +107,9 @@ jobs:
         - run:
             name: Checkout cbioportal/cbioportal-frontend
             environment:
-              FRONTEND_REPO_URL: https://github.com/raylim/cbioportal-frontend.git
+              FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
-              # The ordinary regression suite runs against the foundation
-              # viewer. Feature children are exercised by the WSI integration
-              # job below and are pinned independently there.
-              FRONTEND_REPO_SHA: c03f470e5a6e67b83f34ba40205129a831078101
+              FRONTEND_REPO_SHA: ceaf8fee804bd202a9a5d194c091c9693e1aee1f
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
               git -C cbioportal-frontend fetch --depth 1 origin ${FRONTEND_REPO_SHA}

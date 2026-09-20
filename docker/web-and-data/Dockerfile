@@ -47,6 +47,9 @@ FROM maven:3-eclipse-temurin-21 AS build-core
 ARG CORE_REPOSITORY
 ARG CORE_BRANCH
 ARG CORE_REF
+# Keep mutable branch builds fresh when the branch advances. CORE_REF still
+# selects the exact checkout used by validation builds.
+ADD https://api.github.com/repos/${CORE_REPOSITORY}/commits/${CORE_BRANCH} /dev/null
 # We touch application.properties here just to get cbioportal-core building
 # Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
 RUN set -eu; \

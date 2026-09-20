@@ -1,0 +1,7 @@
+services:
+  # The remote ClickHouse API job must not start the local migration runner.
+  # The runner resolves cbioportal-database, which is intentionally disabled
+  # by the remote ClickHouse extension.
+  cbioportal-migration:
+    deploy:
+      replicas: 0

@@ -656,7 +656,7 @@ jobs:
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
               nohup ./scripts/docker-compose.sh \
-                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' \
+                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/remote-clickhouse-no-migration.yml' \
                 >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost

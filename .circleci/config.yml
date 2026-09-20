@@ -655,6 +655,11 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              # The public read-only clone can lag the PR's schema version;
+              # keep the ordinary API compatibility gate running without
+              # mutating that shared database. The WSI job validates the
+              # current schema against its local ClickHouse fixture.
+              export APP_CUSTOM_ARGS="--db.suppress_schema_version_mismatch_errors=true ${APP_CUSTOM_ARGS:-}"
               nohup ./scripts/docker-compose.sh \
                 --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/remote-clickhouse-no-migration.yml' \
                 >> /tmp/repos/docker-compose-logs.txt 2>&1 &

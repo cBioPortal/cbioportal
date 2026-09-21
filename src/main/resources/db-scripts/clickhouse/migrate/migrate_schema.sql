@@ -58,7 +58,7 @@ SELECT
     p.stable_id,
     s.stable_id,
     rs.url,
-    NULL, NULL, NULL, 0
+    NULL, NULL, NULL
 FROM resource_sample rs
 INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
@@ -78,7 +78,7 @@ SELECT
     pt.stable_id,
     NULL,
     rp.url,
-    NULL, NULL, NULL, 0
+    NULL, NULL, NULL
 FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
@@ -96,8 +96,20 @@ SELECT
     'STUDY',
     NULL, NULL,
     rst.url,
-    NULL, NULL, NULL, 0
+    NULL, NULL, NULL
 FROM resource_study rst
 WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) NOT IN (
     SELECT RESOURCE_DATA_ID FROM resource_data
 );
+
+## db_schema_version: 3.0.2
+## description: Drop the legacy resource_sample/resource_patient/resource_study tables, now superseded by resource_data
+-- Separate from 3.0.1 on purpose. The backfill in 3.0.1 reads these tables, so dropping them
+-- in the same section would leave a retry — after a run that dropped them but died before the
+-- version advanced — reading tables that no longer exist, with no way to finish.
+-- Nothing reads them by this point: the importer writes only resource_data, and the API paths
+-- that used to read them (the legacy resource endpoints, the study resource counts) were
+-- repointed. Fresh installs never had them; schema.sql no longer creates them.
+DROP TABLE IF EXISTS resource_sample;
+DROP TABLE IF EXISTS resource_patient;
+DROP TABLE IF EXISTS resource_study;

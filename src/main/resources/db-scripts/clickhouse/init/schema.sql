@@ -621,27 +621,9 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
-CREATE TABLE resource_patient (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_sample (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_study (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
--- Unified resource-table (all entity levels), superseding resource_sample/patient/study
--- for new installs. The importer writes only to this table; the legacy split tables
--- above are kept for backward-compat reads by older API code paths.
+-- Unified resource table covering every entity level. Replaces the resource_sample,
+-- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
+-- migration drops them once their contents have been carried over.
 CREATE TABLE resource_data (
     `RESOURCE_DATA_ID` Int64,
     `RESOURCE_ID` String,

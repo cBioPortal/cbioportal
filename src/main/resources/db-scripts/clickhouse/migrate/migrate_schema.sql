@@ -47,6 +47,14 @@ CREATE TABLE IF NOT EXISTS resource_data
 
 -- Backfill is guarded by a deterministic RESOURCE_DATA_ID (hash of the natural key) so this
 -- section is safe to re-run: rows already present are excluded via NOT IN.
+-- Recreate the legacy tables if they are missing, so this section can be retried after a run
+-- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
+-- first run they already exist and this is a no-op; on a retry they come back empty, the
+-- backfill finds nothing new, and the drops remove them again.
+CREATE TABLE IF NOT EXISTS resource_sample (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 INSERT INTO resource_data
     (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
      PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
@@ -102,14 +110,10 @@ WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) N
     SELECT RESOURCE_DATA_ID FROM resource_data
 );
 
-## db_schema_version: 3.0.2
-## description: Drop the legacy resource_sample/resource_patient/resource_study tables, now superseded by resource_data
--- Separate from 3.0.1 on purpose. The backfill in 3.0.1 reads these tables, so dropping them
--- in the same section would leave a retry — after a run that dropped them but died before the
--- version advanced — reading tables that no longer exist, with no way to finish.
--- Nothing reads them by this point: the importer writes only resource_data, and the API paths
--- that used to read them (the legacy resource endpoints, the study resource counts) were
--- repointed. Fresh installs never had them; schema.sql no longer creates them.
+-- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
+-- the API paths that used to read them (the legacy resource endpoints, the study resource
+-- counts) were repointed. Dropping them leaves an upgraded database with the same schema a
+-- fresh install gets from schema.sql, which no longer creates them.
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;

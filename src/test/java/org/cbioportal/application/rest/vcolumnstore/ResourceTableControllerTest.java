@@ -109,7 +109,6 @@ public class ResourceTableControllerTest {
                 "https://example.com/he1.jpg",
                 "H&E Sample 1",
                 "IMAGE",
-                1,
                 Map.of("stain", "HE")),
             new ResourceTableRow(
                 STUDY_ID,
@@ -121,7 +120,6 @@ public class ResourceTableControllerTest {
                 "https://example.com/he2.jpg",
                 "H&E Sample 2",
                 "IMAGE",
-                1,
                 Map.of("stain", "HE")));
 
     ResourceTableResult result =

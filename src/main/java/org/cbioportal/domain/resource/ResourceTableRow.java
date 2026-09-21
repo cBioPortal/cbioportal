@@ -12,5 +12,4 @@ public record ResourceTableRow(
     String url,
     String displayName,
     String type,
-    int priority,
     Map<String, Object> metadata) {}

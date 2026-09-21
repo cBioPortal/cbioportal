@@ -80,15 +80,6 @@ public class GetResourceTableDataUseCase {
             true,
             null),
         new ResourceColumnInfo(
-            "type", "Type", ResourceColumnInfo.SOURCE_BUILTIN, "string", true, true, true, null),
-        new ResourceColumnInfo(
-            "priority",
-            "Priority",
-            ResourceColumnInfo.SOURCE_BUILTIN,
-            "number",
-            false,
-            true,
-            false,
-            null));
+            "type", "Type", ResourceColumnInfo.SOURCE_BUILTIN, "string", true, true, true, null));
   }
 }

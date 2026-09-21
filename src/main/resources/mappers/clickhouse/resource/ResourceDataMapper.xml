@@ -23,7 +23,6 @@
       <arg column="url" javaType="String"/>
       <arg column="displayName" javaType="String"/>
       <arg column="type" javaType="String"/>
-      <arg column="priority" javaType="_int"/>
       <arg column="metadata" javaType="java.util.Map"
            typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
     </constructor>
@@ -244,14 +243,13 @@
       <when test="query.sortBy == 'url'">ORDER BY rdata.URL</when>
       <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME</when>
       <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE</when>
-      <when test="query.sortBy == 'priority'">ORDER BY rdata.PRIORITY</when>
       <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name</when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
         ORDER BY JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) = '' ASC,
         JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey})
       </when>
-      <otherwise>ORDER BY rdata.PRIORITY DESC, rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
+      <otherwise>ORDER BY rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
     </choose>
     <if test="query.sortBy != null and !query.sortBy.isEmpty()">
       <choose>
@@ -310,7 +308,6 @@
       rdata.URL AS url,
       rdata.DISPLAY_NAME AS displayName,
       rdata.TYPE AS type,
-      rdata.PRIORITY AS priority,
       rdata.METADATA AS metadata
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>

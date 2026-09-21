@@ -652,8 +652,7 @@ CREATE TABLE resource_data (
     `URL` String,
     `DISPLAY_NAME` Nullable(String),
     `TYPE` Nullable(String),
-    `METADATA` Nullable(String),
-    `PRIORITY` Int32
+    `METADATA` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
 
 CREATE TABLE sample (

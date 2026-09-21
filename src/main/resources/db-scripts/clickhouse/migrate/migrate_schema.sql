@@ -42,15 +42,14 @@ CREATE TABLE IF NOT EXISTS resource_data
     `URL`              String,
     `DISPLAY_NAME`     Nullable(String),
     `TYPE`             Nullable(String),
-    `METADATA`         Nullable(String),
-    `PRIORITY`         Int32
+    `METADATA`         Nullable(String)
 ) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
 
 -- Backfill is guarded by a deterministic RESOURCE_DATA_ID (hash of the natural key) so this
 -- section is safe to re-run: rows already present are excluded via NOT IN.
 INSERT INTO resource_data
     (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA, PRIORITY)
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
 SELECT
     toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)),
     rs.resource_id,
@@ -70,7 +69,7 @@ WHERE toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)) NOT IN (
 
 INSERT INTO resource_data
     (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA, PRIORITY)
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
 SELECT
     toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)),
     rp.resource_id,
@@ -89,7 +88,7 @@ WHERE toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)) NOT IN (
 
 INSERT INTO resource_data
     (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA, PRIORITY)
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
 SELECT
     toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)),
     rst.resource_id,

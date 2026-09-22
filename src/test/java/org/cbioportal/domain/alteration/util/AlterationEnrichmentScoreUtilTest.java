@@ -47,4 +47,63 @@ public class AlterationEnrichmentScoreUtilTest {
     var pValue = AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
     assertEquals(0.2964987551514857, pValue.doubleValue(), 1e-10);
   }
+
+  /**
+   * A group with {@code profiledCount == 0} (added by {@code
+   * addMissingCountsToAlterationEnrichment} for every group whose gene panels do not cover the
+   * gene) must not change the p-value: it carries no information about the gene. The guard above
+   * the test already excludes such groups through {@code filteredCounts}; the tests themselves have
+   * to use the same list.
+   *
+   * <p>On master the Chi-square branch iterates over {@code counts}, so the zero-profiled group
+   * becomes a {@code {0, 0}} row. commons-math3 then returns {@code NaN}, which the NaN guard turns
+   * into p = 1.0, and a strongly enriched gene silently looks unenriched.
+   */
+  @Test
+  public void calculateEnrichmentScore_ignoresZeroProfiledGroup_chiSquare() {
+    var withoutUnprofiledGroup =
+        AlterationEnrichmentScoreUtil.calculateEnrichmentScore(
+            enrichment(group("A", 40, 100), group("B", 5, 100), group("C", 10, 100)));
+    var withUnprofiledGroup =
+        AlterationEnrichmentScoreUtil.calculateEnrichmentScore(
+            enrichment(
+                group("A", 40, 100), group("B", 5, 100), group("C", 10, 100), group("D", 0, 0)));
+
+    // chi-square over the three profiled groups; master returns 1.0 for the second call
+    assertEquals(4.035882739117369e-11, withoutUnprofiledGroup.doubleValue(), 1e-20);
+    assertEquals(withoutUnprofiledGroup.doubleValue(), withUnprofiledGroup.doubleValue(), 1e-20);
+  }
+
+  /**
+   * With two profiled groups and one zero-profiled group, the comparison is really a two-group
+   * comparison, so it must use Fisher's exact test like any other two-group comparison. On master
+   * it takes the Chi-square branch because {@code counts.size()} is 3, and returns p = 1.0.
+   */
+  @Test
+  public void calculateEnrichmentScore_ignoresZeroProfiledGroup_fisher() {
+    var twoGroups =
+        AlterationEnrichmentScoreUtil.calculateEnrichmentScore(
+            enrichment(group("A", 10, 100), group("B", 5, 80)));
+    var twoGroupsAndUnprofiledGroup =
+        AlterationEnrichmentScoreUtil.calculateEnrichmentScore(
+            enrichment(group("A", 10, 100), group("B", 5, 80), group("C", 0, 0)));
+
+    assertEquals(0.42565609994341924, twoGroups.doubleValue(), 1e-12);
+    assertEquals(twoGroups.doubleValue(), twoGroupsAndUnprofiledGroup.doubleValue(), 1e-12);
+  }
+
+  private static AlterationEnrichment enrichment(CountSummary... counts) {
+    AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
+    alterationEnrichment.setEntrezGeneId(42);
+    alterationEnrichment.setCounts(List.of(counts));
+    return alterationEnrichment;
+  }
+
+  private static CountSummary group(String name, int alteredCount, int profiledCount) {
+    CountSummary countSummary = new CountSummary();
+    countSummary.setName(name);
+    countSummary.setAlteredCount(alteredCount);
+    countSummary.setProfiledCount(profiledCount);
+    return countSummary;
+  }
 }

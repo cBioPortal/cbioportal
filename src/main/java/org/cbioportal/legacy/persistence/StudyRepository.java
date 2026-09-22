@@ -25,10 +25,7 @@ public interface StudyRepository {
    * sample-list/reference-genome joins. Used to build the permission-check cancer study cache; see
    * {@code CacheMapBuilder.buildCancerStudyPermissionMap}.
    */
-  @Cacheable(
-      cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
-  List<CancerStudy> getStudyPermissions();
+List<CancerStudy> getStudyPermissions();
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",

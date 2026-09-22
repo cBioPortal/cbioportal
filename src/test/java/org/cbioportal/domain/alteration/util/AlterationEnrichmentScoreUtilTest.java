@@ -47,4 +47,43 @@ public class AlterationEnrichmentScoreUtilTest {
     var pValue = AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
     assertEquals(0.2964987551514857, pValue.doubleValue(), 1e-10);
   }
+
+  /**
+   * Regression test for a bug where the Chi-square test was fed the raw {@code counts} list (which
+   * can contain groups with {@code profiledCount == 0}) instead of the pre-filtered {@code
+   * filteredCounts} list. Apache Math's {@code ChiSquareTest} requires every row in the contingency
+   * table to have a strictly-positive sum; a zero-profiled group produces a {@code {0, 0}} row
+   * whose sum is 0, causing a {@code MathIllegalArgumentException}.
+   *
+   * <p>This test uses three groups where the third has {@code profiledCount = 0}. Before the fix,
+   * this threw an exception. After the fix it should complete and return a valid p-value.
+   */
+  @Test
+  public void calculateEnrichmentScore_withZeroProfiledGroup_doesNotThrow() {
+    AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
+
+    CountSummary groupA = new CountSummary();
+    groupA.setName("groupA");
+    groupA.setAlteredCount(10);
+    groupA.setProfiledCount(100);
+
+    CountSummary groupB = new CountSummary();
+    groupB.setName("groupB");
+    groupB.setAlteredCount(5);
+    groupB.setProfiledCount(80);
+
+    CountSummary groupC = new CountSummary();
+    groupC.setName("groupC");
+    groupC.setAlteredCount(0);
+    groupC.setProfiledCount(0); // zero-profiled , was causing MathIllegalArgumentException
+
+    alterationEnrichment.setEntrezGeneId(42);
+    alterationEnrichment.setCounts(List.of(groupA, groupB, groupC));
+
+    // Must not throw; should return a valid (non-negative) p-value
+    var pValue = AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
+    assertNotNull(pValue);
+    assertTrue("p-value must be non-negative", pValue.doubleValue() >= 0.0);
+    assertTrue("p-value must be at most 1", pValue.doubleValue() <= 1.0);
+  }
 }

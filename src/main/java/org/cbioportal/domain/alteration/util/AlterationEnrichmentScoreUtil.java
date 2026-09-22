@@ -31,22 +31,26 @@ public abstract class AlterationEnrichmentScoreUtil {
     // calculate p-value only if more than one group have profile cases count
     // greater than 0
     if (filteredCounts.size() > 1 && invalidDataGroups == 0) {
-      // if groups size is two do Fisher Exact test else do Chi-Square test
-      if (counts.size() == 2) {
-        int alteredInNoneCount = counts.get(1).getProfiledCount() - counts.get(1).getAlteredCount();
+      // if valid groups size is two do Fisher Exact test else do Chi-Square test.
+      // Use filteredCounts (groups with profiledCount > 0) rather than counts so that
+      // zero-profiled groups are not included in the contingency table; Apache Math's
+      // ChiSquareTest requires every row sum to be strictly positive.
+      if (filteredCounts.size() == 2) {
+        int alteredInNoneCount =
+            filteredCounts.get(1).getProfiledCount() - filteredCounts.get(1).getAlteredCount();
         int alteredOnlyInQueryGenesCount =
-            counts.get(0).getProfiledCount() - counts.get(0).getAlteredCount();
+            filteredCounts.get(0).getProfiledCount() - filteredCounts.get(0).getAlteredCount();
 
         var fisherExactTestCalculator = new FisherExactTestCalculator();
         pValue =
             fisherExactTestCalculator.getTwoTailedPValue(
                 alteredInNoneCount,
-                counts.get(1).getAlteredCount(),
+                filteredCounts.get(1).getAlteredCount(),
                 alteredOnlyInQueryGenesCount,
-                counts.get(0).getAlteredCount());
+                filteredCounts.get(0).getAlteredCount());
       } else {
         long[][] array =
-            counts.stream()
+            filteredCounts.stream()
                 .map(
                     count ->
                         new long[] {

@@ -399,7 +399,9 @@ public class CustomDataFilterUtil {
     // special case: end == start (both inclusive)
     // Use compareTo rather than equals: BigDecimal.equals() considers scale,
     // so 1.0.equals(1.00) returns false even though the values are numerically equal.
-    if (end != null && end.compareTo(start) == 0) {
+    // Guard start != null: DataFilterValue supports open-ended intervals where only end
+    // is set; end.compareTo(null) throws NPE whereas the old end.equals(null) returned false.
+    if (start != null && end != null && end.compareTo(start) == 0) {
       startInclusive = true;
     }
 

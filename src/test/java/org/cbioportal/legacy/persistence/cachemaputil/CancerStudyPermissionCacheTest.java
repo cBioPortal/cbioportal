@@ -26,8 +26,7 @@ public class CancerStudyPermissionCacheTest {
 
   @Before
   public void setUp() {
-    cache = new CancerStudyPermissionCache();
-    ReflectionTestUtils.setField(cache, "cacheMapBuilder", cacheMapBuilder);
+    cache = new CancerStudyPermissionCache(cacheMapBuilder);
     ReflectionTestUtils.setField(cache, "ttlSeconds", TTL_SECONDS);
     clock = new MutableClock(Instant.parse("2026-01-01T00:00:00Z"));
     ReflectionTestUtils.setField(cache, "clock", clock);

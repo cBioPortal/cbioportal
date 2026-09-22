@@ -60,7 +60,11 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
   // Cancer-study permissions have their own short-TTL cache, decoupled from the rest of this
   // class's forever-cached maps -- see CancerStudyPermissionCache.
-  @Autowired private CancerStudyPermissionCache cancerStudyPermissionCache;
+  private final CancerStudyPermissionCache cancerStudyPermissionCache;
+
+  public StaticRefCacheMapUtil(CancerStudyPermissionCache cancerStudyPermissionCache) {
+    this.cancerStudyPermissionCache = cancerStudyPermissionCache;
+  }
 
   // This implementation of the CacheMapUtils keeps a locally cached/referenced HashMap and does
   // not defer to any Spring managed caching solution.

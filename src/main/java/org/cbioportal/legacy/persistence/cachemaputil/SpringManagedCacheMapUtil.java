@@ -68,7 +68,11 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
 
   // Cancer-study permissions have their own short-TTL cache, decoupled from the general
   // Spring-managed cache's much longer TTL -- see CancerStudyPermissionCache.
-  @Autowired private CancerStudyPermissionCache cancerStudyPermissionCache;
+  private final CancerStudyPermissionCache cancerStudyPermissionCache;
+
+  public SpringManagedCacheMapUtil(CancerStudyPermissionCache cancerStudyPermissionCache) {
+    this.cancerStudyPermissionCache = cancerStudyPermissionCache;
+  }
 
   @PostConstruct
   public void init() {

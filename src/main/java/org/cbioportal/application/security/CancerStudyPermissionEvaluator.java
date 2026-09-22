@@ -239,13 +239,11 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
         }
         extractedCancerStudy = cs;
       }
-      case CancerStudyMetadata csm -> {
-        extractedCancerStudy =
-            cacheMapUtil.getCancerStudyPermissionMap().get(csm.cancerStudyIdentifier());
-      }
+      case CancerStudyMetadata csm ->
+          extractedCancerStudy =
+              cacheMapUtil.getCancerStudyPermissionMap().get(csm.cancerStudyIdentifier());
 
-      default ->
-          log.debug("hasPermission(), unknown targetType '" + target.getClass().getName() + "'");
+      default -> log.debug("hasPermission(), unknown targetType '{}'", target.getClass().getName());
     }
     return extractedCancerStudy;
   }
@@ -389,7 +387,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .map(id -> cacheMapUtil.getMolecularProfileMap().get(id))
-                .collect(Collectors.toList());
+                .toList();
 
         if (molecularProfiles.contains(null)) {
           throw new IllegalStateException("MolecularProfile not found ");
@@ -400,7 +398,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .collect(Collectors.toSet());
       }
       default -> {
-        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
+        log.debug("hasPermission(), unknown filter type: {}", filter.getClass().getName());
         yield new HashSet<>();
       }
     };

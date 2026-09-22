@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
@@ -29,7 +28,7 @@ import org.springframework.stereotype.Component;
     "{'oauth2','saml','saml_plus_basic'}.contains('${authenticate}') or ('optional_oauth2' eq '${authenticate}' and 'true' eq '${security.method_authorization_enabled}')")
 public class CancerStudyPermissionCache {
 
-  @Autowired private CacheMapBuilder cacheMapBuilder;
+  private final CacheMapBuilder cacheMapBuilder;
 
   @Value("${cache.cancer_study_permission.ttl_seconds:60}")
   private long ttlSeconds;
@@ -38,6 +37,10 @@ public class CancerStudyPermissionCache {
 
   private volatile Map<String, CancerStudy> cachedMap = Collections.emptyMap();
   private volatile Instant lastBuiltAt = Instant.MIN;
+
+  public CancerStudyPermissionCache(CacheMapBuilder cacheMapBuilder) {
+    this.cacheMapBuilder = cacheMapBuilder;
+  }
 
   public Map<String, CancerStudy> getCancerStudyPermissionMap() {
     if (isStale()) {
@@ -52,7 +55,10 @@ public class CancerStudyPermissionCache {
   }
 
   private void rebuild() {
-    cachedMap = cacheMapBuilder.buildCancerStudyPermissionMap();
+    // Collections.unmodifiableMap wraps (doesn't copy) the built map, so this stays O(1) --
+    // it just makes the volatile field's happens-before guarantee actually meaningful, since a
+    // caller mutating a shared mutable map after reading it would otherwise defeat it.
+    cachedMap = Collections.unmodifiableMap(cacheMapBuilder.buildCancerStudyPermissionMap());
     lastBuiltAt = clock.instant();
   }
 

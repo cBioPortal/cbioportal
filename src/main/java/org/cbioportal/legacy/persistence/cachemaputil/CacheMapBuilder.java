@@ -64,7 +64,7 @@ public class CacheMapBuilder {
     Map<String, CancerStudy> cancerStudyPermissionMap =
         studyRepository.getStudyPermissions().stream()
             .collect(Collectors.toMap(CancerStudy::getCancerStudyIdentifier, Function.identity()));
-    LOG.debug("  cancer study permission map size: " + cancerStudyPermissionMap.size());
+    LOG.debug("  cancer study permission map size: {}", cancerStudyPermissionMap.size());
     return cancerStudyPermissionMap;
   }
 }

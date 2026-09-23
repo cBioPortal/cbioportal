@@ -706,6 +706,12 @@ jobs:
         BASE_REPO: cbioportal/cbioportal
         DEV_REPO: cbioportal/cbioportal-dev
         OUTPUT_FORMAT: '{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
+        SUCCESS_MESSAGE: 'Passing'
+        SUCCESS_COLOR: 'brightgreen'
+        FAILURE_MESSAGE: 'Failing'
+        FAILURE_COLOR: 'FF0A0A'
+        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
+        UPSTREAM_REPO_URL: 'https://github.com/cBioPortal/cbioportal.git'
         SORT: 'sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
       steps:
         - attach_workspace:
@@ -723,21 +729,29 @@ jobs:
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG-web-shenandoah.tar
+        # Baseline: the last image published to cbioportal/cbioportal by the
+        # GitHub Actions workflow. On a master pipeline this is the PREVIOUS
+        # master build, which is exactly what makes the diff below mean "CVEs
+        # this change introduces". It is NOT a scan of the commit under test,
+        # so it must never be what the security badge reports.
         - run:
-            name: Run Docker Scout on master
+            name: Run Docker Scout on published master (baseline)
             command: |
               IMAGE=$BASE_REPO:master-web-shenandoah
               docker pull $IMAGE
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
-              echo "Docker Scout Report for Master"
-              cat master_report.sbom | jq
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > baseline_report.sbom
+              echo "Docker Scout Report for published master (baseline)"
+              cat baseline_report.sbom | jq
+        # Head: the image this pipeline just built from CIRCLE_SHA1. On a master
+        # pipeline that commit is master head, so this -- not the baseline -- is
+        # the scan the security badge is computed from.
         - run:
-            name: Run Docker Scout on PR
+            name: Run Docker Scout on commit under test (head)
             command: |
               IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
-              echo "Docker Scout Report for PR"
-              cat pr_report.sbom | jq
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > head_report.sbom
+              echo "Docker Scout Report for commit under test (head)"
+              cat head_report.sbom | jq
         - run:
             name: Analyze and report results
             # Severity-aware gate: fail only on new CRITICAL/HIGH findings (the
@@ -747,8 +761,8 @@ jobs:
             # distro advisories it happens to surface (e.g. swapping a base
             # image trades Go-stdlib HIGHs for no-fix-available Ubuntu MEDIUMs).
             command: |
-              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom master_report.sbom)
-              NEW=$(jq --argjson ids "$DIFF" '[.[] | select(.source_id as $a | $ids | index($a))]' pr_report.sbom)
+              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' head_report.sbom baseline_report.sbom)
+              NEW=$(jq --argjson ids "$DIFF" '[.[] | select(.source_id as $a | $ids | index($a))]' head_report.sbom)
               SEVERE_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length')
               OTHER_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity != "CRITICAL" and .severity != "HIGH")] | length')
               if [ "$OTHER_COUNT" -gt 0 ]; then
@@ -761,49 +775,52 @@ jobs:
                 exit 1
               else
                 echo "No new CRITICAL/HIGH vulnerabilities found!"
-                echo "Individual reports for master and pr have been saved under the Artifacts tab."
+                echo "Individual baseline and head reports have been saved under the Artifacts tab."
                 exit 0
               fi
-        - persist_to_workspace:
-            root: /tmp/repos
-            paths:
-              - master_report.sbom
-        - store_artifacts:
-            path: /tmp/repos/master_report.sbom
-        - store_artifacts:
-            path: /tmp/repos/pr_report.sbom
-
-    update_security_status_badge:
-      machine:
-        image: ubuntu-2204:2024.08.1
-      resource_class: medium
-      working_directory: /tmp/repos
-      environment:
-        SUCCESS_MESSAGE: 'Passing'
-        SUCCESS_COLOR: 'brightgreen'
-        FAILURE_MESSAGE: 'Failing'
-        FAILURE_COLOR: 'FF0A0A'
-        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
-      steps:
-        - attach_workspace:
-            at: /tmp/repos
+        # The badge is published from this job rather than a downstream one so
+        # that nothing has to poll for the scan or shuttle it through artifacts.
+        # `when: always` is what makes that work: these steps still run after the
+        # gate above exits 1, which is exactly when the badge must go red.
         - add_ssh_keys:
             fingerprints:
               - "SHA256:vtzpWrYBLQAMgZIsEv3Nuc1HeINJXFFtUB+IpSY/AK4"
         - run:
-            name: Set up git user
+            name: Update security status badge (master only)
+            when: always
             command: |
+              if [ "$CIRCLE_BRANCH" != "master" ]; then
+                echo "Not master; the badge is only published from master pipelines."
+                exit 0
+              fi
+              # An earlier step can die before producing the scan (image load or
+              # docker-scout itself failing). There is then nothing to publish,
+              # and the previous badge stands rather than being cleared.
+              if [ ! -s head_report.sbom ]; then
+                echo "No head_report.sbom produced; leaving the badge unchanged."
+                exit 0
+              fi
+              # Master pipelines overlap and can finish out of order, so an older
+              # run must not clobber a newer run's badge. If CIRCLE_SHA1 is no
+              # longer master head, a newer pipeline owns the badge. ls-remote is
+              # used rather than the GitHub API: no token, and no 60/hr per-IP
+              # rate limit to share with every other project on this runner.
+              # Fails open -- an unreachable remote keeps the previous behaviour.
+              HEAD_SHA=$(git ls-remote $UPSTREAM_REPO_URL refs/heads/master | cut -f1)
+              if [ -n "$HEAD_SHA" ] && [ "$HEAD_SHA" != "$CIRCLE_SHA1" ]; then
+                echo "master advanced to $HEAD_SHA since this pipeline started ($CIRCLE_SHA1); leaving the badge to that pipeline."
+                exit 0
+              fi
               git config --global user.name "CircleCI Bot"
               git config --global user.email "bot@circleci.com"
-        - run:
-            name: Clone test repo using ssh url
-            command: |
+              # The workspace carries an https clone of cbioportal-test; replace
+              # it with an ssh one so the push below can authenticate.
               rm -rf cbioportal-test
               git clone $TEST_REPO_URL
-        - run:
-            name: Count vulnerabilities and update status badge
-            command: |
-              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' master_report.sbom)
+              # head_report.sbom is the scan of CIRCLE_SHA1, i.e. master head for
+              # this pipeline. Counting the baseline here instead would describe
+              # the previous master build, one commit stale.
+              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' head_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
                 jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
@@ -816,15 +833,19 @@ jobs:
               # Publish the scan the badge was computed from alongside the badge
               # state, so the README badge can link to the exact report. Committed
               # in the same commit as security-status.json to keep them atomic.
-              cp ../master_report.sbom security-report.json
-        - run:
-            name: Push new security status to cbioportal/cbioportal-test
-            command: |
-              cd cbioportal-test
+              cp ../head_report.sbom security-report.json
               git diff --stat
               git add security-status.json security-report.json
-              git commit -m "Update security status" || echo "No changes to commit"
+              git commit -m "Update security status for ${CIRCLE_SHA1}" || echo "No changes to commit"
               git push
+        # when: always -- the reports are most useful precisely when the gate
+        # above exited 1, which would otherwise skip these steps.
+        - store_artifacts:
+            path: /tmp/repos/baseline_report.sbom
+            when: always
+        - store_artifacts:
+            path: /tmp/repos/head_report.sbom
+            when: always
 
 workflows:
     tests:
@@ -878,10 +899,3 @@ workflows:
               - docker-scout
             requires:
               - build_web_image
-        - update_security_status_badge:
-            requires:
-              - run_security_tests
-            filters:
-              branches:
-                only:
-                  - master

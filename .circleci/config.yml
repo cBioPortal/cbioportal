@@ -324,14 +324,7 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
-              # The browser regression suite uses the public read-only clone;
-              # skip the local migration runner and tolerate its lagging schema
-              # while preserving the authenticated portal behavior under test.
-              export APP_CUSTOM_ARGS="--db.suppress_schema_version_mismatch_errors=true ${APP_CUSTOM_ARGS:-}"
-              nohup ./scripts/docker-compose.sh \
-                --portal_type='keycloak' \
-                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/remote-clickhouse-no-migration.yml' \
-                >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
             working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
@@ -643,10 +636,7 @@ jobs:
             name: Load cbioportal image
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              # The remote Compose stack runs its migration service from
-              # DOCKER_IMAGE_CBIOPORTAL. Use the data image here because the
-              # web-only image intentionally omits Python and db-scripts.
-              docker load -i $DOCKER_TAG.tar
+              docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -662,14 +652,7 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
-              # The public read-only clone can lag the PR's schema version;
-              # keep the ordinary API compatibility gate running without
-              # mutating that shared database. The WSI job validates the
-              # current schema against its local ClickHouse fixture.
-              export APP_CUSTOM_ARGS="--db.suppress_schema_version_mismatch_errors=true ${APP_CUSTOM_ARGS:-}"
-              nohup ./scripts/docker-compose.sh \
-                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/remote-clickhouse-no-migration.yml' \
-                >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
@@ -879,7 +862,7 @@ workflows:
         - e2e_localdb_shards:
             requires:
               - build_frontend
-              - build_web_and_data_image
+              - build_web_image
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.columnar.util.CustomDataFilterUtil;
+import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -179,6 +180,77 @@ public class StudyViewFilterFactoryTest {
             studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null);
 
     assertTrue(context.genericAssayDataFilters().isEmpty());
+  }
+
+  // Regression test: a clinicalDataFilter without values (null or empty) should not cause
+  // a downstream SQL error (isCategoricalClinicalDataFilter's unguarded getValues().getFirst()).
+  @Test
+  public void makeFiltersOutClinicalDataFilterWithNullOrEmptyValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    ClinicalDataFilter filterWithNullValues = new ClinicalDataFilter();
+    filterWithNullValues.setAttributeId("null_values_attr");
+    ClinicalDataFilter filterWithEmptyValues = new ClinicalDataFilter();
+    filterWithEmptyValues.setAttributeId("empty_values_attr");
+    filterWithEmptyValues.setValues(List.of());
+    studyViewFilter.setClinicalDataFilters(List.of(filterWithNullValues, filterWithEmptyValues));
+    stubCustomDataFilterUtil(studyViewFilter);
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(studyViewFilter, customDataFilterUtil, Map.of());
+
+    assertTrue(context.clinicalDataFilters().isEmpty());
+  }
+
+  // A request mixing a valid clinical filter with null/empty-valued ones should keep only the
+  // valid one, rather than dropping the whole list or letting the invalid entries through.
+  @Test
+  public void makeKeepsOnlyValidClinicalDataFilterWhenMixedWithInvalidOnes() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    ClinicalDataFilter filterWithNullValues = new ClinicalDataFilter();
+    filterWithNullValues.setAttributeId("null_values_attr");
+    ClinicalDataFilter filterWithEmptyValues = new ClinicalDataFilter();
+    filterWithEmptyValues.setAttributeId("empty_values_attr");
+    filterWithEmptyValues.setValues(List.of());
+    ClinicalDataFilter filterWithValues = new ClinicalDataFilter();
+    filterWithValues.setAttributeId("valid_attr");
+    DataFilterValue dataFilterValue = new DataFilterValue();
+    dataFilterValue.setValue("Female");
+    filterWithValues.setValues(List.of(dataFilterValue));
+    studyViewFilter.setClinicalDataFilters(
+        List.of(filterWithNullValues, filterWithEmptyValues, filterWithValues));
+    stubCustomDataFilterUtil(studyViewFilter);
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(studyViewFilter, customDataFilterUtil, Map.of());
+
+    assertEquals(1, context.clinicalDataFilters().size());
+    assertEquals("valid_attr", context.clinicalDataFilters().getFirst().getAttributeId());
+  }
+
+  // Regression test for the 4-argument overload used directly by mapper tests: it must apply
+  // the same null-or-empty drop rule at context construction, not just the overload above that
+  // also builds the categorized generic-assay filter.
+  @Test
+  public void makeWithContextArgsFiltersOutClinicalDataFilterWithNullOrEmptyValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ID));
+
+    ClinicalDataFilter filterWithNullValues = new ClinicalDataFilter();
+    filterWithNullValues.setAttributeId("null_values_attr");
+    ClinicalDataFilter filterWithEmptyValues = new ClinicalDataFilter();
+    filterWithEmptyValues.setAttributeId("empty_values_attr");
+    filterWithEmptyValues.setValues(List.of());
+    studyViewFilter.setClinicalDataFilters(List.of(filterWithNullValues, filterWithEmptyValues));
+
+    StudyViewFilterContext context =
+        StudyViewFilterFactory.make(
+            studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null);
+
+    assertTrue(context.clinicalDataFilters().isEmpty());
   }
 
   private void stubCustomDataFilterUtil(StudyViewFilter studyViewFilter) {

@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.parameter.CategorizedGenericAssayDataCountFilter;
@@ -42,6 +43,13 @@ public final class StudyViewFilterHelper {
       List<GenomicDataFilter> mergedGenomicDataFilters =
           mergeDataFilters(studyViewFilter.getGenomicDataFilters());
       studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
+    }
+    // Filter out clinicalDataFilters with null or empty values to prevent SQL errors
+    if (studyViewFilter.getClinicalDataFilters() != null) {
+      studyViewFilter.setClinicalDataFilters(
+          studyViewFilter.getClinicalDataFilters().stream()
+              .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+              .collect(Collectors.toList()));
     }
     if (studyViewFilter.getClinicalDataFilters() != null
         && !studyViewFilter.getClinicalDataFilters().isEmpty()) {

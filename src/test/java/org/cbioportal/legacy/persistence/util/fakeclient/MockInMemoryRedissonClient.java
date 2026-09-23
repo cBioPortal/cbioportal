@@ -1,8 +1,19 @@
 package org.cbioportal.legacy.persistence.util.fakeclient;
 
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.redisson.api.*;
+import org.redisson.api.bucket.*;
+import org.redisson.api.keys.*;
+import org.redisson.api.options.ClientSideCachingOptions;
+import org.redisson.api.options.CommonOptions;
+import org.redisson.api.options.JsonBucketOptions;
+import org.redisson.api.options.KeysOptions;
+import org.redisson.api.options.LiveObjectOptions;
+import org.redisson.api.options.OptionalOptions;
+import org.redisson.api.options.PatternTopicOptions;
+import org.redisson.api.options.PlainOptions;
 import org.redisson.api.redisnode.BaseRedisNodes;
 import org.redisson.api.redisnode.RedisNodes;
 import org.redisson.client.codec.Codec;
@@ -62,6 +73,11 @@ public class MockInMemoryRedissonClient implements RedissonClient {
   }
 
   @Override
+  public RSearch getSearch(OptionalOptions options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public RRateLimiter getRateLimiter(String s) {
     throw new UnsupportedOperationException();
   }
@@ -97,7 +113,8 @@ public class MockInMemoryRedissonClient implements RedissonClient {
   }
 
   @Override
-  public <K, V> RMapCache<K, V> getMapCache(String s, Codec codec, MapOptions<K, V> mapOptions) {
+  public <K, V> RMapCache<K, V> getMapCache(
+      String s, Codec codec, MapCacheOptions<K, V> mapOptions) {
     throw new UnsupportedOperationException();
   }
 
@@ -107,7 +124,13 @@ public class MockInMemoryRedissonClient implements RedissonClient {
   }
 
   @Override
-  public <K, V> RMapCache<K, V> getMapCache(String s, MapOptions<K, V> mapOptions) {
+  public <K, V> RMapCache<K, V> getMapCache(
+      org.redisson.api.options.MapCacheOptions<K, V> options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMapCache<K, V> getMapCache(String s, MapCacheOptions<K, V> mapOptions) {
     throw new UnsupportedOperationException();
   }
 
@@ -127,7 +150,12 @@ public class MockInMemoryRedissonClient implements RedissonClient {
   }
 
   @Override
-  public <V> RJsonBucket<V> getJsonBucket(String name, JsonCodec<V> codec) {
+  public RBuckets getBuckets(OptionalOptions options) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RJsonBucket<V> getJsonBucket(String name, JsonCodec codec) {
     throw new UnsupportedOperationException();
   }
 
@@ -185,6 +213,11 @@ public class MockInMemoryRedissonClient implements RedissonClient {
 
   @Override
   public <K, V> RMap<K, V> getMap(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMap<K, V> getMap(org.redisson.api.options.MapOptions<K, V> options) {
     throw new UnsupportedOperationException();
   }
 
@@ -350,6 +383,11 @@ public class MockInMemoryRedissonClient implements RedissonClient {
 
   @Override
   public RPatternTopic getPatternTopic(String s, Codec codec) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RPatternTopic getPatternTopic(PatternTopicOptions options) {
     throw new UnsupportedOperationException();
   }
 
@@ -620,21 +658,14 @@ public class MockInMemoryRedissonClient implements RedissonClient {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * @deprecated
-   */
   @Override
-  @Deprecated
-  public NodesGroup<Node> getNodesGroup() {
+  public java.util.concurrent.CompletionStage<Void> shutdownAsync() {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * @deprecated
-   */
   @Override
-  @Deprecated
-  public ClusterNodesGroup getClusterNodesGroup() {
+  public java.util.concurrent.CompletionStage<Void> shutdownAsync(
+      java.time.Duration quietPeriod, java.time.Duration timeout) {
     throw new UnsupportedOperationException();
   }
 
@@ -650,6 +681,539 @@ public class MockInMemoryRedissonClient implements RedissonClient {
 
   @Override
   public String getId() {
+    throw new UnsupportedOperationException();
+  }
+
+  /*
+   * Methods we don't use (Redisson 4.x additions)
+   */
+  @Override
+  public <V> RArray<V> getArray(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RArray<V> getArray(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RArray<V> getArray(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RGcra getGcra(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RGcra getGcra(CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMaps<K, V> getMaps() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMaps<K, V> getMaps(Codec p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMaps<K, V> getMaps(OptionalOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RJsonBucket<V> getJsonBucket(JsonBucketOptions<V> p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RJsonBuckets getJsonBuckets(JsonCodec p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RLocalCachedMapCache<K, V> getLocalCachedMapCache(
+      String p1, LocalCachedMapCacheOptions<K, V> p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RLocalCachedMapCache<K, V> getLocalCachedMapCache(
+      String p1, Codec p2, LocalCachedMapCacheOptions<K, V> p3) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RListMultimapCacheNative<K, V> getListMultimapCacheNative(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RListMultimapCacheNative<K, V> getListMultimapCacheNative(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RListMultimapCacheNative<K, V> getListMultimapCacheNative(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RLocalCachedMap<K, V> getLocalCachedMap(
+      org.redisson.api.options.LocalCachedMapOptions<K, V> p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMapCacheNative<K, V> getMapCacheNative(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMapCacheNative<K, V> getMapCacheNative(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RMapCacheNative<K, V> getMapCacheNative(
+      org.redisson.api.options.MapOptions<K, V> p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RSetMultimapCacheNative<K, V> getSetMultimapCacheNative(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RSetMultimapCacheNative<K, V> getSetMultimapCacheNative(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RSetMultimapCacheNative<K, V> getSetMultimapCacheNative(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getNonReentrantLock(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getNonReentrantLock(CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getMultiLock(String p1, Collection<Object> p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getNonReentrantFairLock(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getNonReentrantFairLock(CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliablePubSubTopic<V> getReliablePubSubTopic(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliablePubSubTopic<V> getReliablePubSubTopic(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliablePubSubTopic<V> getReliablePubSubTopic(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliableQueue<V> getReliableQueue(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliableQueue<V> getReliableQueue(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RReliableQueue<V> getReliableQueue(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCircularBuffer<V> getCircularBuffer(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCircularBuffer<V> getCircularBuffer(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCircularBuffer<V> getCircularBuffer(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K> RBitVectorStore<K> getBitVectorStore(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K> RBitVectorStore<K> getBitVectorStore(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K> RBitVectorStore<K> getBitVectorStore(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBloomFilterNative<V> getBloomFilterNative(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBloomFilterNative<V> getBloomFilterNative(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBloomFilterNative<V> getBloomFilterNative(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCuckooFilter<V> getCuckooFilter(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCuckooFilter<V> getCuckooFilter(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RCuckooFilter<V> getCuckooFilter(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RTopK<V> getTopK(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RTopK<V> getTopK(String p1, Codec p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RTopK<V> getTopK(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RTDigest getTDigest(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RTDigest getTDigest(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RVectorSet getVectorSet(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RVectorSet getVectorSet(CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RKeys getKeys(KeysOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLiveObjectService getLiveObjectService(LiveObjectOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RClientSideCaching getClientSideCaching(ClientSideCachingOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RRemoteService getRemoteService(PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RScheduledExecutorService getExecutorService(org.redisson.api.options.ExecutorOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RScript getScript(org.redisson.api.options.OptionalOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFunction getFunction(org.redisson.api.options.OptionalOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RIdGenerator getIdGenerator(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBloomFilter<V> getBloomFilter(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RBitSet getBitSet(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RRateLimiter getRateLimiter(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RBinaryStream getBinaryStream(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RSemaphore getSemaphore(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RPermitExpirableSemaphore getPermitExpirableSemaphore(
+      org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getLock(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFencedLock getFencedLock(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLock getFairLock(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RReadWriteLock getReadWriteLock(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLexSortedSet getLexSortedSet(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RAtomicLong getAtomicLong(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RAtomicDouble getAtomicDouble(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RLongAdder getLongAdder(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RDoubleAdder getDoubleAdder(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RCountDownLatch getCountDownLatch(org.redisson.api.options.CommonOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V, L> RTimeSeries<V, L> getTimeSeries(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RStream<K, V> getStream(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RGeo<V> getGeo(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RSetCache<V> getSetCache(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBucket<V> getBucket(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RHyperLogLog<V> getHyperLogLog(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RList<V> getList(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RListMultimap<K, V> getListMultimap(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RListMultimapCache<K, V> getListMultimapCache(
+      org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RSetMultimap<K, V> getSetMultimap(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <K, V> RSetMultimapCache<K, V> getSetMultimapCache(
+      org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RSet<V> getSet(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RSortedSet<V> getSortedSet(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RScoredSortedSet<V> getScoredSortedSet(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RShardedTopic getShardedTopic(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RTopic getTopic(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RReliableTopic getReliableTopic(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RTransferQueue<V> getTransferQueue(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RQueue<V> getQueue(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RRingBuffer<V> getRingBuffer(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RPriorityQueue<V> getPriorityQueue(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RPriorityBlockingQueue<V> getPriorityBlockingQueue(
+      org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RPriorityBlockingDeque<V> getPriorityBlockingDeque(
+      org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RPriorityDeque<V> getPriorityDeque(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBlockingQueue<V> getBlockingQueue(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBoundedBlockingQueue<V> getBoundedBlockingQueue(
+      org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RDeque<V> getDeque(org.redisson.api.options.PlainOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public <V> RBlockingDeque<V> getBlockingDeque(org.redisson.api.options.PlainOptions p1) {
     throw new UnsupportedOperationException();
   }
 }

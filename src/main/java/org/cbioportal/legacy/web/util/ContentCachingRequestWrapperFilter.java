@@ -32,8 +32,11 @@ public class ContentCachingRequestWrapperFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
       throws IOException, ServletException {
+    // Spring 7 requires an explicit cache limit; Integer.MAX_VALUE matches the previous
+    // constructor's unlimited-caching behavior, since this filter must not truncate the body the
+    // controller re-reads afterward.
     ContentCachingRequestWrapper wrappedRequest =
-        new ContentCachingRequestWrapper((HttpServletRequest) request);
+        new ContentCachingRequestWrapper((HttpServletRequest) request, Integer.MAX_VALUE);
     LOG.trace("Wrapping request for multiple reads of request body");
     filterChain.doFilter(wrappedRequest, response);
   }

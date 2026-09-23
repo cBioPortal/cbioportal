@@ -34,7 +34,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -255,7 +255,7 @@ public class DataAccessTokenControllerTest {
   public void createTokenUnauthorizedUserTestWithUserRole() throws Exception {
     when(tokenService.createDataAccessToken(ArgumentMatchers.anyString()))
         .thenReturn(MOCK_TOKEN_INFO);
-    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    HttpSession session = getSession("UNAUTHORIZED_MOCK_USER", "UNAUTHORIZED_MOCK_PASSWORD");
     MvcResult result =
         mockMvc
             .perform(

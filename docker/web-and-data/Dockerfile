@@ -47,9 +47,6 @@ FROM maven:3-eclipse-temurin-21 AS build-core
 ARG CORE_REPOSITORY
 ARG CORE_BRANCH
 ARG CORE_REF
-# Keep mutable branch builds fresh when the branch advances. CORE_REF still
-# selects the exact checkout used by validation builds.
-ADD https://api.github.com/repos/${CORE_REPOSITORY}/commits/${CORE_BRANCH} /dev/null
 # We touch application.properties here just to get cbioportal-core building
 # Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
 RUN set -eu; \
@@ -127,10 +124,6 @@ COPY --from=build ${DEPENDENCY}/META-INF                    $PORTAL_WEB_HOME/MET
 COPY --from=build /cbioportal/src/main/resources/db-scripts /cbioportal/db-scripts
 COPY --from=build /cbioportal/test/test_data/study_es_0     /cbioportal/test/study_es_0
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes            $PORTAL_WEB_HOME/
-# Keep the executable jar alongside the exploded layout. The shared
-# docker-compose web profile starts this image with `java -jar app.jar` while
-# the WSI importer starts the exploded classpath directly.
-COPY --from=build /cbioportal/target/*-exec.jar ${PORTAL_WEB_HOME}/app.jar
 
 # Launch via the exploded classpath using the boot jar's Start-Class
 # (org.cbioportal.PortalApplication, per the jar's MANIFEST).

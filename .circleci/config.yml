@@ -651,7 +651,7 @@ jobs:
               CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
               nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -862,7 +862,7 @@ workflows:
         - e2e_localdb_shards:
             requires:
               - build_frontend
-              - build_web_image
+              - build_web_and_data_image
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is
@@ -872,7 +872,7 @@ workflows:
             context:
               - clickhouse-public-staging-ro-user
             requires:
-              - build_web_and_data_image
+              - build_web_image
         - run_security_tests:
             context:
               - docker-scout

@@ -15,10 +15,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -53,7 +53,7 @@ public class SignificantCopyNumberRegionControllerTest {
   private static final int TEST_ENTREZ_GENE_ID_4 = 4;
   private static final String TEST_HUGO_GENE_SYMBOL_4 = "test_hugo_gene_symbol_4";
 
-  @MockBean private SignificantCopyNumberRegionService significantCopyNumberRegionService;
+  @MockitoBean private SignificantCopyNumberRegionService significantCopyNumberRegionService;
 
   @Autowired private MockMvc mockMvc;
 

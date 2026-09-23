@@ -21,10 +21,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -45,11 +45,11 @@ public class SampleControllerTest {
   private static final int TEST_PATIENT_ID_2 = 2;
   private static final String TEST_PATIENT_STABLE_ID_2 = "test_patient_stable_id_2";
 
-  @MockBean private SampleService sampleService;
+  @MockitoBean private SampleService sampleService;
 
-  @MockBean private SampleListService sampleListService;
+  @MockitoBean private SampleListService sampleListService;
 
-  @MockBean private StudyService studyService;
+  @MockitoBean private StudyService studyService;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 

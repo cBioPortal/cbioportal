@@ -18,9 +18,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -58,7 +58,7 @@ public class GenericAssayDataControllerTest {
 
   @Autowired private WebApplicationContext wac;
 
-  @MockBean private GenericAssayService genericAssayService;
+  @MockitoBean private GenericAssayService genericAssayService;
   @Autowired private MockMvc mockMvc;
 
   private ObjectMapper objectMapper = new ObjectMapper();

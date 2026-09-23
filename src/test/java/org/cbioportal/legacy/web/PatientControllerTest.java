@@ -20,10 +20,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -47,7 +47,7 @@ public class PatientControllerTest {
   private static final String TEST_SHORT_NAME_1 = "test_short_name_1";
   private static final String TEST_DESCRIPTION_1 = "test_description_1";
 
-  @MockBean private PatientService patientService;
+  @MockitoBean private PatientService patientService;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 

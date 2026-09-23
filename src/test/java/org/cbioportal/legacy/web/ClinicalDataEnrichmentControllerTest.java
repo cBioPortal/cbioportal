@@ -23,10 +23,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -55,11 +55,11 @@ public class ClinicalDataEnrichmentControllerTest {
   public static final String CLINICAL_ATTRIBUTE_ID_3 = "attribute_id3";
   public static final String CLINICAL_ATTRIBUTE_ID_4 = "attribute_id4";
 
-  @MockBean private ClinicalDataEnrichmentUtil clinicalDataEnrichmentUtil;
+  @MockitoBean private ClinicalDataEnrichmentUtil clinicalDataEnrichmentUtil;
 
-  @MockBean private ClinicalAttributeService clinicalAttributeService;
+  @MockitoBean private ClinicalAttributeService clinicalAttributeService;
 
-  @MockBean private SampleService sampleService;
+  @MockitoBean private SampleService sampleService;
 
   @Autowired private MockMvc mockMvc;
 

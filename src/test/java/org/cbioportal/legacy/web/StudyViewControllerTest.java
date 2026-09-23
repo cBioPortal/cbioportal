@@ -80,10 +80,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -147,39 +147,39 @@ public class StudyViewControllerTest {
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
-  @MockBean private StudyViewFilterApplier studyViewFilterApplier;
-  @MockBean private ClinicalDataService clinicalDataService;
-  @MockBean private DiscreteCopyNumberService discreteCopyNumberService;
-  @MockBean private SampleService sampleService;
-  @MockBean private GenePanelService genePanelService;
-  @MockBean private ClinicalAttributeService clinicalAttributeService;
-  @MockBean private PatientService patientService;
+  @MockitoBean private StudyViewFilterApplier studyViewFilterApplier;
+  @MockitoBean private ClinicalDataService clinicalDataService;
+  @MockitoBean private DiscreteCopyNumberService discreteCopyNumberService;
+  @MockitoBean private SampleService sampleService;
+  @MockitoBean private GenePanelService genePanelService;
+  @MockitoBean private ClinicalAttributeService clinicalAttributeService;
+  @MockitoBean private PatientService patientService;
 
-  @MockBean public MolecularProfileUtil molecularProfileUtil;
+  @MockitoBean public MolecularProfileUtil molecularProfileUtil;
 
-  @MockBean public TreatmentService treatmentService;
+  @MockitoBean public TreatmentService treatmentService;
 
-  @MockBean public AlterationCountService alterationCountService;
+  @MockitoBean public AlterationCountService alterationCountService;
 
-  @MockBean public StudyViewService studyViewService;
+  @MockitoBean public StudyViewService studyViewService;
 
-  @MockBean public AlterationRepository alterationRepository;
+  @MockitoBean public AlterationRepository alterationRepository;
 
-  @MockBean private ClinicalDataFetcher clinicalDataFetcher;
+  @MockitoBean private ClinicalDataFetcher clinicalDataFetcher;
 
-  @MockBean private ClinicalAttributeUtil clinicalAttributeUtil;
+  @MockitoBean private ClinicalAttributeUtil clinicalAttributeUtil;
 
-  @MockBean private SampleListService sampleListService;
+  @MockitoBean private SampleListService sampleListService;
 
-  @MockBean private MolecularProfileService molecularProfileService;
+  @MockitoBean private MolecularProfileService molecularProfileService;
 
-  @MockBean private ClinicalEventService clinicalEventService;
+  @MockitoBean private ClinicalEventService clinicalEventService;
 
-  @MockBean private GeneService geneService;
+  @MockitoBean private GeneService geneService;
 
-  @MockBean private ViolinPlotService violinPlotService;
+  @MockitoBean private ViolinPlotService violinPlotService;
 
-  @MockBean private ClinicalDataBinUtil clinicalDataBinUtil;
+  @MockitoBean private ClinicalDataBinUtil clinicalDataBinUtil;
 
   @Autowired private MockMvc mockMvc;
 

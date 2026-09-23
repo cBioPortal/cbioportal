@@ -11,6 +11,9 @@ These tutorial slides contain annoted screenshots to walk you through using the 
 7. Pathways [Google slides](https://docs.google.com/presentation/d/1O5WGucz0lrfdY25b5QS6zaID_26i434EYXBluqZfT2g) | [PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Tutorial%207%20Pathways.pdf)
 
 ### Webinar Recordings
+Recording of live webinar from September 2026
+1. Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=Ja94hj2xtaE) | [View slides](https://docs.google.com/presentation/d/1LTvyPAAYSELSekFygalXx2Gj4TVxrd3Md9jvpDgBR8o/edit?slide=id.p1#slide=id.p1)
+
 Recordings of live webinars from April & May 2020
 1. Introduction to cBioPortal [youtube.com](https://www.youtube.com/watch?v=fPIAxH--cSo) | [bilibili.com](https://www.bilibili.com/video/BV1tf4y1m7Lp) | [Download PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Webinar%201%20Introduction%20to%20cBioPortal.pdf) | [View slides](https://drive.google.com/drive/folders/0B9KTQJAGhFhhRi1qaTdUWmpLQTA?resourcekey=0-9Mbxt9c_wEbaGRLnAaASlg&usp=sharing)
 2. Mutation Details & Patient View [youtube.com](https://www.youtube.com/watch?v=uJsp9kd2jIk) | [bilibili.com](https://www.bilibili.com/video/BV1Qf4y1m7Lx) | [Download PDF](https://raw.githubusercontent.com/cBioPortal/cbioportal/master/docs/tutorials/cBioPortal%20Webinar%202%20Mutation%20Details%20and%20Patient%20View.pdf) | [View slides](https://drive.google.com/drive/folders/0B9KTQJAGhFhhRi1qaTdUWmpLQTA?resourcekey=0-9Mbxt9c_wEbaGRLnAaASlg&usp=sharing)

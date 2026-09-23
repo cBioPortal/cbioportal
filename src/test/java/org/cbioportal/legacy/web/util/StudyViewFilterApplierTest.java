@@ -49,6 +49,7 @@ import org.cbioportal.legacy.service.StructuralVariantService;
 import org.cbioportal.legacy.service.impl.CustomDataServiceImpl;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
 import org.cbioportal.legacy.service.util.SessionServiceRequestHandler;
+import org.cbioportal.legacy.utils.MockitoInjectMocksChainer;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
@@ -134,6 +135,7 @@ public class StudyViewFilterApplierTest {
   @Before
   public void setup() {
     MockitoAnnotations.initMocks(this);
+    MockitoInjectMocksChainer.chain(this);
     when(applicationContext.getBean(StudyViewFilterApplier.class))
         .thenReturn(studyViewFilterApplier);
   }

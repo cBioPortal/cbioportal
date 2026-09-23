@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -28,7 +29,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -66,7 +67,7 @@ public class Saml2AndBasicConfig {
             eh ->
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    AntPathRequestMatcher.antMatcher("/api/**")))
+                    PathPatternRequestMatcher.pathPattern("/api/**")))
         .securityContext(
             securityContext ->
                 securityContext.securityContextRepository(
@@ -104,7 +105,8 @@ public class Saml2AndBasicConfig {
               }
             });
     basicLogoutFilter.setFilterProcessesUrl(BASIC_LOGOUT_URL);
-    basicLogoutFilter.setLogoutRequestMatcher(new AntPathRequestMatcher(BASIC_LOGOUT_URL, "GET"));
+    basicLogoutFilter.setLogoutRequestMatcher(
+        PathPatternRequestMatcher.pathPattern(HttpMethod.GET, BASIC_LOGOUT_URL));
     http.addFilterBefore(basicLogoutFilter, UsernamePasswordAuthenticationFilter.class);
 
     http.apply(new BasicFilterDsl());
@@ -130,8 +132,8 @@ public class Saml2AndBasicConfig {
   public void buildAuthenticationManager(
       AuthenticationManagerBuilder authenticationManagerBuilder,
       InMemoryUserDetailsManager userDetailsManager) {
-    DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-    authenticationProvider.setUserDetailsService(userDetailsManager);
+    DaoAuthenticationProvider authenticationProvider =
+        new DaoAuthenticationProvider(userDetailsManager);
     authenticationProvider.setPasswordEncoder(bCryptPasswordEncoder());
     authenticationManagerBuilder.authenticationProvider(authenticationProvider);
   }

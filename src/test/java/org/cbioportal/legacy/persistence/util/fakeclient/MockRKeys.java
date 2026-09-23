@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.util.fakeclient;
 
+import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -7,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.redisson.api.*;
+import org.redisson.api.keys.MigrateArgs;
 
 public class MockRKeys implements RKeys {
   private final ConcurrentMap<String, RBucket> cache;
@@ -31,6 +33,9 @@ public class MockRKeys implements RKeys {
   public Iterable<String> getKeysWithLimit(int i) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void removeListener(int i) {}
 
   @Override
   public Iterable<String> getKeysWithLimit(String s, int i) {
@@ -310,6 +315,85 @@ public class MockRKeys implements RKeys {
 
   @Override
   public RFuture<Void> flushallParallelAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  /*
+   * Methods we don't use (Redisson 4.x additions)
+   */
+  @Override
+  public void migrate(MigrateArgs p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long expire(Duration p1, String... p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long unlinkByPattern(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int addListener(ObjectListener p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Iterable<String> getKeys(org.redisson.api.options.KeysScanOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Stream<String> getKeysStream(org.redisson.api.options.KeysScanOptions p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long expireAt(java.time.Instant instant, String... strings) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Void> removeListenerAsync(int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Void> migrateAsync(org.redisson.api.keys.MigrateArgs q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Long> expireAsync(java.time.Duration q1, String... q2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Long> expireAtAsync(java.time.Instant q1, String... q2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public org.redisson.api.AsyncIterator<String> getKeysAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public org.redisson.api.AsyncIterator<String> getKeysAsync(
+      org.redisson.api.options.KeysScanOptions q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Long> unlinkByPatternAsync(String q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Integer> addListenerAsync(ObjectListener q1) {
     throw new UnsupportedOperationException();
   }
 }

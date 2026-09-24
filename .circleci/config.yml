@@ -321,6 +321,11 @@ jobs:
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
               APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
+              # The ordinary localdb seed is schema 3.0.0. Keep production
+              # at 3.4.0 and pin only this legacy regression stack to the
+              # schema it actually exercises. WSI validation uses its own
+              # 3.4.0 fixture and does not inherit this override.
+              APP_CUSTOM_ARGS: '--db.version=3.0.0'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1

@@ -667,7 +667,7 @@ jobs:
                 DOCKER_REPO="$DOCKER_REPO" \
                 APP_CLICKHOUSE_MODE="${APP_CLICKHOUSE_MODE:-true}" \
                 APP_CUSTOM_ARGS="${APP_CUSTOM_ARGS:-}" \
-                ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+                ./scripts/docker-compose.sh --portal_type='web-and-data' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |

@@ -430,7 +430,7 @@ CREATE TABLE resource_definition
 -- --------------------------------------------------------
 CREATE TABLE resource_data
 (
-    RESOURCE_DATA_ID  Int32,
+    RESOURCE_DATA_ID  Int64,
     RESOURCE_ID       String,
     CANCER_STUDY_ID   Int32,
     ENTITY_TYPE       String,
@@ -440,7 +440,8 @@ CREATE TABLE resource_data
     DISPLAY_NAME      Nullable(String),
     TYPE              Nullable(String),
     METADATA          Nullable(String)
-) ENGINE = MergeTree() ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
+) ENGINE = MergeTree() ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)
+SETTINGS allow_nullable_key = 1;
 
 -- --------------------------------------------------------
 CREATE TABLE clinical_patient

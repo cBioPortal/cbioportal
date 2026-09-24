@@ -727,13 +727,14 @@ CREATE TABLE resource_definition (
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
 -- Unified resource table covering every entity level. Replaces the resource_sample,
--- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
+-- resource_patient and resource_study split; nothing reads those any more, and the 3.5.0
 -- migration drops them once their contents have been carried over.
 -- Sorting key: PATIENT_ID and SAMPLE_ID sit ahead of RESOURCE_DATA_ID so the resource table's
 -- default sort (ORDER BY PATIENT_ID, SAMPLE_ID) is read in key order instead of sorting the whole
 -- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
 -- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
--- MergeTree only permits with allow_nullable_key.
+-- MergeTree only permits with allow_nullable_key. The 3.6.0 migration rebuilds databases created
+-- with an earlier resource_data key.
 CREATE TABLE resource_data (
     `RESOURCE_DATA_ID` Int64,
     `RESOURCE_ID` String,
@@ -869,4 +870,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.4.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.6.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

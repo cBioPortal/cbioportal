@@ -13,6 +13,7 @@ import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.cbioportal.legacy.service.exception.DatabaseSwitchException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
@@ -38,6 +39,19 @@ class GlobalExceptionHandlerTest {
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     assertNotNull(response.getBody());
     assertEquals("The access is forbidden.", response.getBody().getMessage());
+  }
+
+  // ── DatabaseSwitchException ────────────────────────────────────────────────
+
+  @Test
+  void handleDatabaseSwitchException_returns503WithUnderlyingMessage() {
+    ResponseEntity<ErrorResponse> response =
+        handler.handleDatabaseSwitchException(
+            new DatabaseSwitchException("Could not switch to database 'bogus': boom", null));
+
+    assertEquals(HttpStatus.SERVICE_UNAVAILABLE, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals("Could not switch to database 'bogus': boom", response.getBody().getMessage());
   }
 
   // ── ConstraintViolationException: parameter node present ──────────────────

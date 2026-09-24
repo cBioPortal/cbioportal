@@ -1,26 +1,31 @@
 package org.cbioportal.legacy.persistence.util;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
+import javax.sql.DataSource;
 import org.cbioportal.legacy.persistence.CacheEnabledConfig;
 import org.cbioportal.legacy.persistence.StudyRepository;
+import org.cbioportal.legacy.persistence.config.DynamicDatabaseDataSource;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomKeyGeneratorTest {
 
-  @InjectMocks private CustomKeyGenerator customKeyGenerator;
+  private CustomKeyGenerator customKeyGenerator;
 
   @Mock private StudyRepository studyRepository;
 
   @Mock private CacheEnabledConfig cacheEnabledConfig;
+
+  @Mock private DataSource dataSource;
 
   private String studyId1 = "test_study_1";
   private String studyId2 = "test_study_2";
@@ -28,6 +33,11 @@ public class CustomKeyGeneratorTest {
   @Before
   public void setUp() throws Exception {
     when(cacheEnabledConfig.isEnabled()).thenReturn(true);
+    customKeyGenerator = new CustomKeyGenerator(dataSource);
+    // CustomKeyGenerator's other dependencies are still field-injected in production (via Spring)
+    // -- wire them here directly since there's no container to do it for us.
+    ReflectionTestUtils.setField(customKeyGenerator, "cacheEnabledConfig", cacheEnabledConfig);
+    ReflectionTestUtils.setField(customKeyGenerator, "studyRepository", studyRepository);
   }
 
   @Test
@@ -42,7 +52,9 @@ public class CustomKeyGeneratorTest {
     Object hello = customKeyGenerator.generate(this, functionToPass);
     Assert.assertTrue(hello instanceof String);
     Assert.assertEquals(
-        "CustomKeyGeneratorTest"
+        "default"
+            + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER
+            + "CustomKeyGeneratorTest"
             + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER
             + "testGenerateCacheSuccessNoParams"
             + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER,
@@ -55,6 +67,8 @@ public class CustomKeyGeneratorTest {
     Object hello = customKeyGenerator.generate(this, functionToPass, "one", "two");
     Assert.assertTrue(hello instanceof String);
     StringBuilder expected = new StringBuilder();
+    expected.append("default");
+    expected.append(CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER);
     expected.append("CustomKeyGeneratorTest");
     expected.append(CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER);
     expected.append("testGenerateCacheSuccessNoParams");
@@ -63,5 +77,41 @@ public class CustomKeyGeneratorTest {
     expected.append(CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER);
     expected.append("\"two\"");
     Assert.assertEquals(expected.toString(), (String) hello);
+  }
+
+  @Test
+  public void testGenerateCacheKeyIncludesActiveDatabase() throws Exception {
+    DynamicDatabaseDataSource dynamicDataSource =
+        new DynamicDatabaseDataSource(mock(DataSource.class));
+    dynamicDataSource.setDatabase("cbioportal_v2");
+    ReflectionTestUtils.setField(customKeyGenerator, "dataSource", dynamicDataSource);
+
+    Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
+    Object key = customKeyGenerator.generate(this, functionToPass);
+
+    Assert.assertEquals(
+        "cbioportal_v2"
+            + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER
+            + "CustomKeyGeneratorTest"
+            + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER
+            + "testGenerateCacheSuccessNoParams"
+            + CustomKeyGenerator.CACHE_KEY_PARAM_DELIMITER,
+        (String) key);
+  }
+
+  @Test
+  public void testGenerateProducesDifferentKeysForDifferentDatabases() throws Exception {
+    DynamicDatabaseDataSource dynamicDataSource =
+        new DynamicDatabaseDataSource(mock(DataSource.class));
+    ReflectionTestUtils.setField(customKeyGenerator, "dataSource", dynamicDataSource);
+    Method functionToPass = this.getClass().getMethod("testGenerateCacheSuccessNoParams");
+
+    dynamicDataSource.setDatabase("cbioportal");
+    Object keyForDbOne = customKeyGenerator.generate(this, functionToPass, "sameParam");
+
+    dynamicDataSource.setDatabase("cbioportal_v2");
+    Object keyForDbTwo = customKeyGenerator.generate(this, functionToPass, "sameParam");
+
+    Assert.assertNotEquals(keyForDbOne, keyForDbTwo);
   }
 }

@@ -306,6 +306,19 @@ persistence.cache_type=no-cache
 # cache.endpoint.enabled=true
 # API key for access to cache management endpoint
 # cache.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e
+
+# Lets a running instance be pointed at a different database (in the same ClickHouse cluster)
+# without restarting, via PUT /api/database?database=<name> (read back with GET /api/database).
+# Cache entries are scoped to the database they were computed against, so switching is always
+# cache-safe; the switch also flushes caches as a memory-reclaiming courtesy. Disabled by default.
+# database.endpoint.enabled=true
+# API key for access to the database-switch endpoint
+# database.endpoint.api-key=fd15f1ae-66f2-4b8a-8d54-fb899b03557e
+# Comma-separated allowlist of database names the endpoint above may switch to. Required in
+# addition to database.endpoint.enabled=true -- an unset/empty list means no switch is allowed,
+# so a database name can't be passed in arbitrarily.
+# database.endpoint.allowed_databases=cbioportal,cbioportal_v2
+
 # Externalize the study data used for user authorization evaluation to Spring-managed caches such as EHCache or Redis.
 # Enabling this might simplify cache-invalidation strategies (via /api/cache endpoint) because it allows for invalidation
 # a central caching solution shared among cBioPortal containers in a single instance. It comes at the cost of extra calls

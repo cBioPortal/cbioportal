@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.config;
 
+import javax.sql.DataSource;
 import org.cbioportal.legacy.persistence.util.CustomKeyGenerator;
 import org.cbioportal.legacy.persistence.util.CustomRedisCachingProvider;
 import org.cbioportal.legacy.persistence.util.LoggingCacheErrorHandler;
@@ -24,6 +25,12 @@ public class RedisConfig extends CachingConfigurerSupport {
   @Value("${redis.name:cbioportal}")
   private String redisName;
 
+  private final DataSource dataSource;
+
+  public RedisConfig(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
   @Bean
   @Override
   public CacheManager cacheManager() {
@@ -39,7 +46,7 @@ public class RedisConfig extends CachingConfigurerSupport {
   @Bean
   @Override
   public KeyGenerator keyGenerator() {
-    return new CustomKeyGenerator();
+    return new CustomKeyGenerator(dataSource);
   }
 
   @Bean

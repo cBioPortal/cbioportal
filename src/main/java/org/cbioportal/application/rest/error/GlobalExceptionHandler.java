@@ -13,6 +13,7 @@ import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
 import org.cbioportal.legacy.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.legacy.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.legacy.service.exception.DataAccessTokenProhibitedUserException;
+import org.cbioportal.legacy.service.exception.DatabaseSwitchException;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.service.exception.GeneWithMultipleEntrezIdsException;
@@ -254,6 +255,11 @@ public class GlobalExceptionHandler {
         new ErrorResponse(
             "Error evicting caches. Please try again or validate correct operation of your configured caching implementation.");
     return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(DatabaseSwitchException.class)
+  public ResponseEntity<ErrorResponse> handleDatabaseSwitchException(DatabaseSwitchException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.SERVICE_UNAVAILABLE);
   }
 
   @ExceptionHandler(GenericAssayNotFoundException.class)

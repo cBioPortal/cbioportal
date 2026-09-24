@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.persistence.config;
 
+import javax.sql.DataSource;
 import org.cbioportal.legacy.persistence.util.CustomEhcachingProvider;
 import org.cbioportal.legacy.persistence.util.CustomKeyGenerator;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
@@ -19,6 +20,12 @@ import org.springframework.context.annotation.Configuration;
     havingValue = {"ehcache-heap", "ehcache-disk", "ehcache-hybrid"})
 public class EhCacheConfig extends CachingConfigurerSupport {
 
+  private final DataSource dataSource;
+
+  public EhCacheConfig(DataSource dataSource) {
+    this.dataSource = dataSource;
+  }
+
   @Bean
   @Override
   public CacheManager cacheManager() {
@@ -28,7 +35,7 @@ public class EhCacheConfig extends CachingConfigurerSupport {
   @Bean
   @Override
   public KeyGenerator keyGenerator() {
-    return new CustomKeyGenerator();
+    return new CustomKeyGenerator(dataSource);
   }
 
   @Bean

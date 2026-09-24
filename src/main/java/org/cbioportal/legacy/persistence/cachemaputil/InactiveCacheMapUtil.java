@@ -30,7 +30,7 @@ public class InactiveCacheMapUtil implements CacheMapUtil {
   }
 
   @Override
-  public Map<String, CancerStudy> getCancerStudyMap() {
+  public Map<String, CancerStudy> getCancerStudyPermissionMap() {
     throw new RuntimeException(
         "A CacheMapUtils method was called on a portal where studies are accessible to all users.");
   }

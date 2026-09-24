@@ -221,30 +221,29 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       case MolecularProfile mp -> {
         var cs = mp.getCancerStudy();
         if (mp.getCancerStudy() == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(mp.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(mp.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case SampleList sl -> {
         var cs = sl.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(sl.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(sl.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case Patient p -> {
         var cs = p.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(p.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(p.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
-      case CancerStudyMetadata csm -> {
-        extractedCancerStudy = cacheMapUtil.getCancerStudyMap().get(csm.cancerStudyIdentifier());
-      }
+      case CancerStudyMetadata csm ->
+          extractedCancerStudy =
+              cacheMapUtil.getCancerStudyPermissionMap().get(csm.cancerStudyIdentifier());
 
-      default ->
-          log.debug("hasPermission(), unknown targetType '" + target.getClass().getName() + "'");
+      default -> log.debug("hasPermission(), unknown targetType '{}'", target.getClass().getName());
     }
     return extractedCancerStudy;
   }
@@ -296,7 +295,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    */
   private CancerStudy extractCancerStudyById(String id, String targetType) {
     return switch (targetType) {
-      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyMap().get(id);
+      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyPermissionMap().get(id);
       case TARGET_TYPE_MOLECULAR_PROFILE_ID, TARGET_TYPE_GENETIC_PROFILE_ID -> {
         var mp = cacheMapUtil.getMolecularProfileMap().get(id);
         yield extractCancerStudy(mp);
@@ -388,7 +387,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .map(id -> cacheMapUtil.getMolecularProfileMap().get(id))
-                .collect(Collectors.toList());
+                .toList();
 
         if (molecularProfiles.contains(null)) {
           throw new IllegalStateException("MolecularProfile not found ");
@@ -399,7 +398,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .collect(Collectors.toSet());
       }
       default -> {
-        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
+        log.debug("hasPermission(), unknown filter type: {}", filter.getClass().getName());
         yield new HashSet<>();
       }
     };

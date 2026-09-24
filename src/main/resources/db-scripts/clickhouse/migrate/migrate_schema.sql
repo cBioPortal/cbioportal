@@ -17,7 +17,10 @@
 --   4. Don't write db_schema_version updates yourself — migrate_db.py advances
 --      info.db_schema_version automatically after a section's SQL succeeds (and waits for that
 --      and any other mutations the section triggered to finish before treating it as applied).
---   5. If a section changes a table that feeds a derived table (see
+--   5. A step that needs to inspect table state (e.g. a resumable table rebuild) can be
+--      implemented as a Python handler registered in VERSION_HANDLERS in migrate_db.py. Its
+--      section stays here, containing only comments, so the version keeps its place in the order.
+--   6. If a section changes a table that feeds a derived table (see
 --      db-scripts/clickhouse/populate_derived_tables.sql), no extra bookkeeping is needed here —
 --      run migrate_db.py with --populate-derived-tables and it repopulates derived tables
 --      automatically after any migration that actually applied something.
@@ -335,23 +338,15 @@ DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
 
 ## db_schema_version: 3.6.0
-## description: Reorder unified resource rows for patient-scoped resource serving
-CREATE TABLE resource_data_patient_order
-(
-    `RESOURCE_DATA_ID` Int64,
-    `RESOURCE_ID`      String,
-    `CANCER_STUDY_ID`  Int32,
-    `ENTITY_TYPE`      String,
-    `PATIENT_ID`       Nullable(String),
-    `SAMPLE_ID`        Nullable(String),
-    `URL`              String,
-    `DISPLAY_NAME`     Nullable(String),
-    `TYPE`             Nullable(String),
-    `METADATA`         Nullable(String)
-) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)
-SETTINGS allow_nullable_key = 1;
-
-INSERT INTO resource_data_patient_order SELECT * FROM resource_data;
-RENAME TABLE resource_data TO resource_data_previous_order,
-             resource_data_patient_order TO resource_data;
-DROP TABLE resource_data_previous_order;
+## description: Reorder unified resource rows for patient-scoped resource serving (resumable Python handler)
+-- Implemented by migrate_resource_data_patient_order() in migrate_db.py, registered in
+-- VERSION_HANDLERS; this section must contain only comments. The handler rebuilds resource_data
+-- with ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID):
+--   create resource_data_patient_order -> INSERT ... SELECT -> verify count() and
+--   uniqExact(RESOURCE_DATA_ID) match -> RENAME resource_data to resource_data_previous_order
+--   and the staging table to resource_data -> verify again -> DROP resource_data_previous_order.
+-- It reads system.tables first, so a rerun after an interruption resumes from the tables it
+-- finds (dropping a partial staging copy, finishing an interrupted swap, or restoring the
+-- previous-order table) and refuses ambiguous states. A database that already has the target key
+-- (e.g. one created by the current 3.5.0 section) is left untouched. Resource imports and study
+-- deletions must be paused while it runs.

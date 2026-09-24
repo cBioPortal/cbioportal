@@ -4,6 +4,8 @@
 Parses migrate_schema.sql (in this same directory, unless overridden) into version-tagged
 sections and applies any section newer than the target database's current db_schema_version,
 strictly in ascending order. See the header of migrate_schema.sql for the section format.
+Versions listed in VERSION_HANDLERS are applied by a Python handler instead of their (comment-only)
+SQL section, for steps that must inspect table state to be safely resumable.
 
 With --populate-derived-tables, also repopulates derived tables (populate_derived_tables.sql)
 after a run that actually applied one or more migration sections. Off by default, since some
@@ -215,9 +217,218 @@ def wait_for_mutations(ch_props, timeout_secs=300, poll_interval_secs=2):
     raise TimeoutError(f"Mutations did not complete within {timeout_secs}s")
 
 
-def apply_section(ch_props, section):
+class ClickHouseClient:
+    """Minimal query/execute interface used by the Python version handlers, so their state
+    machines can be unit-tested against a fake client (see test_migrate_db.py)."""
+
+    def __init__(self, ch_props):
+        self.ch_props = ch_props
+
+    def query(self, sql):
+        return run_query(self.ch_props, sql)
+
+    def execute(self, sql):
+        run_multiquery(self.ch_props, sql)
+
+
+class MigrationStateError(RuntimeError):
+    """Raised when a version handler finds table state it cannot safely resolve on its own."""
+
+
+# --- 3.6.0: rebuild resource_data with the patient-inclusive sort key -----------------------
+
+RESOURCE_DATA_TABLE = 'resource_data'
+RESOURCE_DATA_STAGING_TABLE = 'resource_data_patient_order'
+RESOURCE_DATA_PREVIOUS_TABLE = 'resource_data_previous_order'
+RESOURCE_DATA_TARGET_SORTING_KEY = 'CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID'
+RESOURCE_DATA_COLUMNS = (
+    'RESOURCE_DATA_ID', 'RESOURCE_ID', 'CANCER_STUDY_ID', 'ENTITY_TYPE', 'PATIENT_ID',
+    'SAMPLE_ID', 'URL', 'DISPLAY_NAME', 'TYPE', 'METADATA',
+)
+RESOURCE_DATA_STAGING_DDL = f"""CREATE TABLE {RESOURCE_DATA_STAGING_TABLE}
+(
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID`      String,
+    `CANCER_STUDY_ID`  Int32,
+    `ENTITY_TYPE`      String,
+    `PATIENT_ID`       Nullable(String),
+    `SAMPLE_ID`        Nullable(String),
+    `URL`              String,
+    `DISPLAY_NAME`     Nullable(String),
+    `TYPE`             Nullable(String),
+    `METADATA`         Nullable(String)
+) ENGINE = MergeTree ORDER BY ({RESOURCE_DATA_TARGET_SORTING_KEY})
+SETTINGS allow_nullable_key = 1"""
+
+
+def get_resource_data_tables(client):
+    """Return {table_name: sorting_key} for the resource_data tables present in the current
+    database (resource_data, the staging table and the previous-order backup)."""
+    names = ', '.join(f"'{name}'" for name in (
+        RESOURCE_DATA_TABLE, RESOURCE_DATA_STAGING_TABLE, RESOURCE_DATA_PREVIOUS_TABLE))
+    output = client.query(
+        "SELECT name, sorting_key FROM system.tables "
+        f"WHERE database = currentDatabase() AND name IN ({names}) "
+        "ORDER BY name FORMAT TabSeparated")
+    tables = {}
+    for line in output.splitlines():
+        if not line.strip():
+            continue
+        name, _, sorting_key = line.partition('\t')
+        tables[name] = sorting_key.strip()
+    return tables
+
+
+def get_resource_data_counts(client, table):
+    """Return (row count, distinct RESOURCE_DATA_ID count) for a resource_data-shaped table."""
+    output = client.query(
+        f"SELECT count(), uniqExact(RESOURCE_DATA_ID) FROM {table} FORMAT TabSeparated")
+    parts = output.split()
+    if len(parts) != 2:
+        raise MigrationStateError(f"Unexpected count output for {table}: {output!r}")
+    return int(parts[0]), int(parts[1])
+
+
+def verify_resource_data_copy(client, source, target):
+    source_counts = get_resource_data_counts(client, source)
+    target_counts = get_resource_data_counts(client, target)
+    if source_counts != target_counts:
+        raise MigrationStateError(
+            f"Row counts differ between {source} (rows, distinct RESOURCE_DATA_ID = "
+            f"{source_counts}) and {target} ({target_counts}). Were imports paused? "
+            f"Leaving both tables in place for inspection.")
+    return target_counts
+
+
+def verify_resource_data_sorting_key(client, table):
+    sorting_key = get_resource_data_tables(client).get(table)
+    if sorting_key != RESOURCE_DATA_TARGET_SORTING_KEY:
+        raise MigrationStateError(
+            f"{table} has sorting key {sorting_key!r}, expected "
+            f"{RESOURCE_DATA_TARGET_SORTING_KEY!r}.")
+
+
+def drop_table(client, table):
+    client.execute(f"DROP TABLE IF EXISTS {table} SYNC;")
+
+
+def rebuild_resource_data(client):
+    """Copy resource_data into a staging table with the target key, verify the copy, swap the
+    tables and verify again before dropping the previous-order table."""
+    columns = ', '.join(RESOURCE_DATA_COLUMNS)
+    print(f"Creating {RESOURCE_DATA_STAGING_TABLE} with ORDER BY "
+          f"({RESOURCE_DATA_TARGET_SORTING_KEY})")
+    client.execute(RESOURCE_DATA_STAGING_DDL + ';')
+    print(f"Copying {RESOURCE_DATA_TABLE} into {RESOURCE_DATA_STAGING_TABLE}")
+    client.execute(
+        f"INSERT INTO {RESOURCE_DATA_STAGING_TABLE} ({columns}) "
+        f"SELECT {columns} FROM {RESOURCE_DATA_TABLE};")
+    verify_resource_data_sorting_key(client, RESOURCE_DATA_STAGING_TABLE)
+    counts = verify_resource_data_copy(client, RESOURCE_DATA_TABLE, RESOURCE_DATA_STAGING_TABLE)
+    print(f"Copy verified: {counts[0]} rows, {counts[1]} distinct RESOURCE_DATA_ID values")
+    client.execute(
+        f"RENAME TABLE {RESOURCE_DATA_TABLE} TO {RESOURCE_DATA_PREVIOUS_TABLE}, "
+        f"{RESOURCE_DATA_STAGING_TABLE} TO {RESOURCE_DATA_TABLE};")
+    finish_resource_data_swap(client)
+
+
+def finish_resource_data_swap(client):
+    """resource_data is the rebuilt table and resource_data_previous_order holds the original
+    rows: verify the rebuilt table and drop the previous one."""
+    verify_resource_data_sorting_key(client, RESOURCE_DATA_TABLE)
+    verify_resource_data_copy(client, RESOURCE_DATA_PREVIOUS_TABLE, RESOURCE_DATA_TABLE)
+    print(f"Swap verified; dropping {RESOURCE_DATA_PREVIOUS_TABLE}")
+    drop_table(client, RESOURCE_DATA_PREVIOUS_TABLE)
+
+
+def migrate_resource_data_patient_order(client):
+    """3.6.0 handler. Resumable: inspects which of resource_data, the staging table and the
+    previous-order backup exist (and resource_data's sorting key) and continues from there.
+
+    State (R = resource_data, S = staging, P = previous-order backup):
+      R with target key, no S/P   -> nothing to do
+      R, S, no P                  -> copy was interrupted: drop S, then continue from R
+      R with old key, no S/P      -> rebuild
+      R and P, no S               -> interrupted after the swap: verify counts, drop P
+      P, no R                     -> interrupted mid-swap: drop S, rename P back, rebuild
+      anything else               -> refuse; needs manual inspection
+    """
+    print(RED + "3.6.0 rebuilds resource_data. Resource imports and study deletions against "
+          "this database must be paused until the migration finishes." + END)
+    tables = get_resource_data_tables(client)
+    has_r = RESOURCE_DATA_TABLE in tables
+    has_s = RESOURCE_DATA_STAGING_TABLE in tables
+    has_p = RESOURCE_DATA_PREVIOUS_TABLE in tables
+
+    if has_p and has_r and has_s:
+        raise MigrationStateError(
+            f"{RESOURCE_DATA_TABLE}, {RESOURCE_DATA_STAGING_TABLE} and "
+            f"{RESOURCE_DATA_PREVIOUS_TABLE} all exist; refusing to guess which holds the "
+            f"authoritative rows. Inspect them and remove the stale tables manually.")
+    if has_p and has_r:
+        print(f"Found {RESOURCE_DATA_PREVIOUS_TABLE} next to {RESOURCE_DATA_TABLE}: resuming "
+              f"after an interrupted swap")
+        finish_resource_data_swap(client)
+        return
+    if has_p:
+        if has_s:
+            print(f"Dropping partial {RESOURCE_DATA_STAGING_TABLE} left by an interrupted swap")
+            drop_table(client, RESOURCE_DATA_STAGING_TABLE)
+        print(f"Restoring {RESOURCE_DATA_PREVIOUS_TABLE} to {RESOURCE_DATA_TABLE}")
+        client.execute(
+            f"RENAME TABLE {RESOURCE_DATA_PREVIOUS_TABLE} TO {RESOURCE_DATA_TABLE};")
+        rebuild_resource_data(client)
+        return
+    if not has_r:
+        detail = (f" Only {RESOURCE_DATA_STAGING_TABLE} exists and may be incomplete."
+                  if has_s else "")
+        raise MigrationStateError(
+            f"{RESOURCE_DATA_TABLE} does not exist; cannot apply 3.6.0.{detail}")
+    if has_s:
+        print(f"Dropping partial {RESOURCE_DATA_STAGING_TABLE} left by an interrupted copy")
+        drop_table(client, RESOURCE_DATA_STAGING_TABLE)
+    if tables[RESOURCE_DATA_TABLE] == RESOURCE_DATA_TARGET_SORTING_KEY:
+        print(f"{RESOURCE_DATA_TABLE} already has ORDER BY "
+              f"({RESOURCE_DATA_TARGET_SORTING_KEY}); no rebuild needed")
+        return
+    rebuild_resource_data(client)
+
+
+# Versions whose migration is implemented in Python instead of SQL. Their migrate_schema.sql
+# section must contain only comments: it stays in the file so the version is still part of the
+# ordered history, and the handler runs in its place.
+VERSION_HANDLERS = {
+    '3.6.0': migrate_resource_data_patient_order,
+}
+
+
+def strip_sql_comments(sql):
+    """Return sql with blank lines and full-line `--` comments removed."""
+    return '\n'.join(line for line in sql.splitlines()
+                     if line.strip() and not line.strip().startswith('--'))
+
+
+def validate_version_handlers(sections):
+    """Every Python handler must have a (comment-only) marker section in migrate_schema.sql, so
+    it runs in version order."""
+    section_versions = {section.version for section in sections}
+    missing = sorted(set(VERSION_HANDLERS) - section_versions, key=version_tuple)
+    if missing:
+        raise RuntimeError(
+            f"migrate_db.py has handlers for versions with no migrate_schema.sql section: "
+            f"{', '.join(missing)}")
+
+
+def apply_section(ch_props, section, client=None):
     print(f"Applying db_schema_version {section.version}: {section.description}")
-    if section.sql:
+    handler = VERSION_HANDLERS.get(section.version)
+    if handler is not None:
+        if strip_sql_comments(section.sql):
+            raise RuntimeError(
+                f"Section {section.version} is implemented in migrate_db.py and must contain "
+                f"only comments in migrate_schema.sql")
+        handler(client or ClickHouseClient(ch_props))
+    elif section.sql:
         run_multiquery(ch_props, section.sql)
     run_multiquery(ch_props, f"ALTER TABLE info UPDATE db_schema_version = '{section.version}' WHERE 1;")
     wait_for_mutations(ch_props)
@@ -262,6 +473,7 @@ def run_migrations(migrate_schema_sql_filepath=None, populate_derived_tables_fla
         current_tuple = version_tuple(current_version)
 
         sections = parse_migrate_schema_sql(filepath)
+        validate_version_handlers(sections)
         pending = [s for s in sections if s.version_tuple() > current_tuple]
 
         if not pending:

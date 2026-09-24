@@ -659,7 +659,13 @@ jobs:
               # API tests must run against the schema initialized by the
               # isolated local ClickHouse container, so migrations and WSI
               # compatibility checks execute against the tested image.
-              nohup ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              echo "Starting test stack with backend image: $DOCKER_IMAGE_CBIOPORTAL"
+              nohup env \
+                DOCKER_IMAGE_CBIOPORTAL="$DOCKER_IMAGE_CBIOPORTAL" \
+                DOCKER_REPO="$DOCKER_REPO" \
+                APP_CLICKHOUSE_MODE="${APP_CLICKHOUSE_MODE:-true}" \
+                APP_CUSTOM_ARGS="${APP_CUSTOM_ARGS:-}" \
+                ./scripts/docker-compose.sh >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |

@@ -54,6 +54,21 @@
      AND rdef.cancer_study_id = rdata.CANCER_STUDY_ID
   </sql>
 
+  <!--
+    Searchable text for a row's public metadata: every top-level key with its raw JSON value,
+    except wsi_serving. wsi_serving (and everything nested under it) holds artifact locations
+    that are private to the WSI access API for every row regardless of TYPE, so it must not be
+    able to influence search results, filters, sorting, facets or key discovery. Rows with no
+    metadata contribute an empty string, which keeps the predicate non-null for null-TYPE rows.
+  -->
+  <sql id="PublicMetadataText">
+    arrayStringConcat(
+      arrayMap(kv -> concat(kv.1, ':', kv.2),
+        arrayFilter(kv -> kv.1 != 'wsi_serving',
+          JSONExtractKeysAndValuesRaw(ifNull(rdata.METADATA, '{}')))),
+      '\n')
+  </sql>
+
   <sql id="ResourceTableBaseFilters">
     <where>
       rdata.RESOURCE_ID = #{query.resourceId}
@@ -106,9 +121,7 @@
           OR rdata.SAMPLE_ID LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.TYPE LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.URL LIKE CONCAT('%', #{query.search}, '%')
-          OR (rdata.TYPE != 'WHOLE_SLIDE_IMAGE'
-              AND rdata.METADATA IS NOT NULL
-              AND position(rdata.METADATA, #{query.search}) > 0)
+          OR position(<include refid="PublicMetadataText"/>, #{query.search}) > 0
         )
       </if>
       <if test="query.filters != null and !query.filters.isEmpty()">
@@ -187,9 +200,11 @@
   -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
-      <!-- wsi_serving contains artifact paths and is intentionally private to the WSI access API. -->
+      <!-- wsi_serving contains artifact paths and is private to the WSI access API for every row
+           (see PublicMetadataText). A filter on it is ignored, like a filter on an unsupported
+           builtin column, so neither its values nor the request itself change rows or counts. -->
       <when test="filter.metadataKey == 'wsi_serving'">
-        1 = 0
+        1 = 1
       </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and (filter.values == null || filter.values.isEmpty())">
         1 = 0
@@ -397,6 +412,10 @@
     SELECT JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
+    <!-- wsi_serving is private for every row (see PublicMetadataText). -->
+    <if test="metadataKey == 'wsi_serving'">
+      AND 1 = 0
+    </if>
     AND rdata.METADATA IS NOT NULL
     AND JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) != ''
     GROUP BY value

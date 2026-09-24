@@ -89,8 +89,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return rows.stream().map(ClickhouseResourceDataRepository::withoutServingMetadata).toList();
   }
 
+  /**
+   * wsi_serving holds artifact locations that only the WSI access API may read. It is private for
+   * every row, whatever its TYPE, matching the search, filter, sort, facet and key-discovery guards
+   * in ResourceDataMapper.xml.
+   */
   private static ResourceTableRow withoutServingMetadata(ResourceTableRow row) {
-    if (!"WHOLE_SLIDE_IMAGE".equals(row.type()) || row.metadata() == null) {
+    if (row.metadata() == null || !row.metadata().containsKey("wsi_serving")) {
       return row;
     }
     Map<String, Object> metadata = new LinkedHashMap<>(row.metadata());

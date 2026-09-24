@@ -17,7 +17,8 @@
             AND row.RESOURCE_ID = #{resourceId}
             AND row.PATIENT_ID = #{patientId}
             AND row.RESOURCE_DATA_ID = #{resourceDataId}
-        WHERE row.TYPE = 'WHOLE_SLIDE_IMAGE'
+        WHERE row.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
+            AND row.TYPE = 'WHOLE_SLIDE_IMAGE'
         LIMIT 1
     </select>
 </mapper>

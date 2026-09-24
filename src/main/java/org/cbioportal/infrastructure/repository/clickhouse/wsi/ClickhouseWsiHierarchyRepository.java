@@ -68,7 +68,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
             contextLongValue(context, "cancer_study_id"),
             value(context, "patient_stable_id", String.class));
     if (rows.isEmpty()) {
-      return null;
+      // The patient exists but has no WSI resource rows: an empty hierarchy, not a missing one.
+      return new WsiHierarchy(null, List.of());
     }
 
     Map<String, Object> first = rows.get(0);

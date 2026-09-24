@@ -98,8 +98,19 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
+  public void returnsEmptyHierarchyWhenPatientHasNoWsiRows() {
+    WsiHierarchy hierarchy =
+        repository.getPatientHierarchy("wsi_missing_data_study", "MISSING-DATA");
+
+    assertTrue(hierarchy.sampleGroups().isEmpty());
+    assertNull(hierarchy.referenceSampleId());
+  }
+
+  @Test
   public void returnsNullWhenWsiDataIsMissing() {
-    assertNull(repository.getPatientHierarchy("wsi_missing_data_study", "MISSING-DATA"));
+    assertNull(repository.getPatientHierarchy("wsi_missing_data_study", "NOT-A-PATIENT"));
+    assertNull(repository.getPatientHierarchy("no_such_wsi_study", "MISSING-DATA"));
+    assertNull(repository.getPatientHierarchy("wsi_test_study", "MISSING-DATA"));
   }
 
   @Test

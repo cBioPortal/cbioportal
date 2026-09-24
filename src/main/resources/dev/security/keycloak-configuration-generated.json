@@ -1896,6 +1896,9 @@
             "cbioportal": [
                 {
                     "name": "study_tcga_pub"
+                },
+                {
+                    "name": "msk_spectrum_tme_2022"
                 }
             ]
         }
@@ -1905,7 +1908,8 @@
             "name": "PUBLIC_STUDIES",
             "clientRoles": {
                 "cbioportal": [
-                    "study_tcga_pub"
+                    "study_tcga_pub",
+                    "msk_spectrum_tme_2022"
                 ]
             }
         }

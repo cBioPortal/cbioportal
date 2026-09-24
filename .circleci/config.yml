@@ -664,7 +664,16 @@ jobs:
             name: Wait for cbioportal to be live at localhost
             command: |
               cd cbioportal-test
-              ./utils/check-connection.sh --url=localhost:8080
+              set +e
+              ./utils/check-connection.sh --url=localhost:8080 --max_retries=250
+              STATUS=$?
+              set -e
+              if [ "$STATUS" -ne 0 ]; then
+                echo "cBioPortal did not become ready; collecting compose diagnostics"
+                cat /tmp/repos/docker-compose-logs.txt 2>/dev/null || true
+                docker compose ps 2>/dev/null || true
+                exit "$STATUS"
+              fi
         - run:
             name: Confirm cbioportal config matches PR
             command: |

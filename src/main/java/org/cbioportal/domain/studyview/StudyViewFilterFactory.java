@@ -24,6 +24,13 @@ public abstract class StudyViewFilterFactory {
     List<CustomSampleIdentifier> customSampleIdentifiers =
         customDataFilterUtil.extractCustomDataSamples(base);
     List<String> involvedCancerStudies = customDataFilterUtil.extractInvolvedCancerStudies(base);
+    // Filter out genericAssayDataFilters with null or empty values to prevent SQL errors
+    if (base.getGenericAssayDataFilters() != null) {
+      base.setGenericAssayDataFilters(
+          base.getGenericAssayDataFilters().stream()
+              .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+              .collect(Collectors.toList()));
+    }
     CategorizedGenericAssayDataCountFilter categorizedGenericAssayDataCountFilter =
         CategorizedGenericAssayDataCountFilter.getBuilder(genericAssayProfilesMap, base).build();
 
@@ -63,6 +70,15 @@ public abstract class StudyViewFilterFactory {
             : base.getGenomicDataFilters().stream()
                 .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
                 .collect(Collectors.toList());
+    // Filter out genericAssayDataFilters with null or empty values to prevent SQL errors.
+    // Applied here too (not just in the overload above) since this overload is also called
+    // directly, bypassing that pre-filtering step.
+    List<GenericAssayDataFilter> validGenericAssayDataFilters =
+        base.getGenericAssayDataFilters() == null
+            ? null
+            : base.getGenericAssayDataFilters().stream()
+                .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+                .collect(Collectors.toList());
     return new StudyViewFilterContext(
         base.getSampleIdentifiers(),
         base.getStudyIds(),
@@ -77,7 +93,7 @@ public abstract class StudyViewFilterFactory {
         base.getPatientTreatmentTargetFilters(),
         base.getGenomicProfiles(),
         validGenomicDataFilters,
-        base.getGenericAssayDataFilters(),
+        validGenericAssayDataFilters,
         base.getGenericAssaySelectionFilters(),
         base.getCaseLists(),
         base.getCustomDataFilters(),

@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
+import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.TypeOfCancer;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
@@ -287,5 +288,62 @@ public class StudyMyBatisRepositoryTest {
 
   private List<CancerStudyTags> sortedTagResult(List<CancerStudyTags> result) {
     return result.stream().sorted(Comparator.comparing(CancerStudyTags::getTags)).toList();
+  }
+
+  // ---- Resource counts, sourced from the unified resource_data table ----
+
+  @Test
+  public void getResourceCounts_countsSampleLevelResources() {
+    // HE is SAMPLE-level over 7 samples belonging to 6 distinct patients
+    // (TCGA-A1-A0SB contributes two samples).
+    ResourceCount he = resourceCountFor("study_tcga_pub", "HE");
+
+    Assert.assertEquals("H&E Slide", he.getDisplayName());
+    Assert.assertEquals((Integer) 7, he.getSampleCount());
+    Assert.assertEquals((Integer) 6, he.getPatientCount());
+  }
+
+  @Test
+  public void getResourceCounts_patientLevelResourceCountsThatPatientsSamples() {
+    // IDC_OHIF_V2 is PATIENT-level over 6 patients; sampleCount is the samples those
+    // patients have, which is 7 because TCGA-A1-A0SB has two.
+    ResourceCount ct = resourceCountFor("study_tcga_pub", "IDC_OHIF_V2");
+
+    Assert.assertEquals((Integer) 6, ct.getPatientCount());
+    Assert.assertEquals((Integer) 7, ct.getSampleCount());
+  }
+
+  @Test
+  public void getResourceCounts_excludesStudyLevelResources() {
+    // FIGURES is STUDY-level: it belongs to neither the sample nor the patient half.
+    List<ResourceCount> counts =
+        studyMyBatisRepository.getResourceCounts(Arrays.asList("acc_tcga"));
+
+    Assert.assertTrue(counts.stream().noneMatch(c -> "FIGURES".equals(c.getResourceId())));
+  }
+
+  @Test
+  public void getResourceCounts_filtersByStudy() {
+    List<ResourceCount> counts =
+        studyMyBatisRepository.getResourceCounts(Arrays.asList("study_tcga_pub"));
+
+    Assert.assertFalse(counts.isEmpty());
+    Assert.assertTrue(
+        counts.stream().allMatch(c -> "study_tcga_pub".equals(c.getCancerStudyIdentifier())));
+  }
+
+  @Test
+  public void getResourceCountsForAllStudies_returnsTheSameResources() {
+    List<ResourceCount> all = studyMyBatisRepository.getResourceCountsForAllStudies();
+
+    Assert.assertTrue(all.stream().anyMatch(c -> "HE".equals(c.getResourceId())));
+    Assert.assertTrue(all.stream().anyMatch(c -> "IDC_OHIF_V2".equals(c.getResourceId())));
+  }
+
+  private ResourceCount resourceCountFor(String studyId, String resourceId) {
+    return studyMyBatisRepository.getResourceCounts(Arrays.asList(studyId)).stream()
+        .filter(c -> resourceId.equals(c.getResourceId()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("no resource count for " + resourceId));
   }
 }

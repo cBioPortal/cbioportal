@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS mutation_event;
 DROP TABLE IF EXISTS patient;
 DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_sample;
@@ -620,23 +621,21 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
-CREATE TABLE resource_patient (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_sample (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_study (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+-- Unified resource table covering every entity level. Replaces the resource_sample,
+-- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
+-- migration drops them once their contents have been carried over.
+CREATE TABLE resource_data (
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID` String,
+    `CANCER_STUDY_ID` Int32,
+    `ENTITY_TYPE` String,
+    `PATIENT_ID` Nullable(String),
+    `SAMPLE_ID` Nullable(String),
+    `URL` String,
+    `DISPLAY_NAME` Nullable(String),
+    `TYPE` Nullable(String),
+    `METADATA` Nullable(String)
+) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, RESOURCE_DATA_ID);
 
 CREATE TABLE sample (
     `internal_id` Int64,

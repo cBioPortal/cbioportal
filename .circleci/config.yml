@@ -324,6 +324,9 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
+              docker run --rm --entrypoint sh "$DOCKER_IMAGE_CBIOPORTAL" \
+                -c 'test -f /cbioportal/db-scripts/clickhouse/init/schema.sql'
               # Localdb gates use the isolated ClickHouse instance initialized
               # by the test stack. The remote clone is read-only and can lag
               # the schema required by this PR.
@@ -639,7 +642,9 @@ jobs:
             name: Load cbioportal image
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
-              docker load -i $DOCKER_TAG-web-shenandoah.tar
+              # The test stack extracts db-scripts and the ClickHouse client
+              # from the image before it starts. The web-only image omits both.
+              docker load -i $DOCKER_TAG.tar
         - run:
             name: Instantiate a cbioportal instance
             environment:
@@ -647,7 +652,10 @@ jobs:
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
             command: |
               cd cbioportal-test
-              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
+              docker run --rm --entrypoint sh "$DOCKER_IMAGE_CBIOPORTAL" \
+                -c 'test -f /cbioportal/db-scripts/clickhouse/init/schema.sql'
               # API tests must run against the schema initialized by the
               # isolated local ClickHouse container, so migrations and WSI
               # compatibility checks execute against the tested image.
@@ -868,10 +876,8 @@ workflows:
         # the check to mark required for branch protection.
         - e2e_localdb_merge
         - run_api_tests:
-            context:
-              - clickhouse-public-staging-ro-user
             requires:
-              - build_web_image
+              - build_web_and_data_image
         - run_security_tests:
             context:
               - docker-scout

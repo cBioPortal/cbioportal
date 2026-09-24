@@ -278,15 +278,38 @@ After importing studies and rebuilding derived tables, you can verify that your 
 
 ## WSI hierarchy materialization and authenticated rollout
 
-Native WSI hierarchy reads in cBioPortal come from the normalized ClickHouse
-tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`, and
-`wsi_slide_placement`. The cBioPortal core study importer validates and loads
-one complete snapshot including source URLs, intrinsic tile metadata, and
-thumbnail artifact fields.
+WSI is served from the generic `resource_data` table. Each slide is one row
+with `TYPE = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
+`WSI_PATIENT` (unmatched) resource. Its `METADATA` JSON carries the public
+hierarchy, stain and timing fields, and a private `wsi_serving` object with
+the source URL, intrinsic tile metadata and thumbnail artifact fields. See
+[Pathology Slide Data](../../File-Formats.md#pathology-slide-data) for the
+format and for the offline converter from the legacy `meta_wsi.txt` pair.
 
-Clients use `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`. The response is
-pathology-only; portal clinical labels and pathology timeline events continue
-to come from the normal cBioPortal APIs.
+Clients use two endpoints:
+
+- `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}` builds the hierarchy from
+  the patient's `WSI_SAMPLE`/`WSI_PATIENT` rows. Each slide carries its
+  `resourceId` and `resourceDataId`. The response is pathology-only; portal
+  clinical labels and pathology timeline events continue to come from the
+  normal cBioPortal APIs. A patient with no WSI rows gets `200` with an empty
+  hierarchy (`{"referenceSampleId":null,"sampleGroups":[]}`); an unknown study
+  or patient gets `404`.
+- `GET /api/wsi/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access`
+  returns the pixel access bundle and capability for one slide. It reads
+  `wsi_serving` from exactly that row, and only when the row belongs to the
+  study and patient, its resource is `WSI_SAMPLE` or `WSI_PATIENT`, and its
+  `TYPE` is `WHOLE_SLIDE_IMAGE`.
+
+`wsi_serving` is private for every `resource_data` row. The generic resource
+table API strips it from row metadata and ignores it in search, filters,
+sorting, facets and metadata-column discovery; public fields such as stain and
+specimen descriptions stay searchable.
+
+The native tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
+`wsi_slide_placement` and `wsi_slide_timing` are deprecated. The backend no
+longer reads them, but they remain in the schema and are not dropped by any
+migration; retiring them is a separate, deliberate step.
 
 The cBioPortal properties for an authenticated deployment are:
 
@@ -310,8 +333,8 @@ The secret bytes and audience must match exactly, and the cBioPortal TTL must
 not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only source URLs and
 v2 capabilities; it does not load a hierarchy, metadata backend, or resource
 index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
-ClickHouse WSI snapshot must also contain the source URL, tile metadata, and
-thumbnail artifact fields.
+WSI resource rows must also contain the source URL, tile metadata, and
+thumbnail artifact fields in `wsi_serving`.
 
 ### Upstream thumbnail publication
 
@@ -322,7 +345,8 @@ S3/Dell ECS-compatible object store, and populate
 `artifact_uri`, `tile_metadata_json`, dimensions, and content type before the
 Databricks canonical-association refresh runs. The canonical export then
 passes `SOURCE_URL`, `TILE_METADATA_JSON`, `THUMBNAIL_URL`, dimensions, and
-content type to the standard cBioPortal core importer.
+content type in the legacy `data_wsi.txt` file, which the offline converter
+turns into resource rows for the standard cBioPortal core importer.
 
 Neither the frontend nor the online tile-server API is a production thumbnail
 publisher. The frontend only requests `/thumbnails`; the tile-server
@@ -340,12 +364,15 @@ bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
 
 Before enabling the Pathology Slides feature for a private study:
 
-1. Use the standard cBioPortal core study importer to validate the study's
-   complete `meta_wsi.txt`/`data_wsi.txt` pair together with the generated
-   pathology timeline pair. The WSI files load `source_url`,
-   `tile_metadata_json`, `thumbnail_url`, dimensions, and content type into
-   each servable slide row; diagnosis-relative procedure offsets are loaded as
-   timeline events. MRNs and absolute dates must not occur in the study files:
+1. Convert the study's complete `meta_wsi.txt`/`data_wsi.txt` pair with
+   `scripts/importer/convertWsiToResources.py` from cbioportal-core
+   (`--meta-wsi`, `--output-dir`, `--portal-base-url`, `--study-dir`), remove
+   the legacy pair, and validate and import the study with the standard
+   importer. The resource rows carry `source_url`, `tile_metadata_json`,
+   `thumbnail_url`, dimensions, and content type in `wsi_serving` for each
+   servable slide; the converter also writes the six `WSI_*` slide-count
+   clinical attributes. The pathology timeline pair is imported unchanged.
+   MRNs and absolute dates must not occur in the study files:
 
    ```bash
    metaImport.py -s /path/to/study
@@ -357,30 +384,24 @@ Before enabling the Pathology Slides feature for a private study:
    access responses as private/no-store. They must not be publicly cached.
 
 Blue/green promotion is the WSI visibility boundary. Build the inactive
-database from a fresh schema, import each complete WSI snapshot once, validate
-the result, and promote only after the build succeeds. If an import fails or a
-snapshot must be retried, discard and rebuild the inactive database; WSI is not
-an in-place incremental import and the importer does not replace existing rows.
-The core importer does not create or migrate production WSI tables.
+database, import each study's WSI resources once, validate the result, and
+promote only after the build succeeds. If an import fails or must be retried,
+discard and rebuild the inactive database. The core importer does not create
+or migrate production tables.
 
-### WSI serving query plan and projection
+### WSI serving query plan
 
 The hierarchy and slide-access repositories first resolve the internal study
-and patient identifiers. They then pass those constants into
-the WSI-table subqueries so ClickHouse can prune by the MergeTree primary keys;
-the hierarchy query does not fetch or parse tile metadata or thumbnail
-artifacts. Slide access uses the `wsi_slide_by_access` projection, ordered by
-`(cancer_study_id, image_id)`, because slide access does not include
-patient ID.
+(and, for the hierarchy, patient) identifiers, then read `resource_data` with
+those constants in `PREWHERE`. `resource_data` is ordered by
+`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)`, so both the
+per-patient hierarchy read and the single-row access lookup are pruned by the
+primary key. The hierarchy query extracts only public metadata fields; it does
+not parse `wsi_serving`. Validate with `EXPLAIN indexes=1` that both queries
+use the primary key.
 
-The projection is included in both `init/schema.sql` and the latest WSI migration section of
-`migrate/migrate_schema.sql`. Fresh databases receive it during initialization;
-existing `3.0.0` databases receive it when the migration runner is executed
-before the new backend starts. WSI data is still imported and promoted through
-the normal blue/green workflow, and the core importer does not alter production
-schema. Validate the result with `EXPLAIN indexes=1` and confirm that the
-hierarchy tables are filtered by study/patient and slide access uses the
-projection.
+The native `wsi_slide_by_access` projection remains in `init/schema.sql` with
+the deprecated native tables but is no longer used for serving.
 
 ---
 
@@ -417,6 +438,47 @@ migrations were applied; otherwise, rebuild derived tables yourself as a separat
 run derivation through your own tooling against ClickHouse Cloud). The backend refuses to start
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
+
+**`3.5.0` and `3.6.0` (resource data).** `3.5.0` creates the unified
+`resource_data` table, backfills it from the legacy `resource_sample`,
+`resource_patient` and `resource_study` tables, and drops them. `3.6.0`
+ensures `resource_data` is ordered by
+`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)`, which the WSI
+and resource-table queries rely on. A database whose `resource_data` already
+has that key (a fresh `3.6.0` schema, or one migrated by the current `3.5.0`
+section) is left untouched. Otherwise `migrate_db.py` rebuilds the table: it
+creates `resource_data_patient_order`, copies every row, checks that `count()`
+and `uniqExact(RESOURCE_DATA_ID)` match, renames `resource_data` to
+`resource_data_previous_order` and the copy to `resource_data`, checks again,
+and drops `resource_data_previous_order`.
+
+Pause resource imports and study deletions against the database for the whole
+`3.6.0` run: rows written during the copy would not reach the rebuilt table,
+and the count checks would then refuse to finish. The runner prints this
+reminder when it reaches `3.6.0`.
+
+The `3.6.0` step is resumable. `db_schema_version` is advanced only after its
+checks pass, and a rerun inspects `system.tables` and continues from what it
+finds:
+
+| Tables found on rerun | Action |
+| --- | --- |
+| `resource_data` with the target key only | Nothing to rebuild; record `3.6.0` |
+| `resource_data` and `resource_data_patient_order` | Interrupted copy: drop the staging table and rebuild |
+| `resource_data` and `resource_data_previous_order` | Interrupted after the swap: verify the counts match, then drop the previous table |
+| `resource_data_previous_order` without `resource_data` | Interrupted mid-swap: drop any staging table, rename the previous table back, rebuild |
+| All three tables, or only the staging table, or none | Refuse and exit non-zero; inspect and clean up manually |
+
+If the counts differ after the swap (for example because an import ran during
+the migration), the runner refuses, leaves both tables in place, and does not
+record `3.6.0`. Decide which rows are authoritative, drop the other table, and
+rerun. The migration user needs `SELECT` on `system.tables` (see
+[§13](#13-recommended-clickhouse-privileges)) in addition to `CREATE TABLE`,
+`INSERT`, `DROP TABLE` and `ALTER` on the cBioPortal database.
+
+The native WSI tables (`wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
+`wsi_slide_placement`, `wsi_slide_timing`) are deprecated but retained by these
+migrations; no data is dropped from them.
 
 The `3.4.0` WSI snapshot schema is available both for fresh initialization and
 for in-place upgrades from `3.0.0`. The migration drops any legacy WSI

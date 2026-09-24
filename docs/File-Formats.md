@@ -277,13 +277,62 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 
 ## Pathology Slide Data
 
-Whole-slide image (WSI) hierarchy, cBioPortal associations, and source-bound
-pixel artifacts are imported from a study-level metadata/data pair. The
-format follows the clinical data-file convention: four tab-delimited
-attribute metadata rows, an uppercase field-name row, and then one data row
-per slide placement.
+Whole-slide images (WSI) are served from standard [Resource Data](#resource-data)
+files. Each slide is one resource row with `TYPE` `WHOLE_SLIDE_IMAGE` in one of
+two resources:
 
-The artifact fields in this pair are produced upstream. A separate scheduled
+| `RESOURCE_ID` | `RESOURCE_TYPE` | Holds |
+| --- | --- | --- |
+| `WSI_SAMPLE` | `SAMPLE` | Slides matched to a sample (`MATCH_LEVEL` `PART` or `BLOCK`) |
+| `WSI_PATIENT` | `PATIENT` | Slides not matched to a sample (`MATCH_LEVEL` `UNMATCHED`) |
+
+The patient view's slide viewer, the WSI hierarchy endpoint
+(`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
+endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access`)
+read only these two resources. A `WHOLE_SLIDE_IMAGE` row in any other resource
+is shown in the generic resource table but is never served as a slide.
+
+The normal study import no longer accepts `meta_wsi.txt`. Convert a legacy
+format-v3 `meta_wsi.txt`/`data_wsi.txt` pair (described
+[below](#converter-input-legacy-meta_wsi-format-v3)) with the offline converter
+in cbioportal-core, then validate and import the study as usual.
+
+### Resource rows
+
+In `data_resource_sample.txt` and `data_resource_patient.txt`:
+
+- `RESOURCE_ID` is `WSI_SAMPLE` or `WSI_PATIENT`.
+- `URL` links to the standalone viewer for the slide:
+  `<portal base URL>/wsi/patient/{patientId}?studyId={studyId}&imageId={imageId}`,
+  for example
+  `https://portal.example.org/wsi/patient/P-0001?studyId=brca_tcga_pub&imageId=3020726`.
+  The base URL includes any context path the portal is deployed under.
+- `DISPLAY_NAME` is the image ID.
+- `TYPE` is `WHOLE_SLIDE_IMAGE`.
+- `METADATA` is one JSON object with lower-case keys:
+  - public slide fields: `image_id`, `reference_sample_id`, `part_key`,
+    `part_number`, `part_designator`, `part_type`, `part_description`,
+    `subspecialty`, `path_dx_title`, `block_key`, `block_number`,
+    `block_label`, `match_level`, `specimen_key`, `stain_name`, `stain_group`,
+    `magnification`, `barcode` and `slide_type` (strings); `is_hne`, `is_ihc`
+    and `can_serve_tiles` (booleans); and `file_size_bytes` (integer);
+  - timing: `timeline_start_days` (integer, omitted when undated),
+    `timeline_date_status`, `timeline_date_kind`, `timeline_date_source`,
+    `timeline_date_reason`, `timeline_coordinate_system` and
+    `timepoint_source`, with the same meaning and validation as the legacy
+    columns below;
+  - `wsi_serving`: a private object holding `source_url`,
+    `tile_metadata_json` (a JSON object), `thumbnail_url`, `thumbnail_width`,
+    `thumbnail_height` and `thumbnail_content_type`. It is empty (`{}`) when
+    `can_serve_tiles` is `false`.
+
+`wsi_serving` is read only by the slide access endpoint, which checks study
+authorization and returns a short-lived, source-bound capability. It is private
+for every resource row, whatever its `TYPE`: the resource table API removes it
+from row metadata and ignores it in search, filters, sorting, facets and column
+discovery. The public fields remain searchable and filterable.
+
+The serving fields are produced upstream. A separate scheduled
 thumbnail batch reads eligible slide inventory/source rows, writes master
 JPEGs to the S3/Dell ECS-compatible object store, and populates
 `cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with the artifact
@@ -293,7 +342,56 @@ file. The cBioPortal frontend only consumes the resulting access bundle; it
 does not generate or upload thumbnails. Runtime/on-demand thumbnail workers
 are not the production publication path.
 
-### Meta file
+### Converting a legacy WSI file pair
+
+`scripts/importer/convertWsiToResources.py` in cbioportal-core reads a
+format-v3 pair, applies the same row parsing and cross-row checks as the
+retired native importer, and writes standard study files. It never connects to
+cBioPortal, a database or an artifact store.
+
+```sh
+python3 scripts/importer/convertWsiToResources.py \
+  --meta-wsi /path/to/study/meta_wsi.txt \
+  --output-dir /path/to/study \
+  --portal-base-url https://portal.example.org \
+  --study-dir /path/to/study
+```
+
+- `--meta-wsi` (required): the legacy `meta_wsi.txt`. Its `data_filename` is
+  read from the same directory.
+- `--output-dir` (required): where the converted meta/data files are written.
+- `--portal-base-url` (required): absolute `http(s)` URL of the portal,
+  including any context path (for example `https://example.org/cbioportal`).
+  It is used to build the viewer links in `URL`.
+- `--study-dir` (optional): study directory to check first. The converter
+  refuses to write files that would duplicate existing resource files or the
+  WSI count attributes in existing clinical files.
+
+It writes each of these files with its meta file, only when it has rows:
+
+- `data_resource_definition.txt`: the `WSI_SAMPLE` and/or `WSI_PATIENT`
+  definitions;
+- `data_resource_sample.txt` and `data_resource_patient.txt`: one row per
+  slide, as described above;
+- `data_clinical_sample_wsi_counts.txt`: `WSI_SAMPLE_SLIDE_COUNT`,
+  `WSI_SAMPLE_PART_MATCHED_SLIDE_COUNT` and
+  `WSI_SAMPLE_BLOCK_MATCHED_SLIDE_COUNT` for samples with a matched slide;
+- `data_clinical_patient_wsi_counts.txt`: `WSI_PATIENT_SLIDE_COUNT`,
+  `WSI_PATIENT_PART_MATCHED_SLIDE_COUNT` and
+  `WSI_PATIENT_BLOCK_MATCHED_SLIDE_COUNT` for every patient with a slide.
+
+These six count attributes are the ones the native importer generated. Timeline
+files are not produced: existing clinical timeline files stay in the study and
+are imported unchanged. Remove `meta_wsi.txt` and `data_wsi.txt` from the study
+after converting, then run `validateData.py` on the study.
+
+### Converter input: legacy meta_wsi format v3
+
+This is the input format of the converter. It follows the clinical data-file
+convention: four tab-delimited attribute metadata rows, an uppercase field-name
+row, and then one data row per slide placement.
+
+#### Meta file
 
 The metadata file is named `meta_wsi.txt` and has these fields:
 
@@ -306,14 +404,13 @@ format_version: 3
 ```
 
 `format_version` fixes the column names, order, and validation rules. The
-cBioPortal core importer rejects unsupported versions rather than guessing how
-to interpret them. Timing is carried in the WSI row and persisted in
-`wsi_slide_timing`: `TIMELINE_START_DAYS` is relative to the patient's first
+converter rejects unsupported versions rather than guessing how to interpret
+them. Timing is carried in the WSI row: `TIMELINE_START_DAYS` is relative to the patient's first
 tumor-sequencing day zero, while the status, kind, source, reason, and
 coordinate-system fields preserve whether the date was recorded, estimated, or
 undated. Day `0` is a valid value. MRNs and absolute dates are never emitted.
 
-### Data file
+#### Data file
 
 The data file is named `data_wsi.txt`. Its first four rows contain display
 names, descriptions, data types, and priorities. Every value in those rows
@@ -341,9 +438,10 @@ newlines are not allowed inside values.
 
 When `CAN_SERVE_TILES` is `TRUE`, `SOURCE_URL`, `TILE_METADATA_JSON`,
 `THUMBNAIL_URL`, positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
-`THUMBNAIL_CONTENT_TYPE` are all required. This ensures the cBioPortal backend
-can return a complete access bundle while the tile server receives only the
-exact source URL and its short-lived authorization token.
+`THUMBNAIL_CONTENT_TYPE` are all required. The converter moves these fields into
+`wsi_serving`, so the backend can return a complete access bundle while the
+tile server receives only the exact source URL and its short-lived
+authorization token.
 
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).

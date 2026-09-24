@@ -327,6 +327,7 @@ jobs:
               docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
               docker run --rm --entrypoint sh "$DOCKER_IMAGE_CBIOPORTAL" \
                 -c 'test -f /cbioportal/db-scripts/clickhouse/init/schema.sql'
+              . /tmp/repos/cbioportal/.circleci/prepare-test-compose.sh
               # Localdb gates use the isolated ClickHouse instance initialized
               # by the test stack. The remote clone is read-only and can lag
               # the schema required by this PR.
@@ -656,6 +657,7 @@ jobs:
               docker image inspect "$DOCKER_IMAGE_CBIOPORTAL" >/dev/null
               docker run --rm --entrypoint sh "$DOCKER_IMAGE_CBIOPORTAL" \
                 -c 'test -f /cbioportal/db-scripts/clickhouse/init/schema.sql'
+              . /tmp/repos/cbioportal/.circleci/prepare-test-compose.sh
               # API tests must run against the schema initialized by the
               # isolated local ClickHouse container, so migrations and WSI
               # compatibility checks execute against the tested image.

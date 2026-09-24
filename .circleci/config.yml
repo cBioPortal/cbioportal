@@ -641,7 +641,12 @@ jobs:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"
-              APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
+              # The ordinary API regression suite uses the existing read-only
+              # public dataset, whose non-WSI schema remains 3.0.0. Keep the
+              # production default at 3.4.0; this CI-only override lets the
+              # legacy suite exercise unchanged endpoints without requiring a
+              # write migration on the read-only clone.
+              APP_CUSTOM_ARGS: "<< pipeline.parameters.custom_springboot_args >> --db.version=3.0.0"
               # Public read-only staging ClickHouse. Hardcoded rather than read from the
               # clickhouse-public-staging-ro-user context because CircleCI does not pass
               # context env vars to forked-PR builds. The remote-clickhouse override pushes

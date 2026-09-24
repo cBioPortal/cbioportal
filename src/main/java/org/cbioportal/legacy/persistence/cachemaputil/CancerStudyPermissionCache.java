@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -35,7 +36,8 @@ public class CancerStudyPermissionCache {
 
   private Clock clock = Clock.systemUTC();
 
-  private volatile Map<String, CancerStudy> cachedMap = Collections.emptyMap();
+  private final AtomicReference<Map<String, CancerStudy>> cachedMap =
+      new AtomicReference<>(Collections.emptyMap());
   private volatile Instant lastBuiltAt = Instant.MIN;
 
   public CancerStudyPermissionCache(CacheMapBuilder cacheMapBuilder) {
@@ -46,7 +48,7 @@ public class CancerStudyPermissionCache {
     if (isStale()) {
       rebuild();
     }
-    return cachedMap;
+    return cachedMap.get();
   }
 
   /** Forces an immediate rebuild, regardless of TTL. */
@@ -56,9 +58,9 @@ public class CancerStudyPermissionCache {
 
   private void rebuild() {
     // Collections.unmodifiableMap wraps (doesn't copy) the built map, so this stays O(1) --
-    // it just makes the volatile field's happens-before guarantee actually meaningful, since a
-    // caller mutating a shared mutable map after reading it would otherwise defeat it.
-    cachedMap = Collections.unmodifiableMap(cacheMapBuilder.buildCancerStudyPermissionMap());
+    // it just makes the published reference's happens-before guarantee actually meaningful, since
+    // a caller mutating a shared mutable map after reading it would otherwise defeat it.
+    cachedMap.set(Collections.unmodifiableMap(cacheMapBuilder.buildCancerStudyPermissionMap()));
     lastBuiltAt = clock.instant();
   }
 

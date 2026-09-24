@@ -59,7 +59,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     }
     List<Map<String, Object>> rows =
         mapper.getPatientHierarchy(
-            contextLongValue(context, "cancer_study_id"), contextLongValue(context, "patient_id"));
+            contextLongValue(context, "cancer_study_id"),
+            value(context, "patient_stable_id", String.class));
     if (rows.isEmpty()) {
       return null;
     }
@@ -101,6 +102,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       block.slides.add(
           new WsiSlide(
               value(row, "image_id", String.class),
+              value(row, "resource_id", String.class),
+              value(row, "resource_data_id", String.class),
               value(row, "stain_name", String.class),
               value(row, "stain_group", String.class),
               boolValue(row, "is_hne"),

@@ -5,6 +5,7 @@ import java.util.Map;
 public record ResourceTableRow(
     String studyId,
     String resourceId,
+    String resourceDataId,
     String resourceDisplayName,
     String resourceType,
     String patientId,

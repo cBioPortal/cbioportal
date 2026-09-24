@@ -53,12 +53,15 @@ public class WsiAccessTokenController {
    * capability is bound to the exact source and thumbnail URLs so a valid token cannot be replayed
    * against another object.
    */
-  @GetMapping("/v2/slides/{studyId}/{imageId}/access")
+  @GetMapping("/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access")
   @PreAuthorize(
       "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<?> issueSlideAccess(
-      @PathVariable String studyId, @PathVariable String imageId) {
+      @PathVariable String studyId,
+      @PathVariable String patientId,
+      @PathVariable String resourceId,
+      @PathVariable String resourceDataId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean anonymous = isAnonymous(authentication);
     if (anonymous && !localAuthBypass) {
@@ -67,7 +70,14 @@ public class WsiAccessTokenController {
     if (anonymous) {
       authentication = localDevelopmentAuthentication();
     }
-    if (studyId == null || studyId.isBlank() || imageId == null || imageId.isBlank()) {
+    if (studyId == null
+        || studyId.isBlank()
+        || patientId == null
+        || patientId.isBlank()
+        || resourceId == null
+        || resourceId.isBlank()
+        || resourceDataId == null
+        || resourceDataId.isBlank()) {
       return ResponseEntity.badRequest().build();
     }
     if (wsiSlideAccessRepository == null) {
@@ -78,7 +88,8 @@ public class WsiAccessTokenController {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
-    WsiSlideAccess access = wsiSlideAccessRepository.getSlideAccess(studyId, imageId);
+    WsiSlideAccess access =
+        wsiSlideAccessRepository.getSlideAccess(studyId, patientId, resourceId, resourceDataId);
     if (access == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
@@ -86,7 +97,8 @@ public class WsiAccessTokenController {
     int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
     Instant issuedAt = Instant.now();
     Instant expiresAt = issuedAt.plusSeconds(ttl);
-    String token = issueSlideToken(authentication, studyId, imageId, access, issuedAt, expiresAt);
+    String token =
+        issueSlideToken(authentication, studyId, access.imageId(), access, issuedAt, expiresAt);
     WsiSlideAccess response =
         new WsiSlideAccess(
             access.imageId(),

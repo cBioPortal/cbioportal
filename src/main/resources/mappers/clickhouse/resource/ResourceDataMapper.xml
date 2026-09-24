@@ -16,6 +16,7 @@
     <constructor>
       <arg column="studyId" javaType="String"/>
       <arg column="resourceId" javaType="String"/>
+      <arg column="resourceDataId" javaType="String"/>
       <arg column="resourceDisplayName" javaType="String"/>
       <arg column="resourceType" javaType="String"/>
       <arg column="patientId" javaType="String"/>
@@ -358,6 +359,7 @@
     SELECT
       cs.cancer_study_identifier AS studyId,
       rdata.RESOURCE_ID AS resourceId,
+      toString(rdata.RESOURCE_DATA_ID) AS resourceDataId,
       coalesce(rdef.display_name, rdata.RESOURCE_ID) AS resourceDisplayName,
       rdata.ENTITY_TYPE AS resourceType,
       rdata.PATIENT_ID AS patientId,

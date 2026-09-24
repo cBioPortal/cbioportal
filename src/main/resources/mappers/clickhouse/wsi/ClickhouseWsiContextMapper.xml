@@ -13,7 +13,7 @@
     <select id="getPatientContext" resultType="hashmap">
         SELECT
             study.cancer_study_id AS cancer_study_id,
-            portal_patient.internal_id AS patient_id
+            portal_patient.stable_id AS patient_stable_id
         FROM cancer_study study
         INNER JOIN patient portal_patient
             ON portal_patient.cancer_study_id = study.cancer_study_id

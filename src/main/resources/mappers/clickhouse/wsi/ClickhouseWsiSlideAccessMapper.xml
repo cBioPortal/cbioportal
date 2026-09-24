@@ -4,17 +4,20 @@
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiSlideAccessMapper">
     <select id="getSlideAccess" resultType="hashmap">
         SELECT
-            slide.image_id AS image_id,
-            slide.can_serve_tiles AS can_serve_tiles,
-            slide.source_url AS source_url,
-            slide.tile_metadata_json AS tile_metadata_json,
-            slide.thumbnail_url AS thumbnail_url,
-            slide.thumbnail_width AS thumbnail_width,
-            slide.thumbnail_height AS thumbnail_height,
-            slide.thumbnail_content_type AS thumbnail_content_type
-        FROM wsi_slide slide
-        PREWHERE slide.cancer_study_id = #{studyInternalId}
-            AND slide.image_id = #{imageId}
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'image_id') AS image_id,
+            JSONExtractBool(ifNull(row.METADATA, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'source_url') AS source_url,
+            JSONExtractRaw(ifNull(row.METADATA, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
+            toUInt32OrNull(JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_width')) AS thumbnail_width,
+            toUInt32OrNull(JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_height')) AS thumbnail_height,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
+        FROM resource_data row
+        PREWHERE row.CANCER_STUDY_ID = #{studyInternalId}
+            AND row.RESOURCE_ID = #{resourceId}
+            AND row.PATIENT_ID = #{patientId}
+            AND row.RESOURCE_DATA_ID = #{resourceDataId}
+        WHERE row.TYPE = 'WHOLE_SLIDE_IMAGE'
         LIMIT 1
     </select>
 </mapper>

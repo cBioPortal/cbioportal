@@ -6,5 +6,6 @@ import org.cbioportal.domain.wsi.WsiSlideAccess;
 public interface WsiSlideAccessRepository {
 
   /** Returns access data for a servable slide, or {@code null} when absent/incomplete. */
-  WsiSlideAccess getSlideAccess(String studyId, String imageId);
+  WsiSlideAccess getSlideAccess(
+      String studyId, String patientId, String resourceId, String resourceDataId);
 }

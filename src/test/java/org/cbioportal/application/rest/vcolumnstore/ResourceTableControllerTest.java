@@ -102,6 +102,7 @@ public class ResourceTableControllerTest {
             new ResourceTableRow(
                 STUDY_ID,
                 RESOURCE_ID,
+                "101",
                 "H&E Slide",
                 "SAMPLE",
                 "tcga-a1-a0sb",
@@ -113,6 +114,7 @@ public class ResourceTableControllerTest {
             new ResourceTableRow(
                 STUDY_ID,
                 RESOURCE_ID,
+                "102",
                 "H&E Slide",
                 "SAMPLE",
                 "tcga-a1-a0sd",

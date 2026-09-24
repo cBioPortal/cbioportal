@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record WsiSlide(
     String imageId,
+    String resourceId,
+    String resourceDataId,
     String stainName,
     String stainGroup,
     boolean isHne,

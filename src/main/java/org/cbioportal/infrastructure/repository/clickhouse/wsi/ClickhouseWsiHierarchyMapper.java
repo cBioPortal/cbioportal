@@ -8,6 +8,5 @@ import org.apache.ibatis.annotations.Param;
 public interface ClickhouseWsiHierarchyMapper {
 
   List<Map<String, Object>> getPatientHierarchy(
-      @Param("studyInternalId") long studyInternalId,
-      @Param("patientInternalId") long patientInternalId);
+      @Param("studyInternalId") long studyInternalId, @Param("patientId") String patientId);
 }

@@ -82,7 +82,31 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    return mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    if (rows == null || rows.isEmpty()) {
+      return rows;
+    }
+    return rows.stream().map(ClickhouseResourceDataRepository::withoutServingMetadata).toList();
+  }
+
+  private static ResourceTableRow withoutServingMetadata(ResourceTableRow row) {
+    if (!"WHOLE_SLIDE_IMAGE".equals(row.type()) || row.metadata() == null) {
+      return row;
+    }
+    Map<String, Object> metadata = new LinkedHashMap<>(row.metadata());
+    metadata.remove("wsi_serving");
+    return new ResourceTableRow(
+        row.studyId(),
+        row.resourceId(),
+        row.resourceDataId(),
+        row.resourceDisplayName(),
+        row.resourceType(),
+        row.patientId(),
+        row.sampleId(),
+        row.url(),
+        row.displayName(),
+        row.type(),
+        metadata);
   }
 
   @Override

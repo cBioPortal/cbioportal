@@ -43,7 +43,10 @@ public class ClickhouseWsiHierarchyMapperTest {
             .flatMap(block -> block.slides().stream())
             .anyMatch(
                 slide ->
-                    slide.imageId().equals("3020726") && slide.sampleId().equals("WSI-SAMPLE")));
+                    slide.imageId().equals("3020726")
+                        && slide.sampleId().equals("WSI-SAMPLE")
+                        && slide.resourceId().equals("WSI_SAMPLE")
+                        && slide.resourceDataId().equals("900101")));
 
     WsiSlide timedSlide =
         hierarchy.sampleGroups().stream()

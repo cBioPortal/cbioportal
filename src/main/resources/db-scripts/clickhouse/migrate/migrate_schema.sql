@@ -333,3 +333,25 @@ WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) N
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
+
+## db_schema_version: 3.6.0
+## description: Reorder unified resource rows for patient-scoped resource serving
+CREATE TABLE resource_data_patient_order
+(
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID`      String,
+    `CANCER_STUDY_ID`  Int32,
+    `ENTITY_TYPE`      String,
+    `PATIENT_ID`       Nullable(String),
+    `SAMPLE_ID`        Nullable(String),
+    `URL`              String,
+    `DISPLAY_NAME`     Nullable(String),
+    `TYPE`             Nullable(String),
+    `METADATA`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)
+SETTINGS allow_nullable_key = 1;
+
+INSERT INTO resource_data_patient_order SELECT * FROM resource_data;
+RENAME TABLE resource_data TO resource_data_previous_order,
+             resource_data_patient_order TO resource_data;
+DROP TABLE resource_data_previous_order;

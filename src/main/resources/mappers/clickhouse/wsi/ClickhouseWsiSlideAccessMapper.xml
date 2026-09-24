@@ -9,8 +9,8 @@
             JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'source_url') AS source_url,
             JSONExtractRaw(ifNull(row.METADATA, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
             JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
-            toUInt32OrNull(JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_width')) AS thumbnail_width,
-            toUInt32OrNull(JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_height')) AS thumbnail_height,
+            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
+            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
             JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
         FROM resource_data row
         PREWHERE row.CANCER_STUDY_ID = #{studyInternalId}

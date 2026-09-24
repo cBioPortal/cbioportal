@@ -38,7 +38,13 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       Pattern.compile(
           "(?i)\\b(?:mrn|medical[ _-]?record(?:[ _-]?number)?)\\b\\s*[:=#-]?\\s*\\d{4,}");
   private static final Set<String> APPROVED_IDENTIFIER_FIELDS =
-      Set.of("patient_id", "reference_sample_id", "sample_id", "image_id");
+      Set.of(
+          "patient_id",
+          "reference_sample_id",
+          "sample_id",
+          "image_id",
+          "resource_id",
+          "resource_data_id");
   private static final Set<String> NON_TEXT_FIELDS =
       Set.of("is_hne", "is_ihc", "file_size_bytes", "can_serve_tiles");
 

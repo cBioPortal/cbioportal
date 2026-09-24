@@ -106,7 +106,9 @@
           OR rdata.SAMPLE_ID LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.TYPE LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.URL LIKE CONCAT('%', #{query.search}, '%')
-          OR (rdata.METADATA IS NOT NULL AND position(rdata.METADATA, #{query.search}) > 0)
+          OR (rdata.TYPE != 'WHOLE_SLIDE_IMAGE'
+              AND rdata.METADATA IS NOT NULL
+              AND position(rdata.METADATA, #{query.search}) > 0)
         )
       </if>
       <if test="query.filters != null and !query.filters.isEmpty()">
@@ -185,6 +187,10 @@
   -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
+      <!-- wsi_serving contains artifact paths and is intentionally private to the WSI access API. -->
+      <when test="filter.metadataKey == 'wsi_serving'">
+        1 = 0
+      </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and (filter.values == null || filter.values.isEmpty())">
         1 = 0
       </when>
@@ -285,6 +291,10 @@
       <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name <include refid="ResourceTableSortDirection"/></when>
+      <!-- wsi_serving is private: sorting on it falls back to row order and reveals nothing. -->
+      <when test="query.sortBy == 'metadata:wsi_serving'">
+        ORDER BY rdata.RESOURCE_DATA_ID <include refid="ResourceTableSortDirection"/>
+      </when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
         ORDER BY JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) = '' ASC,
@@ -411,6 +421,7 @@
         AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
       ) keys
     ) vals
+    WHERE metaKey != 'wsi_serving'
     GROUP BY metaKey
     ORDER BY metaKey ASC
   </select>

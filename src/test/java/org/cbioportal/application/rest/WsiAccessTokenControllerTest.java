@@ -64,9 +64,11 @@ public class WsiAccessTokenControllerTest {
             null,
             null,
             0);
-    when(wsiSlideAccessRepository.getSlideAccess("study-1", "slide-1")).thenReturn(sourceAccess);
+    when(wsiSlideAccessRepository.getSlideAccess("study-1", "patient-1", "WSI_SAMPLE", "42"))
+        .thenReturn(sourceAccess);
 
-    ResponseEntity<?> response = plainController.issueSlideAccess("study-1", "slide-1");
+    ResponseEntity<?> response =
+        plainController.issueSlideAccess("study-1", "patient-1", "WSI_SAMPLE", "42");
 
     assertEquals(200, response.getStatusCode().value());
     WsiSlideAccess body = (WsiSlideAccess) response.getBody();

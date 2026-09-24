@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
@@ -31,6 +33,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class StudyMyBatisRepositoryTest {
 
   @Autowired private StudyMyBatisRepository studyMyBatisRepository;
+
+  @Autowired private StudyMapper studyMapper;
 
   @Test
   public void getAllStudiesIdProjection() throws Exception {
@@ -287,5 +291,16 @@ public class StudyMyBatisRepositoryTest {
 
   private List<CancerStudyTags> sortedTagResult(List<CancerStudyTags> result) {
     return result.stream().sorted(Comparator.comparing(CancerStudyTags::getTags)).toList();
+  }
+
+  @Test
+  public void getUnavailableStudyIdentifiers() {
+    // Both seeded studies have status 0, i.e. are unavailable.
+    Map<String, String> studyIdByIdentifier = new UnavailableStudyIdentifiers(studyMapper).get();
+
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub"));
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub_gistic"));
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub_all"));
+    Assert.assertEquals("acc_tcga", studyIdByIdentifier.get("acc_tcga"));
   }
 }

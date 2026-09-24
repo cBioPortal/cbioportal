@@ -263,4 +263,19 @@
         ORDER BY resourceId
     </select>
 
+    <!-- UNION ALL rather than UNION: ClickHouse rejects a bare UNION by default. -->
+    <select id="getUnavailableStudyIdentifiers" resultType="java.util.Map">
+        SELECT cs.cancer_study_identifier AS identifier, cs.cancer_study_identifier AS studyId
+        FROM cancer_study cs
+        WHERE cs.status IS NOT NULL AND cs.status != 1
+        UNION ALL
+        SELECT gp.stable_id AS identifier, cs.cancer_study_identifier AS studyId
+        FROM genetic_profile gp INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+        WHERE cs.status IS NOT NULL AND cs.status != 1
+        UNION ALL
+        SELECT sl.stable_id AS identifier, cs.cancer_study_identifier AS studyId
+        FROM sample_list sl INNER JOIN cancer_study cs ON sl.cancer_study_id = cs.cancer_study_id
+        WHERE cs.status IS NOT NULL AND cs.status != 1
+    </select>
+
 </mapper>

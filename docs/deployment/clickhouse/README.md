@@ -370,8 +370,9 @@ Before enabling the Pathology Slides feature for a private study:
    the legacy pair, and validate and import the study with the standard
    importer. The resource rows carry `source_url`, `tile_metadata_json`,
    `thumbnail_url`, dimensions, and content type in `wsi_serving` for each
-   servable slide; the converter also writes the six `WSI_*` slide-count
-   clinical attributes. The pathology timeline pair is imported unchanged.
+   servable slide; with `--study-dir` the converter also merges the six
+   `WSI_*` slide-count clinical attributes into copies of the study's clinical
+   sample and patient files. The pathology timeline pair is imported unchanged.
    MRNs and absolute dates must not occur in the study files:
 
    ```bash

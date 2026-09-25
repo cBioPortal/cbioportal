@@ -59,7 +59,7 @@ public class Saml2SecurityConfig {
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
                     AntPathRequestMatcher.antMatcher("/api/**")))
-        .saml2Login(withDefaults())
+        .saml2Login(saml -> saml.successHandler(new SamlAuthenticationSuccessHandler()))
         .saml2Metadata(withDefaults())
         // NOTE: I did not get the official .saml2Logout() DSL to work as
         // described at

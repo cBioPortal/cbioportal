@@ -23,10 +23,14 @@ import org.springframework.web.bind.annotation.RestController;
  * <p>The advisor is ordered innermost, i.e. after {@code @PreAuthorize}: a user without access to a
  * study still gets 403, so availability is never revealed for studies they cannot read.
  *
- * <p>Only registered when {@value UnavailableStudyIdentifiers#ENABLED_PROPERTY} is {@code true}.
+ * <p>Only registered when {@value #ENABLED_PROPERTY} is {@code true}. The study list marks
+ * unavailable studies {@code readPermission: false} either way.
  */
 @Configuration
 public class StudyAvailabilityConfig {
+
+  /** Opts into returning 423 for unavailable studies; off by default. */
+  public static final String ENABLED_PROPERTY = "study_availability.enabled";
 
   /**
    * Packages (including subpackages) whose REST controllers take study-scoped input. Controllers
@@ -46,7 +50,7 @@ public class StudyAvailabilityConfig {
    */
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-  @ConditionalOnProperty(name = UnavailableStudyIdentifiers.ENABLED_PROPERTY, havingValue = "true")
+  @ConditionalOnProperty(name = ENABLED_PROPERTY, havingValue = "true")
   static Advisor studyAvailabilityAdvisor(
       ObjectProvider<UnavailableStudyIdentifiers> unavailableStudyIdentifiers) {
     StudyAvailabilityInterceptor interceptor =

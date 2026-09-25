@@ -296,8 +296,7 @@ public class StudyMyBatisRepositoryTest {
   @Test
   public void getUnavailableStudyIdentifiers() {
     // Both seeded studies have status 0, i.e. are unavailable.
-    Map<String, String> studyIdByIdentifier =
-        new UnavailableStudyIdentifiers(studyMapper, true).get();
+    Map<String, String> studyIdByIdentifier = new UnavailableStudyIdentifiers(studyMapper).get();
 
     Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub"));
     Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub_gistic"));

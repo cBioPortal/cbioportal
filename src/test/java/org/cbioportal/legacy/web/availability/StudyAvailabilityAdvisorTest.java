@@ -75,7 +75,7 @@ class StudyAvailabilityAdvisorTest {
           .withUserConfiguration(StudyAvailabilityConfig.class, Beans.class);
 
   private final ApplicationContextRunner runner =
-      disabledRunner.withPropertyValues(UnavailableStudyIdentifiers.ENABLED_PROPERTY + "=true");
+      disabledRunner.withPropertyValues(StudyAvailabilityConfig.ENABLED_PROPERTY + "=true");
 
   @AfterEach
   void clearSecurityContext() {
@@ -90,7 +90,7 @@ class StudyAvailabilityAdvisorTest {
           assertEquals("ok", context.getBean(TestController.class).getStudy("study1"));
         });
     disabledRunner
-        .withPropertyValues(UnavailableStudyIdentifiers.ENABLED_PROPERTY + "=false")
+        .withPropertyValues(StudyAvailabilityConfig.ENABLED_PROPERTY + "=false")
         .run(context -> assertThat(context).doesNotHaveBean(Advisor.class));
   }
 

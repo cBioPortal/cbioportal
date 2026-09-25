@@ -69,6 +69,9 @@ public class StudyAvailabilityInterceptor implements MethodInterceptor {
    * servlet request or the authentication.
    */
   private static boolean isIdentifyingInput(MethodParameter parameter) {
+    if (parameter.hasParameterAnnotation(SearchKeyword.class)) {
+      return false;
+    }
     return parameter.hasParameterAnnotation(RequestParam.class)
         || parameter.hasParameterAnnotation(PathVariable.class)
         || parameter.hasParameterAnnotation(RequestBody.class)
@@ -112,10 +115,11 @@ public class StudyAvailabilityInterceptor implements MethodInterceptor {
   }
 
   /**
-   * Matches unique sample/patient keys, which are {@code base64("<sampleOrPatientId>:<studyId>")}.
+   * Matches unique sample/patient keys, which are {@code base64("<sampleOrPatientId>:<studyId>")}
+   * encoded without padding, so their length need not be a multiple of 4.
    */
   private static String matchUniqueKey(String text, Map<String, String> unavailable) {
-    if (text.length() % 4 != 0 || !BASE64.matcher(text).matches()) {
+    if (!BASE64.matcher(text).matches()) {
       return null;
     }
     String decoded;

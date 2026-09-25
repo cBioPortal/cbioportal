@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.application.rest.availability.SearchKeyword;
 import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
@@ -119,6 +120,7 @@ public class ColumnStoreStudyController {
                   @ArraySchema(schema = @Schema(implementation = CancerStudyMetadataDTO.class))))
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
+          @SearchKeyword
           @RequestParam(required = false)
           String keyword,
       @Parameter(description = "Level of detail of the response")
@@ -236,7 +238,7 @@ public class ColumnStoreStudyController {
    */
   @RequestMapping(method = RequestMethod.GET, value = "/studies/meta")
   public ResponseEntity<Void> getAllStudiesMeta(
-      @RequestParam(required = false) String keyword,
+      @SearchKeyword @RequestParam(required = false) String keyword,
       @RequestParam(required = false) StudySortBy sortBy,
       @RequestParam(defaultValue = "ASC") Direction direction) {
 

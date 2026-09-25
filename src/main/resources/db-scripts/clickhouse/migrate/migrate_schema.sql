@@ -28,3 +28,7 @@
 ## db_schema_version: 3.0.0
 ## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
+
+## db_schema_version: 3.0.1
+## description: Mark studies with cancer_study.status 0 as available (1)
+ALTER TABLE cancer_study UPDATE status = 1 WHERE status = 0;

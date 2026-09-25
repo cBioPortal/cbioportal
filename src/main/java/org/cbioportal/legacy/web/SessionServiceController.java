@@ -239,10 +239,12 @@ public class SessionServiceController {
       responseCode = "200",
       description = "OK",
       content = @Content(schema = @Schema(implementation = Session.class)))
+  @ApiResponse(responseCode = "401", description = "Authentication required for virtual studies")
   public ResponseEntity<Session> addSession(
       @PathVariable Session.SessionType type, @RequestBody JSONObject body) throws IOException {
-    // FIXME? anonymous user can create sessions. Do we really want that?
-    // https://github.com/cBioPortal/cbioportal/issues/10843
+    if (type.equals(Session.SessionType.virtual_study) && !isAuthorized()) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
     return addSession(type, Optional.empty(), body);
   }
 
@@ -251,10 +253,12 @@ public class SessionServiceController {
       responseCode = "200",
       description = "OK",
       content = @Content(schema = @Schema(implementation = Session.class)))
+  @ApiResponse(responseCode = "401", description = "Authentication required")
   public ResponseEntity<Session> addUserSavedVirtualStudy(@RequestBody JSONObject body)
       throws IOException {
-    // FIXME? anonymous user can create virtual studies. Do we really want that?
-    // https://github.com/cBioPortal/cbioportal/issues/10843
+    if (!isAuthorized()) {
+      return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
     return addSession(Session.SessionType.virtual_study, Optional.of(SessionOperation.save), body);
   }
 

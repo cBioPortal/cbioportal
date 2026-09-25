@@ -42,6 +42,6 @@
             AND r.PATIENT_ID = #{patientId}
         WHERE r.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
           AND r.TYPE = 'WHOLE_SLIDE_IMAGE'
-        ORDER BY sample_id, part_key, block_key, image_id
+        ORDER BY ifNull(sample_id, ''), part_key, block_key, image_id
     </select>
 </mapper>

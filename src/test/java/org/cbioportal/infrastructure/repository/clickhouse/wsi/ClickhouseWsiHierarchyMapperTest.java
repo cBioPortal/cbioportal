@@ -35,7 +35,8 @@ public class ClickhouseWsiHierarchyMapperTest {
     WsiHierarchy hierarchy = repository.getPatientHierarchy("wsi_test_study", "WSI-PATIENT");
 
     assertEquals(2, hierarchy.sampleGroups().size());
-    assertTrue(hierarchy.sampleGroups().stream().anyMatch(group -> group.sampleId() == null));
+    // Unmatched slides sort first, as they did in the native wsi_* hierarchy.
+    assertNull(hierarchy.sampleGroups().get(0).sampleId());
     assertTrue(
         hierarchy.sampleGroups().stream()
             .flatMap(group -> group.parts().stream())

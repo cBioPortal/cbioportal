@@ -7,6 +7,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -21,9 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>The advisor is ordered innermost, i.e. after {@code @PreAuthorize}: a user without access to a
  * study still gets 403, so availability is never revealed for studies they cannot read.
+ *
+ * <p>Only registered when {@value #ENABLED_PROPERTY} is {@code true}. The study list marks
+ * unavailable studies {@code readPermission: false} either way.
  */
 @Configuration
 public class StudyAvailabilityConfig {
+
+  /** Opts into returning 423 for unavailable studies; off by default. */
+  public static final String ENABLED_PROPERTY = "study_availability.enabled";
 
   /**
    * Packages (including subpackages) whose REST controllers take study-scoped input. Controllers
@@ -43,6 +50,7 @@ public class StudyAvailabilityConfig {
    */
   @Bean
   @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+  @ConditionalOnProperty(name = ENABLED_PROPERTY, havingValue = "true")
   static Advisor studyAvailabilityAdvisor(
       ObjectProvider<UnavailableStudyIdentifiers> unavailableStudyIdentifiers) {
     StudyAvailabilityInterceptor interceptor =

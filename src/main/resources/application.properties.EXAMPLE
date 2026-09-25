@@ -354,6 +354,10 @@ persistence.cache_type=no-cache
 # Enable/Disable quick search (currently in beta, default is false)
 # quick_search.enabled=true
 
+# Block reads (HTTP 423) of studies whose cancer_study.status is not AVAILABLE, i.e. that are
+# being (re)imported (default is false: study status is ignored)
+# study_availability.enabled=true
+
 # enable/disable hrrs logging
 # hrrs can be used for debugging - when enabled incoming web requests
 # will be logged into the specified directory

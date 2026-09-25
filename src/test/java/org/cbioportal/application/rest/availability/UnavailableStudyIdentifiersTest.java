@@ -2,6 +2,7 @@ package org.cbioportal.application.rest.availability;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,13 +18,21 @@ class UnavailableStudyIdentifiersTest {
   private final StudyMapper studyMapper = mock(StudyMapper.class);
   private long now;
   private final UnavailableStudyIdentifiers cache =
-      new UnavailableStudyIdentifiers(studyMapper, 2000, () -> now);
+      new UnavailableStudyIdentifiers(studyMapper, true, 2000, () -> now);
 
   private static Map<String, String> row(String identifier, String studyId) {
     Map<String, String> row = new HashMap<>();
     row.put("identifier", identifier);
     row.put("studyId", studyId);
     return row;
+  }
+
+  @Test
+  void disabledTreatsEveryStudyAsAvailableWithoutQuerying() {
+    UnavailableStudyIdentifiers disabled =
+        new UnavailableStudyIdentifiers(studyMapper, false, 2000, () -> now);
+    assertEquals(Map.of(), disabled.get());
+    verify(studyMapper, never()).getUnavailableStudyIdentifiers();
   }
 
   @Test

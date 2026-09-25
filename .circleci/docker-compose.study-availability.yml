@@ -1,0 +1,6 @@
+# Compose extension for run_api_tests: turns on study_availability.enabled, which
+# src/e2e/js/test/UnavailableStudy exercises. Spring resolves the property from this env var.
+services:
+  cbioportal:
+    environment:
+      STUDY_AVAILABILITY_ENABLED: "true"

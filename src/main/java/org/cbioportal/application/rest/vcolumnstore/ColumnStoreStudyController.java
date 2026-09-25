@@ -101,8 +101,9 @@ public class ColumnStoreStudyController {
    *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
-   *     and an HTTP status code {@link HttpStatus#OK}. {@code readPermission} is false for a study
-   *     being (re)imported, in every auth mode, so clients leave it out of per-study requests.
+   *     and an HTTP status code {@link HttpStatus#OK}. When {@code study_availability.enabled} is
+   *     set, {@code readPermission} is false for a study being (re)imported, in every auth mode, so
+   *     clients leave it out of per-study requests.
    * @see ProjectionType
    * @see StudySortBy
    * @see Direction

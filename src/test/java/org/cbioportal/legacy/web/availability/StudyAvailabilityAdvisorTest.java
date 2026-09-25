@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web.availability;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -11,6 +12,7 @@ import org.cbioportal.application.rest.availability.StudyUnavailableException;
 import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.Advisor;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.autoconfigure.aop.AopAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -67,14 +69,29 @@ class StudyAvailabilityAdvisorTest {
   @EnableMethodSecurity
   static class MethodSecurity {}
 
-  private final ApplicationContextRunner runner =
+  private final ApplicationContextRunner disabledRunner =
       new ApplicationContextRunner()
           .withConfiguration(AutoConfigurations.of(AopAutoConfiguration.class))
           .withUserConfiguration(StudyAvailabilityConfig.class, Beans.class);
 
+  private final ApplicationContextRunner runner =
+      disabledRunner.withPropertyValues(UnavailableStudyIdentifiers.ENABLED_PROPERTY + "=true");
+
   @AfterEach
   void clearSecurityContext() {
     SecurityContextHolder.clearContext();
+  }
+
+  @Test
+  void notAppliedUnlessEnabled() {
+    disabledRunner.run(
+        context -> {
+          assertThat(context).doesNotHaveBean(Advisor.class);
+          assertEquals("ok", context.getBean(TestController.class).getStudy("study1"));
+        });
+    disabledRunner
+        .withPropertyValues(UnavailableStudyIdentifiers.ENABLED_PROPERTY + "=false")
+        .run(context -> assertThat(context).doesNotHaveBean(Advisor.class));
   }
 
   @Test

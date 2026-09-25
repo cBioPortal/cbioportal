@@ -22,6 +22,21 @@ spring.datasource.password=somepassword
 spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver
 ```
 
+### Blocking studies that are being (re)imported
+
+The importer sets `cancer_study.status` while a study is loaded or reloaded, and only marks it available once all of its tables are complete. By default the portal ignores this status and serves every study. To keep users from reading a study in a half-loaded state, turn on:
+
+```properties
+# Block reads of studies whose status is not AVAILABLE (default is false)
+study_availability.enabled=true
+```
+
+When enabled:
+
+- Any API request naming an unavailable study, or one of its molecular profiles, sample lists or unique sample/patient keys, returns `423 Locked` with a message saying the study is being updated. Users with no access to the study still get `403`, so they can't tell whether it exists or is being updated.
+- The study list still includes unavailable studies, with `readPermission: false`.
+- Study status is re-read from the database at most every 30 seconds, so a study becomes available (or unavailable) within 30 seconds of its status changing.
+
 ## cBioPortal Customization
 
 ### Logging

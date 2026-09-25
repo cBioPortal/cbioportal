@@ -10,6 +10,7 @@ import org.cbioportal.legacy.persistence.mybatis.StudyMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,14 +19,20 @@ import org.springframework.stereotype.Component;
  *
  * <p>Cached with a short TTL rather than taken from CacheMapUtil, whose snapshot is only rebuilt at
  * startup or on an explicit cache eviction, so a status flip mid-(re)import would go unnoticed.
+ *
+ * <p>Always empty unless {@value #ENABLED_PROPERTY} is {@code true}: by default study status is not
+ * observed and every study is treated as available.
  */
 @Component
 public class UnavailableStudyIdentifiers {
+
+  public static final String ENABLED_PROPERTY = "study_availability.enabled";
 
   private static final long DEFAULT_TTL_MILLIS = 30000;
   private static final Logger log = LoggerFactory.getLogger(UnavailableStudyIdentifiers.class);
 
   private final StudyMapper studyMapper;
+  private final boolean enabled;
   private final long ttlMillis;
   private final LongSupplier nowMillis;
   private final ReentrantLock refreshLock = new ReentrantLock();
@@ -36,24 +43,31 @@ public class UnavailableStudyIdentifiers {
 
   /** Uses a monotonic clock, so a wall-clock jump backwards cannot freeze the snapshot. */
   @Autowired
-  public UnavailableStudyIdentifiers(StudyMapper studyMapper) {
-    this(studyMapper, DEFAULT_TTL_MILLIS, () -> System.nanoTime() / 1_000_000);
+  public UnavailableStudyIdentifiers(
+      StudyMapper studyMapper, @Value("${" + ENABLED_PROPERTY + ":false}") boolean enabled) {
+    this(studyMapper, enabled, DEFAULT_TTL_MILLIS, () -> System.nanoTime() / 1_000_000);
   }
 
-  UnavailableStudyIdentifiers(StudyMapper studyMapper, long ttlMillis, LongSupplier nowMillis) {
+  UnavailableStudyIdentifiers(
+      StudyMapper studyMapper, boolean enabled, long ttlMillis, LongSupplier nowMillis) {
     this.studyMapper = studyMapper;
+    this.enabled = enabled;
     this.ttlMillis = ttlMillis;
     this.nowMillis = nowMillis;
   }
 
   /**
-   * Returns identifier → owning study id; empty when every study is available.
+   * Returns identifier → owning study id; empty when every study is available or the check is
+   * disabled.
    *
    * <p>Reloads once the TTL has expired. Only one caller reloads; concurrent callers keep reading
    * the previous snapshot meanwhile. A failed reload keeps the previous snapshot (empty before the
    * first success, i.e. reads are allowed) until the next TTL expiry.
    */
   public Map<String, String> get() {
+    if (!enabled) {
+      return Map.of();
+    }
     if (nowMillis.getAsLong() >= nextRefreshMillis && refreshLock.tryLock()) {
       try {
         long now = nowMillis.getAsLong();

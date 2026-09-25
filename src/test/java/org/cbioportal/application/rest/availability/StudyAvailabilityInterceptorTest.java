@@ -40,6 +40,8 @@ class StudyAvailabilityInterceptorTest {
     void byFilter(@RequestAttribute("interceptedSampleFilter") SampleFilter filter) {}
 
     void unannotated(String studyId) {}
+
+    void search(@SearchKeyword @RequestParam String keyword) {}
   }
 
   private static Object invoke(String methodName, Object arg) throws Throwable {
@@ -90,6 +92,17 @@ class StudyAvailabilityInterceptorTest {
   @Test
   void rejectsUniqueSampleKeyOfUnavailableStudy() {
     assertEquals("study1", rejectedStudy("byFilter", filterWithUniqueKey("s1", "study1")));
+  }
+
+  @Test
+  void rejectsUnpaddedUniqueSampleKeyOfUnavailableStudy() {
+    // "sample1:study1" is 14 bytes, so its unpadded encoding is 19 characters long
+    assertEquals("study1", rejectedStudy("byFilter", filterWithUniqueKey("sample1", "study1")));
+  }
+
+  @Test
+  void ignoresSearchKeywords() throws Throwable {
+    assertEquals("proceeded", invoke("search", "study1"));
   }
 
   @Test

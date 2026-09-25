@@ -26,11 +26,16 @@ import org.springframework.web.bind.annotation.RestController;
 public class StudyAvailabilityConfig {
 
   /**
-   * Must match the {@code @ControllerAdvice} packages of {@code GlobalExceptionHandler}, otherwise
-   * {@link StudyUnavailableException} would not be turned into a 423.
+   * Packages (including subpackages) whose REST controllers take study-scoped input. Controllers
+   * outside the {@code GlobalExceptionHandler} packages still answer 423, via the response status
+   * declared on {@link StudyUnavailableException}.
    */
   private static final List<String> CONTROLLER_PACKAGES =
-      List.of("org.cbioportal.legacy.web", "org.cbioportal.application.rest.vcolumnstore");
+      List.of(
+          "org.cbioportal.legacy.web",
+          "org.cbioportal.application.rest.vcolumnstore",
+          "org.cbioportal.application.file.export",
+          "org.cbioportal.application.seo");
 
   /**
    * @param unavailableStudyIdentifiers resolved lazily, because advisors are created before regular
@@ -48,17 +53,21 @@ public class StudyAvailabilityConfig {
     return advisor;
   }
 
+  static boolean isInPackage(String packageName, String pkg) {
+    return packageName.equals(pkg) || packageName.startsWith(pkg + ".");
+  }
+
   /**
    * Matches {@code @RequestMapping} methods of {@code @RestController}s in the covered packages.
    */
-  private static class RestEndpointPointcut extends StaticMethodMatcherPointcut {
+  static class RestEndpointPointcut extends StaticMethodMatcherPointcut {
 
     RestEndpointPointcut() {
       setClassFilter(
           clazz ->
               AnnotatedElementUtils.hasAnnotation(clazz, RestController.class)
                   && CONTROLLER_PACKAGES.stream()
-                      .anyMatch(pkg -> clazz.getPackageName().startsWith(pkg)));
+                      .anyMatch(pkg -> isInPackage(clazz.getPackageName(), pkg)));
     }
 
     @Override

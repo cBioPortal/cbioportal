@@ -93,8 +93,13 @@ jobs:
             environment:
               FRONTEND_REPO_URL: https://github.com/cBioPortal/cbioportal-frontend.git
               FRONTEND_REPO_BRANCH: master
+              # Freeze the ordinary regression source with its matching
+              # snapshots; this prevents a fork checkout from mixing its
+              # OncoPrint fixture dimensions into the upstream baseline.
+              FRONTEND_REPO_REF: 23c7c183f2b686153730382243de670c8c4f5942
             command: |
               git clone -b ${FRONTEND_REPO_BRANCH} --single-branch ${FRONTEND_REPO_URL}
+              git -C cbioportal-frontend checkout --detach ${FRONTEND_REPO_REF}
         - persist_to_workspace:
             root: /tmp/repos
             paths:
@@ -321,10 +326,17 @@ jobs:
             environment:
               KEYCLOAK_CONFIG_PATH: '/tmp/repos/keycloak-config-generated.json'
               APPLICATION_PROPERTIES_PATH: '/tmp/repos/cbioportal-frontend/end-to-end-test/local/runtime-config/portal.properties'
+              # The ordinary localdb seed is schema 3.0.0. Keep production
+              # at 3.4.0 and pin only this legacy regression stack to the
+              # schema it actually exercises. WSI validation uses its own
+              # 3.4.0 fixture and does not inherit this override.
+              APP_CUSTOM_ARGS: '--db.version=3.0.0'
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
-              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --portal_type='keycloak' \
+                --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/src/e2e/js/legacy_schema_ci_compose_override.yml' \
+                >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
             working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
@@ -641,7 +653,12 @@ jobs:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"
-              APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
+              # The ordinary API regression suite uses the existing read-only
+              # public dataset, whose non-WSI schema remains 3.0.0. Keep the
+              # production default at 3.4.0; this CI-only override lets the
+              # legacy suite exercise unchanged endpoints without requiring a
+              # write migration on the read-only clone.
+              APP_CUSTOM_ARGS: "<< pipeline.parameters.custom_springboot_args >> --db.version=3.0.0"
               # Public read-only staging ClickHouse. Hardcoded rather than read from the
               # clickhouse-public-staging-ro-user context because CircleCI does not pass
               # context env vars to forked-PR builds. The remote-clickhouse override pushes

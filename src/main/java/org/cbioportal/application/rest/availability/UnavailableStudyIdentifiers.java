@@ -3,6 +3,7 @@ package org.cbioportal.application.rest.availability;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.LongSupplier;
 import org.cbioportal.legacy.persistence.mybatis.StudyMapper;
@@ -29,7 +30,8 @@ public class UnavailableStudyIdentifiers {
   private final LongSupplier nowMillis;
   private final ReentrantLock refreshLock = new ReentrantLock();
 
-  private volatile Map<String, String> studyIdByIdentifier = Map.of();
+  private final AtomicReference<Map<String, String>> studyIdByIdentifier =
+      new AtomicReference<>(Map.of());
   private volatile long nextRefreshMillis = Long.MIN_VALUE;
 
   /** Uses a monotonic clock, so a wall-clock jump backwards cannot freeze the snapshot. */
@@ -57,7 +59,7 @@ public class UnavailableStudyIdentifiers {
         long now = nowMillis.getAsLong();
         if (now >= nextRefreshMillis) {
           try {
-            studyIdByIdentifier = toMap(studyMapper.getUnavailableStudyIdentifiers());
+            studyIdByIdentifier.set(toMap(studyMapper.getUnavailableStudyIdentifiers()));
           } catch (RuntimeException e) {
             log.warn("Could not refresh unavailable study identifiers: {}", e.toString());
           }
@@ -67,7 +69,7 @@ public class UnavailableStudyIdentifiers {
         refreshLock.unlock();
       }
     }
-    return studyIdByIdentifier;
+    return studyIdByIdentifier.get();
   }
 
   private static Map<String, String> toMap(List<Map<String, String>> rows) {

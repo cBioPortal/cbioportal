@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.web.parameter;
+package org.cbioportal.application.rest.request;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -9,36 +9,26 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 
 /**
- * Request body for the patient genomic similarity endpoint.
- *
- * <p>The caller specifies a mutation molecular profile within a study (e.g. {@code
- * brca_tcga_mutations}), a reference patient, a set of genes to compare on, and how many similar
- * patients to return. Similarity is computed as the Jaccard index over the queried gene set.
+ * Request body of the patient genomic similarity endpoint: the mutation profile to compare patients
+ * on, the reference patient, the genes to compare them on and how many similar patients to return.
  */
 public class PatientGenomicSimilarityRequest {
 
-  /**
-   * ID of the mutation molecular profile to query (e.g. {@code brca_tcga_mutations}). Determines
-   * which mutation dataset is used when building each patient's alteration vector.
-   */
+  /** Stable ID of a mutation profile of the study, e.g. {@code brca_tcga_mutations}. */
   @NotBlank private String molecularProfileId;
 
-  /**
-   * Patient ID of the reference patient. The returned results are ranked by their Jaccard
-   * similarity to this patient.
-   */
+  /** ID of the patient that the other patients are compared with. */
   @NotBlank private String referencePatientId;
 
   /**
-   * Hugo gene symbols to include in the comparison. Jaccard similarity is computed only over these
-   * genes, so choosing a focused, clinically relevant gene panel typically yields more informative
-   * results than using the whole exome. Capped at 200 to prevent runaway queries.
+   * Hugo symbols of the genes to compare the patients on, matched case-insensitively. A focused,
+   * clinically relevant gene set gives more informative results than a whole exome.
    */
   @NotEmpty
   @Size(max = 200)
-  private List<String> hugoGeneSymbols;
+  private List<@NotBlank String> hugoGeneSymbols;
 
-  /** Maximum number of similar patients to return, ranked from most to least similar. */
+  /** Maximum number of similar patients to return. */
   @NotNull
   @Min(1)
   @Max(500)

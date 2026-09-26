@@ -1,233 +1,182 @@
 package org.cbioportal.domain.mutation.usecase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.cbioportal.domain.mutation.GenomicSimilarityResult;
+import org.cbioportal.domain.mutation.PatientGenePanel;
+import org.cbioportal.domain.mutation.PatientMutatedGene;
 import org.cbioportal.domain.mutation.PatientSimilarityScore;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
-import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.Mutation;
-import org.cbioportal.legacy.service.MolecularProfileService;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
-import org.cbioportal.legacy.web.parameter.Direction;
-import org.cbioportal.legacy.web.parameter.PagingConstants;
-import org.cbioportal.legacy.web.parameter.PatientGenomicSimilarityRequest;
-import org.cbioportal.shared.MutationQueryOptions;
-import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.http.HttpStatus;
+import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Computes pairwise genomic similarity between a reference patient and all other patients in the
- * same mutation molecular profile, then returns the top-N most similar patients ranked by their
- * Jaccard index over a user-specified gene set.
+ * Finds the patients of a study whose mutations are most similar to those of a reference patient.
  *
- * <h2>Algorithm</h2>
+ * <p>The similarity of a patient to the reference patient is the Jaccard index of their mutated
+ * genes, taken over the requested genes that were profiled in both patients: a gene that is not on
+ * the gene panel of one of them cannot tell the two apart, so it is left out instead of being
+ * counted as not mutated. A gene with a called mutation counts as profiled even when it is not on
+ * the patient's gene panel.
  *
- * <ol>
- *   <li>Validate that the requested molecular profile exists and belongs to the given study.
- *   <li>Fetch all mutations in the molecular profile. {@code PagingConstants.MAX_PAGE_SIZE}
- *       (10,000,000) comfortably exceeds the largest known mutation dataset; if a future study
- *       approaches this limit callers will need server-side gene-level filtering at the DB layer.
- *   <li>Normalise gene symbols to uppercase and deduplicate.
- *   <li>Build a per-patient alteration set: {@code patientId → {mutated genes}}.
- *   <li>Guard against runaway in-memory computation: studies with more than {@value
- *       #MAX_PATIENTS_FOR_SIMILARITY} distinct patients in the profile are rejected with 400.
- *   <li>Validate that the reference patient is present.
- *   <li>Compute Jaccard similarity for every candidate and return the top-N wrapped in a {@link
- *       GenomicSimilarityResult}.
- * </ol>
- *
- * <h2>Edge cases</h2>
- *
- * <ul>
- *   <li>Reference patient not in profile → HTTP 404 with actionable message.
- *   <li>Profile not in study → HTTP 400.
- *   <li>Study exceeds patient cap → HTTP 400.
- *   <li>Gene symbols in mixed case or duplicated → silently normalised / deduplicated.
- *   <li>Zero intersection → Jaccard score of 0.0.
- * </ul>
- *
- * <h2>Rate limiting</h2>
- *
- * <p>This endpoint performs an in-memory O(P × G) computation where P is the number of patients and
- * G is the gene-panel size. No per-user rate limiting is applied at the application layer;
- * operators should configure a reverse proxy (e.g. nginx {@code limit_req}) for high-traffic
- * deployments.
+ * <p>Only patients with at least one mutation in the requested genes are ranked, and a patient is
+ * left out when neither patient has a mutation in the genes profiled in both of them.
  */
 @Service
 public class GetPatientGenomicSimilarityUseCase {
 
-  /**
-   * Maximum number of distinct patients in a molecular profile that we will process. Studies above
-   * this threshold are rejected with HTTP 400 to prevent runaway in-memory Jaccard computation.
-   * Raise this value — or introduce streaming / pre-computation — when supporting very large
-   * pan-cancer cohorts.
-   */
-  static final int MAX_PATIENTS_FOR_SIMILARITY = 50_000;
+  private static final Comparator<PatientSimilarityScore> MOST_SIMILAR_FIRST =
+      Comparator.comparingDouble(PatientSimilarityScore::similarityScore)
+          .reversed()
+          .thenComparing(PatientSimilarityScore::patientId);
 
   private final MutationRepository mutationRepository;
-  private final MolecularProfileService molecularProfileService;
 
-  public GetPatientGenomicSimilarityUseCase(
-      MutationRepository mutationRepository, MolecularProfileService molecularProfileService) {
+  public GetPatientGenomicSimilarityUseCase(MutationRepository mutationRepository) {
     this.mutationRepository = mutationRepository;
-    this.molecularProfileService = molecularProfileService;
   }
 
   /**
-   * Finds the top-N patients most genomically similar to the reference patient.
+   * Finds the patients most similar to the reference patient.
    *
-   * @param studyId the cancer study ID from the URL path; used to verify the molecular profile
-   *     belongs to this study
-   * @param request the similarity request specifying molecular profile, reference patient, genes,
-   *     and topN
-   * @return a {@link GenomicSimilarityResult} containing the reference patient's mutated genes and
-   *     a list of similar patients sorted by descending similarity, at most topN entries, never
-   *     containing the reference patient itself
-   * @throws ResponseStatusException with {@code 400 Bad Request} if the molecular profile does not
-   *     belong to the given study, or if the study exceeds the patient cap
-   * @throws ResponseStatusException with {@code 404 Not Found} if the reference patient has no
-   *     recorded mutations in the specified molecular profile for the queried gene set
+   * @param studyId study of the patients
+   * @param molecularProfileId mutation profile of the study to compare the patients on
+   * @param referencePatientId patient to compare the other patients with
+   * @param hugoGeneSymbols genes to compare the patients on, matched case-insensitively
+   * @param topN maximum number of similar patients to return
+   * @return the requested genes mutated in the reference patient, and at most {@code topN} other
+   *     patients ordered from most to least similar (ties by patient ID)
+   * @throws MolecularProfileNotFoundException if the study has no mutation profile with this ID
+   * @throws PatientNotFoundException if the reference patient was not profiled in the molecular
+   *     profile
    */
-  @Transactional(readOnly = true)
-  public GenomicSimilarityResult execute(String studyId, PatientGenomicSimilarityRequest request) {
+  public GenomicSimilarityResult execute(
+      String studyId,
+      String molecularProfileId,
+      String referencePatientId,
+      Collection<String> hugoGeneSymbols,
+      int topN)
+      throws MolecularProfileNotFoundException, PatientNotFoundException {
+    if (!mutationRepository.isMutationMolecularProfileOfStudy(studyId, molecularProfileId)) {
+      throw new MolecularProfileNotFoundException(molecularProfileId);
+    }
+    String referencePatient = referencePatientId.trim();
+    List<String> genes =
+        hugoGeneSymbols.stream()
+            .map(gene -> gene.trim().toUpperCase(Locale.ROOT))
+            .distinct()
+            .sorted()
+            .toList();
 
-    // ── Fix #2: validate that the molecular profile belongs to the requested study ──────────
-    // Without this check a caller can pass studyId=brca_tcga but molecularProfileId=luad_mutations
-    // and bypass the intent of the @PreAuthorize guard on the controller.
-    MolecularProfile profile;
-    try {
-      profile = molecularProfileService.getMolecularProfile(request.getMolecularProfileId());
-    } catch (MolecularProfileNotFoundException ex) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Molecular profile '" + request.getMolecularProfileId() + "' does not exist.");
+    Map<String, Set<String>> mutatedGenesByPatient =
+        groupBy(
+            mutationRepository.getMutatedGenesOfPatients(molecularProfileId, genes),
+            PatientMutatedGene::patientId,
+            PatientMutatedGene::hugoGeneSymbol);
+    Map<String, Set<String>> genePanelsByPatient =
+        groupBy(
+            mutationRepository.getGenePanelsOfPatients(
+                studyId, molecularProfileId, genes, referencePatient),
+            PatientGenePanel::patientId,
+            PatientGenePanel::genePanelId);
+    if (!genePanelsByPatient.containsKey(referencePatient)) {
+      throw new PatientNotFoundException(studyId, referencePatient);
     }
 
-    if (!studyId.equals(profile.getCancerStudyIdentifier())) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Molecular profile '"
-              + request.getMolecularProfileId()
-              + "' does not belong to study '"
-              + studyId
-              + "'. It belongs to '"
-              + profile.getCancerStudyIdentifier()
-              + "'.");
+    Set<String> referenceMutatedGenes =
+        mutatedGenesByPatient.getOrDefault(referencePatient, Set.of());
+    List<String> sortedReferenceMutatedGenes = referenceMutatedGenes.stream().sorted().toList();
+    if (referenceMutatedGenes.isEmpty()) {
+      // the similarity to every patient would be 0, so there is nothing to rank
+      return new GenomicSimilarityResult(sortedReferenceMutatedGenes, List.of());
     }
 
-    // Fetch all mutations in the molecular profile without pagination. DETAILED projection
-    // is required so the nested Gene object (and thus getHugoGeneSymbol()) is populated
-    // by the MyBatis result-map join.
-    // NOTE: PagingConstants.MAX_PAGE_SIZE = 10,000,000. This comfortably covers every known
-    // study. A future improvement should pass resolved Entrez IDs so the DB filters at the
-    // SQL level, reducing the data transfer by up to 99% for small gene panels.
-    List<Mutation> mutations =
-        mutationRepository.getMutationsInMultipleMolecularProfiles(
-            List.of(request.getMolecularProfileId()),
-            null, // all samples
-            null, // all genes — filtered in Java below; see NOTE above
-            new MutationQueryOptions(
-                ProjectionType.DETAILED, PagingConstants.MAX_PAGE_SIZE, 0, null, Direction.ASC));
+    Map<String, Set<String>> profiledGenesByPatient =
+        getProfiledGenesByPatient(genes, mutatedGenesByPatient, genePanelsByPatient);
+    Set<String> referenceProfiledGenes = profiledGenesByPatient.get(referencePatient);
 
-    // Normalise gene symbols: uppercase + deduplicate so "tp53" and "TP53" both match.
-    Set<String> geneFilter = new HashSet<>();
-    for (String symbol : request.getHugoGeneSymbols()) {
-      if (symbol != null) {
-        geneFilter.add(symbol.trim().toUpperCase());
-      }
-    }
-
-    // Build patient → {mutated genes} map.
-    Map<String, Set<String>> patientAlterations = new HashMap<>();
-    for (Mutation m : mutations) {
-      // Gene is populated via join in DETAILED projection; skip rows where it is absent.
-      if (m.getGene() == null) {
-        continue;
-      }
-      String symbol = m.getGene().getHugoGeneSymbol();
-      if (symbol != null && geneFilter.contains(symbol.trim().toUpperCase())) {
-        patientAlterations
-            .computeIfAbsent(m.getPatientId(), k -> new HashSet<>())
-            .add(symbol.trim().toUpperCase());
-      }
-    }
-
-    // ── Fix #5: guard against runaway in-memory computation on very large studies ──────────
-    if (patientAlterations.size() > MAX_PATIENTS_FOR_SIMILARITY) {
-      throw new ResponseStatusException(
-          HttpStatus.BAD_REQUEST,
-          "Study '"
-              + studyId
-              + "' contains "
-              + patientAlterations.size()
-              + " patients with mutations in the queried gene panel, which exceeds the"
-              + " per-request limit of "
-              + MAX_PATIENTS_FOR_SIMILARITY
-              + ". Use a more focused gene panel or contact the cBioPortal team for"
-              + " pre-computed similarity support.");
-    }
-
-    // Trim the reference patient ID to avoid false 404s caused by trailing whitespace
-    // that can be introduced by some data importers.
-    String referencePatientId = request.getReferencePatientId().trim();
-
-    // ── Fix #2 (cont.): validate that reference patient exists in this profile ──────────────
-    if (!patientAlterations.containsKey(referencePatientId)) {
-      throw new ResponseStatusException(
-          HttpStatus.NOT_FOUND,
-          "Reference patient '"
-              + referencePatientId
-              + "' was not found in molecular profile '"
-              + request.getMolecularProfileId()
-              + "' for the requested gene panel. "
-              + "Verify the patient ID and ensure the patient has mutations in at least one of the"
-              + " queried genes.");
-    }
-
-    Set<String> referenceGenes = patientAlterations.getOrDefault(referencePatientId, Set.of());
-
-    // Compute Jaccard similarity for every patient except the reference.
     List<PatientSimilarityScore> scores = new ArrayList<>();
-    for (Map.Entry<String, Set<String>> entry : patientAlterations.entrySet()) {
-      if (entry.getKey().equals(referencePatientId)) {
-        continue;
-      }
-      Set<String> candidateGenes = entry.getValue();
+    mutatedGenesByPatient.forEach(
+        (patientId, mutatedGenes) -> {
+          if (patientId.equals(referencePatient)) {
+            return;
+          }
+          Set<String> comparedGenes =
+              intersection(referenceProfiledGenes, profiledGenesByPatient.get(patientId));
+          Set<String> referenceMutated = intersection(referenceMutatedGenes, comparedGenes);
+          Set<String> patientMutated = intersection(mutatedGenes, comparedGenes);
 
-      Set<String> intersection = new HashSet<>(referenceGenes);
-      intersection.retainAll(candidateGenes);
+          Set<String> mutatedInEither = new HashSet<>(referenceMutated);
+          mutatedInEither.addAll(patientMutated);
+          if (mutatedInEither.isEmpty()) {
+            return;
+          }
+          Set<String> mutatedInBoth = intersection(referenceMutated, patientMutated);
+          scores.add(
+              new PatientSimilarityScore(
+                  patientId,
+                  (double) mutatedInBoth.size() / mutatedInEither.size(),
+                  mutatedInBoth.stream().sorted().toList()));
+        });
 
-      Set<String> union = new HashSet<>(referenceGenes);
-      union.addAll(candidateGenes);
+    return new GenomicSimilarityResult(
+        sortedReferenceMutatedGenes,
+        scores.stream().sorted(MOST_SIMILAR_FIRST).limit(topN).toList());
+  }
 
-      double score = union.isEmpty() ? 0.0 : (double) intersection.size() / union.size();
+  /**
+   * Gets, for every patient, the requested genes that are on one of the patient's gene panels or
+   * that have a called mutation in the patient.
+   */
+  private Map<String, Set<String>> getProfiledGenesByPatient(
+      List<String> genes,
+      Map<String, Set<String>> mutatedGenesByPatient,
+      Map<String, Set<String>> genePanelsByPatient) {
+    Set<String> genePanelIds =
+        genePanelsByPatient.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+    Map<String, Set<String>> genesByGenePanel =
+        groupBy(
+            mutationRepository.getGenePanelGenes(genePanelIds, genes),
+            GenePanelToGene::getGenePanelId,
+            GenePanelToGene::getHugoGeneSymbol);
 
-      // Sort the intersection for a stable, deterministic response across calls.
-      List<String> commonGenes = intersection.stream().sorted().toList();
-      scores.add(new PatientSimilarityScore(entry.getKey(), score, commonGenes));
-    }
+    Map<String, Set<String>> profiledGenesByPatient = new HashMap<>();
+    genePanelsByPatient.forEach(
+        (patientId, genePanels) -> {
+          Set<String> profiledGenes =
+              profiledGenesByPatient.computeIfAbsent(patientId, id -> new HashSet<>());
+          genePanels.forEach(
+              genePanel ->
+                  profiledGenes.addAll(genesByGenePanel.getOrDefault(genePanel, Set.of())));
+        });
+    mutatedGenesByPatient.forEach(
+        (patientId, mutatedGenes) ->
+            profiledGenesByPatient
+                .computeIfAbsent(patientId, id -> new HashSet<>())
+                .addAll(mutatedGenes));
+    return profiledGenesByPatient;
+  }
 
-    // Sort descending by similarity, break ties by patientId for determinism.
-    scores.sort(
-        Comparator.comparingDouble(PatientSimilarityScore::similarityScore)
-            .reversed()
-            .thenComparing(PatientSimilarityScore::patientId));
+  private static <T> Map<String, Set<String>> groupBy(
+      Collection<T> rows, Function<T, String> key, Function<T, String> value) {
+    return rows.stream()
+        .collect(Collectors.groupingBy(key, Collectors.mapping(value, Collectors.toSet())));
+  }
 
-    List<PatientSimilarityScore> topScores = scores.stream().limit(request.getTopN()).toList();
-
-    // Include the reference patient's own mutation set so callers can display context
-    // alongside the ranked results without needing a second API call.
-    List<String> referencePatientMutatedGenes = referenceGenes.stream().sorted().toList();
-
-    return new GenomicSimilarityResult(referencePatientMutatedGenes, topScores);
+  private static Set<String> intersection(Set<String> first, Set<String> second) {
+    Set<String> intersection = new HashSet<>(first);
+    intersection.retainAll(second);
+    return intersection;
   }
 }

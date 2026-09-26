@@ -6,6 +6,7 @@ import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.cbioportal.application.rest.availability.StudyUnavailableException;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
@@ -206,6 +207,15 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleInvalidVirtualStudyData(
       InvalidVirtualStudyDataException ex) {
     return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
+  }
+
+  /** 423 rather than 403 so the frontend can tell "being updated" apart from "no access". */
+  @ExceptionHandler(StudyUnavailableException.class)
+  public ResponseEntity<ErrorResponse> handleStudyUnavailable(StudyUnavailableException ex) {
+    return new ResponseEntity<>(
+        new ErrorResponse(
+            "Study " + ex.getStudyId() + " is being updated. Please check back later."),
+        HttpStatus.LOCKED);
   }
 
   @ExceptionHandler(AccessDeniedException.class)

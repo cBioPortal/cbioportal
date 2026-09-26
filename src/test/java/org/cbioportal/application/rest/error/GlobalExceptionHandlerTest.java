@@ -13,6 +13,7 @@ import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.cbioportal.application.rest.availability.StudyUnavailableException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpInputMessage;
@@ -28,6 +29,16 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 class GlobalExceptionHandlerTest {
 
   private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+  @Test
+  void handleStudyUnavailableReturns423() {
+    ResponseEntity<ErrorResponse> response =
+        handler.handleStudyUnavailable(new StudyUnavailableException("study1"));
+    assertEquals(HttpStatus.LOCKED, response.getStatusCode());
+    assertNotNull(response.getBody());
+    assertEquals(
+        "Study study1 is being updated. Please check back later.", response.getBody().getMessage());
+  }
 
   // ── AccessForbiddenException ───────────────────────────────────────────────
 

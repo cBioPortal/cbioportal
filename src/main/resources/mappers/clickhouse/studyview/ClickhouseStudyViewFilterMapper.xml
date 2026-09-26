@@ -25,9 +25,12 @@
                         FROM sample_list_list sll
                         LEFT JOIN sample_derived s ON sll.sample_id=s.internal_id
                         LEFT JOIN sample_list sl on sll.list_id=sl.list_id
+                        <!-- match the case list value exactly as getCaseListDataCounts (ClickhousePatientMapper) derives it;
+                             a LIKE suffix match treats '_' as a wildcard and also selects other lists ending in the
+                             same value, e.g. 'cna' would also select '<study>_log2cna' -->
                         WHERE
                         <foreach item="list" collection="listGroup" separator="OR">
-                            sl.stable_id LIKE concat('%_', #{list})
+                            REPLACE(sl.stable_id, CONCAT(s.cancer_study_identifier, '_'), '') = #{list}
                         </foreach>
                     </foreach>
                 )

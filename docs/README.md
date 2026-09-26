@@ -19,6 +19,13 @@ We've organized this site by the different roles in the cBioPortal community.
             </div>
        
             <div>
+            <a href="data-loading/">
+            <img src="images/data-contributor.svg" width="125" height="125" alt="Data contribution icon" title="Data contribution">
+            </a>
+            <a href="data-loading/">Data Contributor</a>
+            </div>
+
+            <div>
             <a href="deployment/">
             <img src="images/deployment.png" width="125" height="125" alt="User guide  free icon" title="User guide free icon">
             </a>

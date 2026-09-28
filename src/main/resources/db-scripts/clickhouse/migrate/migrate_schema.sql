@@ -341,7 +341,8 @@ DROP TABLE IF EXISTS resource_study;
 ## description: Reorder unified resource rows for patient-scoped resource serving (resumable Python handler)
 -- Implemented by migrate_resource_data_patient_order() in migrate_db.py, registered in
 -- VERSION_HANDLERS; this section must contain only comments. The handler rebuilds resource_data
--- with ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID):
+-- with ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID), the key
+-- the 3.5.0 section creates, so databases built with an earlier resource_data key converge on it:
 --   create resource_data_patient_order -> INSERT ... SELECT -> verify count() and
 --   uniqExact(RESOURCE_DATA_ID) match -> RENAME resource_data to resource_data_previous_order
 --   and the staging table to resource_data -> verify again -> DROP resource_data_previous_order.

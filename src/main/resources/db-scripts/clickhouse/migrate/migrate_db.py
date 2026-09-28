@@ -235,12 +235,12 @@ class MigrationStateError(RuntimeError):
     """Raised when a version handler finds table state it cannot safely resolve on its own."""
 
 
-# --- 3.6.0: rebuild resource_data with the patient-inclusive sort key -----------------------
+# --- 3.6.0: rebuild resource_data with the patient- and sample-inclusive sort key ----------
 
 RESOURCE_DATA_TABLE = 'resource_data'
 RESOURCE_DATA_STAGING_TABLE = 'resource_data_patient_order'
 RESOURCE_DATA_PREVIOUS_TABLE = 'resource_data_previous_order'
-RESOURCE_DATA_TARGET_SORTING_KEY = 'CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID'
+RESOURCE_DATA_TARGET_SORTING_KEY = 'CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID'
 RESOURCE_DATA_COLUMNS = (
     'RESOURCE_DATA_ID', 'RESOURCE_ID', 'CANCER_STUDY_ID', 'ENTITY_TYPE', 'PATIENT_ID',
     'SAMPLE_ID', 'URL', 'DISPLAY_NAME', 'TYPE', 'METADATA',

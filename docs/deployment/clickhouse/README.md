@@ -395,7 +395,7 @@ or migrate production tables.
 The hierarchy and slide-access repositories first resolve the internal study
 (and, for the hierarchy, patient) identifiers, then read `resource_data` with
 those constants in `PREWHERE`. `resource_data` is ordered by
-`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)`, so both the
+`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`, so both the
 per-patient hierarchy read and the single-row access lookup are pruned by the
 primary key. The hierarchy query extracts only public metadata fields; it does
 not parse `wsi_serving`. Validate with `EXPLAIN indexes=1` that both queries
@@ -444,7 +444,7 @@ against a `db_schema_version` that doesn't match its build's `db.version` unless
 `resource_data` table, backfills it from the legacy `resource_sample`,
 `resource_patient` and `resource_study` tables, and drops them. `3.6.0`
 ensures `resource_data` is ordered by
-`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)`, which the WSI
+`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`, which the WSI
 and resource-table queries rely on. A database whose `resource_data` already
 has that key (a fresh `3.6.0` schema, or one migrated by the current `3.5.0`
 section) is left untouched. Otherwise `migrate_db.py` rebuilds the table: it

@@ -440,7 +440,7 @@ CREATE TABLE resource_data
     DISPLAY_NAME      Nullable(String),
     TYPE              Nullable(String),
     METADATA          Nullable(String)
-) ENGINE = MergeTree() ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, RESOURCE_DATA_ID)
+) ENGINE = MergeTree() ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)
 SETTINGS allow_nullable_key = 1;
 
 -- --------------------------------------------------------

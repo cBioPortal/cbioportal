@@ -70,13 +70,13 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
 
   public List<EntityToPanel> getEntityToGenePanels(
       List<String> sampleStableIds, List<String> profileIds, EnrichmentType enrichmentType) {
+    if (sampleStableIds.isEmpty() || profileIds.isEmpty()) {
+      return List.of();
+    }
 
     var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
 
-    return mapper.getEntityToGenePanels(
-        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")),
-        profileIds.stream().map(p -> "'" + p + "'").collect(Collectors.joining(",")),
-        field);
+    return mapper.getEntityToGenePanels(sampleStableIds, profileIds, field);
   }
 
   @Override

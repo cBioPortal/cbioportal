@@ -83,14 +83,16 @@ public interface ClickhouseAlterationMapper {
   List<GenePanelToGene> getGenePanelGenes();
 
   /**
-   * Retrieves the mapping of samples to their associated gene panels.
+   * Retrieves the mapping of entities (samples or patients) to their associated gene panels.
    *
-   * @param sampleStableIds the list of sample stable IDs to retrieve panel mappings for
+   * @param sampleUniqueIds the unique IDs of the entities to retrieve panel mappings for
    * @param profileIds the list of profile IDs to filter by
+   * @param field the sample_derived column the entity IDs refer to: {@code sample_unique_id} or
+   *     {@code patient_unique_id}
    * @return a list of EntityToPanel objects representing the entity-to-panel associations
    */
   List<EntityToPanel> getEntityToGenePanels(
-      String sampleStableIdsJoined, String profileIdsJoined, String field);
+      List<String> sampleUniqueIds, List<String> profileIds, String field);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
       String[] samples, String[] molecularProfiles, AlterationFilterHelper alterationFilterHelper);

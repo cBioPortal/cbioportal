@@ -23,6 +23,7 @@
         * [Arm Level CNA Data](#arm-level-cna-data)
         * [Mutational Signature Data](#mutational-signature-data)
     * [Resource Data](#resource-data)
+        * [Describing metadata columns with CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata)
     * [Custom namespace columns](#custom-namespace-columns)
 
 # Introduction
@@ -1684,14 +1685,64 @@ The resource definition file should follow this format, it has three **required*
 - **DESCRIPTION (optional)**: a discription for resources.
 - **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
 - **PRIORITY (optional)**: if not given, will give a default value.
+- **CUSTOM_METADATA (optional)**: a JSON object describing the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
 
 ### Example *Resource Definition* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
-<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
-<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
-<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th><th>CUSTOM_METADATA</th></tr></thead>
+<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td><td>{"version": 1, "fields": [{"key": "stain", "label": "Stain", "type": "string", "filterable": true}]}</td></tr>
+<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td><td></td></tr>
+<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td><td></td></tr>
 </table>
+
+### Describing metadata columns with CUSTOM_METADATA
+
+Resource rows can carry a `METADATA` column holding a JSON object of per-item fields (see the
+data file formats below). The portal turns each key found in that data into a column of the
+resource table, which a user can search, sort and filter.
+
+`CUSTOM_METADATA` lets a curator control how those columns present. It **decorates** columns, it
+never creates them: a key declared here but absent from the data adds nothing, and a resource
+with no `CUSTOM_METADATA` still gets a column per key, labelled by the raw key name.
+
+```json
+{
+  "version": 1,
+  "fields": [
+    {
+      "key": "percent_tumor_cells",
+      "type": "number",
+      "label": "Tumor Cells (%)",
+      "description": "Percentage of cells scored as tumor",
+      "filterable": true,
+      "visibleByDefault": true
+    }
+  ]
+}
+```
+
+Each entry in `fields` supports:
+
+| Key | Effect |
+| --- | --- |
+| `key` (required) | Matches a key in the row's `METADATA` object |
+| `type` | `string` or `number`. A `number` column gets a numeric range filter rather than a value list. If omitted, the portal infers it: a key is numeric when every non-blank value parses as a number |
+| `label` | Column header. Defaults to the raw key name |
+| `description` | Shown as a tooltip on the column header |
+| `filterable` | `false` removes the filter control for that column. Worth setting on near-unique keys such as identifiers, which would otherwise build a very large dropdown |
+| `visibleByDefault` | `true` shows the column without the user opening "Add columns". Defaults to `false` |
+
+Field order determines column order; keys present in the data but not declared here appear after
+the declared ones.
+
+`required`, `enum`, `format` and `renderAs`, and the `boolean` and `date` types, are not
+implemented — a field declaring them imports with a warning and they have no effect.
+
+The portal ignores a contract it cannot read rather than failing, which makes mistakes invisible
+at run time, so the importer validates the shape instead. A document that cannot be read at all
+is an **error** and blocks the import: not a JSON object, no `fields` list, or a field with no
+`key`. A single misdeclared field is a **warning**: an unrecognised `type`, a quoted boolean, or
+a key the portal does not read.
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
@@ -1699,13 +1750,19 @@ The sample resource file should follow this format, it has four **required** col
 - **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
+- **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the table shows the resource's own name on every row.
+- **TYPE (optional)**: free-text classification of the item, for example `IMAGE` or `REPORT`.
+- **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) on the resource definition controls how those columns present. Arrays, scalars and malformed JSON are rejected at import.
 
 ### Example *Sample Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td><td>H&amp;E Slide 1</td><td>IMAGE</td><td>{"stain": "H&amp;E", "magnification": "20x", "percent_tumor_cells": 65}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td><td>H&amp;E Slide 2</td><td>IMAGE</td><td>{"stain": "IHC", "magnification": "40x", "percent_tumor_cells": 30}</td></tr>
 </table>
+
+The three optional columns are independent of one another, and files without them import exactly
+as before.
 
 ### Patient Resource Data File
 The patient resource file should follow this format, it has three **required** columns:
@@ -1713,11 +1770,14 @@ The patient resource file should follow this format, it has three **required** c
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
+`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+[Sample Resource data file](#sample-resource-data-file).
+
 ### Example *Patient Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Smith", "pages": 3}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Jones", "pages": 5}</td></tr>
 </table>
 
 ### Study Resource Data File
@@ -1725,10 +1785,13 @@ The study resource file should follow this format, it has two **required** colum
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
+`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+[Sample Resource data file](#sample-resource-data-file).
+
 ### Example *Study Resource* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Sponsor list</td><td>REPORT</td><td>{"year": 2026}</td></tr>
 </table>
 
 ## Custom namespace columns

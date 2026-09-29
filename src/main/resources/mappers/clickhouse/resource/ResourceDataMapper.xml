@@ -256,28 +256,43 @@
     </choose>
   </sql>
 
+  <sql id="ResourceTableSortDirection">
+    <choose>
+      <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
+      <otherwise> ASC </otherwise>
+    </choose>
+  </sql>
+
+  <!--
+    Every branch ends with RESOURCE_DATA_ID so the ordering is total. None of these columns is
+    unique on its own: a sample can carry hundreds of slides, all sharing PATIENT_ID and
+    SAMPLE_ID. With a partial order ClickHouse is free to return tied rows in any order per
+    query, so LIMIT/OFFSET paging could repeat a row on one page and skip it on the next.
+
+    The metadata branch sorts on the parsed number before the raw text. For a numeric key every
+    value parses, so the numeric key decides and 2 sorts before 10; for a text key every value
+    parses to NULL, so the whole set ties there and the text comparison decides. Sorting on the
+    extracted text alone ordered numbers lexicographically (10, 100, 2, 20). The blanks-last test
+    stays ASC in both directions on purpose: empty values belong at the end either way.
+  -->
   <sql id="ResourceTableOrderBy">
     <choose>
-      <when test="query.sortBy == 'studyId'">ORDER BY cs.cancer_study_identifier</when>
-      <when test="query.sortBy == 'patientId'">ORDER BY rdata.PATIENT_ID</when>
-      <when test="query.sortBy == 'sampleId'">ORDER BY rdata.SAMPLE_ID</when>
-      <when test="query.sortBy == 'url'">ORDER BY rdata.URL</when>
-      <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME</when>
-      <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE</when>
-      <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name</when>
+      <when test="query.sortBy == 'studyId'">ORDER BY cs.cancer_study_identifier <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'patientId'">ORDER BY rdata.PATIENT_ID <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'sampleId'">ORDER BY rdata.SAMPLE_ID <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'url'">ORDER BY rdata.URL <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
         ORDER BY JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) = '' ASC,
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey})
+        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey})) <include refid="ResourceTableSortDirection"/>,
+        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) <include refid="ResourceTableSortDirection"/>
       </when>
       <otherwise>ORDER BY rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
     </choose>
-    <if test="query.sortBy != null and !query.sortBy.isEmpty()">
-      <choose>
-        <when test="query.direction != null and (query.direction == 'desc' || query.direction == 'DESC')"> DESC </when>
-        <otherwise> ASC </otherwise>
-      </choose>
-    </if>
+    , rdata.RESOURCE_DATA_ID ASC
   </sql>
 
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">

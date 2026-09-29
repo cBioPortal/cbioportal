@@ -49,9 +49,10 @@ public class ClickhouseResourceDataMapperTest {
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
     // expect 4 distinct resourceIds in the test data
-    assertThat(tabs).hasSize(4);
+    assertThat(tabs).hasSize(5);
     List<String> ids = tabs.stream().map(ResourceTableTab::resourceId).toList();
-    assertThat(ids).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN", "FIGURES", "RADIOLOGY");
+    assertThat(ids)
+        .containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN", "FIGURES", "RADIOLOGY", "SLIDE_SET");
   }
 
   @Test
@@ -728,5 +729,85 @@ public class ClickhouseResourceDataMapperTest {
     assertThat(mapper.getResourceTableRows(query))
         .extracting(ResourceTableRow::url)
         .containsExactly("https://example.com/he1.jpg");
+  }
+
+  // ---- Sorting and paging ----
+  //
+  // SLIDE_SET is four rows on one patient and one sample, with a JSON-number 'score' whose
+  // lexicographic and numeric orders disagree (as text: 10, 100, 20, 9).
+
+  private static ResourceTableQuery slideSet(String sortBy, String direction, int page, int size) {
+    return new ResourceTableQuery(
+        List.of(STUDY_TCGA_PUB),
+        "SLIDE_SET",
+        null,
+        null,
+        null,
+        page,
+        size,
+        sortBy,
+        direction,
+        null);
+  }
+
+  @Test
+  public void getResourceTableRows_numericMetadataSort_ordersNumericallyNotAsText() {
+    List<ResourceTableRow> rows =
+        mapper.getResourceTableRows(slideSet("metadata:score", "asc", 0, 10));
+
+    assertThat(rows)
+        .extracting(ResourceTableRow::displayName)
+        .containsExactly("Set 9", "Set 10", "Set 20", "Set 100");
+  }
+
+  @Test
+  public void getResourceTableRows_numericMetadataSort_descending() {
+    List<ResourceTableRow> rows =
+        mapper.getResourceTableRows(slideSet("metadata:score", "desc", 0, 10));
+
+    assertThat(rows)
+        .extracting(ResourceTableRow::displayName)
+        .containsExactly("Set 100", "Set 20", "Set 10", "Set 9");
+  }
+
+  @Test
+  public void getResourceTableRows_jsonNumberMetadataIsReadable() {
+    // JSONExtractString returns a JSON number as its text, so numeric metadata is filterable and
+    // facetable rather than coming back blank.
+    List<ResourceFacetOption> facets =
+        mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "score");
+
+    assertThat(facets)
+        .extracting(ResourceFacetOption::value)
+        .containsExactlyInAnyOrder("9", "10", "20", "100");
+  }
+
+  @Test
+  public void getResourceTableRows_pagingIsStableWhenEveryRowSharesAPatientAndSample() {
+    // Without a unique tiebreaker the ordering is partial here, and paged reads may repeat a row
+    // on one page and drop another entirely.
+    List<String> paged =
+        java.util.stream.Stream.of(0, 1)
+            .flatMap(page -> mapper.getResourceTableRows(slideSet(null, null, page, 2)).stream())
+            .map(ResourceTableRow::displayName)
+            .toList();
+
+    assertThat(paged)
+        .as("two pages of two should cover all four rows exactly once")
+        .containsExactlyInAnyOrder("Set 9", "Set 10", "Set 20", "Set 100");
+  }
+
+  @Test
+  public void getResourceTableRows_pagingIsStableUnderAColumnSortWithTies() {
+    // Same check under an explicit sort whose column is constant across the four rows, which is
+    // the worst case for a partial order.
+    List<String> paged =
+        java.util.stream.Stream.of(0, 1)
+            .flatMap(
+                page -> mapper.getResourceTableRows(slideSet("sampleId", "asc", page, 2)).stream())
+            .map(ResourceTableRow::displayName)
+            .toList();
+
+    assertThat(paged).containsExactlyInAnyOrder("Set 9", "Set 10", "Set 20", "Set 100");
   }
 }

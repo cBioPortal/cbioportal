@@ -96,16 +96,21 @@
     <selenium.version>4.31.0</selenium.version>
     <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-    <!-- 1.84 clears CVE-2025-14813 (critical, GOST 28147 keystream reuse, fixed
-         1.80.2) plus the 1.79/1.84 medium advisories -->
-    <bouncy_castle.version>1.84</bouncy_castle.version>
+    <!-- 1.85 clears CVE-2026-8763 (critical) and CVE-2026-13506 (high) -->
+    <bouncy_castle.version>1.85</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
-    <tomcat.version>10.1.55</tomcat.version>
+    <!-- CVE fixes ahead of the Spring Boot BOM: tomcat-embed-core < 10.1.58 is
+         flagged for three critical auth/access-control bypasses (CVE-2026-65182,
+         CVE-2026-65905, CVE-2026-68525). 10.1.58 itself was never published to
+         Maven Central (the release sequence jumps 10.1.57 -> 10.1.59), so this
+         pins the next available patch. -->
+    <tomcat.version>10.1.60</tomcat.version>
     <!-- CVE fixes ahead of the Spring Boot BOM: netty 4.1.135 (managed by Boot
          3.5.16) misses the Bzip2Decoder event-loop hang (GHSA-558v-64gr-wgg4),
          and jackson 2.21.4 is flagged for two @JsonView bypasses fixed in
-         2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w) -->
-    <netty.version>4.1.136.Final</netty.version>
+         2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w). 4.1.137.Final further
+         clears CVE-2026-75595 (critical) / CVE-2026-75596 (medium) -->
+    <netty.version>4.1.137.Final</netty.version>
     <jackson-bom.version>2.21.6</jackson-bom.version>
     <velocity.version>2.4</velocity.version>
     <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged

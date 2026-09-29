@@ -4,7 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
+import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
@@ -31,6 +33,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class StudyMyBatisRepositoryTest {
 
   @Autowired private StudyMyBatisRepository studyMyBatisRepository;
+
+  @Autowired private StudyMapper studyMapper;
 
   @Test
   public void getAllStudiesIdProjection() throws Exception {
@@ -75,7 +79,6 @@ public class StudyMyBatisRepositoryTest {
         simpleDateFormat.parse("2011-12-18 13:17:17+00:00"), cancerStudy.getImportDate());
     // this is due to "1 AS allSampleCount" in the SQL which we can ignore because the mapper is
     // already defunct
-    // Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
     Assert.assertNull(cancerStudy.getTypeOfCancer());
   }
 
@@ -108,7 +111,6 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
     // this is due to "1 AS allSampleCount" in the SQL which we can ignore because the mapper is
     // already defunct
-    // Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
     Assert.assertEquals((Integer) 7, cancerStudy.getCnaSampleCount());
     Assert.assertEquals((Integer) 7, cancerStudy.getCompleteSampleCount());
     Assert.assertEquals((Integer) 1, cancerStudy.getMethylationHm27SampleCount());
@@ -145,6 +147,31 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(2, result.size());
     Assert.assertEquals("acc_tcga", result.get(0).getCancerStudyIdentifier());
     Assert.assertEquals("study_tcga_pub", result.get(1).getCancerStudyIdentifier());
+  }
+
+  @Test
+  public void getStudyPermissions() {
+
+    List<CancerStudy> result =
+        studyMyBatisRepository.getStudyPermissions().stream()
+            .sorted(Comparator.comparing(CancerStudy::getCancerStudyIdentifier))
+            .toList();
+
+    Assert.assertEquals(2, result.size());
+
+    CancerStudy accTcga = result.get(0);
+    Assert.assertEquals((Integer) 2, accTcga.getCancerStudyId());
+    Assert.assertEquals("acc_tcga", accTcga.getCancerStudyIdentifier());
+    Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", accTcga.getGroups());
+    // this projection intentionally omits everything not needed for permission checks
+    Assert.assertNull(accTcga.getName());
+    Assert.assertNull(accTcga.getTypeOfCancerId());
+    Assert.assertNull(accTcga.getPublicStudy());
+
+    CancerStudy studyTcgaPub = result.get(1);
+    Assert.assertEquals((Integer) 1, studyTcgaPub.getCancerStudyId());
+    Assert.assertEquals("study_tcga_pub", studyTcgaPub.getCancerStudyIdentifier());
+    Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", studyTcgaPub.getGroups());
   }
 
   @Test
@@ -188,7 +215,6 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
     // this is due to "1 AS allSampleCount" in the SQL which we can ignore because the mapper is
     // already defunct
-    // Assert.assertEquals((Integer) 14, result.getAllSampleCount());
     Assert.assertEquals((Integer) 7, result.getCnaSampleCount());
     Assert.assertEquals((Integer) 7, result.getCompleteSampleCount());
     Assert.assertEquals((Integer) 1, result.getMethylationHm27SampleCount());
@@ -235,7 +261,6 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
     // this is due to "1 AS allSampleCount" in the SQL which we can ignore because the mapper is
     // already defunct
-    // Assert.assertEquals((Integer) 14, cancerStudy.getAllSampleCount());
     Assert.assertNull(cancerStudy.getTypeOfCancer());
   }
 
@@ -287,5 +312,16 @@ public class StudyMyBatisRepositoryTest {
 
   private List<CancerStudyTags> sortedTagResult(List<CancerStudyTags> result) {
     return result.stream().sorted(Comparator.comparing(CancerStudyTags::getTags)).toList();
+  }
+
+  @Test
+  public void getUnavailableStudyIdentifiers() {
+    // Both seeded studies have status 0, i.e. are unavailable.
+    Map<String, String> studyIdByIdentifier = new UnavailableStudyIdentifiers(studyMapper).get();
+
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub"));
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub_gistic"));
+    Assert.assertEquals("study_tcga_pub", studyIdByIdentifier.get("study_tcga_pub_all"));
+    Assert.assertEquals("acc_tcga", studyIdByIdentifier.get("acc_tcga"));
   }
 }

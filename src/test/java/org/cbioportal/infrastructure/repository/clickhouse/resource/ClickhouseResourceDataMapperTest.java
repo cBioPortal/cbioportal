@@ -810,4 +810,91 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(paged).containsExactlyInAnyOrder("Set 9", "Set 10", "Set 20", "Set 100");
   }
+
+  // ---- JSON scalars other than strings ----
+  //
+  // Raised in review: that JSONExtractString returns "" for real JSON numbers and booleans, which
+  // would make such keys unsortable, unfilterable and unfacetable. SLIDE_SET stores every value
+  // as a bare JSON scalar -- integers, a float, booleans -- under the WSI field names that
+  // prompted the question, so these pin the actual behaviour end to end.
+
+  @Test
+  public void metadataFacets_readJsonIntegersAndBooleans() {
+    assertThat(
+            mapper.getResourceTableMetadataFacetValues(
+                slideSet(null, null, 0, 10), "file_size_bytes"))
+        .extracting(ResourceFacetOption::value)
+        .containsExactlyInAnyOrder("100", "2000", "30", "400");
+
+    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "is_hne"))
+        .extracting(ResourceFacetOption::value)
+        .containsExactlyInAnyOrder("true", "false");
+
+    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "mpp"))
+        .extracting(ResourceFacetOption::value)
+        .containsExactlyInAnyOrder("0.5", "0.25", "1", "0.75");
+  }
+
+  @Test
+  public void metadataRangeFilter_appliesToAJsonInteger() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "SLIDE_SET",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(
+                new ResourceColumnFilter(
+                    "metadata:file_size_bytes", "between", List.of("50", "500"))));
+
+    assertThat(mapper.getResourceTableRows(query))
+        .extracting(ResourceTableRow::displayName)
+        .containsExactlyInAnyOrder("Set 9", "Set 100"); // file_size_bytes 100 and 400
+  }
+
+  @Test
+  public void metadataCategoricalFilter_appliesToAJsonBoolean() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB),
+            "SLIDE_SET",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            List.of(new ResourceColumnFilter("metadata:is_hne", "equals", List.of("true"))));
+
+    assertThat(mapper.getResourceTableRows(query))
+        .extracting(ResourceTableRow::displayName)
+        .containsExactlyInAnyOrder("Set 9", "Set 20");
+  }
+
+  @Test
+  public void metadataSort_onAJsonIntegerIsNumeric() {
+    assertThat(mapper.getResourceTableRows(slideSet("metadata:file_size_bytes", "asc", 0, 10)))
+        .extracting(ResourceTableRow::displayName)
+        .containsExactly("Set 20", "Set 9", "Set 100", "Set 10"); // 30, 100, 400, 2000
+  }
+
+  @Test
+  public void metadataKeyStats_detectJsonIntegersAsNumeric() {
+    ResourceMetadataKeyStats stats =
+        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10)).stream()
+            .filter(k -> "file_size_bytes".equals(k.key()))
+            .findFirst()
+            .orElseThrow();
+
+    assertThat(stats.nonBlankCount()).isEqualTo(4);
+    assertThat(stats.numericCount()).isEqualTo(4);
+    assertThat(stats.minValue()).isEqualTo(30.0);
+    assertThat(stats.maxValue()).isEqualTo(2000.0);
+  }
 }

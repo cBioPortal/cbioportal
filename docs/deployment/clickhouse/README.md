@@ -440,42 +440,10 @@ run derivation through your own tooling against ClickHouse Cloud). The backend r
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
 
-**`3.5.0` and `3.6.0` (resource data).** `3.5.0` creates the unified
-`resource_data` table, backfills it from the legacy `resource_sample`,
-`resource_patient` and `resource_study` tables, and drops them. `3.6.0`
-ensures `resource_data` is ordered by
-`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`, which the WSI
-and resource-table queries rely on. A database whose `resource_data` already
-has that key (a fresh `3.6.0` schema, or one migrated by the current `3.5.0`
-section) is left untouched. Otherwise `migrate_db.py` rebuilds the table: it
-creates `resource_data_patient_order`, copies every row, checks that `count()`
-and `uniqExact(RESOURCE_DATA_ID)` match, renames `resource_data` to
-`resource_data_previous_order` and the copy to `resource_data`, checks again,
-and drops `resource_data_previous_order`.
-
-Pause resource imports and study deletions against the database for the whole
-`3.6.0` run: rows written during the copy would not reach the rebuilt table,
-and the count checks would then refuse to finish. The runner prints this
-reminder when it reaches `3.6.0`.
-
-The `3.6.0` step is resumable. `db_schema_version` is advanced only after its
-checks pass, and a rerun inspects `system.tables` and continues from what it
-finds:
-
-| Tables found on rerun | Action |
-| --- | --- |
-| `resource_data` with the target key only | Nothing to rebuild; record `3.6.0` |
-| `resource_data` and `resource_data_patient_order` | Interrupted copy: drop the staging table and rebuild |
-| `resource_data` and `resource_data_previous_order` | Interrupted after the swap: verify the counts match, then drop the previous table |
-| `resource_data_previous_order` without `resource_data` | Interrupted mid-swap: drop any staging table, rename the previous table back, rebuild |
-| All three tables, or only the staging table, or none | Refuse and exit non-zero; inspect and clean up manually |
-
-If the counts differ after the swap (for example because an import ran during
-the migration), the runner refuses, leaves both tables in place, and does not
-record `3.6.0`. Decide which rows are authoritative, drop the other table, and
-rerun. The migration user needs `SELECT` on `system.tables` (see
-[§13](#13-recommended-clickhouse-privileges)) in addition to `CREATE TABLE`,
-`INSERT`, `DROP TABLE` and `ALTER` on the cBioPortal database.
+**`3.5.0` (resource data).** `3.5.0` creates the unified `resource_data` table
+ordered by `(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`,
+which the WSI and resource-table queries rely on, backfills it from the legacy
+`resource_sample`, `resource_patient` and `resource_study` tables, and drops them.
 
 The native WSI tables (`wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
 `wsi_slide_placement`, `wsi_slide_timing`) are deprecated but retained by these

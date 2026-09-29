@@ -17,10 +17,7 @@
 --   4. Don't write db_schema_version updates yourself — migrate_db.py advances
 --      info.db_schema_version automatically after a section's SQL succeeds (and waits for that
 --      and any other mutations the section triggered to finish before treating it as applied).
---   5. A step that needs to inspect table state (e.g. a resumable table rebuild) can be
---      implemented as a Python handler registered in VERSION_HANDLERS in migrate_db.py. Its
---      section stays here, containing only comments, so the version keeps its place in the order.
---   6. If a section changes a table that feeds a derived table (see
+--   5. If a section changes a table that feeds a derived table (see
 --      db-scripts/clickhouse/populate_derived_tables.sql), no extra bookkeeping is needed here —
 --      run migrate_db.py with --populate-derived-tables and it repopulates derived tables
 --      automatically after any migration that actually applied something.
@@ -336,18 +333,3 @@ WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) N
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
-
-## db_schema_version: 3.6.0
-## description: Reorder unified resource rows for patient-scoped resource serving (resumable Python handler)
--- Implemented by migrate_resource_data_patient_order() in migrate_db.py, registered in
--- VERSION_HANDLERS; this section must contain only comments. The handler rebuilds resource_data
--- with ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID), the key
--- the 3.5.0 section creates, so databases built with an earlier resource_data key converge on it:
---   create resource_data_patient_order -> INSERT ... SELECT -> verify count() and
---   uniqExact(RESOURCE_DATA_ID) match -> RENAME resource_data to resource_data_previous_order
---   and the staging table to resource_data -> verify again -> DROP resource_data_previous_order.
--- It reads system.tables first, so a rerun after an interruption resumes from the tables it
--- finds (dropping a partial staging copy, finishing an interrupted swap, or restoring the
--- previous-order table) and refuses ambiguous states. A database that already has the target key
--- (e.g. one created by the current 3.5.0 section) is left untouched. Resource imports and study
--- deletions must be paused while it runs.

@@ -10,10 +10,14 @@ import org.cbioportal.domain.wsi.WsiPart;
 import org.cbioportal.domain.wsi.WsiSampleGroup;
 import org.cbioportal.domain.wsi.WsiSlide;
 import org.cbioportal.domain.wsi.repository.WsiHierarchyRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ClickhouseWsiHierarchyRepository.class);
 
   private static final Pattern ABSOLUTE_DATE =
       Pattern.compile(
@@ -72,7 +76,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       return new WsiHierarchy(null, List.of());
     }
 
-    Map<String, Object> first = rows.get(0);
     Map<String, WsiSampleGroupBuilder> samples = new java.util.LinkedHashMap<>();
     for (Map<String, Object> row : rows) {
       if (!isDeidentifiedRow(row)) {
@@ -134,7 +137,34 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
 
     List<WsiSampleGroup> sampleGroups =
         samples.values().stream().map(WsiSampleGroupBuilder::build).toList();
-    return new WsiHierarchy(value(first, "reference_sample_id", String.class), sampleGroups);
+    return new WsiHierarchy(referenceSampleId(rows, patientId), sampleGroups);
+  }
+
+  /**
+   * The patient's reference sample, carried on every WSI row. Unmatched rows sort first and may
+   * omit it, so this takes the first non-empty value; rows that disagree are logged, since the
+   * importer validates one reference sample per patient.
+   */
+  static String referenceSampleId(List<Map<String, Object>> rows, String patientId) {
+    String reference = null;
+    for (Map<String, Object> row : rows) {
+      String candidate = value(row, "reference_sample_id", String.class);
+      if (candidate == null) {
+        continue;
+      }
+      if (reference == null) {
+        reference = candidate;
+      } else if (!reference.equals(candidate)) {
+        LOG.warn(
+            "WSI rows for patient {} disagree on reference_sample_id ({} vs {}); using {}",
+            patientId,
+            reference,
+            candidate,
+            reference);
+        break;
+      }
+    }
+    return reference;
   }
 
   private static <T> T value(Map<String, Object> row, String key, Class<T> type) {

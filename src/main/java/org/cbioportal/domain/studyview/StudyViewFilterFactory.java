@@ -79,10 +79,17 @@ public abstract class StudyViewFilterFactory {
             : base.getGenericAssayDataFilters().stream()
                 .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
                 .collect(Collectors.toList());
+    // Filter out clinicalDataFilters with null or empty values to prevent SQL errors
+    List<ClinicalDataFilter> validClinicalDataFilters =
+        base.getClinicalDataFilters() == null
+            ? null
+            : base.getClinicalDataFilters().stream()
+                .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+                .collect(Collectors.toList());
     return new StudyViewFilterContext(
         base.getSampleIdentifiers(),
         base.getStudyIds(),
-        base.getClinicalDataFilters(),
+        validClinicalDataFilters,
         base.getGeneFilters(),
         base.getStructuralVariantFilters(),
         base.getSampleTreatmentFilters(),

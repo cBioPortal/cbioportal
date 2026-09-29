@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
+import org.cbioportal.application.rest.availability.SearchKeyword;
+import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
@@ -59,6 +62,7 @@ public class ColumnStoreStudyController {
 
   private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
   private final PermissionEvaluator permissionEvaluator;
+  private final UnavailableStudyIdentifiers unavailableStudyIdentifiers;
 
   /**
    * Constructs a new {@link ColumnStoreStudyController}, with the specified use case and an
@@ -67,12 +71,15 @@ public class ColumnStoreStudyController {
    * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study
    *     metadata.
    * @param permissionEvaluator defines the permission of the cancer study.
+   * @param unavailableStudyIdentifiers studies being (re)imported, which nobody can read
    */
   public ColumnStoreStudyController(
       GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
-      @Autowired(required = false) PermissionEvaluator permissionEvaluator) {
+      @Autowired(required = false) PermissionEvaluator permissionEvaluator,
+      UnavailableStudyIdentifiers unavailableStudyIdentifiers) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
     this.permissionEvaluator = permissionEvaluator;
+    this.unavailableStudyIdentifiers = unavailableStudyIdentifiers;
   }
 
   /**
@@ -94,7 +101,8 @@ public class ColumnStoreStudyController {
    *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
-   *     and an HTTP status code {@link HttpStatus#OK}.
+   *     and an HTTP status code {@link HttpStatus#OK}. {@code readPermission} is false for a study
+   *     being (re)imported, in every auth mode, so clients leave it out of per-study requests.
    * @see ProjectionType
    * @see StudySortBy
    * @see Direction
@@ -112,6 +120,7 @@ public class ColumnStoreStudyController {
                   @ArraySchema(schema = @Schema(implementation = CancerStudyMetadataDTO.class))))
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
+          @SearchKeyword
           @RequestParam(required = false)
           String keyword,
       @Parameter(description = "Level of detail of the response")
@@ -169,6 +178,7 @@ public class ColumnStoreStudyController {
       responseBody = List.of();
     } else {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      Map<String, String> unavailable = unavailableStudyIdentifiers.get();
       responseBody =
           studies.stream()
               .map(
@@ -183,6 +193,7 @@ public class ColumnStoreStudyController {
                               "CancerStudyId",
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
+                    hasReadPermission &= !unavailable.containsKey(study.cancerStudyIdentifier());
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })
               .toList();
@@ -227,7 +238,7 @@ public class ColumnStoreStudyController {
    */
   @RequestMapping(method = RequestMethod.GET, value = "/studies/meta")
   public ResponseEntity<Void> getAllStudiesMeta(
-      @RequestParam(required = false) String keyword,
+      @SearchKeyword @RequestParam(required = false) String keyword,
       @RequestParam(required = false) StudySortBy sortBy,
       @RequestParam(defaultValue = "ASC") Direction direction) {
 

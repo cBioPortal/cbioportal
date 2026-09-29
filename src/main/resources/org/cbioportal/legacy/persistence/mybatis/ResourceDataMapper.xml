@@ -6,10 +6,10 @@
     <sql id="selectSampleResource">
         sample.stable_id AS "${prefix}sampleId",
         patient.stable_id AS "${prefix}patientId",
-        resource_sample.resource_id AS "${prefix}resourceId",
+        resource_sample.RESOURCE_ID AS "${prefix}resourceId",
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_sample.url AS "${prefix}url"
+            , resource_sample.URL AS "${prefix}url"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -21,10 +21,10 @@
 
     <sql id="selectPatientResource">
         patient.stable_id AS "${prefix}patientId",
-        resource_patient.resource_id AS "${prefix}resourceId",
+        resource_patient.RESOURCE_ID AS "${prefix}resourceId",
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_patient.url AS "${prefix}url"
+            , resource_patient.URL AS "${prefix}url"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -35,10 +35,10 @@
     </sql>
 
     <sql id="selectStudyResource">
-        resource_study.resource_id AS "${prefix}resourceId",
+        resource_study.RESOURCE_ID AS "${prefix}resourceId",
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
-            , resource_study.url AS "${prefix}url"
+            , resource_study.URL AS "${prefix}url"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -48,22 +48,36 @@
         </if>
     </sql>
 
+    <!--
+        Sourced from the unified resource_data table, which the importer now writes in place of
+        resource_sample/resource_patient/resource_study. resource_data stores stable IDs, so the
+        joins onto sample/patient go through stable_id; those are unique only within a study, so
+        every join is scoped by cancer_study_id.
+    -->
     <sql id="fromSample">
-        FROM resource_sample
-        INNER JOIN sample ON resource_sample.internal_id = sample.internal_id
+        FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, SAMPLE_ID, URL
+              FROM resource_data
+              WHERE ENTITY_TYPE = 'SAMPLE' AND SAMPLE_ID IS NOT NULL) AS resource_sample
+        INNER JOIN cancer_study ON resource_sample.CANCER_STUDY_ID = cancer_study.cancer_study_id
+        INNER JOIN sample ON sample.stable_id = resource_sample.SAMPLE_ID
         INNER JOIN patient ON sample.patient_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+                          AND patient.cancer_study_id = resource_sample.CANCER_STUDY_ID
     </sql>
 
     <sql id="fromPatient">
-        FROM resource_patient
-        INNER JOIN patient ON resource_patient.internal_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, PATIENT_ID, URL
+              FROM resource_data
+              WHERE ENTITY_TYPE = 'PATIENT' AND PATIENT_ID IS NOT NULL) AS resource_patient
+        INNER JOIN cancer_study ON resource_patient.CANCER_STUDY_ID = cancer_study.cancer_study_id
+        INNER JOIN patient ON patient.stable_id = resource_patient.PATIENT_ID
+                          AND patient.cancer_study_id = resource_patient.CANCER_STUDY_ID
     </sql>
 
     <sql id="fromStudy">
-        FROM resource_study
-        INNER JOIN cancer_study ON resource_study.internal_id = cancer_study.cancer_study_id
+        FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, URL
+              FROM resource_data
+              WHERE ENTITY_TYPE = 'STUDY') AS resource_study
+        INNER JOIN cancer_study ON resource_study.CANCER_STUDY_ID = cancer_study.cancer_study_id
     </sql>
 
     <sql id="whereSample">
@@ -76,7 +90,7 @@
                  sample.stable_id = #{sampleId}
             </if>
             <if test="resourceId != null">
-                AND resource_sample.resource_id = #{resourceId}
+                AND resource_sample.RESOURCE_ID = #{resourceId}
             </if>
         </where>
     </sql>
@@ -91,7 +105,7 @@
                  patient.stable_id = #{patientId}
             </if>
             <if test="resourceId != null">
-                AND resource_patient.resource_id = #{resourceId}
+                AND resource_patient.RESOURCE_ID = #{resourceId}
             </if>
         </where>
     </sql>
@@ -100,7 +114,7 @@
         <where>
             cancer_study.cancer_study_identifier = #{studyId}
             <if test="resourceId != null">
-                AND resource_study.resource_id = #{resourceId}
+                AND resource_study.RESOURCE_ID = #{resourceId}
             </if>
         </where>
     </sql>
@@ -112,7 +126,7 @@
         </include>
         <include refid="fromSample"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_sample.resource_id = resource_definition.resource_id
+            INNER JOIN resource_definition ON resource_sample.RESOURCE_ID = resource_definition.resource_id
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereSample"/>
@@ -121,7 +135,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_sample.resource_id ASC
+                ORDER BY resource_sample.RESOURCE_ID ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">
@@ -136,7 +150,7 @@
         </include>
         <include refid="fromPatient"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_patient.resource_id = resource_definition.resource_id
+            INNER JOIN resource_definition ON resource_patient.RESOURCE_ID = resource_definition.resource_id
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="wherePatient"/>
@@ -145,7 +159,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_patient.resource_id ASC
+                ORDER BY resource_patient.RESOURCE_ID ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">
@@ -160,7 +174,7 @@
         </include>
         <include refid="fromStudy"/>
         <if test="projection == 'DETAILED'">
-            INNER JOIN resource_definition ON resource_study.resource_id = resource_definition.resource_id
+            INNER JOIN resource_definition ON resource_study.RESOURCE_ID = resource_definition.resource_id
             AND cancer_study.cancer_study_id = resource_definition.cancer_study_id
         </if>
         <include refid="whereStudy"/>
@@ -169,7 +183,7 @@
                 ORDER BY "${sortBy}" ${direction}
             </when>
             <otherwise>
-                ORDER BY resource_study.resource_id ASC
+                ORDER BY resource_study.RESOURCE_ID ASC
             </otherwise>
         </choose>
         <if test="limit != null and limit != 0">

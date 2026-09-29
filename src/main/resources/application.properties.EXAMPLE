@@ -313,6 +313,12 @@ persistence.cache_type=no-cache
 # lookup of sample/patient/profile to cancer study relationships.
 #cache.cache-map-utils.spring-managed=false
 
+# Cancer-study permission evaluation (groups) is cached separately from the general caching
+# mechanism above, in a small in-memory cache with its own short TTL -- so that a change to a
+# study's groups (including access revocation) takes effect within this many seconds without
+# needing to hit /api/cache, regardless of cache.cache-map-utils.spring-managed.
+#cache.cancer_study_permission.ttl_seconds=60
+
 # Redis properties
 # Unique name for each portal instance, used for distinguishing caches
 #redis.name=

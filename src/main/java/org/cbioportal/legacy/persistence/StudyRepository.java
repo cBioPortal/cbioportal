@@ -20,6 +20,13 @@ public interface StudyRepository {
       String sortBy,
       String direction);
 
+  /**
+   * Minimal per-study data (id, stable identifier, authorization groups) for all studies, with no
+   * sample-list/reference-genome joins. Used to build the permission-check cancer study cache; see
+   * {@code CacheMapBuilder.buildCancerStudyPermissionMap}.
+   */
+  List<CancerStudy> getStudyPermissions();
+
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")

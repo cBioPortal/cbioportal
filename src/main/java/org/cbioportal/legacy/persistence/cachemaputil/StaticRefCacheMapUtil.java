@@ -58,6 +58,14 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
   @Autowired private CacheMapBuilder cacheMapBuilder;
 
+  // Cancer-study permissions have their own short-TTL cache, decoupled from the rest of this
+  // class's forever-cached maps -- see CancerStudyPermissionCache.
+  private final CancerStudyPermissionCache cancerStudyPermissionCache;
+
+  public StaticRefCacheMapUtil(CancerStudyPermissionCache cancerStudyPermissionCache) {
+    this.cancerStudyPermissionCache = cancerStudyPermissionCache;
+  }
+
   // This implementation of the CacheMapUtils keeps a locally cached/referenced HashMap and does
   // not defer to any Spring managed caching solution.
 
@@ -67,7 +75,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   // two version appeared to exist in context. A mechanism with bean injection did not work here.
   static Map<String, MolecularProfile> molecularProfileCache;
   static Map<String, SampleList> sampleListCache;
-  static Map<String, CancerStudy> cancerStudyCache;
 
   @PostConstruct
   private void init() {
@@ -78,7 +85,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
     LOG.debug("creating cache maps for authorization");
     molecularProfileCache = cacheMapBuilder.buildMolecularProfileMap();
     sampleListCache = cacheMapBuilder.buildSampleListMap();
-    cancerStudyCache = cacheMapBuilder.buildCancerStudyMap();
   }
 
   @Override
@@ -92,8 +98,8 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   }
 
   @Override
-  public Map<String, CancerStudy> getCancerStudyMap() {
-    return cancerStudyCache;
+  public Map<String, CancerStudy> getCancerStudyPermissionMap() {
+    return cancerStudyPermissionCache.getCancerStudyPermissionMap();
   }
 
   @Override

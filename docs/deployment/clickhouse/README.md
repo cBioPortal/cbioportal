@@ -276,15 +276,145 @@ This adds a delay between `OPTIMIZE TABLE .. FINAL` operations, reducing peak me
 
 After importing studies and rebuilding derived tables, you can verify that your ClickHouse database has no structural integrity problems by following the instructions provided [here](https://github.com/cBioPortal/cbioportal-core/tree/rfc100-rc#check-clickhouse-constraint-violations).
 
+## WSI hierarchy materialization and authenticated rollout
+
+WSI is served from the generic `resource_data` table. Each slide is one row
+with `TYPE = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
+`WSI_PATIENT` (unmatched) resource. Its `METADATA` JSON carries the public
+hierarchy, stain and timing fields, and a private `wsi_serving` object with
+the source URL, intrinsic tile metadata and thumbnail artifact fields. See
+[Pathology Slide Data](../../File-Formats.md#pathology-slide-data) for the
+format and for the offline converter from the legacy `meta_wsi.txt` pair.
+
+Clients use two endpoints:
+
+- `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}` builds the hierarchy from
+  the patient's `WSI_SAMPLE`/`WSI_PATIENT` rows. Each slide carries its
+  `resourceId` and `resourceDataId`. The response is pathology-only; portal
+  clinical labels and pathology timeline events continue to come from the
+  normal cBioPortal APIs. A patient with no WSI rows gets `200` with an empty
+  hierarchy (`{"referenceSampleId":null,"sampleGroups":[]}`); an unknown study
+  or patient gets `404`.
+- `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`
+  returns the pixel access bundle and capability for one slide. It reads
+  `wsi_serving` from the row with that `image_id`, and only when the row
+  belongs to the study and patient, its resource is `WSI_SAMPLE` or
+  `WSI_PATIENT`, and its `TYPE` is `WHOLE_SLIDE_IMAGE`. The image ID is unique
+  within a study and, unlike the resource-data row ID, survives a reimport.
+
+`wsi_serving` is private for every `resource_data` row. The generic resource
+table API strips it from row metadata and ignores it in search, filters,
+sorting, facets and metadata-column discovery; public fields such as stain and
+specimen descriptions stay searchable.
+
+The native tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
+`wsi_slide_placement` and `wsi_slide_timing` are deprecated. The backend no
+longer reads them, but they remain in the schema and are not dropped by any
+migration; retiring them is a separate, deliberate step.
+
+The cBioPortal properties for an authenticated deployment are:
+
+```properties
+msk.wsi.tile_server.url=https://cbioportal.example.org/wsi
+wsi.access-token-secret=<at-least-32-byte-secret>
+wsi.access-token-audience=cbioportal-wsi
+wsi.access-token-ttl-seconds=300
+```
+
+The tile server must use the matching values:
+
+```text
+WSI_AUTH_SECRET=<same-secret>
+WSI_AUTH_AUDIENCE=cbioportal-wsi
+WSI_AUTH_MAX_TTL=300
+WSI_ALLOWED_SOURCE_SCHEMES=s3
+```
+
+The secret bytes and audience must match exactly, and the cBioPortal TTL must
+not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only source URLs and
+v2 capabilities; it does not load a hierarchy, metadata backend, or resource
+index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
+WSI resource rows must also contain the source URL, tile metadata, and
+thumbnail artifact fields in `wsi_serving`.
+
+### Upstream thumbnail publication
+
+The ClickHouse snapshot depends on a separate scheduled thumbnail workload. It
+must read eligible inventory/source rows, generate master JPEGs in the
+S3/Dell ECS-compatible object store, and populate
+`cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with
+`artifact_uri`, `tile_metadata_json`, dimensions, and content type before the
+Databricks canonical-association refresh runs. The canonical export then
+passes `SOURCE_URL`, `TILE_METADATA_JSON`, `THUMBNAIL_URL`, dimensions, and
+content type in the legacy `data_wsi.txt` file, which the offline converter
+turns into resource rows for the standard cBioPortal core importer.
+
+Neither the frontend nor the online tile-server API is a production thumbnail
+publisher. The frontend only requests `/thumbnails`; the tile-server
+on-demand worker is limited to development/rehearsal or controlled remediation
+and does not populate the registry. A missing registry row or missing metadata
+must be fixed in the scheduled batch before importing a new WSI snapshot.
+
+WSI is login-only, including for public studies. Anonymous users receive
+`401`, authenticated users without study access receive `403`, authenticated
+blank study IDs receive `400`, and a nonexistent study deliberately returns
+`403` to avoid an existence oracle. The capability contract is version 2 and
+contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `image_id`, exact SHA-256
+bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
+`iat`, and `exp`.
+
+Before enabling the Pathology Slides feature for a private study:
+
+1. Convert the study's complete `meta_wsi.txt`/`data_wsi.txt` pair with
+   `scripts/importer/convertWsiToResources.py` from cbioportal-core
+   (`--meta-wsi`, `--output-dir`, `--portal-base-url`, `--study-dir`), remove
+   the legacy pair, and validate and import the study with the standard
+   importer. The resource rows carry `source_url`, `tile_metadata_json`,
+   `thumbnail_url`, dimensions, and content type in `wsi_serving` for each
+   servable slide; with `--study-dir` the converter also merges the six
+   `WSI_*` slide-count clinical attributes into copies of the study's clinical
+   sample and patient files. The pathology timeline pair is imported unchanged.
+   MRNs and absolute dates must not occur in the study files:
+
+   ```bash
+   metaImport.py -s /path/to/study
+   ```
+2. Ensure the backend access endpoint returns no pixel bundle when any of
+   those fields is missing. The browser must obtain a fresh bundle for each
+   slide and send its exact source URL to the tile server.
+3. Configure protected pixel responses as private/cacheable and hierarchy or
+   access responses as private/no-store. They must not be publicly cached.
+
+Blue/green promotion is the WSI visibility boundary. Build the inactive
+database, import each study's WSI resources once, validate the result, and
+promote only after the build succeeds. If an import fails or must be retried,
+discard and rebuild the inactive database. The core importer does not create
+or migrate production tables.
+
+### WSI serving query plan
+
+The hierarchy and slide-access repositories first resolve the internal study
+(and, for the hierarchy, patient) identifiers, then read `resource_data` with
+those constants in `PREWHERE`. `resource_data` is ordered by
+`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`, so both the
+per-patient hierarchy read and the single-row access lookup are pruned by the
+primary key. The hierarchy query extracts only public metadata fields; it does
+not parse `wsi_serving`. Validate with `EXPLAIN indexes=1` that both queries
+use the primary key.
+
+The native `wsi_slide_by_access` projection remains in `init/schema.sql` with
+the deprecated native tables but is no longer used for serving.
+
 ---
 
 ## 12. Version Migration
 
-Starting with `DB_SCHEMA_VERSION` `3.0.0`, in-place schema upgrades are handled by
+Starting with `DB_SCHEMA_VERSION` `3.0.0`, supported in-place schema upgrades are handled by
 `db-scripts/clickhouse/migrate/migrate_schema.sql` (a forward-only, version-tagged set of SQL
 sections) applied by `db-scripts/clickhouse/migrate/migrate_db.py`. The runner reads the current
 `db_schema_version` from the `info` table, skips sections already applied, and applies the rest in
-order, advancing `db_schema_version` itself after each section succeeds.
+order, advancing `db_schema_version` itself after each section succeeds. Rebuild-only changes are
+still versioned here so an incompatible older database cannot start with a newer backend.
 
 There is a single `db_schema_version` covering both base and derived tables — derived table
 *structure* is defined in `schema.sql` alongside every other table, so a derived-table structure
@@ -310,6 +440,30 @@ migrations were applied; otherwise, rebuild derived tables yourself as a separat
 run derivation through your own tooling against ClickHouse Cloud). The backend refuses to start
 against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
+
+**`3.5.0` (resource data).** `3.5.0` creates the unified `resource_data` table
+ordered by `(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`,
+which the WSI and resource-table queries rely on, backfills it from the legacy
+`resource_sample`, `resource_patient` and `resource_study` tables, and drops them.
+
+The native WSI tables (`wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
+`wsi_slide_placement`, `wsi_slide_timing`) are deprecated but retained by these
+migrations; no data is dropped from them.
+
+The `3.4.0` WSI snapshot schema is available both for fresh initialization and
+for in-place upgrades from `3.0.0`. The migration drops any legacy WSI
+release-based tables, recreates the empty snapshot tables and slide-access
+projection, and therefore discards existing WSI rows. Import WSI snapshots into
+the inactive blue/green database and promote it only after validation.
+
+Before a production migration, rehearse the exact candidate image against an
+isolated clone of the active production database. The `web-and-data` image
+contains `scripts/rehearse_clickhouse_production_clone.sh`; it refuses to write
+to the source database, requires a target name containing
+`migration_rehearsal`, clones base-table data with ClickHouse `CLONE AS`, and
+rebuilds derived tables only in the target. Run it from that exact immutable
+candidate image with the production Cloud connection settings and retain its
+schema/count evidence with the release record.
 
 For **ClickHouse Cloud** specifically, set `CLICKHOUSE_SECURE=true` (in addition to the usual
 `CLICKHOUSE_HOST`/`CLICKHOUSE_NATIVE_PORT`/`CLICKHOUSE_USER`/`CLICKHOUSE_PASSWORD`/`CLICKHOUSE_DB`)

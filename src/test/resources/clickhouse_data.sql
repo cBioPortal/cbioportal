@@ -452,6 +452,7 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (309,'cente
 insert into clinical_patient (internal_id,attr_id,attr_value) values (310,'center','ucsf');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (311,'center','NA');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (312,'center','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'wsi_slides','3');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'dead','True');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'dead','false');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (303,'dead','TRUE');
@@ -550,6 +551,7 @@ insert into clinical_attribute_meta (attr_id,display_name,description,datatype,p
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('oct_embedded','oct embedded','oct embedded','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('pathology_report_file_name','pathology report file name','pathology report file name','string',0,'1',2);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('sample_type','sample type','the type of sample (i.e.,normal,primary,met,recurrence).','string',0,'1',2);
+insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('wsi_slides','WSI Slides per Patient','Number of whole slide images available for the patient.','number',1,'1',0);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('mutation_count','mutaiton count','mutation count','number',0,'30',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('age','age at metastatic diagnosis (years)','age at metastatic diagnosis (years)','number',1,'3',3);
 insert into clinical_attribute_meta (attr_id,display_name,description,datatype,patient_attribute,priority,cancer_study_id) values ('center','center','center of sequencing','string',1,'1',3);
@@ -678,6 +680,142 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (4,20,'name','larotrectinib');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (5,20,'description','trka/b/c inhibitor');
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (6,20,'url','https://en.wikipedia.org/wiki/larotrectinib');
+-- WSI normalized hierarchy test data
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9001,'wsi_test_study','dummy','WSI test study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9002,'wsi_snapshot_study','dummy','WSI snapshot study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9003,'wsi_empty_hierarchy_study','dummy','WSI empty study','normalized WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9004,'wsi_missing_data_study','dummy','WSI missing data study','normalized WSI fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'SNAPSHOT-PATIENT',9002);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9003,'EMPTY-PATIENT',9003);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-DATA',9004);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
+
+-- Resource table fixture for public WSI metadata search and wsi_serving privacy. Kept in its own
+-- study so the study_tcga_pub resource counts used by other tests are unchanged. The serving
+-- paths deliberately contain words ("secretpath", "aaa"/"zzz") that no public field contains, so
+-- a query that leaked wsi_serving into search, filters, sorting or facets would be visible.
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9005,'wsi_resource_table_study','dummy','WSI resource table study','resource table privacy fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9005,'WSI-TABLE-PATIENT',9005);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9005,'WSI-TABLE-SAMPLE-1','primary tumor',9005);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9006,'WSI-TABLE-SAMPLE-2','primary tumor',9005);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9005,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('PATHOLOGY_NOTES',9005,'PATIENT','Pathology notes','Untyped notes',0,2);
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900501,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&imageId=table-slide-1','table-slide-1','WHOLE_SLIDE_IMAGE','{"image_id":"table-slide-1","stain_name":"Periodic acid-Schiff","part_description":"left kidney core biopsy","wsi_serving":{"source_url":"s3://private-bucket/zzz-secretpath-1.svs","thumbnail_url":"s3://private-bucket/zzz-secretpath-1.jpg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900502,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&imageId=table-slide-2','table-slide-2','WHOLE_SLIDE_IMAGE','{"image_id":"table-slide-2","stain_name":"H&E, Initial","part_description":"right kidney margin","wsi_serving":{"source_url":"s3://private-bucket/aaa-secretpath-2.svs","thumbnail_url":"s3://private-bucket/aaa-secretpath-2.jpg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900503,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/1.pdf','Board note',NULL,'{"note":"Reviewed by tumor board","wsi_serving":{"source_url":"s3://private-bucket/secretpath-note.pdf"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900504,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/2.pdf','Follow-up note',NULL,'{"note":"Follow-up imaging"}');
+
+-- WSI is served exclusively from generic resource_data. The nested wsi_serving object is
+-- intentionally absent from generic table responses and is read only by the access repository.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9001,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_PATIENT',9001,'PATIENT','Pathology slides','Whole-slide images linked to patients',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9002,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=3020726','3020726','WHOLE_SLIDE_IMAGE','{"image_id":"3020726","reference_sample_id":"WSI-SAMPLE","part_key":"part::27","part_number":"27","part_designator":"27","part_type":"FALLOPIAN TUBE","part_description":"right ovary","block_key":"block::4","block_number":"4","block_label":"4RO","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":716956681,"can_serve_tiles":true,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::27::4","timeline_start_days":-17,"timeline_date_status":"AVAILABLE","timeline_date_kind":"RECORDED","timeline_date_source":"recorded_procedure_date","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Recorded procedure date relative to first tumor sequencing","wsi_serving":{"source_url":"s3://bucket/3020726.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/3020726.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=3020648','3020648','WHOLE_SLIDE_IMAGE','{"image_id":"3020648","reference_sample_id":"WSI-SAMPLE","part_key":"part::34","part_number":"34","part_designator":"34","part_type":"SMALL BOWEL","part_description":"small bowel","block_key":"block::4","block_number":"4","block_label":"4RS","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::34::4","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{}}');
+-- A WHOLE_SLIDE_IMAGE row outside the WSI_SAMPLE/WSI_PATIENT resources. The access lookup must
+-- never serve it, even though it carries complete serving metadata.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('OTHER_SLIDES',9001,'PATIENT','Other slides','Slides outside the WSI resources',0,2);
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900103,'OTHER_SLIDES',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=other-slide','other-slide','WHOLE_SLIDE_IMAGE','{"image_id":"other-slide","can_serve_tiles":true,"wsi_serving":{"source_url":"s3://bucket/other-slide.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/other-slide.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900201,'WSI_SAMPLE',9002,'SAMPLE','SNAPSHOT-PATIENT','active-sample','https://portal.example.org/wsi/patient/SNAPSHOT-PATIENT?studyId=wsi_snapshot_study&imageId=active-slide','active-slide','WHOLE_SLIDE_IMAGE','{"image_id":"active-slide","reference_sample_id":"active-sample","part_key":"part::1","part_number":"1","part_designator":"1","part_type":"active part","part_description":"active specimen","block_key":"block::1","block_number":"1","block_label":"active","is_hne":false,"is_ihc":false,"can_serve_tiles":false,"slide_type":"Other","match_level":"PART","specimen_key":"part::1","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{}}');
+
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9001,9001,9001);
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9002,9002,9002);
+insert into wsi_patient
+(cancer_study_id,patient_id,reference_sample_id)
+values (9003,9003,null);
+
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,'part::27','27','27','FALLOPIAN TUBE','right ovary',null,'right ovary');
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9001,9001,'part::34','34','34','SMALL BOWEL','small bowel',null,'small bowel');
+insert into wsi_part
+(cancer_study_id,patient_id,part_key,part_number,part_designator,part_type,part_description,subspecialty,path_dx_title)
+values (9002,9002,'part::1','1','1','active part','active specimen',null,'active specimen');
+
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9001,9001,'part::27','block::4','4','4RO');
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9001,9001,'part::34','block::4','4','4RS');
+insert into wsi_block
+(cancer_study_id,patient_id,part_key,block_key,block_number,block_label)
+values (9002,9002,'part::1','block::1','1','active');
+
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,'3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9001,9001,'3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
+insert into wsi_slide
+(cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
+values (9002,9002,'active-slide',null,null,false,false,null,null,false,null,'Other');
+
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
+values (9001,9001,'3020726','part::27','block::4',9001,'BLOCK','block::27::4');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
+values (9001,9001,'3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4');
+insert into wsi_slide_placement
+(cancer_study_id,patient_id,image_id,part_key,block_key, sample_id,match_level,specimen_key)
+values (9002,9002,'active-slide','part::1','block::1',9002,'PART','part::1');
+
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9001,9001,'3020726',-17,'AVAILABLE','RECORDED','recorded_procedure_date',null,'patient_first_tumor_sequencing_day_zero','Recorded procedure date relative to first tumor sequencing');
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9001,9001,'3020648',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+insert into wsi_slide_timing
+(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
+values (9002,9002,'active-slide',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+
+-- WSI timing is stored in the same validated v3 snapshot that produces the
+-- pathology timeline. The hierarchy reads this image-keyed timing row only.
+insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type)
+values (9001,9001,-17,null,'PATHOLOGY SLIDES');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'SAMPLE_ID','WSI-SAMPLE');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'SUBTYPE','H&E');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'MATCH_LEVEL','BLOCK');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'TIMEPOINT_SOURCE','Recorded procedure date relative to first tumor sequencing');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'IMAGE_IDS','["3020726"]');
+insert into clinical_event_data (clinical_event_id,key,value)
+values (9001,'LINKOUT','/patient/wsiHESlides?studyId=wsi_test_study&caseId=WSI-PATIENT&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A27%3A%3A4&sampleId=WSI-SAMPLE');
+
 -- generic assay test data
 -- mutational signature test data
 insert into generic_entity_properties (id,genetic_entity_id,name,value) values (7,28,'name','mean_1');
@@ -688,3 +826,32 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 -- allele specific copy number data
 insert into allele_specific_copy_number (mutation_event_id, genetic_profile_id, sample_id, ascn_integer_copy_number, ascn_method, ccf_expected_copies_upper, ccf_expected_copies, clonal, minor_copy_number, expected_alt_copies, total_copy_number) values (2040, 6, 1, 3, 'facets', 1.25, 1.75, 'clonal', 2, 1, 4);
 insert into allele_specific_copy_number (mutation_event_id, genetic_profile_id, sample_id, ascn_integer_copy_number, ascn_method, ccf_expected_copies_upper, ccf_expected_copies, clonal, minor_copy_number, expected_alt_copies, total_copy_number) values (2038, 6, 6, 1, 'facets', 1.25, 1.75, 'subclonal', 1, 1, 2);
+-- resource table test data
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('HE_SLIDE', 1, 'SAMPLE', 'H&E Slide', 'Hematoxylin and Eosin Slide', 1, 1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('CT_SCAN', 1, 'PATIENT', 'CT Scan', 'CT Scan images', 1, 2);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('FIGURES', 1, 'STUDY', 'Figures', 'Study figures', 1, 3);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('RADIOLOGY', 1, 'SAMPLE', 'Radiology', 'Radiology images', 1, 4, '{"version":1,"fields":[{"key":"score","type":"number","label":"Dose Score","description":"Radiation dose score","visibleByDefault":true},{"key":"dose_id","type":"string","label":"Dose ID"},{"key":"operator","type":"string","label":"Operator","filterable":false}]}');
+
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (1, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/he1.jpg', 'H&E Sample 1', 'IMAGE', '{"stain":"HE","magnification":"20x"}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (2, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sd', 'tcga-a1-a0sd-01', 'https://example.com/he2.jpg', 'H&E Sample 2', 'IMAGE', '{"stain":"HE","magnification":"40x"}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (3, 'CT_SCAN', 1, 'PATIENT', 'tcga-a1-a0sb', NULL, 'https://example.com/ct1.dcm', 'CT Scan Patient 1', 'LINK', NULL);
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (4, 'FIGURES', 1, 'STUDY', NULL, NULL, 'https://example.com/fig1.pdf', 'Study Figure', 'PDF', '{"pages":10}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (5, 'FIGURES', 1, 'STUDY', NULL, NULL, 'https://example.com/fig2.pdf', 'Study Figure 2', 'PDF', '{"pages":25}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (6, 'RADIOLOGY', 1, 'SAMPLE', 'tcga-a1-a0se', 'tcga-a1-a0se-01', 'https://example.com/rad1.dcm', 'Radiology 1', 'IMAGE', '{"dose_id":"1001","score":"85","operator":"tech-a","aperture":"wide"}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (7, 'RADIOLOGY', 1, 'SAMPLE', 'tcga-a1-a0sf', 'tcga-a1-a0sf-01', 'https://example.com/rad2.dcm', 'Radiology 2', 'IMAGE', '{"dose_id":"1002","score":"42","operator":"tech-b","aperture":"narrow"}');
+
+-- Study 2 (acc_tcga) deliberately reuses stable ids that also exist in study 1. Stable ids are
+-- unique only within a study, so a cohort spanning both studies must not match study 2's
+-- 'tcga-a1-a0sb-01' just because study 1's sample of that name was selected, and the distinct
+-- patient/sample counts must not collapse the two into one.
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (8, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/acc-he-collides.jpg', 'ACC H&E (same barcode, different sample)', 'IMAGE', '{"stain":"HE","magnification":"20x"}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (9, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/acc-he-own.jpg', 'ACC H&E (own sample)', 'IMAGE', '{"stain":"HE","magnification":"40x"}');
+
+-- Four rows on the SAME patient and sample, so (PATIENT_ID, SAMPLE_ID) is not a unique ordering
+-- and paging is only stable if the sort carries a tiebreaker. 'score' is stored as a JSON
+-- *number*, and the values are chosen so lexicographic and numeric order disagree: sorted as text
+-- they read 10, 100, 20, 9.
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (10, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-9.svs',   'Set 9',   'IMAGE', '{"score":9,"file_size_bytes":100,"is_hne":true,"mpp":0.5}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (11, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-10.svs',  'Set 10',  'IMAGE', '{"score":10,"file_size_bytes":2000,"is_hne":false,"mpp":0.25}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (12, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-20.svs',  'Set 20',  'IMAGE', '{"score":20,"file_size_bytes":30,"is_hne":true,"mpp":1.0}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (13, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-100.svs', 'Set 100', 'IMAGE', '{"score":100,"file_size_bytes":400,"is_hne":false,"mpp":0.75}');

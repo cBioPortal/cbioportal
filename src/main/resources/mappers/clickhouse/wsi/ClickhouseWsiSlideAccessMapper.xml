@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiSlideAccessMapper">
+    <select id="getSlideAccess" resultType="hashmap">
+        SELECT
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'image_id') AS image_id,
+            JSONExtractBool(ifNull(row.METADATA, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'source_url') AS source_url,
+            JSONExtractRaw(ifNull(row.METADATA, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
+            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
+            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
+            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
+        FROM resource_data row
+        PREWHERE row.CANCER_STUDY_ID = #{studyInternalId}
+            AND row.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
+            AND row.PATIENT_ID = #{patientId}
+        WHERE row.TYPE = 'WHOLE_SLIDE_IMAGE'
+            AND JSONExtractString(ifNull(row.METADATA, '{}'), 'image_id') = #{imageId}
+        LIMIT 1
+    </select>
+</mapper>

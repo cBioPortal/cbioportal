@@ -28,3 +28,308 @@
 ## db_schema_version: 3.0.0
 ## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
+
+## db_schema_version: 3.1.0
+## description: Rebuild the de-identified WSI snapshot tables and slide-access projection
+-- WSI data is insert-only and is rebuilt in the inactive blue/green database. Drop both the
+-- legacy release-based layout and any partially created snapshot tables so this section cannot
+-- advance the schema version while leaving an incompatible WSI table behind.
+DROP TABLE IF EXISTS wsi_slide_placement SYNC;
+DROP TABLE IF EXISTS wsi_slide SYNC;
+DROP TABLE IF EXISTS wsi_block SYNC;
+DROP TABLE IF EXISTS wsi_part SYNC;
+DROP TABLE IF EXISTS wsi_patient SYNC;
+DROP TABLE IF EXISTS wsi_release_patient SYNC;
+DROP TABLE IF EXISTS wsi_release SYNC;
+
+CREATE TABLE IF NOT EXISTS wsi_patient (
+    cancer_study_id Int64,
+    patient_id Int64,
+    reference_sample_id Nullable(Int64)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id);
+
+CREATE TABLE IF NOT EXISTS wsi_part (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    part_number Nullable(String),
+    part_designator Nullable(String),
+    part_type Nullable(String),
+    part_description Nullable(String),
+    subspecialty Nullable(String),
+    path_dx_title Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key);
+
+CREATE TABLE IF NOT EXISTS wsi_block (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    block_key String,
+    block_number Nullable(String),
+    block_label Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key, block_key);
+
+CREATE TABLE IF NOT EXISTS wsi_slide (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    stain_name Nullable(String),
+    stain_group Nullable(String),
+    is_hne Bool,
+    is_ihc Bool,
+    magnification Nullable(String),
+    file_size_bytes Nullable(UInt64),
+    can_serve_tiles Bool,
+    barcode Nullable(String),
+    slide_type Nullable(String),
+    source_url Nullable(String),
+    tile_metadata_json Nullable(String),
+    thumbnail_url Nullable(String),
+    thumbnail_width Nullable(UInt32),
+    thumbnail_height Nullable(UInt32),
+    thumbnail_content_type Nullable(String),
+    PROJECTION wsi_slide_by_access (
+        SELECT
+            cancer_study_id,
+            image_id,
+            can_serve_tiles,
+            source_url,
+            tile_metadata_json,
+            thumbnail_url,
+            thumbnail_width,
+            thumbnail_height,
+            thumbnail_content_type
+        ORDER BY (cancer_study_id, image_id)
+    )
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
+
+CREATE TABLE IF NOT EXISTS wsi_slide_placement (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    part_key String,
+    block_key String,
+    sample_id Nullable(Int64),
+    match_level String,
+    specimen_key String
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+
+## db_schema_version: 3.2.0
+## description: Enforce the non-null WSI stain contract in an inactive blue/green database
+-- Version 3.1.0 was exercised by beta before upstream merge and is immutable. Rebuild the WSI
+-- snapshot at a new version so databases that already recorded 3.1.0 cannot silently retain its
+-- nullable slide_type. The WSI tables are hydrated only after this migration completes.
+DROP TABLE IF EXISTS wsi_slide_placement SYNC;
+DROP TABLE IF EXISTS wsi_slide SYNC;
+DROP TABLE IF EXISTS wsi_block SYNC;
+DROP TABLE IF EXISTS wsi_part SYNC;
+DROP TABLE IF EXISTS wsi_patient SYNC;
+
+CREATE TABLE IF NOT EXISTS wsi_patient (
+    cancer_study_id Int64,
+    patient_id Int64,
+    reference_sample_id Nullable(Int64)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id);
+
+CREATE TABLE IF NOT EXISTS wsi_part (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    part_number Nullable(String),
+    part_designator Nullable(String),
+    part_type Nullable(String),
+    part_description Nullable(String),
+    subspecialty Nullable(String),
+    path_dx_title Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key);
+
+CREATE TABLE IF NOT EXISTS wsi_block (
+    cancer_study_id Int64,
+    patient_id Int64,
+    part_key String,
+    block_key String,
+    block_number Nullable(String),
+    block_label Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, part_key, block_key);
+
+CREATE TABLE IF NOT EXISTS wsi_slide (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    stain_name Nullable(String),
+    stain_group Nullable(String),
+    is_hne Bool,
+    is_ihc Bool,
+    magnification Nullable(String),
+    file_size_bytes Nullable(UInt64),
+    can_serve_tiles Bool,
+    barcode Nullable(String),
+    slide_type String,
+    source_url Nullable(String),
+    tile_metadata_json Nullable(String),
+    thumbnail_url Nullable(String),
+    thumbnail_width Nullable(UInt32),
+    thumbnail_height Nullable(UInt32),
+    thumbnail_content_type Nullable(String),
+    CONSTRAINT wsi_slide_type_valid CHECK slide_type IN ('H&E', 'IHC', 'Other'),
+    CONSTRAINT wsi_slide_stain_flags_valid CHECK NOT (is_hne AND is_ihc)
+        AND (slide_type != 'H&E' OR is_hne)
+        AND (slide_type != 'IHC' OR is_ihc)
+        AND (slide_type != 'Other' OR NOT is_hne AND NOT is_ihc),
+    PROJECTION wsi_slide_by_access (
+        SELECT
+            cancer_study_id,
+            image_id,
+            can_serve_tiles,
+            source_url,
+            tile_metadata_json,
+            thumbnail_url,
+            thumbnail_width,
+            thumbnail_height,
+            thumbnail_content_type
+        ORDER BY (cancer_study_id, image_id)
+    )
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
+
+CREATE TABLE IF NOT EXISTS wsi_slide_placement (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    part_key String,
+    block_key String,
+    sample_id Nullable(Int64),
+    match_level String,
+    specimen_key String
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+
+## db_schema_version: 3.3.0
+## description: Distinguish positively identified non-H&E/IHC slides from unknown classifications
+ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_type_valid;
+ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_stain_flags_valid;
+ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_type_valid
+    CHECK slide_type IN ('H&E', 'IHC', 'Other', 'Unknown');
+ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_stain_flags_valid
+    CHECK NOT (is_hne AND is_ihc)
+        AND (slide_type != 'H&E' OR is_hne)
+        AND (slide_type != 'IHC' OR is_ihc)
+        AND (slide_type NOT IN ('Other', 'Unknown') OR NOT is_hne AND NOT is_ihc);
+
+## db_schema_version: 3.4.0
+## description: Store WSI timing provenance, including undated associations, outside clinical events
+CREATE TABLE IF NOT EXISTS wsi_slide_timing (
+    cancer_study_id Int64,
+    patient_id Int64,
+    image_id String,
+    timeline_start_days Nullable(Int64),
+    timeline_date_status String,
+    timeline_date_kind String,
+    timeline_date_source Nullable(String),
+    timeline_date_reason Nullable(String),
+    timeline_coordinate_system Nullable(String),
+    timepoint_source Nullable(String)
+) ENGINE = MergeTree()
+ORDER BY (cancer_study_id, patient_id, image_id);
+## db_schema_version: 3.5.0
+## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
+-- Sorting key: PATIENT_ID and SAMPLE_ID sit ahead of RESOURCE_DATA_ID so the resource table's
+-- default sort (ORDER BY PATIENT_ID, SAMPLE_ID) is read in key order instead of sorting the whole
+-- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
+-- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
+-- MergeTree only permits with allow_nullable_key.
+CREATE TABLE IF NOT EXISTS resource_data
+(
+    `RESOURCE_DATA_ID` Int64,
+    `RESOURCE_ID`      String,
+    `CANCER_STUDY_ID`  Int32,
+    `ENTITY_TYPE`      String,
+    `PATIENT_ID`       Nullable(String),
+    `SAMPLE_ID`        Nullable(String),
+    `URL`              String,
+    `DISPLAY_NAME`     Nullable(String),
+    `TYPE`             Nullable(String),
+    `METADATA`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)
+  SETTINGS allow_nullable_key = 1;
+
+-- Backfill is guarded by a deterministic RESOURCE_DATA_ID (hash of the natural key) so this
+-- section is safe to re-run: rows already present are excluded via NOT IN.
+-- Recreate the legacy tables if they are missing, so this section can be retried after a run
+-- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
+-- first run they already exist and this is a no-op; on a retry they come back empty, the
+-- backfill finds nothing new, and the drops remove them again.
+CREATE TABLE IF NOT EXISTS resource_sample (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
+INSERT INTO resource_data
+    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+SELECT
+    toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)),
+    rs.resource_id,
+    toInt32(cs.cancer_study_id),
+    'SAMPLE',
+    p.stable_id,
+    s.stable_id,
+    rs.url,
+    NULL, NULL, NULL
+FROM resource_sample rs
+INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
+INNER JOIN patient      p  ON s.patient_id      = p.internal_id
+INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+WHERE toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)) NOT IN (
+    SELECT RESOURCE_DATA_ID FROM resource_data
+);
+
+INSERT INTO resource_data
+    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+SELECT
+    toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)),
+    rp.resource_id,
+    toInt32(cs.cancer_study_id),
+    'PATIENT',
+    pt.stable_id,
+    NULL,
+    rp.url,
+    NULL, NULL, NULL
+FROM resource_patient rp
+INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
+INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
+WHERE toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)) NOT IN (
+    SELECT RESOURCE_DATA_ID FROM resource_data
+);
+
+INSERT INTO resource_data
+    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
+     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+SELECT
+    toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)),
+    rst.resource_id,
+    toInt32(rst.internal_id),
+    'STUDY',
+    NULL, NULL,
+    rst.url,
+    NULL, NULL, NULL
+FROM resource_study rst
+WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) NOT IN (
+    SELECT RESOURCE_DATA_ID FROM resource_data
+);
+
+-- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
+-- the API paths that used to read them (the legacy resource endpoints, the study resource
+-- counts) were repointed. Dropping them leaves an upgraded database with the same schema a
+-- fresh install gets from schema.sql, which no longer creates them.
+DROP TABLE IF EXISTS resource_sample;
+DROP TABLE IF EXISTS resource_patient;
+DROP TABLE IF EXISTS resource_study;

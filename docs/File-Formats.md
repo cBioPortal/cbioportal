@@ -288,7 +288,7 @@ two resources:
 
 The patient view's slide viewer, the WSI hierarchy endpoint
 (`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
-endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access`)
+endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`)
 read only these two resources. A `WHOLE_SLIDE_IMAGE` row in any other resource
 is shown in the generic resource table but is never served as a slide.
 

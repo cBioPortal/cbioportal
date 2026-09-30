@@ -32,9 +32,8 @@ public class ClickhouseWsiSlideAccessMapperTest {
   @Autowired private ClickhouseWsiSlideAccessMapper mapper;
 
   @Test
-  public void readsServingMetadataForTheExactRow() {
-    Map<String, Object> row =
-        mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "WSI_SAMPLE", 900101L);
+  public void readsServingMetadataForTheImage() {
+    Map<String, Object> row = mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "3020726");
 
     assertNotNull(row);
     assertEquals("3020726", row.get("image_id"));
@@ -46,30 +45,32 @@ public class ClickhouseWsiSlideAccessMapperTest {
   }
 
   @Test
+  public void findsUnmatchedPatientSlides() {
+    Map<String, Object> row = mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "3020648");
+
+    assertNotNull(row);
+    assertEquals("3020648", row.get("image_id"));
+  }
+
+  @Test
   public void returnsNullForWrongPatient() {
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "SNAPSHOT-PATIENT", "WSI_SAMPLE", 900101L));
+    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "SNAPSHOT-PATIENT", "3020726"));
   }
 
   @Test
   public void returnsNullForWrongStudy() {
-    assertNull(mapper.getSlideAccess(WSI_SNAPSHOT_STUDY, "WSI-PATIENT", "WSI_SAMPLE", 900101L));
+    assertNull(mapper.getSlideAccess(WSI_SNAPSHOT_STUDY, "WSI-PATIENT", "3020726"));
   }
 
   @Test
-  public void returnsNullForWrongRow() {
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "WSI_SAMPLE", 900102L));
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "WSI_SAMPLE", 999999L));
-  }
-
-  @Test
-  public void returnsNullForWrongResource() {
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "WSI_PATIENT", 900101L));
+  public void returnsNullForUnknownImage() {
+    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "999999"));
   }
 
   @Test
   public void returnsNullForNonWsiResourceRow() {
-    // 900103 is a WHOLE_SLIDE_IMAGE row with complete serving metadata, but it belongs to a
+    // other-slide is a WHOLE_SLIDE_IMAGE row with complete serving metadata, but it belongs to a
     // resource other than WSI_SAMPLE/WSI_PATIENT.
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "OTHER_SLIDES", 900103L));
+    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "other-slide"));
   }
 }

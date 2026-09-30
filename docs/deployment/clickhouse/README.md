@@ -295,11 +295,12 @@ Clients use two endpoints:
   normal cBioPortal APIs. A patient with no WSI rows gets `200` with an empty
   hierarchy (`{"referenceSampleId":null,"sampleGroups":[]}`); an unknown study
   or patient gets `404`.
-- `GET /api/wsi/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access`
+- `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`
   returns the pixel access bundle and capability for one slide. It reads
-  `wsi_serving` from exactly that row, and only when the row belongs to the
-  study and patient, its resource is `WSI_SAMPLE` or `WSI_PATIENT`, and its
-  `TYPE` is `WHOLE_SLIDE_IMAGE`.
+  `wsi_serving` from the row with that `image_id`, and only when the row
+  belongs to the study and patient, its resource is `WSI_SAMPLE` or
+  `WSI_PATIENT`, and its `TYPE` is `WHOLE_SLIDE_IMAGE`. The image ID is unique
+  within a study and, unlike the resource-data row ID, survives a reimport.
 
 `wsi_serving` is private for every `resource_data` row. The generic resource
 table API strips it from row metadata and ignores it in search, filters,

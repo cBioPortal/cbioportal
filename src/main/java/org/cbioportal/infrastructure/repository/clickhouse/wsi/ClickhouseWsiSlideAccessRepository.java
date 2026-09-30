@@ -78,8 +78,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   }
 
   @Override
-  public WsiSlideAccess getSlideAccess(
-      String studyId, String patientId, String resourceId, String resourceDataId) {
+  public WsiSlideAccess getSlideAccess(String studyId, String patientId, String imageId) {
     // A portal response contains the exact object URLs. Refuse to issue a
     // capability unless both production allowlists are configured; structural
     // checks in isServableRow() remain independently unit-testable.
@@ -90,15 +89,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (context == null) {
       return null;
     }
-    long rowId;
-    try {
-      rowId = Long.parseLong(resourceDataId);
-    } catch (NumberFormatException exception) {
-      return null;
-    }
     Map<String, Object> row =
-        mapper.getSlideAccess(
-            longValue(context.get("cancer_study_id")), patientId, resourceId, rowId);
+        mapper.getSlideAccess(longValue(context.get("cancer_study_id")), patientId, imageId);
     if (!isServableRow(row, objectMapper)) {
       return null;
     }

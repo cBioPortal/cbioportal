@@ -14,11 +14,10 @@
             JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
         FROM resource_data row
         PREWHERE row.CANCER_STUDY_ID = #{studyInternalId}
-            AND row.RESOURCE_ID = #{resourceId}
+            AND row.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
             AND row.PATIENT_ID = #{patientId}
-            AND row.RESOURCE_DATA_ID = #{resourceDataId}
-        WHERE row.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
-            AND row.TYPE = 'WHOLE_SLIDE_IMAGE'
+        WHERE row.TYPE = 'WHOLE_SLIDE_IMAGE'
+            AND JSONExtractString(ifNull(row.METADATA, '{}'), 'image_id') = #{imageId}
         LIMIT 1
     </select>
 </mapper>

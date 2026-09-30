@@ -23,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Issues short-lived capabilities for the same-origin WSI tile service. */
@@ -49,19 +50,20 @@ public class WsiAccessTokenController {
   /**
    * Returns the browser-facing pixel access bundle for one materialized slide.
    *
+   * <p>The slide is named by its image ID, which is unique within a study and, unlike the
+   * resource-data row ID, survives a reimport. It is a query parameter because image IDs may
+   * contain a slash.
+   *
    * <p>The URL is deliberately returned by cBioPortal, rather than resolved by the tile server. The
    * capability is bound to the exact source and thumbnail URLs so a valid token cannot be replayed
    * against another object.
    */
-  @GetMapping("/v2/resources/{studyId}/{patientId}/{resourceId}/{resourceDataId}/access")
+  @GetMapping("/v2/resources/{studyId}/{patientId}/access")
   @PreAuthorize(
       "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<?> issueSlideAccess(
-      @PathVariable String studyId,
-      @PathVariable String patientId,
-      @PathVariable String resourceId,
-      @PathVariable String resourceDataId) {
+      @PathVariable String studyId, @PathVariable String patientId, @RequestParam String imageId) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean anonymous = isAnonymous(authentication);
     if (anonymous && !localAuthBypass) {
@@ -74,10 +76,8 @@ public class WsiAccessTokenController {
         || studyId.isBlank()
         || patientId == null
         || patientId.isBlank()
-        || resourceId == null
-        || resourceId.isBlank()
-        || resourceDataId == null
-        || resourceDataId.isBlank()) {
+        || imageId == null
+        || imageId.isBlank()) {
       return ResponseEntity.badRequest().build();
     }
     if (wsiSlideAccessRepository == null) {
@@ -88,8 +88,7 @@ public class WsiAccessTokenController {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
-    WsiSlideAccess access =
-        wsiSlideAccessRepository.getSlideAccess(studyId, patientId, resourceId, resourceDataId);
+    WsiSlideAccess access = wsiSlideAccessRepository.getSlideAccess(studyId, patientId, imageId);
     if (access == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }

@@ -423,8 +423,8 @@ public class ClickhouseAlterationMapperTest {
   public void getEntityToGenePanelsBySample() {
     List<EntityToPanel> result =
         mapper.getEntityToGenePanels(
-            List.of("study_tcga_pub_tcga-a1-a0sb-01"),
-            List.of("study_tcga_pub_mutations"),
+            new String[] {"study_tcga_pub_tcga-a1-a0sb-01"},
+            new String[] {"study_tcga_pub_mutations"},
             "sample_unique_id");
 
     assertEquals(1, result.size());
@@ -437,8 +437,8 @@ public class ClickhouseAlterationMapperTest {
   public void getEntityToGenePanelsByPatient() {
     List<EntityToPanel> result =
         mapper.getEntityToGenePanels(
-            List.of("study_tcga_pub_tcga-a1-a0sb"),
-            List.of("study_tcga_pub_mutations"),
+            new String[] {"study_tcga_pub_tcga-a1-a0sb"},
+            new String[] {"study_tcga_pub_mutations"},
             "patient_unique_id");
 
     assertEquals(1, result.size());
@@ -450,8 +450,8 @@ public class ClickhouseAlterationMapperTest {
   public void getEntityToGenePanelsReturnsNothingForUnknownIds() {
     List<EntityToPanel> result =
         mapper.getEntityToGenePanels(
-            List.of("study_tcga_pub_no-such-sample"),
-            List.of("study_tcga_pub_mutations"),
+            new String[] {"study_tcga_pub_no-such-sample"},
+            new String[] {"study_tcga_pub_mutations"},
             "sample_unique_id");
 
     assertTrue(result.isEmpty());

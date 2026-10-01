@@ -76,7 +76,8 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
 
     var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
 
-    return mapper.getEntityToGenePanels(sampleStableIds, profileIds, field);
+    return mapper.getEntityToGenePanels(
+        sampleStableIds.toArray(new String[0]), profileIds.toArray(new String[0]), field);
   }
 
   @Override

@@ -175,14 +175,8 @@ totalProfiled Count per gene in java.
                         gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
         FROM sample_to_gene_panel_derived sgpd
                  JOIN sample_derived sd ON sgpd.sample_unique_id=sd.sample_unique_id
-        WHERE sd.${field} IN
-        <foreach item="sampleUniqueId" collection="sampleUniqueIds" open="(" separator="," close=")">
-            #{sampleUniqueId}
-        </foreach>
-          AND sgpd.genetic_profile_id IN
-        <foreach item="profileId" collection="profileIds" open="(" separator="," close=")">
-            #{profileId}
-        </foreach>
+        WHERE sd.${field} IN (#{sampleUniqueIds,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND sgpd.genetic_profile_id IN (#{profileIds,typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
     </select>
 
     <sql id="getAlterationCountByGeneGiven">

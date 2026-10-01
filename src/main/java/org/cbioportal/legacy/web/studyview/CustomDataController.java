@@ -56,7 +56,7 @@ public class CustomDataController {
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/custom-data-counts/fetch",
+      value = "/legacy/custom-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

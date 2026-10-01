@@ -47,7 +47,10 @@ public abstract class DataFilterUtil {
           mergedEnd = end;
         }
         // else we already has a merging range, we check if this one is consecutive of our range
-        else if (mergedEnd.equals(start)) {
+        // Use compareTo rather than equals: BigDecimal.equals() considers scale, so
+        // 1.0.equals(1.00)
+        // returns false even though the values are numerically equal.
+        else if (mergedEnd.compareTo(start) == 0) {
           // if true, we expand our range
           mergedEnd = end;
         } else {

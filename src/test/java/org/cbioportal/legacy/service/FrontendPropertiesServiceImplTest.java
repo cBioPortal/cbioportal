@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,5 +87,30 @@ public class FrontendPropertiesServiceImplTest {
   @Test
   public void getSkinHideDownloadControlsValueShouldPreserveNull() {
     assertNull(FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(null));
+  }
+
+  @Test
+  public void studyAvailabilityEnabledShouldDefaultToFalse() {
+    FrontendPropertiesServiceImpl service = initService(new MockEnvironment());
+
+    assertEquals(
+        "false",
+        service.getFrontendProperty(
+            FrontendPropertiesServiceImpl.FrontendProperty.study_availability_enabled));
+  }
+
+  @Test
+  public void studyAvailabilityEnabledShouldExposeConfiguredValue() {
+    FrontendPropertiesServiceImpl service =
+        initService(new MockEnvironment().withProperty("study_availability.enabled", "true"));
+
+    assertEquals("true", service.getFrontendProperties().get("study_availability_enabled"));
+  }
+
+  private FrontendPropertiesServiceImpl initService(Environment environment) {
+    FrontendPropertiesServiceImpl service = new FrontendPropertiesServiceImpl();
+    ReflectionTestUtils.setField(service, "env", environment);
+    service.init();
+    return service;
   }
 }

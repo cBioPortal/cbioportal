@@ -147,9 +147,13 @@ Then, modify the section labeled `authentication`. See SAML parameters shown in 
 
 Please note that you will have to modify all the above to match your own settings. `saml.idp.comm.binding.type` can be left empty if `saml.idp.comm.binding.settings=defaultBinding`. The `saml.logout.*` settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).
 
-In the case that you are running cBioPortal behind a reverse proxy that handles the SSL certificates (such as nginx or traefik), you will have to also specify `saml.sp.metadata.entitybaseurl`. This should point to `https://host.example.come:443`. This setting is required such that cBioPortal uses the Spring SAML library appropriately for creating redirects back into cBioPortal.
+When running cBioPortal behind a reverse proxy that terminates SSL (such as nginx or Traefik), you must also specify `saml.sp.metadata.entitybaseurl`. This should point to the public HTTPS URL, for example `https://host.example.com:443`. This setting allows the Spring SAML library to create redirects back to cBioPortal.
 
-In addition there is a known bug where redirect from the cBioPortal instance always goes over http instead of https (https://github.com/cBioPortal/cbioportal/issues/6342). To get around this issue you can pass the full URL including https to the `webapp-runnner.jar` command with e.g. `--proxy-base-url https://mycbioportalinstance.org`.
+The reverse proxy must set the `X-Forwarded-For` and `X-Forwarded-Proto` headers. Configure Spring Boot to use these headers when it builds redirect URLs:
+
+    server.forward-headers-strategy=NATIVE
+
+Only enable forwarded-header handling when cBioPortal is behind a trusted proxy that removes or overwrites forwarded headers supplied by clients. See Spring Boot's [reverse proxy documentation](https://docs.spring.io/spring-boot/3.5/how-to/webserver.html#howto.webserver.use-behind-a-proxy-server) for more details.
 
 ### Custom scenarios
 
@@ -270,4 +274,3 @@ By default, the portal will automatically generate a Service Provider (SP) Meta 
 You can access the Service Provider Meta Data File via a URL such as:
 
 [http://localhost:8080/saml/metadata](http://localhost:8080/saml/metadata)
-

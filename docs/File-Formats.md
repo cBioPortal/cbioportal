@@ -230,6 +230,9 @@ The following columns affect the header of the patient view by adding text to th
 - **SAMPLE_CLASS**
 - **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
+The following column is used together with the [allele specific copy number (ASCN) annotations](#allele-specific-copy-number-ascn-annotations) of the mutation data:
+- **ASCN_WGD**: Whole genome doubling status of the sample from the ASCN analysis, `WGD` or `no WGD`. It is shown as a `WGD` tag next to the total copy number in the mutation table and is needed to show the total copy number and its allele specific call (e.g. "CNLOH" or "Loss After").
+
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
 - **OTHER_SAMPLE_ID**: OTHER_SAMPLE_ID is no longer supported. Please replace this column header with SAMPLE_ID.   
 - **SAMPLE_TYPE**, **TUMOR_TISSUE_SITE** or **TUMOR_TYPE**: gives sample icon in the timeline a color.
@@ -790,11 +793,13 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 42. **ASCN.ASCN_METHOD (Optional)**: Method used to obtain ASCN data e.g "FACETS".
 43. **ASCN.CCF_EXPECTED_COPIES (Optional)**: Cancer-cell fraction if mutation exists on major allele. Displayed as a plain number for single-sample patients or as a bar chart for multi-sample patients in the patient view mutation table.
 44. **ASCN.CCF_EXPECTED_COPIES_UPPER (Optional)**: Upper error for CCF estimate.
-45. **ASCN.EXPECTED_ALT_COPIES (Optional)**: Estimated number of copies harboring mutant allele.
+45. **ASCN.EXPECTED_ALT_COPIES (Optional)**: Estimated number of copies harboring mutant allele. Displayed in the "Mutant Integer Copy #" column of the mutation table.
 46. **ASCN.CLONAL (Optional)**: "Clonal", "Subclonal", or "Indeterminate". Displayed as a "Clonal" boolean column in the patient view mutation table, where only "Clonal" values are indicated with a dot.
-47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene.
+47. **ASCN.TOTAL_COPY_NUMBER (Optional)**: Total copy number of the gene. Displayed in the "Total Integer Copy #" column of the mutation table, for samples with a whole genome doubling status (see below).
 48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
-49. **ASCN.ASCN_INTEGER_COPY_NUMER (Optional)**: Absolute integer copy-number estimate.
+49. **ASCN.ASCN_INTEGER_COPY_NUMBER (Optional)**: Absolute integer copy-number estimate.
+
+ASCN analysis also determines whether a sample has undergone whole genome doubling (WGD). This is a property of the sample, not of the mutations, so it is added to the [clinical sample file](#clinical-sample-columns) as the `ASCN_WGD` attribute (`WGD` or `no WGD`). Together with the total and minor copy number of a mutation it determines the allele specific call shown in the mutation table (e.g. "CNLOH" or "Loss After").
 
 ### Example cBioPortal mutation data file
 An example cBioPortal mutation data file can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/test/test_data/study_es_0/data_mutations_extended.maf).

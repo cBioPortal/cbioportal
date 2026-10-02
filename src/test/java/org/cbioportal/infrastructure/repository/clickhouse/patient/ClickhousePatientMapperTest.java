@@ -8,6 +8,7 @@ import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewFilterFactory;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
+import org.cbioportal.legacy.model.CaseListDataCount;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class ClickhousePatientMapperTest {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-    var caseList = new ArrayList<String>(Arrays.asList("pub_cna"));
+    var caseList = new ArrayList<String>(Arrays.asList("cna"));
     var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
     studyViewFilter.setCaseLists(caseListGroups);
@@ -63,7 +64,7 @@ public class ClickhousePatientMapperTest {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
-    var caseList = new ArrayList<String>(Arrays.asList("mrna", "pub_cna"));
+    var caseList = new ArrayList<String>(Arrays.asList("mrna", "cna"));
     var caseListGroups = new ArrayList(Arrays.asList(caseList));
 
     studyViewFilter.setCaseLists(caseListGroups);
@@ -89,7 +90,7 @@ public class ClickhousePatientMapperTest {
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
 
     var caseList1 = new ArrayList<String>(Arrays.asList("mrna"));
-    var caseList2 = new ArrayList<String>(Arrays.asList("pub_cna"));
+    var caseList2 = new ArrayList<String>(Arrays.asList("cna"));
     var caseListGroups = new ArrayList(Arrays.asList(caseList1, caseList2));
 
     studyViewFilter.setCaseLists(caseListGroups);
@@ -144,5 +145,47 @@ public class ClickhousePatientMapperTest {
             .getCount()
             .intValue();
     assertEquals(15, sizeMerged);
+  }
+
+  @Test
+  public void caseListFilterDoesNotMatchOtherCaseListsWithTheSameSuffix() {
+    // study_tcga_pub_cna has 7 samples, study_tcga_pub_log2cna (also ending in "cna") has all 14
+    var caseListCounts = getCaseListCounts(List.of(List.of("cna")));
+
+    assertEquals(7, countForCaseList(caseListCounts, "cna"));
+    assertEquals(7, countForCaseList(caseListCounts, "log2cna"));
+    assertEquals(7, countForCaseList(caseListCounts, "all"));
+  }
+
+  @Test
+  public void caseListFilterSelectsExactlyTheSamplesCountedForEachCaseList() {
+    var unfilteredCounts = getCaseListCounts(null);
+    assertFalse(unfilteredCounts.isEmpty());
+
+    for (var caseList : unfilteredCounts) {
+      var filteredCounts = getCaseListCounts(List.of(List.of(caseList.getValue())));
+      // every study_tcga_pub sample is in the "all" case list, so its count is the selection size
+      assertEquals(
+          "samples selected by case list " + caseList.getValue(),
+          caseList.getCount().intValue(),
+          countForCaseList(filteredCounts, "all"));
+    }
+  }
+
+  private List<CaseListDataCount> getCaseListCounts(List<List<String>> caseLists) {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));
+    studyViewFilter.setCaseLists(caseLists);
+
+    return mapper.getCaseListDataCounts(
+        StudyViewFilterFactory.make(studyViewFilter, null, studyViewFilter.getStudyIds(), null));
+  }
+
+  private int countForCaseList(List<CaseListDataCount> caseListCounts, String value) {
+    return caseListCounts.stream()
+        .filter(caseListCount -> caseListCount.getValue().equals(value))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("no count for case list " + value))
+        .getCount();
   }
 }

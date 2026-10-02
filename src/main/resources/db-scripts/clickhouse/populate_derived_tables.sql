@@ -6,9 +6,9 @@
 -- db-scripts/clickhouse/migrate/migrate_schema.sql section), versioned together with every
 -- other table under the single db_schema_version. This script only clears and repopulates data
 -- (e.g. after importing a study, or as a manual rebuild step) — it does not need its own version
--- number. Only run it while no backend web service is connected to this database in production:
--- it TRUNCATEs derived tables before repopulating them, so a live instance querying the database
--- mid-run will see empty or partially-rebuilt derived tables and surface errors.
+-- number. Each table is rebuilt under a "<name>_temp" copy and swapped in via `EXCHANGE TABLES`,
+-- so it can in theory run against a live production instance -- running with the backend web
+-- service disconnected is still recommended.
 --
 -- Callers: metaImport.py's rebuild_derived_tables.py after every import, migrate_db.py
 -- --populate-derived-tables after a migration, docker-compose's fresh-install init scripts, or
@@ -16,22 +16,19 @@
 
 SET function_sleep_max_microseconds_per_block = 3600000000;
 
--- Clear derived tables before repopulating — this script doesn't recreate table structure, so
--- data needs to be explicitly cleared rather than relying on a DROP+CREATE to do it implicitly.
--- alter_sync = 2 forces TRUNCATE to block until fully applied (on all replicas, in a replicated
--- setup) before returning, so the INSERTs below never race a still-in-progress TRUNCATE.
-TRUNCATE TABLE IF EXISTS sample_to_gene_panel_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS gene_panel_to_gene_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS sample_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS genomic_event_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS clinical_data_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS clinical_event_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS clinical_event_data_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS genetic_alteration_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS generic_assay_data_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS mutation_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS generic_assay_profile_entity_derived SETTINGS alter_sync = 2;
-TRUNCATE TABLE IF EXISTS generic_assay_meta_derived SETTINGS alter_sync = 2;
+-- Drop leftover _temp tables from a previous failed run.
+DROP TABLE IF EXISTS sample_to_gene_panel_derived_temp;
+DROP TABLE IF EXISTS gene_panel_to_gene_derived_temp;
+DROP TABLE IF EXISTS sample_derived_temp;
+DROP TABLE IF EXISTS genomic_event_derived_temp;
+DROP TABLE IF EXISTS clinical_data_derived_temp;
+DROP TABLE IF EXISTS clinical_event_derived_temp;
+DROP TABLE IF EXISTS clinical_event_data_derived_temp;
+DROP TABLE IF EXISTS genetic_alteration_derived_temp;
+DROP TABLE IF EXISTS generic_assay_data_derived_temp;
+DROP TABLE IF EXISTS mutation_derived_temp;
+DROP TABLE IF EXISTS generic_assay_profile_entity_derived_temp;
+DROP TABLE IF EXISTS generic_assay_meta_derived_temp;
 
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;
@@ -48,6 +45,7 @@ SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 -- the following query "fixes" the sample_profile table by adding entries for "missing" samples -- those which appear in mutated case list but not in the MySQL sample_profile table
 -- this problem was handled in java at run time in legacy codebase
 -- this MUST BE RUN prior to creation of any derived table which relies on sample_profile table
+-- writes live, not to a _temp copy
 INSERT INTO sample_profile (sample_id, genetic_profile_id, panel_id)
 WITH missing_samples AS (
     -- Select all members of lists of type '_sequenced' (mutation) which do NOT appear in sample_profile table for profiles of type mutation
@@ -87,7 +85,8 @@ FROM
 OPTIMIZE TABLE sample_profile FINAL;
 SELECT sleepEachRow(1) FROM numbers({optimize_backoff_secs:UInt64}) FORMAT Null;
 
-INSERT INTO sample_to_gene_panel_derived
+CREATE TABLE sample_to_gene_panel_derived_temp AS sample_to_gene_panel_derived;
+INSERT INTO sample_to_gene_panel_derived_temp
 SELECT
     concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
     genetic_alteration_type AS alteration_type,
@@ -101,7 +100,8 @@ FROM sample_profile sp
          INNER JOIN sample ON sp.sample_id = sample.internal_id
          INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id;
 
-INSERT INTO gene_panel_to_gene_derived
+CREATE TABLE gene_panel_to_gene_derived_temp AS gene_panel_to_gene_derived;
+INSERT INTO gene_panel_to_gene_derived_temp
 SELECT
     gp.stable_id AS gene_panel_id,
     g.hugo_gene_symbol AS gene
@@ -115,7 +115,8 @@ SELECT
 FROM gene
 WHERE gene.entrez_gene_id > 0;
 
-INSERT INTO sample_derived
+CREATE TABLE sample_derived_temp AS sample_derived;
+INSERT INTO sample_derived_temp
 WITH
     sequenced_samples AS (
         SELECT
@@ -140,7 +141,7 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        sample.stable_id                                          AS sample_stable_id,
        concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
        base64Encode(p.stable_id)                                 AS patient_unique_id_base64,
-       p.stable_id                                               AS patient_stable_id,
+       p.stable_id                                                AS patient_stable_id,
        cs.cancer_study_identifier                                AS cancer_study_identifier,
        sample.internal_id                                        AS internal_id,
        -- fields below are needed for the SUMMARY projection
@@ -153,7 +154,9 @@ FROM sample
          INNER JOIN patient AS p ON sample.patient_id = p.internal_id
          INNER JOIN cancer_study AS cs ON p.cancer_study_id = cs.cancer_study_id;
 
-INSERT INTO genomic_event_derived
+CREATE TABLE genomic_event_derived_temp AS genomic_event_derived;
+
+INSERT INTO genomic_event_derived_temp
 -- Insert Mutations
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
@@ -175,7 +178,7 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
        (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
            SELECT gene_panel_id, gene
-           FROM gene_panel_to_gene_derived
+           FROM gene_panel_to_gene_derived_temp
        ) AS off_panel
 FROM mutation
          INNER JOIN mutation_event AS me ON mutation.mutation_event_id = me.mutation_event_id
@@ -189,7 +192,7 @@ FROM mutation
          LEFT JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
          LEFT JOIN alteration_driver_annotation ada ON (mutation.genetic_profile_id = alteration_driver_annotation.genetic_profile_id) AND (mutation.sample_id = alteration_driver_annotation.sample_id) AND (mutation.mutation_event_id = alteration_driver_annotation.alteration_event_id);
 
-INSERT INTO genomic_event_derived
+INSERT INTO genomic_event_derived_temp
 -- Insert CNA Genes
 SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                     AS hugo_gene_symbol,
@@ -211,7 +214,7 @@ SELECT concat(cs.cancer_study_identifier, '_', sample.stable_id) AS sample_uniqu
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
        (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
            SELECT gene_panel_id, gene
-           FROM gene_panel_to_gene_derived
+           FROM gene_panel_to_gene_derived_temp
        ) AS off_panel
 FROM cna_event ce
          INNER JOIN sample_cna_event sce ON ce.cna_event_id = sce.cna_event_id
@@ -225,7 +228,7 @@ FROM cna_event ce
          INNER JOIN reference_genome_gene rgg ON rgg.entrez_gene_id = ce.entrez_gene_id AND rgg.reference_genome_id = cs.reference_genome_id
          LEFT JOIN alteration_driver_annotation ada ON (sce.genetic_profile_id = ada.genetic_profile_id) AND (sce.sample_id = ada.sample_id) AND (sce.cna_event_id = ada.alteration_event_id);
 
-INSERT INTO genomic_event_derived
+INSERT INTO genomic_event_derived_temp
 -- Insert Structural Variants Site1
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
@@ -247,7 +250,7 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
        (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
            SELECT gene_panel_id, gene
-           FROM gene_panel_to_gene_derived
+           FROM gene_panel_to_gene_derived_temp
        ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
@@ -259,7 +262,7 @@ FROM structural_variant sv
          LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
          LEFT JOIN alteration_driver_annotation ada ON (sv.genetic_profile_id = ada.genetic_profile_id) AND (sv.sample_id = ada.sample_id) AND (sv.internal_id = ada.alteration_event_id);
 
-INSERT INTO genomic_event_derived
+INSERT INTO genomic_event_derived_temp
 -- Insert Structural Variants Site2
 SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        gene.hugo_gene_symbol                                AS hugo_gene_symbol,
@@ -281,7 +284,7 @@ SELECT concat(cs.cancer_study_identifier, '_', s.stable_id) AS sample_unique_id,
        concat(cs.cancer_study_identifier, '_', patient.stable_id) AS patient_unique_id,
        (gene_panel_stable_id, hugo_gene_symbol) NOT IN (
            SELECT gene_panel_id, gene
-           FROM gene_panel_to_gene_derived
+           FROM gene_panel_to_gene_derived_temp
        ) AS off_panel
 FROM structural_variant sv
          INNER JOIN genetic_profile gp ON sv.genetic_profile_id = gp.genetic_profile_id
@@ -296,8 +299,10 @@ WHERE
         sv.site2_entrez_gene_id != sv.site1_entrez_gene_id
             OR sv.site1_entrez_gene_id IS NULL;
 
+CREATE TABLE clinical_data_derived_temp AS clinical_data_derived;
+
 -- Insert sample attribute data
-INSERT INTO TABLE clinical_data_derived
+INSERT INTO TABLE clinical_data_derived_temp
 SELECT sm.internal_id             AS internal_id,
        sm.sample_unique_id        AS sample_unique_id,
        sm.patient_unique_id       AS patient_unique_id,
@@ -305,7 +310,7 @@ SELECT sm.internal_id             AS internal_id,
        ifNull(csamp.attr_value, '')          AS attribute_value,
        cs.cancer_study_identifier AS cancer_study_identifier,
        'sample'                   AS type
-FROM sample_derived AS sm
+FROM sample_derived_temp AS sm
          INNER JOIN cancer_study AS cs
                     ON sm.cancer_study_identifier = cs.cancer_study_identifier
          INNER JOIN clinical_attribute_meta AS cam
@@ -315,7 +320,7 @@ FROM sample_derived AS sm
 WHERE cam.patient_attribute = 0;
 
 -- INSERT patient attribute data
-INSERT INTO TABLE clinical_data_derived
+INSERT INTO TABLE clinical_data_derived_temp
 SELECT p.internal_id                                        AS internal_id,
        ''                                                   AS sample_unique_id,
        concat(cs.cancer_study_identifier, '_', p.stable_id) AS patient_unique_id,
@@ -332,9 +337,10 @@ FROM patient AS p
 WHERE cam.patient_attribute = 1;
 
 -- Creates and populates clinical_event_derived with a primary key for Clickhouse-only (original clinical_event table remains unchanged)
+CREATE TABLE clinical_event_derived_temp AS clinical_event_derived;
 
 -- Copy the data
-INSERT INTO clinical_event_derived
+INSERT INTO clinical_event_derived_temp
 SELECT
     ce.clinical_event_id,
     ce.patient_id,
@@ -347,7 +353,8 @@ FROM clinical_event ce
     INNER JOIN patient p ON ce.patient_id = p.internal_id
     INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id;
 
-INSERT INTO clinical_event_data_derived
+CREATE TABLE clinical_event_data_derived_temp AS clinical_event_data_derived;
+INSERT INTO clinical_event_data_derived_temp
 SELECT
     concat(cs.cancer_study_identifier, '_', p.stable_id)      AS patient_unique_id,
     ced.key AS key,
@@ -362,7 +369,8 @@ FROM clinical_event_data ced
     INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
 SETTINGS join_algorithm = 'partial_merge';
 
-INSERT INTO TABLE genetic_alteration_derived
+CREATE TABLE genetic_alteration_derived_temp AS genetic_alteration_derived;
+INSERT INTO TABLE genetic_alteration_derived_temp
 SELECT
     sample_unique_id,
     cancer_study_identifier,
@@ -390,9 +398,10 @@ FROM
              gp.genetic_alteration_type NOT IN ('GENERIC_ASSAY', 'MUTATION_EXTENDED', 'MUTATION_UNCALLED', 'STRUCTURAL_VARIANT'))
             ARRAY JOIN alteration_value, sample_id
     WHERE alteration_value != 'NA') AS subquery
-        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+        JOIN sample_derived_temp sd ON sd.internal_id = subquery.sample_id;
 
-INSERT INTO TABLE generic_assay_data_derived
+CREATE TABLE generic_assay_data_derived_temp AS generic_assay_data_derived;
+INSERT INTO TABLE generic_assay_data_derived_temp
 SELECT
     sd.sample_unique_id as sample_unique_id,
     sd.patient_unique_id as patient_unique_id,
@@ -440,9 +449,10 @@ FROM
          )
              ARRAY JOIN value, sample_id) AS subquery
         JOIN cancer_study cs ON cs.cancer_study_id = subquery.cancer_study_id
-        JOIN sample_derived sd ON sd.internal_id = subquery.sample_id;
+        JOIN sample_derived_temp sd ON sd.internal_id = subquery.sample_id;
 
-INSERT INTO mutation_derived
+CREATE TABLE mutation_derived_temp AS mutation_derived;
+INSERT INTO mutation_derived_temp
 SELECT
     genetic_profile.stable_id AS molecularProfileId,
     sample.stable_id AS sampleId,
@@ -497,7 +507,8 @@ FROM mutation
          INNER JOIN gene ON mutation.entrez_gene_id = gene.entrez_gene_id
          LEFT JOIN allele_specific_copy_number ON (mutation.mutation_event_id = allele_specific_copy_number.mutation_event_id) AND (mutation.genetic_profile_id = allele_specific_copy_number.genetic_profile_id) AND (mutation.sample_id = allele_specific_copy_number.sample_id);
 
-INSERT INTO generic_assay_profile_entity_derived
+CREATE TABLE generic_assay_profile_entity_derived_temp AS generic_assay_profile_entity_derived;
+INSERT INTO generic_assay_profile_entity_derived_temp
 SELECT DISTINCT
     gp.stable_id AS profile_stable_id,
     ge.stable_id AS entity_stable_id
@@ -506,7 +517,8 @@ FROM genetic_alteration ga
     JOIN genetic_entity ge ON ga.genetic_entity_id = ge.id
 WHERE gp.genetic_alteration_type = 'GENERIC_ASSAY';
 
-INSERT INTO generic_assay_meta_derived
+CREATE TABLE generic_assay_meta_derived_temp AS generic_assay_meta_derived;
+INSERT INTO generic_assay_meta_derived_temp
 SELECT
     ge.stable_id AS entity_stable_id,
     ge.entity_type AS entity_type,
@@ -519,14 +531,42 @@ LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
 WHERE ge.entity_type = 'GENERIC_ASSAY'
 GROUP BY ge.stable_id, ge.entity_type;
 
-OPTIMIZE TABLE sample_to_gene_panel_derived;
-OPTIMIZE TABLE gene_panel_to_gene_derived;
-OPTIMIZE TABLE sample_derived;
-OPTIMIZE TABLE genomic_event_derived;
-OPTIMIZE TABLE clinical_data_derived;
-OPTIMIZE TABLE clinical_event_derived;
-OPTIMIZE TABLE clinical_event_data_derived;
-OPTIMIZE TABLE genetic_alteration_derived;
-OPTIMIZE TABLE generic_assay_data_derived;
-OPTIMIZE TABLE generic_assay_profile_entity_derived;
-OPTIMIZE TABLE generic_assay_meta_derived;
+-- Merge parts.
+OPTIMIZE TABLE sample_to_gene_panel_derived_temp;
+OPTIMIZE TABLE gene_panel_to_gene_derived_temp;
+OPTIMIZE TABLE sample_derived_temp;
+OPTIMIZE TABLE genomic_event_derived_temp;
+OPTIMIZE TABLE clinical_data_derived_temp;
+OPTIMIZE TABLE clinical_event_derived_temp;
+OPTIMIZE TABLE clinical_event_data_derived_temp;
+OPTIMIZE TABLE genetic_alteration_derived_temp;
+OPTIMIZE TABLE generic_assay_data_derived_temp;
+OPTIMIZE TABLE generic_assay_profile_entity_derived_temp;
+OPTIMIZE TABLE generic_assay_meta_derived_temp;
+
+-- Cutover.
+EXCHANGE TABLES sample_to_gene_panel_derived AND sample_to_gene_panel_derived_temp;
+EXCHANGE TABLES gene_panel_to_gene_derived AND gene_panel_to_gene_derived_temp;
+EXCHANGE TABLES sample_derived AND sample_derived_temp;
+EXCHANGE TABLES genomic_event_derived AND genomic_event_derived_temp;
+EXCHANGE TABLES clinical_data_derived AND clinical_data_derived_temp;
+EXCHANGE TABLES clinical_event_derived AND clinical_event_derived_temp;
+EXCHANGE TABLES clinical_event_data_derived AND clinical_event_data_derived_temp;
+EXCHANGE TABLES genetic_alteration_derived AND genetic_alteration_derived_temp;
+EXCHANGE TABLES generic_assay_data_derived AND generic_assay_data_derived_temp;
+EXCHANGE TABLES mutation_derived AND mutation_derived_temp;
+EXCHANGE TABLES generic_assay_profile_entity_derived AND generic_assay_profile_entity_derived_temp;
+EXCHANGE TABLES generic_assay_meta_derived AND generic_assay_meta_derived_temp;
+
+DROP TABLE IF EXISTS sample_to_gene_panel_derived_temp;
+DROP TABLE IF EXISTS gene_panel_to_gene_derived_temp;
+DROP TABLE IF EXISTS sample_derived_temp;
+DROP TABLE IF EXISTS genomic_event_derived_temp;
+DROP TABLE IF EXISTS clinical_data_derived_temp;
+DROP TABLE IF EXISTS clinical_event_derived_temp;
+DROP TABLE IF EXISTS clinical_event_data_derived_temp;
+DROP TABLE IF EXISTS genetic_alteration_derived_temp;
+DROP TABLE IF EXISTS generic_assay_data_derived_temp;
+DROP TABLE IF EXISTS mutation_derived_temp;
+DROP TABLE IF EXISTS generic_assay_profile_entity_derived_temp;
+DROP TABLE IF EXISTS generic_assay_meta_derived_temp;

@@ -231,7 +231,7 @@ The following columns affect the header of the patient view by adding text to th
 - **METASTATIC_SITE** or **PRIMARY_SITE**: Override TUMOR_SITE (patient level attribute) depending on sample type
 
 The following column is used together with the [allele specific copy number (ASCN) annotations](#allele-specific-copy-number-ascn-annotations) of the mutation data:
-- **ASCN_WGD**: Whole genome doubling status of the sample from the ASCN analysis, `WGD` or `no WGD`. It is shown as a `WGD` tag next to the total copy number in the mutation table and is needed to show the total copy number and its allele specific call (e.g. "CNLOH" or "Loss After"). `FACETS_WGD` with the values `TRUE` / `FALSE` is also accepted when `ASCN_WGD` is not present.
+- **ASCN_WGD**: Whole genome doubling status of the sample from the ASCN analysis, `WGD` or `no WGD`. It is shown as a `WGD` tag next to the total copy number in the mutation table and is needed to show the total copy number and its allele specific call (e.g. "CNLOH" or "Loss After").
 
 The following columns additionally affect the [Timeline data](#timeline-data) visualization:
 - **OTHER_SAMPLE_ID**: OTHER_SAMPLE_ID is no longer supported. Please replace this column header with SAMPLE_ID.   
@@ -799,7 +799,7 @@ Allele specific copy number (ASCN) annotation is also supported and may be added
 48. **ASCN.MINOR_COPY_NUMBER (Optional)**: Copy number of the minor allele.
 49. **ASCN.ASCN_INTEGER_COPY_NUMBER (Optional)**: Absolute integer copy-number estimate.
 
-ASCN analysis also determines whether a sample has undergone whole genome doubling (WGD). This is a property of the sample, not of the mutations, so it is added to the [clinical sample file](#clinical-sample-columns) as the `ASCN_WGD` attribute (`WGD` or `no WGD`). Together with the total and minor copy number of a mutation it determines the allele specific call shown in the mutation table (e.g. "CNLOH" or "Loss After"). `FACETS_WGD` with the values `TRUE` / `FALSE` is also accepted when `ASCN_WGD` is not present.
+ASCN analysis also determines whether a sample has undergone whole genome doubling (WGD). This is a property of the sample, not of the mutations, so it is added to the [clinical sample file](#clinical-sample-columns) as the `ASCN_WGD` attribute (`WGD` or `no WGD`). Together with the total and minor copy number of a mutation it determines the allele specific call shown in the mutation table (e.g. "CNLOH" or "Loss After").
 
 ### Example cBioPortal mutation data file
 An example cBioPortal mutation data file can be found in the cBioPortal test study [study_es_0](https://github.com/cBioPortal/cbioportal/blob/master/test/test_data/study_es_0/data_mutations_extended.maf).

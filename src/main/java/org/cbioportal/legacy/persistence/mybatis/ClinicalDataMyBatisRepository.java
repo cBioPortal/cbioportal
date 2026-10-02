@@ -243,6 +243,17 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
         direction);
   }
 
+  @Override
+  public Integer getVisibleSampleInternalIdCountForClinicalTable(
+      List<String> studyIds, List<String> sampleIds, String searchTerm) {
+    if (sampleIds.isEmpty()) {
+      return 0;
+    }
+
+    return clinicalDataMapper.getVisibleSampleInternalIdCountForClinicalTable(
+        studyIds, sampleIds, "SUMMARY", searchTerm);
+  }
+
   private ClinicalAttribute getClinicalAttributeMeta(List<String> studyIds, String attrId) {
     Assert.notNull(studyIds, "Arguments may not be null");
     Assert.notNull(attrId, "Arguments may not be null");

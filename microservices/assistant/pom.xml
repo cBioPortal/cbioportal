@@ -46,12 +46,7 @@
         </dependency>
         <dependency>
           <groupId>org.springframework.ai</groupId>
-          <artifactId>spring-ai-starter-model-azure-openai</artifactId>
-          <version>1.0.3</version>
-        </dependency>
-        <dependency>
-          <groupId>org.springframework.ai</groupId>
-          <artifactId>spring-ai-azure-openai</artifactId>
+          <artifactId>spring-ai-starter-model-anthropic</artifactId>
           <version>1.0.3</version>
         </dependency>
         <dependency>

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.stream.Collectors;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +41,12 @@ public class Application {
     @PostMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> fetchGeneAssistantResponse(@RequestBody String message) {
         ChatResponse chatResponse = assistantService.generateResponse(message);
-        return ResponseEntity.ok(chatResponse.getResult().getOutput().getText().toString());
+        // Each content block (e.g. thinking, text) is a separate generation; keep only the text.
+        String text =
+                chatResponse.getResults().stream()
+                        .map(generation -> generation.getOutput().getText())
+                        .filter(StringUtils::hasText)
+                        .collect(Collectors.joining("\n"));
+        return ResponseEntity.ok(text);
     }
 }

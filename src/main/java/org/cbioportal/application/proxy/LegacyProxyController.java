@@ -70,7 +70,7 @@ public class LegacyProxyController {
     this.sessionServiceURL = property;
   }
 
-  @Value("${show.oncokb:true}")
+  @Value("${feature.annotation.oncokb:${show.oncokb:true}}")
   public void setEnableOncokb(Boolean property) {
     if (property == null) {
       property = true;

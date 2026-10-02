@@ -292,6 +292,18 @@ endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`)
 read only these two resources. A `WHOLE_SLIDE_IMAGE` row in any other resource
 is shown in the generic resource table but is never served as a slide.
 
+Declare the per-slide identifier keys non-filterable in each definition's
+`CUSTOM_METADATA`, as the converter does:
+
+```json
+{"version":1,"fields":[{"key":"image_id","filterable":false},{"key":"barcode","filterable":false},{"key":"part_key","filterable":false},{"key":"block_key","filterable":false},{"key":"specimen_key","filterable":false},{"key":"reference_sample_id","filterable":false}]}
+```
+
+Nearly every slide has its own value for these keys. Without the declaration the
+resource table lists every distinct value as a filter option, which on a large
+study is over a million values for `image_id` alone. The columns stay visible,
+searchable and sortable.
+
 The normal study import no longer accepts `meta_wsi.txt`. Convert a legacy
 format-v3 `meta_wsi.txt`/`data_wsi.txt` pair (described
 [below](#converter-input-legacy-meta_wsi-format-v3)) with the offline converter
@@ -373,7 +385,7 @@ python3 scripts/importer/convertWsiToResources.py \
 It writes each of these files with its meta file, only when it has rows:
 
 - `data_resource_definition.txt`: the `WSI_SAMPLE` and/or `WSI_PATIENT`
-  definitions;
+  definitions, with the `CUSTOM_METADATA` contract above;
 - `data_resource_sample.txt` and `data_resource_patient.txt`: one row per
   slide, as described above;
 - with `--study-dir`: the study's clinical sample and patient data files,

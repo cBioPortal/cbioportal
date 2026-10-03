@@ -9,5 +9,5 @@ public interface ClickhouseWsiSlideAccessMapper {
   Map<String, Object> getSlideAccess(
       @Param("studyInternalId") long studyInternalId,
       @Param("patientId") String patientId,
-      @Param("imageId") String imageId);
+      @Param("slideKey") String slideKey);
 }

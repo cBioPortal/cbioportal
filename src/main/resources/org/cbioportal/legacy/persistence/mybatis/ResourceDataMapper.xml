@@ -53,11 +53,19 @@
         resource_sample/resource_patient/resource_study. resource_data stores stable IDs, so the
         joins onto sample/patient go through stable_id; those are unique only within a study, so
         every join is scoped by cancer_study_id.
+
+        WSI_SAMPLE / WSI_PATIENT rows (one per whole-slide image, carrying private serving
+        metadata) are read only by the WSI endpoints and are never returned here.
     -->
+    <sql id="excludeWsiResources">
+        AND RESOURCE_ID NOT IN ('WSI_SAMPLE', 'WSI_PATIENT')
+    </sql>
+
     <sql id="fromSample">
         FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, SAMPLE_ID, URL
               FROM resource_data
-              WHERE ENTITY_TYPE = 'SAMPLE' AND SAMPLE_ID IS NOT NULL) AS resource_sample
+              WHERE ENTITY_TYPE = 'SAMPLE' AND SAMPLE_ID IS NOT NULL
+              <include refid="excludeWsiResources"/>) AS resource_sample
         INNER JOIN cancer_study ON resource_sample.CANCER_STUDY_ID = cancer_study.cancer_study_id
         INNER JOIN sample ON sample.stable_id = resource_sample.SAMPLE_ID
         INNER JOIN patient ON sample.patient_id = patient.internal_id
@@ -67,7 +75,8 @@
     <sql id="fromPatient">
         FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, PATIENT_ID, URL
               FROM resource_data
-              WHERE ENTITY_TYPE = 'PATIENT' AND PATIENT_ID IS NOT NULL) AS resource_patient
+              WHERE ENTITY_TYPE = 'PATIENT' AND PATIENT_ID IS NOT NULL
+              <include refid="excludeWsiResources"/>) AS resource_patient
         INNER JOIN cancer_study ON resource_patient.CANCER_STUDY_ID = cancer_study.cancer_study_id
         INNER JOIN patient ON patient.stable_id = resource_patient.PATIENT_ID
                           AND patient.cancer_study_id = resource_patient.CANCER_STUDY_ID
@@ -76,7 +85,8 @@
     <sql id="fromStudy">
         FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, URL
               FROM resource_data
-              WHERE ENTITY_TYPE = 'STUDY') AS resource_study
+              WHERE ENTITY_TYPE = 'STUDY'
+              <include refid="excludeWsiResources"/>) AS resource_study
         INNER JOIN cancer_study ON resource_study.CANCER_STUDY_ID = cancer_study.cancer_study_id
     </sql>
 

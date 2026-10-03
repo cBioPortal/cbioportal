@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.cbioportal.domain.wsi.WsiBlock;
+import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.WsiPart;
 import org.cbioportal.domain.wsi.WsiSampleGroup;
@@ -42,15 +43,23 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       Pattern.compile(
           "(?i)\\b(?:mrn|medical[ _-]?record(?:[ _-]?number)?)\\b\\s*[:=#-]?\\s*\\d{4,}");
   private static final Set<String> APPROVED_IDENTIFIER_FIELDS =
-      Set.of(
-          "patient_id",
-          "reference_sample_id",
-          "sample_id",
-          "image_id",
-          "resource_id",
-          "resource_data_id");
+      Set.of("patient_id", "reference_sample_id", "sample_id");
   private static final Set<String> NON_TEXT_FIELDS =
       Set.of("is_hne", "is_ihc", "file_size_bytes", "can_serve_tiles");
+  private static final String HEX_KEY = "[0-9a-f]{32}";
+
+  /**
+   * Opaque keys derived from salted SHA-256 digests. A hex digest can contain an eight-digit run
+   * that looks like YYYYMMDD, so a value in the canonical opaque format is exempt from the date
+   * heuristics (it is still subject to the accession check). Any other value in these fields, such
+   * as a legacy numeric key, receives the normal free-text checks.
+   */
+  private static final Map<String, Pattern> OPAQUE_KEY_FIELDS =
+      Map.of(
+          "slide_key", WsiDeidentification.SLIDE_KEY,
+          "part_key", Pattern.compile("^part:" + HEX_KEY + "$"),
+          "block_key", Pattern.compile("^block:" + HEX_KEY + "$"),
+          "specimen_key", Pattern.compile("^[a-z_]+(?:::(?:part|block):" + HEX_KEY + ")+$"));
 
   private final ClickhouseWsiHierarchyMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
@@ -77,13 +86,26 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     }
 
     Map<String, WsiSampleGroupBuilder> samples = new java.util.LinkedHashMap<>();
+    List<Map<String, Object>> servedRows = new java.util.ArrayList<>(rows.size());
+    int accessionRows = 0;
+    int unkeyedSlides = 0;
     for (Map<String, Object> row : rows) {
+      if (containsAccession(row)) {
+        // Never serve a specimen accession number. Drop the row rather than the whole
+        // hierarchy and never log the offending value.
+        accessionRows++;
+        continue;
+      }
       if (!isDeidentifiedRow(row)) {
         return null;
       }
-      if (value(row, "image_id", String.class) == null) {
+      String slideKey = value(row, "slide_key", String.class);
+      if (!WsiDeidentification.isSlideKey(slideKey)) {
+        // A slide without an opaque key cannot be addressed without exposing its image_id.
+        unkeyedSlides++;
         continue;
       }
+      servedRows.add(row);
       validateTiming(row);
       String sampleKey = value(row, "sample_id", String.class);
       String sampleMapKey = sampleKey == null ? "" : sampleKey;
@@ -96,11 +118,9 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               ignored ->
                   new WsiPartBuilder(
                       value(row, "part_number", String.class),
-                      value(row, "part_designator", String.class),
                       value(row, "part_type", String.class),
                       value(row, "part_description", String.class),
-                      value(row, "subspecialty", String.class),
-                      value(row, "path_dx_title", String.class)));
+                      value(row, "subspecialty", String.class)));
       String blockKey = value(row, "block_key", String.class);
       WsiBlockBuilder block =
           part.blocks.computeIfAbsent(
@@ -111,9 +131,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
                       value(row, "block_label", String.class)));
       block.slides.add(
           new WsiSlide(
-              value(row, "image_id", String.class),
-              value(row, "resource_id", String.class),
-              value(row, "resource_data_id", String.class),
+              slideKey,
               value(row, "stain_name", String.class),
               value(row, "stain_group", String.class),
               boolValue(row, "is_hne"),
@@ -121,7 +139,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               value(row, "magnification", String.class),
               longValue(row, "file_size_bytes"),
               boolValue(row, "can_serve_tiles"),
-              value(row, "barcode", String.class),
               resolveSlideType(row),
               sampleKey,
               value(row, "match_level", String.class),
@@ -135,21 +152,30 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               value(row, "coordinate_system", String.class)));
     }
 
+    if (accessionRows > 0) {
+      LOG.warn(
+          "Dropped {} WSI hierarchy row(s) matching the specimen accession pattern", accessionRows);
+    }
+    if (unkeyedSlides > 0) {
+      LOG.warn("Dropped {} WSI hierarchy slide(s) without a valid slide_key", unkeyedSlides);
+    }
+
     List<WsiSampleGroup> sampleGroups =
         samples.values().stream().map(WsiSampleGroupBuilder::build).toList();
-    return new WsiHierarchy(referenceSampleId(rows, patientId), sampleGroups);
+    return new WsiHierarchy(referenceSampleId(servedRows, patientId), sampleGroups);
   }
 
   /**
    * The patient's reference sample, carried on every WSI row. Unmatched rows sort first and may
    * omit it, so this takes the first non-empty value; rows that disagree are logged, since the
-   * importer validates one reference sample per patient.
+   * importer validates one reference sample per patient. An accession-shaped value is never used or
+   * logged.
    */
   static String referenceSampleId(List<Map<String, Object>> rows, String patientId) {
     String reference = null;
     for (Map<String, Object> row : rows) {
       String candidate = value(row, "reference_sample_id", String.class);
-      if (candidate == null) {
+      if (candidate == null || WsiDeidentification.containsAccession(candidate)) {
         continue;
       }
       if (reference == null) {
@@ -262,7 +288,22 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     return "Unknown";
   }
 
-  private static boolean isDeidentifiedRow(Map<String, Object> row) {
+  /**
+   * True when any text value in the row, including approved identifiers, looks like an accession.
+   */
+  static boolean containsAccession(Map<String, Object> row) {
+    for (Map.Entry<String, Object> entry : row.entrySet()) {
+      if (NON_TEXT_FIELDS.contains(entry.getKey()) || entry.getValue() == null) {
+        continue;
+      }
+      if (WsiDeidentification.containsAccession(entry.getValue().toString())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static boolean isDeidentifiedRow(Map<String, Object> row) {
     for (Map.Entry<String, Object> entry : row.entrySet()) {
       if (APPROVED_IDENTIFIER_FIELDS.contains(entry.getKey())
           || NON_TEXT_FIELDS.contains(entry.getKey())
@@ -270,6 +311,10 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
         continue;
       }
       String text = entry.getValue().toString();
+      Pattern opaqueKey = OPAQUE_KEY_FIELDS.get(entry.getKey());
+      if (opaqueKey != null && opaqueKey.matcher(text).matches()) {
+        continue;
+      }
       if (LABELLED_MRN.matcher(text).find()
           || containsAbsoluteDate(text)
           || COMPACT_DATE.matcher(text).find()) {
@@ -304,22 +349,14 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     private final WsiPart part;
     private final Map<String, WsiBlockBuilder> blocks = new java.util.LinkedHashMap<>();
 
+    /**
+     * part_designator and path_dx_title are no longer public slide metadata (wsi-serving-v5); the
+     * fields stay in the response shape but are always null.
+     */
     private WsiPartBuilder(
-        String partNumber,
-        String partDesignator,
-        String partType,
-        String partDescription,
-        String subspecialty,
-        String pathDxTitle) {
+        String partNumber, String partType, String partDescription, String subspecialty) {
       this.part =
-          new WsiPart(
-              partNumber,
-              partDesignator,
-              partType,
-              partDescription,
-              subspecialty,
-              pathDxTitle,
-              null);
+          new WsiPart(partNumber, null, partType, partDescription, subspecialty, null, null);
     }
 
     private WsiPart build() {

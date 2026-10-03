@@ -696,10 +696,15 @@ insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSIN
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
 
--- Resource table fixture for public WSI metadata search and wsi_serving privacy. Kept in its own
--- study so the study_tcga_pub resource counts used by other tests are unchanged. The serving
--- paths deliberately contain words ("secretpath", "aaa"/"zzz") that no public field contains, so
--- a query that leaked wsi_serving into search, filters, sorting or facets would be visible.
+-- Resource table privacy fixture. Kept in its own study so the study_tcga_pub resource counts
+-- used by other tests are unchanged.
+--  * WSI_SAMPLE (900501/900502) must never reach the generic resource APIs at all: not as rows,
+--    tabs, search/filter matches, facets or discovered keys. Their public text ("Masson
+--    trichrome", "liver") and slide keys appear nowhere else in the study.
+--  * EXTERNAL_SLIDES (900505/900506) are WHOLE_SLIDE_IMAGE links outside the WSI resources, shown
+--    in the generic table. Their serving paths contain words ("secretpath", "aaa"/"zzz") that no
+--    public field contains, so a query that leaked wsi_serving into search, filters, sorting or
+--    facets would be visible.
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
 values (9005,'wsi_resource_table_study','dummy','WSI resource table study','resource table privacy fixture',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9005,'WSI-TABLE-PATIENT',9005);
@@ -709,10 +714,16 @@ insert into resource_definition (resource_id, cancer_study_id, resource_type, di
 values ('WSI_SAMPLE',9005,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
 values ('PATHOLOGY_NOTES',9005,'PATIENT','Pathology notes','Untyped notes',0,2);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('EXTERNAL_SLIDES',9005,'SAMPLE','External slides','Slide links outside the WSI resources',0,3);
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900501,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&imageId=table-slide-1','table-slide-1','WHOLE_SLIDE_IMAGE','{"image_id":"table-slide-1","stain_name":"Periodic acid-Schiff","part_description":"left kidney core biopsy","wsi_serving":{"source_url":"s3://private-bucket/zzz-secretpath-1.svs","thumbnail_url":"s3://private-bucket/zzz-secretpath-1.jpg"}}');
+values (900501,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=5d41402abc4b2a76b9719d911017c592','Masson trichrome - Specimen 1 / Block 1','WHOLE_SLIDE_IMAGE','{"slide_key":"5d41402abc4b2a76b9719d911017c592","stain_name":"Masson trichrome","part_description":"liver wedge biopsy","wsi_serving":{"image_id":"syn-img-t001","source_url":"s3://private-bucket/zzz-wsipath-1.svs","thumbnail_url":"s3://private-bucket/zzz-wsipath-1.jpg"}}');
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900502,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&imageId=table-slide-2','table-slide-2','WHOLE_SLIDE_IMAGE','{"image_id":"table-slide-2","stain_name":"H&E, Initial","part_description":"right kidney margin","wsi_serving":{"source_url":"s3://private-bucket/aaa-secretpath-2.svs","thumbnail_url":"s3://private-bucket/aaa-secretpath-2.jpg"}}');
+values (900502,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=7d793037a0760186574b0282f2f435e7','Masson trichrome - Specimen 2 / Block 1','WHOLE_SLIDE_IMAGE','{"slide_key":"7d793037a0760186574b0282f2f435e7","stain_name":"Masson trichrome","part_description":"liver margin","wsi_serving":{"image_id":"syn-img-t002","source_url":"s3://private-bucket/aaa-wsipath-2.svs","thumbnail_url":"s3://private-bucket/aaa-wsipath-2.jpg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900505,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://slides.example.org/viewer/ext-1','External slide 1','WHOLE_SLIDE_IMAGE','{"stain_name":"Periodic acid-Schiff","part_description":"left kidney core biopsy","wsi_serving":{"source_url":"s3://private-bucket/zzz-secretpath-1.svs","thumbnail_url":"s3://private-bucket/zzz-secretpath-1.jpg"}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900506,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://slides.example.org/viewer/ext-2','External slide 2','WHOLE_SLIDE_IMAGE','{"stain_name":"H&E, Initial","part_description":"right kidney margin","wsi_serving":{"source_url":"s3://private-bucket/aaa-secretpath-2.svs","thumbnail_url":"s3://private-bucket/aaa-secretpath-2.jpg"}}');
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
 values (900503,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/1.pdf','Board note',NULL,'{"note":"Reviewed by tumor board","wsi_serving":{"source_url":"s3://private-bucket/secretpath-note.pdf"}}');
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
@@ -727,17 +738,20 @@ values ('WSI_PATIENT',9001,'PATIENT','Pathology slides','Whole-slide images link
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
 values ('WSI_SAMPLE',9002,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=3020726','3020726','WHOLE_SLIDE_IMAGE','{"image_id":"3020726","reference_sample_id":"WSI-SAMPLE","part_key":"part::27","part_number":"27","part_designator":"27","part_type":"FALLOPIAN TUBE","part_description":"right ovary","block_key":"block::4","block_number":"4","block_label":"4RO","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":716956681,"can_serve_tiles":true,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::27::4","timeline_start_days":-17,"timeline_date_status":"AVAILABLE","timeline_date_kind":"RECORDED","timeline_date_source":"recorded_procedure_date","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Recorded procedure date relative to first tumor sequencing","wsi_serving":{"source_url":"s3://bucket/3020726.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/3020726.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=2351e12d49557627b24fe71e17ec5c64','H&E, Initial - Specimen 2 / Block 1','WHOLE_SLIDE_IMAGE','{"slide_key":"2351e12d49557627b24fe71e17ec5c64","reference_sample_id":"WSI-SAMPLE","part_key":"part:2351e12d49557627b24fe71e17ec5c64","part_number":"2","part_type":"FALLOPIAN TUBE","part_description":"Specimen 2","block_key":"block:2351e12d49557627b24fe71e17ec5c64","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":716956681,"can_serve_tiles":true,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::part:2351e12d49557627b24fe71e17ec5c64::block:2351e12d49557627b24fe71e17ec5c64","timeline_start_days":-17,"timeline_date_status":"AVAILABLE","timeline_date_kind":"RECORDED","timeline_date_source":"recorded_procedure_date","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Recorded procedure date relative to first tumor sequencing","wsi_serving":{"image_id":"syn-img-0001","source_url":"s3://bucket/syn-img-0001.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/syn-img-0001.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+-- Legacy WSI row without slide_key (pre-3.6.0 shape): never listed or served.
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=3020648','3020648','WHOLE_SLIDE_IMAGE','{"image_id":"3020648","reference_sample_id":"WSI-SAMPLE","part_key":"part::34","part_number":"34","part_designator":"34","part_type":"SMALL BOWEL","part_description":"small bowel","block_key":"block::4","block_number":"4","block_label":"4RS","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::34::4","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{}}');
+values (900104,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=syn-legacy-0002','syn-legacy-0002','WHOLE_SLIDE_IMAGE','{"image_id":"syn-legacy-0002","reference_sample_id":"WSI-SAMPLE","part_key":"part:2351e12d49557627b24fe71e17ec5c64","part_number":"3","part_type":"FALLOPIAN TUBE","part_description":"Specimen 3","block_key":"block:2351e12d49557627b24fe71e17ec5c64","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","can_serve_tiles":false,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::part:2351e12d49557627b24fe71e17ec5c64::block:2351e12d49557627b24fe71e17ec5c64","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{}}');
+insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=b3286836fc27c777260ada0dcb8a6857','H&E, Initial - Specimen 1 / Block 1','WHOLE_SLIDE_IMAGE','{"slide_key":"b3286836fc27c777260ada0dcb8a6857","reference_sample_id":"WSI-SAMPLE","part_key":"part:b3286836fc27c777260ada0dcb8a6857","part_number":"1","part_type":"SMALL BOWEL","part_description":"Specimen 1","block_key":"block:b3286836fc27c777260ada0dcb8a6857","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::part:b3286836fc27c777260ada0dcb8a6857::block:b3286836fc27c777260ada0dcb8a6857","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{"image_id":"syn-img-0003"}}');
 -- A WHOLE_SLIDE_IMAGE row outside the WSI_SAMPLE/WSI_PATIENT resources. The access lookup must
 -- never serve it, even though it carries complete serving metadata.
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
 values ('OTHER_SLIDES',9001,'PATIENT','Other slides','Slides outside the WSI resources',0,2);
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900103,'OTHER_SLIDES',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&imageId=other-slide','other-slide','WHOLE_SLIDE_IMAGE','{"image_id":"other-slide","can_serve_tiles":true,"wsi_serving":{"source_url":"s3://bucket/other-slide.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/other-slide.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+values (900103,'OTHER_SLIDES',9001,'PATIENT','WSI-PATIENT',NULL,'https://slides.example.org/viewer/other-1','Other slide','WHOLE_SLIDE_IMAGE','{"slide_key":"0f0e0d0c0b0a09080706050403020100","can_serve_tiles":true,"wsi_serving":{"image_id":"syn-img-other","source_url":"s3://bucket/syn-img-other.svs","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"tile_size":256},"thumbnail_url":"s3://bucket/syn-img-other.jpg","thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
 insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
-values (900201,'WSI_SAMPLE',9002,'SAMPLE','SNAPSHOT-PATIENT','active-sample','https://portal.example.org/wsi/patient/SNAPSHOT-PATIENT?studyId=wsi_snapshot_study&imageId=active-slide','active-slide','WHOLE_SLIDE_IMAGE','{"image_id":"active-slide","reference_sample_id":"active-sample","part_key":"part::1","part_number":"1","part_designator":"1","part_type":"active part","part_description":"active specimen","block_key":"block::1","block_number":"1","block_label":"active","is_hne":false,"is_ihc":false,"can_serve_tiles":false,"slide_type":"Other","match_level":"PART","specimen_key":"part::1","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{}}');
+values (900201,'WSI_SAMPLE',9002,'SAMPLE','SNAPSHOT-PATIENT','active-sample','https://portal.example.org/wsi/patient/SNAPSHOT-PATIENT?studyId=wsi_snapshot_study&slideKey=e8ac3c1341f0fb1fa1a7c8e69ba27a51','Specimen 1 / Block 1','WHOLE_SLIDE_IMAGE','{"slide_key":"e8ac3c1341f0fb1fa1a7c8e69ba27a51","reference_sample_id":"active-sample","part_key":"part:e8ac3c1341f0fb1fa1a7c8e69ba27a51","part_number":"1","part_type":"active part","part_description":"Specimen 1","block_key":"block:e8ac3c1341f0fb1fa1a7c8e69ba27a51","block_number":"1","block_label":"Block 1","is_hne":false,"is_ihc":false,"can_serve_tiles":false,"slide_type":"Other","match_level":"PART","specimen_key":"part::part:e8ac3c1341f0fb1fa1a7c8e69ba27a51::block:e8ac3c1341f0fb1fa1a7c8e69ba27a51","timeline_date_status":"MISSING_PROCEDURE_DATE","timeline_date_kind":"UNDATED","timeline_date_source":"missing_procedure_date","timeline_date_reason":"procedure date unavailable","timeline_coordinate_system":"patient_first_tumor_sequencing_day_zero","timepoint_source":"Procedure date unavailable","wsi_serving":{"image_id":"syn-img-a001"}}');
 
 insert into wsi_patient
 (cancer_study_id,patient_id,reference_sample_id)
@@ -771,33 +785,33 @@ values (9002,9002,'part::1','block::1','1','active');
 
 insert into wsi_slide
 (cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9001,9001,'3020726','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
+values (9001,9001,'syn-img-0001','H&E, Initial','H&E (Initial)',true,false,'20x',716956681,true,'','H&E');
 insert into wsi_slide
 (cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9001,9001,'3020648','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
+values (9001,9001,'syn-img-0003','H&E, Initial','H&E (Initial)',true,false,'20x',1014457317,false,'','H&E');
 insert into wsi_slide
 (cancer_study_id,patient_id,image_id,stain_name,stain_group,is_hne,is_ihc,magnification,file_size_bytes,can_serve_tiles,barcode,slide_type)
-values (9002,9002,'active-slide',null,null,false,false,null,null,false,null,'Other');
+values (9002,9002,'syn-img-a001',null,null,false,false,null,null,false,null,'Other');
 
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
-values (9001,9001,'3020726','part::27','block::4',9001,'BLOCK','block::27::4');
+values (9001,9001,'syn-img-0001','part::27','block::4',9001,'BLOCK','block::27::4');
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,image_id,part_key,block_key,sample_id,match_level,specimen_key)
-values (9001,9001,'3020648','part::34','block::4',null,'UNMATCHED','unmatched::34::4');
+values (9001,9001,'syn-img-0003','part::34','block::4',null,'UNMATCHED','unmatched::34::4');
 insert into wsi_slide_placement
 (cancer_study_id,patient_id,image_id,part_key,block_key, sample_id,match_level,specimen_key)
-values (9002,9002,'active-slide','part::1','block::1',9002,'PART','part::1');
+values (9002,9002,'syn-img-a001','part::1','block::1',9002,'PART','part::1');
 
 insert into wsi_slide_timing
 (cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9001,9001,'3020726',-17,'AVAILABLE','RECORDED','recorded_procedure_date',null,'patient_first_tumor_sequencing_day_zero','Recorded procedure date relative to first tumor sequencing');
+values (9001,9001,'syn-img-0001',-17,'AVAILABLE','RECORDED','recorded_procedure_date',null,'patient_first_tumor_sequencing_day_zero','Recorded procedure date relative to first tumor sequencing');
 insert into wsi_slide_timing
 (cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9001,9001,'3020648',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+values (9001,9001,'syn-img-0003',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
 insert into wsi_slide_timing
 (cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9002,9002,'active-slide',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
+values (9002,9002,'syn-img-a001',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
 
 -- WSI timing is stored in the same validated v3 snapshot that produces the
 -- pathology timeline. The hierarchy reads this image-keyed timing row only.
@@ -811,8 +825,6 @@ insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'MATCH_LEVEL','BLOCK');
 insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'TIMEPOINT_SOURCE','Recorded procedure date relative to first tumor sequencing');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'IMAGE_IDS','["3020726"]');
 insert into clinical_event_data (clinical_event_id,key,value)
 values (9001,'LINKOUT','/patient/wsiHESlides?studyId=wsi_test_study&caseId=WSI-PATIENT&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A27%3A%3A4&sampleId=WSI-SAMPLE');
 

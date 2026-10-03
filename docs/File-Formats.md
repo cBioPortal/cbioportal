@@ -288,21 +288,26 @@ two resources:
 
 The patient view's slide viewer, the WSI hierarchy endpoint
 (`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
-endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`)
-read only these two resources. A `WHOLE_SLIDE_IMAGE` row in any other resource
-is shown in the generic resource table but is never served as a slide.
+endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`)
+read only these two resources. Slides are addressed by an opaque `slide_key`;
+the real image ID, specimen accession numbers, slide barcodes and object URLs
+never reach the browser (serving contract `wsi-serving-v5`).
 
-Declare the per-slide identifier keys non-filterable in each definition's
+The generic resource APIs (the resource table and the
+`/studies/.../resource-data` endpoints) never return `WSI_SAMPLE` or
+`WSI_PATIENT` rows; slides are reached only through the endpoints above. A
+`WHOLE_SLIDE_IMAGE` row in any other resource is shown in the generic resource
+table but is never served as a slide.
+
+Declare the per-slide keys non-filterable in each definition's
 `CUSTOM_METADATA`, as the converter does:
 
 ```json
-{"version":1,"fields":[{"key":"image_id","filterable":false},{"key":"barcode","filterable":false},{"key":"part_key","filterable":false},{"key":"block_key","filterable":false},{"key":"specimen_key","filterable":false},{"key":"reference_sample_id","filterable":false}]}
+{"version":1,"fields":[{"key":"slide_key","filterable":false},{"key":"part_key","filterable":false},{"key":"block_key","filterable":false},{"key":"specimen_key","filterable":false},{"key":"reference_sample_id","filterable":false}]}
 ```
 
-Nearly every slide has its own value for these keys. Without the declaration the
-resource table lists every distinct value as a filter option, which on a large
-study is over a million values for `image_id` alone. The columns stay visible,
-searchable and sortable.
+Nearly every slide has its own value for these keys, so they would make poor
+filter options.
 
 The normal study import no longer accepts `meta_wsi.txt`. Convert a legacy
 format-v3 `meta_wsi.txt`/`data_wsi.txt` pair (described
@@ -315,34 +320,45 @@ In `data_resource_sample.txt` and `data_resource_patient.txt`:
 
 - `RESOURCE_ID` is `WSI_SAMPLE` or `WSI_PATIENT`.
 - `URL` links to the standalone viewer for the slide:
-  `<portal base URL>/wsi/patient/{patientId}?studyId={studyId}&imageId={imageId}`,
+  `<portal base URL>/wsi/patient/{patientId}?studyId={studyId}&slideKey={slide_key}`,
   for example
-  `https://portal.example.org/wsi/patient/P-0001?studyId=brca_tcga_pub&imageId=3020726`.
-  The base URL includes any context path the portal is deployed under.
-- `DISPLAY_NAME` is the image ID.
+  `https://portal.example.org/wsi/patient/P-0001?studyId=brca_tcga_pub&slideKey=2351e12d49557627b24fe71e17ec5c64`.
+  The base URL includes any context path the portal is deployed under. It
+  never contains the image ID.
+- `DISPLAY_NAME` is a non-identifying label, for example
+  `H&E, Initial · Specimen 1 / Block 2`. It is never the image ID.
 - `TYPE` is `WHOLE_SLIDE_IMAGE`.
 - `METADATA` is one JSON object with lower-case keys:
-  - public slide fields: `image_id`, `reference_sample_id`, `part_key`,
-    `part_number`, `part_designator`, `part_type`, `part_description`,
-    `subspecialty`, `path_dx_title`, `block_key`, `block_number`,
-    `block_label`, `match_level`, `specimen_key`, `stain_name`, `stain_group`,
-    `magnification`, `barcode` and `slide_type` (strings); `is_hne`, `is_ihc`
-    and `can_serve_tiles` (booleans); and `file_size_bytes` (integer);
+  - public slide fields: `slide_key` (32 lowercase hex characters, unique
+    within the study), `reference_sample_id`, `part_key`, `part_number`,
+    `part_type`, `part_description`, `subspecialty`, `block_key`,
+    `block_number`, `block_label`, `match_level`, `specimen_key`,
+    `stain_name`, `stain_group`, `magnification` and `slide_type` (strings);
+    `is_hne`, `is_ihc` and `can_serve_tiles` (booleans); and
+    `file_size_bytes` (integer). `image_id`, `barcode`, `part_designator` and
+    `path_dx_title` are not public metadata;
   - timing: `timeline_start_days` (integer, omitted when undated),
     `timeline_date_status`, `timeline_date_kind`, `timeline_date_source`,
     `timeline_date_reason`, `timeline_coordinate_system` and
     `timepoint_source`, with the same meaning and validation as the legacy
     columns below;
-  - `wsi_serving`: a private object holding `source_url`,
-    `tile_metadata_json` (a JSON object), `thumbnail_url`, `thumbnail_width`,
-    `thumbnail_height` and `thumbnail_content_type`. It is empty (`{}`) when
-    `can_serve_tiles` is `false`.
+  - `wsi_serving`: a private object holding the server-side `image_id` and,
+    for a servable slide, `source_url`, `tile_metadata_json` (a JSON object),
+    `thumbnail_url`, `thumbnail_width`, `thumbnail_height` and
+    `thumbnail_content_type`.
+
+No value in `URL`, `DISPLAY_NAME` or `METADATA` (including `wsi_serving`) may
+contain a specimen accession number (`S##-#####`, `MSK:S…`).
 
 `wsi_serving` is read only by the slide access endpoint, which checks study
-authorization and returns a short-lived, source-bound capability. It is private
-for every resource row, whatever its `TYPE`: the resource table API removes it
-from row metadata and ignores it in search, filters, sorting, facets and column
-discovery. The public fields remain searchable and filterable.
+authorization and returns a short-lived capability. The image ID and the
+source and thumbnail URLs travel only inside the capability's encrypted `enc`
+claim. `wsi_serving` is private for every resource row, whatever its `TYPE`:
+for non-WSI resources the resource table API removes it from row metadata and
+ignores it in search, filters, sorting, facets and column discovery.
+
+Rows written before `slide_key` existed are deleted by the ClickHouse `3.6.0`
+migration; re-import the converted v3 resources to restore them.
 
 The serving fields are produced upstream. A separate scheduled
 thumbnail batch reads eligible slide inventory/source rows, writes master
@@ -410,7 +426,8 @@ the study.
 
 ### Converter input: legacy meta_wsi format v3
 
-This is the input format of the converter. It follows the clinical data-file
+This is the input format of the converter. Only format v3 with the `SLIDE_KEY`
+column is accepted. It follows the clinical data-file
 convention: four tab-delimited attribute metadata rows, an uppercase field-name
 row, and then one data row per slide placement.
 
@@ -441,12 +458,16 @@ starts with `#`. The fifth row contains the following fields in exactly this
 order:
 
 ```text
-PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>TIMELINE_START_DAYS<TAB>TIMELINE_DATE_STATUS<TAB>TIMELINE_DATE_KIND<TAB>TIMELINE_DATE_SOURCE<TAB>TIMELINE_DATE_REASON<TAB>TIMELINE_COORDINATE_SYSTEM<TAB>TIMEPOINT_SOURCE
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>TIMELINE_START_DAYS<TAB>TIMELINE_DATE_STATUS<TAB>TIMELINE_DATE_KIND<TAB>TIMELINE_DATE_SOURCE<TAB>TIMELINE_DATE_REASON<TAB>TIMELINE_COORDINATE_SYSTEM<TAB>TIMEPOINT_SOURCE<TAB>SLIDE_KEY
 ```
 
-The required values are `PATIENT_ID`, `IMAGE_ID`, `PART_KEY`, `BLOCK_KEY`,
-`MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, `SLIDE_TYPE`, and
-`CAN_SERVE_TILES`. `SLIDE_TYPE` is the controlled classification value and is
+The required values are `PATIENT_ID`, `IMAGE_ID`, `SLIDE_KEY`, `PART_KEY`,
+`BLOCK_KEY`, `MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, `SLIDE_TYPE`,
+and `CAN_SERVE_TILES`. `SLIDE_KEY` is 32 lowercase hex characters, unique
+within a study: the first half of a salted SHA-256 of the image ID, computed
+upstream with a salt no service knows. `PART_KEY`, `BLOCK_KEY` and
+`SPECIMEN_KEY` are derived from slide keys, never from the image ID or an
+accession number. No cell may contain a specimen accession number. `SLIDE_TYPE` is the controlled classification value and is
 one of `H&E`, `IHC`, or `Other`. `STAIN_NAME` and `STAIN_GROUP` are optional
 descriptive source labels, so values such as `H&E, Initial` and
 `H&E (Initial)` are valid and are not used as the classification contract.
@@ -461,10 +482,10 @@ newlines are not allowed inside values.
 
 When `CAN_SERVE_TILES` is `TRUE`, `SOURCE_URL`, `TILE_METADATA_JSON`,
 `THUMBNAIL_URL`, positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
-`THUMBNAIL_CONTENT_TYPE` are all required. The converter moves these fields into
-`wsi_serving`, so the backend can return a complete access bundle while the
-tile server receives only the exact source URL and its short-lived
-authorization token.
+`THUMBNAIL_CONTENT_TYPE` are all required. The converter moves these fields,
+and `IMAGE_ID`, into `wsi_serving`, so the backend can return a complete access
+bundle while the tile server receives the source URL only inside the encrypted
+claim of its short-lived authorization token.
 
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).

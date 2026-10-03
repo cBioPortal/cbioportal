@@ -17,6 +17,7 @@ import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -75,9 +76,20 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return new MetadataContext(getSchema(scoped), classifyMetadataKeys(scoped));
   }
 
+  /**
+   * WSI_SAMPLE / WSI_PATIENT rows are excluded in SQL by every statement (ExcludeWsiResourceRows in
+   * ResourceDataMapper.xml). Tabs and rows are filtered again here so a future statement that
+   * forgets the predicate still cannot hand a slide row to the generic table.
+   */
   @Override
   public List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request) {
-    return mapper.getResourceTableTabs(request);
+    List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
+    if (tabs == null || tabs.isEmpty()) {
+      return tabs;
+    }
+    return tabs.stream()
+        .filter(tab -> !WsiDeidentification.isWsiResourceId(tab.resourceId()))
+        .toList();
   }
 
   @Override
@@ -86,7 +98,10 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     if (rows == null || rows.isEmpty()) {
       return rows;
     }
-    return rows.stream().map(ClickhouseResourceDataRepository::withoutServingMetadata).toList();
+    return rows.stream()
+        .filter(row -> !WsiDeidentification.isWsiResourceId(row.resourceId()))
+        .map(ClickhouseResourceDataRepository::withoutServingMetadata)
+        .toList();
   }
 
   /**

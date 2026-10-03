@@ -3,12 +3,12 @@ package org.cbioportal.application.rest;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
+import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/wsi")
 public class WsiAccessTokenController {
 
+  /** Tile capability format: slide_key + encrypted source claim (contract wsi-serving-v5). */
+  static final int WSI_AUTH_VERSION = 3;
+
   @Value("${wsi.access-token-secret:}")
   private String accessTokenSecret;
 
@@ -48,22 +51,25 @@ public class WsiAccessTokenController {
   private WsiSlideAccessRepository wsiSlideAccessRepository;
 
   /**
-   * Returns the browser-facing pixel access bundle for one materialized slide.
+   * Returns the browser-facing pixel access bundle for one materialized slide, addressed by its
+   * opaque slide key.
    *
-   * <p>The slide is named by its image ID, which is unique within a study and, unlike the
-   * resource-data row ID, survives a reimport. It is a query parameter because image IDs may
-   * contain a slash.
+   * <p>The slide key is the public, stable name of a slide: unlike the resource-data row ID it
+   * survives a reimport, and unlike the server-side image ID it identifies nothing outside the
+   * portal. It is a query parameter so the resource-data URL shape is unchanged.
    *
-   * <p>The URL is deliberately returned by cBioPortal, rather than resolved by the tile server. The
-   * capability is bound to the exact source and thumbnail URLs so a valid token cannot be replayed
-   * against another object.
+   * <p>The exact source and thumbnail URLs are resolved by cBioPortal, rather than by the tile
+   * server, and are carried only inside the AES-GCM encrypted {@code enc} claim of the capability.
+   * Neither they nor the image identifier ever appear in the response or in plaintext claims.
    */
   @GetMapping("/v2/resources/{studyId}/{patientId}/access")
   @PreAuthorize(
       "!isAuthenticated() or hasPermission(#studyId, 'CancerStudyId', "
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<?> issueSlideAccess(
-      @PathVariable String studyId, @PathVariable String patientId, @RequestParam String imageId) {
+      @PathVariable String studyId,
+      @PathVariable String patientId,
+      @RequestParam(required = false) String slideKey) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     boolean anonymous = isAnonymous(authentication);
     if (anonymous && !localAuthBypass) {
@@ -76,8 +82,7 @@ public class WsiAccessTokenController {
         || studyId.isBlank()
         || patientId == null
         || patientId.isBlank()
-        || imageId == null
-        || imageId.isBlank()) {
+        || !WsiDeidentification.isSlideKey(slideKey)) {
       return ResponseEntity.badRequest().build();
     }
     if (wsiSlideAccessRepository == null) {
@@ -88,25 +93,19 @@ public class WsiAccessTokenController {
       return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
-    WsiSlideAccess access = wsiSlideAccessRepository.getSlideAccess(studyId, patientId, imageId);
-    if (access == null) {
+    // The repository guarantees the returned source is bound to slideKey.
+    WsiSlideSource source = wsiSlideAccessRepository.getSlideSource(studyId, patientId, slideKey);
+    if (source == null) {
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
     Instant issuedAt = Instant.now();
     Instant expiresAt = issuedAt.plusSeconds(ttl);
-    String token =
-        issueSlideToken(authentication, studyId, access.imageId(), access, issuedAt, expiresAt);
+    String token = issueSlideToken(authentication, studyId, source, issuedAt, expiresAt);
     WsiSlideAccess response =
         new WsiSlideAccess(
-            access.imageId(),
-            access.sourceUrl(),
-            access.tileMetadata(),
-            access.thumbnail(),
-            token,
-            "Bearer",
-            ttl);
+            source.slideKey(), source.tileMetadata(), source.thumbnail(), token, "Bearer", ttl);
     return ResponseEntity.ok()
         .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
         .header(HttpHeaders.VARY, "Authorization, Cookie")
@@ -116,40 +115,31 @@ public class WsiAccessTokenController {
   private String issueSlideToken(
       Authentication authentication,
       String studyId,
-      String imageId,
-      WsiSlideAccess access,
+      WsiSlideSource source,
       Instant issuedAt,
       Instant expiresAt) {
+    String enc =
+        WsiClaimEncryption.encrypt(
+            accessTokenSecret,
+            source.slideKey(),
+            source.imageId(),
+            source.sourceUrl(),
+            source.thumbnailSourceUrl());
     return Jwts.builder()
         .setHeaderParam("typ", "JWT")
         .setSubject(authentication.getName())
         .setAudience(accessTokenAudience)
         .claim("scope", "wsi:read")
         .claim("study_id", studyId)
-        .claim("image_id", imageId)
-        .claim("tile_source_sha256", sha256(access.sourceUrl()))
-        .claim("thumbnail_source_sha256", sha256(access.thumbnail().sourceUrl()))
-        .claim("thumbnail_width", access.thumbnail().width())
-        .claim("thumbnail_height", access.thumbnail().height())
-        .claim("wsi_auth_version", 2)
+        .claim("slide_key", source.slideKey())
+        .claim("thumbnail_width", source.thumbnail().width())
+        .claim("thumbnail_height", source.thumbnail().height())
+        .claim("wsi_auth_version", WSI_AUTH_VERSION)
+        .claim("enc", enc)
         .setIssuedAt(Date.from(issuedAt))
         .setExpiration(Date.from(expiresAt))
         .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))
         .compact();
-  }
-
-  private static String sha256(String value) {
-    try {
-      byte[] digest =
-          MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8));
-      StringBuilder result = new StringBuilder(digest.length * 2);
-      for (byte item : digest) {
-        result.append(String.format("%02x", item));
-      }
-      return result.toString();
-    } catch (NoSuchAlgorithmException exception) {
-      throw new IllegalStateException("SHA-256 is unavailable", exception);
-    }
   }
 
   private static boolean isAnonymous(Authentication authentication) {

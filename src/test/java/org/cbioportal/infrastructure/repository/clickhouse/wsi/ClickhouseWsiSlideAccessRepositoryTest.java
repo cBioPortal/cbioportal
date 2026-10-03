@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -177,10 +178,62 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
     assertTrue(ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
   }
 
+  @Test
+  public void rejectsRowWithoutAValidSlideKey() {
+    for (String slideKey : new String[] {null, "", "slide", "2351E12D49557627B24FE71E17EC5C64"}) {
+      Map<String, Object> row = row(validMetadata());
+      row.put("slide_key", slideKey);
+      assertFalse(
+          "slide key should be rejected: " + slideKey,
+          ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
+    }
+  }
+
+  @Test
+  public void rejectsRowWithoutAServerSideImageId() {
+    Map<String, Object> row = row(validMetadata());
+    row.remove("image_id");
+    assertFalse(ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
+  }
+
+  @Test
+  public void rejectsAccessionInTileMetadata() {
+    for (String accession : new String[] {"S12-34567", "MSK:S1234"}) {
+      Map<String, Object> row =
+          row(
+              validMetadata()
+                  .replace(
+                      "\"tile_size\":256", "\"tile_size\":256,\"vendor\":\"" + accession + "\""));
+      assertFalse(
+          "accession should be rejected: " + accession,
+          ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
+    }
+  }
+
+  @Test
+  public void rejectsAccessionInArtifactUris() {
+    for (String key : new String[] {"source_url", "thumbnail_url"}) {
+      Map<String, Object> row = row(validMetadata());
+      String extension = "source_url".equals(key) ? "svs" : "jpg";
+      row.put(key, "s3://bucket/S12-34567/slide." + extension);
+      assertFalse(key, ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
+    }
+  }
+
+  @Test
+  public void refusesMalformedSlideKeysBeforeQuerying() {
+    ClickhouseWsiSlideAccessRepository repository =
+        new ClickhouseWsiSlideAccessRepository(null, null, objectMapper);
+    for (String slideKey : new String[] {null, "", "syn-img-0001", "3020726"}) {
+      assertNull(repository.getSlideSource("study", "patient", slideKey));
+    }
+  }
+
   private static Map<String, Object> row(String metadata) {
     Map<String, Object> row = new HashMap<>();
     row.put("can_serve_tiles", true);
     row.put("image_id", "slide");
+    row.put("slide_key", "2351e12d49557627b24fe71e17ec5c64");
     row.put("source_url", "s3://bucket/slide.svs");
     row.put("tile_metadata_json", metadata);
     row.put("thumbnail_url", "s3://bucket/slide.jpg");

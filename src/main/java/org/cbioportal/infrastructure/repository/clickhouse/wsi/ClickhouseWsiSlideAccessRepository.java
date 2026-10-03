@@ -7,7 +7,8 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import org.cbioportal.domain.wsi.WsiSlideAccess;
+import org.cbioportal.domain.wsi.WsiDeidentification;
+import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.WsiThumbnail;
 import org.cbioportal.domain.wsi.WsiTileMetadata;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
@@ -78,11 +79,11 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   }
 
   @Override
-  public WsiSlideAccess getSlideAccess(String studyId, String patientId, String imageId) {
-    // A portal response contains the exact object URLs. Refuse to issue a
-    // capability unless both production allowlists are configured; structural
-    // checks in isServableRow() remain independently unit-testable.
-    if (!artifactPolicyConfigured()) {
+  public WsiSlideSource getSlideSource(String studyId, String patientId, String slideKey) {
+    // The capability encrypts the exact object URLs. Refuse to issue one
+    // unless both production allowlists are configured; structural checks in
+    // isServableRow() remain independently unit-testable.
+    if (!artifactPolicyConfigured() || !WsiDeidentification.isSlideKey(slideKey)) {
       return null;
     }
     Map<String, Object> context = contextMapper.getStudyContext(studyId);
@@ -90,10 +91,11 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       return null;
     }
     Map<String, Object> row =
-        mapper.getSlideAccess(longValue(context.get("cancer_study_id")), patientId, imageId);
-    if (!isServableRow(row, objectMapper)) {
+        mapper.getSlideAccess(longValue(context.get("cancer_study_id")), patientId, slideKey);
+    if (!isServableRow(row, objectMapper) || !slideKey.equals(stringValue(row.get("slide_key")))) {
       return null;
     }
+    String imageId = stringValue(row.get("image_id"));
     String sourceUrl = stringValue(row.get("source_url"));
     String metadataJson = stringValue(row.get("tile_metadata_json"));
     String thumbnailUrl = stringValue(row.get("thumbnail_url"));
@@ -106,14 +108,13 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       int width = numberValue(row.get("thumbnail_width"));
       int height = numberValue(row.get("thumbnail_height"));
       String contentType = stringValue(row.get("thumbnail_content_type"));
-      return new WsiSlideAccess(
-          stringValue(row.get("image_id")),
+      return new WsiSlideSource(
+          slideKey,
+          imageId,
           sourceUrl,
+          thumbnailUrl,
           metadata,
-          new WsiThumbnail(thumbnailUrl, width, height, contentType),
-          null,
-          null,
-          0);
+          new WsiThumbnail(width, height, contentType));
     } catch (JsonProcessingException | RuntimeException exception) {
       return null;
     }
@@ -125,6 +126,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
     String sourceUrl = stringValue(row.get("source_url"));
     String imageId = stringValue(row.get("image_id"));
+    String slideKey = stringValue(row.get("slide_key"));
     String metadataJson = stringValue(row.get("tile_metadata_json"));
     String thumbnailUrl = stringValue(row.get("thumbnail_url"));
     String contentType = stringValue(row.get("thumbnail_content_type"));
@@ -132,6 +134,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     int height = numberValue(row.get("thumbnail_height"));
     if (sourceUrl == null
         || imageId == null
+        || !WsiDeidentification.isSlideKey(slideKey)
         || metadataJson == null
         || thumbnailUrl == null
         || contentType == null
@@ -210,7 +213,9 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
                   || COMPACT_DATE.matcher(value).find()
                   || COMPACT_DATE.matcher(path).find()))
           || LABELLED_MRN.matcher(value).find()
-          || LABELLED_MRN.matcher(path).find()) {
+          || LABELLED_MRN.matcher(path).find()
+          || WsiDeidentification.containsAccession(value)
+          || WsiDeidentification.containsAccession(path)) {
         return false;
       }
       String filename = path.substring(path.lastIndexOf('/') + 1);
@@ -294,6 +299,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (node.isTextual()) {
       String value = node.asText();
       return LABELLED_MRN.matcher(value).find()
+          || WsiDeidentification.containsAccession(value)
           || containsAbsoluteDate(value)
           || COMPACT_DATE.matcher(value).find();
     }

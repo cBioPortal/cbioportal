@@ -869,4 +869,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.5.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.6.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

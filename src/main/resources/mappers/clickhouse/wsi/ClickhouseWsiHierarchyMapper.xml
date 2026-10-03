@@ -2,23 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
+    <!--
+      Slides are exposed to the browser only by their opaque slide_key. The server-side image_id,
+      the slide barcode and the resource-data row identifiers are never selected; part_designator
+      and path_dx_title are no longer public metadata (wsi-serving-v5) and are not read either.
+      image_id appears only in ORDER BY, as the final tie-breaker.
+    -->
     <select id="getPatientHierarchy" resultType="hashmap">
         SELECT
-            toString(r.RESOURCE_DATA_ID) AS resource_data_id,
-            r.RESOURCE_ID AS resource_id,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'reference_sample_id') AS reference_sample_id,
             r.SAMPLE_ID AS sample_id,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'part_key') AS part_key,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'part_number') AS part_number,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'part_designator') AS part_designator,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'part_type') AS part_type,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'part_description') AS part_description,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'subspecialty') AS subspecialty,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'path_dx_title') AS path_dx_title,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'block_key') AS block_key,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'block_number') AS block_number,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'block_label') AS block_label,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'image_id') AS image_id,
+            JSONExtractString(ifNull(r.METADATA, '{}'), 'slide_key') AS slide_key,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'stain_name') AS stain_name,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'stain_group') AS stain_group,
             JSONExtractBool(ifNull(r.METADATA, '{}'), 'is_hne') AS is_hne,
@@ -26,7 +28,6 @@
             JSONExtractString(ifNull(r.METADATA, '{}'), 'magnification') AS magnification,
             JSONExtract(ifNull(r.METADATA, '{}'), 'file_size_bytes', 'Nullable(UInt64)') AS file_size_bytes,
             JSONExtractBool(ifNull(r.METADATA, '{}'), 'can_serve_tiles') AS can_serve_tiles,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'barcode') AS barcode,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'slide_type') AS slide_type,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'match_level') AS match_level,
             JSONExtractString(ifNull(r.METADATA, '{}'), 'specimen_key') AS specimen_key,
@@ -42,6 +43,15 @@
             AND r.PATIENT_ID = #{patientId}
         WHERE r.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
           AND r.TYPE = 'WHOLE_SLIDE_IMAGE'
-        ORDER BY ifNull(sample_id, ''), part_key, block_key, image_id
+        <!-- Unmatched slides (no sample) sort first. part/block/slide keys are salted hashes, so
+             ordering by them alone is random: order by the pipeline's Specimen/Block ranks first,
+             keep the keys as tie-breakers that hold each part/block together, then finish on the
+             server-side image_id (private wsi_serving.image_id, or the legacy top-level key). -->
+        ORDER BY ifNull(sample_id, ''),
+            toUInt32OrNull(part_number) NULLS LAST, part_key,
+            toUInt32OrNull(block_number) NULLS LAST, block_key,
+            coalesce(
+                nullIf(JSONExtractString(ifNull(r.METADATA, '{}'), 'wsi_serving', 'image_id'), ''),
+                JSONExtractString(ifNull(r.METADATA, '{}'), 'image_id'))
     </select>
 </mapper>

@@ -333,3 +333,19 @@ WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) N
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
+
+## db_schema_version: 3.6.0
+## description: Remove WSI data that exposes real image ids (wsi-serving-v5 opaque slide_key)
+-- Pathology timeline events imported under wsi-serving-v4 carry real image ids (the IMAGE_IDS
+-- attribute, and image-derived part/block keys inside LINKOUT specimenKey). Remove them;
+-- re-importing the v5 timeline restores the links. position() is a literal substring match.
+ALTER TABLE clinical_event_data DELETE
+WHERE key = 'IMAGE_IDS'
+   OR (key = 'LINKOUT' AND (position(value, 'image%3A') > 0 OR position(value, 'image:') > 0));
+-- WSI resource rows written before slide_key existed name the slide by its real image id in URL,
+-- DISPLAY_NAME and public METADATA. The portal can neither list nor serve them (it addresses
+-- slides only by slide_key), so delete them; re-importing the converted v3 resources restores the
+-- slides. Both mutations are idempotent and safe to re-run.
+ALTER TABLE resource_data DELETE
+WHERE RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
+  AND JSONExtractString(ifNull(METADATA, '{}'), 'slide_key') = '';

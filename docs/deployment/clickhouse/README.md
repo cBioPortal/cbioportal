@@ -281,31 +281,46 @@ After importing studies and rebuilding derived tables, you can verify that your 
 WSI is served from the generic `resource_data` table. Each slide is one row
 with `TYPE = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
 `WSI_PATIENT` (unmatched) resource. Its `METADATA` JSON carries the public
-hierarchy, stain and timing fields, and a private `wsi_serving` object with
-the source URL, intrinsic tile metadata and thumbnail artifact fields. See
+hierarchy, stain and timing fields, including the opaque `slide_key`, and a
+private `wsi_serving` object with the server-side `image_id`, the source URL,
+intrinsic tile metadata and thumbnail artifact fields. See
 [Pathology Slide Data](../../File-Formats.md#pathology-slide-data) for the
 format and for the offline converter from the legacy `meta_wsi.txt` pair.
 
 Clients use two endpoints:
 
 - `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}` builds the hierarchy from
-  the patient's `WSI_SAMPLE`/`WSI_PATIENT` rows. Each slide carries its
-  `resourceId` and `resourceDataId`. The response is pathology-only; portal
+  the patient's `WSI_SAMPLE`/`WSI_PATIENT` rows. Each slide is identified only
+  by its opaque `slideKey`; the response never carries the image ID, barcode,
+  `resourceId` or `resourceDataId`. Rows with a specimen accession number in
+  any text field are dropped, as are slides without a valid `slide_key` (both
+  are counted in the log; values are never logged). Parts and blocks are
+  ordered by their Specimen/Block ranks. The response is pathology-only; portal
   clinical labels and pathology timeline events continue to come from the
   normal cBioPortal APIs. A patient with no WSI rows gets `200` with an empty
   hierarchy (`{"referenceSampleId":null,"sampleGroups":[]}`); an unknown study
   or patient gets `404`.
-- `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?imageId=`
-  returns the pixel access bundle and capability for one slide. It reads
-  `wsi_serving` from the row with that `image_id`, and only when the row
-  belongs to the study and patient, its resource is `WSI_SAMPLE` or
-  `WSI_PATIENT`, and its `TYPE` is `WHOLE_SLIDE_IMAGE`. The image ID is unique
-  within a study and, unlike the resource-data row ID, survives a reimport.
+- `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`
+  returns the pixel access bundle and capability for one slide. `slideKey`
+  must be 32 lowercase hex characters (`400` otherwise). It reads
+  `wsi_serving` from the row whose `METADATA.slide_key` matches, and only when
+  the row belongs to the study and patient, its resource is `WSI_SAMPLE` or
+  `WSI_PATIENT`, and its `TYPE` is `WHOLE_SLIDE_IMAGE`. The slide key is
+  unique within a study and, unlike the resource-data row ID, survives a
+  reimport. The response carries `slideKey`, the tile metadata, the thumbnail
+  width/height/content type and the capability; it never carries the image ID
+  or any source or thumbnail URL.
 
-`wsi_serving` is private for every `resource_data` row. The generic resource
-table API strips it from row metadata and ignores it in search, filters,
-sorting, facets and metadata-column discovery; public fields such as stain and
-specimen descriptions stay searchable.
+The generic resource APIs (`/api/resource-table/*` and the legacy
+`/api/studies/.../resource-data*` endpoints) never return `WSI_SAMPLE` or
+`WSI_PATIENT` rows: not as rows, tabs, search or filter matches, sort keys,
+facets, discovered metadata keys or column info. Slides are reached only
+through the two endpoints above. Study-level resource counts still include
+them.
+
+`wsi_serving` is also private for every other `resource_data` row. The generic
+resource table API strips it from row metadata and ignores it in search,
+filters, sorting, facets and metadata-column discovery.
 
 The native tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
 `wsi_slide_placement` and `wsi_slide_timing` are deprecated. The backend no
@@ -331,9 +346,9 @@ WSI_ALLOWED_SOURCE_SCHEMES=s3
 ```
 
 The secret bytes and audience must match exactly, and the cBioPortal TTL must
-not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only source URLs and
-v2 capabilities; it does not load a hierarchy, metadata backend, or resource
-index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
+not exceed `WSI_AUTH_MAX_TTL`. The tile server receives only v3 capabilities,
+whose encrypted `enc` claim carries the source and thumbnail URLs; it does not
+load a hierarchy, metadata backend, or resource index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
 WSI resource rows must also contain the source URL, tile metadata, and
 thumbnail artifact fields in `wsi_serving`.
 
@@ -358,10 +373,15 @@ must be fixed in the scheduled batch before importing a new WSI snapshot.
 WSI is login-only, including for public studies. Anonymous users receive
 `401`, authenticated users without study access receive `403`, authenticated
 blank study IDs receive `400`, and a nonexistent study deliberately returns
-`403` to avoid an existence oracle. The capability contract is version 2 and
-contains `sub`, `aud`, `scope=wsi:read`, `study_id`, `image_id`, exact SHA-256
-bindings for the tile and thumbnail URLs, bounded thumbnail dimensions,
-`iat`, and `exp`.
+`403` to avoid an existence oracle. The capability is an HS256 JWT with
+`wsi_auth_version` 3 (serving contract `wsi-serving-v5`) and contains `sub`,
+`aud`, `scope=wsi:read`, `study_id`, `slide_key`, bounded thumbnail
+dimensions, `iat`, `exp` and `enc`. It carries no plaintext image ID or URL.
+`enc` is `base64url(nonce[12] || AES-256-GCM ciphertext || tag[16])` over the
+JSON `{"image_id", "tile_source", "thumbnail_source"}`, keyed by
+HKDF-SHA256(`wsi.access-token-secret`, empty salt, info `wsi-claim-enc-v3`)
+with the `slide_key` as additional authenticated data. The tile server
+decrypts it with the same secret.
 
 Before enabling the Pathology Slides feature for a private study:
 
@@ -381,7 +401,8 @@ Before enabling the Pathology Slides feature for a private study:
    ```
 2. Ensure the backend access endpoint returns no pixel bundle when any of
    those fields is missing. The browser must obtain a fresh bundle for each
-   slide and send its exact source URL to the tile server.
+   slide and send only its capability (`Authorization: Bearer`) to the tile
+   server; it never sees the source URL.
 3. Configure protected pixel responses as private/cacheable and hierarchy or
    access responses as private/no-store. They must not be publicly cached.
 
@@ -445,6 +466,16 @@ against a `db_schema_version` that doesn't match its build's `db.version` unless
 ordered by `(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`,
 which the WSI and resource-table queries rely on, backfills it from the legacy
 `resource_sample`, `resource_patient` and `resource_study` tables, and drops them.
+
+**`3.6.0` (WSI slide keys).** `3.6.0` removes WSI data that names slides by
+their real image ID (serving contract `wsi-serving-v5`). It deletes the
+pathology timeline's `IMAGE_IDS` events and image-keyed `LINKOUT` events from
+`clinical_event_data`, and deletes every `WSI_SAMPLE`/`WSI_PATIENT` row in
+`resource_data` whose `METADATA` has no `slide_key`. Those slides disappear
+from the portal until the study's v3 WSI resources and pathology timeline are
+re-imported (converted with the v3 `convertWsiToResources.py`, which requires
+`SLIDE_KEY`). Both deletes are mutations; `migrate_db.py` waits for them to
+finish before recording the version.
 
 The native WSI tables (`wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
 `wsi_slide_placement`, `wsi_slide_timing`) are deprecated but retained by these

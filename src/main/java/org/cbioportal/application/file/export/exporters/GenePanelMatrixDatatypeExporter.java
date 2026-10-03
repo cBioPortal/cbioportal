@@ -47,7 +47,7 @@ public class GenePanelMatrixDatatypeExporter
     var header = new LinkedHashSet<String>();
     header.add("SAMPLE_ID");
     List<String> genePlatforms =
-        geneProfileIds.stream().map(stableId -> withoutStudySuffix(studyId, stableId)).toList();
+        geneProfileIds.stream().map(stableId -> withoutStudyPrefix(studyId, stableId)).toList();
     header.addAll(genePlatforms);
     return new Table(
         new CloseableIterator<>() {
@@ -75,13 +75,13 @@ public class GenePanelMatrixDatatypeExporter
             var row = new HashMap<String, String>();
             row.put("SAMPLE_ID", genePanelMatrixItem.getSampleStableId());
             row.put(
-                withoutStudySuffix(studyId, genePanelMatrixItem.getGeneticProfileStableId()),
+                withoutStudyPrefix(studyId, genePanelMatrixItem.getGeneticProfileStableId()),
                 genePanelMatrixItem.getGenePanelStableId());
             while (rowIterator.hasNext()
                 && rowIterator.peek().getRowKey().equals(genePanelMatrixItem.getRowKey())) {
               genePanelMatrixItem = rowIterator.next();
               row.put(
-                  withoutStudySuffix(studyId, genePanelMatrixItem.getGeneticProfileStableId()),
+                  withoutStudyPrefix(studyId, genePanelMatrixItem.getGeneticProfileStableId()),
                   genePanelMatrixItem.getGenePanelStableId());
             }
             var result = new LinkedHashMap<String, String>();
@@ -103,8 +103,8 @@ public class GenePanelMatrixDatatypeExporter
         header);
   }
 
-  private static String withoutStudySuffix(String studyId, String stableId) {
-    var removePrefix = studyId + "_";
-    return stableId.replace(removePrefix, "");
+  private static String withoutStudyPrefix(String studyId, String stableId) {
+    var prefix = studyId + "_";
+    return stableId.startsWith(prefix) ? stableId.substring(prefix.length()) : stableId;
   }
 }

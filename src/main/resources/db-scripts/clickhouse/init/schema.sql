@@ -624,23 +624,23 @@ CREATE TABLE resource_definition (
 -- Unified resource table covering every entity level. Replaces the resource_sample,
 -- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
 -- migration drops them once their contents have been carried over.
--- Sorting key: PATIENT_ID and SAMPLE_ID sit ahead of RESOURCE_DATA_ID so the resource table's
--- default sort (ORDER BY PATIENT_ID, SAMPLE_ID) is read in key order instead of sorting the whole
+-- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
+-- default sort (ORDER BY patient_id, sample_id) is read in key order instead of sorting the whole
 -- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
 -- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
 -- MergeTree only permits with allow_nullable_key.
 CREATE TABLE resource_data (
-    `RESOURCE_DATA_ID` Int64,
-    `RESOURCE_ID` String,
-    `CANCER_STUDY_ID` Int32,
-    `ENTITY_TYPE` String,
-    `PATIENT_ID` Nullable(String),
-    `SAMPLE_ID` Nullable(String),
-    `URL` String,
-    `DISPLAY_NAME` Nullable(String),
-    `TYPE` Nullable(String),
-    `METADATA` Nullable(String)
-) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)
+    `resource_data_id` Int64,
+    `resource_id` String,
+    `cancer_study_id` Int32,
+    `entity_type` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `type` Nullable(String),
+    `metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
   SETTINGS allow_nullable_key = 1;
 
 CREATE TABLE sample (

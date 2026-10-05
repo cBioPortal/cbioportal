@@ -292,9 +292,11 @@ Clients use two endpoints:
 - `GET /api/wsi/v2/hierarchy/{studyId}/{patientId}` builds the hierarchy from
   the patient's `WSI_SAMPLE`/`WSI_PATIENT` rows. Each slide is identified only
   by its opaque `slideKey`; the response never carries the image ID, barcode,
-  `resourceId` or `resourceDataId`. Rows with a specimen accession number in
-  any text field are dropped, as are slides without a valid `slide_key` (both
-  are counted in the log; values are never logged). Parts and blocks are
+  `resourceId` or `resourceDataId`. Slides without a valid `slide_key` are
+  dropped (counted in the log; values are never logged). Removing
+  institution-specific identifiers such as specimen accession numbers is the
+  data provider's responsibility; the backend does not match any accession
+  format. Parts and blocks are
   ordered by their Specimen/Block ranks. The response is pathology-only; portal
   clinical labels and pathology timeline events continue to come from the
   normal cBioPortal APIs. A patient with no WSI rows gets `200` with an empty

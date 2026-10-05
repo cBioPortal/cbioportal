@@ -197,30 +197,6 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
   }
 
   @Test
-  public void rejectsAccessionInTileMetadata() {
-    for (String accession : new String[] {"S12-34567", "MSK:S1234"}) {
-      Map<String, Object> row =
-          row(
-              validMetadata()
-                  .replace(
-                      "\"tile_size\":256", "\"tile_size\":256,\"vendor\":\"" + accession + "\""));
-      assertFalse(
-          "accession should be rejected: " + accession,
-          ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
-    }
-  }
-
-  @Test
-  public void rejectsAccessionInArtifactUris() {
-    for (String key : new String[] {"source_url", "thumbnail_url"}) {
-      Map<String, Object> row = row(validMetadata());
-      String extension = "source_url".equals(key) ? "svs" : "jpg";
-      row.put(key, "s3://bucket/S12-34567/slide." + extension);
-      assertFalse(key, ClickhouseWsiSlideAccessRepository.isServableRow(row, objectMapper));
-    }
-  }
-
-  @Test
   public void refusesMalformedSlideKeysBeforeQuerying() {
     ClickhouseWsiSlideAccessRepository repository =
         new ClickhouseWsiSlideAccessRepository(null, null, objectMapper);

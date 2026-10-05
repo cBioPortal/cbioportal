@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.WsiThumbnail;
@@ -73,7 +72,6 @@ public class WsiAccessTokenControllerTest {
     assertFalse(json.contains(IMAGE_ID));
     assertFalse(json.contains("s3://"));
     assertFalse(json.contains("file://"));
-    assertFalse(WsiDeidentification.containsAccession(json));
   }
 
   @Test

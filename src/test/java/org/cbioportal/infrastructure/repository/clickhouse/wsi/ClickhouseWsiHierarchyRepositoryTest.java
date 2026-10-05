@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.WsiSlide;
 import org.junit.Before;
@@ -50,40 +49,10 @@ public class ClickhouseWsiHierarchyRepositoryTest {
     for (String forbidden : List.of("imageId", "image_id", "barcode", "sourceUrl")) {
       assertFalse("hierarchy exposes " + forbidden, keys.contains(forbidden));
     }
-    assertFalse(WsiDeidentification.containsAccession(json));
   }
 
   @Test
-  public void dropsRowsContainingAnAccessionNumberInAnyTextField() {
-    for (String field :
-        List.of("part_description", "block_label", "stain_name", "specimen_key", "sample_id")) {
-      for (String accession : List.of("S12-34567", "s99-123", "Part from MSK:S1234")) {
-        Map<String, Object> leaking = row(KEY_2);
-        leaking.put(field, accession);
-        rows(row(KEY_1), leaking);
-
-        WsiHierarchy hierarchy = repository.getPatientHierarchy("study", "patient");
-
-        assertEquals(field + "=" + accession, List.of(KEY_1), slideKeys(hierarchy));
-      }
-    }
-  }
-
-  @Test
-  public void dropsAnAccessionShapedReferenceSample() {
-    Map<String, Object> row = row(KEY_1);
-    row.put("reference_sample_id", "S12-34567");
-    rows(row);
-    // The row itself is dropped; no slide and no reference sample are served.
-
-    WsiHierarchy hierarchy = repository.getPatientHierarchy("study", "patient");
-
-    assertNull(hierarchy.referenceSampleId());
-    assertTrue(hierarchy.sampleGroups().isEmpty());
-  }
-
-  @Test
-  public void doesNotTreatNonAccessionTextAsAnAccession() {
+  public void servesOrdinaryFreeText() {
     Map<String, Object> row = row(KEY_1);
     row.put("part_description", "Specimen 12");
     row.put("block_label", "S1-2");
@@ -125,18 +94,6 @@ public class ClickhouseWsiHierarchyRepositoryTest {
     rows(row);
 
     assertNull(repository.getPatientHierarchy("study", "patient"));
-  }
-
-  @Test
-  public void neverServesAccessionsInTheReferenceSampleEvenFromKeptRows() {
-    Map<String, Object> dropped = row(KEY_2);
-    dropped.put("reference_sample_id", "S12-34567");
-    rows(dropped, row(KEY_1));
-
-    WsiHierarchy hierarchy = repository.getPatientHierarchy("study", "patient");
-
-    assertEquals("WSI-FIXTURE-SAMPLE", hierarchy.referenceSampleId());
-    assertEquals(List.of(KEY_1), slideKeys(hierarchy));
   }
 
   @Test
@@ -182,14 +139,6 @@ public class ClickhouseWsiHierarchyRepositoryTest {
   public void hasNoReferenceSampleWhenNoRowCarriesOne() {
     assertNull(
         ClickhouseWsiHierarchyRepository.referenceSampleId(List.of(ref(null), ref(null)), "P-1"));
-  }
-
-  @Test
-  public void skipsAccessionShapedReferenceSamples() {
-    assertEquals(
-        "P-1-T01",
-        ClickhouseWsiHierarchyRepository.referenceSampleId(
-            List.of(ref("MSK:S1234"), ref("P-1-T01")), "P-1"));
   }
 
   private void rows(Map<String, Object>... rows) {

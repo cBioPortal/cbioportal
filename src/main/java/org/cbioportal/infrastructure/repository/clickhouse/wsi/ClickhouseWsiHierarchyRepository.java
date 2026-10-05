@@ -51,8 +51,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   /**
    * Opaque keys derived from salted SHA-256 digests. A hex digest can contain an eight-digit run
    * that looks like YYYYMMDD, so a value in the canonical opaque format is exempt from the date
-   * heuristics (it is still subject to the accession check). Any other value in these fields, such
-   * as a legacy numeric key, receives the normal free-text checks.
+   * heuristics. Any other value in these fields, such as a legacy numeric key, receives the normal
+   * free-text checks.
    */
   private static final Map<String, Pattern> OPAQUE_KEY_FIELDS =
       Map.of(
@@ -86,16 +86,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     }
 
     Map<String, WsiSampleGroupBuilder> samples = new java.util.LinkedHashMap<>();
-    List<Map<String, Object>> servedRows = new java.util.ArrayList<>(rows.size());
-    int accessionRows = 0;
     int unkeyedSlides = 0;
     for (Map<String, Object> row : rows) {
-      if (containsAccession(row)) {
-        // Never serve a specimen accession number. Drop the row rather than the whole
-        // hierarchy and never log the offending value.
-        accessionRows++;
-        continue;
-      }
       if (!isDeidentifiedRow(row)) {
         return null;
       }
@@ -105,7 +97,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
         unkeyedSlides++;
         continue;
       }
-      servedRows.add(row);
       validateTiming(row);
       String sampleKey = value(row, "sample_id", String.class);
       String sampleMapKey = sampleKey == null ? "" : sampleKey;
@@ -152,30 +143,25 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               value(row, "coordinate_system", String.class)));
     }
 
-    if (accessionRows > 0) {
-      LOG.warn(
-          "Dropped {} WSI hierarchy row(s) matching the specimen accession pattern", accessionRows);
-    }
     if (unkeyedSlides > 0) {
       LOG.warn("Dropped {} WSI hierarchy slide(s) without a valid slide_key", unkeyedSlides);
     }
 
     List<WsiSampleGroup> sampleGroups =
         samples.values().stream().map(WsiSampleGroupBuilder::build).toList();
-    return new WsiHierarchy(referenceSampleId(servedRows, patientId), sampleGroups);
+    return new WsiHierarchy(referenceSampleId(rows, patientId), sampleGroups);
   }
 
   /**
    * The patient's reference sample, carried on every WSI row. Unmatched rows sort first and may
    * omit it, so this takes the first non-empty value; rows that disagree are logged, since the
-   * importer validates one reference sample per patient. An accession-shaped value is never used or
-   * logged.
+   * importer validates one reference sample per patient.
    */
   static String referenceSampleId(List<Map<String, Object>> rows, String patientId) {
     String reference = null;
     for (Map<String, Object> row : rows) {
       String candidate = value(row, "reference_sample_id", String.class);
-      if (candidate == null || WsiDeidentification.containsAccession(candidate)) {
+      if (candidate == null) {
         continue;
       }
       if (reference == null) {
@@ -286,21 +272,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     }
     // A legacy NULL or uncontrolled value is ambiguous, not a confirmed Other.
     return "Unknown";
-  }
-
-  /**
-   * True when any text value in the row, including approved identifiers, looks like an accession.
-   */
-  static boolean containsAccession(Map<String, Object> row) {
-    for (Map.Entry<String, Object> entry : row.entrySet()) {
-      if (NON_TEXT_FIELDS.contains(entry.getKey()) || entry.getValue() == null) {
-        continue;
-      }
-      if (WsiDeidentification.containsAccession(entry.getValue().toString())) {
-        return true;
-      }
-    }
-    return false;
   }
 
   static boolean isDeidentifiedRow(Map<String, Object> row) {

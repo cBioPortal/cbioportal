@@ -213,9 +213,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
                   || COMPACT_DATE.matcher(value).find()
                   || COMPACT_DATE.matcher(path).find()))
           || LABELLED_MRN.matcher(value).find()
-          || LABELLED_MRN.matcher(path).find()
-          || WsiDeidentification.containsAccession(value)
-          || WsiDeidentification.containsAccession(path)) {
+          || LABELLED_MRN.matcher(path).find()) {
         return false;
       }
       String filename = path.substring(path.lastIndexOf('/') + 1);
@@ -299,7 +297,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (node.isTextual()) {
       String value = node.asText();
       return LABELLED_MRN.matcher(value).find()
-          || WsiDeidentification.containsAccession(value)
           || containsAbsoluteDate(value)
           || COMPACT_DATE.matcher(value).find();
     }

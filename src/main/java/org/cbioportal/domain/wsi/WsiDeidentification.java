@@ -9,9 +9,6 @@ public final class WsiDeidentification {
   /** Opaque per-slide key: the first 32 hex chars of a salted SHA-256 of the image identifier. */
   public static final Pattern SLIDE_KEY = Pattern.compile("^[0-9a-f]{32}$");
 
-  /** Specimen accession numbers ({@code S##-#####}, {@code MSK:S...}) must never be served. */
-  public static final Pattern ACCESSION = Pattern.compile("(?i)(\\bS\\d{2}-\\d{3,}|MSK:S\\d)");
-
   /**
    * The resource_data resources that hold one row per slide. Their rows carry the private {@code
    * wsi_serving} object and are read only by the WSI hierarchy and access endpoints; the generic
@@ -23,10 +20,6 @@ public final class WsiDeidentification {
 
   public static boolean isSlideKey(String value) {
     return value != null && SLIDE_KEY.matcher(value).matches();
-  }
-
-  public static boolean containsAccession(String value) {
-    return value != null && ACCESSION.matcher(value).find();
   }
 
   public static boolean isWsiResourceId(String resourceId) {

@@ -290,8 +290,8 @@ The patient view's slide viewer, the WSI hierarchy endpoint
 (`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
 endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`)
 read only these two resources. Slides are addressed by an opaque `slide_key`;
-the real image ID, specimen accession numbers, slide barcodes and object URLs
-never reach the browser (serving contract `wsi-serving-v5`).
+the real image ID, slide barcodes and object URLs never reach the browser
+(serving contract `wsi-serving-v5`).
 
 The generic resource APIs (the resource table and the
 `/studies/.../resource-data` endpoints) never return `WSI_SAMPLE` or
@@ -347,8 +347,10 @@ In `data_resource_sample.txt` and `data_resource_patient.txt`:
     `thumbnail_url`, `thumbnail_width`, `thumbnail_height` and
     `thumbnail_content_type`.
 
-No value in `URL`, `DISPLAY_NAME` or `METADATA` (including `wsi_serving`) may
-contain a specimen accession number (`S##-#####`, `MSK:S…`).
+The data provider is responsible for de-identifying `URL`, `DISPLAY_NAME`
+and `METADATA` (including `wsi_serving`): institution-specific identifiers
+such as specimen accession numbers must be removed before import. cBioPortal
+does not recognise any institution's accession format.
 
 `wsi_serving` is read only by the slide access endpoint, which checks study
 authorization and returns a short-lived capability. The image ID and the
@@ -466,8 +468,10 @@ The required values are `PATIENT_ID`, `IMAGE_ID`, `SLIDE_KEY`, `PART_KEY`,
 and `CAN_SERVE_TILES`. `SLIDE_KEY` is 32 lowercase hex characters, unique
 within a study: the first half of a salted SHA-256 of the image ID, computed
 upstream with a salt no service knows. `PART_KEY`, `BLOCK_KEY` and
-`SPECIMEN_KEY` are derived from slide keys, never from the image ID or an
-accession number. No cell may contain a specimen accession number. `SLIDE_TYPE` is the controlled classification value and is
+`SPECIMEN_KEY` are derived from slide keys, never from the image ID or any
+other source identifier. Removing institution-specific identifiers (such as
+specimen accession numbers) from every cell is the data provider's
+responsibility. `SLIDE_TYPE` is the controlled classification value and is
 one of `H&E`, `IHC`, or `Other`. `STAIN_NAME` and `STAIN_GROUP` are optional
 descriptive source labels, so values such as `H&E, Initial` and
 `H&E (Initial)` are valid and are not used as the classification contract.

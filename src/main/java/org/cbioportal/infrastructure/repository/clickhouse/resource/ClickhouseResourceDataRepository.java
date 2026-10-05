@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataField;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceMetadataSchema;
 import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
@@ -27,6 +29,24 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   // Only non-ID builtin columns that benefit from categorical filtering
   private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.type");
+
+  /**
+   * Past this many distinct values a facet is no use as a dropdown, and the payload grows with the
+   * data: a key that is unique or near-unique per row enumerates the whole resource. An over-cap
+   * column keeps its search box but loses its value list, the same way a numeric column gets a
+   * range instead.
+   */
+  private static final int MAX_FACET_VALUES = 500;
+
+  /**
+   * Key discovery and numeric detection read this many rows rather than the whole resource, so
+   * their cost stays flat as a resource grows. A key appearing only beyond the sample is not
+   * discovered; the bound is large enough that this needs very heterogeneous metadata to matter.
+   */
+  private static final int KEY_DISCOVERY_SAMPLE_ROWS = 100_000;
+
+  /** Backstop so a single request cannot exhaust server memory if the sample is raised. */
+  private static final long KEY_DISCOVERY_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
 
   private final ClickhouseResourceDataMapper mapper;
 
@@ -56,7 +76,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         return false;
       }
       if ("number".equals(declaredType)) {
-        return stats.hasUsableNumericRange();
+        // Sampled counts are fine for classification; only the slider's bounds have to be exact.
+        return stats.numericCount() > 0;
       }
       return stats.isAutoDetectedNumeric();
     }
@@ -99,33 +120,99 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(scoped, entry.getValue());
-      if (values != null && !values.isEmpty()) {
+          mapper.getResourceTableFacetValues(scoped, entry.getValue(), MAX_FACET_VALUES + 1);
+      if (withinFacetCap(entry.getKey(), values)) {
         facets.put(entry.getKey(), values);
       }
     }
 
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
+    List<String> categoricalKeys = new ArrayList<>();
+    List<String> numericKeys = new ArrayList<>();
     for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
       String key = entry.getKey();
-      String columnId = ResourceColumnInfo.METADATA_COLUMN_PREFIX + key;
       if (!context.isFilterable(key)) {
         continue;
       }
-      if (context.isNumeric(key)) {
-        // Numeric columns get a min/max range instead of an enumerated value list, which would be
-        // huge and unhelpful for a continuous measurement.
-        ResourceMetadataKeyStats stats = entry.getValue();
-        facetRanges.put(columnId, new ResourceNumericRange(stats.minValue(), stats.maxValue()));
-      } else {
-        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(scoped, key);
-        if (values != null && !values.isEmpty()) {
-          facets.put(columnId, values);
-        }
-      }
+      // Numeric columns get a min/max range instead of an enumerated value list, which would be
+      // huge and unhelpful for a continuous measurement.
+      (context.isNumeric(key) ? numericKeys : categoricalKeys).add(key);
     }
+    facetRanges.putAll(metadataRanges(scoped, numericKeys));
+    facets.putAll(metadataFacets(scoped, categoricalKeys));
 
     return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
+  }
+
+  /**
+   * Exact ranges for the numeric keys, read over the whole filtered set rather than the discovery
+   * sample: these bounds are what the slider offers, and a narrowed range would put rows beyond it
+   * out of reach.
+   */
+  private Map<String, ResourceNumericRange> metadataRanges(
+      ResourceTableQuery scoped, List<String> keys) {
+    if (keys.isEmpty()) {
+      return Map.of();
+    }
+    Map<String, ResourceNumericRange> ranges = new LinkedHashMap<>();
+    for (ResourceMetadataRange range :
+        mapper.getResourceTableMetadataRanges(scoped, keys.toArray(new String[0]))) {
+      if (range.isUsable()) {
+        ranges.put(
+            ResourceColumnInfo.METADATA_COLUMN_PREFIX + range.metaKey(),
+            new ResourceNumericRange(range.minValue(), range.maxValue()));
+      }
+    }
+    return ranges;
+  }
+
+  /** All categorical metadata facets in one query, grouped by key, with over-cap keys dropped. */
+  private Map<String, List<ResourceFacetOption>> metadataFacets(
+      ResourceTableQuery scoped, List<String> keys) {
+    if (keys.isEmpty()) {
+      return Map.of();
+    }
+    List<ResourceMetadataFacetValue> rows =
+        mapper.getResourceTableMetadataFacets(
+            scoped, keys.toArray(new String[0]), MAX_FACET_VALUES + 1);
+
+    Map<String, List<ResourceFacetOption>> byKey = new LinkedHashMap<>();
+    for (ResourceMetadataFacetValue row : rows) {
+      byKey
+          .computeIfAbsent(row.metaKey(), k -> new ArrayList<>())
+          .add(new ResourceFacetOption(row.value(), row.count()));
+    }
+
+    Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
+    // Iterate the requested keys, not the result, so column order follows the contract.
+    for (String key : keys) {
+      String columnId = ResourceColumnInfo.METADATA_COLUMN_PREFIX + key;
+      List<ResourceFacetOption> values = byKey.get(key);
+      if (withinFacetCap(columnId, values)) {
+        facets.put(columnId, values);
+      }
+    }
+    return facets;
+  }
+
+  /**
+   * Whether a facet is small enough to be worth returning. The query asks for one more than the
+   * cap, so an over-cap result is recognised without counting the whole column.
+   */
+  private boolean withinFacetCap(String columnId, List<ResourceFacetOption> values) {
+    if (values == null || values.isEmpty()) {
+      return false;
+    }
+    if (values.size() > MAX_FACET_VALUES) {
+      LOG.debug(
+          "Dropping the facet for '{}': more than {} distinct values. The column stays searchable"
+              + " but offers no value list. Declare \"filterable\": false for it in the"
+              + " resource's custom_metadata to skip the aggregation entirely.",
+          columnId,
+          MAX_FACET_VALUES);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -176,7 +263,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * metadata key (not prefixed with "metadata:").
    */
   private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(ResourceTableQuery query) {
-    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    List<ResourceMetadataKeyStats> stats =
+        mapper.getResourceTableMetadataKeyStats(
+            query, KEY_DISCOVERY_SAMPLE_ROWS, KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
     if (stats != null) {
       for (ResourceMetadataKeyStats stat : stats) {

@@ -276,10 +276,10 @@ public class ClickhouseResourceDataMapperTest {
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
 
     List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.PATIENT_ID");
+        mapper.getResourceTableFacetValues(query, "rdata.patient_id");
     List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.SAMPLE_ID");
-    List<ResourceFacetOption> typeFacets = mapper.getResourceTableFacetValues(query, "rdata.TYPE");
+        mapper.getResourceTableFacetValues(query, "rdata.sample_id");
+    List<ResourceFacetOption> typeFacets = mapper.getResourceTableFacetValues(query, "rdata.type");
 
     assertThat(patientFacets).hasSize(2);
     assertThat(sampleFacets).hasSize(2);
@@ -312,9 +312,9 @@ public class ClickhouseResourceDataMapperTest {
             List.of(patientFilter));
 
     List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.PATIENT_ID");
+        mapper.getResourceTableFacetValues(query, "rdata.patient_id");
     List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.SAMPLE_ID");
+        mapper.getResourceTableFacetValues(query, "rdata.sample_id");
 
     assertThat(patientFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb", 1L));
     assertThat(sampleFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb-01", 1L));

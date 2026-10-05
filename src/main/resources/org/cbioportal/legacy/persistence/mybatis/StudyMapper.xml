@@ -108,7 +108,7 @@
 
     <sql id="selectSampleResourceCounts">
         <include refid="selectResource"/>,
-        rs.RESOURCE_ID AS resourceId,
+        rs.resource_id AS resourceId,
         COUNT(DISTINCT s.internal_id) AS sampleCount,
         COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
@@ -120,33 +120,33 @@
         stable_id rather than internal_id.
     -->
     <sql id="fromResourceSample">
-        FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, SAMPLE_ID
+        FROM (SELECT resource_id, cancer_study_id, sample_id
               FROM resource_data
-              WHERE ENTITY_TYPE = 'SAMPLE' AND SAMPLE_ID IS NOT NULL) AS rs
-             INNER JOIN resource_definition rd ON rd.resource_id = rs.RESOURCE_ID
-                                              AND rd.cancer_study_id = rs.CANCER_STUDY_ID
-             INNER JOIN cancer_study cs ON cs.cancer_study_id = rs.CANCER_STUDY_ID
-             INNER JOIN sample s ON s.stable_id = rs.SAMPLE_ID
+              WHERE entity_type = 'SAMPLE' AND sample_id IS NOT NULL) AS rs
+             INNER JOIN resource_definition rd ON rd.resource_id = rs.resource_id
+                                              AND rd.cancer_study_id = rs.cancer_study_id
+             INNER JOIN cancer_study cs ON cs.cancer_study_id = rs.cancer_study_id
+             INNER JOIN sample s ON s.stable_id = rs.sample_id
              INNER JOIN patient p ON p.internal_id = s.patient_id
-                                 AND p.cancer_study_id = rs.CANCER_STUDY_ID
+                                 AND p.cancer_study_id = rs.cancer_study_id
     </sql>
 
     <sql id="selectPatientResourceCounts">
         <include refid="selectResource"/>,
-        rp.RESOURCE_ID AS resourceId,
+        rp.resource_id AS resourceId,
         COUNT(DISTINCT s.internal_id) AS sampleCount,
         COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
 
     <sql id="fromResourcePatient">
-        FROM (SELECT RESOURCE_ID, CANCER_STUDY_ID, PATIENT_ID
+        FROM (SELECT resource_id, cancer_study_id, patient_id
               FROM resource_data
-              WHERE ENTITY_TYPE = 'PATIENT' AND PATIENT_ID IS NOT NULL) AS rp
-             INNER JOIN resource_definition rd ON rd.resource_id = rp.RESOURCE_ID
-                                              AND rd.cancer_study_id = rp.CANCER_STUDY_ID
-             INNER JOIN cancer_study cs ON cs.cancer_study_id = rp.CANCER_STUDY_ID
-             INNER JOIN patient p ON p.stable_id = rp.PATIENT_ID
-                                 AND p.cancer_study_id = rp.CANCER_STUDY_ID
+              WHERE entity_type = 'PATIENT' AND patient_id IS NOT NULL) AS rp
+             INNER JOIN resource_definition rd ON rd.resource_id = rp.resource_id
+                                              AND rd.cancer_study_id = rp.cancer_study_id
+             INNER JOIN cancer_study cs ON cs.cancer_study_id = rp.cancer_study_id
+             INNER JOIN patient p ON p.stable_id = rp.patient_id
+                                 AND p.cancer_study_id = rp.cancer_study_id
              LEFT JOIN sample s ON s.patient_id = p.internal_id
     </sql>
 

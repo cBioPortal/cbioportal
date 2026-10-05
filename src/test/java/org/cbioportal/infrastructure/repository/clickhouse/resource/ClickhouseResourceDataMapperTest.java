@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -37,6 +38,10 @@ public class ClickhouseResourceDataMapperTest {
 
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
   private static final String ACC_TCGA = "acc_tcga";
+  // Generous bounds: these tests check SQL semantics, not the production caps.
+  private static final int TEST_FACET_LIMIT = 1000;
+  private static final int TEST_SAMPLE_ROWS = 100000;
+  private static final long TEST_MAX_MEMORY = 2L * 1024 * 1024 * 1024;
 
   @Autowired private ClickhouseResourceDataMapper mapper;
 
@@ -276,10 +281,10 @@ public class ClickhouseResourceDataMapperTest {
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
 
     List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.patient_id");
+        mapper.getResourceTableFacetValues(query, "rdata.patient_id", TEST_FACET_LIMIT);
     List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.sample_id");
-    List<ResourceFacetOption> typeFacets = mapper.getResourceTableFacetValues(query, "rdata.type");
+        mapper.getResourceTableFacetValues(query, "rdata.sample_id", TEST_FACET_LIMIT);
+    List<ResourceFacetOption> typeFacets = mapper.getResourceTableFacetValues(query, "rdata.type", TEST_FACET_LIMIT);
 
     assertThat(patientFacets).hasSize(2);
     assertThat(sampleFacets).hasSize(2);
@@ -312,9 +317,9 @@ public class ClickhouseResourceDataMapperTest {
             List.of(patientFilter));
 
     List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.patient_id");
+        mapper.getResourceTableFacetValues(query, "rdata.patient_id", TEST_FACET_LIMIT);
     List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.sample_id");
+        mapper.getResourceTableFacetValues(query, "rdata.sample_id", TEST_FACET_LIMIT);
 
     assertThat(patientFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb", 1L));
     assertThat(sampleFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb-01", 1L));
@@ -343,7 +348,7 @@ public class ClickhouseResourceDataMapperTest {
             List.of(stainFilter));
 
     List<ResourceFacetOption> magnificationFacets =
-        mapper.getResourceTableMetadataFacetValues(query, "magnification");
+        metadataFacet(query, "magnification", TEST_FACET_LIMIT);
 
     assertThat(magnificationFacets)
         .containsExactlyInAnyOrder(
@@ -421,15 +426,15 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
 
-    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats pages =
         stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
     assertThat(pages.nonBlankCount()).isEqualTo(2);
     assertThat(pages.numericCount()).isEqualTo(2);
-    assertThat(pages.minValue()).isEqualTo(10.0);
-    assertThat(pages.maxValue()).isEqualTo(25.0);
     assertThat(pages.isAutoDetectedNumeric()).isTrue();
+    assertThat(rangeFor(query, "pages"))
+        .isEqualTo(new ResourceMetadataRange("pages", 10.0, 25.0));
   }
 
   @Test
@@ -440,7 +445,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats magnification =
         stats.stream().filter(s -> s.key().equals("magnification")).findFirst().orElseThrow();
@@ -775,7 +780,7 @@ public class ClickhouseResourceDataMapperTest {
     // JSONExtractString returns a JSON number as its text, so numeric metadata is filterable and
     // facetable rather than coming back blank.
     List<ResourceFacetOption> facets =
-        mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "score");
+        metadataFacet(slideSet(null, null, 0, 10), "score", TEST_FACET_LIMIT);
 
     assertThat(facets)
         .extracting(ResourceFacetOption::value)
@@ -821,16 +826,16 @@ public class ClickhouseResourceDataMapperTest {
   @Test
   public void metadataFacets_readJsonIntegersAndBooleans() {
     assertThat(
-            mapper.getResourceTableMetadataFacetValues(
-                slideSet(null, null, 0, 10), "file_size_bytes"))
+            metadataFacet(
+                slideSet(null, null, 0, 10), "file_size_bytes", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("100", "2000", "30", "400");
 
-    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "is_hne"))
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "is_hne", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("true", "false");
 
-    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "mpp"))
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "mpp", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("0.5", "0.25", "1", "0.75");
   }
@@ -887,14 +892,90 @@ public class ClickhouseResourceDataMapperTest {
   @Test
   public void metadataKeyStats_detectJsonIntegersAsNumeric() {
     ResourceMetadataKeyStats stats =
-        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10)).stream()
+        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10), TEST_SAMPLE_ROWS, TEST_MAX_MEMORY).stream()
             .filter(k -> "file_size_bytes".equals(k.key()))
             .findFirst()
             .orElseThrow();
 
     assertThat(stats.nonBlankCount()).isEqualTo(4);
     assertThat(stats.numericCount()).isEqualTo(4);
-    assertThat(stats.minValue()).isEqualTo(30.0);
-    assertThat(stats.maxValue()).isEqualTo(2000.0);
+    assertThat(rangeFor(slideSet(null, null, 0, 10), "file_size_bytes"))
+        .isEqualTo(new ResourceMetadataRange("file_size_bytes", 30.0, 2000.0));
+  }
+
+  // ---- Facet cap and bounded key discovery ----
+
+  @Test
+  public void metadataFacets_respectTheCallersLimit() {
+    // SLIDE_SET has four distinct scores. The caller asks for cap + 1 so it can tell an over-cap
+    // key from one that exactly fills the cap, so a limit of 3 must come back with 3, not 4.
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 3))
+        .hasSize(3);
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 10))
+        .hasSize(4);
+  }
+
+  @Test
+  public void builtinFacets_respectTheCallersLimit() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "SLIDE_SET", null, null, null, 0, 10, null, null, null);
+
+    assertThat(mapper.getResourceTableFacetValues(query, "rdata.display_name", 2)).hasSize(2);
+  }
+
+  @Test
+  public void keyStats_areUnchangedByTheSampleBoundWhenTheResourceIsSmaller() {
+    // The sample bounds how many rows are read; a resource smaller than the bound must classify
+    // exactly as it did before the bound existed.
+    ResourceMetadataKeyStats scores =
+        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10), TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+            .stream()
+            .filter(k -> "score".equals(k.key()))
+            .findFirst()
+            .orElseThrow();
+
+    assertThat(scores.nonBlankCount()).isEqualTo(4);
+    assertThat(scores.numericCount()).isEqualTo(4);
+    assertThat(rangeFor(slideSet(null, null, 0, 10), "score"))
+        .isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));
+  }
+
+  @Test
+  public void keyStats_sampleBoundLimitsRowsRead() {
+    // With the bound set to one row, only that row's keys are discovered.
+    List<ResourceMetadataKeyStats> stats =
+        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10), 1, TEST_MAX_MEMORY);
+
+    assertThat(stats).isNotEmpty();
+    assertThat(stats).allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
+  }
+
+  /** The batched facet query, narrowed to one key, so per-key assertions stay readable. */
+  private List<ResourceFacetOption> metadataFacet(
+      ResourceTableQuery query, String key, int limitPerKey) {
+    return mapper.getResourceTableMetadataFacets(query, new String[] {key}, limitPerKey).stream()
+        .map(v -> new ResourceFacetOption(v.value(), v.count()))
+        .toList();
+  }
+
+  /** The exact-range query, narrowed to one key. */
+  private ResourceMetadataRange rangeFor(ResourceTableQuery query, String key) {
+    return mapper.getResourceTableMetadataRanges(query, new String[] {key}).stream()
+        .findFirst()
+        .orElseThrow();
+  }
+
+  @Test
+  public void metadataRanges_readTheWholeSetNotTheDiscoverySample() {
+    // The slider's bounds must cover every row, so the range query takes no sample. Discovery
+    // limited to one row sees only that row's value; the range still spans all four.
+    ResourceTableQuery query = slideSet(null, null, 0, 10);
+
+    assertThat(mapper.getResourceTableMetadataKeyStats(query, 1, TEST_MAX_MEMORY))
+        .allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
+
+    assertThat(rangeFor(query, "score"))
+        .isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));
   }
 }

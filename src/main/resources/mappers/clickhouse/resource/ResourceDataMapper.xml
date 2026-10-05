@@ -372,6 +372,11 @@
     LIMIT #{query.limit} OFFSET #{query.offset}
   </select>
 
+  <!--
+    LIMIT is one more than the caller's cap: if the extra row comes back the key has too many
+    distinct values to offer as a dropdown and the caller drops the facet entirely. See
+    getResourceTableMetadataFacetValues.
+  -->
   <select id="getResourceTableFacetValues" resultMap="ResourceFacetOptionResultMap">
     SELECT ${column} AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
@@ -379,18 +384,53 @@
     AND ${column} IS NOT NULL AND ${column} != ''
     GROUP BY ${column}
     ORDER BY value ASC
+    LIMIT #{limit}
   </select>
 
-  <select id="getResourceTableMetadataFacetValues" resultMap="ResourceFacetOptionResultMap">
-    SELECT JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) AS value, count(*) AS count
-    <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceTableBaseFilters"/>
-    AND rdata.metadata IS NOT NULL
-    AND JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) != ''
-    GROUP BY value
-    ORDER BY value ASC
+  <!--
+    Every metadata facet in one pass. The per-key form needed one aggregation over the resource
+    for each key, so the cost grew with the number of keys; this explodes each row's metadata into
+    key/value pairs once and groups them together.
+
+    LIMIT ... BY metaKey applies the cap per key rather than to the result as a whole, so one
+    near-unique key cannot crowd out the others. As in the single-key form the cap is the caller's
+    plus one, so an over-cap key is recognised and dropped.
+  -->
+  <select id="getResourceTableMetadataFacets" resultType="org.cbioportal.domain.resource.ResourceMetadataFacetValue">
+    SELECT metaKey, value, count(*) AS count
+    FROM (
+      SELECT kv.1 AS metaKey, JSONExtractString(kv.2) AS value
+      FROM (
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(ifNull(rdata.metadata, '{}'))) AS kv
+        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+      ) pairs
+    ) vals
+    WHERE value != ''
+      AND metaKey IN (#{metadataKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    GROUP BY metaKey, value
+    ORDER BY metaKey ASC, value ASC
+    LIMIT #{limitPerKey} BY metaKey
   </select>
 
+  <!--
+    Discovers which metadata keys the rows carry and whether each is numeric.
+
+    Three things keep its cost flat as a resource grows. It reads a bounded sample of rows rather
+    than all of them. It pulls the key/value pairs out in one pass with
+    JSONExtractKeysAndValuesRaw instead of listing the keys and then re-parsing the document once
+    per key. And it never carries the document itself through the arrayJoin, which would otherwise
+    duplicate the whole JSON once per key per row.
+
+    JSONExtractString on a raw value reproduces the old semantics exactly: "HE" gives HE, 42 gives
+    42, true gives true, and a quoted number still parses as numeric. rawValue is extracted once
+    and reused for the numeric parse.
+
+    The sample means a key present only in rows beyond it is not discovered, and a key whose only
+    numeric values lie beyond it is classified as text. The bound is large enough that this needs
+    a resource with very heterogeneous metadata to matter.
+  -->
   <select id="getResourceTableMetadataKeyStats" resultMap="ResourceMetadataKeyStatsResultMap">
     SELECT metaKey,
       countIf(rawValue != '') AS nonBlankCount,
@@ -398,19 +438,23 @@
       min(parsedValue) AS minValue,
       max(parsedValue) AS maxValue
     FROM (
-      SELECT metaKey,
-        JSONExtractString(metadataJson, metaKey) AS rawValue,
-        toFloat64OrNull(JSONExtractString(metadataJson, metaKey)) AS parsedValue
+      SELECT kv.1 AS metaKey,
+             JSONExtractString(kv.2) AS rawValue,
+             toFloat64OrNull(rawValue) AS parsedValue
       FROM (
-        SELECT ifNull(rdata.metadata, '{}') AS metadataJson,
-               arrayJoin(JSONExtractKeys(ifNull(rdata.metadata, '{}'))) AS metaKey
-        <include refid="ResourceTableFromClause"/>
-        <include refid="ResourceTableBaseFilters"/>
-        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
-      ) keys
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(metadataJson)) AS kv
+        FROM (
+          SELECT ifNull(rdata.metadata, '{}') AS metadataJson
+          <include refid="ResourceTableFromClause"/>
+          <include refid="ResourceTableBaseFilters"/>
+          AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+          LIMIT #{sampleRows}
+        ) sampled
+      ) pairs
     ) vals
     GROUP BY metaKey
     ORDER BY metaKey ASC
+    SETTINGS max_memory_usage = #{maxMemoryBytes}
   </select>
 
   <!--

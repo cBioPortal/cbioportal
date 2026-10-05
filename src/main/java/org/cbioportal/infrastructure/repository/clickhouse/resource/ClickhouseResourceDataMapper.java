@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
@@ -16,10 +17,18 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
 
   List<ResourceFacetOption> getResourceTableFacetValues(
-      @Param("query") ResourceTableQuery query, @Param("column") String column);
+      @Param("query") ResourceTableQuery query,
+      @Param("column") String column,
+      @Param("limit") int limit);
 
-  List<ResourceFacetOption> getResourceTableMetadataFacetValues(
-      @Param("query") ResourceTableQuery query, @Param("metadataKey") String metadataKey);
+  /**
+   * Facet values for every requested key in one pass over resource_data, capped per key. Returns a
+   * flat list; the caller groups it.
+   */
+  List<ResourceMetadataFacetValue> getResourceTableMetadataFacets(
+      @Param("query") ResourceTableQuery query,
+      @Param("metadataKeys") String[] metadataKeys,
+      @Param("limitPerKey") int limitPerKey);
 
   /**
    * Per-key stats (non-blank count, numeric-parseable count, min/max) used to decide whether a
@@ -28,7 +37,9 @@ public interface ClickhouseResourceDataMapper {
    * org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataRepository}.
    */
   List<ResourceMetadataKeyStats> getResourceTableMetadataKeyStats(
-      @Param("query") ResourceTableQuery query);
+      @Param("query") ResourceTableQuery query,
+      @Param("sampleRows") int sampleRows,
+      @Param("maxMemoryBytes") long maxMemoryBytes);
 
   /**
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any

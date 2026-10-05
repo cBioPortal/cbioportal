@@ -342,6 +342,13 @@ DROP TABLE IF EXISTS resource_study;
 ALTER TABLE clinical_event_data DELETE
 WHERE key = 'IMAGE_IDS'
    OR (key = 'LINKOUT' AND (position(value, 'image%3A') > 0 OR position(value, 'image:') > 0));
+-- Clinical timeline feeds also carry record accession numbers as an event attribute
+-- (ACCESSION_NUMBER: pathology case numbers on PATHOLOGY events, radiology exam numbers on
+-- Diagnosis events). They link de-identified events back to the medical record and have no
+-- reliable value pattern, so remove every attribute whose key names an accession. The importer
+-- rejects such columns from now on.
+ALTER TABLE clinical_event_data DELETE
+WHERE positionCaseInsensitive(key, 'ACCESSION') > 0;
 -- WSI resource rows written before slide_key existed name the slide by its real image id in URL,
 -- DISPLAY_NAME and public METADATA. The portal can neither list nor serve them (it addresses
 -- slides only by slide_key), so delete them; re-importing the converted v3 resources restores the

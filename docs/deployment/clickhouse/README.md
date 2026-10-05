@@ -470,7 +470,10 @@ which the WSI and resource-table queries rely on, backfills it from the legacy
 **`3.6.0` (WSI slide keys).** `3.6.0` removes WSI data that names slides by
 their real image ID (serving contract `wsi-serving-v5`). It deletes the
 pathology timeline's `IMAGE_IDS` events and image-keyed `LINKOUT` events from
-`clinical_event_data`, and deletes every `WSI_SAMPLE`/`WSI_PATIENT` row in
+`clinical_event_data`, deletes every clinical event attribute whose key contains
+`ACCESSION` (record accession numbers, e.g. `ACCESSION_NUMBER` on PATHOLOGY and
+Diagnosis timeline events; the importer now rejects such columns), and deletes
+every `WSI_SAMPLE`/`WSI_PATIENT` row in
 `resource_data` whose `METADATA` has no `slide_key`. Those slides disappear
 from the portal until the study's v3 WSI resources and pathology timeline are
 re-imported (converted with the v3 `convertWsiToResources.py`, which requires

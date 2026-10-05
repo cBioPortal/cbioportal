@@ -27,7 +27,33 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   private static final Logger LOG = LoggerFactory.getLogger(ClickhouseResourceDataRepository.class);
 
   // Only non-ID builtin columns that benefit from categorical filtering
-  private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.TYPE");
+  private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.type");
+
+  /**
+   * Metadata key holding WSI artifact locations. It is private to the WSI access API for every row,
+   * whatever its type, matching the search, filter, sort, facet and key-discovery guards in
+   * ResourceDataMapper.xml.
+   */
+  private static final String WSI_SERVING_KEY = "wsi_serving";
+
+  /**
+   * Past this many distinct values a facet is no use as a dropdown and expensive to ship: on a
+   * 1.17M-row imaging resource, four ID-like keys returned over a million values each and made up
+   * most of a 148MB response. An over-cap column keeps its search box but loses its value list, the
+   * same way a numeric column gets a range instead.
+   */
+  private static final int MAX_FACET_VALUES = 500;
+
+  /**
+   * Key discovery and numeric detection read this many rows rather than the whole resource.
+   * Unbounded, that query peaked at 7.35 GiB and took 3.8s on the resource above. A key appearing
+   * only beyond the sample is not discovered; the bound is large enough that this needs very
+   * heterogeneous metadata to matter.
+   */
+  private static final int KEY_DISCOVERY_SAMPLE_ROWS = 100_000;
+
+  /** Backstop so one request cannot take the server down even if the sample is raised. */
+  private static final long KEY_DISCOVERY_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
 
   private final ClickhouseResourceDataMapper mapper;
 
@@ -76,11 +102,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return new MetadataContext(getSchema(scoped), classifyMetadataKeys(scoped));
   }
 
-  /**
+  /*
    * WSI_SAMPLE / WSI_PATIENT rows are excluded in SQL by every statement (ExcludeWsiResourceRows in
-   * ResourceDataMapper.xml). Tabs and rows are filtered again here so a future statement that
-   * forgets the predicate still cannot hand a slide row to the generic table.
+   * ResourceDataMapper.xml). Each entry point below checks again here so a future statement that
+   * forgets the predicate still cannot hand a slide row, or anything derived from one, to the
+   * generic resource table: tabs, rows (query/fetch), and columns, facets, ranges and counts
+   * (metadata/fetch).
    */
+
   @Override
   public List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request) {
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
@@ -94,6 +123,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
+    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+      return List.of();
+    }
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
     if (rows == null || rows.isEmpty()) {
       return rows;
@@ -104,21 +136,15 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         .toList();
   }
 
-  /**
-   * wsi_serving holds artifact locations that only the WSI access API may read. It is private for
-   * every row, whatever its TYPE, matching the search, filter, sort, facet and key-discovery guards
-   * in ResourceDataMapper.xml.
-   */
   private static ResourceTableRow withoutServingMetadata(ResourceTableRow row) {
-    if (row.metadata() == null || !row.metadata().containsKey("wsi_serving")) {
+    if (row.metadata() == null || !row.metadata().containsKey(WSI_SERVING_KEY)) {
       return row;
     }
     Map<String, Object> metadata = new LinkedHashMap<>(row.metadata());
-    metadata.remove("wsi_serving");
+    metadata.remove(WSI_SERVING_KEY);
     return new ResourceTableRow(
         row.studyId(),
         row.resourceId(),
-        row.resourceDataId(),
         row.resourceDisplayName(),
         row.resourceType(),
         row.patientId(),
@@ -131,6 +157,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
+    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+      return ResourceTableMetadataView.empty();
+    }
     // Facets and key discovery are always computed against the query with ALL column-level filters
     // removed (only resourceId/study/patient/sample/search scoping kept). This keeps every filter
     // dropdown showing its full, stable option set regardless of what is currently selected in ANY
@@ -143,8 +172,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(scoped, entry.getValue());
-      if (values != null && !values.isEmpty()) {
+          mapper.getResourceTableFacetValues(scoped, entry.getValue(), MAX_FACET_VALUES + 1);
+      if (withinFacetCap(entry.getKey(), values)) {
         facets.put(entry.getKey(), values);
       }
     }
@@ -162,14 +191,35 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         ResourceMetadataKeyStats stats = entry.getValue();
         facetRanges.put(columnId, new ResourceNumericRange(stats.minValue(), stats.maxValue()));
       } else {
-        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(scoped, key);
-        if (values != null && !values.isEmpty()) {
+        List<ResourceFacetOption> values =
+            mapper.getResourceTableMetadataFacetValues(scoped, key, MAX_FACET_VALUES + 1);
+        if (withinFacetCap(columnId, values)) {
           facets.put(columnId, values);
         }
       }
     }
 
     return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
+  }
+
+  /**
+   * Whether a facet is small enough to be worth returning. The query asks for one more than the
+   * cap, so an over-cap result is recognised without counting the whole column.
+   */
+  private boolean withinFacetCap(String columnId, List<ResourceFacetOption> values) {
+    if (values == null || values.isEmpty()) {
+      return false;
+    }
+    if (values.size() > MAX_FACET_VALUES) {
+      LOG.debug(
+          "Dropping the facet for '{}': more than {} distinct values. The column stays searchable"
+              + " but offers no value list. Declare \"filterable\": false for it in the"
+              + " resource's custom_metadata to skip the aggregation entirely.",
+          columnId,
+          MAX_FACET_VALUES);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -220,10 +270,15 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * metadata key (not prefixed with "metadata:").
    */
   private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(ResourceTableQuery query) {
-    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    List<ResourceMetadataKeyStats> stats =
+        mapper.getResourceTableMetadataKeyStats(
+            query, KEY_DISCOVERY_SAMPLE_ROWS, KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
     if (stats != null) {
       for (ResourceMetadataKeyStats stat : stats) {
+        if (WSI_SERVING_KEY.equals(stat.key())) {
+          continue;
+        }
         byKey.put(stat.key(), stat);
       }
     }
@@ -268,6 +323,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
+    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+      return ResourceTableCounts.empty();
+    }
     ResourceTableCounts counts = mapper.getResourceTableCounts(query);
     return counts == null ? ResourceTableCounts.empty() : counts;
   }

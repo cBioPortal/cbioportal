@@ -9,6 +9,7 @@ import java.util.List;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
+import org.cbioportal.domain.resource.usecase.GetResourceTableMetadataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableTabsUseCase;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.junit.Before;
@@ -79,6 +80,7 @@ public class ResourceTableControllerSecurityTest {
 
   @MockitoBean private GetResourceTableTabsUseCase getResourceTableTabsUseCase;
   @MockitoBean private GetResourceTableDataUseCase getResourceTableDataUseCase;
+  @MockitoBean private GetResourceTableMetadataUseCase getResourceTableMetadataUseCase;
 
   @Autowired private MockMvc mockMvc;
   @Autowired private PermissionEvaluator permissionEvaluator;

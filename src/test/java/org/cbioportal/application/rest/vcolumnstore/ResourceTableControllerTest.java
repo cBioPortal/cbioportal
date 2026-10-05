@@ -6,11 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableResult;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
+import org.cbioportal.domain.resource.usecase.GetResourceTableMetadataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableTabsUseCase;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.hamcrest.Matchers;
@@ -38,6 +38,7 @@ public class ResourceTableControllerTest {
 
   @MockitoBean private GetResourceTableTabsUseCase getResourceTableTabsUseCase;
   @MockitoBean private GetResourceTableDataUseCase getResourceTableDataUseCase;
+  @MockitoBean private GetResourceTableMetadataUseCase getResourceTableMetadataUseCase;
 
   @Autowired private MockMvc mockMvc;
 
@@ -102,7 +103,6 @@ public class ResourceTableControllerTest {
             new ResourceTableRow(
                 STUDY_ID,
                 RESOURCE_ID,
-                "101",
                 "H&E Slide",
                 "SAMPLE",
                 "tcga-a1-a0sb",
@@ -114,7 +114,6 @@ public class ResourceTableControllerTest {
             new ResourceTableRow(
                 STUDY_ID,
                 RESOURCE_ID,
-                "102",
                 "H&E Slide",
                 "SAMPLE",
                 "tcga-a1-a0sd",
@@ -124,11 +123,7 @@ public class ResourceTableControllerTest {
                 "IMAGE",
                 Map.of("stain", "HE")));
 
-    ResourceTableResult result =
-        new ResourceTableResult(
-            List.of(), List.of(), rows, 2L, 2L, 2L, Map.of(), Map.of(), Map.of());
-
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(result);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(rows);
 
     ResourceTableQuery query =
         new ResourceTableQuery(
@@ -144,28 +139,21 @@ public class ResourceTableControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.totalRowCount").value(2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.filteredPatientCount").value(2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.filteredSampleCount").value(2))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows", Matchers.hasSize(2)))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].resourceId").value(RESOURCE_ID))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].patientId").value("tcga-a1-a0sb"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].sampleId").value("tcga-a1-a0sb-01"))
-        .andExpect(
-            MockMvcResultMatchers.jsonPath("$.rows[0].url").value("https://example.com/he1.jpg"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].type").value("IMAGE"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[0].metadata.stain").value("HE"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows[1].patientId").value("tcga-a1-a0sd"));
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].resourceId").value(RESOURCE_ID))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value("tcga-a1-a0sb"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value("tcga-a1-a0sb-01"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].url").value("https://example.com/he1.jpg"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("IMAGE"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].metadata.stain").value("HE"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value("tcga-a1-a0sd"));
   }
 
   @Test
   @WithMockUser
   public void fetchResourceTableData_nullQuery_returnsEmptyResult() throws Exception {
-    ResourceTableResult emptyResult =
-        new ResourceTableResult(
-            List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of(), Map.of());
-
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(emptyResult);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(List.of());
 
     mockMvc
         .perform(
@@ -175,7 +163,7 @@ public class ResourceTableControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .content("{}"))
         .andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.totalRowCount").value(0))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.rows", Matchers.hasSize(0)));
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+        .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
   }
 }

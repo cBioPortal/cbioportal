@@ -9,21 +9,21 @@
     -->
     <select id="getSlideAccess" resultType="hashmap">
         SELECT
-            JSONExtractString(ifNull(row.METADATA, '{}'), 'slide_key') AS slide_key,
-            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'image_id') AS image_id,
-            JSONExtractBool(ifNull(row.METADATA, '{}'), 'can_serve_tiles') AS can_serve_tiles,
-            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'source_url') AS source_url,
-            JSONExtractRaw(ifNull(row.METADATA, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
-            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
-            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
-            JSONExtract(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
-            JSONExtractString(ifNull(row.METADATA, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
+            JSONExtractString(ifNull(row.metadata, '{}'), 'slide_key') AS slide_key,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'image_id') AS image_id,
+            JSONExtractBool(ifNull(row.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'source_url') AS source_url,
+            JSONExtractRaw(ifNull(row.metadata, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
+            JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
+            JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
         FROM resource_data row
-        PREWHERE row.CANCER_STUDY_ID = #{studyInternalId}
-            AND row.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
-            AND row.PATIENT_ID = #{patientId}
-        WHERE row.TYPE = 'WHOLE_SLIDE_IMAGE'
-            AND JSONExtractString(ifNull(row.METADATA, '{}'), 'slide_key') = #{slideKey}
+        PREWHERE row.cancer_study_id = #{studyInternalId}
+            AND row.resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+            AND row.patient_id = #{patientId}
+        WHERE row.type = 'WHOLE_SLIDE_IMAGE'
+            AND JSONExtractString(ifNull(row.metadata, '{}'), 'slide_key') = #{slideKey}
         LIMIT 1
     </select>
 </mapper>

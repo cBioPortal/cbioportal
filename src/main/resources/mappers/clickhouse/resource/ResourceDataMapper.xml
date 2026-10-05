@@ -16,7 +16,6 @@
     <constructor>
       <arg column="studyId" javaType="String"/>
       <arg column="resourceId" javaType="String"/>
-      <arg column="resourceDataId" javaType="String"/>
       <arg column="resourceDisplayName" javaType="String"/>
       <arg column="resourceType" javaType="String"/>
       <arg column="patientId" javaType="String"/>
@@ -48,24 +47,24 @@
 
   <sql id="ResourceTableFromClause">
     FROM resource_data rdata
-    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
     LEFT JOIN resource_definition rdef
-      ON rdef.resource_id = rdata.RESOURCE_ID
-     AND rdef.cancer_study_id = rdata.CANCER_STUDY_ID
+      ON rdef.resource_id = rdata.resource_id
+     AND rdef.cancer_study_id = rdata.cancer_study_id
   </sql>
 
   <!--
     Searchable text for a row's public metadata: every top-level key with its raw JSON value,
     except wsi_serving. wsi_serving (and everything nested under it) holds artifact locations
-    that are private to the WSI access API for every row regardless of TYPE, so it must not be
+    that are private to the WSI access API for every row regardless of type, so it must not be
     able to influence search results, filters, sorting, facets or key discovery. Rows with no
-    metadata contribute an empty string, which keeps the predicate non-null for null-TYPE rows.
+    metadata contribute an empty string, which keeps the predicate non-null for null-type rows.
   -->
   <sql id="PublicMetadataText">
     arrayStringConcat(
       arrayMap(kv -> concat(kv.1, ':', kv.2),
         arrayFilter(kv -> kv.1 != 'wsi_serving',
-          JSONExtractKeysAndValuesRaw(ifNull(rdata.METADATA, '{}')))),
+          JSONExtractKeysAndValuesRaw(ifNull(rdata.metadata, '{}')))),
       '\n')
   </sql>
 
@@ -73,25 +72,26 @@
     WSI_SAMPLE / WSI_PATIENT hold one row per whole-slide image, with the private wsi_serving
     object and slide-level metadata. They are read only by the WSI hierarchy and access endpoints
     and never by the generic resource table: not as rows, tabs, counts, search or filter matches,
-    sort keys, facets, discovered keys or column info. Every statement in this mapper reaches
-    resource_data through ResourceTableBaseFilters or getResourceTableTabs, and both apply this
-    predicate, so a request naming a WSI resource sees an empty resource.
+    sort keys, facets, discovered keys, contracts or column info, whether served by query/fetch,
+    metadata/fetch or tabs/fetch. Every statement in this mapper reaches resource_data through
+    ResourceTableBaseFilters or getResourceTableTabs, and both apply this predicate, so a request
+    naming a WSI resource sees an empty resource.
   -->
   <sql id="ExcludeWsiResourceRows">
-    rdata.RESOURCE_ID NOT IN ('WSI_SAMPLE', 'WSI_PATIENT')
+    rdata.resource_id NOT IN ('WSI_SAMPLE', 'WSI_PATIENT')
   </sql>
 
   <sql id="ResourceTableBaseFilters">
     <where>
-      rdata.RESOURCE_ID = #{query.resourceId}
+      rdata.resource_id = #{query.resourceId}
       AND <include refid="ExcludeWsiResourceRows"/>
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-      <!-- resource_data rows are either patient-level (SAMPLE_ID IS NULL) or sample-level
-           (SAMPLE_ID set). A cohort is expressed as a patientIds list plus a sampleIds list, so a
-           row must match on whichever level it lives at: patient-level rows match by PATIENT_ID,
-           sample-level rows match by SAMPLE_ID. ANDing both lists together (as this used to do)
+      <!-- resource_data rows are either patient-level (sample_id IS NULL) or sample-level
+           (sample_id set). A cohort is expressed as a patientIds list plus a sampleIds list, so a
+           row must match on whichever level it lives at: patient-level rows match by patient_id,
+           sample-level rows match by sample_id. ANDing both lists together (as this used to do)
            silently excluded every patient-level row whenever both lists were supplied, because
-           "SAMPLE_ID IN (...)" is never true for a NULL SAMPLE_ID. -->
+           "sample_id IN (...)" is never true for a NULL sample_id. -->
       <!-- Stable ids are unique only within a study, so with more than one study selected the
            bare-id conditions below would also match a same-named sample or patient in another
            selected study. The study-qualified tuple conditions restrict the match to the cohort's
@@ -100,40 +100,40 @@
       <choose>
         <when test="query.hasPatients() and query.hasSamples()">
           AND (
-            (rdata.SAMPLE_ID IS NOT NULL
-             AND rdata.SAMPLE_ID IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            (rdata.sample_id IS NOT NULL
+             AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              <if test="query.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+             AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              </if>
             )
             OR
-            (rdata.SAMPLE_ID IS NULL
-             AND rdata.PATIENT_ID IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            (rdata.sample_id IS NULL
+             AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              <if test="query.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+             AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              </if>
             )
           )
         </when>
         <when test="query.hasPatients()">
-          AND rdata.PATIENT_ID IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           <if test="query.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           </if>
         </when>
         <when test="query.hasSamples()">
-          AND rdata.SAMPLE_ID IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           <if test="query.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           </if>
         </when>
       </choose>
       <if test="query.search != null and query.search != ''">
         AND (
-          rdata.PATIENT_ID LIKE CONCAT('%', #{query.search}, '%')
-          OR rdata.SAMPLE_ID LIKE CONCAT('%', #{query.search}, '%')
-          OR rdata.TYPE LIKE CONCAT('%', #{query.search}, '%')
-          OR rdata.URL LIKE CONCAT('%', #{query.search}, '%')
+          rdata.patient_id LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.sample_id LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.type LIKE CONCAT('%', #{query.search}, '%')
+          OR rdata.url LIKE CONCAT('%', #{query.search}, '%')
           OR position(<include refid="PublicMetadataText"/>, #{query.search}) > 0
         )
       </if>
@@ -172,31 +172,31 @@
 
   <sql id="ApplyStringFilterOnPatientId">
     <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.PATIENT_ID"/>
+      <property name="column" value="rdata.patient_id"/>
     </include>
   </sql>
 
   <sql id="ApplyStringFilterOnSampleId">
     <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.SAMPLE_ID"/>
+      <property name="column" value="rdata.sample_id"/>
     </include>
   </sql>
 
   <sql id="ApplyStringFilterOnType">
     <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.TYPE"/>
+      <property name="column" value="rdata.type"/>
     </include>
   </sql>
 
   <sql id="ApplyStringFilterOnUrl">
     <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.URL"/>
+      <property name="column" value="rdata.url"/>
     </include>
   </sql>
 
   <sql id="ApplyStringFilterOnDisplayName">
     <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.DISPLAY_NAME"/>
+      <property name="column" value="rdata.display_name"/>
     </include>
   </sql>
 
@@ -223,19 +223,19 @@
         1 = 0
       </when>
       <when test="filter.operator == 'contains' and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}) LIKE CONCAT('%', #{filter.values[0]}, '%')
       </when>
       <when test="(filter.operator == 'in' || filter.operator == 'equalsAny') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) IN
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}) IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
       </when>
       <when test="(filter.operator == 'ne' || filter.operator == 'notEquals') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) != #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}) != #{filter.values[0]}
       </when>
       <when test="(filter.operator == 'notIn') and filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) NOT IN
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}) NOT IN
         <foreach item="value" collection="filter.values" open="(" separator="," close=")">
           #{value}
         </foreach>
@@ -247,11 +247,11 @@
         filter today.
       -->
       <when test="filter.operator == 'between' and filter.values != null and filter.values.size() == 2">
-        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}))
+        toFloat64OrNull(JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}))
         BETWEEN toFloat64(#{filter.values[0]}) AND toFloat64(#{filter.values[1]})
       </when>
       <when test="filter.values != null and !filter.values.isEmpty()">
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{filter.metadataKey}) = #{filter.values[0]}
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{filter.metadataKey}) = #{filter.values[0]}
       </when>
       <otherwise>
         1 = 1
@@ -299,9 +299,9 @@
   </sql>
 
   <!--
-    Every branch ends with RESOURCE_DATA_ID so the ordering is total. None of these columns is
-    unique on its own: a sample can carry hundreds of slides, all sharing PATIENT_ID and
-    SAMPLE_ID. With a partial order ClickHouse is free to return tied rows in any order per
+    Every branch ends with resource_data_id so the ordering is total. None of these columns is
+    unique on its own: a sample can carry hundreds of slides, all sharing patient_id and
+    sample_id. With a partial order ClickHouse is free to return tied rows in any order per
     query, so LIMIT/OFFSET paging could repeat a row on one page and skip it on the next.
 
     The metadata branch sorts on the parsed number before the raw text. For a numeric key every
@@ -313,44 +313,44 @@
   <sql id="ResourceTableOrderBy">
     <choose>
       <when test="query.sortBy == 'studyId'">ORDER BY cs.cancer_study_identifier <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'patientId'">ORDER BY rdata.PATIENT_ID <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'sampleId'">ORDER BY rdata.SAMPLE_ID <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'url'">ORDER BY rdata.URL <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'displayName'">ORDER BY rdata.DISPLAY_NAME <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'type'">ORDER BY rdata.TYPE <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'patientId'">ORDER BY rdata.patient_id <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'sampleId'">ORDER BY rdata.sample_id <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'url'">ORDER BY rdata.url <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'displayName'">ORDER BY rdata.display_name <include refid="ResourceTableSortDirection"/></when>
+      <when test="query.sortBy == 'type'">ORDER BY rdata.type <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name <include refid="ResourceTableSortDirection"/></when>
       <!-- wsi_serving is private: sorting on it falls back to row order and reveals nothing. -->
       <when test="query.sortBy == 'metadata:wsi_serving'">
-        ORDER BY rdata.RESOURCE_DATA_ID <include refid="ResourceTableSortDirection"/>
+        ORDER BY rdata.resource_data_id <include refid="ResourceTableSortDirection"/>
       </when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
-        ORDER BY JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) = '' ASC,
-        toFloat64OrNull(JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey})) <include refid="ResourceTableSortDirection"/>,
-        JSONExtractString(ifNull(rdata.METADATA, '{}'), #{sortMetadataKey}) <include refid="ResourceTableSortDirection"/>
+        ORDER BY JSONExtractString(ifNull(rdata.metadata, '{}'), #{sortMetadataKey}) = '' ASC,
+        toFloat64OrNull(JSONExtractString(ifNull(rdata.metadata, '{}'), #{sortMetadataKey})) <include refid="ResourceTableSortDirection"/>,
+        JSONExtractString(ifNull(rdata.metadata, '{}'), #{sortMetadataKey}) <include refid="ResourceTableSortDirection"/>
       </when>
-      <otherwise>ORDER BY rdata.PATIENT_ID ASC, rdata.SAMPLE_ID ASC</otherwise>
+      <otherwise>ORDER BY rdata.patient_id ASC, rdata.sample_id ASC</otherwise>
     </choose>
-    , rdata.RESOURCE_DATA_ID ASC
+    , rdata.resource_data_id ASC
   </sql>
 
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">
     SELECT
-      rdata.RESOURCE_ID AS resourceId,
-      coalesce(any(rdef.display_name), rdata.RESOURCE_ID) AS label,
+      rdata.resource_id AS resourceId,
+      coalesce(any(rdef.display_name), rdata.resource_id) AS label,
       count(*) AS totalCount,
-      count(DISTINCT if(rdata.PATIENT_ID IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID))) AS patientCount,
-      count(DISTINCT if(rdata.SAMPLE_ID IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID))) AS sampleCount
+      count(DISTINCT if(rdata.patient_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.patient_id))) AS patientCount,
+      count(DISTINCT if(rdata.sample_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.sample_id))) AS sampleCount
     FROM resource_data rdata
-    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.CANCER_STUDY_ID
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
     LEFT JOIN resource_definition rdef
-      ON rdef.resource_id = rdata.RESOURCE_ID
-     AND rdef.cancer_study_id = rdata.CANCER_STUDY_ID
+      ON rdef.resource_id = rdata.resource_id
+     AND rdef.cancer_study_id = rdata.cancer_study_id
     <where>
       cs.cancer_study_identifier IN (#{request.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       AND <include refid="ExcludeWsiResourceRows"/>
       <!-- See ResourceTableBaseFilters for why patientIds/sampleIds must be OR'd (by row level),
-           not AND'd: resource_data rows are either patient-level (SAMPLE_ID IS NULL) or
+           not AND'd: resource_data rows are either patient-level (sample_id IS NULL) or
            sample-level, and ANDing both lists silently excludes all patient-level rows whenever
            both lists are supplied (the normal case for a cohort request). -->
       <!-- Stable ids are unique only within a study, so with more than one study selected the
@@ -361,58 +361,62 @@
       <choose>
         <when test="request.hasPatients() and request.hasSamples()">
           AND (
-            (rdata.SAMPLE_ID IS NOT NULL
-             AND rdata.SAMPLE_ID IN (#{request.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            (rdata.sample_id IS NOT NULL
+             AND rdata.sample_id IN (#{request.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              <if test="request.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID) IN (#{request.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+             AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{request.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              </if>
             )
             OR
-            (rdata.SAMPLE_ID IS NULL
-             AND rdata.PATIENT_ID IN (#{request.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            (rdata.sample_id IS NULL
+             AND rdata.patient_id IN (#{request.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              <if test="request.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID) IN (#{request.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+             AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{request.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
              </if>
             )
           )
         </when>
         <when test="request.hasPatients()">
-          AND rdata.PATIENT_ID IN (#{request.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND rdata.patient_id IN (#{request.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           <if test="request.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID) IN (#{request.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{request.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           </if>
         </when>
         <when test="request.hasSamples()">
-          AND rdata.SAMPLE_ID IN (#{request.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND rdata.sample_id IN (#{request.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           <if test="request.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID) IN (#{request.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{request.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
           </if>
         </when>
       </choose>
     </where>
-    GROUP BY rdata.RESOURCE_ID
+    GROUP BY rdata.resource_id
     ORDER BY resourceId
   </select>
 
   <select id="getResourceTableRows" resultMap="ResourceTableRowResultMap">
     SELECT
       cs.cancer_study_identifier AS studyId,
-      rdata.RESOURCE_ID AS resourceId,
-      toString(rdata.RESOURCE_DATA_ID) AS resourceDataId,
-      coalesce(rdef.display_name, rdata.RESOURCE_ID) AS resourceDisplayName,
-      rdata.ENTITY_TYPE AS resourceType,
-      rdata.PATIENT_ID AS patientId,
-      rdata.SAMPLE_ID AS sampleId,
-      rdata.URL AS url,
-      rdata.DISPLAY_NAME AS displayName,
-      rdata.TYPE AS type,
-      rdata.METADATA AS metadata
+      rdata.resource_id AS resourceId,
+      coalesce(rdef.display_name, rdata.resource_id) AS resourceDisplayName,
+      rdata.entity_type AS resourceType,
+      rdata.patient_id AS patientId,
+      rdata.sample_id AS sampleId,
+      rdata.url AS url,
+      rdata.display_name AS displayName,
+      rdata.type AS type,
+      rdata.metadata AS metadata
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
     <include refid="ResourceTableOrderBy"/>
     LIMIT #{query.limit} OFFSET #{query.offset}
   </select>
 
+  <!--
+    LIMIT is one more than the caller's cap: if the extra row comes back the key has too many
+    distinct values to offer as a dropdown and the caller drops the facet entirely. See
+    getResourceTableMetadataFacetValues.
+  -->
   <select id="getResourceTableFacetValues" resultMap="ResourceFacetOptionResultMap">
     SELECT ${column} AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
@@ -420,22 +424,49 @@
     AND ${column} IS NOT NULL AND ${column} != ''
     GROUP BY ${column}
     ORDER BY value ASC
+    LIMIT #{limit}
   </select>
 
+  <!--
+    A near-unique key produces a facet nobody can use and a response nobody wants: on a 1.17M-row
+    imaging resource one ID-like key returned 1,165,727 values and 40MB of JSON, and four such
+    keys made up most of a 148MB response. LIMIT is the caller's cap plus one, so an over-cap key
+    is recognised and its facet dropped, leaving the column searchable but not enumerable: the
+    same treatment numeric columns get with a range.
+  -->
   <select id="getResourceTableMetadataFacetValues" resultMap="ResourceFacetOptionResultMap">
-    SELECT JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) AS value, count(*) AS count
+    SELECT JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
     <!-- wsi_serving is private for every row (see PublicMetadataText). -->
     <if test="metadataKey == 'wsi_serving'">
       AND 1 = 0
     </if>
-    AND rdata.METADATA IS NOT NULL
-    AND JSONExtractString(ifNull(rdata.METADATA, '{}'), #{metadataKey}) != ''
+    AND rdata.metadata IS NOT NULL
+    AND JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) != ''
     GROUP BY value
     ORDER BY value ASC
+    LIMIT #{limit}
   </select>
 
+  <!--
+    Discovers which metadata keys the rows carry and whether each is numeric.
+
+    Three things keep this bounded on a large resource. It reads a sample of rows rather than all
+    of them: on a 1.17M-row imaging resource the unbounded form peaked at 7.35 GiB. It pulls the
+    key/value pairs out in one pass with JSONExtractKeysAndValuesRaw instead of listing the keys
+    and then re-parsing the document once per key. And it never carries the document itself
+    through the arrayJoin: with ~30 keys and ~1KB of JSON per row that was ~35M rows each
+    holding a full document.
+
+    JSONExtractString on a raw value reproduces the old semantics exactly: "HE" gives HE, 42 gives
+    42, true gives true, and a quoted number still parses as numeric. rawValue is extracted once
+    and reused for the numeric parse.
+
+    The sample means a key present only in rows beyond it is not discovered, and a key whose only
+    numeric values lie beyond it is classified as text. The bound is large enough that this needs
+    a resource with very heterogeneous metadata to matter.
+  -->
   <select id="getResourceTableMetadataKeyStats" resultMap="ResourceMetadataKeyStatsResultMap">
     SELECT metaKey,
       countIf(rawValue != '') AS nonBlankCount,
@@ -443,20 +474,24 @@
       min(parsedValue) AS minValue,
       max(parsedValue) AS maxValue
     FROM (
-      SELECT metaKey,
-        JSONExtractString(metadataJson, metaKey) AS rawValue,
-        toFloat64OrNull(JSONExtractString(metadataJson, metaKey)) AS parsedValue
+      SELECT kv.1 AS metaKey,
+             JSONExtractString(kv.2) AS rawValue,
+             toFloat64OrNull(rawValue) AS parsedValue
       FROM (
-        SELECT ifNull(rdata.METADATA, '{}') AS metadataJson,
-               arrayJoin(JSONExtractKeys(ifNull(rdata.METADATA, '{}'))) AS metaKey
-        <include refid="ResourceTableFromClause"/>
-        <include refid="ResourceTableBaseFilters"/>
-        AND rdata.METADATA IS NOT NULL AND rdata.METADATA != '' AND rdata.METADATA != '{}'
-      ) keys
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(metadataJson)) AS kv
+        FROM (
+          SELECT ifNull(rdata.metadata, '{}') AS metadataJson
+          <include refid="ResourceTableFromClause"/>
+          <include refid="ResourceTableBaseFilters"/>
+          AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+          LIMIT #{sampleRows}
+        ) sampled
+      ) pairs
     ) vals
     WHERE metaKey != 'wsi_serving'
     GROUP BY metaKey
     ORDER BY metaKey ASC
+    SETTINGS max_memory_usage = #{maxMemoryBytes}
   </select>
 
   <!--
@@ -496,11 +531,11 @@
   -->
   <select id="getResourceTableCounts" resultType="org.cbioportal.domain.resource.ResourceTableCounts">
     SELECT count(*) AS rowCount,
-           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.PATIENT_ID), rdata.PATIENT_ID IS NOT NULL AND rdata.ENTITY_TYPE IN ('PATIENT', 'SAMPLE')) AS patientCount,
-           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.SAMPLE_ID), rdata.SAMPLE_ID IS NOT NULL AND rdata.ENTITY_TYPE = 'SAMPLE') AS sampleCount,
-           uniqExact(coalesce(rdef.display_name, rdata.RESOURCE_ID)) AS distinctResourceDisplayNames,
-           uniqExact(rdata.ENTITY_TYPE) AS distinctScopes,
-           uniqExact(ifNull(rdata.DISPLAY_NAME, '')) AS distinctDisplayNames
+           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.patient_id), rdata.patient_id IS NOT NULL AND rdata.entity_type IN ('PATIENT', 'SAMPLE')) AS patientCount,
+           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.sample_id), rdata.sample_id IS NOT NULL AND rdata.entity_type = 'SAMPLE') AS sampleCount,
+           uniqExact(coalesce(rdef.display_name, rdata.resource_id)) AS distinctResourceDisplayNames,
+           uniqExact(rdata.entity_type) AS distinctScopes,
+           uniqExact(ifNull(rdata.display_name, '')) AS distinctDisplayNames
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
   </select>

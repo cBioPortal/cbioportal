@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-# Test OncoKB import against local portal info dump (requires no Internet) and
+# Test OncoKB import validated against the local portal container and
 # live oncokb.org instance (requires Internet and OncoKB to be up-and-running)
 cd /core/scripts/importer
 python3 metaImport.py \
   --study_directory=/cbioportal/test/test_data/study_oncokb_import \
-  --url_server="https://www.cbioportal.org" \
+  --url_server="http://cbioportal-container:8080" \
   --import_oncokb \
   --skip_db_import &&
 cd /cbioportal/test/test_data/study_oncokb_import &&

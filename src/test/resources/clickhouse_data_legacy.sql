@@ -551,61 +551,61 @@ insert into resource_definition (resource_id, display_name, description, resourc
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (1, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (1, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (2, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SD', 'TCGA-A1-A0SD-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (2, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SD', 'TCGA-A1-A0SD-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (3, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SE', 'TCGA-A1-A0SE-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (3, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SE', 'TCGA-A1-A0SE-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (4, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SF', 'TCGA-A1-A0SF-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (4, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SF', 'TCGA-A1-A0SF-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (5, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SG', 'TCGA-A1-A0SG-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (5, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SG', 'TCGA-A1-A0SG-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (6, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SH', 'TCGA-A1-A0SH-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (6, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SH', 'TCGA-A1-A0SH-01', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (7, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-02', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (7, 'HE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-02', 'https://upload.wikimedia.org/wikipedia/commons/8/80/Breast_DCIS_histopathology_%281%29.jpg', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (8, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SB', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (8, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SB', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (9, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SD', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (9, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SD', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (10, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SE', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (10, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SE', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (11, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SF', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (11, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SF', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (12, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SG', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (12, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SG', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (13, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SH', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (13, 'IDC_OHIF_V2', 1, 'PATIENT', 'TCGA-A1-A0SH', NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/SADDLE_PE.JPG/721px-SADDLE_PE.JPG', NULL, NULL, NULL);
 -- The legacy resource_sample/resource_patient/resource_study inserts were removed: those
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource_data shape.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (14, 'FIGURES', 2, 'STUDY', NULL, NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Tumor_Mesothelioma2_legend.jpg/220px-Tumor_Mesothelioma2_legend.jpg', NULL, NULL, NULL);
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (14, 'FIGURES', 2, 'STUDY', NULL, NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Tumor_Mesothelioma2_legend.jpg/220px-Tumor_Mesothelioma2_legend.jpg', NULL, NULL, NULL);
 -- Whole-slide image rows. The legacy /resource-data endpoints must never return WSI_SAMPLE or
 -- WSI_PATIENT rows (they are read only by the WSI endpoints). No resource_definition is added so
 -- resource-definition and resource-count expectations elsewhere are unchanged.
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (15, 'WSI_SAMPLE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=9e107d9d372bb6826bd81d3542a419d6', 'H&E - Specimen 1 / Block 1', 'WHOLE_SLIDE_IMAGE', '{"slide_key":"9e107d9d372bb6826bd81d3542a419d6","wsi_serving":{"image_id":"syn-legacy-wsi-1"}}');
-insert into resource_data (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE, PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA) values (16, 'WSI_PATIENT', 1, 'PATIENT', 'TCGA-A1-A0SB', NULL, 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=e4d909c290d0fb1ca068ffaddf22cbd0', 'H&E - Specimen 2 / Block 1', 'WHOLE_SLIDE_IMAGE', '{"slide_key":"e4d909c290d0fb1ca068ffaddf22cbd0","wsi_serving":{"image_id":"syn-legacy-wsi-2"}}');
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (15, 'WSI_SAMPLE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=9e107d9d372bb6826bd81d3542a419d6', 'H&E - Specimen 1 / Block 1', 'WHOLE_SLIDE_IMAGE', '{"slide_key":"9e107d9d372bb6826bd81d3542a419d6","wsi_serving":{"image_id":"syn-legacy-wsi-1"}}');
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (16, 'WSI_PATIENT', 1, 'PATIENT', 'TCGA-A1-A0SB', NULL, 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=e4d909c290d0fb1ca068ffaddf22cbd0', 'H&E - Specimen 2 / Block 1', 'WHOLE_SLIDE_IMAGE', '{"slide_key":"e4d909c290d0fb1ca068ffaddf22cbd0","wsi_serving":{"image_id":"syn-legacy-wsi-2"}}');

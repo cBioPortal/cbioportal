@@ -279,8 +279,8 @@ After importing studies and rebuilding derived tables, you can verify that your 
 ## WSI hierarchy materialization and authenticated rollout
 
 WSI is served from the generic `resource_data` table. Each slide is one row
-with `TYPE = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
-`WSI_PATIENT` (unmatched) resource. Its `METADATA` JSON carries the public
+with `type = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
+`WSI_PATIENT` (unmatched) resource. Its `metadata` JSON carries the public
 hierarchy, stain and timing fields, including the opaque `slide_key`, and a
 private `wsi_serving` object with the server-side `image_id`, the source URL,
 intrinsic tile metadata and thumbnail artifact fields. See
@@ -305,9 +305,9 @@ Clients use two endpoints:
 - `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`
   returns the pixel access bundle and capability for one slide. `slideKey`
   must be 32 lowercase hex characters (`400` otherwise). It reads
-  `wsi_serving` from the row whose `METADATA.slide_key` matches, and only when
+  `wsi_serving` from the row whose `metadata.slide_key` matches, and only when
   the row belongs to the study and patient, its resource is `WSI_SAMPLE` or
-  `WSI_PATIENT`, and its `TYPE` is `WHOLE_SLIDE_IMAGE`. The slide key is
+  `WSI_PATIENT`, and its `type` is `WHOLE_SLIDE_IMAGE`. The slide key is
   unique within a study and, unlike the resource-data row ID, survives a
   reimport. The response carries `slideKey`, the tile metadata, the thumbnail
   width/height/content type and the capability; it never carries the image ID
@@ -419,7 +419,7 @@ or migrate production tables.
 The hierarchy and slide-access repositories first resolve the internal study
 (and, for the hierarchy, patient) identifiers, then read `resource_data` with
 those constants in `PREWHERE`. `resource_data` is ordered by
-`(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`, so both the
+`(cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)`, so both the
 per-patient hierarchy read and the single-row access lookup are pruned by the
 primary key. The hierarchy query extracts only public metadata fields; it does
 not parse `wsi_serving`. Validate with `EXPLAIN indexes=1` that both queries
@@ -465,7 +465,7 @@ against a `db_schema_version` that doesn't match its build's `db.version` unless
 `db.suppress_schema_version_mismatch_errors=true` is set.
 
 **`3.5.0` (resource data).** `3.5.0` creates the unified `resource_data` table
-ordered by `(CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)`,
+ordered by `(cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)`,
 which the WSI and resource-table queries rely on, backfills it from the legacy
 `resource_sample`, `resource_patient` and `resource_study` tables, and drops them.
 
@@ -473,7 +473,7 @@ which the WSI and resource-table queries rely on, backfills it from the legacy
 their real image ID (serving contract `wsi-serving-v5`). It deletes the
 pathology timeline's `IMAGE_IDS` events and image-keyed `LINKOUT` events from
 `clinical_event_data`, and deletes every `WSI_SAMPLE`/`WSI_PATIENT` row in
-`resource_data` whose `METADATA` has no `slide_key`. Those slides disappear
+`resource_data` whose `metadata` has no `slide_key`. Those slides disappear
 from the portal until the study's v3 WSI resources and pathology timeline are
 re-imported (converted with the v3 `convertWsiToResources.py`, which requires
 `SLIDE_KEY`). Both deletes are mutations; `migrate_db.py` waits for them to

@@ -241,27 +241,27 @@ CREATE TABLE IF NOT EXISTS wsi_slide_timing (
 ORDER BY (cancer_study_id, patient_id, image_id);
 ## db_schema_version: 3.5.0
 ## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
--- Sorting key: PATIENT_ID and SAMPLE_ID sit ahead of RESOURCE_DATA_ID so the resource table's
--- default sort (ORDER BY PATIENT_ID, SAMPLE_ID) is read in key order instead of sorting the whole
+-- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
+-- default sort (ORDER BY patient_id, sample_id) is read in key order instead of sorting the whole
 -- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
 -- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
 -- MergeTree only permits with allow_nullable_key.
 CREATE TABLE IF NOT EXISTS resource_data
 (
-    `RESOURCE_DATA_ID` Int64,
-    `RESOURCE_ID`      String,
-    `CANCER_STUDY_ID`  Int32,
-    `ENTITY_TYPE`      String,
-    `PATIENT_ID`       Nullable(String),
-    `SAMPLE_ID`        Nullable(String),
-    `URL`              String,
-    `DISPLAY_NAME`     Nullable(String),
-    `TYPE`             Nullable(String),
-    `METADATA`         Nullable(String)
-) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)
+    `resource_data_id` Int64,
+    `resource_id`      String,
+    `cancer_study_id`  Int32,
+    `entity_type`      String,
+    `patient_id`       Nullable(String),
+    `sample_id`        Nullable(String),
+    `url`              String,
+    `display_name`     Nullable(String),
+    `type`             Nullable(String),
+    `metadata`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
   SETTINGS allow_nullable_key = 1;
 
--- Backfill is guarded by a deterministic RESOURCE_DATA_ID (hash of the natural key) so this
+-- Backfill is guarded by a deterministic resource_data_id (hash of the natural key) so this
 -- section is safe to re-run: rows already present are excluded via NOT IN.
 -- Recreate the legacy tables if they are missing, so this section can be retried after a run
 -- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
@@ -272,8 +272,8 @@ CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` 
 CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 
 INSERT INTO resource_data
-    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
 SELECT
     toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)),
     rs.resource_id,
@@ -288,12 +288,12 @@ INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
 INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
 WHERE toInt64(cityHash64(rs.resource_id, s.stable_id, rs.url)) NOT IN (
-    SELECT RESOURCE_DATA_ID FROM resource_data
+    SELECT resource_data_id FROM resource_data
 );
 
 INSERT INTO resource_data
-    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
 SELECT
     toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)),
     rp.resource_id,
@@ -307,12 +307,12 @@ FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
 WHERE toInt64(cityHash64(rp.resource_id, pt.stable_id, rp.url)) NOT IN (
-    SELECT RESOURCE_DATA_ID FROM resource_data
+    SELECT resource_data_id FROM resource_data
 );
 
 INSERT INTO resource_data
-    (RESOURCE_DATA_ID, RESOURCE_ID, CANCER_STUDY_ID, ENTITY_TYPE,
-     PATIENT_ID, SAMPLE_ID, URL, DISPLAY_NAME, TYPE, METADATA)
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
 SELECT
     toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)),
     rst.resource_id,
@@ -323,7 +323,7 @@ SELECT
     NULL, NULL, NULL
 FROM resource_study rst
 WHERE toInt64(cityHash64(rst.resource_id, toString(rst.internal_id), rst.url)) NOT IN (
-    SELECT RESOURCE_DATA_ID FROM resource_data
+    SELECT resource_data_id FROM resource_data
 );
 
 -- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
@@ -342,10 +342,10 @@ DROP TABLE IF EXISTS resource_study;
 ALTER TABLE clinical_event_data DELETE
 WHERE key = 'IMAGE_IDS'
    OR (key = 'LINKOUT' AND (position(value, 'image%3A') > 0 OR position(value, 'image:') > 0));
--- WSI resource rows written before slide_key existed name the slide by its real image id in URL,
--- DISPLAY_NAME and public METADATA. The portal can neither list nor serve them (it addresses
+-- WSI resource rows written before slide_key existed name the slide by its real image id in url,
+-- display_name and public metadata. The portal can neither list nor serve them (it addresses
 -- slides only by slide_key), so delete them; re-importing the converted v3 resources restores the
 -- slides. Both mutations are idempotent and safe to re-run.
 ALTER TABLE resource_data DELETE
-WHERE RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
-  AND JSONExtractString(ifNull(METADATA, '{}'), 'slide_key') = '';
+WHERE resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+  AND JSONExtractString(ifNull(metadata, '{}'), 'slide_key') = '';

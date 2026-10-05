@@ -719,17 +719,17 @@ CREATE TABLE resource_definition (
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
 CREATE TABLE resource_data (
-    `RESOURCE_DATA_ID` Int64,
-    `RESOURCE_ID`      String,
-    `CANCER_STUDY_ID`  Int32,
-    `ENTITY_TYPE`      String,
-    `PATIENT_ID`       Nullable(String),
-    `SAMPLE_ID`        Nullable(String),
-    `URL`              String,
-    `DISPLAY_NAME`     Nullable(String),
-    `TYPE`             Nullable(String),
-    `METADATA`         Nullable(String)
-) ENGINE = MergeTree ORDER BY (CANCER_STUDY_ID, RESOURCE_ID, PATIENT_ID, SAMPLE_ID, RESOURCE_DATA_ID)
+    `resource_data_id` Int64,
+    `resource_id`      String,
+    `cancer_study_id`  Int32,
+    `entity_type`      String,
+    `patient_id`       Nullable(String),
+    `sample_id`        Nullable(String),
+    `url`              String,
+    `display_name`     Nullable(String),
+    `type`             Nullable(String),
+    `metadata`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
   SETTINGS allow_nullable_key = 1;
 
 

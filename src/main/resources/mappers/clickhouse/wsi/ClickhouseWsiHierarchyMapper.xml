@@ -10,39 +10,39 @@
     -->
     <select id="getPatientHierarchy" resultType="hashmap">
         SELECT
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'reference_sample_id') AS reference_sample_id,
-            r.SAMPLE_ID AS sample_id,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'part_key') AS part_key,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'part_number') AS part_number,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'part_type') AS part_type,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'part_description') AS part_description,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'subspecialty') AS subspecialty,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'block_key') AS block_key,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'block_number') AS block_number,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'block_label') AS block_label,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'slide_key') AS slide_key,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'stain_name') AS stain_name,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'stain_group') AS stain_group,
-            JSONExtractBool(ifNull(r.METADATA, '{}'), 'is_hne') AS is_hne,
-            JSONExtractBool(ifNull(r.METADATA, '{}'), 'is_ihc') AS is_ihc,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'magnification') AS magnification,
-            JSONExtract(ifNull(r.METADATA, '{}'), 'file_size_bytes', 'Nullable(UInt64)') AS file_size_bytes,
-            JSONExtractBool(ifNull(r.METADATA, '{}'), 'can_serve_tiles') AS can_serve_tiles,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'slide_type') AS slide_type,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'match_level') AS match_level,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'specimen_key') AS specimen_key,
-            JSONExtract(ifNull(r.METADATA, '{}'), 'timeline_start_days', 'Nullable(Int64)') AS procedure_date_days,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timepoint_source') AS timepoint_source,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timeline_date_kind') AS date_kind,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timeline_date_source') AS date_source,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timeline_date_reason') AS date_reason,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timeline_date_status') AS date_status,
-            JSONExtractString(ifNull(r.METADATA, '{}'), 'timeline_coordinate_system') AS coordinate_system
+            JSONExtractString(ifNull(r.metadata, '{}'), 'reference_sample_id') AS reference_sample_id,
+            r.sample_id AS sample_id,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_key') AS part_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_number') AS part_number,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_type') AS part_type,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_description') AS part_description,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'subspecialty') AS subspecialty,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_key') AS block_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_number') AS block_number,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_label') AS block_label,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'slide_key') AS slide_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'stain_name') AS stain_name,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'stain_group') AS stain_group,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'is_hne') AS is_hne,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'is_ihc') AS is_ihc,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'magnification') AS magnification,
+            JSONExtract(ifNull(r.metadata, '{}'), 'file_size_bytes', 'Nullable(UInt64)') AS file_size_bytes,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'slide_type') AS slide_type,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'match_level') AS match_level,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'specimen_key') AS specimen_key,
+            JSONExtract(ifNull(r.metadata, '{}'), 'timeline_start_days', 'Nullable(Int64)') AS procedure_date_days,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timepoint_source') AS timepoint_source,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_kind') AS date_kind,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_source') AS date_source,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_reason') AS date_reason,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_status') AS date_status,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_coordinate_system') AS coordinate_system
         FROM resource_data r
-        PREWHERE r.CANCER_STUDY_ID = #{studyInternalId}
-            AND r.PATIENT_ID = #{patientId}
-        WHERE r.RESOURCE_ID IN ('WSI_SAMPLE', 'WSI_PATIENT')
-          AND r.TYPE = 'WHOLE_SLIDE_IMAGE'
+        PREWHERE r.cancer_study_id = #{studyInternalId}
+            AND r.patient_id = #{patientId}
+        WHERE r.resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+          AND r.type = 'WHOLE_SLIDE_IMAGE'
         <!-- Unmatched slides (no sample) sort first. part/block/slide keys are salted hashes, so
              ordering by them alone is random: order by the pipeline's Specimen/Block ranks first,
              keep the keys as tie-breakers that hold each part/block together, then finish on the
@@ -51,7 +51,7 @@
             toUInt32OrNull(part_number) NULLS LAST, part_key,
             toUInt32OrNull(block_number) NULLS LAST, block_key,
             coalesce(
-                nullIf(JSONExtractString(ifNull(r.METADATA, '{}'), 'wsi_serving', 'image_id'), ''),
-                JSONExtractString(ifNull(r.METADATA, '{}'), 'image_id'))
+                nullIf(JSONExtractString(ifNull(r.metadata, '{}'), 'wsi_serving', 'image_id'), ''),
+                JSONExtractString(ifNull(r.metadata, '{}'), 'image_id'))
     </select>
 </mapper>

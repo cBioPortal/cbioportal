@@ -20,35 +20,28 @@ public class GetResourceTableDataUseCase {
     this.resourceDataRepository = resourceDataRepository;
   }
 
-  public ResourceTableResult execute(ResourceTableQuery query) {
-    if (query == null
-        || query.studyIds() == null
-        || query.studyIds().isEmpty()
-        || query.resourceId() == null
-        || query.resourceId().isBlank()) {
-      return new ResourceTableResult(
-          List.of(), List.of(), List.of(), 0L, 0L, 0L, Map.of(), Map.of(), Map.of());
+  /**
+   * Returns just the requested page. Columns, facets and counts come from
+   * {@link GetResourceTableMetadataUseCase}: they do not change as the user pages, and
+   * recomputing them per page was most of the cost of a large resource's response.
+   */
+  public List<ResourceTableRow> execute(ResourceTableQuery query) {
+    if (!isAnswerable(query)) {
+      return List.of();
     }
-
-    List<ResourceTableRow> rows = resourceDataRepository.getResourceTableRows(query);
-    ResourceTableCounts counts = resourceDataRepository.getResourceTableCounts(query);
-    ResourceTableMetadataView metadata = resourceDataRepository.getResourceTableMetadata(query);
-
-    List<ResourceColumnInfo> columns = new ArrayList<>(builtinColumns());
-    columns.addAll(metadata.columns());
-    return new ResourceTableResult(
-        List.of(),
-        List.copyOf(columns),
-        rows,
-        counts.rowCount(),
-        counts.patientCount(),
-        counts.sampleCount(),
-        metadata.facets(),
-        metadata.facetRanges(),
-        counts.distinctValueCounts());
+    return resourceDataRepository.getResourceTableRows(query);
   }
 
-  private static List<ResourceColumnInfo> builtinColumns() {
+  /** A query naming no study or no resource cannot be answered, and is not an error. */
+  static boolean isAnswerable(ResourceTableQuery query) {
+    return query != null
+        && query.studyIds() != null
+        && !query.studyIds().isEmpty()
+        && query.resourceId() != null
+        && !query.resourceId().isBlank();
+  }
+
+  static List<ResourceColumnInfo> builtinColumns() {
     return List.of(
         new ResourceColumnInfo(
             "patientId",

@@ -16,10 +16,14 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
 
   List<ResourceFacetOption> getResourceTableFacetValues(
-      @Param("query") ResourceTableQuery query, @Param("column") String column);
+      @Param("query") ResourceTableQuery query,
+      @Param("column") String column,
+      @Param("limit") int limit);
 
   List<ResourceFacetOption> getResourceTableMetadataFacetValues(
-      @Param("query") ResourceTableQuery query, @Param("metadataKey") String metadataKey);
+      @Param("query") ResourceTableQuery query,
+      @Param("metadataKey") String metadataKey,
+      @Param("limit") int limit);
 
   /**
    * Per-key stats (non-blank count, numeric-parseable count, min/max) used to decide whether a
@@ -28,7 +32,9 @@ public interface ClickhouseResourceDataMapper {
    * org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataRepository}.
    */
   List<ResourceMetadataKeyStats> getResourceTableMetadataKeyStats(
-      @Param("query") ResourceTableQuery query);
+      @Param("query") ResourceTableQuery query,
+      @Param("sampleRows") int sampleRows,
+      @Param("maxMemoryBytes") long maxMemoryBytes);
 
   /**
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any

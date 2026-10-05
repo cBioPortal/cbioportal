@@ -28,6 +28,25 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   // Only non-ID builtin columns that benefit from categorical filtering
   private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.type");
 
+  /**
+   * Past this many distinct values a facet is no use as a dropdown and expensive to ship: on a
+   * 1.17M-row imaging resource, four ID-like keys returned over a million values each and made up
+   * most of a 148MB response. An over-cap column keeps its search box but loses its value list,
+   * the same way a numeric column gets a range instead.
+   */
+  private static final int MAX_FACET_VALUES = 500;
+
+  /**
+   * Key discovery and numeric detection read this many rows rather than the whole resource.
+   * Unbounded, that query peaked at 7.35 GiB and took 3.8s on the resource above. A key appearing
+   * only beyond the sample is not discovered; the bound is large enough that this needs very
+   * heterogeneous metadata to matter.
+   */
+  private static final int KEY_DISCOVERY_SAMPLE_ROWS = 100_000;
+
+  /** Backstop so one request cannot take the server down even if the sample is raised. */
+  private static final long KEY_DISCOVERY_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
+
   private final ClickhouseResourceDataMapper mapper;
 
   public ClickhouseResourceDataRepository(ClickhouseResourceDataMapper mapper) {
@@ -99,8 +118,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : FACET_COLUMNS.entrySet()) {
       List<ResourceFacetOption> values =
-          mapper.getResourceTableFacetValues(scoped, entry.getValue());
-      if (values != null && !values.isEmpty()) {
+          mapper.getResourceTableFacetValues(scoped, entry.getValue(), MAX_FACET_VALUES + 1);
+      if (withinFacetCap(entry.getKey(), values)) {
         facets.put(entry.getKey(), values);
       }
     }
@@ -118,14 +137,35 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         ResourceMetadataKeyStats stats = entry.getValue();
         facetRanges.put(columnId, new ResourceNumericRange(stats.minValue(), stats.maxValue()));
       } else {
-        List<ResourceFacetOption> values = mapper.getResourceTableMetadataFacetValues(scoped, key);
-        if (values != null && !values.isEmpty()) {
+        List<ResourceFacetOption> values =
+            mapper.getResourceTableMetadataFacetValues(scoped, key, MAX_FACET_VALUES + 1);
+        if (withinFacetCap(columnId, values)) {
           facets.put(columnId, values);
         }
       }
     }
 
     return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
+  }
+
+  /**
+   * Whether a facet is small enough to be worth returning. The query asks for one more than the
+   * cap, so an over-cap result is recognised without counting the whole column.
+   */
+  private boolean withinFacetCap(String columnId, List<ResourceFacetOption> values) {
+    if (values == null || values.isEmpty()) {
+      return false;
+    }
+    if (values.size() > MAX_FACET_VALUES) {
+      LOG.debug(
+          "Dropping the facet for '{}': more than {} distinct values. The column stays searchable"
+              + " but offers no value list. Declare \"filterable\": false for it in the"
+              + " resource's custom_metadata to skip the aggregation entirely.",
+          columnId,
+          MAX_FACET_VALUES);
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -176,7 +216,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * metadata key (not prefixed with "metadata:").
    */
   private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(ResourceTableQuery query) {
-    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(query);
+    List<ResourceMetadataKeyStats> stats = mapper.getResourceTableMetadataKeyStats(
+            query, KEY_DISCOVERY_SAMPLE_ROWS, KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
     if (stats != null) {
       for (ResourceMetadataKeyStats stat : stats) {

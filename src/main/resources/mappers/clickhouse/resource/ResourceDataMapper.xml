@@ -372,6 +372,11 @@
     LIMIT #{query.limit} OFFSET #{query.offset}
   </select>
 
+  <!--
+    LIMIT is one more than the caller's cap: if the extra row comes back the key has too many
+    distinct values to offer as a dropdown and the caller drops the facet entirely. See
+    getResourceTableMetadataFacetValues.
+  -->
   <select id="getResourceTableFacetValues" resultMap="ResourceFacetOptionResultMap">
     SELECT ${column} AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
@@ -379,8 +384,16 @@
     AND ${column} IS NOT NULL AND ${column} != ''
     GROUP BY ${column}
     ORDER BY value ASC
+    LIMIT #{limit}
   </select>
 
+  <!--
+    A near-unique key produces a facet nobody can use and a response nobody wants: on a 1.17M-row
+    imaging resource one ID-like key returned 1,165,727 values and 40MB of JSON, and four such
+    keys made up most of a 148MB response. LIMIT is the caller's cap plus one, so an over-cap key
+    is recognised and its facet dropped, leaving the column searchable but not enumerable: the
+    same treatment numeric columns get with a range.
+  -->
   <select id="getResourceTableMetadataFacetValues" resultMap="ResourceFacetOptionResultMap">
     SELECT JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) AS value, count(*) AS count
     <include refid="ResourceTableFromClause"/>
@@ -389,8 +402,27 @@
     AND JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) != ''
     GROUP BY value
     ORDER BY value ASC
+    LIMIT #{limit}
   </select>
 
+  <!--
+    Discovers which metadata keys the rows carry and whether each is numeric.
+
+    Three things keep this bounded on a large resource. It reads a sample of rows rather than all
+    of them: on a 1.17M-row imaging resource the unbounded form peaked at 7.35 GiB. It pulls the
+    key/value pairs out in one pass with JSONExtractKeysAndValuesRaw instead of listing the keys
+    and then re-parsing the document once per key. And it never carries the document itself
+    through the arrayJoin: with ~30 keys and ~1KB of JSON per row that was ~35M rows each
+    holding a full document.
+
+    JSONExtractString on a raw value reproduces the old semantics exactly: "HE" gives HE, 42 gives
+    42, true gives true, and a quoted number still parses as numeric. rawValue is extracted once
+    and reused for the numeric parse.
+
+    The sample means a key present only in rows beyond it is not discovered, and a key whose only
+    numeric values lie beyond it is classified as text. The bound is large enough that this needs
+    a resource with very heterogeneous metadata to matter.
+  -->
   <select id="getResourceTableMetadataKeyStats" resultMap="ResourceMetadataKeyStatsResultMap">
     SELECT metaKey,
       countIf(rawValue != '') AS nonBlankCount,
@@ -398,19 +430,23 @@
       min(parsedValue) AS minValue,
       max(parsedValue) AS maxValue
     FROM (
-      SELECT metaKey,
-        JSONExtractString(metadataJson, metaKey) AS rawValue,
-        toFloat64OrNull(JSONExtractString(metadataJson, metaKey)) AS parsedValue
+      SELECT kv.1 AS metaKey,
+             JSONExtractString(kv.2) AS rawValue,
+             toFloat64OrNull(rawValue) AS parsedValue
       FROM (
-        SELECT ifNull(rdata.metadata, '{}') AS metadataJson,
-               arrayJoin(JSONExtractKeys(ifNull(rdata.metadata, '{}'))) AS metaKey
-        <include refid="ResourceTableFromClause"/>
-        <include refid="ResourceTableBaseFilters"/>
-        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
-      ) keys
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(metadataJson)) AS kv
+        FROM (
+          SELECT ifNull(rdata.metadata, '{}') AS metadataJson
+          <include refid="ResourceTableFromClause"/>
+          <include refid="ResourceTableBaseFilters"/>
+          AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+          LIMIT #{sampleRows}
+        ) sampled
+      ) pairs
     ) vals
     GROUP BY metaKey
     ORDER BY metaKey ASC
+    SETTINGS max_memory_usage = #{maxMemoryBytes}
   </select>
 
   <!--

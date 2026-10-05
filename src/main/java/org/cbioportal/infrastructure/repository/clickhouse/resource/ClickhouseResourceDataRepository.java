@@ -26,7 +26,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   private static final Logger LOG = LoggerFactory.getLogger(ClickhouseResourceDataRepository.class);
 
   // Only non-ID builtin columns that benefit from categorical filtering
-  private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.TYPE");
+  private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.type");
 
   private final ClickhouseResourceDataMapper mapper;
 

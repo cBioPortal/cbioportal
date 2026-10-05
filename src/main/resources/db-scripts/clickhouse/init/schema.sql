@@ -625,8 +625,8 @@ CREATE TABLE resource_definition (
 -- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
 -- migration drops them once their contents have been carried over.
 -- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
--- default sort (ORDER BY patient_id, sample_id) is read in key order instead of sorting the whole
--- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
+-- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
+-- result set, which keeps paging cost independent of how large the resource is.
 -- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
 -- MergeTree only permits with allow_nullable_key.
 CREATE TABLE resource_data (

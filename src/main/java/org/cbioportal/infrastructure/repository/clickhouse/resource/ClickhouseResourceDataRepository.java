@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,21 +66,34 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   private record MetadataContext(
       ResourceMetadataSchema schema, Map<String, ResourceMetadataKeyStats> statsByKey) {
 
+    /**
+     * The keys that become columns.
+     *
+     * <p>When the resource declares a contract, that contract decides: the column set is what a
+     * curator reviewed, not whatever the data happened to carry, and it no longer depends on the
+     * discovery sample. The importer rejects a file whose METADATA carries keys the contract does
+     * not declare, so data cannot go missing this way without the curator being told.
+     *
+     * <p>Without a contract the keys still come from the data, which is how resources imported
+     * before contracts existed keep working.
+     */
+    Collection<String> columnKeys() {
+      return schema.fieldsByKey().isEmpty() ? statsByKey.keySet() : schema.fieldsByKey().keySet();
+    }
+
     boolean isNumeric(String key) {
-      ResourceMetadataKeyStats stats = statsByKey.get(key);
-      if (stats == null) {
-        return false;
-      }
       ResourceMetadataField field = schema.fieldsByKey().get(key);
       String declaredType = field != null ? field.type() : null;
       if ("string".equals(declaredType)) {
         return false;
       }
       if ("number".equals(declaredType)) {
-        // Sampled counts are fine for classification; only the slider's bounds have to be exact.
-        return stats.numericCount() > 0;
+        return true;
       }
-      return stats.isAutoDetectedNumeric();
+      // Undeclared type: fall back to what the data looks like. Sampled counts are fine for
+      // classification; only the slider's bounds have to be exact.
+      ResourceMetadataKeyStats stats = statsByKey.get(key);
+      return stats != null && stats.isAutoDetectedNumeric();
     }
 
     /**
@@ -93,7 +107,18 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   private MetadataContext resolveMetadataContext(ResourceTableQuery scoped) {
-    return new MetadataContext(getSchema(scoped), classifyMetadataKeys(scoped));
+    ResourceMetadataSchema schema = getSchema(scoped);
+    // Key discovery scans the data to learn which keys exist and which look numeric. A contract
+    // that types every field already answers both, so the scan is skipped rather than repeated.
+    Map<String, ResourceMetadataKeyStats> stats =
+        fullyTyped(schema) ? Map.of() : classifyMetadataKeys(scoped);
+    return new MetadataContext(schema, stats);
+  }
+
+  /** True when the contract declares every column and gives each one a type. */
+  private static boolean fullyTyped(ResourceMetadataSchema schema) {
+    return !schema.fieldsByKey().isEmpty()
+        && schema.fieldsByKey().values().stream().allMatch(field -> field.type() != null);
   }
 
   @Override
@@ -129,8 +154,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
-    for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
-      String key = entry.getKey();
+    for (String key : context.columnKeys()) {
       if (!context.isFilterable(key)) {
         continue;
       }
@@ -215,26 +239,16 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return true;
   }
 
-  /**
-   * Column existence comes from the data, never from the contract: a declared key nobody imported
-   * would be an empty column, and an undeclared key still has to show up.
-   */
+  /** Builds the column list for the key set the contract, or failing that the data, decides on. */
   private List<ResourceColumnInfo> metadataColumns(MetadataContext context) {
-    Map<String, ResourceMetadataKeyStats> statsByKey = context.statsByKey();
     Map<String, ResourceMetadataField> declared = context.schema().fieldsByKey();
 
-    // Declared fields first, in the curator's declaration order, then whatever else the data
-    // turned up, alphabetically — so a partial contract still produces a coherent ordering.
-    List<String> ordered = new ArrayList<>();
-    for (String key : declared.keySet()) {
-      if (statsByKey.containsKey(key)) {
-        ordered.add(key);
-      }
+    // Declared order is the curator's order. Without a contract, fall back to the keys the data
+    // turned up, alphabetically, so the ordering is at least stable.
+    List<String> ordered = new ArrayList<>(context.columnKeys());
+    if (declared.isEmpty()) {
+      ordered.sort(String.CASE_INSENSITIVE_ORDER);
     }
-    statsByKey.keySet().stream()
-        .filter(key -> !declared.containsKey(key))
-        .sorted(String.CASE_INSENSITIVE_ORDER)
-        .forEach(ordered::add);
 
     List<ResourceColumnInfo> columns = new ArrayList<>();
     for (String key : ordered) {

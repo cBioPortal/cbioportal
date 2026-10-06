@@ -28,39 +28,19 @@ A source file consists of the following, in this exact order:
 
 Exactly one blank line separates each of the above sections.
 
-### License (Need Help With License)
+### License
 
-Each source file must specify the following license at the very top of the file:
+cBioPortal is licensed under the [Apache License 2.0](LICENSE). New source files should start with an [SPDX](https://spdx.org/licenses/) license identifier, optionally preceded by a copyright line:
 
 ```java
 /*
- * Copyright 2002-2023 the original author or authors.
+ * Copyright (c) 2026 Memorial Sloan Kettering Cancer Center.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * SPDX-License-Identifier: Apache-2.0
  */
 ```
 
-Always check the date range in the license header. For example, if you've modified a file in 2022 whose header still reads:
-
-```
-* Copyright 2002-2018 the original author or authors.
-```
-
-Then be sure to update it to 2023 accordingly:
-
-```
-* Copyright 2002-2023 the original author or authors.
-```
+The repository's `LICENSE` applies to all project files, so existing files without a header don't need one added. Keep existing copyright lines, and keep third-party license notices (e.g. code adapted from Spring Framework) exactly as they are.
 
 ### Import statements
 

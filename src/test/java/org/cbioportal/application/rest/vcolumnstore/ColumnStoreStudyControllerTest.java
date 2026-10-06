@@ -41,7 +41,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  *       returned the first page regardless of which page was requested).
  *   <li><b>Read-permission mapping</b> — verifies that the {@code readPermission} field in the
  *       response DTO reflects the result of the {@link PermissionEvaluator} check, not the raw
- *       {@code publicStudy} flag, and is false for a study being (re)imported.
+ *       {@code publicStudy} flag, and is false for a study being (re)imported only when study
+ *       availability is enabled.
  * </ul>
  */
 class ColumnStoreStudyControllerTest {
@@ -86,13 +87,13 @@ class ColumnStoreStudyControllerTest {
     when(unavailableStudyIdentifiers.get()).thenReturn(Map.of());
 
     // Direct-call controller (null permissionEvaluator → security disabled, readPermission=true)
-    controller = new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers);
+    controller = new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers, true);
 
     // MockMvc controller (with permissionEvaluator for read-permission tests)
     mockMvc =
         MockMvcBuilders.standaloneSetup(
                 new ColumnStoreStudyController(
-                    useCase, permissionEvaluator, unavailableStudyIdentifiers))
+                    useCase, permissionEvaluator, unavailableStudyIdentifiers, true))
             .build();
 
     // Default stub: 25 studies for pagination tests (individual tests may override this)
@@ -161,7 +162,7 @@ class ColumnStoreStudyControllerTest {
 
     MockMvc mockMvcNoSecurity =
         MockMvcBuilders.standaloneSetup(
-                new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers))
+                new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers, true))
             .build();
 
     mockMvcNoSecurity
@@ -175,7 +176,8 @@ class ColumnStoreStudyControllerTest {
   }
 
   @Test
-  void getAllStudies_unavailableStudyIsUnreadableInEveryAuthMode() throws Exception {
+  void getAllStudies_whenAvailabilityEnabled_unavailableStudyIsUnreadableInEveryAuthMode()
+      throws Exception {
     CancerStudyMetadata available = Mockito.mock(CancerStudyMetadata.class);
     Mockito.when(available.cancerStudyIdentifier()).thenReturn("available_study");
     CancerStudyMetadata unavailable = Mockito.mock(CancerStudyMetadata.class);
@@ -198,7 +200,7 @@ class ColumnStoreStudyControllerTest {
 
     MockMvc noSecurity =
         MockMvcBuilders.standaloneSetup(
-                new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers))
+                new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers, true))
             .build();
     for (MockMvc mvc : List.of(mockMvc, noSecurity)) {
       mvc.perform(
@@ -210,6 +212,47 @@ class ColumnStoreStudyControllerTest {
           .andExpect(MockMvcResultMatchers.jsonPath("$[1].studyId").value("unavailable_study"))
           .andExpect(MockMvcResultMatchers.jsonPath("$[1].readPermission").value(false));
     }
+  }
+
+  @Test
+  void getAllStudies_whenAvailabilityDisabled_statusDoesNotAffectReadPermission() throws Exception {
+    CancerStudyMetadata unavailable = Mockito.mock(CancerStudyMetadata.class);
+    Mockito.when(unavailable.cancerStudyIdentifier()).thenReturn("unavailable_study");
+    Mockito.when(
+            useCase.execute(
+                Mockito.any(ProjectionType.class), Mockito.any(SortAndSearchCriteria.class)))
+        .thenReturn(List.of(unavailable));
+    when(unavailableStudyIdentifiers.get())
+        .thenReturn(Map.of("unavailable_study", "unavailable_study"));
+
+    Mockito.when(
+            permissionEvaluator.hasPermission(
+                Mockito.any(Authentication.class),
+                Mockito.any(),
+                Mockito.eq("CancerStudyId"),
+                Mockito.eq(AccessLevel.READ)))
+        .thenReturn(true);
+    SecurityContextHolder.getContext().setAuthentication(Mockito.mock(Authentication.class));
+
+    MockMvc secured =
+        MockMvcBuilders.standaloneSetup(
+                new ColumnStoreStudyController(
+                    useCase, permissionEvaluator, unavailableStudyIdentifiers, false))
+            .build();
+    MockMvc noSecurity =
+        MockMvcBuilders.standaloneSetup(
+                new ColumnStoreStudyController(useCase, null, unavailableStudyIdentifiers, false))
+            .build();
+    for (MockMvc mvc : List.of(secured, noSecurity)) {
+      mvc.perform(
+              MockMvcRequestBuilders.get("/api/studies")
+                  .param("projection", "SUMMARY")
+                  .accept(MediaType.APPLICATION_JSON))
+          .andExpect(MockMvcResultMatchers.status().isOk())
+          .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value("unavailable_study"))
+          .andExpect(MockMvcResultMatchers.jsonPath("$[0].readPermission").value(true));
+    }
+    Mockito.verify(unavailableStudyIdentifiers, Mockito.never()).get();
   }
 
   // --------------------------------------------------------------------------

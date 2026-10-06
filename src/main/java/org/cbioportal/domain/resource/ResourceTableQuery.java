@@ -19,9 +19,9 @@ public record ResourceTableQuery(
   /**
    * The id lists as ClickHouse native arrays, bound as a single JDBC array parameter via MyBatis'
    * {@code ArrayTypeHandler} rather than expanded into one placeholder per id by a {@code
-   * <foreach>}. A 1,000-patient cohort otherwise produced ~45KB of SQL and ~2,100 bound parameters
-   * on *every* statement the request issues. See cBioPortal/cbioportal#11296, which established
-   * this pattern for study-view sample filtering.
+   * <foreach>}. Expanding a cohort into one placeholder per id makes the SQL and the bound
+   * parameter count grow with the cohort, on every statement the request issues. See
+   * cBioPortal/cbioportal#11296, which established this pattern for study-view sample filtering.
    *
    * <p>The cohort arrives as (studyId, stableId) pairs and is projected into two forms: the bare
    * stable ids, which the sorting key can prune on, and the study-qualified tuples, which make the

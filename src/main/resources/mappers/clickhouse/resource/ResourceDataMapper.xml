@@ -428,36 +428,42 @@
   </select>
 
   <!--
-    A near-unique key produces a facet nobody can use and a response nobody wants: on a 1.17M-row
-    imaging resource one ID-like key returned 1,165,727 values and 40MB of JSON, and four such
-    keys made up most of a 148MB response. LIMIT is the caller's cap plus one, so an over-cap key
-    is recognised and its facet dropped, leaving the column searchable but not enumerable: the
-    same treatment numeric columns get with a range.
+    Every metadata facet in one pass. The per-key form needed one aggregation over the resource
+    for each key, so the cost grew with the number of keys; this explodes each row's metadata into
+    key/value pairs once and groups them together.
+
+    LIMIT ... BY metaKey applies the cap per key rather than to the result as a whole, so one
+    near-unique key cannot crowd out the others. As in the single-key form the cap is the caller's
+    plus one, so an over-cap key is recognised and dropped.
   -->
-  <select id="getResourceTableMetadataFacetValues" resultMap="ResourceFacetOptionResultMap">
-    SELECT JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) AS value, count(*) AS count
-    <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceTableBaseFilters"/>
-    <!-- wsi_serving is private for every row (see PublicMetadataText). -->
-    <if test="metadataKey == 'wsi_serving'">
-      AND 1 = 0
-    </if>
-    AND rdata.metadata IS NOT NULL
-    AND JSONExtractString(ifNull(rdata.metadata, '{}'), #{metadataKey}) != ''
-    GROUP BY value
-    ORDER BY value ASC
-    LIMIT #{limit}
+  <select id="getResourceTableMetadataFacets" resultType="org.cbioportal.domain.resource.ResourceMetadataFacetValue">
+    SELECT metaKey, value, count(*) AS count
+    FROM (
+      SELECT kv.1 AS metaKey, JSONExtractString(kv.2) AS value
+      FROM (
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(ifNull(rdata.metadata, '{}'))) AS kv
+        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+      ) pairs
+    ) vals
+    WHERE value != ''
+      -- wsi_serving is private for every row (see PublicMetadataText).
+      AND metaKey != 'wsi_serving'
+      AND metaKey IN (#{metadataKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    GROUP BY metaKey, value
+    ORDER BY metaKey ASC, value ASC
+    LIMIT #{limitPerKey} BY metaKey
   </select>
 
   <!--
     Discovers which metadata keys the rows carry and whether each is numeric.
 
-    Three things keep this bounded on a large resource. It reads a sample of rows rather than all
-    of them: on a 1.17M-row imaging resource the unbounded form peaked at 7.35 GiB. It pulls the
-    key/value pairs out in one pass with JSONExtractKeysAndValuesRaw instead of listing the keys
-    and then re-parsing the document once per key. And it never carries the document itself
-    through the arrayJoin: with ~30 keys and ~1KB of JSON per row that was ~35M rows each
-    holding a full document.
+    Three things keep its cost flat as a resource grows. It reads a bounded sample of rows rather
+    than all of them. It pulls the key/value pairs out in one pass with
+    JSONExtractKeysAndValuesRaw instead of listing the keys and then re-parsing the document once
+    per key. And it never carries the document itself through the arrayJoin, which would otherwise
+    duplicate the whole JSON once per key per row.
 
     JSONExtractString on a raw value reproduces the old semantics exactly: "HE" gives HE, 42 gives
     42, true gives true, and a quoted number still parses as numeric. rawValue is extracted once

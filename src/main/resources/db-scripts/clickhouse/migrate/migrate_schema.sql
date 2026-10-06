@@ -242,8 +242,8 @@ ORDER BY (cancer_study_id, patient_id, image_id);
 ## db_schema_version: 3.5.0
 ## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
 -- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
--- default sort (ORDER BY patient_id, sample_id) is read in key order instead of sorting the whole
--- result set. Measured on 5M rows: an unfiltered first page reads 33K rows rather than 5.0M.
+-- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
+-- result set, which keeps paging cost independent of how large the resource is.
 -- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
 -- MergeTree only permits with allow_nullable_key.
 CREATE TABLE IF NOT EXISTS resource_data

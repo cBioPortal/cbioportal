@@ -348,7 +348,7 @@ public class ClickhouseResourceDataMapperTest {
             List.of(stainFilter));
 
     List<ResourceFacetOption> magnificationFacets =
-        mapper.getResourceTableMetadataFacetValues(query, "magnification", TEST_FACET_LIMIT);
+        metadataFacet(query, "magnification", TEST_FACET_LIMIT);
 
     assertThat(magnificationFacets)
         .containsExactlyInAnyOrder(
@@ -782,8 +782,7 @@ public class ClickhouseResourceDataMapperTest {
     // JSONExtractString returns a JSON number as its text, so numeric metadata is filterable and
     // facetable rather than coming back blank.
     List<ResourceFacetOption> facets =
-        mapper.getResourceTableMetadataFacetValues(
-            slideSet(null, null, 0, 10), "score", TEST_FACET_LIMIT);
+        metadataFacet(slideSet(null, null, 0, 10), "score", TEST_FACET_LIMIT);
 
     assertThat(facets)
         .extracting(ResourceFacetOption::value)
@@ -828,21 +827,15 @@ public class ClickhouseResourceDataMapperTest {
 
   @Test
   public void metadataFacets_readJsonIntegersAndBooleans() {
-    assertThat(
-            mapper.getResourceTableMetadataFacetValues(
-                slideSet(null, null, 0, 10), "file_size_bytes", TEST_FACET_LIMIT))
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "file_size_bytes", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("100", "2000", "30", "400");
 
-    assertThat(
-            mapper.getResourceTableMetadataFacetValues(
-                slideSet(null, null, 0, 10), "is_hne", TEST_FACET_LIMIT))
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "is_hne", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("true", "false");
 
-    assertThat(
-            mapper.getResourceTableMetadataFacetValues(
-                slideSet(null, null, 0, 10), "mpp", TEST_FACET_LIMIT))
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "mpp", TEST_FACET_LIMIT))
         .extracting(ResourceFacetOption::value)
         .containsExactlyInAnyOrder("0.5", "0.25", "1", "0.75");
   }
@@ -919,10 +912,8 @@ public class ClickhouseResourceDataMapperTest {
   public void metadataFacets_respectTheCallersLimit() {
     // SLIDE_SET has four distinct scores. The caller asks for cap + 1 so it can tell an over-cap
     // key from one that exactly fills the cap, so a limit of 3 must come back with 3, not 4.
-    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "score", 3))
-        .hasSize(3);
-    assertThat(mapper.getResourceTableMetadataFacetValues(slideSet(null, null, 0, 10), "score", 10))
-        .hasSize(4);
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 3)).hasSize(3);
+    assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 10)).hasSize(4);
   }
 
   @Test
@@ -961,5 +952,13 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(stats).isNotEmpty();
     assertThat(stats).allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
+  }
+
+  /** The batched facet query, narrowed to one key, so per-key assertions stay readable. */
+  private List<ResourceFacetOption> metadataFacet(
+      ResourceTableQuery query, String key, int limitPerKey) {
+    return mapper.getResourceTableMetadataFacets(query, new String[] {key}, limitPerKey).stream()
+        .map(v -> new ResourceFacetOption(v.value(), v.count()))
+        .toList();
   }
 }

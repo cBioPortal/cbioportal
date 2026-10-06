@@ -145,7 +145,7 @@ public class ClickhouseResourceDataPrivacyTest {
             mapper.getResourceTableMetadataKeyStats(query, KEY_SAMPLE_ROWS, KEY_MAX_MEMORY_BYTES))
         .isEmpty();
     for (String key : List.of("slide_key", "stain_name", "part_description")) {
-      assertThat(mapper.getResourceTableMetadataFacetValues(query, key, FACET_LIMIT))
+      assertThat(mapper.getResourceTableMetadataFacets(query, new String[] {key}, FACET_LIMIT))
           .as(key)
           .isEmpty();
     }
@@ -285,7 +285,9 @@ public class ClickhouseResourceDataPrivacyTest {
           .doesNotContain("metadata:wsi_serving");
       assertThat(metadata.facets()).doesNotContainKey("metadata:wsi_serving");
       assertThat(metadata.facetRanges()).doesNotContainKey("metadata:wsi_serving");
-      assertThat(mapper.getResourceTableMetadataFacetValues(query, "wsi_serving", FACET_LIMIT))
+      assertThat(
+              mapper.getResourceTableMetadataFacets(
+                  query, new String[] {"wsi_serving"}, FACET_LIMIT))
           .isEmpty();
     }
     assertThat(

@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
@@ -20,10 +21,14 @@ public interface ClickhouseResourceDataMapper {
       @Param("column") String column,
       @Param("limit") int limit);
 
-  List<ResourceFacetOption> getResourceTableMetadataFacetValues(
+  /**
+   * Facet values for every requested key in one pass over resource_data, capped per key. Returns a
+   * flat list; the caller groups it.
+   */
+  List<ResourceMetadataFacetValue> getResourceTableMetadataFacets(
       @Param("query") ResourceTableQuery query,
-      @Param("metadataKey") String metadataKey,
-      @Param("limit") int limit);
+      @Param("metadataKeys") String[] metadataKeys,
+      @Param("limitPerKey") int limitPerKey);
 
   /**
    * Per-key stats (non-blank count, numeric-parseable count, min/max) used to decide whether a

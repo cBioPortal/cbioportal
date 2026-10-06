@@ -166,8 +166,8 @@ CREATE TABLE clinical_attribute_meta (
     `display_name` String,
     `description` String,
     `datatype` String,
-    `patient_attribute` Int32,
     `priority` String,
+    `chart_type` String,
     `cancer_study_id` Int64
 ) ENGINE = MergeTree ORDER BY (attr_id, cancer_study_id);
 

@@ -11,6 +11,7 @@ public class ClinicalAttribute implements Serializable {
   private String datatype;
   @NotNull private Boolean patientAttribute;
   private String priority;
+  private String chartType;
   private Integer cancerStudyId;
   @NotNull private String cancerStudyIdentifier;
 
@@ -60,6 +61,14 @@ public class ClinicalAttribute implements Serializable {
 
   public void setPriority(String priority) {
     this.priority = priority;
+  }
+
+  public String getChartType() {
+    return chartType;
+  }
+
+  public void setChartType(String chartType) {
+    this.chartType = chartType;
   }
 
   public Integer getCancerStudyId() {

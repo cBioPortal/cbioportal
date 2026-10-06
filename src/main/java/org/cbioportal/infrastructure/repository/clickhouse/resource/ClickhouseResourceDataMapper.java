@@ -2,6 +2,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.cbioportal.domain.resource.ResourceContractRow;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
@@ -50,7 +51,8 @@ public interface ClickhouseResourceDataMapper {
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any
    * study/row in scope has one set. Returns null when no override schema is present.
    */
-  List<String> getResourceDefinitionCustomMetadata(@Param("query") ResourceTableQuery query);
+  List<ResourceContractRow> getResourceDefinitionCustomMetadata(
+      @Param("query") ResourceTableQuery query);
 
   ResourceTableCounts getResourceTableCounts(@Param("query") ResourceTableQuery query);
 }

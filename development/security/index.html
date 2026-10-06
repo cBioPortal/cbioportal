@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.844179455176">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.844613022794">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../images/cbio-logo.png" />
-    <link href="../../resources/css/retype.css?v=4.6.0.844179455176" rel="stylesheet">
+    <link href="../../resources/css/retype.css?v=4.6.0.844613022794" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.844179455176" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../resources/js/config.js?v=4.6.0.844613022794" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.844179455176" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../resources/js/lunr.js?v=4.6.0.844613022794" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../../resources/js/prism.js?v=4.6.0.844613022794" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -230,6 +231,17 @@
 <p>We are committed to maintaining a secure and reliable platform by integrating proactive vulnerability detection and mitigation strategies into our development and release workflows. Here&#x27;s  how we address security concerns at each stage of our development process.</p>
 <h2 id="current-vulnerability-status">Current Vulnerability Status</h2>
 <p>We provide a <a href="https://github.com/cBioPortal/cbioportal?tab=readme-ov-file#cbioportal">status badge</a> that displays the current vulnerability status of the cBioPortal application. Additionally, we maintain a Software Bill of Materials (SBOM) integrated with our Github Dependabot Security system.</p>
+<h2 id="third-party-dependency-reports">Third-party Dependency Reports</h2>
+<p>The repository root contains two generated reports for the backend&#x27;s compile and runtime Maven dependencies:</p>
+<ul>
+<li><code translate="no" v-pre>OPEN-SOURCE-DOCUMENTATION</code> lists each dependency and the license declared in its Maven POM.</li>
+<li><code translate="no" v-pre>bom.json</code> contains the same dependency graph as a CycloneDX 1.6 SBOM.</li>
+</ul>
+<p>Regenerate both files after changing Maven dependencies:</p>
+<div id="third-party-dependency-reports-code-1" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-bash"><code v-pre class="language-bash">scripts/generate-third-party-report.sh</code></pre>
+</doc-codeblock></div>
+<p>The license names are dependency metadata and still require review before being used as legal attribution. These reports do not inventory bundled static assets under <code translate="no" v-pre>src/main/resources/webapp</code> or the separately packaged cBioPortal frontend; those artifacts require separate dependency and license audits. A pull request check regenerates the Maven reports and fails when the committed copies are stale.</p>
 <h2 id="vulnerability-detection-in-pull-requests">Vulnerability Detection in Pull Requests</h2>
 <p>We utilize <strong>SonarCloud</strong> to ensure the integrity and security of our codebase. SonarCloud is configured to automatically analyze all pull requests and merged code. This enables us to:</p>
 <ul>
@@ -327,6 +339,6 @@ This dual-layered approach ensures that vulnerabilities are addressed both at th
 
     <div id="retype-overlay-target"></div>
 
-        <script data-cfasync="false">window.__DOCS__ = { "title": "Security", level: 2, icon: "file", hasPrism: false, hasInstagram: false, hasMermaid: false, hasMath: false, tocDepth: 23, "md": "/development/security.md" }</script>
+        <script data-cfasync="false">window.__DOCS__ = { "title": "Security", level: 2, icon: "file", hasPrism: true, hasInstagram: false, hasMermaid: false, hasMath: false, tocDepth: 23, "md": "/development/security.md" }</script>
 </body>
 </html>

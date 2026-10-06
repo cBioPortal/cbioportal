@@ -31,6 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClickhouseResourceDataRepositoryTest {
 
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
+  private static final String STUDY_ACC = "acc_tcga";
 
   @Autowired private ClickhouseResourceDataRepository repository;
   @Autowired private ClickhouseResourceDataMapper mapper;
@@ -207,6 +208,125 @@ public class ClickhouseResourceDataRepositoryTest {
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+
+    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+
+    Mockito.verify(spy)
+        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+  }
+
+  @Test
+  public void divergingContracts_showTheUnionOfTheirFieldsInStudyOrder() {
+    // PATHOLOGY is declared by both studies: acc_tcga declares grade/reviewer, study_tcga_pub
+    // declares stain/grade. Taking either alone would hide the other's declared keys. Contracts
+    // are ordered by study identifier, and acc_tcga sorts first.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "PATHOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    assertThat(repository.getResourceTableMetadata(query).columns())
+        .extracting(ResourceColumnInfo::id)
+        .containsExactly("metadata:grade", "metadata:reviewer", "metadata:stain");
+  }
+
+  @Test
+  public void divergingContracts_takeEachKeyFromItsFirstDeclaration() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "PATHOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    assertThat(columnById(query, "metadata:grade").label()).isEqualTo("Grade (acc)");
+    assertThat(columnById(query, "metadata:stain").label()).isEqualTo("Stain (tcga)");
+  }
+
+  @Test
+  public void divergingContracts_leaveAConflictingTypeToTheData() {
+    // study_tcga_pub types grade as number, acc_tcga as string, and the data holds "3" and
+    // "high". A declared number would put a range filter on text.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "PATHOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    assertThat(columnById(query, "metadata:grade").dataType()).isEqualTo("string");
+  }
+
+  @Test
+  public void aContractIsAuthoritativeOnlyWhereEveryStudyInScopeDeclaresOne() {
+    // CYTOLOGY has rows in both studies but only acc_tcga declares a contract. study_tcga_pub's
+    // rows were never checked against it, so restricting the columns to it would hide "fixative".
+    ResourceTableQuery bothStudies =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "CYTOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    assertThat(repository.getResourceTableMetadata(bothStudies).columns())
+        .extracting(ResourceColumnInfo::id)
+        .containsExactly("metadata:preparation", "metadata:fixative");
+  }
+
+  @Test
+  public void thatSameContractIsAuthoritativeForItsOwnStudyAlone() {
+    ResourceTableQuery declaringStudyOnly =
+        new ResourceTableQuery(
+            List.of(STUDY_ACC), "CYTOLOGY", null, null, null, 0, 10, null, null, null);
+
+    assertThat(repository.getResourceTableMetadata(declaringStudyOnly).columns())
+        .extracting(ResourceColumnInfo::id)
+        .containsExactly("metadata:preparation");
+  }
+
+  @Test
+  public void keyDiscoveryStillRunsWhenOnlySomeStudiesDeclareAContract() {
+    // The undeclared study's keys are only knowable from the data, so the scan cannot be skipped
+    // however completely the one contract types itself.
+    ClickhouseResourceDataMapper spy = Mockito.spy(mapper);
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "CYTOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
 
     new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
 

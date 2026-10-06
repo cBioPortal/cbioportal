@@ -7,6 +7,7 @@ import static org.cbioportal.domain.resource.ResourceIdentifierFixtures.samples;
 import java.util.List;
 import java.util.stream.Stream;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
+import org.cbioportal.domain.resource.ResourceContractRow;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataRange;
@@ -37,6 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class ClickhouseResourceDataMapperTest {
 
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
+  private static final String STUDY_ACC = "acc_tcga";
   private static final String ACC_TCGA = "acc_tcga";
   // Generous bounds: these tests check SQL semantics, not the production caps.
   private static final int TEST_FACET_LIMIT = 1000;
@@ -53,11 +55,11 @@ public class ClickhouseResourceDataMapperTest {
 
     List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
 
-    // expect 4 distinct resourceIds in the test data
-    assertThat(tabs).hasSize(5);
+    assertThat(tabs).hasSize(7);
     List<String> ids = tabs.stream().map(ResourceTableTab::resourceId).toList();
     assertThat(ids)
-        .containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN", "FIGURES", "RADIOLOGY", "SLIDE_SET");
+        .containsExactlyInAnyOrder(
+            "HE_SLIDE", "CT_SCAN", "FIGURES", "RADIOLOGY", "SLIDE_SET", "PATHOLOGY", "CYTOLOGY");
   }
 
   @Test
@@ -74,16 +76,50 @@ public class ClickhouseResourceDataMapperTest {
   }
 
   @Test
-  public void getResourceTableTabs_labelFallsBackToResourceId_whenNoDefinition() {
-    // Insert a resource_data row with no matching resource_definition at runtime is hard to do
-    // here, so we verify that the label for HE_SLIDE matches the definition display name.
+  public void getResourceTableTabs_labelComesFromTheDefinition() {
     ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
 
-    List<ResourceTableTab> tabs = mapper.getResourceTableTabs(request);
+    assertThat(tab(mapper.getResourceTableTabs(request), "HE_SLIDE").label())
+        .isEqualTo("H&E Slide");
+  }
 
-    ResourceTableTab heSlide =
-        tabs.stream().filter(t -> t.resourceId().equals("HE_SLIDE")).findFirst().orElseThrow();
-    assertThat(heSlide.label()).isEqualTo("H&E Slide");
+  @Test
+  public void getResourceTableTabs_labelFallsBackToResourceId_whenNoDefinition() {
+    // study_tcga_pub has CYTOLOGY rows but no CYTOLOGY definition. An unmatched LEFT JOIN yields
+    // '' rather than NULL for display_name, which is not nullable, so a null test would leave the
+    // tab labelled with an empty string.
+    ResourceTabsRequest request = new ResourceTabsRequest(List.of(STUDY_TCGA_PUB), null, null);
+
+    assertThat(tab(mapper.getResourceTableTabs(request), "CYTOLOGY").label()).isEqualTo("CYTOLOGY");
+  }
+
+  @Test
+  public void getResourceTableTabs_labelIsTakenFromTheFirstStudyThatNamesTheResource() {
+    // Both studies name PATHOLOGY, differently. The label follows the same study identifier order
+    // the contracts do, so the tab and its columns come from one declaration rather than two.
+    ResourceTabsRequest request =
+        new ResourceTabsRequest(List.of(STUDY_TCGA_PUB, STUDY_ACC), null, null);
+
+    assertThat(tab(mapper.getResourceTableTabs(request), "PATHOLOGY").label())
+        .isEqualTo("Pathology (acc)");
+  }
+
+  @Test
+  public void getResourceTableTabs_labelSkipsAStudyThatDoesNotDefineTheResource() {
+    // acc_tcga sorts first but only study_tcga_pub has no CYTOLOGY definition, so the label has
+    // to come from the study that actually names it rather than from the first study outright.
+    ResourceTabsRequest request =
+        new ResourceTabsRequest(List.of(STUDY_TCGA_PUB, STUDY_ACC), null, null);
+
+    assertThat(tab(mapper.getResourceTableTabs(request), "CYTOLOGY").label())
+        .isEqualTo("Cytology (acc)");
+  }
+
+  private static ResourceTableTab tab(List<ResourceTableTab> tabs, String resourceId) {
+    return tabs.stream()
+        .filter(t -> t.resourceId().equals(resourceId))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("no tab " + resourceId));
   }
 
   @Test
@@ -462,21 +498,70 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
 
-    assertThat(customMetadata).hasSize(1);
-    assertThat(customMetadata.get(0)).contains("dose_id").contains("score");
+    assertThat(contracts).hasSize(1);
+    assertThat(contracts.get(0).customMetadata()).contains("dose_id").contains("score");
+    assertThat(contracts.get(0).declared()).isTrue();
   }
 
   @Test
-  public void getResourceDefinitionCustomMetadata_returnsNull_whenNotSet() {
+  public void getResourceDefinitionCustomMetadata_reportsAStudyWithNoContract() {
+    // A study with rows but no contract has to come back as an undeclared row rather than be
+    // filtered out, since "every study in scope declares" decides whether the contract is the
+    // whole column list.
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
 
-    assertThat(customMetadata).isEmpty();
+    assertThat(contracts).hasSize(1);
+    assertThat(contracts.get(0).declared()).isFalse();
+  }
+
+  @Test
+  public void getResourceDefinitionCustomMetadata_returnsOneRowPerDistinctContract_studyOrdered() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "PATHOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+
+    assertThat(contracts).hasSize(2);
+    assertThat(contracts)
+        .extracting(ResourceContractRow::firstStudy)
+        .containsExactly(STUDY_ACC, STUDY_TCGA_PUB);
+    assertThat(contracts.get(0).customMetadata()).contains("Grade (acc)");
+  }
+
+  @Test
+  public void getResourceDefinitionCustomMetadata_mixesDeclaredAndUndeclaredStudies() {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB, STUDY_ACC),
+            "CYTOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null);
+
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+
+    assertThat(contracts).extracting(ResourceContractRow::declared).containsExactly(true, false);
   }
 
   @Test

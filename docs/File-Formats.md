@@ -1712,6 +1712,13 @@ a key the data carries but the contract omits is **not** shown — the importer 
 so the data never goes in unseen. A resource with no `CUSTOM_METADATA` keeps the older behaviour,
 a column per key found in the data, labelled by the raw key name.
 
+The contract is declared per study, but a study view cohort can span several studies that each
+declare the same resource. The table then shows the **union** of their contracts, each key taking
+the first declaration by study identifier, and a key two studies type differently falls back to
+being typed from the values. If any study in the cohort has rows for the resource but declares no
+contract, its keys are shown as well — nothing that study imported was ever checked against
+another study's contract.
+
 ```json
 {
   "version": 1,

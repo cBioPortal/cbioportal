@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataMapper">
 
+  <resultMap id="ResourceContractRowResultMap" type="org.cbioportal.domain.resource.ResourceContractRow">
+    <constructor>
+      <arg column="customMetadata" javaType="String"/>
+      <arg column="firstStudy" javaType="String"/>
+    </constructor>
+  </resultMap>
+
   <resultMap id="ResourceTableTabResultMap" type="org.cbioportal.domain.resource.ResourceTableTab">
     <constructor>
       <arg column="resourceId" javaType="String"/>
@@ -296,7 +303,15 @@
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">
     SELECT
       rdata.resource_id AS resourceId,
-      coalesce(any(rdef.display_name), rdata.resource_id) AS label,
+      <!-- Two studies can name one resource_id differently. The label is taken from the lowest
+           study identifier that names it, the same study whose contract wins where contracts
+           disagree, so a tab and its columns describe the same declaration rather than being
+           picked apart. Rows left unmatched by the LEFT JOIN carry '' rather than NULL, since
+           display_name is not nullable, so the empty test is what skips a study that declares no
+           definition for a resource its data references. -->
+      coalesce(
+        nullIf(argMinIf(rdef.display_name, cs.cancer_study_identifier, rdef.display_name != ''), ''),
+        rdata.resource_id) AS label,
       count(*) AS totalCount,
       count(DISTINCT if(rdata.patient_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.patient_id))) AS patientCount,
       count(DISTINCT if(rdata.sample_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.sample_id))) AS sampleCount
@@ -484,14 +499,17 @@
     first study that declares each, so the caller's choice is stable instead of arbitrary and it can
     tell that the studies disagree.
   -->
-  <select id="getResourceDefinitionCustomMetadata" resultType="String">
-    SELECT customMetadata FROM (
-      SELECT rdef.custom_metadata AS customMetadata,
+  <!-- Returns one row per distinct contract in scope, plus a blank row if any study has data for
+       this resource without declaring one. Blanks are kept rather than filtered out because
+       "every study in scope declares" is what decides whether the contract is the complete
+       column list; filtering them made a partially declared cohort look fully declared. -->
+  <select id="getResourceDefinitionCustomMetadata" resultMap="ResourceContractRowResultMap">
+    SELECT customMetadata, firstStudy FROM (
+      SELECT ifNull(rdef.custom_metadata, '') AS customMetadata,
              min(cs.cancer_study_identifier) AS firstStudy
       <include refid="ResourceTableFromClause"/>
       <include refid="ResourceTableBaseFilters"/>
-      AND rdef.custom_metadata IS NOT NULL AND rdef.custom_metadata != ''
-      GROUP BY rdef.custom_metadata
+      GROUP BY customMetadata
     ) contracts
     ORDER BY firstStudy ASC
   </select>

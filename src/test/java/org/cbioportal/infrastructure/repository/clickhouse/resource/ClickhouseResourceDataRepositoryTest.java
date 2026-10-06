@@ -13,6 +13,7 @@ import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainer
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -32,6 +33,7 @@ public class ClickhouseResourceDataRepositoryTest {
   private static final String STUDY_TCGA_PUB = "study_tcga_pub";
 
   @Autowired private ClickhouseResourceDataRepository repository;
+  @Autowired private ClickhouseResourceDataMapper mapper;
 
   @Test
   public void
@@ -153,22 +155,22 @@ public class ClickhouseResourceDataRepositoryTest {
   }
 
   @Test
-  public void getResourceTableMetadataColumns_fallsBackToRawKeyWhenUndeclared() {
-    // "aperture" is present in the data but absent from RADIOLOGY's contract.
+  public void getResourceTableMetadataColumns_dropsKeysTheContractDoesNotDeclare() {
+    // "aperture" is present in the data but absent from RADIOLOGY's contract. A resource that
+    // declares a contract gets exactly the columns it declares, so the key discovery sample
+    // cannot decide whether a column appears.
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
 
-    ResourceColumnInfo aperture = columnById(query, "metadata:aperture");
-
-    assertThat(aperture.label()).isEqualTo("aperture");
-    assertThat(aperture.description()).isNull();
-    assertThat(aperture.filterable()).isTrue();
+    assertThat(repository.getResourceTableMetadata(query).columns())
+        .extracting(ResourceColumnInfo::id)
+        .doesNotContain("metadata:aperture");
   }
 
   @Test
-  public void getResourceTableMetadataColumns_ordersDeclaredFieldsFirstThenDiscovered() {
-    // Contract order is score, dose_id, operator; "aperture" is undeclared and sorts after them.
+  public void getResourceTableMetadataColumns_followsContractOrder() {
+    // The columns and their order both come from the contract: score, dose_id, operator, series.
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
@@ -180,7 +182,49 @@ public class ClickhouseResourceDataRepositoryTest {
 
     assertThat(ids)
         .containsExactly(
-            "metadata:score", "metadata:dose_id", "metadata:operator", "metadata:aperture");
+            "metadata:score", "metadata:dose_id", "metadata:operator", "metadata:series");
+  }
+
+  @Test
+  public void getResourceTableMetadata_skipsKeyDiscoveryWhenTheContractTypesEveryField() {
+    // RADIOLOGY's contract names every column and gives each a type, so nothing is left for the
+    // discovery scan to answer and it must not run.
+    ClickhouseResourceDataMapper spy = Mockito.spy(mapper);
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+
+    Mockito.verify(spy, Mockito.never())
+        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+  }
+
+  @Test
+  public void getResourceTableMetadata_runsKeyDiscoveryWhenThereIsNoContract() {
+    // HE_SLIDE has no contract, so the data is the only source of columns and the scan has to run.
+    ClickhouseResourceDataMapper spy = Mockito.spy(mapper);
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+
+    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+
+    Mockito.verify(spy)
+        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+  }
+
+  @Test
+  public void getResourceTableMetadataColumns_keepsDeclaredKeysNoRowCarries() {
+    // "series" is declared but absent from every row. The column still renders, so a resource's
+    // column set stays stable no matter which rows happen to be populated.
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+
+    ResourceColumnInfo series = columnById(query, "metadata:series");
+
+    assertThat(series.label()).isEqualTo("Series");
   }
 
   @Test

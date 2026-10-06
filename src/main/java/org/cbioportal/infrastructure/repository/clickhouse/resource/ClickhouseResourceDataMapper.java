@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -40,6 +41,10 @@ public interface ClickhouseResourceDataMapper {
       @Param("query") ResourceTableQuery query,
       @Param("sampleRows") int sampleRows,
       @Param("maxMemoryBytes") long maxMemoryBytes);
+
+  /** Exact min/max for keys already classified numeric; see the mapper XML for why. */
+  List<ResourceMetadataRange> getResourceTableMetadataRanges(
+      @Param("query") ResourceTableQuery query, @Param("metadataKeys") String[] metadataKeys);
 
   /**
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any

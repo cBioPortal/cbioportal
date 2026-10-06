@@ -40,8 +40,6 @@
       <arg column="metaKey" javaType="String"/>
       <arg column="nonBlankCount" javaType="_long"/>
       <arg column="numericCount" javaType="_long"/>
-      <arg column="minValue" javaType="java.lang.Double"/>
-      <arg column="maxValue" javaType="java.lang.Double"/>
     </constructor>
   </resultMap>
 
@@ -471,14 +469,38 @@
 
     The sample means a key present only in rows beyond it is not discovered, and a key whose only
     numeric values lie beyond it is classified as text. The bound is large enough that this needs
-    a resource with very heterogeneous metadata to matter.
+    a resource with very heterogeneous metadata to matter. Ranges are deliberately not taken from
+    here; see getResourceTableMetadataRanges.
   -->
+  <!--
+    Exact min/max for the keys already known to be numeric.
+
+    Deliberately not taken from the sampled discovery query above: the range is what the slider
+    offers, so a range narrowed by the sample would put rows beyond it out of the user's reach.
+    This reads the whole filtered set, but only for a handful of keys, and the pairs are filtered
+    to those keys before aggregating, so the state stays small.
+  -->
+  <select id="getResourceTableMetadataRanges" resultType="org.cbioportal.domain.resource.ResourceMetadataRange">
+    SELECT metaKey, min(parsedValue) AS minValue, max(parsedValue) AS maxValue
+    FROM (
+      SELECT kv.1 AS metaKey, toFloat64OrNull(JSONExtractString(kv.2)) AS parsedValue
+      FROM (
+        SELECT arrayJoin(JSONExtractKeysAndValuesRaw(ifNull(rdata.metadata, '{}'))) AS kv
+        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+      ) pairs
+      WHERE kv.1 IN (#{metadataKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    ) vals
+    WHERE parsedValue IS NOT NULL
+    GROUP BY metaKey
+    ORDER BY metaKey ASC
+  </select>
+
   <select id="getResourceTableMetadataKeyStats" resultMap="ResourceMetadataKeyStatsResultMap">
     SELECT metaKey,
       countIf(rawValue != '') AS nonBlankCount,
-      countIf(rawValue != '' AND parsedValue IS NOT NULL) AS numericCount,
-      min(parsedValue) AS minValue,
-      max(parsedValue) AS maxValue
+      countIf(rawValue != '' AND parsedValue IS NOT NULL) AS numericCount
     FROM (
       SELECT kv.1 AS metaKey,
              JSONExtractString(kv.2) AS rawValue,

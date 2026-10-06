@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -433,9 +434,9 @@ public class ClickhouseResourceDataMapperTest {
         stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
     assertThat(pages.nonBlankCount()).isEqualTo(2);
     assertThat(pages.numericCount()).isEqualTo(2);
-    assertThat(pages.minValue()).isEqualTo(10.0);
-    assertThat(pages.maxValue()).isEqualTo(25.0);
     assertThat(pages.isAutoDetectedNumeric()).isTrue();
+    assertThat(rangeFor(query, "pages"))
+        .isEqualTo(new ResourceMetadataRange("pages", 10.0, 25.0));
   }
 
   @Test
@@ -902,8 +903,8 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(stats.nonBlankCount()).isEqualTo(4);
     assertThat(stats.numericCount()).isEqualTo(4);
-    assertThat(stats.minValue()).isEqualTo(30.0);
-    assertThat(stats.maxValue()).isEqualTo(2000.0);
+    assertThat(rangeFor(slideSet(null, null, 0, 10), "file_size_bytes"))
+        .isEqualTo(new ResourceMetadataRange("file_size_bytes", 30.0, 2000.0));
   }
 
   // ---- Facet cap and bounded key discovery ----
@@ -940,8 +941,8 @@ public class ClickhouseResourceDataMapperTest {
 
     assertThat(scores.nonBlankCount()).isEqualTo(4);
     assertThat(scores.numericCount()).isEqualTo(4);
-    assertThat(scores.minValue()).isEqualTo(9.0);
-    assertThat(scores.maxValue()).isEqualTo(100.0);
+    assertThat(rangeFor(slideSet(null, null, 0, 10), "score"))
+        .isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));
   }
 
   @Test
@@ -960,5 +961,25 @@ public class ClickhouseResourceDataMapperTest {
     return mapper.getResourceTableMetadataFacets(query, new String[] {key}, limitPerKey).stream()
         .map(v -> new ResourceFacetOption(v.value(), v.count()))
         .toList();
+  }
+
+  /** The exact-range query, narrowed to one key. */
+  private ResourceMetadataRange rangeFor(ResourceTableQuery query, String key) {
+    return mapper.getResourceTableMetadataRanges(query, new String[] {key}).stream()
+        .findFirst()
+        .orElseThrow();
+  }
+
+  @Test
+  public void metadataRanges_readTheWholeSetNotTheDiscoverySample() {
+    // The slider's bounds must cover every row, so the range query takes no sample. Discovery
+    // limited to one row sees only that row's value; the range still spans all four.
+    ResourceTableQuery query = slideSet(null, null, 0, 10);
+
+    assertThat(mapper.getResourceTableMetadataKeyStats(query, 1, TEST_MAX_MEMORY))
+        .allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
+
+    assertThat(rangeFor(query, "score"))
+        .isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));
   }
 }

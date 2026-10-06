@@ -9,6 +9,7 @@ import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataField;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
+import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceMetadataSchema;
 import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
@@ -83,7 +84,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         return false;
       }
       if ("number".equals(declaredType)) {
-        return stats.hasUsableNumericRange();
+        // Sampled counts are fine for classification; only the slider's bounds have to be exact.
+        return stats.numericCount() > 0;
       }
       return stats.isAutoDetectedNumeric();
     }
@@ -180,25 +182,42 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
     List<String> categoricalKeys = new ArrayList<>();
+    List<String> numericKeys = new ArrayList<>();
     for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
       String key = entry.getKey();
       if (!context.isFilterable(key)) {
         continue;
       }
-      if (context.isNumeric(key)) {
-        // Numeric columns get a min/max range instead of an enumerated value list, which would be
-        // huge and unhelpful for a continuous measurement.
-        ResourceMetadataKeyStats stats = entry.getValue();
-        facetRanges.put(
-            ResourceColumnInfo.METADATA_COLUMN_PREFIX + key,
-            new ResourceNumericRange(stats.minValue(), stats.maxValue()));
-      } else {
-        categoricalKeys.add(key);
-      }
+      // Numeric columns get a min/max range instead of an enumerated value list, which would be
+      // huge and unhelpful for a continuous measurement.
+      (context.isNumeric(key) ? numericKeys : categoricalKeys).add(key);
     }
+    facetRanges.putAll(metadataRanges(scoped, numericKeys));
     facets.putAll(metadataFacets(scoped, categoricalKeys));
 
     return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
+  }
+
+  /**
+   * Exact ranges for the numeric keys, read over the whole filtered set rather than the discovery
+   * sample: these bounds are what the slider offers, and a narrowed range would put rows beyond it
+   * out of reach.
+   */
+  private Map<String, ResourceNumericRange> metadataRanges(
+      ResourceTableQuery scoped, List<String> keys) {
+    if (keys.isEmpty()) {
+      return Map.of();
+    }
+    Map<String, ResourceNumericRange> ranges = new LinkedHashMap<>();
+    for (ResourceMetadataRange range :
+        mapper.getResourceTableMetadataRanges(scoped, keys.toArray(new String[0]))) {
+      if (range.isUsable()) {
+        ranges.put(
+            ResourceColumnInfo.METADATA_COLUMN_PREFIX + range.metaKey(),
+            new ResourceNumericRange(range.minValue(), range.maxValue()));
+      }
+    }
+    return ranges;
   }
 
   /** All categorical metadata facets in one query, grouped by key, with over-cap keys dropped. */

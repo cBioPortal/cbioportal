@@ -172,8 +172,11 @@ segfile.url=http://cbio.mskcc.org/cancergenomics/gdac-portal/seg/
 # If you wish to include such information, please consider obtaining a license to support future OncoKB development by following
 # https://docs.cbioportal.org/2.4-integration-with-other-webservices/oncokb-data-access.
 
+# Annotation feature flags use the feature.annotation.* namespace. The legacy show.* names remain
+# supported for compatibility, but the feature.annotation.* value takes precedence when both are set.
+
 # Enable OncoKB annotation (true, false)
-show.oncokb=true
+feature.annotation.oncokb=true
 
 # The URL of the OncoKB instance to connect to.
 # The default address does not require authentication and is freely to use.
@@ -189,10 +192,13 @@ oncokb.token=
 show.cbioportal=true
 
 # Enable Chang's hotspot list (true, false)
-show.hotspot=true
+feature.annotation.hotspot=true
 
 # Enable Civic variant annotation (true, false)
-show.civic=true
+feature.annotation.civic=true
+
+# Enable Genome Nexus annotation (true, false)
+# feature.annotation.genomenexus=true
 
 # Enable transcript switch dropdown (true, false)
 # show.transcript_dropdown=false

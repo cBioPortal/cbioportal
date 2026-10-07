@@ -111,10 +111,12 @@
          2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w). 4.1.137.Final further
          clears CVE-2026-75595 (critical) / CVE-2026-75596 (medium) -->
     <netty.version>4.1.137.Final</netty.version>
-    <!-- Removed under Spring Boot 4: jackson-bom.version is now Boot's own override
-         point for the *new* tools.jackson:jackson-bom coordinate (Jackson 3), not
-         this project's separate, still-Jackson-2-based customization; pinning it
-         to a Jackson-2 version here breaks BOM resolution outright. -->
+    <!-- jackson-bom.version (the old override point) is now Boot's own property for the
+         *new* tools.jackson:jackson-bom coordinate (Jackson 3); pinning it to a Jackson-2
+         version here breaks BOM resolution outright. Boot 4 exposes the legacy Jackson 2
+         line as a separate jackson-2-bom.version property instead (default 2.21.4), which
+         still needs the same CVE-2026-59889 / GHSA-mhm7-754m-9p8w override as above. -->
+    <jackson-2-bom.version>2.21.6</jackson-2-bom.version>
     <velocity.version>2.4</velocity.version>
     <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged
          by GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6; 5.6.x is the httpclient5 line

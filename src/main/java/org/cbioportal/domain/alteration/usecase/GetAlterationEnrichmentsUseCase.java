@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.domain.alteration.util.AlterationEnrichmentScoreUtil;
@@ -50,9 +51,14 @@ public class GetAlterationEnrichmentsUseCase {
       AlterationFilter alterationFilter) {
     Map<String, AlterationEnrichment> alterationEnrichmentByGene = new HashMap<>();
 
+    // we need a map of panels to genes which are profiled by them; it is the same for every group,
+    // so fetch it once per request instead of once per group
+    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
+
     // calculate the alteration count by gene for each group in parallel
     // for performance reasons, we defer calculating the profiled counts until a later step
-    List<Pair<String, List<AlterationCountByGene>>> results =
+    // all groups are submitted before waiting on any of them, otherwise they would run one by one
+    List<Future<Pair<String, List<AlterationCountByGene>>>> futures =
         molecularProfileCaseIdentifierByGroup.entrySet().stream()
             .map(
                 entry ->
@@ -62,19 +68,10 @@ public class GetAlterationEnrichmentsUseCase {
                                 entry.getKey(),
                                 entry.getValue(),
                                 enrichmentType,
-                                alterationFilter)))
-            .map(
-                future -> {
-                  try {
-                    return future.get();
-                  } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // Always good to restore interrupted flag
-                    throw new RuntimeException("Thread was interrupted", e);
-                  } catch (ExecutionException e) {
-                    throw new RuntimeException("Unexpected exception during execution", e);
-                  }
-                })
+                                alterationFilter,
+                                panelToGeneMap)))
             .toList();
+    List<Pair<String, List<AlterationCountByGene>>> results = awaitAll(futures);
 
     results.forEach(
         alterationCountByGeneAndGroup -> {
@@ -120,11 +117,34 @@ public class GetAlterationEnrichmentsUseCase {
         .collect(Collectors.toSet());
   }
 
+  /**
+   * Waits for every group's alteration counts. If a group fails, or the waiting thread is
+   * interrupted, groups that have not started yet are cancelled.
+   */
+  private static <T> List<T> awaitAll(List<Future<T>> futures) {
+    try {
+      List<T> results = new ArrayList<>(futures.size());
+      for (Future<T> future : futures) {
+        results.add(future.get());
+      }
+      return results;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt(); // Always good to restore interrupted flag
+      throw new RuntimeException("Thread was interrupted", e);
+    } catch (ExecutionException e) {
+      throw new RuntimeException("Unexpected exception during execution", e);
+    } finally {
+      // no-op for completed futures; keeps queued groups from starting when we exit early
+      futures.forEach(future -> future.cancel(false));
+    }
+  }
+
   private Pair<String, List<AlterationCountByGene>> fetchAlterationCountByGeneByGroup(
       String group,
       List<MolecularProfileCaseIdentifier> molecularProfileCaseIdentifiers,
       EnrichmentType enrichmentType,
-      AlterationFilter alterationFilter)
+      AlterationFilter alterationFilter,
+      Map<String, Map<String, GenePanelToGene>> panelToGeneMap)
       throws MolecularProfileNotFoundException {
     // entities can be either samples or patients depending on the enrichment type
     Pair<Set<String>, Set<String>> entityIdsAndMolecularProfileIds =
@@ -146,9 +166,6 @@ public class GetAlterationEnrichmentsUseCase {
 
     HashMap<String, AlterationCountByGene> alteredGenesWithCounts =
         processAlterationCounts(entityIdsAndMolecularProfileIds, enrichmentType, alterationFilter);
-
-    // we need a map of panels to genes which are profiled by them
-    var panelToGeneMap = alterationRepository.getGenePanelsToGenes();
 
     Map<String, AlterationCountByGene> geneCount =
         calculateProfiledCasesPerGene(panelCombinationToEntityList, panelToGeneMap);

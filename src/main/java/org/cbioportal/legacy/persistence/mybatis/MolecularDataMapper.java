@@ -26,6 +26,9 @@ public interface MolecularDataMapper {
   List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfiles(
       Set<String> molecularProfileIds, List<Integer> entrezGeneIds, String projection);
 
+  List<GeneMolecularAlteration> getGeneMolecularAlterationsInMultipleMolecularProfilesClickHouse(
+      Set<String> molecularProfileIds, List<Integer> entrezGeneIds);
+
   List<GenesetMolecularAlteration> getGenesetMolecularAlterations(
       String molecularProfileId, List<String> genesetIds, String projection);
 

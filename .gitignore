@@ -74,6 +74,7 @@ portal/src/main/webapp/WEB-INF/logback.xml
 firehose-importer/reference_data/gene_info
 portal.properties
 src/main/resources/application.properties
+microservices/assistant/src/main/resources/application.properties
 importer.properties
 log4j.properties
 build.properties

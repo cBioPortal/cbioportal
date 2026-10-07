@@ -13,7 +13,8 @@
             ,
             clinical_attribute_meta.description AS "${prefix}description",
             clinical_attribute_meta.datatype AS "${prefix}datatype",
-            clinical_attribute_meta.priority AS "${prefix}priority"
+            clinical_attribute_meta.priority AS "${prefix}priority",
+            clinical_attribute_meta.chart_type AS "${prefix}chartType"
         </if>
     </sql>
 
@@ -156,7 +157,8 @@
         clinical_attribute_meta.cancer_study_id AS "cancerStudyId",
         clinical_attribute_meta.patient_attribute AS "patientAttribute",
         clinical_attribute_meta.display_name AS "displayName",
-        clinical_attribute_meta.datatype AS "datatype"
+        clinical_attribute_meta.datatype AS "datatype",
+        clinical_attribute_meta.chart_type AS "chartType"
         FROM clinical_attribute_meta
         INNER JOIN cancer_study ON clinical_attribute_meta.cancer_study_id = cancer_study.cancer_study_id
         <where>

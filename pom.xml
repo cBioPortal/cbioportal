@@ -94,7 +94,6 @@
     <datumbox.version>0.8.2</datumbox.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
     <selenium.version>4.31.0</selenium.version>
-    <sentry.version>7.1.0</sentry.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
     <!-- 1.85 clears CVE-2026-8763 (critical) and CVE-2026-13506 (high) -->
     <bouncy_castle.version>1.85</bouncy_castle.version>
@@ -442,11 +441,6 @@
       <artifactId>spring-boot-devtools</artifactId>
       <scope>runtime</scope>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>io.sentry</groupId>
-      <artifactId>sentry-spring-boot-starter-jakarta</artifactId>
-      <version>${sentry.version}</version>
     </dependency>
     <!-- Runtime scope: the HTTP transport for clickhouse-jdbc (the "http" classifier
          does not bundle it). Versions pinned via httpclient5.version/httpcore5.version

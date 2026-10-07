@@ -43,7 +43,7 @@ public class LlmsTxtController {
   private String location;
 
   private String cachedBody;
-  private Instant cachedAt = Instant.MIN;
+  private Instant lastReadAttempt = Instant.MIN;
 
   @GetMapping(value = "/llms.txt")
   public ResponseEntity<String> llmsTxt() {
@@ -63,13 +63,14 @@ public class LlmsTxtController {
 
   private synchronized String getBody() {
     Instant now = Instant.now();
-    if (cachedBody != null && now.isBefore(cachedAt.plus(CACHE_TTL))) {
+    // Failed reads count as attempts too, so an unreadable file is retried at most once per TTL.
+    if (now.isBefore(lastReadAttempt.plus(CACHE_TTL))) {
       return cachedBody;
     }
+    lastReadAttempt = now;
     Resource resource = resourceLoader.getResource(location.trim());
     try (InputStream in = resource.getInputStream()) {
       cachedBody = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-      cachedAt = now;
     } catch (IOException e) {
       // Keep serving the last good copy if the file is briefly unreadable.
       LOG.warn("Could not read llms_txt.location {}: {}", location, e.getMessage());

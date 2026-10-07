@@ -12,6 +12,7 @@ public class CancerStudyDTO {
   private Boolean publicStudy;
   private String pmid;
   private String citation;
+  private String license;
   private String groups;
   private Integer status;
   private String importDate;
@@ -87,6 +88,14 @@ public class CancerStudyDTO {
 
   public void setCitation(String citation) {
     this.citation = citation;
+  }
+
+  public String getLicense() {
+    return license;
+  }
+
+  public void setLicense(String license) {
+    this.license = license;
   }
 
   public String getGroups() {

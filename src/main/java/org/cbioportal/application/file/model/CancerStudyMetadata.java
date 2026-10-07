@@ -31,6 +31,12 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
   private String citation;
 
   /**
+   * The license the study data is distributed under, as an SPDX identifier, e.g.,
+   * "CC-BY-NC-ND-4.0".
+   */
+  private String license;
+
+  /**
    * One or more relevant pubmed ids (comma separated without whitespace). If used, the field
    * citation has to be filled, too.
    */
@@ -92,6 +98,14 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
     this.citation = citation;
   }
 
+  public String getLicense() {
+    return license;
+  }
+
+  public void setLicense(String license) {
+    this.license = license;
+  }
+
   public String getPmid() {
     return pmid;
   }
@@ -132,6 +146,7 @@ public class CancerStudyMetadata implements StudyRelatedMetadata {
     metadata.put("description", getDescription());
     metadata.put("citation", getCitation());
     metadata.put("pmid", getPmid());
+    metadata.put("license", getLicense());
     metadata.put("groups", getGroups());
     metadata.put(
         "add_global_case_list",

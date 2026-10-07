@@ -54,6 +54,7 @@
             cs.public AS publicStudy,
             cs.pmid AS pmid,
             cs.citation AS citation,
+            cs.license AS license,
             cs.groups AS groups,
             cs.status AS status,
             cs.import_date AS importDate,
@@ -98,7 +99,7 @@
             </if>
         </where>
         GROUP BY cs.cancer_study_id, cs.cancer_study_identifier, cs.type_of_cancer_id, cs.name,
-        cs.description, cs.public, cs.pmid, cs.citation, cs.groups, cs.status, cs.import_date, 
+        cs.description, cs.public, cs.pmid, cs.citation, cs.license, cs.groups, cs.status, cs.import_date, 
         reference_genome.name, treatment.count, sv.count,allSampleCount,
         sequencedSampleCount, cnaSampleCount, mrnaRnaSeqV2SampleCount,
         miRnaSampleCount,mrnaMicroarraySampleCount, methylationHm27SampleCount,
@@ -135,6 +136,7 @@
         cs.public AS publicStudy,
         cs.pmid AS pmid,
         cs.citation AS citation,
+        cs.license AS license,
         cs.groups AS groups,
         cs.status AS status,
         cs.import_date AS importDate,
@@ -182,6 +184,7 @@
             <arg column="publicStudy" javaType="boolean" />
             <arg column="pmid" javaType="String" />
             <arg column="citation" javaType="String" />
+            <arg column="license" javaType="String" />
             <arg column="groups" javaType="String" />
             <arg column="status" javaType="int" />
             <arg column="importDate" javaType="java.util.Date" />
@@ -214,6 +217,7 @@
             <arg column="publicStudy" javaType="boolean" />
             <arg column="pmid" javaType="String" />
             <arg column="citation" javaType="String" />
+            <arg column="license" javaType="String" />
             <arg column="groups" javaType="String" />
             <arg column="status" javaType="int" />
             <arg column="importDate" javaType="java.util.Date" />

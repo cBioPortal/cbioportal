@@ -25,6 +25,7 @@ public class CancerStudyMetadataExporterTests {
           cancerStudyMetadata.setDescription("A study on breast cancer");
           cancerStudyMetadata.setAddGlobalCaseList(true);
           cancerStudyMetadata.setPmid("12345678");
+          cancerStudyMetadata.setLicense("CC-BY-NC-ND-4.0");
           cancerStudyMetadata.setReferenceGenome("GRCh38");
           return cancerStudyMetadata;
         }
@@ -69,6 +70,7 @@ public class CancerStudyMetadataExporterTests {
     description: A study on breast cancer
     citation: Foo et al. 2023
     pmid: 12345678
+    license: CC-BY-NC-ND-4.0
     groups: Group1, Group2
     add_global_case_list: true
     reference_genome: GRCh38
@@ -97,6 +99,7 @@ public class CancerStudyMetadataExporterTests {
     description: A study on breast cancer
     citation: Foo et al. 2023
     pmid: 12345678
+    license: CC-BY-NC-ND-4.0
     groups: Group1, Group2
     add_global_case_list: true
     reference_genome: GRCh38

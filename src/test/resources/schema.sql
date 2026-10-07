@@ -142,6 +142,7 @@ CREATE TABLE cancer_study (
     `public` Int32,
     `pmid` Nullable(String),
     `citation` Nullable(String),
+    `license` Nullable(String),
     `groups` Nullable(String),
     `status` Nullable(Int64),
     `import_date` Nullable(DateTime64(6)),

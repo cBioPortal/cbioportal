@@ -14,6 +14,7 @@ public record CancerStudyMetadataDTO(
     Boolean publicStudy,
     String pmid,
     String citation,
+    String license,
     String groups,
     Integer status,
     String importDate,

@@ -14,6 +14,7 @@
             ANY_VALUE(cancer_study.public) AS "${prefix}publicStudy",
             ANY_VALUE(cancer_study.pmid) AS "${prefix}pmid",
             ANY_VALUE(cancer_study.citation) AS "${prefix}citation",
+            ANY_VALUE(cancer_study.license) AS "${prefix}license",
             ANY_VALUE(cancer_study.groups) AS "${prefix}groups",
             ANY_VALUE(cancer_study.status) AS "${prefix}status",
             ANY_VALUE(cancer_study.import_date) AS "${prefix}importDate",

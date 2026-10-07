@@ -48,6 +48,7 @@ This file contains metadata about the cancer study. The file contains the follow
 8. **add_global_case_list (Optional)**: set to 'true' if you would like the "All samples" case list to be generated automatically for you. See also [Case lists](#case-lists).
 9. **tags_file (Optional)**: the file name containing custom study tags for the [study tags](#study-tags-file).
 10. **reference_genome (Optional)**: the study reference genome (e.g. `hg19`, `hg38`). Without specifying this property, the study will be assigned to the reference genome specified in `application.properties` (property `ucsc.build`).
+11. **license (Optional)**: the license the study data is distributed under, given as an [SPDX license identifier](https://spdx.org/licenses/), e.g., `CC-BY-4.0` or `CC-BY-NC-ND-4.0`. It is returned by the `/api/studies` endpoints so clients can display it.
 
 ### Example  
 An example meta_study.txt file would be:

@@ -40,10 +40,8 @@ public class RobotsController {
   @Value("${robots.crawl_delay:5}")
   private String crawlDelay;
 
-  // Comma-separated crawler User-Agent names to block entirely; empty by default so the open-source
-  // policy stays generic. A deployment can set e.g. --robots.disallow_user_agents=PetalBot to block
-  // a specific abusive bot.
-  @Value("${robots.disallow_user_agents:}")
+  @Value(
+      "${robots.disallow_user_agents:PetalBot,GPTBot,ChatGPT-User,Google-Extended,CCBot,ClaudeBot,anthropic-ai,Bytespider,Diffbot,FacebookBot,ImagesiftBot,Omgilibot,Amazonbot}")
   private String disallowUserAgents;
 
   @GetMapping(value = "/robots.txt", produces = MediaType.TEXT_PLAIN_VALUE)

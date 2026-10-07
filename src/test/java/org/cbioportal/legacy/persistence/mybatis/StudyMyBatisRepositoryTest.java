@@ -73,6 +73,7 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
     Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
+    Assert.assertEquals("CC-BY-NC-ND-4.0", cancerStudy.getLicense());
     Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
     Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     Assert.assertEquals(
@@ -106,6 +107,7 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
     Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
+    Assert.assertEquals("CC-BY-NC-ND-4.0", cancerStudy.getLicense());
     Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
     Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());
@@ -210,6 +212,7 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(true, result.getPublicStudy());
     Assert.assertEquals("23000897,26451490", result.getPmid());
     Assert.assertEquals("TCGA, Nature 2012, ...", result.getCitation());
+    Assert.assertEquals("CC-BY-NC-ND-4.0", result.getLicense());
     Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", result.getGroups());
     Assert.assertEquals((Integer) 0, result.getStatus());
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), result.getImportDate());
@@ -256,6 +259,7 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals(true, cancerStudy.getPublicStudy());
     Assert.assertEquals("23000897,26451490", cancerStudy.getPmid());
     Assert.assertEquals("TCGA, Nature 2012, ...", cancerStudy.getCitation());
+    Assert.assertEquals("CC-BY-NC-ND-4.0", cancerStudy.getLicense());
     Assert.assertEquals("SU2C-PI3K;PUBLIC;GDAC", cancerStudy.getGroups());
     Assert.assertEquals((Integer) 0, cancerStudy.getStatus());
     Assert.assertEquals(simpleDateFormat.parse("2011-12-18 13:17:17"), cancerStudy.getImportDate());

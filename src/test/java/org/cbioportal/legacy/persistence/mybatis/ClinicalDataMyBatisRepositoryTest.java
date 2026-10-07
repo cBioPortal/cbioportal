@@ -497,6 +497,16 @@ public class ClinicalDataMyBatisRepositoryTest {
   }
 
   @Test
+  public void fetchClinicalSampleIdCountClinicalTab() {
+
+    Integer result =
+        clinicalDataMyBatisRepository.getVisibleSampleInternalIdCountForClinicalTable(
+            studyIds, sampleIds, noSearch);
+
+    Assert.assertEquals((Integer) 14, result);
+  }
+
+  @Test
   public void fetchClinicalSampleIdsClinicalTablePagingHandleNoneExistingPage() {
 
     // There are only two patients in total. The second page (index 1) with pageSize 2 does not

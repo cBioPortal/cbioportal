@@ -30,6 +30,9 @@ categories:
   - title: '⚙️ REST API Changes'
     labels:
       - 'api'
+  - title: '🔒 Security fixes'
+    labels:
+      - 'security'
   - title: '⚙️ Changes to handle external APIs'
     labels:
       - 'external api'

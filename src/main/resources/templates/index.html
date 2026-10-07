@@ -13,6 +13,19 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8"/>
  
     <link rel="icon" href="/images/cbioportal_icon.png"/>
+    <link rel="manifest" th:href="@{/manifest.json}"/>
+    <meta name="theme-color" content="#3786c2"/>
+    <script th:inline="javascript">
+        // Together with the manifest, a registered service worker lets Chrome/Chromium offer
+        // "Install app". The worker is a no-op, see webapp/pwa/service-worker.js.
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", function () {
+                navigator.serviceWorker
+                    .register(/*[[@{/service-worker.js}]]*/ "/service-worker.js")
+                    .catch(function (e) { console.warn("Service worker registration failed", e); });
+            });
+        }
+    </script>
     <title>cBioPortal for Cancer Genomics</title>
     
     <script>

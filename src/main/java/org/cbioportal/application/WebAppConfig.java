@@ -30,6 +30,11 @@ public class WebAppConfig implements WebMvcConfigurer {
     registry.addResourceHandler("/images/**").addResourceLocations("classpath:/webapp/images/");
     registry.addResourceHandler("/reactapp/**").addResourceLocations("classpath:/reactapp/");
     registry.addResourceHandler("/js/**").addResourceLocations("classpath:/js/");
+    // PWA files are served from the application root so the service worker's scope covers the
+    // whole app (a worker served under /js/ could only control /js/).
+    registry
+        .addResourceHandler("/manifest.json", "/service-worker.js")
+        .addResourceLocations("classpath:/webapp/pwa/");
   }
 
   @Override

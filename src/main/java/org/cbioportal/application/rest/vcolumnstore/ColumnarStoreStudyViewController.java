@@ -691,7 +691,7 @@ public class ColumnarStoreStudyViewController {
 
   @Hidden
   @RequestMapping(
-      value = "/not-ready-yet/custom-data-counts/fetch",
+      value = "/custom-data-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -743,7 +743,7 @@ public class ColumnarStoreStudyViewController {
 
   @Hidden
   @RequestMapping(
-      value = "/not-ready-yet/custom-data-bin-counts/fetch",
+      value = "/custom-data-bin-counts/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

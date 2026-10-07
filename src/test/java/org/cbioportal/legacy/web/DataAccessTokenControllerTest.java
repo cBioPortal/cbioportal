@@ -22,7 +22,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import java.util.Date;
+import java.util.List;
 import org.cbioportal.legacy.model.DataAccessToken;
+import org.cbioportal.legacy.model.DataAccessTokenSummary;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.cbioportal.legacy.service.exception.TokenNotFoundException;
 import org.cbioportal.legacy.web.config.DataAccessTokenControllerTestConfig;
@@ -66,7 +69,12 @@ public class DataAccessTokenControllerTest {
   public static final String VALID_TOKEN_STRING = "VALID_TOKEN";
   public static final String NONEXISTENT_TOKEN_STRING = "NONEXISTENT_TOKEN";
   public static final String NOT_FOUND_ERROR_MESSAGE = "Specified token cannot be found";
-  public static final DataAccessToken MOCK_TOKEN_INFO = new DataAccessToken(VALID_TOKEN_STRING);
+  public static final String OTHER_USER = "OTHER_USER";
+  public static final String OTHER_USERS_TOKEN_STRING = "OTHER_USERS_TOKEN";
+  public static final DataAccessToken MOCK_TOKEN_INFO =
+      new DataAccessToken(VALID_TOKEN_STRING, MOCK_USER, new Date(), new Date());
+  public static final DataAccessToken OTHER_USERS_TOKEN_INFO =
+      new DataAccessToken(OTHER_USERS_TOKEN_STRING, OTHER_USER, new Date(), new Date());
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -97,7 +105,7 @@ public class DataAccessTokenControllerTest {
    * Test for valid token - checks returned response type is 200 success
    */
   @Test
-  @WithMockUser()
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
   public void getTokenInfoForValidTokenTest() throws Exception {
     when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
     HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
@@ -116,7 +124,7 @@ public class DataAccessTokenControllerTest {
    * Checks response for correct error message
    */
   @Test
-  @WithMockUser
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
   public void getTokenInfoForNonexistentTokenTest() throws Exception {
     doThrow(new TokenNotFoundException())
         .when(tokenService)
@@ -145,7 +153,7 @@ public class DataAccessTokenControllerTest {
    * Test that proper service method was called
    */
   @Test
-  @WithMockUser
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
   public void revokeValidTokenTest() throws Exception {
     resetReceivedArgument();
     Answer<Void> tokenServiceRevokeTokenAnswer =
@@ -158,6 +166,7 @@ public class DataAccessTokenControllerTest {
     doAnswer(tokenServiceRevokeTokenAnswer)
         .when(tokenService)
         .revokeDataAccessToken(ArgumentMatchers.anyString());
+    when(tokenService.getDataAccessTokenInfo(VALID_TOKEN_STRING)).thenReturn(MOCK_TOKEN_INFO);
     HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
     MvcResult result =
         mockMvc
@@ -183,13 +192,12 @@ public class DataAccessTokenControllerTest {
    * Checks response for correct error message
    */
   @Test
-  @WithMockUser
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
   public void revokeNonexistentTokenTest() throws Exception {
     resetReceivedArgument();
     doThrow(new TokenNotFoundException())
         .when(tokenService)
-        .revokeDataAccessToken(NONEXISTENT_TOKEN_STRING);
-    ;
+        .getDataAccessTokenInfo(NONEXISTENT_TOKEN_STRING);
     HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
     MvcResult result =
         mockMvc
@@ -356,5 +364,106 @@ public class DataAccessTokenControllerTest {
                     .contentType(MediaType.APPLICATION_JSON))
             .andExpect(MockMvcResultMatchers.status().isUnauthorized())
             .andReturn();
+  }
+
+  /* Tests mapping for GET /data-access-tokens/{token}
+   * A token owned by another user is reported as not found
+   */
+  @Test
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
+  public void getTokenInfoForOtherUsersTokenTest() throws Exception {
+    when(tokenService.getDataAccessTokenInfo(OTHER_USERS_TOKEN_STRING))
+        .thenReturn(OTHER_USERS_TOKEN_INFO);
+    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get("/api/data-access-tokens/" + OTHER_USERS_TOKEN_STRING)
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNotFound());
+  }
+
+  /* Tests mapping for DELETE /data-access-tokens/{token}
+   * A token owned by another user is reported as not found and not revoked
+   */
+  @Test
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
+  public void revokeOtherUsersTokenTest() throws Exception {
+    when(tokenService.getDataAccessTokenInfo(OTHER_USERS_TOKEN_STRING))
+        .thenReturn(OTHER_USERS_TOKEN_INFO);
+    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete("/api/data-access-tokens/" + OTHER_USERS_TOKEN_STRING)
+                .with(csrf())
+                .session((MockHttpSession) session)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isNotFound());
+    verify(tokenService, never()).revokeDataAccessToken(ArgumentMatchers.anyString());
+  }
+
+  /* Tests mapping for GET /data-access-tokens/id
+   * Summaries contain an id and masked preview but never the token itself
+   */
+  @Test
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
+  public void getAllTokenSummariesForUserTest() throws Exception {
+    String token = "0123456789abcdef";
+    when(tokenService.getAllDataAccessTokens(MOCK_USER))
+        .thenReturn(List.of(new DataAccessToken(token, MOCK_USER, new Date(), new Date())));
+    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    MvcResult result =
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders.get("/api/data-access-tokens/id")
+                    .session((MockHttpSession) session)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(
+                MockMvcResultMatchers.jsonPath("$[0].id")
+                    .value(DataAccessTokenSummary.computeId(token)))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].tokenPreview").value("0123…cdef"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value(MOCK_USER))
+            .andExpect(MockMvcResultMatchers.jsonPath("$[0].token").doesNotExist())
+            .andReturn();
+    Assert.assertFalse(result.getResponse().getContentAsString().contains(token));
+  }
+
+  /* Tests mapping for DELETE /data-access-tokens/id/{id}
+   * The token matching the id among the user's own tokens is revoked
+   */
+  @Test
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
+  public void revokeTokenByIdTest() throws Exception {
+    when(tokenService.getAllDataAccessTokens(MOCK_USER)).thenReturn(List.of(MOCK_TOKEN_INFO));
+    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                    "/api/data-access-tokens/id/"
+                        + DataAccessTokenSummary.computeId(VALID_TOKEN_STRING))
+                .with(csrf())
+                .session((MockHttpSession) session))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+    verify(tokenService).revokeDataAccessToken(VALID_TOKEN_STRING);
+  }
+
+  /* Tests mapping for DELETE /data-access-tokens/id/{id}
+   * An id not among the user's own tokens is reported as not found and nothing is revoked
+   */
+  @Test
+  @WithMockUser(username = MOCK_USER, password = MOCK_PASSWORD, authorities = "PLACEHOLDER_ROLE")
+  public void revokeTokenByUnknownIdTest() throws Exception {
+    when(tokenService.getAllDataAccessTokens(MOCK_USER)).thenReturn(List.of(MOCK_TOKEN_INFO));
+    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.delete(
+                    "/api/data-access-tokens/id/"
+                        + DataAccessTokenSummary.computeId(OTHER_USERS_TOKEN_STRING))
+                .with(csrf())
+                .session((MockHttpSession) session))
+        .andExpect(MockMvcResultMatchers.status().isNotFound());
+    verify(tokenService, never()).revokeDataAccessToken(ArgumentMatchers.anyString());
   }
 }

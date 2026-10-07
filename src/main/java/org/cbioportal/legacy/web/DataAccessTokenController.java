@@ -33,9 +33,11 @@ import java.util.Objects;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.cbioportal.legacy.model.DataAccessToken;
+import org.cbioportal.legacy.model.DataAccessTokenSummary;
 import org.cbioportal.legacy.service.DataAccessTokenService;
 import org.cbioportal.legacy.service.exception.DataAccessTokenNoUserIdentityException;
 import org.cbioportal.legacy.service.exception.DataAccessTokenProhibitedUserException;
+import org.cbioportal.legacy.service.exception.TokenNotFoundException;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +65,6 @@ import org.springframework.web.client.HttpClientErrorException;
 @Tag(name = "Data Access Tokens", description = " ")
 public class DataAccessTokenController {
 
-  @Value("${dat.unauth_users:anonymousUser}")
-  private String usersWhoCannotUseTokens;
-
   private String userRoleToAccessToken;
 
   @Value("${download_group:}") // default is empty string
@@ -79,7 +78,9 @@ public class DataAccessTokenController {
   private static final String FILE_NAME = "cbioportal_data_access_token.txt";
 
   @Autowired
-  public DataAccessTokenController(DataAccessTokenService tokenService) {
+  public DataAccessTokenController(
+      DataAccessTokenService tokenService,
+      @Value("${dat.unauth_users:anonymousUser}") String usersWhoCannotUseTokens) {
     this.tokenService = tokenService;
     if (Objects.isNull(usersWhoCannotUseTokens)) {
       usersWhoCannotUseTokens = "";
@@ -88,7 +89,7 @@ public class DataAccessTokenController {
   }
 
   @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-token")
-  @Operation(description = "Create a new data access token")
+  @Operation(description = "Create a new data access token and download it as a file")
   @ApiResponse(
       responseCode = "200",
       description = "OK",
@@ -123,9 +124,9 @@ public class DataAccessTokenController {
       method = RequestMethod.POST,
       value = "/api/data-access-tokens",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @Operation(description = "Get all data access tokens")
+  @Operation(description = "Create a new data access token")
   @ApiResponse(
-      responseCode = "200",
+      responseCode = "201",
       description = "OK",
       content = @Content(schema = @Schema(implementation = DataAccessToken.class)))
   public ResponseEntity<DataAccessToken> createDataAccessToken(Authentication authentication)
@@ -138,7 +139,10 @@ public class DataAccessTokenController {
     return new ResponseEntity<>(token, HttpStatus.CREATED);
   }
 
-  @RequestMapping(method = RequestMethod.GET, value = "/api/data-access-tokens")
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/api/data-access-tokens",
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(description = "Retrieve all data access tokens")
   @ApiResponse(
       responseCode = "200",
@@ -159,9 +163,34 @@ public class DataAccessTokenController {
       description = "OK",
       content = @Content(schema = @Schema(implementation = DataAccessToken.class)))
   public ResponseEntity<DataAccessToken> getDataAccessToken(
-      @Parameter(required = true, description = "token") @PathVariable String token) {
-    DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
+      @Parameter(required = true, description = "token") @PathVariable String token,
+      Authentication authentication) {
+    String userName = getAuthenticatedUser(authentication);
+    DataAccessToken dataAccessToken = getOwnedDataAccessToken(token, userName);
     return new ResponseEntity<>(dataAccessToken, HttpStatus.OK);
+  }
+
+  @RequestMapping(
+      method = RequestMethod.GET,
+      value = "/api/data-access-tokens/id",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      description = "Retrieve summaries of the user's data access tokens, with masked token values")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = DataAccessTokenSummary.class))))
+  public ResponseEntity<List<DataAccessTokenSummary>> getAllDataAccessTokenSummaries(
+      Authentication authentication) {
+    String userName = getAuthenticatedUser(authentication);
+    List<DataAccessTokenSummary> summaries =
+        tokenService.getAllDataAccessTokens(userName).stream()
+            .map(DataAccessTokenSummary::fromToken)
+            .toList();
+    return new ResponseEntity<>(summaries, HttpStatus.OK);
   }
 
   @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens")
@@ -173,8 +202,37 @@ public class DataAccessTokenController {
   @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/{token}")
   @Operation(description = "Delete a data access token")
   public void revokeDataAccessToken(
-      @Parameter(required = true, description = "token") @PathVariable String token) {
+      @Parameter(required = true, description = "token") @PathVariable String token,
+      Authentication authentication) {
+    String userName = getAuthenticatedUser(authentication);
+    getOwnedDataAccessToken(token, userName);
     tokenService.revokeDataAccessToken(token);
+  }
+
+  @RequestMapping(method = RequestMethod.DELETE, value = "/api/data-access-tokens/id/{id}")
+  @Operation(description = "Delete a data access token by its id")
+  public void revokeDataAccessTokenById(
+      @Parameter(required = true, description = "id of the token, as returned in its summary")
+          @PathVariable
+          String id,
+      Authentication authentication) {
+    String userName = getAuthenticatedUser(authentication);
+    DataAccessToken dataAccessToken =
+        tokenService.getAllDataAccessTokens(userName).stream()
+            .filter(t -> DataAccessTokenSummary.computeId(t.getToken()).equals(id))
+            .findFirst()
+            .orElseThrow(
+                () -> new TokenNotFoundException("Specified token id " + id + " does not exist"));
+    tokenService.revokeDataAccessToken(dataAccessToken.getToken());
+  }
+
+  // Tokens belonging to other users are reported as not found so their existence is not revealed.
+  private DataAccessToken getOwnedDataAccessToken(String token, String userName) {
+    DataAccessToken dataAccessToken = tokenService.getDataAccessTokenInfo(token);
+    if (dataAccessToken == null || !userName.equals(dataAccessToken.getUsername())) {
+      throw new TokenNotFoundException("Specified token " + token + " does not exist");
+    }
+    return dataAccessToken;
   }
 
   private String getAuthenticatedUser(Authentication authentication) {

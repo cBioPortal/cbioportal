@@ -9,6 +9,7 @@
         cs.name AS name,
         cs.description AS description,
         cs.citation AS citation,
+        cs.license AS license,
         cs.pmid AS pmid,
         cs.`groups` AS `groups`,
         rg.name AS referenceGenome

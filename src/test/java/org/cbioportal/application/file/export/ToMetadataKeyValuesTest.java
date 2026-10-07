@@ -20,6 +20,7 @@ public class ToMetadataKeyValuesTest {
     cancerStudyMetadata.setDescription("study description");
     cancerStudyMetadata.setCitation("Citation");
     cancerStudyMetadata.setPmid("1234");
+    cancerStudyMetadata.setLicense("CC-BY-4.0");
     cancerStudyMetadata.setGroups("GROUP1;GROUP2");
     cancerStudyMetadata.setReferenceGenome("hg38");
     cancerStudyMetadata.setTypeOfCancer("toc");
@@ -31,6 +32,7 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("description", "study description");
     expectedMetadata.put("citation", "Citation");
     expectedMetadata.put("pmid", "1234");
+    expectedMetadata.put("license", "CC-BY-4.0");
     expectedMetadata.put("groups", "GROUP1;GROUP2");
     expectedMetadata.put("add_global_case_list", "true");
     expectedMetadata.put("reference_genome", "hg38");
@@ -52,6 +54,7 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("description", null);
     expectedMetadata.put("citation", null);
     expectedMetadata.put("pmid", null);
+    expectedMetadata.put("license", null);
     expectedMetadata.put("groups", null);
     expectedMetadata.put("add_global_case_list", null);
     expectedMetadata.put("reference_genome", null);

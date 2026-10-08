@@ -167,4 +167,40 @@ public class ColumnarStoreStudyViewControllerTest {
 
     Mockito.verifyNoInteractions(studyViewService);
   }
+
+  @Test
+  public void fetchCustomDataCounts_noFilteredSamples_returnsEmptyList() throws Exception {
+    Mockito.when(studyViewService.getFilteredSamples(Mockito.any(StudyViewFilter.class)))
+        .thenReturn(List.of());
+
+    String requestBody =
+        """
+        {
+          "attributes": [
+            {
+              "attributeId": "66c8eeb56704ad7736da5640",
+              "values": ["brown"]
+            }
+          ],
+          "studyViewFilter": {
+            "studyIds": ["test_study_id"]
+          }
+        }
+        """;
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/not-ready-yet/custom-data-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0));
+
+    Mockito.verify(studyViewService)
+        .getFilteredSamples(Mockito.any(StudyViewFilter.class));
+  }
 }

@@ -30,204 +30,22 @@
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
 
 ## db_schema_version: 3.1.0
-## description: Rebuild the de-identified WSI snapshot tables and slide-access projection
--- WSI data is insert-only and is rebuilt in the inactive blue/green database. Drop both the
--- legacy release-based layout and any partially created snapshot tables so this section cannot
--- advance the schema version while leaving an incompatible WSI table behind.
-DROP TABLE IF EXISTS wsi_slide_placement SYNC;
-DROP TABLE IF EXISTS wsi_slide SYNC;
-DROP TABLE IF EXISTS wsi_block SYNC;
-DROP TABLE IF EXISTS wsi_part SYNC;
-DROP TABLE IF EXISTS wsi_patient SYNC;
-DROP TABLE IF EXISTS wsi_release_patient SYNC;
-DROP TABLE IF EXISTS wsi_release SYNC;
-
-CREATE TABLE IF NOT EXISTS wsi_patient (
-    cancer_study_id Int64,
-    patient_id Int64,
-    reference_sample_id Nullable(Int64)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id);
-
-CREATE TABLE IF NOT EXISTS wsi_part (
-    cancer_study_id Int64,
-    patient_id Int64,
-    part_key String,
-    part_number Nullable(String),
-    part_designator Nullable(String),
-    part_type Nullable(String),
-    part_description Nullable(String),
-    subspecialty Nullable(String),
-    path_dx_title Nullable(String)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, part_key);
-
-CREATE TABLE IF NOT EXISTS wsi_block (
-    cancer_study_id Int64,
-    patient_id Int64,
-    part_key String,
-    block_key String,
-    block_number Nullable(String),
-    block_label Nullable(String)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, part_key, block_key);
-
-CREATE TABLE IF NOT EXISTS wsi_slide (
-    cancer_study_id Int64,
-    patient_id Int64,
-    image_id String,
-    stain_name Nullable(String),
-    stain_group Nullable(String),
-    is_hne Bool,
-    is_ihc Bool,
-    magnification Nullable(String),
-    file_size_bytes Nullable(UInt64),
-    can_serve_tiles Bool,
-    barcode Nullable(String),
-    slide_type Nullable(String),
-    source_url Nullable(String),
-    tile_metadata_json Nullable(String),
-    thumbnail_url Nullable(String),
-    thumbnail_width Nullable(UInt32),
-    thumbnail_height Nullable(UInt32),
-    thumbnail_content_type Nullable(String),
-    PROJECTION wsi_slide_by_access (
-        SELECT
-            cancer_study_id,
-            image_id,
-            can_serve_tiles,
-            source_url,
-            tile_metadata_json,
-            thumbnail_url,
-            thumbnail_width,
-            thumbnail_height,
-            thumbnail_content_type
-        ORDER BY (cancer_study_id, image_id)
-    )
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, image_id);
-
-CREATE TABLE IF NOT EXISTS wsi_slide_placement (
-    cancer_study_id Int64,
-    patient_id Int64,
-    image_id String,
-    part_key String,
-    block_key String,
-    sample_id Nullable(Int64),
-    match_level String,
-    specimen_key String
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+## description: Reserved: native WSI snapshot tables (keyed by image id) were withdrawn before release
+-- No changes. This version once created wsi_patient, wsi_part, wsi_block, wsi_slide and
+-- wsi_slide_placement; 3.7.0 drops them from databases that applied it.
 
 ## db_schema_version: 3.2.0
-## description: Enforce the non-null WSI stain contract in an inactive blue/green database
--- Version 3.1.0 was exercised by beta before upstream merge and is immutable. Rebuild the WSI
--- snapshot at a new version so databases that already recorded 3.1.0 cannot silently retain its
--- nullable slide_type. The WSI tables are hydrated only after this migration completes.
-DROP TABLE IF EXISTS wsi_slide_placement SYNC;
-DROP TABLE IF EXISTS wsi_slide SYNC;
-DROP TABLE IF EXISTS wsi_block SYNC;
-DROP TABLE IF EXISTS wsi_part SYNC;
-DROP TABLE IF EXISTS wsi_patient SYNC;
-
-CREATE TABLE IF NOT EXISTS wsi_patient (
-    cancer_study_id Int64,
-    patient_id Int64,
-    reference_sample_id Nullable(Int64)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id);
-
-CREATE TABLE IF NOT EXISTS wsi_part (
-    cancer_study_id Int64,
-    patient_id Int64,
-    part_key String,
-    part_number Nullable(String),
-    part_designator Nullable(String),
-    part_type Nullable(String),
-    part_description Nullable(String),
-    subspecialty Nullable(String),
-    path_dx_title Nullable(String)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, part_key);
-
-CREATE TABLE IF NOT EXISTS wsi_block (
-    cancer_study_id Int64,
-    patient_id Int64,
-    part_key String,
-    block_key String,
-    block_number Nullable(String),
-    block_label Nullable(String)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, part_key, block_key);
-
-CREATE TABLE IF NOT EXISTS wsi_slide (
-    cancer_study_id Int64,
-    patient_id Int64,
-    image_id String,
-    stain_name Nullable(String),
-    stain_group Nullable(String),
-    is_hne Bool,
-    is_ihc Bool,
-    magnification Nullable(String),
-    file_size_bytes Nullable(UInt64),
-    can_serve_tiles Bool,
-    barcode Nullable(String),
-    slide_type String,
-    source_url Nullable(String),
-    tile_metadata_json Nullable(String),
-    thumbnail_url Nullable(String),
-    thumbnail_width Nullable(UInt32),
-    thumbnail_height Nullable(UInt32),
-    thumbnail_content_type Nullable(String),
-    CONSTRAINT wsi_slide_type_valid CHECK slide_type IN ('H&E', 'IHC', 'Other'),
-    CONSTRAINT wsi_slide_stain_flags_valid CHECK NOT (is_hne AND is_ihc)
-        AND (slide_type != 'H&E' OR is_hne)
-        AND (slide_type != 'IHC' OR is_ihc)
-        AND (slide_type != 'Other' OR NOT is_hne AND NOT is_ihc),
-    PROJECTION wsi_slide_by_access (
-        SELECT
-            cancer_study_id,
-            image_id,
-            can_serve_tiles,
-            source_url,
-            tile_metadata_json,
-            thumbnail_url,
-            thumbnail_width,
-            thumbnail_height,
-            thumbnail_content_type
-        ORDER BY (cancer_study_id, image_id)
-    )
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, image_id);
-
-CREATE TABLE IF NOT EXISTS wsi_slide_placement (
-    cancer_study_id Int64,
-    patient_id Int64,
-    image_id String,
-    part_key String,
-    block_key String,
-    sample_id Nullable(Int64),
-    match_level String,
-    specimen_key String
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, image_id, part_key, block_key);
+## description: Reserved: native WSI snapshot tables were withdrawn before release
+-- No changes. This version once rebuilt the native WSI tables; 3.7.0 drops them.
 
 ## db_schema_version: 3.3.0
-## description: Distinguish positively identified non-H&E/IHC slides from unknown classifications
-ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_type_valid;
-ALTER TABLE wsi_slide DROP CONSTRAINT IF EXISTS wsi_slide_stain_flags_valid;
-ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_type_valid
-    CHECK slide_type IN ('H&E', 'IHC', 'Other', 'Unknown');
-ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_stain_flags_valid
-    CHECK NOT (is_hne AND is_ihc)
-        AND (slide_type != 'H&E' OR is_hne)
-        AND (slide_type != 'IHC' OR is_ihc)
-        AND (slide_type NOT IN ('Other', 'Unknown') OR NOT is_hne AND NOT is_ihc);
+## description: Reserved: native WSI snapshot tables were withdrawn before release
+-- No changes. This version once replaced the wsi_slide constraints; 3.7.0 drops the table.
 
 ## db_schema_version: 3.4.0
 ## description: Reserved: WSI slide timing moves to the release that puts slides on the patient Summary timeline
--- No changes. This version once created wsi_slide_timing; databases that applied it keep the empty,
--- unread table until the timeline release decides its fate.
+-- No changes. This version once created wsi_slide_timing; 3.7.0 drops it.
+
 ## db_schema_version: 3.5.0
 ## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
 -- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
@@ -343,3 +161,27 @@ WHERE key = 'IMAGE_IDS'
 ALTER TABLE resource_data DELETE
 WHERE resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
   AND JSONExtractString(ifNull(metadata, '{}'), 'slide_key') = '';
+
+## db_schema_version: 3.7.0
+## description: Remove pathology image ids and object URIs from the database (wsi-serving-v6 sealed source)
+-- The pathology image id must not be stored in cBioPortal, and object URIs embed it. Drop the
+-- withdrawn native WSI tables, which are keyed by image id, from databases that applied an earlier
+-- 3.1.0-3.4.0, and the release-based tables that preceded them. Nothing reads any of them.
+DROP TABLE IF EXISTS wsi_slide_timing SYNC;
+DROP TABLE IF EXISTS wsi_slide_placement SYNC;
+DROP TABLE IF EXISTS wsi_slide SYNC;
+DROP TABLE IF EXISTS wsi_block SYNC;
+DROP TABLE IF EXISTS wsi_part SYNC;
+DROP TABLE IF EXISTS wsi_patient SYNC;
+DROP TABLE IF EXISTS wsi_release_patient SYNC;
+DROP TABLE IF EXISTS wsi_release SYNC;
+-- WSI resource rows imported under wsi-serving-v5 keep the image id and the source/thumbnail
+-- URIs in metadata (wsi_serving, or the legacy top-level image_id). v6 rows carry only the opaque
+-- wsi_serving.sealed_source, so delete the older rows; re-importing the study's v6 WSI resources
+-- restores the slides. The mutation is idempotent and safe to re-run.
+ALTER TABLE resource_data DELETE
+WHERE resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+  AND (JSONHas(ifNull(metadata, '{}'), 'image_id')
+    OR JSONHas(ifNull(metadata, '{}'), 'wsi_serving', 'image_id')
+    OR JSONHas(ifNull(metadata, '{}'), 'wsi_serving', 'source_url')
+    OR JSONHas(ifNull(metadata, '{}'), 'wsi_serving', 'thumbnail_url'));

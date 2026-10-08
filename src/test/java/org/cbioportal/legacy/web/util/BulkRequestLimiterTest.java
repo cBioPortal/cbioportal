@@ -4,14 +4,18 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.IntStream;
 import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.MolecularProfileSamples;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
@@ -27,7 +31,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class BulkRequestLimiterTest {
 
   @Mock private SampleListService sampleListService;
-  @Mock private MolecularDataService molecularDataService;
+  @Mock private MolecularDataRepository molecularDataRepository;
   @Mock private MolecularProfileService molecularProfileService;
 
   private BulkRequestLimiter limiter;
@@ -40,7 +44,7 @@ public class BulkRequestLimiterTest {
   private BulkRequestLimiter limiter(long maxMatrixSize, long maxRows) {
     return new BulkRequestLimiter(
         sampleListService,
-        molecularDataService,
+        molecularDataRepository,
         molecularProfileService,
         maxMatrixSize,
         maxRows,
@@ -111,10 +115,17 @@ public class BulkRequestLimiterTest {
     limiter.checkMatrixForSampleList("nope", null);
   }
 
+  private static MolecularProfileSamples samplesOf(int n) {
+    MolecularProfileSamples samples = new MolecularProfileSamples();
+    samples.setCommaSeparatedSampleIds(
+        String.join(",", IntStream.range(0, n).mapToObj(String::valueOf).toList()) + ",");
+    return samples;
+  }
+
   @Test
-  public void wholeProfilesSumTheirSampleCounts() {
-    when(molecularDataService.getNumberOfSamplesInMolecularProfile("a_mrna")).thenReturn(3000);
-    when(molecularDataService.getNumberOfSamplesInMolecularProfile("b_mrna")).thenReturn(2001);
+  public void wholeProfilesSumTheirSampleCountsInOneQuery() {
+    when(molecularDataRepository.commaSeparatedSampleIdsOfMolecularProfilesMap(anySet()))
+        .thenReturn(Map.of("a_mrna", samplesOf(3000), "b_mrna", samplesOf(2001)));
     List<String> profiles = List.of("a_mrna", "b_mrna");
     List<Integer> thousandGenes = genes(1000);
 
@@ -122,6 +133,18 @@ public class BulkRequestLimiterTest {
     assertThrows(
         BulkRequestTooLargeException.class,
         () -> limiter.checkMatrixForProfiles(profiles, thousandGenes));
+    verify(molecularDataRepository, times(1))
+        .commaSeparatedSampleIdsOfMolecularProfilesMap(anySet());
+  }
+
+  @Test
+  public void absurdProfileListIsRejectedBeforeQuerying() {
+    List<String> profiles = IntStream.range(0, 300).mapToObj(i -> "p" + i).toList();
+
+    // 300 profiles x 20,000 genes (no gene list) > 5,000,000 even at one sample each
+    assertThrows(
+        BulkRequestTooLargeException.class, () -> limiter.checkMatrixForProfiles(profiles, null));
+    verifyNoInteractions(molecularDataRepository);
   }
 
   @Test
@@ -154,6 +177,6 @@ public class BulkRequestLimiterTest {
     disabled.checkMatrixForProfiles(List.of("p"), null);
     disabled.checkMatrixForSampleMolecularIdentifiers(identifiers, null);
     disabled.checkRows(Long.MAX_VALUE);
-    verifyNoInteractions(sampleListService, molecularDataService, molecularProfileService);
+    verifyNoInteractions(sampleListService, molecularDataRepository, molecularProfileService);
   }
 }

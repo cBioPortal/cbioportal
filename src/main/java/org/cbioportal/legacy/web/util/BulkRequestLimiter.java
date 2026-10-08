@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.SampleList;
-import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
@@ -39,7 +39,7 @@ public class BulkRequestLimiter {
   static final int ALL_GENES = 20000;
 
   private final SampleListService sampleListService;
-  private final MolecularDataService molecularDataService;
+  private final MolecularDataRepository molecularDataRepository;
   private final MolecularProfileService molecularProfileService;
   private final long maxMatrixSize;
   private final long maxRowsPerRequest;
@@ -47,7 +47,7 @@ public class BulkRequestLimiter {
 
   public BulkRequestLimiter(
       SampleListService sampleListService,
-      MolecularDataService molecularDataService,
+      MolecularDataRepository molecularDataRepository,
       MolecularProfileService molecularProfileService,
       @Value("${bulk_request.max_matrix_size:-1}") long maxMatrixSize,
       @Value("${bulk_request.max_rows_per_request:-1}") long maxRowsPerRequest,
@@ -55,7 +55,7 @@ public class BulkRequestLimiter {
               "${bulk_request.help_text:Request a subset of genes and samples, or download the data in bulk.}")
           String helpText) {
     this.sampleListService = sampleListService;
-    this.molecularDataService = molecularDataService;
+    this.molecularDataRepository = molecularDataRepository;
     this.molecularProfileService = molecularProfileService;
     this.maxMatrixSize = maxMatrixSize;
     this.maxRowsPerRequest = maxRowsPerRequest;
@@ -105,17 +105,25 @@ public class BulkRequestLimiter {
     checkMatrix(sampleIds == null ? 0 : sampleIds.size(), entrezGeneIds);
   }
 
-  /** Dense request for all samples of each of {@code molecularProfileIds}. */
+  /**
+   * Dense request for all samples of each of {@code molecularProfileIds}, using one bulk query for
+   * the profiles' sample lists.
+   */
   public void checkMatrixForProfiles(
       Collection<String> molecularProfileIds, Collection<Integer> entrezGeneIds) {
     if (maxMatrixSize < 0 || molecularProfileIds == null) {
       return;
     }
-    long samples = 0;
-    for (String molecularProfileId : new HashSet<>(molecularProfileIds)) {
-      Integer count = molecularDataService.getNumberOfSamplesInMolecularProfile(molecularProfileId);
-      samples += count == null ? 0 : count;
-    }
+    Set<String> distinctProfileIds = new HashSet<>(molecularProfileIds);
+    // Every profile has at least one sample, so reject absurd profile lists before querying.
+    checkMatrix(distinctProfileIds.size(), entrezGeneIds);
+    long samples =
+        molecularDataRepository
+            .commaSeparatedSampleIdsOfMolecularProfilesMap(distinctProfileIds)
+            .values()
+            .stream()
+            .mapToLong(p -> p.getSplitSampleIds().length)
+            .sum();
     checkMatrix(samples, entrezGeneIds);
   }
 

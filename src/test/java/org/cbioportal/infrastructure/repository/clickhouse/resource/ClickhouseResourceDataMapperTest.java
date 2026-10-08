@@ -267,8 +267,9 @@ public class ClickhouseResourceDataMapperTest {
   }
 
   @Test
-  public void getResourceTableRows_columnFilter_containsType() {
-    ResourceColumnFilter typeFilter = new ResourceColumnFilter("type", "equals", List.of("IMAGE"));
+  public void getResourceTableRows_columnFilter_onABuiltinColumn() {
+    ResourceColumnFilter displayNameFilter =
+        new ResourceColumnFilter("displayName", "equals", List.of("H&E Sample 1"));
     ResourceTableQuery query =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB),
@@ -280,12 +281,12 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(typeFilter));
+            List.of(displayNameFilter));
 
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).isNotEmpty();
-    assertThat(rows).allMatch(r -> "IMAGE".equals(r.type()));
+    assertThat(rows).allMatch(r -> "H&E Sample 1".equals(r.displayName()));
   }
 
   @Test
@@ -308,58 +309,6 @@ public class ClickhouseResourceDataMapperTest {
     List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(2); // both HE_SLIDE rows have stain=HE
-  }
-
-  @Test
-  public void getResourceTableFacetValues_ignoresPaginationAndReturnsDistinctCounts() {
-    ResourceTableQuery query =
-        new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
-
-    List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.patient_id", TEST_FACET_LIMIT);
-    List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.sample_id", TEST_FACET_LIMIT);
-    List<ResourceFacetOption> typeFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.type", TEST_FACET_LIMIT);
-
-    assertThat(patientFacets).hasSize(2);
-    assertThat(sampleFacets).hasSize(2);
-    assertThat(typeFacets).containsExactly(new ResourceFacetOption("IMAGE", 2L));
-    assertThat(patientFacets)
-        .containsExactlyInAnyOrder(
-            new ResourceFacetOption("tcga-a1-a0sb", 1L),
-            new ResourceFacetOption("tcga-a1-a0sd", 1L));
-    assertThat(sampleFacets)
-        .containsExactlyInAnyOrder(
-            new ResourceFacetOption("tcga-a1-a0sb-01", 1L),
-            new ResourceFacetOption("tcga-a1-a0sd-01", 1L));
-  }
-
-  @Test
-  public void getResourceTableFacetValues_respectsSearchAndFilters() {
-    ResourceColumnFilter patientFilter =
-        new ResourceColumnFilter("patientId", "equals", List.of("tcga-a1-a0sb"));
-    ResourceTableQuery query =
-        new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB),
-            "HE_SLIDE",
-            null,
-            null,
-            "a0s",
-            0,
-            10,
-            null,
-            null,
-            List.of(patientFilter));
-
-    List<ResourceFacetOption> patientFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.patient_id", TEST_FACET_LIMIT);
-    List<ResourceFacetOption> sampleFacets =
-        mapper.getResourceTableFacetValues(query, "rdata.sample_id", TEST_FACET_LIMIT);
-
-    assertThat(patientFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb", 1L));
-    assertThat(sampleFacets).containsExactly(new ResourceFacetOption("tcga-a1-a0sb-01", 1L));
   }
 
   @Test
@@ -999,15 +948,6 @@ public class ClickhouseResourceDataMapperTest {
     // key from one that exactly fills the cap, so a limit of 3 must come back with 3, not 4.
     assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 3)).hasSize(3);
     assertThat(metadataFacet(slideSet(null, null, 0, 10), "score", 10)).hasSize(4);
-  }
-
-  @Test
-  public void builtinFacets_respectTheCallersLimit() {
-    ResourceTableQuery query =
-        new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "SLIDE_SET", null, null, null, 0, 10, null, null, null);
-
-    assertThat(mapper.getResourceTableFacetValues(query, "rdata.display_name", 2)).hasSize(2);
   }
 
   @Test

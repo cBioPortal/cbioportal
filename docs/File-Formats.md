@@ -1767,19 +1767,19 @@ The sample resource file should follow this format, it has four **required** col
 - **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
-- **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the table shows the resource's own name on every row.
-- **TYPE (optional)**: free-text classification of the item, for example `IMAGE` or `REPORT`.
+- **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the item's label column is blank and the table still names the resource itself in its own column.
 - **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; where the resource definition gives a [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) contract, every key used here must be declared in it. Arrays, scalars and malformed JSON are rejected at import.
 
 ### Example *Sample Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td><td>H&amp;E Slide 1</td><td>IMAGE</td><td>{"stain": "H&amp;E", "magnification": "20x", "percent_tumor_cells": 65}</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td><td>H&amp;E Slide 2</td><td>IMAGE</td><td>{"stain": "IHC", "magnification": "40x", "percent_tumor_cells": 30}</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td><td>H&amp;E Slide 1</td><td>{"stain": "H&amp;E", "magnification": "20x", "percent_tumor_cells": 65}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td><td>H&amp;E Slide 2</td><td>{"stain": "IHC", "magnification": "40x", "percent_tumor_cells": 30}</td></tr>
 </table>
 
-The three optional columns are independent of one another, and files without them import exactly
-as before.
+Both optional columns are independent of one another, and files without them import exactly as
+before. A classification of the item -- `IMAGE`, `REPORT`, a modality -- belongs in `METADATA`,
+where a `CUSTOM_METADATA` contract can label it, type it and decide whether it filters.
 
 ### Patient Resource Data File
 The patient resource file should follow this format, it has three **required** columns:
@@ -1787,12 +1787,12 @@ The patient resource file should follow this format, it has three **required** c
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
-`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+`DISPLAY_NAME` and `METADATA` are also accepted here, with the same meaning as in the
 [Sample Resource data file](#sample-resource-data-file).
 
 ### Example *Patient Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
 <tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Smith", "pages": 3}</td></tr>
 <tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Jones", "pages": 5}</td></tr>
 </table>
@@ -1802,13 +1802,13 @@ The study resource file should follow this format, it has two **required** colum
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
-`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+`DISPLAY_NAME` and `METADATA` are also accepted here, with the same meaning as in the
 [Sample Resource data file](#sample-resource-data-file).
 
 ### Example *Study Resource* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Sponsor list</td><td>REPORT</td><td>{"year": 2026}</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Sponsor list</td><td>{"year": 2026}</td></tr>
 </table>
 
 ## Custom namespace columns

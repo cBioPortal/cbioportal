@@ -29,7 +29,7 @@ public record ResourceTableCounts(
   public Map<String, Long> distinctValueCounts() {
     return Map.of(
         "resourceDisplayName", distinctResourceDisplayNames,
-        "type", distinctScopes,
+        "resourceType", distinctScopes,
         "displayName", distinctDisplayNames);
   }
 }

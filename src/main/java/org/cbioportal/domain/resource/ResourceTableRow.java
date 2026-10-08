@@ -11,5 +11,4 @@ public record ResourceTableRow(
     String sampleId,
     String url,
     String displayName,
-    String type,
     Map<String, Object> metadata) {}

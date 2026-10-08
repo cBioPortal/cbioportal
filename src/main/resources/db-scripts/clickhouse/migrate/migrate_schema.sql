@@ -46,7 +46,6 @@ CREATE TABLE IF NOT EXISTS resource_data
     `sample_id`        Nullable(String),
     `url`              String,
     `display_name`     Nullable(String),
-    `type`             Nullable(String),
     `metadata`         Nullable(String)
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
   SETTINGS allow_nullable_key = 1;
@@ -68,7 +67,7 @@ CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` St
 
 INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
-     patient_id, sample_id, url, display_name, type, metadata)
+     patient_id, sample_id, url, display_name, metadata)
 SELECT
     toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)),
     rs.resource_id,
@@ -77,7 +76,7 @@ SELECT
     p.stable_id,
     s.stable_id,
     rs.url,
-    NULL, NULL, NULL
+    NULL, NULL
 FROM resource_sample rs
 INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
@@ -88,7 +87,7 @@ WHERE toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url
 
 INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
-     patient_id, sample_id, url, display_name, type, metadata)
+     patient_id, sample_id, url, display_name, metadata)
 SELECT
     toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)),
     rp.resource_id,
@@ -97,7 +96,7 @@ SELECT
     pt.stable_id,
     NULL,
     rp.url,
-    NULL, NULL, NULL
+    NULL, NULL
 FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
@@ -107,7 +106,7 @@ WHERE toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.ur
 
 INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
-     patient_id, sample_id, url, display_name, type, metadata)
+     patient_id, sample_id, url, display_name, metadata)
 SELECT
     toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)),
     rst.resource_id,
@@ -115,7 +114,7 @@ SELECT
     'STUDY',
     NULL, NULL,
     rst.url,
-    NULL, NULL, NULL
+    NULL, NULL
 FROM resource_study rst
 WHERE toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)) NOT IN (
     SELECT resource_data_id FROM resource_data

@@ -29,7 +29,6 @@
       <arg column="sampleId" javaType="String"/>
       <arg column="url" javaType="String"/>
       <arg column="displayName" javaType="String"/>
-      <arg column="type" javaType="String"/>
       <arg column="metadata" javaType="java.util.Map"
            typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
     </constructor>
@@ -108,7 +107,6 @@
         AND (
           rdata.patient_id LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.sample_id LIKE CONCAT('%', #{query.search}, '%')
-          OR rdata.type LIKE CONCAT('%', #{query.search}, '%')
           OR rdata.url LIKE CONCAT('%', #{query.search}, '%')
           OR (rdata.metadata IS NOT NULL AND position(rdata.metadata, #{query.search}) > 0)
         )
@@ -123,9 +121,6 @@
               </when>
               <when test="filter.columnId == 'sampleId'">
                 <include refid="ApplyStringFilterOnSampleId"/>
-              </when>
-              <when test="filter.columnId == 'type'">
-                <include refid="ApplyStringFilterOnType"/>
               </when>
               <when test="filter.columnId == 'url'">
                 <include refid="ApplyStringFilterOnUrl"/>
@@ -155,12 +150,6 @@
   <sql id="ApplyStringFilterOnSampleId">
     <include refid="ApplyStringFilterTemplate">
       <property name="column" value="rdata.sample_id"/>
-    </include>
-  </sql>
-
-  <sql id="ApplyStringFilterOnType">
-    <include refid="ApplyStringFilterTemplate">
-      <property name="column" value="rdata.type"/>
     </include>
   </sql>
 
@@ -287,7 +276,6 @@
       <when test="query.sortBy == 'sampleId'">ORDER BY rdata.sample_id <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'url'">ORDER BY rdata.url <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'displayName'">ORDER BY rdata.display_name <include refid="ResourceTableSortDirection"/></when>
-      <when test="query.sortBy == 'type'">ORDER BY rdata.type <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy == 'resourceDisplayName'">ORDER BY rdef.display_name <include refid="ResourceTableSortDirection"/></when>
       <when test="query.sortBy != null and query.sortBy.startsWith('metadata:')">
         <bind name="sortMetadataKey" value="query.sortBy.substring(9)"/>
@@ -377,7 +365,6 @@
       rdata.sample_id AS sampleId,
       rdata.url AS url,
       rdata.display_name AS displayName,
-      rdata.type AS type,
       rdata.metadata AS metadata
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
@@ -385,19 +372,6 @@
     LIMIT #{query.limit} OFFSET #{query.offset}
   </select>
 
-  <!--
-    LIMIT is one more than the caller's cap: if the extra row comes back the column has too many
-    distinct values to offer as a dropdown and the caller drops the facet entirely.
-  -->
-  <select id="getResourceTableFacetValues" resultMap="ResourceFacetOptionResultMap">
-    SELECT ${column} AS value, count(*) AS count
-    <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceTableBaseFilters"/>
-    AND ${column} IS NOT NULL AND ${column} != ''
-    GROUP BY ${column}
-    ORDER BY value ASC
-    LIMIT #{limit}
-  </select>
 
   <!--
     Every metadata facet in one pass. The per-key form needed one aggregation over the resource

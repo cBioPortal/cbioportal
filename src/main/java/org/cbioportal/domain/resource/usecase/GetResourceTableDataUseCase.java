@@ -66,8 +66,6 @@ public class GetResourceTableDataUseCase {
             true,
             true,
             true,
-            null),
-        new ResourceColumnInfo(
-            "type", "Type", ResourceColumnInfo.SOURCE_BUILTIN, "string", true, true, true, null));
+            null));
   }
 }

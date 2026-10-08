@@ -109,7 +109,6 @@ public class ResourceTableControllerTest {
                 "tcga-a1-a0sb-01",
                 "https://example.com/he1.jpg",
                 "H&E Sample 1",
-                "IMAGE",
                 Map.of("stain", "HE")),
             new ResourceTableRow(
                 STUDY_ID,
@@ -120,7 +119,6 @@ public class ResourceTableControllerTest {
                 "tcga-a1-a0sd-01",
                 "https://example.com/he2.jpg",
                 "H&E Sample 2",
-                "IMAGE",
                 Map.of("stain", "HE")));
 
     Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(rows);
@@ -145,7 +143,7 @@ public class ResourceTableControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value("tcga-a1-a0sb"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value("tcga-a1-a0sb-01"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].url").value("https://example.com/he1.jpg"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("IMAGE"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].displayName").value("H&E Sample 1"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].metadata.stain").value("HE"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].patientId").value("tcga-a1-a0sd"));
   }

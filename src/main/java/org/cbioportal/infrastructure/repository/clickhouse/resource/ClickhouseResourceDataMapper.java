@@ -3,7 +3,6 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.resource.ResourceContractRow;
-import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataRange;
@@ -17,11 +16,6 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
 
   List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
-
-  List<ResourceFacetOption> getResourceTableFacetValues(
-      @Param("query") ResourceTableQuery query,
-      @Param("column") String column,
-      @Param("limit") int limit);
 
   /**
    * Facet values for every requested key in one pass over resource_data, capped per key. Returns a

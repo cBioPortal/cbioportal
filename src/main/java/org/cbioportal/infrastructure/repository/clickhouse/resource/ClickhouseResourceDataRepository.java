@@ -36,9 +36,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   private static final Map<String, String> FACET_COLUMNS = Map.of("type", "rdata.type");
 
   /**
-   * Metadata key holding WSI artifact locations. It is private to the WSI access API for every row,
-   * whatever its type, matching the search, filter, sort, facet and key-discovery guards in
-   * ResourceDataMapper.xml.
+   * Metadata key holding WSI serving data (the sealed slide source). It is private to the WSI
+   * access API for every row, whatever its type, matching the search, filter, sort, facet and
+   * key-discovery guards in ResourceDataMapper.xml.
    */
   private static final String WSI_SERVING_KEY = "wsi_serving";
 

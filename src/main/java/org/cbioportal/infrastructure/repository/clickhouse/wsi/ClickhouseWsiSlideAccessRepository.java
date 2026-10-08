@@ -3,7 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.net.URI;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -21,9 +21,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   private static final int MAX_DECODE_PIXELS = 16_777_216;
   private static final String DECODE_POLICY_VERSION =
       "geometry-v2;tile-max=16777216;thumbnail-max=16777216";
-  private static final Set<String> SOURCE_EXTENSIONS =
-      Set.of("svs", "tif", "tiff", "ndpi", "mrxs", "scn");
-  private static final Set<String> THUMBNAIL_EXTENSIONS = Set.of("jpg", "jpeg", "png");
+  private static final Set<String> THUMBNAIL_CONTENT_TYPES = Set.of("image/jpeg", "image/png");
   private static final Pattern ABSOLUTE_DATE =
       Pattern.compile(
           "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
@@ -80,10 +78,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
 
   @Override
   public WsiSlideSource getSlideSource(String studyId, String patientId, String slideKey) {
-    // The capability encrypts the exact object URLs. Refuse to issue one
-    // unless both production allowlists are configured; structural checks in
-    // isServableRow() remain independently unit-testable.
-    if (!artifactPolicyConfigured() || !WsiDeidentification.isSlideKey(slideKey)) {
+    if (!WsiDeidentification.isSlideKey(slideKey)) {
       return null;
     }
     Map<String, Object> context = contextMapper.getStudyContext(studyId);
@@ -95,24 +90,16 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (!isServableRow(row, objectMapper) || !slideKey.equals(stringValue(row.get("slide_key")))) {
       return null;
     }
-    String imageId = stringValue(row.get("image_id"));
-    String sourceUrl = stringValue(row.get("source_url"));
-    String metadataJson = stringValue(row.get("tile_metadata_json"));
-    String thumbnailUrl = stringValue(row.get("thumbnail_url"));
-    if (!safeArtifactUrl(sourceUrl, SOURCE_EXTENSIONS, "WSI_ALLOWED_SOURCE_PREFIXES")
-        || !safeArtifactUrl(thumbnailUrl, THUMBNAIL_EXTENSIONS, "WSI_ALLOWED_THUMBNAIL_PREFIXES")) {
-      return null;
-    }
     try {
-      WsiTileMetadata metadata = objectMapper.readValue(metadataJson, WsiTileMetadata.class);
+      WsiTileMetadata metadata =
+          objectMapper.readValue(stringValue(row.get("tile_metadata_json")), WsiTileMetadata.class);
       int width = numberValue(row.get("thumbnail_width"));
       int height = numberValue(row.get("thumbnail_height"));
-      String contentType = stringValue(row.get("thumbnail_content_type"));
+      String contentType =
+          stringValue(row.get("thumbnail_content_type")).trim().toLowerCase(Locale.ROOT);
       return new WsiSlideSource(
           slideKey,
-          imageId,
-          sourceUrl,
-          thumbnailUrl,
+          stringValue(row.get("sealed_source")),
           metadata,
           new WsiThumbnail(width, height, contentType));
     } catch (JsonProcessingException | RuntimeException exception) {
@@ -120,35 +107,31 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
   }
 
+  /**
+   * A row is servable when it is marked servable, carries a valid slide key and a well-formed
+   * sealed source, and its tile metadata and thumbnail fields pass the checks below. The sealed
+   * source is opaque here: the tile server authenticates it against the slide key and validates the
+   * object URIs it contains.
+   */
   static boolean isServableRow(Map<String, Object> row, ObjectMapper objectMapper) {
     if (row == null || !boolValue(row.get("can_serve_tiles"))) {
       return false;
     }
-    String sourceUrl = stringValue(row.get("source_url"));
-    String imageId = stringValue(row.get("image_id"));
     String slideKey = stringValue(row.get("slide_key"));
+    String sealedSource = stringValue(row.get("sealed_source"));
     String metadataJson = stringValue(row.get("tile_metadata_json"));
-    String thumbnailUrl = stringValue(row.get("thumbnail_url"));
     String contentType = stringValue(row.get("thumbnail_content_type"));
     int width = numberValue(row.get("thumbnail_width"));
     int height = numberValue(row.get("thumbnail_height"));
-    if (sourceUrl == null
-        || imageId == null
-        || !WsiDeidentification.isSlideKey(slideKey)
+    if (!WsiDeidentification.isSlideKey(slideKey)
+        || !WsiDeidentification.isSealedSource(sealedSource)
         || metadataJson == null
-        || thumbnailUrl == null
         || contentType == null
+        || !THUMBNAIL_CONTENT_TYPES.contains(contentType.trim().toLowerCase(Locale.ROOT))
         || width <= 0
         || height <= 0
         || width > 8192
         || height > 8192) {
-      return false;
-    }
-    if (!safeArtifactUrl(sourceUrl, SOURCE_EXTENSIONS, "WSI_ALLOWED_SOURCE_PREFIXES")
-        || !safeArtifactUrl(thumbnailUrl, THUMBNAIL_EXTENSIONS, "WSI_ALLOWED_THUMBNAIL_PREFIXES")) {
-      return false;
-    }
-    if (!thumbnailContentTypeMatches(thumbnailUrl, contentType)) {
       return false;
     }
     try {
@@ -174,84 +157,11 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
   }
 
-  private static boolean safeArtifactUrl(String value, Set<String> extensions, String prefixEnv) {
-    try {
-      URI uri = URI.create(value);
-      String scheme = uri.getScheme();
-      if (scheme == null
-          || !("s3".equalsIgnoreCase(scheme) || "file".equalsIgnoreCase(scheme))
-          || uri.getUserInfo() != null
-          || uri.getQuery() != null
-          || uri.getFragment() != null) {
-        return false;
-      }
-      if ("s3".equalsIgnoreCase(scheme) && (uri.getHost() == null || uri.getHost().isBlank())) {
-        return false;
-      }
-      if ("file".equalsIgnoreCase(scheme)
-          && uri.getHost() != null
-          && !uri.getHost().isBlank()
-          && !"localhost".equalsIgnoreCase(uri.getHost())) {
-        return false;
-      }
-      String path = uri.getPath();
-      if (path == null
-          || path.endsWith("/")
-          || java.util.Arrays.stream(path.split("/", -1))
-              .anyMatch(segment -> ".".equals(segment) || "..".equals(segment))) {
-        return false;
-      }
-      boolean policyConfigured =
-          prefixEnv != null && !System.getenv().getOrDefault(prefixEnv, "").isBlank();
-      boolean approved = policyConfigured && approvedPrefix(value, prefixEnv);
-      if (policyConfigured && !approved) {
-        return false;
-      }
-      if ((!approved
-              && (containsAbsoluteDate(value)
-                  || containsAbsoluteDate(path)
-                  || COMPACT_DATE.matcher(value).find()
-                  || COMPACT_DATE.matcher(path).find()))
-          || LABELLED_MRN.matcher(value).find()
-          || LABELLED_MRN.matcher(path).find()) {
-        return false;
-      }
-      String filename = path.substring(path.lastIndexOf('/') + 1);
-      int dot = filename.lastIndexOf('.');
-      if (dot <= 0) {
-        return false;
-      }
-      String extension = filename.substring(dot + 1).toLowerCase(java.util.Locale.ROOT);
-      return extensions.contains(extension);
-    } catch (IllegalArgumentException exception) {
-      return false;
-    }
-  }
-
-  private static boolean approvedPrefix(String value, String environmentVariable) {
-    String configured = System.getenv(environmentVariable);
-    if (configured == null || configured.isBlank()) {
-      return false;
-    }
-    for (String rawPrefix : configured.split(",")) {
-      String prefix = rawPrefix.trim().replaceAll("/+$", "");
-      if (!prefix.isBlank() && value.startsWith(prefix + "/")) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   private static boolean containsAbsoluteDate(String value) {
     return ABSOLUTE_DATE.matcher(value).find()
         || MONTH_FIRST_DATE.matcher(value).find()
         || DAY_FIRST_DATE.matcher(value).find()
         || NAMED_MONTH_DATE.matcher(value).find();
-  }
-
-  private static boolean artifactPolicyConfigured() {
-    return !System.getenv().getOrDefault("WSI_ALLOWED_SOURCE_PREFIXES", "").isBlank()
-        && !System.getenv().getOrDefault("WSI_ALLOWED_THUMBNAIL_PREFIXES", "").isBlank();
   }
 
   private static boolean validMetadata(WsiTileMetadata metadata) {
@@ -309,30 +219,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       }
     }
     return false;
-  }
-
-  private static boolean thumbnailContentTypeMatches(String value, String contentType) {
-    try {
-      URI uri = URI.create(value);
-      String path = uri.getPath();
-      if (path == null) {
-        return false;
-      }
-      int dot = path.lastIndexOf('.');
-      if (dot <= path.lastIndexOf('/')) {
-        return false;
-      }
-      String extension = path.substring(dot + 1).toLowerCase(java.util.Locale.ROOT);
-      String expected =
-          switch (extension) {
-            case "jpg", "jpeg" -> "image/jpeg";
-            case "png" -> "image/png";
-            default -> null;
-          };
-      return expected != null && expected.equalsIgnoreCase(contentType.trim());
-    } catch (IllegalArgumentException exception) {
-      return false;
-    }
   }
 
   private static String stringValue(Object value) {

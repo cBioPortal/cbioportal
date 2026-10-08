@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * Browser-facing access bundle for one authorized slide.
  *
- * <p>This record must never carry the server-side image identifier or any slide/thumbnail object
- * URI. Those values exist only in {@link WsiSlideSource} and inside the encrypted capability.
+ * <p>This record must never carry the sealed slide source on its own; it reaches the browser only
+ * as the {@code enc} claim inside the signed capability.
  */
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public record WsiSlideAccess(

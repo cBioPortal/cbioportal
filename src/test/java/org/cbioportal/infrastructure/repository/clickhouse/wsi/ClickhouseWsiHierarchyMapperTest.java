@@ -75,6 +75,10 @@ public class ClickhouseWsiHierarchyMapperTest {
             "syn-img-",
             "syn-legacy-",
             "s3://",
+            "wsi_serving",
+            "sealed",
+            // Prefix of the 900101 fixture's sealed_source.
+            "AQEBAQEBAQEBAQEB",
             "900101",
             "900104",
             "partDesignator\":\"",

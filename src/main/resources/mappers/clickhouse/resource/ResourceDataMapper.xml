@@ -60,9 +60,10 @@
 
   <!--
     Searchable text for a row's public metadata: every top-level key with its raw JSON value,
-    except wsi_serving. wsi_serving (and everything nested under it) holds artifact locations
-    that are private to the WSI access API for every row regardless of type, so it must not be
-    able to influence search results, filters, sorting, facets or key discovery. Rows with no
+    except wsi_serving. wsi_serving (and everything nested under it) holds serving data, such as
+    the sealed slide source, that is private to the WSI access API for every row regardless of
+    type, so it must not be able to influence search results, filters, sorting, facets or key
+    discovery. Rows with no
     metadata contribute an empty string, which keeps the predicate non-null for null-type rows.
   -->
   <sql id="PublicMetadataText">
@@ -218,7 +219,7 @@
   -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
-      <!-- wsi_serving contains artifact paths and is private to the WSI access API for every row
+      <!-- wsi_serving contains serving data and is private to the WSI access API for every row
            (see PublicMetadataText). A filter on it is ignored, like a filter on an unsupported
            builtin column, so neither its values nor the request itself change rows or counts. -->
       <when test="filter.metadataKey == 'wsi_serving'">

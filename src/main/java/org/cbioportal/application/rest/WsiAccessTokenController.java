@@ -31,8 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/wsi")
 public class WsiAccessTokenController {
 
-  /** Tile capability format: slide_key + encrypted source claim (contract wsi-serving-v5). */
-  static final int WSI_AUTH_VERSION = 3;
+  /** Tile capability format: slide_key + sealed source claim (contract wsi-serving-v6). */
+  static final int WSI_AUTH_VERSION = 4;
 
   @Value("${wsi.access-token-secret:}")
   private String accessTokenSecret;
@@ -55,12 +55,13 @@ public class WsiAccessTokenController {
    * opaque slide key.
    *
    * <p>The slide key is the public, stable name of a slide: unlike the resource-data row ID it
-   * survives a reimport, and unlike the server-side image ID it identifies nothing outside the
-   * portal. It is a query parameter so the resource-data URL shape is unchanged.
+   * survives a reimport, and it identifies nothing outside the portal. It is a query parameter so
+   * the resource-data URL shape is unchanged.
    *
-   * <p>The exact source and thumbnail URLs are resolved by cBioPortal, rather than by the tile
-   * server, and are carried only inside the AES-GCM encrypted {@code enc} claim of the capability.
-   * Neither they nor the image identifier ever appear in the response or in plaintext claims.
+   * <p>The slide's source and thumbnail locations are sealed upstream, with a key cBioPortal does
+   * not hold and the slide key as associated data, into the stored {@code sealed_source}. The
+   * capability carries it verbatim as its {@code enc} claim, and only the tile server can open it.
+   * It never appears in the response outside the signed capability.
    */
   @GetMapping("/v2/resources/{studyId}/{patientId}/access")
   @PreAuthorize(
@@ -118,13 +119,6 @@ public class WsiAccessTokenController {
       WsiSlideSource source,
       Instant issuedAt,
       Instant expiresAt) {
-    String enc =
-        WsiClaimEncryption.encrypt(
-            accessTokenSecret,
-            source.slideKey(),
-            source.imageId(),
-            source.sourceUrl(),
-            source.thumbnailSourceUrl());
     return Jwts.builder()
         .setHeaderParam("typ", "JWT")
         .setSubject(authentication.getName())
@@ -135,7 +129,7 @@ public class WsiAccessTokenController {
         .claim("thumbnail_width", source.thumbnail().width())
         .claim("thumbnail_height", source.thumbnail().height())
         .claim("wsi_auth_version", WSI_AUTH_VERSION)
-        .claim("enc", enc)
+        .claim("enc", source.sealedSource())
         .setIssuedAt(Date.from(issuedAt))
         .setExpiration(Date.from(expiresAt))
         .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))

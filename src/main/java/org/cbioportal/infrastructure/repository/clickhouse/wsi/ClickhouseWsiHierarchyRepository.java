@@ -93,7 +93,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
       }
       String slideKey = value(row, "slide_key", String.class);
       if (!WsiDeidentification.isSlideKey(slideKey)) {
-        // A slide without an opaque key cannot be addressed without exposing its image_id.
+        // A slide without an opaque key cannot be addressed.
         unkeyedSlides++;
         continue;
       }

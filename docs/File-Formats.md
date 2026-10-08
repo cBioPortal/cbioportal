@@ -293,9 +293,11 @@ two resources:
 The patient view's slide viewer, the WSI hierarchy endpoint
 (`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
 endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`)
-read only these two resources. Slides are addressed by an opaque `slide_key`;
-the real image ID, slide barcodes and object URLs never reach the browser
-(serving contract `wsi-serving-v5`).
+read only these two resources. Slides are addressed by an opaque `slide_key`.
+The pathology image ID and the slide and thumbnail object URIs are not stored
+in cBioPortal at all: they travel only inside an opaque, upstream-sealed
+`sealed_source` that only the tile server can open (serving contract
+`wsi-serving-v6`).
 
 The generic resource APIs (the resource table and the
 `/studies/.../resource-data` endpoints) never return `WSI_SAMPLE` or
@@ -313,9 +315,9 @@ Declare the per-slide keys non-filterable in each definition's
 Nearly every slide has its own value for these keys, so they would make poor
 filter options.
 
-The normal study import no longer accepts `meta_wsi.txt`. Convert a legacy
-format-v3 `meta_wsi.txt`/`data_wsi.txt` pair (described
-[below](#converter-input-legacy-meta_wsi-format-v3)) with the offline converter
+The normal study import no longer accepts `meta_wsi.txt`. Convert a
+format-v4 `meta_wsi.txt`/`data_wsi.txt` pair (described
+[below](#converter-input-meta_wsi-format-v4)) with the offline converter
 in cbioportal-core, then validate and import the study as usual.
 
 ### Resource rows
@@ -339,42 +341,52 @@ In `data_resource_sample.txt` and `data_resource_patient.txt`:
     `block_number`, `block_label`, `match_level`, `specimen_key`,
     `stain_name`, `stain_group`, `magnification` and `slide_type` (strings);
     `is_hne`, `is_ihc` and `can_serve_tiles` (booleans); and
-    `file_size_bytes` (integer). `image_id`, `barcode`, `part_designator` and
+    `file_size_bytes` (integer). `barcode`, `part_designator` and
     `path_dx_title` are not public metadata;
-  - `wsi_serving`: a private object holding the server-side `image_id` and,
-    for a servable slide, `source_url`, `tile_metadata_json` (a JSON object),
-    `thumbnail_url`, `thumbnail_width`, `thumbnail_height` and
-    `thumbnail_content_type`.
+  - `wsi_serving`: present only for a servable slide, a private object holding
+    `sealed_source`, `tile_metadata_json` (a JSON object), `thumbnail_width`,
+    `thumbnail_height` and `thumbnail_content_type` (`image/jpeg` or
+    `image/png`).
+
+  `image_id`, `source_url` and `thumbnail_url` must not appear anywhere in
+  `METADATA`, public or under `wsi_serving`.
 
 The data provider is responsible for de-identifying `URL`, `DISPLAY_NAME`
 and `METADATA` (including `wsi_serving`): institution-specific identifiers
 such as specimen accession numbers must be removed before import. cBioPortal
 does not recognise any institution's accession format.
 
-`wsi_serving` is read only by the slide access endpoint, which checks study
-authorization and returns a short-lived capability. The image ID and the
-source and thumbnail URLs travel only inside the capability's encrypted `enc`
-claim. `wsi_serving` is private for every resource row, whatever its `TYPE`:
-for non-WSI resources the resource table API removes it from row metadata and
-ignores it in search, filters, sorting, facets and column discovery.
+`sealed_source` is unpadded base64url of `nonce[12] || AES-256-GCM
+ciphertext || tag[16]` over `{"image_id","tile_source","thumbnail_source"}`,
+sealed upstream with a key cBioPortal never holds and the slide's `slide_key`
+as additional authenticated data. It is at most 4096 characters and decodes
+to at least 29 bytes; a row whose `sealed_source` is missing or malformed is
+not servable. `wsi_serving` is read only by the slide access endpoint, which
+checks study authorization and returns a short-lived capability whose `enc`
+claim is `sealed_source`, unchanged. `wsi_serving` is private for every
+resource row, whatever its `TYPE`: for non-WSI resources the resource table
+API removes it from row metadata and ignores it in search, filters, sorting,
+facets and column discovery.
 
 Rows written before `slide_key` existed are deleted by the ClickHouse `3.6.0`
-migration; re-import the converted v3 resources to restore them.
+migration, and rows that still hold an image ID or object URI by `3.7.0`;
+re-import the converted v4 resources to restore them.
 
 The serving fields are produced upstream. A separate scheduled
 thumbnail batch reads eligible slide inventory/source rows, writes master
 JPEGs to the S3/Dell ECS-compatible object store, and populates
 `cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with the artifact
 URI, `TILE_METADATA_JSON`, dimensions, and content type. The Databricks
-canonical-association query joins those registry rows before exporting this
-file. The cBioPortal frontend only consumes the resulting access bundle; it
-does not generate or upload thumbnails. Runtime/on-demand thumbnail workers
+canonical-association query joins those registry rows and seals each servable
+slide's image ID and URIs into `SEALED_SOURCE` before exporting this file.
+The cBioPortal frontend only consumes the resulting access bundle; it does not
+generate or upload thumbnails. Runtime/on-demand thumbnail workers
 are not the production publication path.
 
-### Converting a legacy WSI file pair
+### Converting a WSI file pair
 
 `scripts/importer/convertWsiToResources.py` in cbioportal-core reads a
-format-v3 pair, applies the same row parsing and cross-row checks as the
+format-v4 pair, applies the same row parsing and cross-row checks as the
 retired native importer, and writes standard study files. It never connects to
 cBioPortal, a database or an artifact store.
 
@@ -425,12 +437,13 @@ files stay in the study and are imported unchanged. Remove `meta_wsi.txt` and
 `data_wsi.txt` from the study after converting, then run `validateData.py` on
 the study.
 
-### Converter input: legacy meta_wsi format v3
+### Converter input: meta_wsi format v4
 
-This is the input format of the converter. Only format v3 with the `SLIDE_KEY`
-column is accepted. It follows the clinical data-file
-convention: four tab-delimited attribute metadata rows, an uppercase field-name
-row, and then one data row per slide placement.
+This is the input format of the converter. Only format v4 is accepted; a file
+with an `IMAGE_ID`, `SOURCE_URL` or `THUMBNAIL_URL` column is rejected. It
+follows the clinical data-file convention: four tab-delimited attribute
+metadata rows, an uppercase field-name row, and then one data row per slide
+placement.
 
 #### Meta file
 
@@ -441,7 +454,7 @@ cancer_study_identifier: brca_tcga_pub
 genetic_alteration_type: PATHOLOGY_SLIDES
 datatype: WSI
 data_filename: data_wsi.txt
-format_version: 3
+format_version: 4
 ```
 
 `format_version` fixes the column names, order, and validation rules. The
@@ -460,10 +473,10 @@ starts with `#`. The fifth row contains the following fields in exactly this
 order:
 
 ```text
-PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>SLIDE_KEY
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>SLIDE_KEY<TAB>SEALED_SOURCE
 ```
 
-The required values are `PATIENT_ID`, `IMAGE_ID`, `SLIDE_KEY`, `PART_KEY`,
+The required values are `PATIENT_ID`, `SLIDE_KEY`, `PART_KEY`,
 `BLOCK_KEY`, `MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, `SLIDE_TYPE`,
 and `CAN_SERVE_TILES`. `SLIDE_KEY` is 32 lowercase hex characters, unique
 within a study: the first half of a salted SHA-256 of the image ID, computed
@@ -475,8 +488,7 @@ responsibility. `SLIDE_TYPE` is the controlled classification value and is
 one of `H&E`, `IHC`, or `Other`. `STAIN_NAME` and `STAIN_GROUP` are optional
 descriptive source labels, so values such as `H&E, Initial` and
 `H&E (Initial)` are valid and are not used as the classification contract.
-`IMAGE_ID` is unique within a study. All rows for one patient must use the same
-optional `REFERENCE_SAMPLE_ID`.
+All rows for one patient must use the same optional `REFERENCE_SAMPLE_ID`.
 
 `MATCH_LEVEL` is one of `BLOCK`, `PART`, or `UNMATCHED`. A matched row requires
 `SAMPLE_ID`; an `UNMATCHED` row requires it to be empty. Empty fields represent
@@ -484,11 +496,13 @@ null values. Boolean values are `TRUE` or `FALSE`, number fields contain base-10
 integers, and `TILE_METADATA_JSON` contains one compact JSON object. Tabs and
 newlines are not allowed inside values.
 
-When `CAN_SERVE_TILES` is `TRUE`, `SOURCE_URL`, `TILE_METADATA_JSON`,
-`THUMBNAIL_URL`, positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
-`THUMBNAIL_CONTENT_TYPE` are all required. The converter moves these fields,
-and `IMAGE_ID`, into `wsi_serving`, so the backend can return a complete access
-bundle while the tile server receives the source URL only inside the encrypted
+When `CAN_SERVE_TILES` is `TRUE`, `SEALED_SOURCE`, `TILE_METADATA_JSON`,
+positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
+`THUMBNAIL_CONTENT_TYPE` are all required; when it is `FALSE`,
+`SEALED_SOURCE` must be empty. `SEALED_SOURCE` has the shape described
+under [Resource rows](#resource-rows). The converter moves these fields into
+`wsi_serving`, so the backend can return a complete access bundle while only
+the tile server can open the sealed source, which it receives as the `enc`
 claim of its short-lived authorization token.
 
 ## Discrete Copy Number Data

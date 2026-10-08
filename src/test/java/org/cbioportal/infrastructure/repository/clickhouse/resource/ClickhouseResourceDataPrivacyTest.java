@@ -31,8 +31,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * WSI_SAMPLE / WSI_PATIENT rows never reach the generic resource table, and for every other row
  * public metadata stays searchable while wsi_serving stays private, whatever its TYPE. Uses the
  * wsi_resource_table_study fixture: WSI_SAMPLE rows 900501/900502, and EXTERNAL_SLIDES rows
- * 900505/900506 whose serving paths contain "secretpath" and sort in the opposite order ("zzz" for
- * 900505, "aaa" for 900506) to the rows' ids.
+ * 900505/900506 whose sealed serving values contain "secretpath" and sort in the opposite order
+ * ("zzz" for 900505, "aaa" for 900506) to the rows' ids.
  */
 @RunWith(SpringRunner.class)
 @Import({MyBatisConfig.class, ClickhouseResourceDataRepository.class})
@@ -109,7 +109,13 @@ public class ClickhouseResourceDataPrivacyTest {
     List<String> terms =
         Stream.concat(
                 Stream.of(
-                    "Masson", "liver", "slideKey", "syn-img-t001", "wsipath", "WSI-TABLE-SAMPLE"),
+                    "Masson",
+                    "liver",
+                    "slideKey",
+                    "sealed_source",
+                    "zzz-wsipath-1",
+                    "wsipath",
+                    "WSI-TABLE-SAMPLE"),
                 WSI_SLIDE_KEYS.stream())
             .toList();
     for (String term : terms) {
@@ -217,8 +223,9 @@ public class ClickhouseResourceDataPrivacyTest {
   }
 
   @Test
-  public void searchDoesNotMatchServingPaths() {
-    for (String term : List.of("secretpath", "private-bucket", "zzz-secretpath-1.svs", "s3://")) {
+  public void searchDoesNotMatchServingValues() {
+    for (String term :
+        List.of("secretpath", "sealed_source", "zzz-secretpath-1-", "AAAAAAAAAAAA")) {
       ResourceTableQuery query = query(EXTERNAL, term, null, null, null);
       assertThat(repository.getResourceTableRows(query)).as(term).isEmpty();
       assertThat(repository.getResourceTableCounts(query).rowCount()).as(term).isZero();

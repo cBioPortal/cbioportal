@@ -1,9 +1,12 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -32,6 +35,9 @@ public class ClickhouseWsiSlideAccessMapperTest {
   private static final String SAMPLE_SLIDE_KEY = "2351e12d49557627b24fe71e17ec5c64";
   private static final String PATIENT_SLIDE_KEY = "b3286836fc27c777260ada0dcb8a6857";
   private static final String OTHER_RESOURCE_SLIDE_KEY = "0f0e0d0c0b0a09080706050403020100";
+  private static final String SAMPLE_SEALED_SOURCE =
+      "AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5"
+          + "wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS";
 
   @Autowired private ClickhouseWsiSlideAccessMapper mapper;
 
@@ -42,27 +48,39 @@ public class ClickhouseWsiSlideAccessMapperTest {
 
     assertNotNull(row);
     assertEquals(SAMPLE_SLIDE_KEY, row.get("slide_key"));
-    // image_id is read from the private wsi_serving object, server-side only, to mint the
-    // encrypted capability.
-    assertEquals("syn-img-0001", row.get("image_id"));
-    assertEquals("s3://bucket/syn-img-0001.svs", row.get("source_url"));
-    assertEquals("s3://bucket/syn-img-0001.jpg", row.get("thumbnail_url"));
+    // sealed_source is read from the private wsi_serving object only to be forwarded as the
+    // capability's enc claim.
+    assertEquals(SAMPLE_SEALED_SOURCE, row.get("sealed_source"));
+    for (String removed : new String[] {"image_id", "source_url", "thumbnail_url"}) {
+      assertFalse("mapper selects " + removed, row.containsKey(removed));
+    }
     assertEquals(128, ((Number) row.get("thumbnail_width")).intValue());
     assertEquals(64, ((Number) row.get("thumbnail_height")).intValue());
     assertEquals("image/jpeg", row.get("thumbnail_content_type"));
   }
 
   @Test
-  public void findsUnmatchedPatientSlides() {
+  public void servableFixtureRowPassesTheServabilityChecks() {
+    assertTrue(
+        ClickhouseWsiSlideAccessRepository.isServableRow(
+            mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", SAMPLE_SLIDE_KEY),
+            new ObjectMapper()));
+  }
+
+  @Test
+  public void findsUnmatchedPatientSlidesWithoutServingData() {
     Map<String, Object> row =
         mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", PATIENT_SLIDE_KEY);
 
     assertNotNull(row);
-    assertEquals("syn-img-0003", row.get("image_id"));
+    assertEquals(PATIENT_SLIDE_KEY, row.get("slide_key"));
+    // A slide that cannot serve tiles has no wsi_serving object, so it is not servable.
+    assertEquals("", row.get("sealed_source"));
+    assertFalse(ClickhouseWsiSlideAccessRepository.isServableRow(row, new ObjectMapper()));
   }
 
   @Test
-  public void doesNotResolveAnImageId() {
+  public void resolvesOnlyBySlideKey() {
     assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "syn-img-0001"));
     assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "syn-legacy-0002"));
   }

@@ -216,7 +216,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     msk_wsi_tile_server_url("msk.wsi.tile_server.url", null),
     wsi_backend_git_sha("wsi.backend-git-sha", null),
-    wsi_serving_contract_version("wsi.serving-contract-version", "wsi-serving-v5");
+    wsi_serving_contract_version("wsi.serving-contract-version", "wsi-serving-v6");
 
     private final String propertyName;
     private final String defaultValue;

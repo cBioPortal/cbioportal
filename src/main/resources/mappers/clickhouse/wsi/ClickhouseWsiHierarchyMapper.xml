@@ -3,10 +3,9 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
     <!--
-      Slides are exposed to the browser only by their opaque slide_key. The server-side image_id,
-      the slide barcode and the resource-data row identifiers are never selected; part_designator
-      and path_dx_title are no longer public metadata (wsi-serving-v5) and are not read either.
-      image_id appears only in ORDER BY, as the final tie-breaker.
+      Slides are exposed to the browser only by their opaque slide_key. The slide barcode, the
+      resource-data row identifiers and the private wsi_serving object are never selected;
+      part_designator and path_dx_title are not public metadata and are not read either.
     -->
     <select id="getPatientHierarchy" resultType="hashmap">
         SELECT
@@ -39,12 +38,10 @@
         <!-- Unmatched slides (no sample) sort first. part/block/slide keys are salted hashes, so
              ordering by them alone is random: order by the pipeline's Specimen/Block ranks first,
              keep the keys as tie-breakers that hold each part/block together, then finish on the
-             server-side image_id (private wsi_serving.image_id, or the legacy top-level key). -->
+             slide_key so the order is deterministic. -->
         ORDER BY ifNull(sample_id, ''),
             toUInt32OrNull(part_number) NULLS LAST, part_key,
             toUInt32OrNull(block_number) NULLS LAST, block_key,
-            coalesce(
-                nullIf(JSONExtractString(ifNull(r.metadata, '{}'), 'wsi_serving', 'image_id'), ''),
-                JSONExtractString(ifNull(r.metadata, '{}'), 'image_id'))
+            slide_key
     </select>
 </mapper>

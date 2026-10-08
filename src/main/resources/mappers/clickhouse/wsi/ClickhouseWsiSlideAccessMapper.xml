@@ -3,18 +3,16 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiSlideAccessMapper">
     <!--
-      Looked up by the opaque slide_key within the study, patient and WSI resources. image_id and
-      the object URIs are read from the private wsi_serving object only to mint the encrypted
-      capability; they are never returned to the browser.
+      Looked up by the opaque slide_key within the study, patient and WSI resources. sealed_source
+      is read from the private wsi_serving object only to be forwarded, unchanged, as the enc claim
+      of the tile capability; it is never returned to the browser on its own.
     -->
     <select id="getSlideAccess" resultType="hashmap">
         SELECT
             JSONExtractString(ifNull(row.metadata, '{}'), 'slide_key') AS slide_key,
-            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'image_id') AS image_id,
             JSONExtractBool(ifNull(row.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
-            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'source_url') AS source_url,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'sealed_source') AS sealed_source,
             JSONExtractRaw(ifNull(row.metadata, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
-            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_url') AS thumbnail_url,
             JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
             JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
             JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type

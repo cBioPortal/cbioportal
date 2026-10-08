@@ -1902,7 +1902,7 @@ The resource definition file should follow this format, it has three **required*
 - **DESCRIPTION (optional)**: a discription for resources.
 - **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
 - **PRIORITY (optional)**: if not given, will give a default value.
-- **CUSTOM_METADATA (optional)**: a JSON object describing the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
+- **CUSTOM_METADATA (optional)**: a JSON object declaring the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
 
 ### Example *Resource Definition* data file
 <table>
@@ -1918,9 +1918,18 @@ Resource rows can carry a `METADATA` column holding a JSON object of per-item fi
 data file formats below). The portal turns each key found in that data into a column of the
 resource table, which a user can search, sort and filter.
 
-`CUSTOM_METADATA` lets a curator control how those columns present. It **decorates** columns, it
-never creates them: a key declared here but absent from the data adds nothing, and a resource
-with no `CUSTOM_METADATA` still gets a column per key, labelled by the raw key name.
+`CUSTOM_METADATA` lets a curator declare those columns and control how they present. Where it is
+given it is the whole column list: every declared key becomes a column, in declaration order, and
+a key the data carries but the contract omits is **not** shown — the importer rejects such a file
+so the data never goes in unseen. A resource with no `CUSTOM_METADATA` keeps the older behaviour,
+a column per key found in the data, labelled by the raw key name.
+
+The contract is declared per study, but a study view cohort can span several studies that each
+declare the same resource. The table then shows the **union** of their contracts, each key taking
+the first declaration by study identifier, and a key two studies type differently falls back to
+being typed from the values. If any study in the cohort has rows for the resource but declares no
+contract, its keys are shown as well — nothing that study imported was ever checked against
+another study's contract.
 
 ```json
 {
@@ -1949,8 +1958,7 @@ Each entry in `fields` supports:
 | `filterable` | `false` removes the filter control for that column. Worth setting on near-unique keys such as identifiers, which would otherwise build a very large dropdown |
 | `visibleByDefault` | `true` shows the column without the user opening "Add columns". Defaults to `false` |
 
-Field order determines column order; keys present in the data but not declared here appear after
-the declared ones.
+Field order determines column order.
 
 `required`, `enum`, `format` and `renderAs`, and the `boolean` and `date` types, are not
 implemented — a field declaring them imports with a warning and they have no effect.
@@ -1961,6 +1969,10 @@ is an **error** and blocks the import: not a JSON object, no `fields` list, or a
 `key`. A single misdeclared field is a **warning**: an unrecognised `type`, a quoted boolean, or
 a key the portal does not read.
 
+Data files are checked against the contract too. A `METADATA` key the contract does not declare
+is an **error**, since the column would never appear and nothing later would say so. A declared
+key no row carries is a **warning**: the column renders, always empty.
+
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
@@ -1969,7 +1981,7 @@ The sample resource file should follow this format, it has four **required** col
 - **URL (required)**: url to the resources, start with `http` or `https`.
 - **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the table shows the resource's own name on every row.
 - **TYPE (optional)**: free-text classification of the item, for example `IMAGE` or `REPORT`.
-- **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) on the resource definition controls how those columns present. Arrays, scalars and malformed JSON are rejected at import.
+- **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; where the resource definition gives a [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) contract, every key used here must be declared in it. Arrays, scalars and malformed JSON are rejected at import.
 
 ### Example *Sample Resource* data file
 <table>

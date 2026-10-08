@@ -818,7 +818,21 @@ insert into allele_specific_copy_number (mutation_event_id, genetic_profile_id, 
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('HE_SLIDE', 1, 'SAMPLE', 'H&E Slide', 'Hematoxylin and Eosin Slide', 1, 1);
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('CT_SCAN', 1, 'PATIENT', 'CT Scan', 'CT Scan images', 1, 2);
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('FIGURES', 1, 'STUDY', 'Figures', 'Study figures', 1, 3);
-insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('RADIOLOGY', 1, 'SAMPLE', 'Radiology', 'Radiology images', 1, 4, '{"version":1,"fields":[{"key":"score","type":"number","label":"Dose Score","description":"Radiation dose score","visibleByDefault":true},{"key":"dose_id","type":"string","label":"Dose ID"},{"key":"operator","type":"string","label":"Operator","filterable":false}]}');
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('RADIOLOGY', 1, 'SAMPLE', 'Radiology', 'Radiology images', 1, 4, '{"version":1,"fields":[{"key":"score","type":"number","label":"Dose Score","description":"Radiation dose score","visibleByDefault":true},{"key":"dose_id","type":"string","label":"Dose ID"},{"key":"operator","type":"string","label":"Operator","filterable":false},{"key":"series","type":"string","label":"Series"}]}');
+
+-- Multi-study contract divergence fixtures. These hang off their own patient so that the
+-- cohort-filtering tests above keep the tab sets they were written for.
+-- Contracts are ordered by cancer_study_identifier,
+-- and 'acc_tcga' sorts before 'study_tcga_pub', so study 2's contract is the first one.
+-- PATHOLOGY is declared by BOTH studies, differently: acc_tcga declares grade/reviewer,
+-- study_tcga_pub declares stain/grade, and the two disagree on grade's type.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('PATHOLOGY', 1, 'SAMPLE', 'Pathology (tcga)', 'Pathology reports', 1, 5, '{"version":1,"fields":[{"key":"stain","type":"string","label":"Stain (tcga)"},{"key":"grade","type":"number","label":"Grade (tcga)","visibleByDefault":true}]}');
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('PATHOLOGY', 2, 'SAMPLE', 'Pathology (acc)', 'Pathology reports', 1, 5, '{"version":1,"fields":[{"key":"grade","type":"string","label":"Grade (acc)"},{"key":"reviewer","type":"string","label":"Reviewer"}]}');
+-- CYTOLOGY has rows in both studies but only acc_tcga declares it at all, so study_tcga_pub's
+-- rows were never checked against that contract and it cannot be the whole column list for a
+-- cohort over both. It is also the only resource with data in a study that does not define it,
+-- which is what makes the tab label fall back to the resource id.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('CYTOLOGY', 2, 'SAMPLE', 'Cytology (acc)', 'Cytology slides', 1, 6, '{"version":1,"fields":[{"key":"preparation","type":"string","label":"Preparation"}]}');
 
 insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (1, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/he1.jpg', 'H&E Sample 1', 'IMAGE', '{"stain":"HE","magnification":"20x"}');
 insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (2, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sd', 'tcga-a1-a0sd-01', 'https://example.com/he2.jpg', 'H&E Sample 2', 'IMAGE', '{"stain":"HE","magnification":"40x"}');
@@ -834,6 +848,11 @@ insert into resource_data (resource_data_id, resource_id, cancer_study_id, entit
 -- patient/sample counts must not collapse the two into one.
 insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (8, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/acc-he-collides.jpg', 'ACC H&E (same barcode, different sample)', 'IMAGE', '{"stain":"HE","magnification":"20x"}');
 insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (9, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/acc-he-own.jpg', 'ACC H&E (own sample)', 'IMAGE', '{"stain":"HE","magnification":"40x"}');
+
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (14, 'PATHOLOGY', 1, 'SAMPLE', 'tcga-a1-a0zz', 'tcga-a1-a0zz-01', 'https://example.com/path1.pdf', 'Pathology 1', 'PDF', '{"stain":"HE","grade":"3"}');
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (15, 'PATHOLOGY', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/path2.pdf', 'Pathology 2', 'PDF', '{"grade":"high","reviewer":"dr-b"}');
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (16, 'CYTOLOGY', 1, 'SAMPLE', 'tcga-a1-a0zz', 'tcga-a1-a0zz-01', 'https://example.com/cyto1.jpg', 'Cytology 1', 'IMAGE', '{"fixative":"alcohol"}');
+insert into resource_data (resource_data_id, resource_id, cancer_study_id, entity_type, patient_id, sample_id, url, display_name, type, metadata) values (17, 'CYTOLOGY', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/cyto2.jpg', 'Cytology 2', 'IMAGE', '{"preparation":"smear"}');
 
 -- Four rows on the SAME patient and sample, so (patient_id, sample_id) is not a unique ordering
 -- and paging is only stable if the sort carries a tiebreaker. 'score' is stored as a JSON

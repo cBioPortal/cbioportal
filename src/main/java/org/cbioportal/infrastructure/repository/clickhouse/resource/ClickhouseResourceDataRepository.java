@@ -1,10 +1,14 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
+import org.cbioportal.domain.resource.ResourceContractRow;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataField;
@@ -71,23 +75,52 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * single unchanging string.
    */
   private record MetadataContext(
-      ResourceMetadataSchema schema, Map<String, ResourceMetadataKeyStats> statsByKey) {
+      ResourceMetadataSchema schema,
+      Map<String, ResourceMetadataKeyStats> statsByKey,
+      boolean contractCoversEveryStudy) {
+
+    /**
+     * The keys that become columns.
+     *
+     * <p>When every study in scope declares the resource, the merged contract decides: the column
+     * set is what a curator reviewed, not whatever the data happened to carry, and it no longer
+     * depends on the discovery sample. The importer rejects a file whose METADATA carries keys the
+     * contract does not declare, so data cannot go missing this way without the curator being told.
+     *
+     * <p>That guarantee is per study, so it does not hold for a cohort where only some studies
+     * declare the resource: the rest were never checked against any contract, and restricting the
+     * columns would hide their keys. There the contract orders and decorates the columns it
+     * declares, and the keys found in the data are added after them.
+     *
+     * <p>With no contract at all the keys come from the data alone, which is how resources imported
+     * before contracts existed keep working.
+     */
+    Collection<String> columnKeys() {
+      Collection<String> declared = schema.fieldsByKey().keySet();
+      if (declared.isEmpty()) {
+        return statsByKey.keySet();
+      }
+      if (contractCoversEveryStudy) {
+        return declared;
+      }
+      Set<String> keys = new LinkedHashSet<>(declared);
+      statsByKey.keySet().stream().sorted(String.CASE_INSENSITIVE_ORDER).forEach(keys::add);
+      return keys;
+    }
 
     boolean isNumeric(String key) {
-      ResourceMetadataKeyStats stats = statsByKey.get(key);
-      if (stats == null) {
-        return false;
-      }
       ResourceMetadataField field = schema.fieldsByKey().get(key);
       String declaredType = field != null ? field.type() : null;
       if ("string".equals(declaredType)) {
         return false;
       }
       if ("number".equals(declaredType)) {
-        // Sampled counts are fine for classification; only the slider's bounds have to be exact.
-        return stats.numericCount() > 0;
+        return true;
       }
-      return stats.isAutoDetectedNumeric();
+      // Undeclared type: fall back to what the data looks like. Sampled counts are fine for
+      // classification; only the slider's bounds have to be exact.
+      ResourceMetadataKeyStats stats = statsByKey.get(key);
+      return stats != null && stats.isAutoDetectedNumeric();
     }
 
     /**
@@ -101,7 +134,22 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   private MetadataContext resolveMetadataContext(ResourceTableQuery scoped) {
-    return new MetadataContext(getSchema(scoped), classifyMetadataKeys(scoped));
+    List<ResourceContractRow> contractRows = contractRows(scoped);
+    ResourceMetadataSchema schema = mergedSchema(scoped, contractRows);
+    boolean coversEveryStudy =
+        !contractRows.isEmpty() && contractRows.stream().allMatch(ResourceContractRow::declared);
+    // Key discovery scans the data to learn which keys exist and which look numeric. A contract
+    // that covers every study in scope and types every field already answers both, so the scan is
+    // skipped rather than repeated.
+    Map<String, ResourceMetadataKeyStats> stats =
+        coversEveryStudy && fullyTyped(schema) ? Map.of() : classifyMetadataKeys(scoped);
+    return new MetadataContext(schema, stats, coversEveryStudy);
+  }
+
+  /** True when the contract declares every column and gives each one a type. */
+  private static boolean fullyTyped(ResourceMetadataSchema schema) {
+    return !schema.fieldsByKey().isEmpty()
+        && schema.fieldsByKey().values().stream().allMatch(field -> field.type() != null);
   }
 
   /*
@@ -183,8 +231,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
-    for (Map.Entry<String, ResourceMetadataKeyStats> entry : context.statsByKey().entrySet()) {
-      String key = entry.getKey();
+    for (String key : context.columnKeys()) {
       if (!context.isFilterable(key)) {
         continue;
       }
@@ -269,26 +316,16 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return true;
   }
 
-  /**
-   * Column existence comes from the data, never from the contract: a declared key nobody imported
-   * would be an empty column, and an undeclared key still has to show up.
-   */
+  /** Builds the column list for the key set the contract, or failing that the data, decides on. */
   private List<ResourceColumnInfo> metadataColumns(MetadataContext context) {
-    Map<String, ResourceMetadataKeyStats> statsByKey = context.statsByKey();
     Map<String, ResourceMetadataField> declared = context.schema().fieldsByKey();
 
-    // Declared fields first, in the curator's declaration order, then whatever else the data
-    // turned up, alphabetically — so a partial contract still produces a coherent ordering.
-    List<String> ordered = new ArrayList<>();
-    for (String key : declared.keySet()) {
-      if (statsByKey.containsKey(key)) {
-        ordered.add(key);
-      }
+    // Declared order is the curator's order. Without a contract, fall back to the keys the data
+    // turned up, alphabetically, so the ordering is at least stable.
+    List<String> ordered = new ArrayList<>(context.columnKeys());
+    if (declared.isEmpty()) {
+      ordered.sort(String.CASE_INSENSITIVE_ORDER);
     }
-    statsByKey.keySet().stream()
-        .filter(key -> !declared.containsKey(key))
-        .sorted(String.CASE_INSENSITIVE_ORDER)
-        .forEach(ordered::add);
 
     List<ResourceColumnInfo> columns = new ArrayList<>();
     for (String key : ordered) {
@@ -332,22 +369,72 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return byKey;
   }
 
-  private ResourceMetadataSchema getSchema(ResourceTableQuery query) {
-    List<String> customMetadata = mapper.getResourceDefinitionCustomMetadata(query);
-    if (customMetadata == null || customMetadata.isEmpty()) {
+  private List<ResourceContractRow> contractRows(ResourceTableQuery query) {
+    List<ResourceContractRow> rows = mapper.getResourceDefinitionCustomMetadata(query);
+    return rows == null ? List.of() : rows;
+  }
+
+  /**
+   * Combines every contract in scope into the one the table is built from.
+   *
+   * <p>The contract is declared per (resource, study) and a cohort can span studies, so one table
+   * can be described by several. They are merged rather than chosen between, so that no study's
+   * declared keys are dropped on account of another study's contract.
+   */
+  private ResourceMetadataSchema mergedSchema(
+      ResourceTableQuery query, List<ResourceContractRow> rows) {
+    List<ResourceMetadataSchema> schemas =
+        rows.stream()
+            .filter(ResourceContractRow::declared)
+            .map(row -> ResourceMetadataSchema.parse(row.customMetadata()))
+            .filter(schema -> !schema.fields().isEmpty())
+            .toList();
+    if (schemas.isEmpty()) {
       return ResourceMetadataSchema.empty();
     }
-    if (customMetadata.size() > 1) {
-      // The contract is per (resource_id, cancer_study_id), so a multi-study cohort can hand us
-      // several. Picking one is wrong either way; the mapper orders them so at least the choice is
-      // stable rather than arbitrary, and the disagreement is worth surfacing.
+    warnOnDivergence(query, rows, schemas);
+    return ResourceMetadataSchema.merge(schemas);
+  }
+
+  /**
+   * Reports contracts that disagree with each other, or cover only part of the cohort.
+   *
+   * <p>Neither stops the table rendering, and neither is visible in the response, so the log is the
+   * only place a curator's mismatch between two studies can surface.
+   */
+  private void warnOnDivergence(
+      ResourceTableQuery query,
+      List<ResourceContractRow> rows,
+      List<ResourceMetadataSchema> schemas) {
+    List<String> undeclaredStudies =
+        rows.stream()
+            .filter(row -> !row.declared())
+            .map(ResourceContractRow::firstStudy)
+            .sorted()
+            .toList();
+    if (!undeclaredStudies.isEmpty()) {
+      LOG.warn(
+          "Resource '{}' declares custom_metadata in some of the selected studies but not in {};"
+              + " showing the declared columns alongside the keys found in the data.",
+          query.resourceId(),
+          undeclaredStudies);
+    }
+    if (schemas.size() > 1) {
       LOG.warn(
           "Resource '{}' has {} differing custom_metadata contracts across the selected studies;"
-              + " using the first by study identifier.",
+              + " showing the union of their fields, each taking the first declaration by study"
+              + " identifier.",
           query.resourceId(),
-          customMetadata.size());
+          schemas.size());
+      List<String> conflicts = ResourceMetadataSchema.conflictingTypeKeys(schemas);
+      if (!conflicts.isEmpty()) {
+        LOG.warn(
+            "Resource '{}' has keys typed differently by those contracts: {}. Their type is taken"
+                + " from the data instead.",
+            query.resourceId(),
+            conflicts);
+      }
     }
-    return ResourceMetadataSchema.parse(customMetadata.get(0));
   }
 
   /** Returns a copy of the query with all column-level filters removed. */

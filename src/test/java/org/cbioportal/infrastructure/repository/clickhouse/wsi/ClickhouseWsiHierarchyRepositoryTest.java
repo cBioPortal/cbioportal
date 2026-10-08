@@ -167,12 +167,6 @@ public class ClickhouseWsiHierarchyRepositoryTest {
     row.put("slide_type", "H&E");
     row.put("match_level", "BLOCK");
     row.put("specimen_key", "block::part:" + KEY_1 + "::block:" + slideKey);
-    row.put("procedure_date_days", -17);
-    row.put("timepoint_source", "Recorded procedure date relative to first tumor sequencing");
-    row.put("date_kind", "RECORDED");
-    row.put("date_source", "recorded_procedure_date");
-    row.put("date_status", "AVAILABLE");
-    row.put("coordinate_system", "patient_first_tumor_sequencing_day_zero");
     return row;
   }
 

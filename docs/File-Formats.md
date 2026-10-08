@@ -338,11 +338,6 @@ In `data_resource_sample.txt` and `data_resource_patient.txt`:
     `is_hne`, `is_ihc` and `can_serve_tiles` (booleans); and
     `file_size_bytes` (integer). `image_id`, `barcode`, `part_designator` and
     `path_dx_title` are not public metadata;
-  - timing: `timeline_start_days` (integer, omitted when undated),
-    `timeline_date_status`, `timeline_date_kind`, `timeline_date_source`,
-    `timeline_date_reason`, `timeline_coordinate_system` and
-    `timepoint_source`, with the same meaning and validation as the legacy
-    columns below;
   - `wsi_serving`: a private object holding the server-side `image_id` and,
     for a servable slide, `source_url`, `tile_metadata_json` (a JSON object),
     `thumbnail_url`, `thumbnail_width`, `thumbnail_height` and
@@ -448,10 +443,11 @@ format_version: 3
 
 `format_version` fixes the column names, order, and validation rules. The
 converter rejects unsupported versions rather than guessing how to interpret
-them. Timing is carried in the WSI row: `TIMELINE_START_DAYS` is relative to the patient's first
-tumor-sequencing day zero, while the status, kind, source, reason, and
-coordinate-system fields preserve whether the date was recorded, estimated, or
-undated. Day `0` is a valid value. MRNs and absolute dates are never emitted.
+them. Slide timing is not part of the format yet; it arrives with slides on the
+patient Summary timeline. Files that still carry the seven timing columns
+(`TIMELINE_START_DAYS` through `TIMEPOINT_SOURCE`, between
+`THUMBNAIL_CONTENT_TYPE` and `SLIDE_KEY`) are accepted, but those columns are
+ignored. MRNs and absolute dates are never emitted.
 
 #### Data file
 
@@ -461,7 +457,7 @@ starts with `#`. The fifth row contains the following fields in exactly this
 order:
 
 ```text
-PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>TIMELINE_START_DAYS<TAB>TIMELINE_DATE_STATUS<TAB>TIMELINE_DATE_KIND<TAB>TIMELINE_DATE_SOURCE<TAB>TIMELINE_DATE_REASON<TAB>TIMELINE_COORDINATE_SYSTEM<TAB>TIMEPOINT_SOURCE<TAB>SLIDE_KEY
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>IMAGE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>SOURCE_URL<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_URL<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>SLIDE_KEY
 ```
 
 The required values are `PATIENT_ID`, `IMAGE_ID`, `SLIDE_KEY`, `PART_KEY`,

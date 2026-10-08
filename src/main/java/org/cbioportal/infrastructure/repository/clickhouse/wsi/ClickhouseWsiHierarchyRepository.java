@@ -97,7 +97,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
         unkeyedSlides++;
         continue;
       }
-      validateTiming(row);
       String sampleKey = value(row, "sample_id", String.class);
       String sampleMapKey = sampleKey == null ? "" : sampleKey;
       WsiSampleGroupBuilder sample =
@@ -133,14 +132,7 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
               resolveSlideType(row),
               sampleKey,
               value(row, "match_level", String.class),
-              value(row, "specimen_key", String.class),
-              intValue(row, "procedure_date_days"),
-              value(row, "timepoint_source", String.class),
-              value(row, "date_kind", String.class),
-              value(row, "date_source", String.class),
-              value(row, "date_reason", String.class),
-              value(row, "date_status", String.class),
-              value(row, "coordinate_system", String.class)));
+              value(row, "specimen_key", String.class)));
     }
 
     if (unkeyedSlides > 0) {
@@ -194,48 +186,9 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     return type.cast(value);
   }
 
-  private static void validateTiming(Map<String, Object> row) {
-    String status = value(row, "date_status", String.class);
-    String kind = value(row, "date_kind", String.class);
-    String source = value(row, "date_source", String.class);
-    String timepointSource = value(row, "timepoint_source", String.class);
-    String coordinate = value(row, "coordinate_system", String.class);
-    Integer days = intValue(row, "procedure_date_days");
-    String reason = value(row, "date_reason", String.class);
-    if (status == null
-        || kind == null
-        || source == null
-        || timepointSource == null
-        || coordinate == null
-        || !Set.of("AVAILABLE", "MISSING_PROCEDURE_DATE", "MISSING_REFERENCE_SEQUENCING_DATE")
-            .contains(status)
-        || !Set.of("RECORDED", "ESTIMATED", "UNDATED").contains(kind)
-        || !"patient_first_tumor_sequencing_day_zero".equals(coordinate)) {
-      throw new IllegalStateException("WSI hierarchy contains an invalid v3 timing row");
-    }
-    if ("AVAILABLE".equals(status)) {
-      if (days == null || "UNDATED".equals(kind) || reason != null) {
-        throw new IllegalStateException("WSI hierarchy contains inconsistent available timing");
-      }
-    } else if (days != null) {
-      throw new IllegalStateException("WSI hierarchy contains a dated missing-timing row");
-    }
-    if ("MISSING_PROCEDURE_DATE".equals(status) && !"UNDATED".equals(kind)) {
-      throw new IllegalStateException("WSI hierarchy contains an invalid missing procedure row");
-    }
-    if ("MISSING_REFERENCE_SEQUENCING_DATE".equals(status) && "UNDATED".equals(kind)) {
-      throw new IllegalStateException("WSI hierarchy contains an invalid missing reference row");
-    }
-  }
-
   private static Long longValue(Map<String, Object> row, String key) {
     Object value = row.get(key);
     return value == null ? null : ((Number) value).longValue();
-  }
-
-  private static Integer intValue(Map<String, Object> row, String key) {
-    Object value = row.get(key);
-    return value == null ? null : ((Number) value).intValue();
   }
 
   private static long contextLongValue(Map<String, Object> row, String key) {

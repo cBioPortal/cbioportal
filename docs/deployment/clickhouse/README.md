@@ -281,7 +281,7 @@ After importing studies and rebuilding derived tables, you can verify that your 
 WSI is served from the generic `resource_data` table. Each slide is one row
 with `type = 'WHOLE_SLIDE_IMAGE'` in the `WSI_SAMPLE` (sample-matched) or
 `WSI_PATIENT` (unmatched) resource. Its `metadata` JSON carries the public
-hierarchy, stain and timing fields, including the opaque `slide_key`, and a
+hierarchy and stain fields, including the opaque `slide_key`, and a
 private `wsi_serving` object with the server-side `image_id`, the source URL,
 intrinsic tile metadata and thumbnail artifact fields. See
 [Pathology Slide Data](../../File-Formats.md#pathology-slide-data) for the
@@ -324,8 +324,8 @@ them.
 resource table API strips it from row metadata and ignores it in search,
 filters, sorting, facets and metadata-column discovery.
 
-The native tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
-`wsi_slide_placement` and `wsi_slide_timing` are deprecated. The backend no
+The native tables `wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide` and
+`wsi_slide_placement` are deprecated. The backend no
 longer reads them, but they remain in the schema and are not dropped by any
 migration; retiring them is a separate, deliberate step.
 
@@ -480,8 +480,13 @@ re-imported (converted with the v3 `convertWsiToResources.py`, which requires
 finish before recording the version.
 
 The native WSI tables (`wsi_patient`, `wsi_part`, `wsi_block`, `wsi_slide`,
-`wsi_slide_placement`, `wsi_slide_timing`) are deprecated but retained by these
-migrations; no data is dropped from them.
+`wsi_slide_placement`) are deprecated but retained by these migrations; no data
+is dropped from them.
+
+**Slide timing.** Slide procedure dates are not served yet; they arrive with
+slides on the patient Summary timeline. Migration `3.4.0` is reserved for that
+and changes nothing. A database that applied an earlier `3.4.0` keeps an
+empty, unread `wsi_slide_timing` table.
 
 The `3.4.0` WSI snapshot schema is available both for fresh initialization and
 for in-place upgrades from `3.0.0`. The migration drops any legacy WSI

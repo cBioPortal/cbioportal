@@ -803,30 +803,6 @@ insert into wsi_slide_placement
 (cancer_study_id,patient_id,image_id,part_key,block_key, sample_id,match_level,specimen_key)
 values (9002,9002,'syn-img-a001','part::1','block::1',9002,'PART','part::1');
 
-insert into wsi_slide_timing
-(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9001,9001,'syn-img-0001',-17,'AVAILABLE','RECORDED','recorded_procedure_date',null,'patient_first_tumor_sequencing_day_zero','Recorded procedure date relative to first tumor sequencing');
-insert into wsi_slide_timing
-(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9001,9001,'syn-img-0003',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
-insert into wsi_slide_timing
-(cancer_study_id,patient_id,image_id,timeline_start_days,timeline_date_status,timeline_date_kind,timeline_date_source,timeline_date_reason,timeline_coordinate_system,timepoint_source)
-values (9002,9002,'syn-img-a001',null,'MISSING_PROCEDURE_DATE','UNDATED','missing_procedure_date','procedure date unavailable','patient_first_tumor_sequencing_day_zero','Procedure date unavailable');
-
--- WSI timing is stored in the same validated v3 snapshot that produces the
--- pathology timeline. The hierarchy reads this image-keyed timing row only.
-insert into clinical_event (clinical_event_id,patient_id,start_date,stop_date,event_type)
-values (9001,9001,-17,null,'PATHOLOGY SLIDES');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'SAMPLE_ID','WSI-SAMPLE');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'SUBTYPE','H&E');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'MATCH_LEVEL','BLOCK');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'TIMEPOINT_SOURCE','Recorded procedure date relative to first tumor sequencing');
-insert into clinical_event_data (clinical_event_id,key,value)
-values (9001,'LINKOUT','/patient/wsiHESlides?studyId=wsi_test_study&caseId=WSI-PATIENT&stainFilter=hne&matchLevel=BLOCK&specimenKey=block%3A%3A27%3A%3A4&sampleId=WSI-SAMPLE');
 
 -- generic assay test data
 -- mutational signature test data

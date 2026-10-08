@@ -30,14 +30,7 @@
             JSONExtractBool(ifNull(r.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
             JSONExtractString(ifNull(r.metadata, '{}'), 'slide_type') AS slide_type,
             JSONExtractString(ifNull(r.metadata, '{}'), 'match_level') AS match_level,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'specimen_key') AS specimen_key,
-            JSONExtract(ifNull(r.metadata, '{}'), 'timeline_start_days', 'Nullable(Int64)') AS procedure_date_days,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timepoint_source') AS timepoint_source,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_kind') AS date_kind,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_source') AS date_source,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_reason') AS date_reason,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_date_status') AS date_status,
-            JSONExtractString(ifNull(r.metadata, '{}'), 'timeline_coordinate_system') AS coordinate_system
+            JSONExtractString(ifNull(r.metadata, '{}'), 'specimen_key') AS specimen_key
         FROM resource_data r
         PREWHERE r.cancer_study_id = #{studyInternalId}
             AND r.patient_id = #{patientId}

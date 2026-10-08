@@ -225,20 +225,9 @@ ALTER TABLE wsi_slide ADD CONSTRAINT wsi_slide_stain_flags_valid
         AND (slide_type NOT IN ('Other', 'Unknown') OR NOT is_hne AND NOT is_ihc);
 
 ## db_schema_version: 3.4.0
-## description: Store WSI timing provenance, including undated associations, outside clinical events
-CREATE TABLE IF NOT EXISTS wsi_slide_timing (
-    cancer_study_id Int64,
-    patient_id Int64,
-    image_id String,
-    timeline_start_days Nullable(Int64),
-    timeline_date_status String,
-    timeline_date_kind String,
-    timeline_date_source Nullable(String),
-    timeline_date_reason Nullable(String),
-    timeline_coordinate_system Nullable(String),
-    timepoint_source Nullable(String)
-) ENGINE = MergeTree()
-ORDER BY (cancer_study_id, patient_id, image_id);
+## description: Reserved: WSI slide timing moves to the release that puts slides on the patient Summary timeline
+-- No changes. This version once created wsi_slide_timing; databases that applied it keep the empty,
+-- unread table until the timeline release decides its fate.
 ## db_schema_version: 3.5.0
 ## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
 -- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's

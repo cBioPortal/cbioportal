@@ -21,6 +21,7 @@ import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
+import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class DiscreteCopyNumberController {
 
   @Autowired private DiscreteCopyNumberService discreteCopyNumberService;
+
+  @Autowired private BulkRequestLimiter bulkRequestLimiter;
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -86,6 +89,7 @@ public class DiscreteCopyNumberController {
               .toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
+      bulkRequestLimiter.checkSampleList(sampleListId, null);
       return new ResponseEntity<>(
           DiscreteCopyNumberDataMapper.INSTANCE.toDtos(
               discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
@@ -156,6 +160,9 @@ public class DiscreteCopyNumberController {
     } else {
       List<DiscreteCopyNumberData> discreteCopyNumberDataList;
       if (discreteCopyNumberFilter.getSampleListId() != null) {
+        bulkRequestLimiter.checkSampleList(
+            discreteCopyNumberFilter.getSampleListId(),
+            discreteCopyNumberFilter.getEntrezGeneIds());
         discreteCopyNumberDataList =
             discreteCopyNumberService.getDiscreteCopyNumbersInMolecularProfileBySampleListId(
                 molecularProfileId,
@@ -164,6 +171,9 @@ public class DiscreteCopyNumberController {
                 discreteCopyNumberEventType.getAlterationTypes(),
                 projection.name());
       } else {
+        bulkRequestLimiter.checkSampleCount(
+            discreteCopyNumberFilter.getSampleIds().size(),
+            discreteCopyNumberFilter.getEntrezGeneIds());
         discreteCopyNumberDataList =
             discreteCopyNumberService.fetchDiscreteCopyNumbersInMolecularProfile(
                 molecularProfileId,

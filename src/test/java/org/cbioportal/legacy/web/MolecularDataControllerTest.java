@@ -12,6 +12,7 @@ import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.MolecularDataFilter;
 import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
+import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +46,8 @@ public class MolecularDataControllerTest {
   private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
   @MockBean private MolecularDataService molecularDataService;
+
+  @MockBean private BulkRequestLimiter bulkRequestLimiter;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 

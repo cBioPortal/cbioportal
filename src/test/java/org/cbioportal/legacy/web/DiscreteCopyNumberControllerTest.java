@@ -9,10 +9,12 @@ import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.DiscreteCopyNumberService;
+import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
+import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,6 +62,8 @@ public class DiscreteCopyNumberControllerTest {
   private static final int TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2 = 8;
 
   @MockBean private DiscreteCopyNumberService discreteCopyNumberService;
+
+  @MockBean private BulkRequestLimiter bulkRequestLimiter;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -401,5 +405,24 @@ public class DiscreteCopyNumberControllerTest {
     gene2.setType(TEST_TYPE_2);
     discreteCopyNumberDataList.get(1).setGene(gene2);
     return discreteCopyNumberDataList;
+  }
+
+  @Test
+  @WithMockUser
+  public void getDiscreteCopyNumbersRejectedByBulkRequestLimiter() throws Exception {
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large. See /llms.txt"))
+        .when(bulkRequestLimiter)
+        .checkSampleList(TEST_SAMPLE_LIST_ID, null);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(
+                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Too large. See /llms.txt"));
+
+    Mockito.verifyNoInteractions(discreteCopyNumberService);
   }
 }

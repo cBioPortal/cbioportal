@@ -514,4 +514,14 @@ feature.study.export.timeout_ms=600000
 # robots.txt also gets a comment pointing to /llms.txt.
 # llms_txt.location=file:/cbioportal/llms.txt
 
+# Limits on molecular data and discrete copy number requests, to stop a single request from
+# loading a whole profile into memory. Rejected requests get HTTP 400 with bulk_request.help_text
+# appended. Both limits are disabled by default (-1).
+#   bulk_request.max_samples_without_genes - max samples for a request without entrezGeneIds
+#                                            (the patient view asks for all genes for a few samples)
+#   bulk_request.max_values                - max genes x samples for a request with entrezGeneIds
+# bulk_request.max_samples_without_genes=100
+# bulk_request.max_values=5000000
+# bulk_request.help_text=For bulk data see https://www.cbioportal.org/llms.txt
+
 # EOL - Do not delete the following lines

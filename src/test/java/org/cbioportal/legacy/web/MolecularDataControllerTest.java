@@ -8,10 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.MolecularDataFilter;
 import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
+import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -19,10 +21,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -45,9 +47,9 @@ public class MolecularDataControllerTest {
   private static final String TEST_VALUE_2 = "2.4";
   private static final String TEST_SAMPLE_LIST_ID = "test_sample_list_id";
 
-  @MockBean private MolecularDataService molecularDataService;
+  @MockitoBean private MolecularDataService molecularDataService;
 
-  @MockBean private BulkRequestLimiter bulkRequestLimiter;
+  @MockitoBean private BulkRequestLimiter bulkRequestLimiter;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -264,5 +266,79 @@ public class MolecularDataControllerTest {
     molecularDataFilter.setEntrezGeneIds(entrezGeneIds);
     molecularDataFilter.setSampleIds(sampleIds);
     return molecularDataFilter;
+  }
+
+  private static final String PROFILE_FETCH_URL =
+      "/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch";
+
+  private void postExpectingBadRequest(String url, Object body) throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(url)
+                .with(csrf())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(body)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Too large."));
+    Mockito.verifyNoInteractions(molecularDataService);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchBySampleListIdChecksMatrixForSampleList() throws Exception {
+    MolecularDataFilter filter = new MolecularDataFilter();
+    filter.setSampleListId(TEST_SAMPLE_LIST_ID);
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrixForSampleList(TEST_SAMPLE_LIST_ID, null);
+
+    postExpectingBadRequest(PROFILE_FETCH_URL, filter);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchBySampleIdsChecksMatrix() throws Exception {
+    MolecularDataFilter filter = new MolecularDataFilter();
+    filter.setSampleIds(Arrays.asList(TEST_SAMPLE_STABLE_ID_1, TEST_SAMPLE_STABLE_ID_2));
+    filter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrix(2, Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+
+    postExpectingBadRequest(PROFILE_FETCH_URL, filter);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchMultipleByProfileIdsChecksMatrixForProfiles() throws Exception {
+    MolecularDataMultipleStudyFilter filter = new MolecularDataMultipleStudyFilter();
+    filter.setMolecularProfileIds(Arrays.asList(TEST_MOLECULAR_PROFILE_STABLE_ID_1));
+    filter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrixForProfiles(
+            Arrays.asList(TEST_MOLECULAR_PROFILE_STABLE_ID_1),
+            Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+
+    postExpectingBadRequest("/api/molecular-data/fetch", filter);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchMultipleByIdentifiersChecksMatrixForIdentifiers() throws Exception {
+    SampleMolecularIdentifier identifier = new SampleMolecularIdentifier();
+    identifier.setSampleId(TEST_SAMPLE_STABLE_ID_1);
+    identifier.setMolecularProfileId(TEST_MOLECULAR_PROFILE_STABLE_ID_1);
+    MolecularDataMultipleStudyFilter filter = new MolecularDataMultipleStudyFilter();
+    filter.setSampleMolecularIdentifiers(Arrays.asList(identifier));
+    filter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrixForSampleMolecularIdentifiers(
+            Mockito.argThat(ids -> ids.size() == 1),
+            Mockito.eq(Arrays.asList(TEST_ENTREZ_GENE_ID_1)));
+
+    postExpectingBadRequest("/api/molecular-data/fetch", filter);
   }
 }

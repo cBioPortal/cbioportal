@@ -4,6 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.cbioportal.legacy.model.DiscreteCopyNumberData;
 import org.cbioportal.legacy.model.Gene;
@@ -21,10 +22,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -61,9 +62,9 @@ public class DiscreteCopyNumberControllerTest {
   private static final int TEST_NUMBER_OF_SAMPLES_2 = 10;
   private static final int TEST_NUMBER_OF_SAMPLES_WITH_ALTERATION_IN_GENE_2 = 8;
 
-  @MockBean private DiscreteCopyNumberService discreteCopyNumberService;
+  @MockitoBean private DiscreteCopyNumberService discreteCopyNumberService;
 
-  @MockBean private BulkRequestLimiter bulkRequestLimiter;
+  @MockitoBean private BulkRequestLimiter bulkRequestLimiter;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -407,22 +408,127 @@ public class DiscreteCopyNumberControllerTest {
     return discreteCopyNumberDataList;
   }
 
+  private static final String DCN_URL =
+      "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number";
+
   @Test
   @WithMockUser
-  public void getDiscreteCopyNumbersRejectedByBulkRequestLimiter() throws Exception {
+  public void getDenseEventTypeRejectedByMatrixLimit() throws Exception {
     Mockito.doThrow(new BulkRequestTooLargeException("Too large. See /llms.txt"))
         .when(bulkRequestLimiter)
-        .checkSampleList(TEST_SAMPLE_LIST_ID, null);
+        .checkMatrixForSampleList(TEST_SAMPLE_LIST_ID, null);
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.get(
-                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number")
+            MockMvcRequestBuilders.get(DCN_URL)
                 .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.GAIN.name())
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())
         .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("Too large. See /llms.txt"));
 
+    Mockito.verify(discreteCopyNumberService, Mockito.never())
+        .getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @WithMockUser
+  public void getHomdelAndAmpRejectedByRowLimit() throws Exception {
+    BaseMeta meta = new BaseMeta();
+    meta.setTotalCount(2_000_000);
+    Mockito.when(bulkRequestLimiter.isRowLimitEnabled()).thenReturn(true);
+    Mockito.when(
+            discreteCopyNumberService.getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                "test_molecular_profile_id",
+                TEST_SAMPLE_LIST_ID,
+                null,
+                DiscreteCopyNumberEventType.HOMDEL_AND_AMP.getAlterationTypes()))
+        .thenReturn(meta);
+    Mockito.doThrow(new BulkRequestTooLargeException("Too many rows."))
+        .when(bulkRequestLimiter)
+        .checkRows(2_000_000);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.get(DCN_URL)
+                .param("sampleListId", TEST_SAMPLE_LIST_ID)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verify(discreteCopyNumberService, Mockito.never())
+        .getDiscreteCopyNumbersInMolecularProfileBySampleListId(
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchDenseBySampleIdsChecksMatrix() throws Exception {
+    DiscreteCopyNumberFilter filter = new DiscreteCopyNumberFilter();
+    filter.setSampleIds(Arrays.asList(TEST_SAMPLE_STABLE_ID_1, TEST_SAMPLE_STABLE_ID_2));
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrix(2, null);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(DCN_URL + "/fetch")
+                .with(csrf())
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.ALL.name())
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
     Mockito.verifyNoInteractions(discreteCopyNumberService);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchDenseMetaBySampleListIdChecksMatrix() throws Exception {
+    // Non-HOMDEL/AMP META counts materialize the molecular data matrix, so they are limited too.
+    DiscreteCopyNumberFilter filter = new DiscreteCopyNumberFilter();
+    filter.setSampleListId(TEST_SAMPLE_LIST_ID);
+    filter.setEntrezGeneIds(Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+    Mockito.doThrow(new BulkRequestTooLargeException("Too large."))
+        .when(bulkRequestLimiter)
+        .checkMatrixForSampleList(TEST_SAMPLE_LIST_ID, Arrays.asList(TEST_ENTREZ_GENE_ID_1));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(DCN_URL + "/fetch")
+                .with(csrf())
+                .param("discreteCopyNumberEventType", DiscreteCopyNumberEventType.HETLOSS.name())
+                .param("projection", "META")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    Mockito.verifyNoInteractions(discreteCopyNumberService);
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchHomdelAndAmpMetaSkipsLimits() throws Exception {
+    BaseMeta meta = new BaseMeta();
+    meta.setTotalCount(5);
+    Mockito.when(
+            discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(
+                Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+        .thenReturn(meta);
+    DiscreteCopyNumberFilter filter = new DiscreteCopyNumberFilter();
+    filter.setSampleIds(Arrays.asList(TEST_SAMPLE_STABLE_ID_1));
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(DCN_URL + "/fetch")
+                .with(csrf())
+                .param("projection", "META")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(filter)))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "5"));
+
+    Mockito.verifyNoInteractions(bulkRequestLimiter);
   }
 }

@@ -2,104 +2,158 @@ package org.cbioportal.legacy.web.util;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.SampleList;
+import org.cbioportal.legacy.service.MolecularDataService;
+import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
+import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BulkRequestLimiterTest {
 
   @Mock private SampleListService sampleListService;
+  @Mock private MolecularDataService molecularDataService;
+  @Mock private MolecularProfileService molecularProfileService;
 
-  @InjectMocks private BulkRequestLimiter limiter;
+  private BulkRequestLimiter limiter;
 
   @Before
   public void setUp() {
-    ReflectionTestUtils.setField(limiter, "maxSamplesWithoutGenes", 100);
-    ReflectionTestUtils.setField(limiter, "maxValues", 5_000_000L);
-    ReflectionTestUtils.setField(limiter, "helpText", "See /llms.txt.");
+    limiter = limiter(5_000_000L, 1_000_000L);
+  }
+
+  private BulkRequestLimiter limiter(long maxMatrixSize, long maxRows) {
+    return new BulkRequestLimiter(
+        sampleListService,
+        molecularDataService,
+        molecularProfileService,
+        maxMatrixSize,
+        maxRows,
+        "See /llms.txt.");
+  }
+
+  private static List<Integer> genes(int n) {
+    return IntStream.range(0, n).boxed().toList();
   }
 
   private static SampleList sampleListOf(int n) {
     SampleList list = new SampleList();
-    list.setSampleIds(IntStream.range(0, n).mapToObj(i -> "S" + i).collect(Collectors.toList()));
+    list.setSampleIds(IntStream.range(0, n).mapToObj(i -> "S" + i).toList());
     return list;
   }
 
-  private static List<Integer> genes(int n) {
-    return IntStream.range(0, n).boxed().collect(Collectors.toList());
+  private static SampleMolecularIdentifier id(String sampleId, String profileId) {
+    SampleMolecularIdentifier identifier = new SampleMolecularIdentifier();
+    identifier.setSampleId(sampleId);
+    identifier.setMolecularProfileId(profileId);
+    return identifier;
+  }
+
+  private static MolecularProfile profile(String profileId, String studyId) {
+    MolecularProfile profile = new MolecularProfile();
+    profile.setStableId(profileId);
+    profile.setCancerStudyIdentifier(studyId);
+    return profile;
   }
 
   @Test
-  public void allowsFewSamplesWithoutGenes() {
-    // e.g. the patient view's copy-number table: all genes for one patient's samples
-    limiter.checkSampleCount(5, null);
-    limiter.checkSampleCount(100, Collections.emptyList());
+  public void allGenesForAFewSamplesIsAllowed() {
+    // The patient view's copy-number table: all genes for one patient's samples.
+    limiter.checkMatrix(5, null);
   }
 
   @Test
-  public void rejectsManySamplesWithoutGenes() {
+  public void allGenesForAWholeStudyIsRejected() {
     BulkRequestTooLargeException e =
-        assertThrows(BulkRequestTooLargeException.class, () -> limiter.checkSampleCount(101, null));
-    assertTrue(e.getMessage().contains("101 requested"));
+        assertThrows(BulkRequestTooLargeException.class, () -> limiter.checkMatrix(1000, null));
+    assertTrue(e.getMessage().contains("without entrezGeneIds"));
     assertTrue(e.getMessage().endsWith("See /llms.txt."));
   }
 
   @Test
-  public void appliesValueLimitWhenGenesGiven() {
-    limiter.checkSampleCount(10_000, genes(500));
-    assertThrows(
-        BulkRequestTooLargeException.class, () -> limiter.checkSampleCount(10_000, genes(501)));
+  public void geneListIsCountedExactly() {
+    List<Integer> withinLimit = genes(500);
+    List<Integer> overLimit = genes(501);
+    limiter.checkMatrix(10_000, withinLimit);
+    assertThrows(BulkRequestTooLargeException.class, () -> limiter.checkMatrix(10_000, overLimit));
   }
 
   @Test
-  public void resolvesSampleListSize() throws Exception {
+  public void sampleListSizeIsResolved() throws Exception {
     when(sampleListService.getSampleList("big_all")).thenReturn(sampleListOf(1000));
-    when(sampleListService.getSampleList("small_all")).thenReturn(sampleListOf(10));
+    List<Integer> tenGenes = genes(10);
 
     assertThrows(
-        BulkRequestTooLargeException.class, () -> limiter.checkSampleList("big_all", null));
-    limiter.checkSampleList("small_all", null);
-    limiter.checkSampleList("big_all", genes(10));
+        BulkRequestTooLargeException.class,
+        () -> limiter.checkMatrixForSampleList("big_all", null));
+    limiter.checkMatrixForSampleList("big_all", tenGenes);
   }
 
   @Test
   public void missingSampleListIsLeftToTheDataQuery() throws Exception {
     when(sampleListService.getSampleList("nope"))
         .thenThrow(new SampleListNotFoundException("nope"));
-    limiter.checkSampleList("nope", null);
+    limiter.checkMatrixForSampleList("nope", null);
   }
 
   @Test
-  public void wholeProfilesRequireGenes() {
-    assertThrows(BulkRequestTooLargeException.class, () -> limiter.checkWholeProfiles(null));
-    limiter.checkWholeProfiles(genes(3));
+  public void wholeProfilesSumTheirSampleCounts() {
+    when(molecularDataService.getNumberOfSamplesInMolecularProfile("a_mrna")).thenReturn(3000);
+    when(molecularDataService.getNumberOfSamplesInMolecularProfile("b_mrna")).thenReturn(2001);
+    List<String> profiles = List.of("a_mrna", "b_mrna");
+    List<Integer> thousandGenes = genes(1000);
+
+    // (3000 + 2001) samples x 1000 genes = 5,001,000 > 5,000,000
+    assertThrows(
+        BulkRequestTooLargeException.class,
+        () -> limiter.checkMatrixForProfiles(profiles, thousandGenes));
+  }
+
+  @Test
+  public void identifiersCountEverySampleInEveryProfileOfTheStudy() {
+    // 2 samples x 2 profiles in one study = 4 sample/profile pairs, though only 2 identifiers.
+    when(molecularProfileService.getMolecularProfiles(anySet(), eq("SUMMARY")))
+        .thenReturn(List.of(profile("s_mrna", "s"), profile("s_cna", "s")));
+    List<SampleMolecularIdentifier> identifiers = List.of(id("S1", "s_mrna"), id("S2", "s_cna"));
+    BulkRequestLimiter strict = limiter(3L, -1L);
+    List<Integer> oneGene = genes(1);
+
+    assertThrows(
+        BulkRequestTooLargeException.class,
+        () -> strict.checkMatrixForSampleMolecularIdentifiers(identifiers, oneGene));
+  }
+
+  @Test
+  public void rowLimit() {
+    limiter.checkRows(1_000_000);
+    assertThrows(BulkRequestTooLargeException.class, () -> limiter.checkRows(1_000_001));
   }
 
   @Test
   public void disabledByDefault() {
-    ReflectionTestUtils.setField(limiter, "maxSamplesWithoutGenes", -1);
-    ReflectionTestUtils.setField(limiter, "maxValues", -1L);
+    BulkRequestLimiter disabled = limiter(-1L, -1L);
+    List<SampleMolecularIdentifier> identifiers = List.of(id("S1", "p"));
 
-    limiter.checkSampleCount(1_000_000, null);
-    limiter.checkSampleCount(1_000_000, genes(20_000));
-    limiter.checkSampleList("big_all", null);
-    limiter.checkWholeProfiles(null);
-    verifyNoInteractions(sampleListService);
+    disabled.checkMatrix(1_000_000, null);
+    disabled.checkMatrixForSampleList("big_all", null);
+    disabled.checkMatrixForProfiles(List.of("p"), null);
+    disabled.checkMatrixForSampleMolecularIdentifiers(identifiers, null);
+    disabled.checkRows(Long.MAX_VALUE);
+    verifyNoInteractions(sampleListService, molecularDataService, molecularProfileService);
   }
 }

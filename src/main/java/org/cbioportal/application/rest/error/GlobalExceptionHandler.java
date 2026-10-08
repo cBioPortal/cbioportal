@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.cbioportal.application.rest.availability.StudyUnavailableException;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
+import org.cbioportal.legacy.service.exception.BulkRequestTooLargeException;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
 import org.cbioportal.legacy.service.exception.CancerTypeNotFoundException;
@@ -201,6 +202,11 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(
         new ErrorResponse("Request payload failed validation"), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(BulkRequestTooLargeException.class)
+  public ResponseEntity<ErrorResponse> handleBulkRequestTooLarge(BulkRequestTooLargeException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(InvalidVirtualStudyDataException.class)

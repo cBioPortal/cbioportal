@@ -21,7 +21,7 @@ import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberEventType;
 import org.cbioportal.legacy.web.parameter.DiscreteCopyNumberFilter;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.Projection;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -42,7 +42,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.DISCRETE_COPY_NUMBER_ALTERATIONS, description = " ")
 public class DiscreteCopyNumberController {
 
-  @Autowired private DiscreteCopyNumberService discreteCopyNumberService;
+  private final DiscreteCopyNumberService discreteCopyNumberService;
+  private final BulkRequestLimiter bulkRequestLimiter;
+
+  public DiscreteCopyNumberController(
+      DiscreteCopyNumberService discreteCopyNumberService, BulkRequestLimiter bulkRequestLimiter) {
+    this.discreteCopyNumberService = discreteCopyNumberService;
+    this.bulkRequestLimiter = bulkRequestLimiter;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -71,6 +78,9 @@ public class DiscreteCopyNumberController {
           @RequestParam(defaultValue = "SUMMARY")
           Projection projection)
       throws MolecularProfileNotFoundException {
+
+    checkBulkRequestLimits(
+        molecularProfileId, sampleListId, null, null, discreteCopyNumberEventType, projection);
 
     if (projection == Projection.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
@@ -132,6 +142,14 @@ public class DiscreteCopyNumberController {
           Projection projection)
       throws MolecularProfileNotFoundException {
 
+    checkBulkRequestLimits(
+        molecularProfileId,
+        discreteCopyNumberFilter.getSampleListId(),
+        discreteCopyNumberFilter.getSampleIds(),
+        discreteCopyNumberFilter.getEntrezGeneIds(),
+        discreteCopyNumberEventType,
+        projection);
+
     if (projection == Projection.META) {
       HttpHeaders responseHeaders = new HttpHeaders();
       BaseMeta baseMeta;
@@ -176,5 +194,45 @@ public class DiscreteCopyNumberController {
       return new ResponseEntity<>(
           DiscreteCopyNumberDataMapper.INSTANCE.toDtos(discreteCopyNumberDataList), HttpStatus.OK);
     }
+  }
+
+  /**
+   * HOMDEL/AMP events come from the sparse CNA event table: limit the matching row count (a cheap
+   * count query). Other event types are derived from the dense molecular data matrix, including for
+   * META counts: limit genes × samples.
+   */
+  private void checkBulkRequestLimits(
+      String molecularProfileId,
+      String sampleListId,
+      List<String> sampleIds,
+      List<Integer> entrezGeneIds,
+      DiscreteCopyNumberEventType eventType,
+      Projection projection)
+      throws MolecularProfileNotFoundException {
+    if (isSparse(eventType)) {
+      if (projection == Projection.META || !bulkRequestLimiter.isRowLimitEnabled()) {
+        return;
+      }
+      BaseMeta meta =
+          sampleListId != null
+              ? discreteCopyNumberService
+                  .getMetaDiscreteCopyNumbersInMolecularProfileBySampleListId(
+                      molecularProfileId,
+                      sampleListId,
+                      entrezGeneIds,
+                      eventType.getAlterationTypes())
+              : discreteCopyNumberService.fetchMetaDiscreteCopyNumbersInMolecularProfile(
+                  molecularProfileId, sampleIds, entrezGeneIds, eventType.getAlterationTypes());
+      bulkRequestLimiter.checkRows(meta.getTotalCount());
+    } else if (sampleListId != null) {
+      bulkRequestLimiter.checkMatrixForSampleList(sampleListId, entrezGeneIds);
+    } else {
+      bulkRequestLimiter.checkMatrix(sampleIds == null ? 0 : sampleIds.size(), entrezGeneIds);
+    }
+  }
+
+  private static boolean isSparse(DiscreteCopyNumberEventType eventType) {
+    List<Integer> types = eventType.getAlterationTypes();
+    return !types.contains(-1) && !types.contains(0) && !types.contains(1);
   }
 }

@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS resource_data
 (
     `resource_data_id` Int64,
     `resource_id`      String,
-    `cancer_study_id`  Int32,
+    `cancer_study_id`  Int64,
     `entity_type`      String,
     `patient_id`       Nullable(String),
     `sample_id`        Nullable(String),
@@ -71,7 +71,7 @@ INSERT INTO resource_data
 SELECT
     toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)),
     rs.resource_id,
-    toInt32(cs.cancer_study_id),
+    cs.cancer_study_id,
     'SAMPLE',
     p.stable_id,
     s.stable_id,
@@ -91,7 +91,7 @@ INSERT INTO resource_data
 SELECT
     toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)),
     rp.resource_id,
-    toInt32(cs.cancer_study_id),
+    cs.cancer_study_id,
     'PATIENT',
     pt.stable_id,
     NULL,
@@ -110,7 +110,7 @@ INSERT INTO resource_data
 SELECT
     toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)),
     rst.resource_id,
-    toInt32(rst.internal_id),
+    rst.internal_id,
     'STUDY',
     NULL, NULL,
     rst.url,

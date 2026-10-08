@@ -15,12 +15,12 @@ import org.junit.Test;
 /**
  * The integration tests run against their own copy of the schema ({@code
  * src/test/resources/schema.sql}) rather than the one production installs use ({@code
- * db-scripts/clickhouse/init/schema.sql}). Nothing kept the two in step, so the copy drifted: it
- * declared {@code resource_data.CANCER_STUDY_ID} as {@code Int64} where production had {@code
- * Int32}, and it went on creating {@code resource_sample} / {@code resource_patient} / {@code
- * resource_study} after production stopped. That second drift actively hid a bug -- a
- * resource-count query was still reading those tables, and only the test schema's stale copies let
- * it pass.
+ * db-scripts/clickhouse/init/schema.sql}). Nothing kept the two in step, so they disagreed on
+ * {@code resource_data}: on the width of {@code cancer_study_id}, and on whether {@code
+ * resource_sample} / {@code resource_patient} / {@code resource_study} still existed, which the
+ * test copy went on creating after production stopped. That second disagreement actively hid a bug
+ * -- a resource-count query was still reading those tables, and only the test schema's stale copies
+ * let it pass.
  *
  * <p>This asserts the two define the same tables, columns and engines, so the next drift fails here
  * instead of hiding something. It compares structure only: comments, whitespace, statement order

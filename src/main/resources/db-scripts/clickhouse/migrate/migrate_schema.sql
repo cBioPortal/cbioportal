@@ -28,3 +28,103 @@
 ## db_schema_version: 3.0.0
 ## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
+
+## db_schema_version: 3.0.1
+## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
+-- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
+-- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
+-- result set, which keeps paging cost independent of how large the resource is.
+-- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
+-- MergeTree only permits with allow_nullable_key.
+CREATE TABLE IF NOT EXISTS resource_data
+(
+    `resource_data_id` Int64,
+    `resource_id`      String,
+    `cancer_study_id`  Int32,
+    `entity_type`      String,
+    `patient_id`       Nullable(String),
+    `sample_id`        Nullable(String),
+    `url`              String,
+    `display_name`     Nullable(String),
+    `type`             Nullable(String),
+    `metadata`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
+  SETTINGS allow_nullable_key = 1;
+
+-- Backfill is guarded by a deterministic resource_data_id (hash of the natural key) so this
+-- section is safe to re-run: rows already present are excluded via NOT IN. The study id is part
+-- of that key: stable ids are unique only within a study and the same URL can be attached in more
+-- than one, so hashing without it mints the same id for two studies' rows -- and because the
+-- importer deletes a resource's stale rows by id, re-importing one study would then delete the
+-- other study's rows. Study-level rows key on the study's own internal_id, which already carries
+-- it.
+-- Recreate the legacy tables if they are missing, so this section can be retried after a run
+-- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
+-- first run they already exist and this is a no-op; on a retry they come back empty, the
+-- backfill finds nothing new, and the drops remove them again.
+CREATE TABLE IF NOT EXISTS resource_sample (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
+INSERT INTO resource_data
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
+SELECT
+    toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)),
+    rs.resource_id,
+    toInt32(cs.cancer_study_id),
+    'SAMPLE',
+    p.stable_id,
+    s.stable_id,
+    rs.url,
+    NULL, NULL, NULL
+FROM resource_sample rs
+INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
+INNER JOIN patient      p  ON s.patient_id      = p.internal_id
+INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+WHERE toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)) NOT IN (
+    SELECT resource_data_id FROM resource_data
+);
+
+INSERT INTO resource_data
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
+SELECT
+    toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)),
+    rp.resource_id,
+    toInt32(cs.cancer_study_id),
+    'PATIENT',
+    pt.stable_id,
+    NULL,
+    rp.url,
+    NULL, NULL, NULL
+FROM resource_patient rp
+INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
+INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
+WHERE toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)) NOT IN (
+    SELECT resource_data_id FROM resource_data
+);
+
+INSERT INTO resource_data
+    (resource_data_id, resource_id, cancer_study_id, entity_type,
+     patient_id, sample_id, url, display_name, type, metadata)
+SELECT
+    toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)),
+    rst.resource_id,
+    toInt32(rst.internal_id),
+    'STUDY',
+    NULL, NULL,
+    rst.url,
+    NULL, NULL, NULL
+FROM resource_study rst
+WHERE toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)) NOT IN (
+    SELECT resource_data_id FROM resource_data
+);
+
+-- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
+-- the API paths that used to read them (the legacy resource endpoints, the study resource
+-- counts) were repointed. Dropping them leaves an upgraded database with the same schema a
+-- fresh install gets from schema.sql, which no longer creates them.
+DROP TABLE IF EXISTS resource_sample;
+DROP TABLE IF EXISTS resource_patient;
+DROP TABLE IF EXISTS resource_study;

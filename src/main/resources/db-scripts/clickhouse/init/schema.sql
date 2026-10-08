@@ -97,6 +97,7 @@ DROP TABLE IF EXISTS mutation_event;
 DROP TABLE IF EXISTS patient;
 DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_sample;
@@ -620,23 +621,27 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
-CREATE TABLE resource_patient (
-    `internal_id` Int64,
+-- Unified resource table covering every entity level. Replaces the resource_sample,
+-- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
+-- migration drops them once their contents have been carried over.
+-- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
+-- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
+-- result set, which keeps paging cost independent of how large the resource is.
+-- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
+-- MergeTree only permits with allow_nullable_key.
+CREATE TABLE resource_data (
+    `resource_data_id` Int64,
     `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_sample (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
-
-CREATE TABLE resource_study (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+    `cancer_study_id` Int32,
+    `entity_type` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `type` Nullable(String),
+    `metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
+  SETTINGS allow_nullable_key = 1;
 
 CREATE TABLE sample (
     `internal_id` Int64,
@@ -759,4 +764,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.0.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.0.1', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

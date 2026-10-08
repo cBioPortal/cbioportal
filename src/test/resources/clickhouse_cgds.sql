@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS mut_sig;
 DROP TABLE IF EXISTS clinical_attribute_meta;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS clinical_patient;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
@@ -416,9 +417,30 @@ CREATE TABLE resource_sample
 -- --------------------------------------------------------
 CREATE TABLE resource_definition
 (
-    resource_id Int32,
-    definition  String
-) ENGINE = MergeTree() ORDER BY resource_id;
+    RESOURCE_ID       String,
+    CANCER_STUDY_ID   Int32,
+    RESOURCE_TYPE     String,
+    DISPLAY_NAME      String,
+    DESCRIPTION       Nullable(String),
+    OPEN_BY_DEFAULT   UInt8,
+    PRIORITY          Int32,
+    CUSTOM_METADATA   Nullable(String)
+) ENGINE = MergeTree() ORDER BY (RESOURCE_ID, CANCER_STUDY_ID);
+
+-- --------------------------------------------------------
+CREATE TABLE resource_data
+(
+    resource_data_id  Int32,
+    resource_id       String,
+    cancer_study_id   Int32,
+    entity_type       String,
+    patient_id        Nullable(String),
+    sample_id         Nullable(String),
+    url               String,
+    display_name      Nullable(String),
+    type              Nullable(String),
+    metadata          Nullable(String)
+) ENGINE = MergeTree() ORDER BY (cancer_study_id, resource_id, resource_data_id);
 
 -- --------------------------------------------------------
 CREATE TABLE clinical_patient

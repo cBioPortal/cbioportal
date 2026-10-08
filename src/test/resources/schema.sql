@@ -90,6 +90,7 @@ DROP TABLE IF EXISTS patient;
 DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
 DROP TABLE IF EXISTS resource_definition;
+DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_study;
@@ -612,23 +613,22 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
-CREATE TABLE resource_patient (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+CREATE TABLE resource_data (
+    `resource_data_id` Int64,
+    `resource_id`      String,
+    `cancer_study_id`  Int32,
+    `entity_type`      String,
+    `patient_id`       Nullable(String),
+    `sample_id`        Nullable(String),
+    `url`              String,
+    `display_name`     Nullable(String),
+    `type`             Nullable(String),
+    `metadata`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
+  SETTINGS allow_nullable_key = 1;
 
-CREATE TABLE resource_sample (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 
-CREATE TABLE resource_study (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 
 CREATE TABLE sample (
     `internal_id` Int64,
@@ -751,4 +751,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('2.14.5', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.0.1', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

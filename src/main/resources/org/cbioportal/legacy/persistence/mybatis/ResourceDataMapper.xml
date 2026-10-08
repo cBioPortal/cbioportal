@@ -48,22 +48,36 @@
         </if>
     </sql>
 
+    <!--
+        Sourced from the unified resource_data table, which the importer now writes in place of
+        resource_sample/resource_patient/resource_study. resource_data stores stable IDs, so the
+        joins onto sample/patient go through stable_id; those are unique only within a study, so
+        every join is scoped by cancer_study_id.
+    -->
     <sql id="fromSample">
-        FROM resource_sample
-        INNER JOIN sample ON resource_sample.internal_id = sample.internal_id
+        FROM (SELECT resource_id, cancer_study_id, sample_id, url
+              FROM resource_data
+              WHERE entity_type = 'SAMPLE' AND sample_id IS NOT NULL) AS resource_sample
+        INNER JOIN cancer_study ON resource_sample.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN sample ON sample.stable_id = resource_sample.sample_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+                          AND patient.cancer_study_id = resource_sample.cancer_study_id
     </sql>
 
     <sql id="fromPatient">
-        FROM resource_patient
-        INNER JOIN patient ON resource_patient.internal_id = patient.internal_id
-        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        FROM (SELECT resource_id, cancer_study_id, patient_id, url
+              FROM resource_data
+              WHERE entity_type = 'PATIENT' AND patient_id IS NOT NULL) AS resource_patient
+        INNER JOIN cancer_study ON resource_patient.cancer_study_id = cancer_study.cancer_study_id
+        INNER JOIN patient ON patient.stable_id = resource_patient.patient_id
+                          AND patient.cancer_study_id = resource_patient.cancer_study_id
     </sql>
 
     <sql id="fromStudy">
-        FROM resource_study
-        INNER JOIN cancer_study ON resource_study.internal_id = cancer_study.cancer_study_id
+        FROM (SELECT resource_id, cancer_study_id, url
+              FROM resource_data
+              WHERE entity_type = 'STUDY') AS resource_study
+        INNER JOIN cancer_study ON resource_study.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 
     <sql id="whereSample">

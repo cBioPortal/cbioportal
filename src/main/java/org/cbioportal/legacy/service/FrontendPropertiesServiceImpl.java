@@ -212,6 +212,7 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     clickhouse_mode("clickhouse_mode", "false"),
     feature_study_export("feature.study.export", "false"),
+    study_availability_enabled("study_availability.enabled", "false"),
 
     msk_wsi_tile_server_url("msk.wsi.tile_server.url", null),
     wsi_backend_git_sha("wsi.backend-git-sha", null),

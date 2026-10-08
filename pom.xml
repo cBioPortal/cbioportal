@@ -895,6 +895,49 @@
         <skipE2ETests>false</skipE2ETests>
       </properties>
     </profile>
+    <profile>
+      <id>third-party-report</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>2.7.1</version>
+            <configuration>
+              <addOutputDirectoryAsResourceDir>false</addOutputDirectoryAsResourceDir>
+              <includedScopes>compile,runtime</includedScopes>
+              <includeOptional>true</includeOptional>
+              <includeTransitiveDependencies>true</includeTransitiveDependencies>
+              <outputDirectory>
+                ${project.build.directory}/generated-resources/licenses</outputDirectory>
+              <thirdPartyFilename>THIRD-PARTY.txt</thirdPartyFilename>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.cyclonedx</groupId>
+            <artifactId>cyclonedx-maven-plugin</artifactId>
+            <version>2.9.3</version>
+            <configuration>
+              <projectType>application</projectType>
+              <schemaVersion>1.6</schemaVersion>
+              <includeBomSerialNumber>false</includeBomSerialNumber>
+              <includeCompileScope>true</includeCompileScope>
+              <includeProvidedScope>false</includeProvidedScope>
+              <includeRuntimeScope>true</includeRuntimeScope>
+              <includeSystemScope>false</includeSystemScope>
+              <includeTestScope>false</includeTestScope>
+              <includeLicenseText>false</includeLicenseText>
+              <outputTimestamp>1970-01-01T00:00:00Z</outputTimestamp>
+              <outputFormat>json</outputFormat>
+              <outputName>bom</outputName>
+              <outputDirectory>
+                ${project.build.directory}/generated-resources/sbom</outputDirectory>
+              <skipAttach>true</skipAttach>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- Maven Central -->
     <profile>
       <id>maven-central</id>

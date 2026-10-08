@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * study still gets 403, so availability is never revealed for studies they cannot read.
  *
  * <p>Only registered when {@value #ENABLED_PROPERTY} is {@code true}. The study list marks
- * unavailable studies {@code readPermission: false} either way.
+ * unavailable studies {@code readPermission: false} under the same condition.
  */
 @Configuration
 public class StudyAvailabilityConfig {

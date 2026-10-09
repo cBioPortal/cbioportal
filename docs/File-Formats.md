@@ -372,16 +372,11 @@ Rows written before `slide_key` existed are deleted by the ClickHouse `3.6.0`
 migration, and rows that still hold an image ID or object URI by `3.7.0`;
 re-import the converted v4 resources to restore them.
 
-The serving fields are produced upstream. A separate scheduled
-thumbnail batch reads eligible slide inventory/source rows, writes master
-JPEGs to the S3/Dell ECS-compatible object store, and populates
-`cdsi_prod.pathology_data_mining.slide_thumbnail_registry` with the artifact
-URI, `TILE_METADATA_JSON`, dimensions, and content type. The Databricks
-canonical-association query joins those registry rows and seals each servable
-slide's image ID and URIs into `SEALED_SOURCE` before exporting this file.
-The cBioPortal frontend only consumes the resulting access bundle; it does not
-generate or upload thumbnails. Runtime/on-demand thumbnail workers
-are not the production publication path.
+The serving fields are produced upstream by the data provider: thumbnails,
+`TILE_METADATA_JSON`, dimensions and content type, and `SEALED_SOURCE`, which
+seals each servable slide's image ID and source/thumbnail URIs before this
+file is exported. The cBioPortal frontend only consumes the resulting access
+bundle; it does not generate or upload thumbnails.
 
 ### Converting a WSI file pair
 

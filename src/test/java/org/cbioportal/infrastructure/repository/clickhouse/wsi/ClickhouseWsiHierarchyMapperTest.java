@@ -81,8 +81,8 @@ public class ClickhouseWsiHierarchyMapperTest {
             "AQEBAQEBAQEBAQEB",
             "900101",
             "900104",
-            "partDesignator\":\"",
-            "pathDxTitle\":\"",
+            "partDesignator",
+            "pathDxTitle",
             // Slide timing arrives later, with slides on the patient Summary timeline.
             "procedureDate",
             "timepoint",

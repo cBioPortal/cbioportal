@@ -239,27 +239,26 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
   }
 
   private static final class WsiPartBuilder {
-    private final WsiPart part;
+    private final String partNumber;
+    private final String partType;
+    private final String partDescription;
+    private final String subspecialty;
     private final Map<String, WsiBlockBuilder> blocks = new java.util.LinkedHashMap<>();
 
-    /**
-     * part_designator and path_dx_title are no longer public slide metadata (wsi-serving-v5); the
-     * fields stay in the response shape but are always null.
-     */
     private WsiPartBuilder(
         String partNumber, String partType, String partDescription, String subspecialty) {
-      this.part =
-          new WsiPart(partNumber, null, partType, partDescription, subspecialty, null, null);
+      this.partNumber = partNumber;
+      this.partType = partType;
+      this.partDescription = partDescription;
+      this.subspecialty = subspecialty;
     }
 
     private WsiPart build() {
       return new WsiPart(
-          part.partNumber(),
-          part.partDesignator(),
-          part.partType(),
-          part.partDescription(),
-          part.subspecialty(),
-          part.pathDxTitle(),
+          partNumber,
+          partType,
+          partDescription,
+          subspecialty,
           blocks.values().stream().map(WsiBlockBuilder::build).toList());
     }
   }

@@ -105,8 +105,10 @@ public class ClickhouseWsiHierarchyRepositoryTest {
 
     WsiHierarchy hierarchy = repository.getPatientHierarchy("study", "patient");
 
-    assertNull(hierarchy.sampleGroups().get(0).parts().get(0).partDesignator());
-    assertNull(hierarchy.sampleGroups().get(0).parts().get(0).pathDxTitle());
+    String json = new ObjectMapper().writeValueAsString(hierarchy);
+    assertFalse(json, json.contains("right ovary"));
+    assertFalse(json, json.contains("partDesignator"));
+    assertFalse(json, json.contains("pathDxTitle"));
   }
 
   // ---- reference sample selection ----

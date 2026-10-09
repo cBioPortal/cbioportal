@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideSource;
@@ -64,35 +65,33 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
     Map<String, Object> row =
         mapper.getSlideAccess(longValue(context.get("cancer_study_id")), patientId, slideKey);
-    if (!isServableRow(row, objectMapper) || !slideKey.equals(stringValue(row.get("slide_key")))) {
+    if (row == null || !slideKey.equals(stringValue(row.get("slide_key")))) {
       return null;
     }
-    try {
-      WsiTileMetadata metadata =
-          objectMapper.readValue(stringValue(row.get("tile_metadata_json")), WsiTileMetadata.class);
-      int width = numberValue(row.get("thumbnail_width"));
-      int height = numberValue(row.get("thumbnail_height"));
-      String contentType =
-          stringValue(row.get("thumbnail_content_type")).trim().toLowerCase(Locale.ROOT);
-      return new WsiSlideSource(
-          slideKey,
-          stringValue(row.get("sealed_source")),
-          metadata,
-          new WsiThumbnail(width, height, contentType));
-    } catch (JsonProcessingException | RuntimeException exception) {
+    WsiTileMetadata metadata = servableTileMetadata(row, objectMapper);
+    if (metadata == null) {
       return null;
     }
+    return new WsiSlideSource(
+        slideKey,
+        stringValue(row.get("sealed_source")),
+        metadata,
+        new WsiThumbnail(
+            numberValue(row.get("thumbnail_width")),
+            numberValue(row.get("thumbnail_height")),
+            stringValue(row.get("thumbnail_content_type")).trim().toLowerCase(Locale.ROOT)));
   }
 
   /**
-   * A row is servable when it is marked servable, carries a valid slide key and a well-formed
-   * sealed source, and its tile metadata and thumbnail fields pass the checks below. The sealed
-   * source is opaque here: the tile server authenticates it against the slide key and validates the
-   * object URIs it contains.
+   * Returns the parsed tile metadata of a servable row, or {@code null} when the row is not
+   * servable. A row is servable when it is marked servable, carries a valid slide key and a
+   * well-formed sealed source, and its tile metadata and thumbnail fields pass the checks below.
+   * The sealed source is opaque here: the tile server authenticates it against the slide key and
+   * validates the object URIs it contains.
    */
-  static boolean isServableRow(Map<String, Object> row, ObjectMapper objectMapper) {
+  static WsiTileMetadata servableTileMetadata(Map<String, Object> row, ObjectMapper objectMapper) {
     if (row == null || !boolValue(row.get("can_serve_tiles"))) {
-      return false;
+      return null;
     }
     String slideKey = stringValue(row.get("slide_key"));
     String sealedSource = stringValue(row.get("sealed_source"));
@@ -109,61 +108,51 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
         || height <= 0
         || width > 8192
         || height > 8192) {
-      return false;
+      return null;
     }
     try {
       JsonNode metadataNode = objectMapper.readTree(metadataJson);
-      if (!metadataNode.isObject()) {
-        return false;
-      }
       // Metadata is serialized into the portal response. Apply the same
       // fail-closed identifier/date checks as the importer and hierarchy
       // endpoint to string values while ignoring numeric geometry.
-      if (containsForbiddenMetadataText(metadataNode)) {
-        return false;
+      if (!metadataNode.isObject() || containsForbiddenMetadataText(metadataNode)) {
+        return null;
       }
       var fieldNames = metadataNode.fieldNames();
       while (fieldNames.hasNext()) {
         if (!ALLOWED_METADATA_KEYS.contains(fieldNames.next())) {
-          return false;
+          return null;
         }
       }
-      return validMetadata(objectMapper.treeToValue(metadataNode, WsiTileMetadata.class));
+      WsiTileMetadata metadata = objectMapper.treeToValue(metadataNode, WsiTileMetadata.class);
+      return validMetadata(metadata) ? metadata : null;
     } catch (JsonProcessingException | RuntimeException exception) {
-      return false;
+      return null;
     }
   }
 
+  /** Only schema-2 tile metadata, the version the pipeline marks servable, is accepted. */
   private static boolean validMetadata(WsiTileMetadata metadata) {
-    boolean isCurrentSchema =
-        metadata != null
-            && metadata.tileMetadataSchemaVersion() != null
-            && metadata.tileMetadataSchemaVersion() == TILE_METADATA_SCHEMA_VERSION;
     if (metadata == null
+        || !Objects.equals(metadata.tileMetadataSchemaVersion(), TILE_METADATA_SCHEMA_VERSION)
         || metadata.dimensions() == null
         || metadata.dimensions().width() <= 0
         || metadata.dimensions().height() <= 0
         || metadata.levels() <= 0
         || metadata.levelDimensions() == null
         || metadata.levelDimensions().size() != metadata.levels()
+        || metadata.levelDownsamples() == null
+        || metadata.levelDownsamples().size() != metadata.levels()
+        || metadata.levelDownsamples().stream()
+            .anyMatch(value -> value == null || !Double.isFinite(value) || value <= 0)
         || metadata.maxZoom() < 0
-        || (metadata.safeMinLevel() != null
-            && (metadata.safeMinLevel() < 0 || metadata.safeMinLevel() > metadata.maxZoom()))
-        || (metadata.tileMetadataSchemaVersion() != null
-            && metadata.tileMetadataSchemaVersion() != TILE_METADATA_SCHEMA_VERSION)
-        || (isCurrentSchema
-            && (metadata.safeMinLevel() == null
-                || metadata.levelDownsamples() == null
-                || metadata.levelDownsamples().size() != metadata.levels()
-                || metadata.levelDownsamples().stream()
-                    .anyMatch(value -> value == null || !Double.isFinite(value) || value <= 0)))
-        || (isCurrentSchema
-            && (metadata.maxDecodePixels() == null
-                || metadata.maxDecodePixels() != MAX_DECODE_PIXELS
-                || metadata.thumbnailMaxDecodePixels() == null
-                || metadata.thumbnailMaxDecodePixels() != MAX_DECODE_PIXELS
-                || !DECODE_POLICY_VERSION.equals(metadata.decodePolicyVersion())))
-        || metadata.tileSize() <= 0) {
+        || metadata.safeMinLevel() == null
+        || metadata.safeMinLevel() < 0
+        || metadata.safeMinLevel() > metadata.maxZoom()
+        || metadata.tileSize() <= 0
+        || !Objects.equals(metadata.maxDecodePixels(), MAX_DECODE_PIXELS)
+        || !Objects.equals(metadata.thumbnailMaxDecodePixels(), MAX_DECODE_PIXELS)
+        || !DECODE_POLICY_VERSION.equals(metadata.decodePolicyVersion())) {
       return false;
     }
     return metadata.levelDimensions().stream()

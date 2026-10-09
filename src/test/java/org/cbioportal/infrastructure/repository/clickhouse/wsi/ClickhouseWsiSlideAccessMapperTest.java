@@ -62,7 +62,7 @@ public class ClickhouseWsiSlideAccessMapperTest {
   @Test
   public void servableFixtureRowPassesTheServabilityChecks() {
     assertTrue(
-        ClickhouseWsiSlideAccessRepository.isServableRow(
+        ClickhouseWsiSlideAccessRepositoryTest.isServableRow(
             mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", SAMPLE_SLIDE_KEY),
             new ObjectMapper()));
   }
@@ -76,7 +76,7 @@ public class ClickhouseWsiSlideAccessMapperTest {
     assertEquals(PATIENT_SLIDE_KEY, row.get("slide_key"));
     // A slide that cannot serve tiles has no wsi_serving object, so it is not servable.
     assertEquals("", row.get("sealed_source"));
-    assertFalse(ClickhouseWsiSlideAccessRepository.isServableRow(row, new ObjectMapper()));
+    assertFalse(ClickhouseWsiSlideAccessRepositoryTest.isServableRow(row, new ObjectMapper()));
   }
 
   @Test

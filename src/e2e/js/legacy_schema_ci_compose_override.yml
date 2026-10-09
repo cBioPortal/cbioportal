@@ -1,6 +1,5 @@
 # Ordinary localdb regression data is still schema 3.0.0. This override is
-# used only by the legacy CircleCI Playwright job; WSI validation starts its
-# own 3.4.0 fixture without this file.
+# used only by the legacy CircleCI Playwright job.
 services:
   cbioportal:
     environment:

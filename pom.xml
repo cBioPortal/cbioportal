@@ -848,7 +848,12 @@
   </pluginRepositories>
 
   <repositories>
-    <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
+    <!-- Prefer the public JBoss mirror because the upstream Shibboleth repository
+         can reject anonymous CI traffic; retain upstream as a fallback. -->
+    <repository>
+      <id>jboss-public</id>
+      <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+    </repository>
     <repository>
       <id>shiboleth</id>
       <url>https://build.shibboleth.net/maven/releases/</url>

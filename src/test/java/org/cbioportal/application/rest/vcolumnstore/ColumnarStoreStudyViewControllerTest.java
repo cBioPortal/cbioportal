@@ -1,10 +1,14 @@
+
 package org.cbioportal.application.rest.vcolumnstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.cbioportal.domain.studyview.StudyViewService;
+import org.cbioportal.infrastructure.service.BasicDataBinner;
 import org.cbioportal.legacy.model.GenericAssayDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
+import org.cbioportal.legacy.web.parameter.ClinicalDataBinCountFilter;
+import org.cbioportal.legacy.web.parameter.DataBinMethod;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -26,6 +30,7 @@ public class ColumnarStoreStudyViewControllerTest {
   private static final String TEST_MOLECULAR_PROFILE_TYPE = "test_molecular_profile_type";
 
   private StudyViewService studyViewService;
+  private BasicDataBinner basicDataBinner;
   private MockMvc mockMvc;
 
   private final ObjectMapper objectMapper = new ObjectMapper();
@@ -33,10 +38,12 @@ public class ColumnarStoreStudyViewControllerTest {
   @Before
   public void setUp() {
     studyViewService = Mockito.mock(StudyViewService.class);
+    basicDataBinner = Mockito.mock(BasicDataBinner.class);
+
     mockMvc =
         MockMvcBuilders.standaloneSetup(
                 new ColumnarStoreStudyViewController(
-                    studyViewService, null, null, null, null, null, null))
+                    studyViewService, basicDataBinner, null, null, null, null, null))
             .build();
   }
 
@@ -202,5 +209,37 @@ public class ColumnarStoreStudyViewControllerTest {
 
     Mockito.verify(studyViewService)
         .getFilteredSamples(Mockito.any(StudyViewFilter.class));
+  }
+
+  @Test
+  public void fetchCustomDataBinCounts_returnsEmptyList() throws Exception {
+    Mockito.when(
+            basicDataBinner.getDataBins(
+                Mockito.eq(DataBinMethod.DYNAMIC),
+                Mockito.any(ClinicalDataBinCountFilter.class),
+                Mockito.eq(true)))
+        .thenReturn(List.of());
+
+    String requestBody =
+        """
+        {
+          "studyViewFilter": {
+            "studyIds": ["test_study_id"]
+          }
+        }
+        """;
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(
+                    "/api/not-ready-yet/custom-data-bin-counts/fetch")
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
+        .andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(
+            MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0));
   }
 }

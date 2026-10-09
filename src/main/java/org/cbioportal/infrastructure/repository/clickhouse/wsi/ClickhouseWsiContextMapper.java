@@ -3,7 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 
-/** Resolves the portal identifiers needed to prune WSI tables. */
+/** Resolves the internal study and patient identifiers used to prune WSI resource_data reads. */
 public interface ClickhouseWsiContextMapper {
 
   Map<String, Object> getStudyContext(@Param("studyId") String studyId);

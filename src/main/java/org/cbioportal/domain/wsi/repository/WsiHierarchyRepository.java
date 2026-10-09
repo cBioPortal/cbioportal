@@ -6,10 +6,11 @@ import org.cbioportal.domain.wsi.WsiHierarchy;
 public interface WsiHierarchyRepository {
 
   /**
-   * Returns the normalized hierarchy for a patient.
+   * Returns the hierarchy for a patient, built from the patient's WSI resource rows.
    *
-   * <p>Slides are addressed only by their opaque slide key. Implementations never expose the
-   * server-side image identifier or barcode, and omit slides that have no valid slide key.
+   * <p>Slides are addressed only by their opaque slide key. Implementations never expose the slide
+   * barcode, resource-data row identifiers or the private wsi_serving object, and omit slides that
+   * have no valid slide key.
    *
    * @return the hierarchy; an empty hierarchy (no sample groups, null reference sample) when the
    *     study and patient exist but the patient has no WSI resource rows; or {@code null} when the

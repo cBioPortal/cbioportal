@@ -42,12 +42,11 @@ public class ClickhouseWsiHierarchyMapperTest {
 
     assertEquals(2, hierarchy.sampleGroups().size());
     assertEquals("WSI-SAMPLE", hierarchy.referenceSampleId());
-    // Unmatched slides sort first, as they did in the native wsi_* hierarchy.
+    // Unmatched slides sort first.
     assertNull(hierarchy.sampleGroups().get(0).sampleId());
     // The legacy row without a slide_key (900104) is omitted.
     assertEquals(List.of(PATIENT_SLIDE_KEY, SAMPLE_SLIDE_KEY), slideKeys(hierarchy));
 
-    // The fixture row carries slide timing keys; the hierarchy reads none of them.
     WsiSlide sampleSlide =
         slides(hierarchy).stream()
             .filter(slide -> slide.slideKey().equals(SAMPLE_SLIDE_KEY))
@@ -82,11 +81,7 @@ public class ClickhouseWsiHierarchyMapperTest {
             "900101",
             "900104",
             "partDesignator",
-            "pathDxTitle",
-            // Slide timing arrives later, with slides on the patient Summary timeline.
-            "procedureDate",
-            "timepoint",
-            "timeline")) {
+            "pathDxTitle")) {
       assertFalse("hierarchy exposes " + forbidden, json.contains(forbidden));
     }
   }

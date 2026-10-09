@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.WsiThumbnail;
@@ -22,28 +21,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   private static final String DECODE_POLICY_VERSION =
       "geometry-v2;tile-max=16777216;thumbnail-max=16777216";
   private static final Set<String> THUMBNAIL_CONTENT_TYPES = Set.of("image/jpeg", "image/png");
-  private static final Pattern ABSOLUTE_DATE =
-      Pattern.compile(
-          "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
-  private static final Pattern MONTH_FIRST_DATE =
-      Pattern.compile(
-          "(?<!\\d)(?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])[-_/](?:19|20)\\d{2}(?!\\d)");
-  private static final Pattern DAY_FIRST_DATE =
-      Pattern.compile(
-          "(?<!\\d)(?:0?[1-9]|[12]\\d|3[01])[-_/](?:0?[1-9]|1[0-2])[-_/](?:19|20)\\d{2}(?!\\d)");
-  private static final Pattern NAMED_MONTH_DATE =
-      Pattern.compile(
-          "(?i)(?<![a-z0-9])(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|"
-              + "may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|"
-              + "nov(?:ember)?|dec(?:ember)?)\\s+(?:0?[1-9]|[12]\\d|3[01])(?:st|nd|rd|th)?"
-              + "(?:,)?\\s+(?:19|20)\\d{2}|(?:0?[1-9]|[12]\\d|3[01])[-/\\s]+"
-              + "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
-              + "jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|"
-              + "dec(?:ember)?)[-/\\s]+(?:19|20)\\d{2})(?![a-z0-9])");
-  private static final Pattern COMPACT_DATE = Pattern.compile("(?<!\\d)(?:19|20)\\d{6}(?!\\d)");
-  private static final Pattern LABELLED_MRN =
-      Pattern.compile(
-          "(?i)\\b(?:mrn|medical[ _-]?record(?:[ _-]?number)?)\\b\\s*[:=#-]?\\s*\\d{4,}");
   private static final Set<String> ALLOWED_METADATA_KEYS =
       Set.of(
           "dimensions",
@@ -157,13 +134,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
   }
 
-  private static boolean containsAbsoluteDate(String value) {
-    return ABSOLUTE_DATE.matcher(value).find()
-        || MONTH_FIRST_DATE.matcher(value).find()
-        || DAY_FIRST_DATE.matcher(value).find()
-        || NAMED_MONTH_DATE.matcher(value).find();
-  }
-
   private static boolean validMetadata(WsiTileMetadata metadata) {
     boolean isCurrentSchema =
         metadata != null
@@ -205,10 +175,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       return false;
     }
     if (node.isTextual()) {
-      String value = node.asText();
-      return LABELLED_MRN.matcher(value).find()
-          || containsAbsoluteDate(value)
-          || COMPACT_DATE.matcher(value).find();
+      return WsiDeidentification.containsIdentifyingText(node.asText());
     }
     if (node.isObject() || node.isArray()) {
       var children = node.elements();

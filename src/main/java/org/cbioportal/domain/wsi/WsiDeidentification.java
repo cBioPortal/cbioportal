@@ -25,6 +25,29 @@ public final class WsiDeidentification {
 
   public static final int MAX_SEALED_SOURCE_LENGTH = 4096;
 
+  private static final Pattern ABSOLUTE_DATE =
+      Pattern.compile(
+          "(?<!\\d)(?:19|20)\\d{2}[-_/](?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])(?!\\d)");
+  private static final Pattern MONTH_FIRST_DATE =
+      Pattern.compile(
+          "(?<!\\d)(?:0?[1-9]|1[0-2])[-_/](?:0?[1-9]|[12]\\d|3[01])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern DAY_FIRST_DATE =
+      Pattern.compile(
+          "(?<!\\d)(?:0?[1-9]|[12]\\d|3[01])[-_/](?:0?[1-9]|1[0-2])[-_/](?:19|20)\\d{2}(?!\\d)");
+  private static final Pattern NAMED_MONTH_DATE =
+      Pattern.compile(
+          "(?i)(?<![a-z0-9])(?:(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|"
+              + "may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|"
+              + "nov(?:ember)?|dec(?:ember)?)\\s+(?:0?[1-9]|[12]\\d|3[01])(?:st|nd|rd|th)?"
+              + "(?:,)?\\s+(?:19|20)\\d{2}|(?:0?[1-9]|[12]\\d|3[01])[-/\\s]+"
+              + "(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|"
+              + "jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|"
+              + "dec(?:ember)?)[-/\\s]+(?:19|20)\\d{2})(?![a-z0-9])");
+  private static final Pattern COMPACT_DATE = Pattern.compile("(?<!\\d)(?:19|20)\\d{6}(?!\\d)");
+  private static final Pattern LABELLED_MRN =
+      Pattern.compile(
+          "(?i)\\b(?:mrn|medical[ _-]?record(?:[ _-]?number)?)\\b\\s*[:=#-]?\\s*\\d{4,}");
+
   private WsiDeidentification() {}
 
   public static boolean isSlideKey(String value) {
@@ -46,6 +69,21 @@ public final class WsiDeidentification {
     } catch (IllegalArgumentException exception) {
       return false;
     }
+  }
+
+  /**
+   * Whether free text served to the browser contains a labelled medical record number or an
+   * absolute date (ISO, month-first, day-first, named-month or compact YYYYMMDD). WSI metadata that
+   * does fails closed.
+   */
+  public static boolean containsIdentifyingText(String value) {
+    return value != null
+        && (LABELLED_MRN.matcher(value).find()
+            || ABSOLUTE_DATE.matcher(value).find()
+            || MONTH_FIRST_DATE.matcher(value).find()
+            || DAY_FIRST_DATE.matcher(value).find()
+            || NAMED_MONTH_DATE.matcher(value).find()
+            || COMPACT_DATE.matcher(value).find());
   }
 
   public static boolean isWsiResourceId(String resourceId) {

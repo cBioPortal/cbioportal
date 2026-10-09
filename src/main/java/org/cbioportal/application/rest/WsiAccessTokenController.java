@@ -10,13 +10,10 @@ import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,8 +44,11 @@ public class WsiAccessTokenController {
   @Value("${wsi.local-auth-bypass:false}")
   private boolean localAuthBypass;
 
-  @Autowired(required = false)
-  private WsiSlideAccessRepository wsiSlideAccessRepository;
+  private final WsiSlideAccessRepository wsiSlideAccessRepository;
+
+  public WsiAccessTokenController(WsiSlideAccessRepository wsiSlideAccessRepository) {
+    this.wsiSlideAccessRepository = wsiSlideAccessRepository;
+  }
 
   /**
    * Returns the browser-facing pixel access bundle for one materialized slide, addressed by its
@@ -72,9 +72,9 @@ public class WsiAccessTokenController {
       @PathVariable String patientId,
       @RequestParam(required = false) String slideKey) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    boolean anonymous = isAnonymous(authentication);
+    boolean anonymous = WsiResponses.isAnonymous(authentication);
     if (anonymous && !localAuthBypass) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      return WsiResponses.privateResponse(HttpStatus.UNAUTHORIZED).build();
     }
     if (anonymous) {
       authentication = localDevelopmentAuthentication();
@@ -84,20 +84,17 @@ public class WsiAccessTokenController {
         || patientId == null
         || patientId.isBlank()
         || !WsiDeidentification.isSlideKey(slideKey)) {
-      return ResponseEntity.badRequest().build();
-    }
-    if (wsiSlideAccessRepository == null) {
-      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+      return WsiResponses.privateResponse(HttpStatus.BAD_REQUEST).build();
     }
     if (accessTokenSecret == null
         || accessTokenSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
-      return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
+      return WsiResponses.privateResponse(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 
     // The repository guarantees the returned source is bound to slideKey.
     WsiSlideSource source = wsiSlideAccessRepository.getSlideSource(studyId, patientId, slideKey);
     if (source == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      return WsiResponses.privateResponse(HttpStatus.NOT_FOUND).build();
     }
 
     int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
@@ -107,10 +104,7 @@ public class WsiAccessTokenController {
     WsiSlideAccess response =
         new WsiSlideAccess(
             source.slideKey(), source.tileMetadata(), source.thumbnail(), token, "Bearer", ttl);
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-        .header(HttpHeaders.VARY, "Authorization, Cookie")
-        .body(response);
+    return WsiResponses.privateResponse(HttpStatus.OK).body(response);
   }
 
   private String issueSlideToken(
@@ -134,12 +128,6 @@ public class WsiAccessTokenController {
         .setExpiration(Date.from(expiresAt))
         .signWith(SignatureAlgorithm.HS256, accessTokenSecret.getBytes(StandardCharsets.UTF_8))
         .compact();
-  }
-
-  private static boolean isAnonymous(Authentication authentication) {
-    return authentication == null
-        || !authentication.isAuthenticated()
-        || authentication instanceof AnonymousAuthenticationToken;
   }
 
   private static Authentication localDevelopmentAuthentication() {

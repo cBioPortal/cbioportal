@@ -57,6 +57,7 @@ public class WsiAccessTokenControllerTest {
     ResponseEntity<?> response = controller.issueSlideAccess("study-1", "patient-1", SLIDE_KEY);
 
     assertEquals(200, response.getStatusCode().value());
+    assertEquals("private, no-store", response.getHeaders().getCacheControl());
     WsiSlideAccess body = (WsiSlideAccess) response.getBody();
     assertNotNull(body);
     assertEquals(SLIDE_KEY, body.slideKey());
@@ -251,11 +252,10 @@ public class WsiAccessTokenControllerTest {
   }
 
   private WsiAccessTokenController createAuthenticatedController() {
-    WsiAccessTokenController controller = new WsiAccessTokenController();
+    WsiAccessTokenController controller = new WsiAccessTokenController(wsiSlideAccessRepository);
     ReflectionTestUtils.setField(controller, "accessTokenSecret", SECRET);
     ReflectionTestUtils.setField(controller, "accessTokenAudience", "cbioportal-wsi");
     ReflectionTestUtils.setField(controller, "accessTokenTtlSeconds", 300);
-    ReflectionTestUtils.setField(controller, "wsiSlideAccessRepository", wsiSlideAccessRepository);
     TestingAuthenticationToken authentication =
         new TestingAuthenticationToken("user", "password", "ROLE_USER");
     authentication.setAuthenticated(true);

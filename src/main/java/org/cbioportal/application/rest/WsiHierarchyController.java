@@ -3,13 +3,10 @@ package org.cbioportal.application.rest;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.repository.WsiHierarchyRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,29 +33,16 @@ public class WsiHierarchyController {
           + "T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   public ResponseEntity<WsiHierarchy> getPatientHierarchy(
       @PathVariable String studyId, @PathVariable String patientId) {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    boolean anonymous =
-        authentication == null
-            || !authentication.isAuthenticated()
-            || authentication instanceof AnonymousAuthenticationToken;
-
-    if (anonymous && !localAuthBypass) {
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-          .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-          .header(HttpHeaders.VARY, "Authorization, Cookie")
-          .build();
+    if (WsiResponses.isAnonymous(SecurityContextHolder.getContext().getAuthentication())
+        && !localAuthBypass) {
+      return WsiResponses.privateResponse(HttpStatus.UNAUTHORIZED).build();
     }
 
     WsiHierarchy hierarchy = repository.getPatientHierarchy(studyId, patientId);
     if (hierarchy == null) {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND)
-          .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-          .header(HttpHeaders.VARY, "Authorization, Cookie")
-          .build();
+      return WsiResponses.privateResponse(HttpStatus.NOT_FOUND).build();
     }
-    return ResponseEntity.ok()
-        .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-        .header(HttpHeaders.VARY, "Authorization, Cookie")
+    return WsiResponses.privateResponse(HttpStatus.OK)
         .contentType(MediaType.APPLICATION_JSON)
         .body(hierarchy);
   }

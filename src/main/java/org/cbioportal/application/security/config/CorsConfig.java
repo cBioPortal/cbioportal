@@ -1,6 +1,5 @@
 package org.cbioportal.application.security.config;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +12,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class CorsConfig {
-  private static final String SAML_RESPONSE_PATH_PREFIX = "/login/saml2/sso/";
-
   @Value("${security.cors.allowed-origins:}")
   private String allowedOrigins;
 
@@ -28,10 +25,6 @@ public class CorsConfig {
 
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(parsedAllowedOrigins);
-    // Spring rejects allowCredentials=true with the wildcard origin used by
-    // the public deployments. Enable credentials only for explicit origins
-    // such as the beta Netlify preview.
-    configuration.setAllowCredentials(!parsedAllowedOrigins.contains("*"));
     configuration.setAllowedMethods(List.of("GET", "POST", "HEAD", "OPTIONS"));
     configuration.setAllowedHeaders(
         List.of(
@@ -40,7 +33,6 @@ public class CorsConfig {
             "Accept",
             "X-Requested-With",
             "Content-Type",
-            "Authorization",
             "Access-Control-Request-Method",
             "Access-Control-Request-Headers",
             "Content-Encoding",
@@ -48,15 +40,6 @@ public class CorsConfig {
             "x-current-url"));
     configuration.setExposedHeaders(List.of("total-count", "sample-count", "elapsed-time"));
     source.registerCorsConfiguration("/**", configuration);
-    return request -> isSamlResponseRequest(request) ? null : source.getCorsConfiguration(request);
-  }
-
-  private static boolean isSamlResponseRequest(HttpServletRequest request) {
-    String requestPath = request.getRequestURI();
-    String contextPath = request.getContextPath();
-    if (!contextPath.isEmpty() && requestPath.startsWith(contextPath)) {
-      requestPath = requestPath.substring(contextPath.length());
-    }
-    return requestPath.startsWith(SAML_RESPONSE_PATH_PREFIX);
+    return source;
   }
 }

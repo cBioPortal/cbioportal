@@ -1,7 +1,5 @@
 package org.cbioportal.application.security.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 import org.cbioportal.application.security.token.RestAuthenticationEntryPoint;
 import org.cbioportal.application.security.token.TokenAuthenticationFilter;
 import org.cbioportal.application.security.token.TokenAuthenticationSuccessHandler;
@@ -42,7 +40,6 @@ public class ApiSecurityConfig {
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
     http.csrf(AbstractHttpConfigurer::disable)
-        .cors(withDefaults())
         // This filter chain only grabs requests to the '/api' path.
         .securityMatcher("/api/**", "/webservice.do")
         .authorizeHttpRequests(

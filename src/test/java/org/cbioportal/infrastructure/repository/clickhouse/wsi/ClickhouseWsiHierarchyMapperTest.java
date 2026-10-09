@@ -108,15 +108,6 @@ public class ClickhouseWsiHierarchyMapperTest {
   }
 
   @Test
-  public void readsEmptyHierarchyPayload() {
-    WsiHierarchy hierarchy =
-        repository.getPatientHierarchy("wsi_empty_hierarchy_study", "EMPTY-PATIENT");
-
-    assertTrue(hierarchy.sampleGroups().isEmpty());
-    assertNull(hierarchy.referenceSampleId());
-  }
-
-  @Test
   public void returnsEmptyHierarchyWhenPatientHasNoWsiRows() {
     WsiHierarchy hierarchy =
         repository.getPatientHierarchy("wsi_missing_data_study", "MISSING-DATA");

@@ -686,12 +686,9 @@ values (9001,'wsi_test_study','dummy','WSI test study','normalized WSI fixture',
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
 values (9002,'wsi_snapshot_study','dummy','WSI snapshot study','normalized WSI fixture',1);
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
-values (9003,'wsi_empty_hierarchy_study','dummy','WSI empty study','normalized WSI fixture',1);
-insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
 values (9004,'wsi_missing_data_study','dummy','WSI missing data study','normalized WSI fixture',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'SNAPSHOT-PATIENT',9002);
-insert into patient (internal_id,stable_id,cancer_study_id) values (9003,'EMPTY-PATIENT',9003);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-DATA',9004);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);

@@ -1688,8 +1688,8 @@ The resource definition file should follow this format, it has three **required*
 - **DISPLAY_NAME (required)**: a display name for resources.
 - **RESOURCE_TYPE (required)**: resource type for resources, must be SAMPLE, PATIENT or STUDY.
 - **DESCRIPTION (optional)**: a discription for resources.
-- **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
-- **PRIORITY (optional)**: if not given, will give a default value.
+- **OPEN_BY_DEFAULT (optional)**: whether this resource opens on its own (`true` / `false`, default `false`). With `true`, loading a patient or study view opens a tab for this resource without the user asking for it, showing the resource's URL embedded in the page; the user can close the tab again. With `false` the resource is reached from the resources table instead. Use it sparingly -- every resource marked `true` costs the reader a tab on every page load.
+- **PRIORITY (optional)**: an integer ordering hint for this resource, defaulting to `1`. It is carried through the API but nothing currently orders by it -- the resource tabs are ordered by resource id. Set it if you want the intent recorded; expect no visible effect today.
 - **CUSTOM_METADATA (optional)**: a JSON object declaring the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
 
 ### Example *Resource Definition* data file

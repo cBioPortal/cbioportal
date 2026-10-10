@@ -99,9 +99,6 @@ DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
 DROP TABLE IF EXISTS resource_data;
 DROP TABLE IF EXISTS resource_definition;
-DROP TABLE IF EXISTS resource_patient;
-DROP TABLE IF EXISTS resource_sample;
-DROP TABLE IF EXISTS resource_study;
 DROP TABLE IF EXISTS sample;
 DROP TABLE IF EXISTS sample_cna_event;
 DROP TABLE IF EXISTS sample_derived;
@@ -624,11 +621,15 @@ CREATE TABLE resource_definition (
 -- Unified resource table covering every entity level. Replaces the resource_sample,
 -- resource_patient and resource_study split; nothing reads those any more, and the 3.0.1
 -- migration drops them once their contents have been carried over.
--- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
--- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
--- result set, which keeps paging cost independent of how large the resource is.
--- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
--- MergeTree only permits with allow_nullable_key.
+-- Sorting key (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id): every
+-- query filters by study and resource first, so those lead; patient_id and sample_id follow
+-- because the table's default sort is (patient_id, sample_id), which is then read in key order
+-- rather than sorting the whole result set, keeping paging cost independent of the resource's
+-- size. resource_data_id ends the key to make the order total -- one sample can hold hundreds of
+-- rows sharing every preceding column, and a partial order lets paged reads repeat a row on one
+-- page and skip it on the next.
+-- patient_id and sample_id are Nullable (patient-level rows carry no sample; study-level rows
+-- carry neither), which MergeTree only permits with allow_nullable_key.
 CREATE TABLE resource_data (
     `resource_data_id` Int64,
     `resource_id` String,

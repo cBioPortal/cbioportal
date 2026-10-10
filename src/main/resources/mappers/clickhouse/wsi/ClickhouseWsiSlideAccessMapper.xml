@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiSlideAccessMapper">
+    <!--
+      Looked up by the opaque slide_key within the study, patient and WSI resources. sealed_source
+      is read from the private wsi_serving object only to be forwarded, unchanged, as the enc claim
+      of the tile capability; it is never returned to the browser on its own.
+    -->
+    <select id="getSlideAccess" resultType="hashmap">
+        SELECT
+            JSONExtractString(ifNull(row.metadata, '{}'), 'slide_key') AS slide_key,
+            JSONExtractBool(ifNull(row.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'sealed_source') AS sealed_source,
+            JSONExtractRaw(ifNull(row.metadata, '{}'), 'wsi_serving', 'tile_metadata_json') AS tile_metadata_json,
+            JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
+            JSONExtract(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height,
+            JSONExtractString(ifNull(row.metadata, '{}'), 'wsi_serving', 'thumbnail_content_type') AS thumbnail_content_type
+        FROM resource_data row
+        PREWHERE row.cancer_study_id = #{studyInternalId}
+            AND row.resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+            AND row.patient_id = #{patientId}
+        WHERE row.type = 'WHOLE_SLIDE_IMAGE'
+            AND JSONExtractString(ifNull(row.metadata, '{}'), 'slide_key') = #{slideKey}
+        LIMIT 1
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.wsi.ClickhouseWsiHierarchyMapper">
+    <!--
+      Slides are exposed to the browser only by their opaque slide_key. The slide barcode, the
+      resource-data row identifiers and the private wsi_serving object are never selected;
+      part_designator and path_dx_title are not public metadata and are not read either.
+    -->
+    <select id="getPatientHierarchy" resultType="hashmap">
+        SELECT
+            JSONExtractString(ifNull(r.metadata, '{}'), 'reference_sample_id') AS reference_sample_id,
+            r.sample_id AS sample_id,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_key') AS part_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_number') AS part_number,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_type') AS part_type,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'part_description') AS part_description,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'subspecialty') AS subspecialty,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_key') AS block_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_number') AS block_number,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'block_label') AS block_label,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'slide_key') AS slide_key,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'stain_name') AS stain_name,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'stain_group') AS stain_group,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'is_hne') AS is_hne,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'is_ihc') AS is_ihc,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'magnification') AS magnification,
+            JSONExtract(ifNull(r.metadata, '{}'), 'file_size_bytes', 'Nullable(UInt64)') AS file_size_bytes,
+            JSONExtractBool(ifNull(r.metadata, '{}'), 'can_serve_tiles') AS can_serve_tiles,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'slide_type') AS slide_type,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'match_level') AS match_level,
+            JSONExtractString(ifNull(r.metadata, '{}'), 'specimen_key') AS specimen_key
+        FROM resource_data r
+        PREWHERE r.cancer_study_id = #{studyInternalId}
+            AND r.patient_id = #{patientId}
+        WHERE r.resource_id IN ('WSI_SAMPLE', 'WSI_PATIENT')
+          AND r.type = 'WHOLE_SLIDE_IMAGE'
+        <!-- Unmatched slides (no sample) sort first. part/block/slide keys are salted hashes, so
+             ordering by them alone is random: order by the pipeline's Specimen/Block ranks first,
+             keep the keys as tie-breakers that hold each part/block together, then finish on the
+             slide_key so the order is deterministic. -->
+        ORDER BY ifNull(sample_id, ''),
+            toUInt32OrNull(part_number) NULLS LAST, part_key,
+            toUInt32OrNull(block_number) NULLS LAST, block_key,
+            slide_key
+    </select>
+</mapper>

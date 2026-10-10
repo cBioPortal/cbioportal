@@ -23,6 +23,7 @@
         * [Arm Level CNA Data](#arm-level-cna-data)
         * [Mutational Signature Data](#mutational-signature-data)
     * [Resource Data](#resource-data)
+        * [Describing metadata columns with CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata)
     * [Custom namespace columns](#custom-namespace-columns)
 
 # Introduction
@@ -277,6 +278,211 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
+
+## Pathology Slide Data
+
+Whole-slide images (WSI) are served from standard [Resource Data](#resource-data)
+files. Each slide is one resource row with `TYPE` `WHOLE_SLIDE_IMAGE` in one of
+two resources:
+
+| `RESOURCE_ID` | `RESOURCE_TYPE` | Holds |
+| --- | --- | --- |
+| `WSI_SAMPLE` | `SAMPLE` | Slides matched to a sample (`MATCH_LEVEL` `PART` or `BLOCK`) |
+| `WSI_PATIENT` | `PATIENT` | Slides not matched to a sample (`MATCH_LEVEL` `UNMATCHED`) |
+
+The patient view's slide viewer, the WSI hierarchy endpoint
+(`GET /api/wsi/v2/hierarchy/{studyId}/{patientId}`) and the slide access
+endpoint (`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`)
+read only these two resources. Slides are addressed by an opaque `slide_key`.
+The pathology image ID and the slide and thumbnail object URIs are not stored
+in cBioPortal at all: they travel only inside an opaque, upstream-sealed
+`sealed_source` that only the tile server can open (serving contract
+`wsi-serving-v6`).
+
+The generic resource APIs (the resource table and the
+`/studies/.../resource-data` endpoints) never return `WSI_SAMPLE` or
+`WSI_PATIENT` rows; slides are reached only through the endpoints above. A
+`WHOLE_SLIDE_IMAGE` row in any other resource is shown in the generic resource
+table but is never served as a slide.
+
+Declare the per-slide keys non-filterable in each definition's
+`CUSTOM_METADATA`, as the converter does:
+
+```json
+{"version":1,"fields":[{"key":"slide_key","filterable":false},{"key":"part_key","filterable":false},{"key":"block_key","filterable":false},{"key":"specimen_key","filterable":false},{"key":"reference_sample_id","filterable":false}]}
+```
+
+Nearly every slide has its own value for these keys, so they would make poor
+filter options.
+
+The normal study import no longer accepts `meta_wsi.txt`. Convert a
+format-v4 `meta_wsi.txt`/`data_wsi.txt` pair (described
+[below](#converter-input-meta_wsi-format-v4)) with the offline converter
+in cbioportal-core, then validate and import the study as usual.
+
+### Resource rows
+
+In `data_resource_sample.txt` and `data_resource_patient.txt`:
+
+- `RESOURCE_ID` is `WSI_SAMPLE` or `WSI_PATIENT`.
+- `URL` links to the standalone viewer for the slide:
+  `<portal base URL>/wsi/patient/{patientId}?studyId={studyId}&slideKey={slide_key}`,
+  for example
+  `https://portal.example.org/wsi/patient/P-0001?studyId=brca_tcga_pub&slideKey=2351e12d49557627b24fe71e17ec5c64`.
+  The base URL includes any context path the portal is deployed under. It
+  never contains the image ID.
+- `DISPLAY_NAME` is a non-identifying label, for example
+  `H&E, Initial · Specimen 1 / Block 2`. It is never the image ID.
+- `TYPE` is `WHOLE_SLIDE_IMAGE`.
+- `METADATA` is one JSON object with lower-case keys:
+  - public slide fields: `slide_key` (32 lowercase hex characters, unique
+    within the study), `reference_sample_id`, `part_key`, `part_number`,
+    `part_type`, `part_description`, `subspecialty`, `block_key`,
+    `block_number`, `block_label`, `match_level`, `specimen_key`,
+    `stain_name`, `stain_group`, `magnification` and `slide_type` (strings);
+    `is_hne`, `is_ihc` and `can_serve_tiles` (booleans); and
+    `file_size_bytes` (integer). `barcode`, `part_designator` and
+    `path_dx_title` are not public metadata;
+  - `wsi_serving`: present only for a servable slide, a private object holding
+    `sealed_source`, `tile_metadata_json` (a JSON object), `thumbnail_width`,
+    `thumbnail_height` and `thumbnail_content_type` (`image/jpeg` or
+    `image/png`).
+
+  `image_id`, `source_url` and `thumbnail_url` must not appear anywhere in
+  `METADATA`, public or under `wsi_serving`.
+
+The data provider is responsible for de-identifying `URL`, `DISPLAY_NAME`
+and `METADATA` (including `wsi_serving`): institution-specific identifiers
+such as specimen accession numbers must be removed before import. cBioPortal
+does not recognise any institution's accession format.
+
+`sealed_source` is unpadded base64url of `nonce[12] || AES-256-GCM
+ciphertext || tag[16]` over `{"image_id","tile_source","thumbnail_source"}`,
+sealed upstream with a key cBioPortal never holds and the slide's `slide_key`
+as additional authenticated data. It is at most 4096 characters and decodes
+to at least 29 bytes; a row whose `sealed_source` is missing or malformed is
+not servable. `wsi_serving` is read only by the slide access endpoint, which
+checks study authorization and returns a short-lived capability whose `enc`
+claim is `sealed_source`, unchanged. `wsi_serving` is private for every
+resource row, whatever its `TYPE`: for non-WSI resources the resource table
+API removes it from row metadata and ignores it in search, filters, sorting,
+facets and column discovery.
+
+Rows written before `slide_key` existed are deleted by the ClickHouse `3.6.0`
+migration, and rows that still hold an image ID or object URI by `3.7.0`;
+re-import the converted v4 resources to restore them.
+
+The serving fields are produced upstream by the data provider: thumbnails,
+`TILE_METADATA_JSON`, dimensions and content type, and `SEALED_SOURCE`, which
+seals each servable slide's image ID and source/thumbnail URIs before this
+file is exported. The cBioPortal frontend only consumes the resulting access
+bundle; it does not generate or upload thumbnails.
+
+### Converting a WSI file pair
+
+`scripts/importer/convertWsiToResources.py` in cbioportal-core reads a
+format-v4 pair, applies the same row parsing and cross-row checks as the
+retired native importer, and writes standard study files. It never connects to
+cBioPortal, a database or an artifact store.
+
+```sh
+python3 scripts/importer/convertWsiToResources.py \
+  --meta-wsi /path/to/legacy/meta_wsi.txt \
+  --output-dir /path/to/converted \
+  --portal-base-url https://portal.example.org \
+  --study-dir /path/to/study
+```
+
+- `--meta-wsi` (required): the legacy `meta_wsi.txt`. Its `data_filename` is
+  read from the same directory.
+- `--output-dir` (required): where the converted files are written. It must
+  differ from `--study-dir`; copy its contents over the study afterwards.
+- `--portal-base-url` (required): absolute `http(s)` URL of the portal,
+  including any context path (for example `https://example.org/cbioportal`).
+  It is used to build the viewer links in `URL`.
+- `--study-dir` (optional, recommended): the study the slides belong to. The
+  converter refuses to write anything if the study already has resource
+  files.
+
+It writes each of these files with its meta file, only when it has rows:
+
+- `data_resource_definition.txt`: the `WSI_SAMPLE` and/or `WSI_PATIENT`
+  definitions, with the `CUSTOM_METADATA` contract above;
+- `data_resource_sample.txt` and `data_resource_patient.txt`: one row per
+  slide, as described above.
+
+Timeline files are not produced: existing clinical timeline
+files stay in the study and are imported unchanged. Remove `meta_wsi.txt` and
+`data_wsi.txt` from the study after converting, then run `validateData.py` on
+the study.
+
+### Converter input: meta_wsi format v4
+
+This is the input format of the converter. Only format v4 is accepted; a file
+with an `IMAGE_ID`, `SOURCE_URL` or `THUMBNAIL_URL` column is rejected. It
+follows the clinical data-file convention: four tab-delimited attribute
+metadata rows, an uppercase field-name row, and then one data row per slide
+placement.
+
+#### Meta file
+
+The metadata file is named `meta_wsi.txt` and has these fields:
+
+```text
+cancer_study_identifier: brca_tcga_pub
+genetic_alteration_type: PATHOLOGY_SLIDES
+datatype: WSI
+data_filename: data_wsi.txt
+format_version: 4
+```
+
+`format_version` fixes the column names, order, and validation rules. The
+converter rejects unsupported versions rather than guessing how to interpret
+them. Slide timing is not part of the format yet; it arrives with slides on the
+patient Summary timeline. Files that still carry the seven timing columns
+(`TIMELINE_START_DAYS` through `TIMEPOINT_SOURCE`, between
+`THUMBNAIL_CONTENT_TYPE` and `SLIDE_KEY`) are accepted, but those columns are
+ignored. MRNs and absolute dates are never emitted.
+
+#### Data file
+
+The data file is named `data_wsi.txt`. Its first four rows contain display
+names, descriptions, data types, and priorities. Every value in those rows
+starts with `#`. The fifth row contains the following fields in exactly this
+order:
+
+```text
+PATIENT_ID<TAB>REFERENCE_SAMPLE_ID<TAB>SAMPLE_ID<TAB>PART_KEY<TAB>PART_NUMBER<TAB>PART_DESIGNATOR<TAB>PART_TYPE<TAB>PART_DESCRIPTION<TAB>SUBSPECIALTY<TAB>PATH_DX_TITLE<TAB>BLOCK_KEY<TAB>BLOCK_NUMBER<TAB>BLOCK_LABEL<TAB>MATCH_LEVEL<TAB>SPECIMEN_KEY<TAB>STAIN_NAME<TAB>STAIN_GROUP<TAB>IS_HNE<TAB>IS_IHC<TAB>MAGNIFICATION<TAB>FILE_SIZE_BYTES<TAB>BARCODE<TAB>SLIDE_TYPE<TAB>CAN_SERVE_TILES<TAB>TILE_METADATA_JSON<TAB>THUMBNAIL_WIDTH<TAB>THUMBNAIL_HEIGHT<TAB>THUMBNAIL_CONTENT_TYPE<TAB>SLIDE_KEY<TAB>SEALED_SOURCE
+```
+
+The required values are `PATIENT_ID`, `SLIDE_KEY`, `PART_KEY`,
+`BLOCK_KEY`, `MATCH_LEVEL`, `SPECIMEN_KEY`, `IS_HNE`, `IS_IHC`, `SLIDE_TYPE`,
+and `CAN_SERVE_TILES`. `SLIDE_KEY` is 32 lowercase hex characters, unique
+within a study: the first half of a salted SHA-256 of the image ID, computed
+upstream with a salt no service knows. `PART_KEY`, `BLOCK_KEY` and
+`SPECIMEN_KEY` are derived from slide keys, never from the image ID or any
+other source identifier. Removing institution-specific identifiers (such as
+specimen accession numbers) from every cell is the data provider's
+responsibility. `SLIDE_TYPE` is the controlled classification value and is
+one of `H&E`, `IHC`, or `Other`. `STAIN_NAME` and `STAIN_GROUP` are optional
+descriptive source labels, so values such as `H&E, Initial` and
+`H&E (Initial)` are valid and are not used as the classification contract.
+All rows for one patient must use the same optional `REFERENCE_SAMPLE_ID`.
+
+`MATCH_LEVEL` is one of `BLOCK`, `PART`, or `UNMATCHED`. A matched row requires
+`SAMPLE_ID`; an `UNMATCHED` row requires it to be empty. Empty fields represent
+null values. Boolean values are `TRUE` or `FALSE`, number fields contain base-10
+integers, and `TILE_METADATA_JSON` contains one compact JSON object. Tabs and
+newlines are not allowed inside values.
+
+When `CAN_SERVE_TILES` is `TRUE`, `SEALED_SOURCE`, `TILE_METADATA_JSON`,
+positive `THUMBNAIL_WIDTH` and `THUMBNAIL_HEIGHT`, and
+`THUMBNAIL_CONTENT_TYPE` are all required; when it is `FALSE`,
+`SEALED_SOURCE` must be empty. `SEALED_SOURCE` has the shape described
+under [Resource rows](#resource-rows). The converter moves these fields into
+`wsi_serving`, so the backend can return a complete access bundle while only
+the tile server can open the sealed source, which it receives as the `enc`
+claim of its short-lived authorization token.
 
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
@@ -1689,14 +1895,76 @@ The resource definition file should follow this format, it has three **required*
 - **DESCRIPTION (optional)**: a discription for resources.
 - **OPEN_BY_DEFAULT (optional)**: define if the resource will be open by default (`true` / `false`), dafault is `false`.
 - **PRIORITY (optional)**: if not given, will give a default value.
+- **CUSTOM_METADATA (optional)**: a JSON object declaring the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
 
 ### Example *Resource Definition* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
-<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
-<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
-<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th><th>CUSTOM_METADATA</th></tr></thead>
+<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td><td>{"version": 1, "fields": [{"key": "stain", "label": "Stain", "type": "string", "filterable": true}]}</td></tr>
+<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td><td></td></tr>
+<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td><td></td></tr>
 </table>
+
+### Describing metadata columns with CUSTOM_METADATA
+
+Resource rows can carry a `METADATA` column holding a JSON object of per-item fields (see the
+data file formats below). The portal turns each key found in that data into a column of the
+resource table, which a user can search, sort and filter.
+
+`CUSTOM_METADATA` lets a curator declare those columns and control how they present. Where it is
+given it is the whole column list: every declared key becomes a column, in declaration order, and
+a key the data carries but the contract omits is **not** shown — the importer rejects such a file
+so the data never goes in unseen. A resource with no `CUSTOM_METADATA` keeps the older behaviour,
+a column per key found in the data, labelled by the raw key name.
+
+The contract is declared per study, but a study view cohort can span several studies that each
+declare the same resource. The table then shows the **union** of their contracts, each key taking
+the first declaration by study identifier, and a key two studies type differently falls back to
+being typed from the values. If any study in the cohort has rows for the resource but declares no
+contract, its keys are shown as well — nothing that study imported was ever checked against
+another study's contract.
+
+```json
+{
+  "version": 1,
+  "fields": [
+    {
+      "key": "percent_tumor_cells",
+      "type": "number",
+      "label": "Tumor Cells (%)",
+      "description": "Percentage of cells scored as tumor",
+      "filterable": true,
+      "visibleByDefault": true
+    }
+  ]
+}
+```
+
+Each entry in `fields` supports:
+
+| Key | Effect |
+| --- | --- |
+| `key` (required) | Matches a key in the row's `METADATA` object |
+| `type` | `string` or `number`. A `number` column gets a numeric range filter rather than a value list. If omitted, the portal infers it: a key is numeric when every non-blank value parses as a number |
+| `label` | Column header. Defaults to the raw key name |
+| `description` | Shown as a tooltip on the column header |
+| `filterable` | `false` removes the filter control for that column. Worth setting on near-unique keys such as identifiers, which would otherwise build a very large dropdown |
+| `visibleByDefault` | `true` shows the column without the user opening "Add columns". Defaults to `false` |
+
+Field order determines column order.
+
+`required`, `enum`, `format` and `renderAs`, and the `boolean` and `date` types, are not
+implemented — a field declaring them imports with a warning and they have no effect.
+
+The portal ignores a contract it cannot read rather than failing, which makes mistakes invisible
+at run time, so the importer validates the shape instead. A document that cannot be read at all
+is an **error** and blocks the import: not a JSON object, no `fields` list, or a field with no
+`key`. A single misdeclared field is a **warning**: an unrecognised `type`, a quoted boolean, or
+a key the portal does not read.
+
+Data files are checked against the contract too. A `METADATA` key the contract does not declare
+is an **error**, since the column would never appear and nothing later would say so. A declared
+key no row carries is a **warning**: the column renders, always empty.
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
@@ -1704,13 +1972,19 @@ The sample resource file should follow this format, it has four **required** col
 - **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
+- **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the table shows the resource's own name on every row.
+- **TYPE (optional)**: free-text classification of the item, for example `IMAGE` or `REPORT`.
+- **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; where the resource definition gives a [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) contract, every key used here must be declared in it. Arrays, scalars and malformed JSON are rejected at import.
 
 ### Example *Sample Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td><td>H&amp;E Slide 1</td><td>IMAGE</td><td>{"stain": "H&amp;E", "magnification": "20x", "percent_tumor_cells": 65}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td><td>H&amp;E Slide 2</td><td>IMAGE</td><td>{"stain": "IHC", "magnification": "40x", "percent_tumor_cells": 30}</td></tr>
 </table>
+
+The three optional columns are independent of one another, and files without them import exactly
+as before.
 
 ### Patient Resource Data File
 The patient resource file should follow this format, it has three **required** columns:
@@ -1718,11 +1992,14 @@ The patient resource file should follow this format, it has three **required** c
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
+`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+[Sample Resource data file](#sample-resource-data-file).
+
 ### Example *Patient Resource* data file
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Smith", "pages": 3}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Jones", "pages": 5}</td></tr>
 </table>
 
 ### Study Resource Data File
@@ -1730,10 +2007,13 @@ The study resource file should follow this format, it has two **required** colum
 - **RESOURCE_ID (required)**: a unique resource ID which should also be included in the `Resource Definition data file`.
 - **URL (required)**: url to the resources, start with `http` or `https`.
 
+`DISPLAY_NAME`, `TYPE` and `METADATA` are also accepted here, with the same meaning as in the
+[Sample Resource data file](#sample-resource-data-file).
+
 ### Example *Study Resource* data file
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>TYPE</th><th>METADATA</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Sponsor list</td><td>REPORT</td><td>{"year": 2026}</td></tr>
 </table>
 
 ## Custom namespace columns

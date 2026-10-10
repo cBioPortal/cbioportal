@@ -401,33 +401,17 @@ python3 scripts/importer/convertWsiToResources.py \
   including any context path (for example `https://example.org/cbioportal`).
   It is used to build the viewer links in `URL`.
 - `--study-dir` (optional, recommended): the study the slides belong to. The
-  converter reads the study's clinical sample and patient files and writes
-  merged copies of them. It refuses to write anything if the study already has
-  resource files, already defines the WSI count attributes, or is missing a
-  patient or sample that has slides.
+  converter refuses to write anything if the study already has resource
+  files.
 
 It writes each of these files with its meta file, only when it has rows:
 
 - `data_resource_definition.txt`: the `WSI_SAMPLE` and/or `WSI_PATIENT`
   definitions, with the `CUSTOM_METADATA` contract above;
 - `data_resource_sample.txt` and `data_resource_patient.txt`: one row per
-  slide, as described above;
-- with `--study-dir`: the study's clinical sample and patient data files,
-  under their original names, with six columns appended:
-  `WSI_SAMPLE_SLIDE_COUNT`, `WSI_SAMPLE_PART_MATCHED_SLIDE_COUNT` and
-  `WSI_SAMPLE_BLOCK_MATCHED_SLIDE_COUNT` (samples with a matched slide), and
-  `WSI_PATIENT_SLIDE_COUNT`, `WSI_PATIENT_PART_MATCHED_SLIDE_COUNT` and
-  `WSI_PATIENT_BLOCK_MATCHED_SLIDE_COUNT` (every patient with a slide). Samples
-  and patients without slides get `NA`. Existing rows and values are kept
-  unchanged. cBioPortal accepts only one clinical sample and one clinical
-  patient file per study, which is why the counts are merged rather than
-  written as separate files;
-- without `--study-dir`: standalone `data_clinical_sample_wsi_counts.txt` and
-  `data_clinical_patient_wsi_counts.txt`, for studies that have no clinical
-  files of their own or for merging by hand.
+  slide, as described above.
 
-These six count attributes are the ones the native importer generated, with
-the same values. Timeline files are not produced: existing clinical timeline
+Timeline files are not produced: existing clinical timeline
 files stay in the study and are imported unchanged. Remove `meta_wsi.txt` and
 `data_wsi.txt` from the study after converting, then run `validateData.py` on
 the study.

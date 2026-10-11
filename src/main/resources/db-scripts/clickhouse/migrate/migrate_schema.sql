@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS resource_data
     `resource_data_id` Int64,
     `resource_id`      String,
     `cancer_study_id`  Int64,
-    `entity_type`      String,
+    `resource_scope`   String,
     `patient_id`       Nullable(String),
     `sample_id`        Nullable(String),
     `url`              String,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` 
 CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 
 INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, entity_type,
+    (resource_data_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
     (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
@@ -85,11 +85,11 @@ INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
 INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
 WHERE (cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, sample_id, url) FROM resource_data WHERE entity_type = 'SAMPLE'
+    SELECT (cancer_study_id, resource_id, sample_id, url) FROM resource_data WHERE resource_scope = 'SAMPLE'
 );
 
 INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, entity_type,
+    (resource_data_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
     (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
@@ -104,11 +104,11 @@ FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
 WHERE (cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, patient_id, url) FROM resource_data WHERE entity_type = 'PATIENT'
+    SELECT (cancer_study_id, resource_id, patient_id, url) FROM resource_data WHERE resource_scope = 'PATIENT'
 );
 
 INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, entity_type,
+    (resource_data_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
     (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
@@ -120,7 +120,7 @@ SELECT
     NULL, NULL
 FROM resource_study rst
 WHERE (rst.internal_id, rst.resource_id, rst.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, url) FROM resource_data WHERE entity_type = 'STUDY'
+    SELECT (cancer_study_id, resource_id, url) FROM resource_data WHERE resource_scope = 'STUDY'
 );
 
 -- Deletions select rows by resource_data_id, so a duplicate id would make one row's deletion

@@ -614,7 +614,7 @@ CREATE TABLE resource_data (
     `resource_data_id` Int64,
     `resource_id`      String,
     `cancer_study_id`  Int64,
-    `entity_type`      String,
+    `resource_scope`   String,
     `patient_id`       Nullable(String),
     `sample_id`        Nullable(String),
     `url`              String,

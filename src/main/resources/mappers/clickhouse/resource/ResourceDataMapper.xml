@@ -360,7 +360,7 @@
       cs.cancer_study_identifier AS studyId,
       rdata.resource_id AS resourceId,
       coalesce(rdef.display_name, rdata.resource_id) AS resourceDisplayName,
-      rdata.entity_type AS resourceType,
+      rdata.resource_scope AS resourceType,
       rdata.patient_id AS patientId,
       rdata.sample_id AS sampleId,
       rdata.url AS url,
@@ -507,10 +507,10 @@
   -->
   <select id="getResourceTableCounts" resultType="org.cbioportal.domain.resource.ResourceTableCounts">
     SELECT count(*) AS rowCount,
-           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.patient_id), rdata.patient_id IS NOT NULL AND rdata.entity_type IN ('PATIENT', 'SAMPLE')) AS patientCount,
-           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.sample_id), rdata.sample_id IS NOT NULL AND rdata.entity_type = 'SAMPLE') AS sampleCount,
+           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.patient_id), rdata.patient_id IS NOT NULL AND rdata.resource_scope IN ('PATIENT', 'SAMPLE')) AS patientCount,
+           countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.sample_id), rdata.sample_id IS NOT NULL AND rdata.resource_scope = 'SAMPLE') AS sampleCount,
            uniqExact(coalesce(rdef.display_name, rdata.resource_id)) AS distinctResourceDisplayNames,
-           uniqExact(rdata.entity_type) AS distinctScopes,
+           uniqExact(rdata.resource_scope) AS distinctScopes,
            uniqExact(ifNull(rdata.display_name, '')) AS distinctDisplayNames
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>

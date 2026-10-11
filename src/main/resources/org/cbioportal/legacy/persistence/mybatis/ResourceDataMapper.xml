@@ -57,7 +57,7 @@
     <sql id="fromSample">
         FROM (SELECT resource_id, cancer_study_id, sample_id, url
               FROM resource_data
-              WHERE entity_type = 'SAMPLE' AND sample_id IS NOT NULL) AS resource_sample
+              WHERE resource_scope = 'SAMPLE' AND sample_id IS NOT NULL) AS resource_sample
         INNER JOIN cancer_study ON resource_sample.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN sample ON sample.stable_id = resource_sample.sample_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
@@ -67,7 +67,7 @@
     <sql id="fromPatient">
         FROM (SELECT resource_id, cancer_study_id, patient_id, url
               FROM resource_data
-              WHERE entity_type = 'PATIENT' AND patient_id IS NOT NULL) AS resource_patient
+              WHERE resource_scope = 'PATIENT' AND patient_id IS NOT NULL) AS resource_patient
         INNER JOIN cancer_study ON resource_patient.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN patient ON patient.stable_id = resource_patient.patient_id
                           AND patient.cancer_study_id = resource_patient.cancer_study_id
@@ -76,7 +76,7 @@
     <sql id="fromStudy">
         FROM (SELECT resource_id, cancer_study_id, url
               FROM resource_data
-              WHERE entity_type = 'STUDY') AS resource_study
+              WHERE resource_scope = 'STUDY') AS resource_study
         INNER JOIN cancer_study ON resource_study.cancer_study_id = cancer_study.cancer_study_id
     </sql>
 

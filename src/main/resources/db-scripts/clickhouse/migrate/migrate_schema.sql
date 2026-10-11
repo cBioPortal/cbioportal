@@ -50,13 +50,16 @@ CREATE TABLE IF NOT EXISTS resource_data
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
   SETTINGS allow_nullable_key = 1;
 
--- Backfill is guarded by a deterministic resource_data_id (hash of the natural key) so this
--- section is safe to re-run: rows already present are excluded via NOT IN. The study id is part
--- of that key: stable ids are unique only within a study and the same URL can be attached in more
--- than one, so hashing without it mints the same id for two studies' rows -- and because the
--- importer deletes a resource's stale rows by id, re-importing one study would then delete the
--- other study's rows. Study-level rows key on the study's own internal_id, which already carries
--- it.
+-- resource_data_id is a running row number, not a hash of the row: a 64-bit hash is a
+-- fingerprint rather than a unique id, the chance of two rows sharing one grows with the square
+-- of the row count, and a collision would be absorbed silently by the NOT IN guard below --
+-- losing a row on upgrade with no error. Row numbers are exact at any size. They start above the
+-- current maximum, so a retry keeps the ids already issued and the importer carries on from
+-- there: its sequence seeds from the table's maximum.
+-- Re-running the section is safe because each insert skips rows whose natural key is already
+-- present, which after a partial run restores exactly the rows that are missing. The study id is
+-- part of that key: stable ids are unique only within a study, and the same URL can be attached
+-- in more than one. Study-level rows key on the study's own internal_id, which already carries it.
 -- Recreate the legacy tables if they are missing, so this section can be retried after a run
 -- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
 -- first run they already exist and this is a no-op; on a retry they come back empty, the
@@ -69,7 +72,7 @@ INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)),
+    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
     rs.resource_id,
     cs.cancer_study_id,
     'SAMPLE',
@@ -81,15 +84,15 @@ FROM resource_sample rs
 INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
 INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
-WHERE toInt64(cityHash64(cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url)) NOT IN (
-    SELECT resource_data_id FROM resource_data
+WHERE (cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url) NOT IN (
+    SELECT (cancer_study_id, resource_id, sample_id, url) FROM resource_data WHERE entity_type = 'SAMPLE'
 );
 
 INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)),
+    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
     rp.resource_id,
     cs.cancer_study_id,
     'PATIENT',
@@ -100,15 +103,15 @@ SELECT
 FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
-WHERE toInt64(cityHash64(cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url)) NOT IN (
-    SELECT resource_data_id FROM resource_data
+WHERE (cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url) NOT IN (
+    SELECT (cancer_study_id, resource_id, patient_id, url) FROM resource_data WHERE entity_type = 'PATIENT'
 );
 
 INSERT INTO resource_data
     (resource_data_id, resource_id, cancer_study_id, entity_type,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)),
+    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
     rst.resource_id,
     rst.internal_id,
     'STUDY',
@@ -116,9 +119,16 @@ SELECT
     rst.url,
     NULL, NULL
 FROM resource_study rst
-WHERE toInt64(cityHash64(rst.internal_id, rst.resource_id, rst.url)) NOT IN (
-    SELECT resource_data_id FROM resource_data
+WHERE (rst.internal_id, rst.resource_id, rst.url) NOT IN (
+    SELECT (cancer_study_id, resource_id, url) FROM resource_data WHERE entity_type = 'STUDY'
 );
+
+-- Deletions select rows by resource_data_id, so a duplicate id would make one row's deletion
+-- take another row with it. Fail the migration rather than leave that in place.
+SELECT throwIf(
+    count() != uniqExact(resource_data_id),
+    'resource_data backfill produced duplicate resource_data_id values'
+) FROM resource_data;
 
 -- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
 -- the API paths that used to read them (the legacy resource endpoints, the study resource

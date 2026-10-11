@@ -2,6 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataMapper">
 
+  <!--
+    WARNING: every select in this mapper must restrict cs.cancer_study_identifier to the study
+    list the caller supplied, either by including ResourceTableBaseFilters or by carrying the same
+    condition inline (getResourceTableTabs does the latter, because it is passed a different
+    parameter object). Do not add a select, or relax an existing one, in a way that can return rows
+    from a study the request did not name.
+
+    This is what makes authorization bind to the data. The controller's @PreAuthorize checks that
+    the user may read the studies named in the request; it cannot check what the query then reads.
+    A select that omits the filter would hand a user who is legitimately authorized for one study
+    the rows of every other study: authorization passes and the data still leaks.
+
+    ResourceDataMapperStudyFilterTest fails the build if a select here has neither form of the
+    filter.
+  -->
+
   <resultMap id="ResourceContractRowResultMap" type="org.cbioportal.domain.resource.ResourceContractRow">
     <constructor>
       <arg column="customMetadata" javaType="String"/>

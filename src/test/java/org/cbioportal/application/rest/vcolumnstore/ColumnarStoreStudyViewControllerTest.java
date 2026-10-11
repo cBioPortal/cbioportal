@@ -1,4 +1,3 @@
-
 package org.cbioportal.application.rest.vcolumnstore;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -231,8 +230,7 @@ public class ColumnarStoreStudyViewControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post(
-                    "/api/not-ready-yet/custom-data-bin-counts/fetch")
+            MockMvcRequestBuilders.post("/api/not-ready-yet/custom-data-bin-counts/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(requestBody))
@@ -241,5 +239,11 @@ public class ColumnarStoreStudyViewControllerTest {
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0));
+
+    Mockito.verify(basicDataBinner)
+        .getDataBins(
+            Mockito.eq(DataBinMethod.DYNAMIC),
+            Mockito.any(ClinicalDataBinCountFilter.class),
+            Mockito.eq(true));
   }
 }

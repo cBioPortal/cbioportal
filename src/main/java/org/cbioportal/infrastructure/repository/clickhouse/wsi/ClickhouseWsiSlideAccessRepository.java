@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.WsiThumbnail;
@@ -40,6 +41,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
           "max_decode_pixels",
           "thumbnail_max_decode_pixels",
           "source_fingerprint");
+  private static final String SOURCE_FINGERPRINT_KEY = "source_fingerprint";
+  private static final Pattern SHA256_HEX = Pattern.compile("^[0-9a-f]{64}$");
 
   private final ClickhouseWsiSlideAccessMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
@@ -166,7 +169,24 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     if (node.isTextual()) {
       return WsiDeidentification.containsIdentifyingText(node.asText());
     }
-    if (node.isObject() || node.isArray()) {
+    if (node.isObject()) {
+      var fields = node.fields();
+      while (fields.hasNext()) {
+        var field = fields.next();
+        if (SOURCE_FINGERPRINT_KEY.equals(field.getKey())) {
+          // A SHA-256 identity digest, not free text: its hex can contain an eight-digit run
+          // that reads as YYYYMMDD. Held to its exact format instead, as the tile server does.
+          if (!field.getValue().isTextual()
+              || !SHA256_HEX.matcher(field.getValue().asText()).matches()) {
+            return true;
+          }
+        } else if (containsForbiddenMetadataText(field.getValue())) {
+          return true;
+        }
+      }
+      return false;
+    }
+    if (node.isArray()) {
       var children = node.elements();
       while (children.hasNext()) {
         if (containsForbiddenMetadataText(children.next())) {

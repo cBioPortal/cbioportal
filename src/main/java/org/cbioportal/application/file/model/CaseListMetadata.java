@@ -23,7 +23,8 @@ public class CaseListMetadata implements StudyRelatedMetadata {
     if (cancerStudyIdentifier == null) {
       return stableId;
     }
-    return stableId.replace(this.cancerStudyIdentifier + "_", "");
+    String prefix = this.cancerStudyIdentifier + "_";
+    return stableId.startsWith(prefix) ? stableId.substring(prefix.length()) : stableId;
   }
 
   @Override

@@ -1694,8 +1694,8 @@ The file has three **required** columns:
   in a resource data file carries a RESOURCE_ID naming the kind it belongs to, so this value is
   repeated by each item of that kind -- it identifies the kind, not an individual item. It has to
   be unique within the study, but it is scoped to the study: two studies may each declare
-  `PATHOLOGY_SLIDE`, independently and with different contracts. This field allows only numbers,
-  letters, points, underscores and hyphens.
+  `PATHOLOGY_SLIDE`, independently and with different CUSTOM_METADATA. This field allows only
+  numbers, letters, points, underscores and hyphens.
 - **DISPLAY_NAME (required)**: how this kind of resource is labelled in the portal, e.g.
   `Pathology Slide`. Individual items can carry their own DISPLAY_NAME in the data file.
 - **RESOURCE_TYPE (required)**: what the resource is attached to -- `SAMPLE`, `PATIENT` or
@@ -1723,11 +1723,22 @@ Resource rows can carry a `METADATA` column holding a JSON object of per-item fi
 data file formats below). The portal turns each key found in that data into a column of the
 resource table, which a user can search, sort and filter.
 
-`CUSTOM_METADATA` lets a curator declare those columns and control how they present. Where it is
-given it is the whole column list: every declared key becomes a column, in declaration order, and
-a key the data carries but the contract omits is **not** shown — the importer rejects such a file
-so the data never goes in unseen. A resource with no `CUSTOM_METADATA` keeps the older behaviour,
-a column per key found in the data, labelled by the raw key name.
+`CUSTOM_METADATA` lets a curator declare those columns and control how they present. The
+declaration is a **contract**: an agreement, written in the study's own files, about which
+metadata keys this resource's rows carry and how each one is labelled, typed and filtered. The
+importer holds the data files to it and the portal builds the table's columns from it, so neither
+side has to guess what a key means. The rest of this page says "contract" for that declaration.
+
+Where a contract is given it is the whole column list: every declared key becomes a column, in
+declaration order, and no undeclared key is shown. Data carrying a key the contract does not
+declare is **not** quietly filtered out and imported without it — the study fails validation
+with an error, and `metaImport.py` stops before writing anything to the database. (Errors have no
+`--override_warning` equivalent.) Either declare the key or remove it from the data file. The
+point is that data never goes in unseen: if the portal would not show a key, the curator is told
+rather than left with an invisible column.
+
+A resource with no `CUSTOM_METADATA` keeps the older behaviour, a column per key found in the
+data, labelled by the raw key name, and nothing is checked.
 
 The contract is declared per study, but a study view cohort can span several studies that each
 declare the same resource. The table then shows the **union** of their contracts, each key taking
@@ -1775,8 +1786,8 @@ is an **error** and blocks the import: not a JSON object, no `fields` list, or a
 a key the portal does not read.
 
 Data files are checked against the contract too. A `METADATA` key the contract does not declare
-is an **error**, since the column would never appear and nothing later would say so. A declared
-key no row carries is a **warning**: the column renders, always empty.
+is an **error**, and an error blocks the import: the column would never appear and nothing later
+would say so. A declared key no row carries is a **warning**: the column renders, always empty.
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:

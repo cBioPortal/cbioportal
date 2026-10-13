@@ -79,6 +79,9 @@ categories:
   - title: '🌐 Public Portal Only'
     labels:
       - 'cl-public-portal'
+  - title: '🗂 Miscellaneous'
+    labels:
+      - 'cl-misc'
 exclude-labels:
   - 'skip-changelog'
   - 'cl-skip-changelog'

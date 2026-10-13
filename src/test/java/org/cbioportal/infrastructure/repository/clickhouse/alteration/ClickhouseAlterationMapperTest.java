@@ -11,6 +11,7 @@ import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainer
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CNA;
+import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.MutationEventType;
 import org.cbioportal.legacy.persistence.helper.AlterationFilterHelper;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
@@ -416,5 +417,43 @@ public class ClickhouseAlterationMapperTest {
     assertEquals(
         "ncoa4 on-panel altered cases", Integer.valueOf(2), ncoa4.getNumberOfAlteredCasesOnPanel());
     assertEquals("ncoa4 total count", Integer.valueOf(3), ncoa4.getTotalCount());
+  }
+
+  @Test
+  public void getEntityToGenePanelsBySample() {
+    List<EntityToPanel> result =
+        mapper.getEntityToGenePanels(
+            new String[] {"study_tcga_pub_tcga-a1-a0sb-01"},
+            new String[] {"study_tcga_pub_mutations"},
+            "sample_unique_id");
+
+    assertEquals(1, result.size());
+    assertEquals("study_tcga_pub_tcga-a1-a0sb-01", result.get(0).getEntityUniqueId());
+    assertEquals("testpanel2", result.get(0).getGenePanelId());
+    assertEquals("study_tcga_pub_mutations", result.get(0).getGeneticProfileId());
+  }
+
+  @Test
+  public void getEntityToGenePanelsByPatient() {
+    List<EntityToPanel> result =
+        mapper.getEntityToGenePanels(
+            new String[] {"study_tcga_pub_tcga-a1-a0sb"},
+            new String[] {"study_tcga_pub_mutations"},
+            "patient_unique_id");
+
+    assertEquals(1, result.size());
+    assertEquals("study_tcga_pub_tcga-a1-a0sb", result.get(0).getEntityUniqueId());
+    assertEquals("testpanel2", result.get(0).getGenePanelId());
+  }
+
+  @Test
+  public void getEntityToGenePanelsReturnsNothingForUnknownIds() {
+    List<EntityToPanel> result =
+        mapper.getEntityToGenePanels(
+            new String[] {"study_tcga_pub_no-such-sample"},
+            new String[] {"study_tcga_pub_mutations"},
+            "sample_unique_id");
+
+    assertTrue(result.isEmpty());
   }
 }

@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845234650418">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845236632102">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -47,11 +47,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../../../images/cbio-logo.png" />
-    <link href="../../../resources/css/retype.css?v=4.6.0.845234650418" rel="stylesheet">
+    <link href="../../../resources/css/retype.css?v=4.6.0.845236632102" rel="stylesheet">
 
-    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.845234650418" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../../../resources/js/config.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../../../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.845234650418" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../../../resources/js/lunr.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -381,8 +381,12 @@ saml.logout.local=false
 saml.logout.url=/</code></pre>
 </doc-codeblock></div>
 <p>Please note that you will have to modify all the above to match your own settings. <code translate="no" v-pre>saml.idp.comm.binding.type</code> can be left empty if <code translate="no" v-pre>saml.idp.comm.binding.settings=defaultBinding</code>. The <code translate="no" v-pre>saml.logout.*</code> settings above reflect the settings of an IDP that supports Single Logout (hopefully the default in most cases - more details in section below).</p>
-<p>In the case that you are running cBioPortal behind a reverse proxy that handles the SSL certificates (such as nginx or traefik), you will have to also specify <code translate="no" v-pre>saml.sp.metadata.entitybaseurl</code>. This should point to <code translate="no" v-pre>https://host.example.come:443</code>. This setting is required such that cBioPortal uses the Spring SAML library appropriately for creating redirects back into cBioPortal.</p>
-<p>In addition there is a known bug where redirect from the cBioPortal instance always goes over http instead of https (<a href="https://github.com/cBioPortal/cbioportal/issues/6342">https://github.com/cBioPortal/cbioportal/issues/6342</a>). To get around this issue you can pass the full URL including https to the <code translate="no" v-pre>webapp-runnner.jar</code> command with e.g. <code translate="no" v-pre>--proxy-base-url https://mycbioportalinstance.org</code>.</p>
+<p>When running cBioPortal behind a reverse proxy that terminates SSL (such as nginx or Traefik), you must also specify <code translate="no" v-pre>saml.sp.metadata.entitybaseurl</code>. This should point to the public HTTPS URL, for example <code translate="no" v-pre>https://host.example.com:443</code>. This setting allows the Spring SAML library to create redirects back to cBioPortal.</p>
+<p>The reverse proxy must set the <code translate="no" v-pre>X-Forwarded-For</code> and <code translate="no" v-pre>X-Forwarded-Proto</code> headers. Configure Spring Boot to use these headers when it builds redirect URLs:</p>
+<div class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-none"><code v-pre class="language-none">server.forward-headers-strategy=NATIVE</code></pre>
+</doc-codeblock></div>
+<p>Only enable forwarded-header handling when cBioPortal is behind a trusted proxy that removes or overwrites forwarded headers supplied by clients. See Spring Boot&#x27;s <a href="https://docs.spring.io/spring-boot/3.5/how-to/webserver.html#howto.webserver.use-behind-a-proxy-server">reverse proxy documentation</a> for more details.</p>
 <h3 id="custom-scenarios">Custom scenarios</h3>
 <p><span class="docs-emoji">&#x2139;&#xFE0F;</span> Some settings may need to be adjusted to non-default values, depending on your IDP. For example, if your
 IDP required HTTP-GET requests instead of HTTP-POST, you need to set these properties as such:</p>

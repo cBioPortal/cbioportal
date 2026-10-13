@@ -23,6 +23,10 @@ db.suppress_schema_version_mismatch_errors=false
 # Enable compression on responses
 server.compression.enabled=true
 
+# When cBioPortal runs behind a trusted reverse proxy that sets X-Forwarded-* headers,
+# uncomment this property so redirects preserve the original protocol and host.
+#server.forward-headers-strategy=NATIVE
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up

@@ -34,7 +34,9 @@ package org.cbioportal.application.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.cbioportal.legacy.model.DataAccessToken;
@@ -46,8 +48,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -143,11 +143,14 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
 
   @Override
   public Boolean isValid(final String token) {
-    final String kid = JwtHelper.headers(token).get("kid");
     try {
 
-      final Jwt tokenDecoded = JwtHelper.decodeAndVerify(token, jwtTokenVerifierBuilder.build(kid));
-      final String claims = tokenDecoded.getClaims();
+      final SignedJWT tokenDecoded = SignedJWT.parse(token);
+      final String kid = tokenDecoded.getHeader().getKeyID();
+      if (!tokenDecoded.verify(jwtTokenVerifierBuilder.build(kid))) {
+        throw new BadCredentialsException("Token signature is not valid.");
+      }
+      final String claims = tokenDecoded.getPayload().toString();
       final JsonNode claimsMap = new ObjectMapper().readTree(claims);
 
       hasValidIssuer(claimsMap);
@@ -162,13 +165,11 @@ public class OAuth2DataAccessTokenServiceImpl implements DataAccessTokenService 
   @Override
   public String getUsername(final String token) {
 
-    final Jwt tokenDecoded = JwtHelper.decode(token);
-
-    final String claims = tokenDecoded.getClaims();
     JsonNode claimsMap;
     try {
+      final String claims = SignedJWT.parse(token).getPayload().toString();
       claimsMap = new ObjectMapper().readTree(claims);
-    } catch (IOException e) {
+    } catch (ParseException | IOException e) {
       throw new BadCredentialsException("User name could not be found in offline token.");
     }
 

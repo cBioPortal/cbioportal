@@ -35,11 +35,12 @@ import com.auth0.jwk.Jwk;
 import com.auth0.jwk.JwkException;
 import com.auth0.jwk.JwkProvider;
 import com.auth0.jwk.UrlJwkProvider;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.RSASSAVerifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.interfaces.RSAPublicKey;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.jwt.crypto.sign.RsaVerifier;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,10 +49,11 @@ public class JwtTokenVerifierBuilder {
   @Value("${dat.oauth2.jwkUrl:}")
   private String jwkUrl;
 
-  public RsaVerifier build(final String kid) throws MalformedURLException, JwkException {
+  public JWSVerifier build(final String kid) throws MalformedURLException, JwkException {
     final JwkProvider provider = new UrlJwkProvider(new URL(jwkUrl));
     final Jwk jwk = provider.get(kid);
     final RSAPublicKey publicKey = (RSAPublicKey) jwk.getPublicKey();
-    return new RsaVerifier(publicKey, "SHA512withRSA");
+    // the RSA signature algorithm (RS256, RS384, RS512, ...) is taken from the token header
+    return new RSASSAVerifier(publicKey);
   }
 }

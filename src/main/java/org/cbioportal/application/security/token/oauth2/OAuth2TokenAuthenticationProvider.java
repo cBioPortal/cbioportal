@@ -34,7 +34,9 @@ package org.cbioportal.application.security.token.oauth2;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jwt.SignedJWT;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Collection;
 import org.cbioportal.application.security.util.ClaimRoleExtractorUtil;
 import org.cbioportal.application.security.util.GrantedAuthorityUtil;
@@ -44,8 +46,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
 
 public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider {
 
@@ -85,8 +85,7 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
   private Collection<GrantedAuthority> extractAuthorities(final String token)
       throws BadCredentialsException {
     try {
-      final Jwt tokenDecoded = JwtHelper.decode(token);
-      final String claims = tokenDecoded.getClaims();
+      final String claims = SignedJWT.parse(token).getPayload().toString();
       return GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(
           ClaimRoleExtractorUtil.extractClientRoles(claims, jwtRolesPath));
 
@@ -97,13 +96,11 @@ public class OAuth2TokenAuthenticationProvider implements AuthenticationProvider
 
   private String getUsername(final String token) {
 
-    final Jwt tokenDecoded = JwtHelper.decode(token);
-
-    final String claims = tokenDecoded.getClaims();
     JsonNode claimsMap;
     try {
+      final String claims = SignedJWT.parse(token).getPayload().toString();
       claimsMap = new ObjectMapper().readTree(claims);
-    } catch (IOException e) {
+    } catch (ParseException | IOException e) {
       throw new BadCredentialsException("User name could not be found in access token.");
     }
 

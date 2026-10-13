@@ -11,7 +11,7 @@ separately packaged cBioPortal frontend are outside this Maven report.
 
 ------------------------------------------------------------------------
 
-Lists of 203 third-party dependencies.
+Lists of 202 third-party dependencies.
      (EPL-2.0) (LGPL-2.1-only) Logback Classic Module (ch.qos.logback:logback-classic:1.5.34 - http://logback.qos.ch/logback-classic)
      (EPL-2.0) (LGPL-2.1-only) Logback Core Module (ch.qos.logback:logback-core:1.5.34 - http://logback.qos.ch/logback-core)
      (The MIT License (MIT)) jwks-rsa (com.auth0:jwks-rsa:0.22.1 - https://github.com/auth0/jwks-rsa-java)
@@ -198,7 +198,6 @@ Lists of 203 third-party dependencies.
      (Apache License, Version 2.0) spring-security-config (org.springframework.security:spring-security-config:6.5.11 - https://spring.io/projects/spring-security)
      (Apache License, Version 2.0) spring-security-core (org.springframework.security:spring-security-core:6.5.11 - https://spring.io/projects/spring-security)
      (Apache License, Version 2.0) spring-security-crypto (org.springframework.security:spring-security-crypto:6.5.11 - https://spring.io/projects/spring-security)
-     (Apache 2.0) Spring Security JWT Library (org.springframework.security:spring-security-jwt:1.1.1.RELEASE - https://github.com/spring-projects/spring-security-oauth)
      (Apache License, Version 2.0) spring-security-oauth2-client (org.springframework.security:spring-security-oauth2-client:6.5.11 - https://spring.io/projects/spring-security)
      (Apache License, Version 2.0) spring-security-oauth2-core (org.springframework.security:spring-security-oauth2-core:6.5.11 - https://spring.io/projects/spring-security)
      (Apache License, Version 2.0) spring-security-oauth2-jose (org.springframework.security:spring-security-oauth2-jose:6.5.11 - https://spring.io/projects/spring-security)

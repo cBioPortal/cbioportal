@@ -22,9 +22,6 @@ db.suppress_schema_version_mismatch_errors=false
 
 # Enable compression on responses
 server.compression.enabled=true
-# Honor X-Forwarded-* headers from the reverse proxy so login callback URLs use https.
-# Defaults to framework (set in PortalApplication); use none if not behind a proxy.
-#server.forward-headers-strategy=framework
 
 # When cBioPortal runs behind a trusted reverse proxy that sets X-Forwarded-* headers,
 # uncomment this property so redirects preserve the original protocol and host.

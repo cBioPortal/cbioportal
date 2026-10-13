@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 import org.cbioportal.application.security.util.GrantedAuthorityUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +22,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
@@ -101,33 +99,6 @@ public class Saml2SecurityConfig {
       }
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);
-    };
-  }
-
-  // TEMPORARY DIAGNOSTIC, DO NOT MERGE: logs the configured (pre-request-resolution)
-  // AssertionConsumerServiceLocation for every registration at startup. If this prints a literal
-  // https:// URL, an explicit ACS override exists and isn't taking effect somewhere else; if it
-  // prints the {baseUrl}/login/saml2/sso/{registrationId} placeholder, there is no override and
-  // the ACS URL has always depended on per-request scheme resolution.
-  @Bean
-  public ApplicationRunner logSamlAcsLocationDiagnostic(
-      RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-    return args -> {
-      if (relyingPartyRegistrationRepository instanceof Iterable<?> registrations) {
-        for (Object registration : registrations) {
-          if (registration instanceof RelyingPartyRegistration rpr) {
-            System.err.println(
-                "DIAGNOSTIC saml registrationId="
-                    + rpr.getRegistrationId()
-                    + " acsLocation="
-                    + rpr.getAssertionConsumerServiceLocation());
-          }
-        }
-      } else {
-        System.err.println(
-            "DIAGNOSTIC saml relyingPartyRegistrationRepository is not Iterable: "
-                + relyingPartyRegistrationRepository.getClass());
-      }
     };
   }
 

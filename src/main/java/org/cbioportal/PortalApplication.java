@@ -1,6 +1,5 @@
 package org.cbioportal;
 
-import java.util.Map;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.data.mongodb.autoconfigure.DataMongoAutoConfiguration;
@@ -20,10 +19,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 public class PortalApplication {
   public static void main(String[] args) {
-    SpringApplication app = new SpringApplication(PortalApplication.class);
-    // Deployments sit behind a TLS-terminating proxy; without this, SAML/OAuth2 callback URLs are
-    // built as http:// and rejected by the IdP. Overridable from any property source.
-    app.setDefaultProperties(Map.of("server.forward-headers-strategy", "framework"));
-    app.run(args);
+    SpringApplication.run(PortalApplication.class, args);
   }
 }

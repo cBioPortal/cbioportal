@@ -25,7 +25,7 @@ import org.cbioportal.legacy.web.parameter.MolecularDataFilter;
 import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cbioportal.legacy.web.util.BulkRequestLimiter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -47,7 +47,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = PublicApiTags.MOLECULAR_DATA, description = " ")
 public class MolecularDataController {
 
-  @Autowired private MolecularDataService molecularDataService;
+  private final MolecularDataService molecularDataService;
+  private final BulkRequestLimiter bulkRequestLimiter;
+
+  public MolecularDataController(
+      MolecularDataService molecularDataService, BulkRequestLimiter bulkRequestLimiter) {
+    this.molecularDataService = molecularDataService;
+    this.bulkRequestLimiter = bulkRequestLimiter;
+  }
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
@@ -126,6 +133,8 @@ public class MolecularDataController {
 
     List<NumericGeneMolecularData> result;
     if (molecularDataFilter.getSampleListId() != null) {
+      bulkRequestLimiter.checkMatrixForSampleList(
+          molecularDataFilter.getSampleListId(), molecularDataFilter.getEntrezGeneIds());
       result =
           filterNonNumberMolecularData(
               molecularDataService.getMolecularData(
@@ -134,6 +143,8 @@ public class MolecularDataController {
                   molecularDataFilter.getEntrezGeneIds(),
                   projection.name()));
     } else {
+      bulkRequestLimiter.checkMatrix(
+          molecularDataFilter.getSampleIds().size(), molecularDataFilter.getEntrezGeneIds());
       result =
           filterNonNumberMolecularData(
               molecularDataService.fetchMolecularData(
@@ -196,6 +207,9 @@ public class MolecularDataController {
 
     List<NumericGeneMolecularData> result;
     if (interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds() != null) {
+      bulkRequestLimiter.checkMatrixForProfiles(
+          interceptedMolecularDataMultipleStudyFilter.getMolecularProfileIds(),
+          interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
       result =
           filterNonNumberMolecularData(
               molecularDataService.getMolecularDataInMultipleMolecularProfiles(
@@ -209,6 +223,9 @@ public class MolecularDataController {
       List<String> sampleIds = new ArrayList<>();
       extractMolecularProfileAndSampleIds(
           interceptedMolecularDataMultipleStudyFilter, molecularProfileIds, sampleIds);
+      bulkRequestLimiter.checkMatrixForSampleMolecularIdentifiers(
+          interceptedMolecularDataMultipleStudyFilter.getSampleMolecularIdentifiers(),
+          interceptedMolecularDataMultipleStudyFilter.getEntrezGeneIds());
       result =
           filterNonNumberMolecularData(
               molecularDataService.getMolecularDataInMultipleMolecularProfiles(

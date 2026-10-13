@@ -514,4 +514,19 @@ feature.study.export.timeout_ms=600000
 # robots.txt also gets a comment pointing to /llms.txt.
 # llms_txt.location=file:/cbioportal/llms.txt
 
+# Limits on molecular data and discrete copy number requests, to stop a single request from
+# loading too much data into memory. These endpoints don't page. Rejected requests get HTTP 400
+# with bulk_request.help_text appended. Both limits are disabled by default (-1).
+#   bulk_request.max_matrix_size      - max genes x samples for dense data (molecular data, and
+#                                       copy number event types other than HOMDEL/AMP). A request
+#                                       without entrezGeneIds counts as 20,000 genes. Note that
+#                                       query_product_limit is only enforced by the frontend; set
+#                                       this higher, since one frontend request can span several
+#                                       profiles.
+#   bulk_request.max_rows_per_request - max matching rows for sparse HOMDEL/AMP copy number events,
+#                                       checked with a count query before fetching.
+# bulk_request.max_matrix_size=5000000
+# bulk_request.max_rows_per_request=1000000
+# bulk_request.help_text=For bulk data see https://www.cbioportal.org/llms.txt
+
 # EOL - Do not delete the following lines

@@ -140,11 +140,9 @@ public class ClickhouseResourceDataMapperTest {
   @Test
   public void
       getResourceTableTabs_filteredByPatientIdsAndSampleIds_includesPatientLevelResources() {
-    // Regression test: CT_SCAN's row is patient-level (SAMPLE_ID IS NULL). Cohort requests
-    // always carry both a patientIds list and a sampleIds list, so this must still match
-    // patient-level rows by PATIENT_ID even though a sampleIds list is also supplied (previously
-    // ANDing "PATIENT_ID IN (...)" with "SAMPLE_ID IN (...)" silently excluded every
-    // patient-level row, since "SAMPLE_ID IN (...)" is never true for a NULL SAMPLE_ID).
+    // Regression test: CT_SCAN's row is patient-level (sample_id IS NULL). A cohort request
+    // carries both lists, and they must be ORed: "sample_id IN (...)" is never true for a NULL
+    // sample_id, so ANDing them drops every patient-level row.
     ResourceTabsRequest request =
         new ResourceTabsRequest(
             List.of(STUDY_TCGA_PUB),
@@ -314,10 +312,9 @@ public class ClickhouseResourceDataMapperTest {
   @Test
   public void
       getResourceTableMetadataFacets_activeFilterOnOtherMetadataColumn_doesNotCorruptValues() {
-    // Regression test: an active filter on "metadata:stain" used to hijack the
-    // "metadataKey" MyBatis parameter (via a same-named <bind>) used by the facet-value
-    // SELECT clause, so facet values for "magnification" would incorrectly come back as
-    // "stain" values instead. See ApplyStringFilterOnMetadata in ResourceDataMapper.xml.
+    // Regression test: a filter on one metadata key must not change another key's facet values.
+    // A same-named <bind> for "metadataKey" makes the facet SELECT read back the filter's key.
+    // See ApplyStringFilterOnMetadata in ResourceDataMapper.xml.
     ResourceColumnFilter stainFilter =
         new ResourceColumnFilter("metadata:stain", "equals", List.of("HE"));
     ResourceTableQuery query =
@@ -563,12 +560,10 @@ public class ClickhouseResourceDataMapperTest {
 
   // ---- Multiple simultaneous metadata filters ----
   //
-  // Regression tests for a MyBatis <bind> scoping bug: ApplyStringFilterOnMetadata used a
-  // statement-scoped "metadataFilterKey" <bind> set inside the filters <foreach>. Because
-  // <bind> values are resolved from the *final* DynamicContext bindings (unlike <foreach>
-  // item variables, which MyBatis renames per iteration), every metadata condition in the
-  // rendered statement read back the LAST filter's key. Two metadata filters therefore both
-  // applied to the same column, silently dropping rows that should have matched.
+  // Two metadata filters must act on their own columns. <bind> values resolve from the final
+  // DynamicContext bindings, unlike <foreach> item variables which MyBatis renames per
+  // iteration, so a <bind> inside the filters loop makes every condition read the last
+  // filter's key and both filters apply to one column.
 
   @Test
   public void getResourceTableRows_twoCategoricalMetadataFilters_eachAppliesToItsOwnColumn() {

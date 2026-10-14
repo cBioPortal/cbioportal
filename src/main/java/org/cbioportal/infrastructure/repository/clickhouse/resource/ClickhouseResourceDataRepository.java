@@ -58,12 +58,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   /**
-   * The two things every metadata-column decision needs, resolved once per call.
-   *
-   * <p>Both used to be fetched inside the per-key loops, which turned each request into dozens of
-   * identical ClickHouse round trips: the contract lookup alone ran once per key per predicate, and
-   * every one of those queries carried the request's full patient/sample IN lists just to return a
-   * single unchanging string.
+   * The two things every metadata-column decision needs, resolved once per call. Resolving them
+   * inside the per-key loops would repeat the same ClickHouse query per key, each one carrying the
+   * request's full patient and sample IN lists to return an unchanging result.
    */
   private record MetadataContext(
       ResourceMetadataSchema schema,
@@ -115,8 +112,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     /**
-     * Only an explicit {@code "filterable": false} turns filtering off; an absent contract or an
-     * absent flag leaves it on, which is what every existing resource already has.
+     * Only an explicit {@code "filterable": false} turns filtering off. An absent contract or an
+     * absent flag leaves it on, which is the state of every resource without a contract.
      */
     boolean isFilterable(String key) {
       ResourceMetadataField field = schema.fieldsByKey().get(key);

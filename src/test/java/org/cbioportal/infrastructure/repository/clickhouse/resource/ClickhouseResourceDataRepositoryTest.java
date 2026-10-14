@@ -39,10 +39,9 @@ public class ClickhouseResourceDataRepositoryTest {
   @Test
   public void
       getResourceTableFacets_metadataColumnsRemainDiscoverable_whenAnotherFilterZeroesRows() {
-    // Regression test: metadata key discovery previously ran against the FULLY filtered
-    // query, so deselecting every option in one column's filter (a "1 = 0" filter that
-    // zeroes out all matching rows) made ALL dynamic metadata columns disappear from the
-    // facets map, not just the affected one.
+    // Regression test: key discovery must not run against the column-filtered query. Deselecting
+    // every option in one column yields a "1 = 0" filter matching no rows, which would otherwise
+    // drop every dynamic metadata column from the facets map, not just that one.
     ResourceColumnFilter zeroingFilter =
         new ResourceColumnFilter("metadata:stain", "in", List.of());
     ResourceTableQuery query =

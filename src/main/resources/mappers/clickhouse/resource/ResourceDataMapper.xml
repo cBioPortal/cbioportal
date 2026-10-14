@@ -77,17 +77,13 @@
     <where>
       rdata.resource_id = #{query.resourceId}
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-      <!-- resource rows are either patient-level (sample_id IS NULL) or sample-level
-           (sample_id set). A cohort is expressed as a patientIds list plus a sampleIds list, so a
-           row must match on whichever level it lives at: patient-level rows match by patient_id,
-           sample-level rows match by sample_id. ANDing both lists together (as this used to do)
-           silently excluded every patient-level row whenever both lists were supplied, because
+      <!-- Match each row at the level it lives at: patient-level rows (sample_id IS NULL) by
+           patient_id, sample-level rows by sample_id. The two lists must be ORed, not ANDed:
            "sample_id IN (...)" is never true for a NULL sample_id. -->
-      <!-- Stable ids are unique only within a study, so with more than one study selected the
-           bare-id conditions below would also match a same-named sample or patient in another
-           selected study. The study-qualified tuple conditions restrict the match to the cohort's
-           own (study, id) pairs; the bare-id conditions are kept because they are what the
-           resource sorting key can prune on. Same composition as SampleDataFilterUtil. -->
+      <!-- Stable ids are unique only within a study, so the bare-id conditions alone would match
+           a same-named sample or patient in another selected study. The tuple conditions restrict
+           the match to the cohort's own (study, id) pairs; the bare-id conditions stay because
+           the sorting key can prune on them. Same composition as SampleDataFilterUtil. -->
       <choose>
         <when test="query.hasPatients() and query.hasSamples()">
           AND (
@@ -185,12 +181,10 @@
     Reads the target metadata key straight off the <foreach> item as #{filter.metadataKey}
     (ResourceColumnFilter.metadataKey() strips the "metadata:" prefix).
 
-    Do NOT reintroduce a <bind> for this key. MyBatis <bind> variables are statement-scoped and
-    resolved from the *final* bindings map, whereas <foreach> item properties are renamed per
-    iteration. A <bind> set inside the filters loop therefore made every metadata condition in
-    the statement read back the LAST filter's key, so two simultaneous metadata filters both
-    applied to the same column and silently dropped matching rows. It also collides with the
-    "metadataKeys" @Param used by getResourceTableMetadataFacets.
+    Do NOT use a <bind> for this key. <bind> variables are statement-scoped and resolved from the
+    final bindings map, whereas <foreach> item properties are renamed per iteration, so a <bind>
+    inside the filters loop makes every metadata condition read back the last filter's key. The
+    name would also collide with the "metadataKeys" @Param used by getResourceTableMetadataFacets.
   -->
   <sql id="ApplyStringFilterOnMetadata">
     <choose>
@@ -328,13 +322,11 @@
       cs.cancer_study_identifier IN (#{request.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       <!-- See ResourceTableBaseFilters for why patientIds/sampleIds must be OR'd (by row level),
            not AND'd: resource rows are either patient-level (sample_id IS NULL) or
-           sample-level, and ANDing both lists silently excludes all patient-level rows whenever
-           both lists are supplied (the normal case for a cohort request). -->
-      <!-- Stable ids are unique only within a study, so with more than one study selected the
-           bare-id conditions below would also match a same-named sample or patient in another
-           selected study. The study-qualified tuple conditions restrict the match to the cohort's
-           own (study, id) pairs; the bare-id conditions are kept because they are what the
-           resource sorting key can prune on. Same composition as SampleDataFilterUtil. -->
+           sample-level, and the two lists must be ORed, not ANDed. -->
+      <!-- Stable ids are unique only within a study, so the bare-id conditions alone would match
+           a same-named sample or patient in another selected study. The tuple conditions restrict
+           the match to the cohort's own (study, id) pairs; the bare-id conditions stay because
+           the sorting key can prune on them. Same composition as SampleDataFilterUtil. -->
       <choose>
         <when test="request.hasPatients() and request.hasSamples()">
           AND (
@@ -505,9 +497,8 @@
   </select>
 
   <!--
-    One pass for all three counts. These used to be three separate statements over an identical
-    WHERE clause, which on a remote ClickHouse meant paying the round trip (and re-sending the
-    cohort filter) three times to scan the same rows.
+    One pass for all three counts: separate statements would repeat the round trip and re-send the
+    cohort filter to scan the same rows.
 
     The patient and sample counts are distinct over a study-qualified id, not the bare stable id:
     stable ids repeat across studies, so a multi-study cohort holding two different samples that

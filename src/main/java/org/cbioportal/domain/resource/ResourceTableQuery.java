@@ -14,8 +14,8 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
  * ResourceTableMetadataResult}.
  *
  * @param studyIds the studies to read, by study identifier. Every select in {@code
- *     ResourceDataMapper.xml} restricts {@code cancer_study_identifier} to this list, which is what
- *     ties the controller's {@code @PreAuthorize} check to the rows the query actually reads.
+ *     ResourceDataMapper.xml} restricts {@code cancer_study_identifier} to this list, so the rows
+ *     read are the ones the controller's {@code @PreAuthorize} check authorized.
  * @param resourceId which kind of resource to show, e.g. {@code PATHOLOGY_SLIDE}. The table shows
  *     one kind at a time, so this is the tab the user is on -- not the id of an individual item.
  * @param patientIdentifiers the patients to restrict to, as (study identifier, patient id) pairs.

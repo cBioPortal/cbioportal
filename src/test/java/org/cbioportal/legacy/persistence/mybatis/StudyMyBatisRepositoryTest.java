@@ -326,7 +326,7 @@ public class StudyMyBatisRepositoryTest {
     Assert.assertEquals("acc_tcga", studyIdByIdentifier.get("acc_tcga"));
   }
 
-  // ---- Resource counts, sourced from the unified resource_data table ----
+  // ---- Resource counts, sourced from the unified resource table ----
 
   @Test
   public void getResourceCounts_countsSampleLevelResources() {

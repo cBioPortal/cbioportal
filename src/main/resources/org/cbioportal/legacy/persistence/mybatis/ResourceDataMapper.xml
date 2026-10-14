@@ -49,14 +49,14 @@
     </sql>
 
     <!--
-        Sourced from the unified resource_data table, which the importer now writes in place of
-        resource_sample/resource_patient/resource_study. resource_data stores stable IDs, so the
+        Sourced from the unified resource table, which the importer now writes in place of
+        resource_sample/resource_patient/resource_study. resource stores stable IDs, so the
         joins onto sample/patient go through stable_id; those are unique only within a study, so
         every join is scoped by cancer_study_id.
     -->
     <sql id="fromSample">
         FROM (SELECT resource_id, cancer_study_id, sample_id, url
-              FROM resource_data
+              FROM resource
               WHERE resource_scope = 'SAMPLE' AND sample_id IS NOT NULL) AS resource_sample
         INNER JOIN cancer_study ON resource_sample.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN sample ON sample.stable_id = resource_sample.sample_id
@@ -66,7 +66,7 @@
 
     <sql id="fromPatient">
         FROM (SELECT resource_id, cancer_study_id, patient_id, url
-              FROM resource_data
+              FROM resource
               WHERE resource_scope = 'PATIENT' AND patient_id IS NOT NULL) AS resource_patient
         INNER JOIN cancer_study ON resource_patient.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN patient ON patient.stable_id = resource_patient.patient_id
@@ -75,7 +75,7 @@
 
     <sql id="fromStudy">
         FROM (SELECT resource_id, cancer_study_id, url
-              FROM resource_data
+              FROM resource
               WHERE resource_scope = 'STUDY') AS resource_study
         INNER JOIN cancer_study ON resource_study.cancer_study_id = cancer_study.cancer_study_id
     </sql>

@@ -672,7 +672,7 @@ public class ClickhouseResourceDataMapperTest {
 
   // ---- Multi-study cohorts ----
   //
-  // resource_data stores stable ids, which are unique only within a study. The seed gives acc_tcga
+  // resource stores stable ids, which are unique only within a study. The seed gives acc_tcga
   // its own sample called 'tcga-a1-a0sb-01' -- a different sample that happens to carry the same
   // barcode as study_tcga_pub's. A cohort that selects study_tcga_pub's copy plus an unrelated
   // acc_tcga sample must not pull in acc_tcga's same-named row, and must not count the two

@@ -30,49 +30,30 @@
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
 
 ## db_schema_version: 3.0.1
-## description: Add unified resource_data table and backfill from legacy resource_sample/patient/study tables
--- Sorting key: patient_id and sample_id sit ahead of resource_data_id so the resource table's
--- default sort (ORDER BY patient_id, sample_id) is read in key order rather than sorting the whole
--- result set, which keeps paging cost independent of how large the resource is.
--- Both are Nullable (patient-level rows carry no sample; study-level rows carry neither), which
--- MergeTree only permits with allow_nullable_key.
-CREATE TABLE IF NOT EXISTS resource_data
-(
-    `resource_data_id` Int64,
-    `resource_id`      String,
-    `cancer_study_id`  Int64,
-    `resource_scope`   String,
-    `patient_id`       Nullable(String),
-    `sample_id`        Nullable(String),
-    `url`              String,
-    `display_name`     Nullable(String),
-    `metadata`         Nullable(String)
-) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, resource_data_id)
+## description: Add unified resource table and backfill from legacy resource_sample/patient/study tables
+CREATE TABLE IF NOT EXISTS resource (
+    `internal_id` Int64,
+    `resource_id` String,
+    `cancer_study_id` Int64,
+    `resource_scope` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
   SETTINGS allow_nullable_key = 1;
 
--- resource_data_id is a running row number, not a hash of the row: a 64-bit hash is a
--- fingerprint rather than a unique id, the chance of two rows sharing one grows with the square
--- of the row count, and a collision would be absorbed silently by the NOT IN guard below --
--- losing a row on upgrade with no error. Row numbers are exact at any size. They start above the
--- current maximum, so a retry keeps the ids already issued and the importer carries on from
--- there: its sequence seeds from the table's maximum.
--- Re-running the section is safe because each insert skips rows whose natural key is already
--- present, which after a partial run restores exactly the rows that are missing. The study id is
--- part of that key: stable ids are unique only within a study, and the same URL can be attached
--- in more than one. Study-level rows key on the study's own internal_id, which already carries it.
--- Recreate the legacy tables if they are missing, so this section can be retried after a run
--- that reached the drops below but died before migrate_db.py advanced db_schema_version. On a
--- first run they already exist and this is a no-op; on a retry they come back empty, the
--- backfill finds nothing new, and the drops remove them again.
+-- create source tables in case this is a re-attempt at migration and they are missing
 CREATE TABLE IF NOT EXISTS resource_sample (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 CREATE TABLE IF NOT EXISTS resource_patient (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 CREATE TABLE IF NOT EXISTS resource_study (`internal_id` Int64, `resource_id` String, `url` String) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 
-INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, resource_scope,
+INSERT INTO resource
+    (internal_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
+    (SELECT ifNull(max(r.internal_id), 0) FROM resource r) + row_number() OVER (),
     rs.resource_id,
     cs.cancer_study_id,
     'SAMPLE',
@@ -85,14 +66,14 @@ INNER JOIN sample       s  ON rs.internal_id    = s.internal_id
 INNER JOIN patient      p  ON s.patient_id      = p.internal_id
 INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
 WHERE (cs.cancer_study_id, rs.resource_id, s.stable_id, rs.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, sample_id, url) FROM resource_data WHERE resource_scope = 'SAMPLE'
+    SELECT (cancer_study_id, resource_id, sample_id, url) FROM resource WHERE resource_scope = 'SAMPLE'
 );
 
-INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, resource_scope,
+INSERT INTO resource
+    (internal_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
+    (SELECT ifNull(max(r.internal_id), 0) FROM resource r) + row_number() OVER (),
     rp.resource_id,
     cs.cancer_study_id,
     'PATIENT',
@@ -104,14 +85,14 @@ FROM resource_patient rp
 INNER JOIN patient      pt ON rp.internal_id     = pt.internal_id
 INNER JOIN cancer_study cs ON pt.cancer_study_id = cs.cancer_study_id
 WHERE (cs.cancer_study_id, rp.resource_id, pt.stable_id, rp.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, patient_id, url) FROM resource_data WHERE resource_scope = 'PATIENT'
+    SELECT (cancer_study_id, resource_id, patient_id, url) FROM resource WHERE resource_scope = 'PATIENT'
 );
 
-INSERT INTO resource_data
-    (resource_data_id, resource_id, cancer_study_id, resource_scope,
+INSERT INTO resource
+    (internal_id, resource_id, cancer_study_id, resource_scope,
      patient_id, sample_id, url, display_name, metadata)
 SELECT
-    (SELECT ifNull(max(resource_data_id), 0) FROM resource_data) + row_number() OVER (),
+    (SELECT ifNull(max(r.internal_id), 0) FROM resource r) + row_number() OVER (),
     rst.resource_id,
     rst.internal_id,
     'STUDY',
@@ -120,20 +101,15 @@ SELECT
     NULL, NULL
 FROM resource_study rst
 WHERE (rst.internal_id, rst.resource_id, rst.url) NOT IN (
-    SELECT (cancer_study_id, resource_id, url) FROM resource_data WHERE resource_scope = 'STUDY'
+    SELECT (cancer_study_id, resource_id, url) FROM resource WHERE resource_scope = 'STUDY'
 );
 
--- Deletions select rows by resource_data_id, so a duplicate id would make one row's deletion
--- take another row with it. Fail the migration rather than leave that in place.
+-- Fail if rows are not each assigned a unique internal_id
 SELECT throwIf(
-    count() != uniqExact(resource_data_id),
-    'resource_data backfill produced duplicate resource_data_id values'
-) FROM resource_data;
+    count() != uniqExact(internal_id),
+    'resource backfill produced duplicate internal_id values'
+) FROM resource;
 
--- Nothing reads the legacy split tables any more: the importer writes only resource_data, and
--- the API paths that used to read them (the legacy resource endpoints, the study resource
--- counts) were repointed. Dropping them leaves an upgraded database with the same schema a
--- fresh install gets from schema.sql, which no longer creates them.
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;

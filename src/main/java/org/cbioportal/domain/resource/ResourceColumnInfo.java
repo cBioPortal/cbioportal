@@ -4,9 +4,9 @@ package org.cbioportal.domain.resource;
  * Presentation info for one resource-table column.
  *
  * <p>{@code source} is {@code "builtin"} for the fixed columns and {@code "metadata"} for dynamic
- * columns discovered in {@code resource_data.METADATA}, whose {@code id} is {@code "metadata:"}
- * plus the metadata key. For metadata columns the values here are the result of merging
- * auto-detection with the optional {@code resource_definition.custom_metadata} contract.
+ * columns discovered in {@code resource.METADATA}, whose {@code id} is {@code "metadata:"} plus the
+ * metadata key. For metadata columns the values here are the result of merging auto-detection with
+ * the optional {@code resource_definition.custom_metadata} contract.
  */
 public record ResourceColumnInfo(
     String id,

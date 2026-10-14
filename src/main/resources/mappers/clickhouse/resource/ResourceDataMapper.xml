@@ -66,7 +66,7 @@
   </resultMap>
 
   <sql id="ResourceTableFromClause">
-    FROM resource_data rdata
+    FROM resource rdata
     INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
     LEFT JOIN resource_definition rdef
       ON rdef.resource_id = rdata.resource_id
@@ -77,7 +77,7 @@
     <where>
       rdata.resource_id = #{query.resourceId}
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-      <!-- resource_data rows are either patient-level (sample_id IS NULL) or sample-level
+      <!-- resource rows are either patient-level (sample_id IS NULL) or sample-level
            (sample_id set). A cohort is expressed as a patientIds list plus a sampleIds list, so a
            row must match on whichever level it lives at: patient-level rows match by patient_id,
            sample-level rows match by sample_id. ANDing both lists together (as this used to do)
@@ -87,7 +87,7 @@
            bare-id conditions below would also match a same-named sample or patient in another
            selected study. The study-qualified tuple conditions restrict the match to the cohort's
            own (study, id) pairs; the bare-id conditions are kept because they are what the
-           resource_data sorting key can prune on. Same composition as SampleDataFilterUtil. -->
+           resource sorting key can prune on. Same composition as SampleDataFilterUtil. -->
       <choose>
         <when test="query.hasPatients() and query.hasSamples()">
           AND (
@@ -274,7 +274,7 @@
   </sql>
 
   <!--
-    Every branch ends with resource_data_id so the ordering is total. None of these columns is
+    Every branch ends with internal_id so the ordering is total. None of these columns is
     unique on its own: a sample can carry hundreds of slides, all sharing patient_id and
     sample_id. With a partial order ClickHouse is free to return tied rows in any order per
     query, so LIMIT/OFFSET paging could repeat a row on one page and skip it on the next.
@@ -301,7 +301,7 @@
       </when>
       <otherwise>ORDER BY rdata.patient_id ASC, rdata.sample_id ASC</otherwise>
     </choose>
-    , rdata.resource_data_id ASC
+    , rdata.internal_id ASC
   </sql>
 
   <select id="getResourceTableTabs" resultMap="ResourceTableTabResultMap">
@@ -319,7 +319,7 @@
       count(*) AS totalCount,
       count(DISTINCT if(rdata.patient_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.patient_id))) AS patientCount,
       count(DISTINCT if(rdata.sample_id IS NULL, NULL, concat(cs.cancer_study_identifier, '_', rdata.sample_id))) AS sampleCount
-    FROM resource_data rdata
+    FROM resource rdata
     INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
     LEFT JOIN resource_definition rdef
       ON rdef.resource_id = rdata.resource_id
@@ -327,14 +327,14 @@
     <where>
       cs.cancer_study_identifier IN (#{request.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       <!-- See ResourceTableBaseFilters for why patientIds/sampleIds must be OR'd (by row level),
-           not AND'd: resource_data rows are either patient-level (sample_id IS NULL) or
+           not AND'd: resource rows are either patient-level (sample_id IS NULL) or
            sample-level, and ANDing both lists silently excludes all patient-level rows whenever
            both lists are supplied (the normal case for a cohort request). -->
       <!-- Stable ids are unique only within a study, so with more than one study selected the
            bare-id conditions below would also match a same-named sample or patient in another
            selected study. The study-qualified tuple conditions restrict the match to the cohort's
            own (study, id) pairs; the bare-id conditions are kept because they are what the
-           resource_data sorting key can prune on. Same composition as SampleDataFilterUtil. -->
+           resource sorting key can prune on. Same composition as SampleDataFilterUtil. -->
       <choose>
         <when test="request.hasPatients() and request.hasSamples()">
           AND (

@@ -5,7 +5,7 @@ import java.util.List;
 
 public record ResourceColumnFilter(String columnId, String operator, List<String> values) {
 
-  /** Prefix marking a filter that targets a dynamic key inside {@code resource_data.METADATA}. */
+  /** Prefix marking a filter that targets a dynamic key inside {@code resource.METADATA}. */
   public static final String METADATA_COLUMN_PREFIX = "metadata:";
 
   /** Whether this filter targets a dynamic metadata key rather than a base column. */

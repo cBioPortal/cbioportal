@@ -44,7 +44,7 @@ public class ClickhouseCancerStudyMapperTest {
 
   @Test
   public void getResourceCountsForAllStudies_scopesJoinsByStudy() {
-    // resource_data stores stable ids, which repeat across studies -- the seed deliberately gives
+    // resource stores stable ids, which repeat across studies -- the seed deliberately gives
     // acc_tcga a sample carrying study_tcga_pub's barcode. Joins that are not scoped by
     // cancer_study_id inflate these counts.
     List<ResourceCount> heSlide =

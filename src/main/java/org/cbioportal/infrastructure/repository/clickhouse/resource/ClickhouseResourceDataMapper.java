@@ -18,8 +18,8 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
 
   /**
-   * Facet values for every requested key in one pass over resource_data, capped per key. Returns a
-   * flat list; the caller groups it.
+   * Facet values for every requested key in one pass over resource, capped per key. Returns a flat
+   * list; the caller groups it.
    */
   List<ResourceMetadataFacetValue> getResourceTableMetadataFacets(
       @Param("query") ResourceTableQuery query,

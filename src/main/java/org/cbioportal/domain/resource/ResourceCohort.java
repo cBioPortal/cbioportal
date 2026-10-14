@@ -10,16 +10,16 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 /**
  * Turns (studyId, stableId) identifier pairs into the two array forms the resource SQL needs.
  *
- * <p>{@code resource_data} stores <em>stable</em> ids, which are unique only within a study, so
- * matching a cohort on bare ids alone selects the cross product of the requested studies and the
- * requested ids rather than the cohort itself. With two studies that each contain a sample called
- * {@code TCGA-A1-A0SB-01}, a cohort holding only the first study's copy also matches the second
- * study's rows, and the distinct counts collapse the two samples into one.
+ * <p>{@code resource} stores <em>stable</em> ids, which are unique only within a study, so matching
+ * a cohort on bare ids alone selects the cross product of the requested studies and the requested
+ * ids rather than the cohort itself. With two studies that each contain a sample called {@code
+ * TCGA-A1-A0SB-01}, a cohort holding only the first study's copy also matches the second study's
+ * rows, and the distinct counts collapse the two samples into one.
  *
- * <p>Both forms are therefore needed. The bare ids are what the {@code resource_data} sorting key
- * can prune on, so they stay in the query as the cheap predicate; the study-qualified tuples are
- * what make the match correct. The tuple form matches {@code SampleDataFilterUtil}, which applies
- * the same {@code <studyId>_<stableId>} composition for study-view sample filtering.
+ * <p>Both forms are therefore needed. The bare ids are what the {@code resource} sorting key can
+ * prune on, so they stay in the query as the cheap predicate; the study-qualified tuples are what
+ * make the match correct. The tuple form matches {@code SampleDataFilterUtil}, which applies the
+ * same {@code <studyId>_<stableId>} composition for study-view sample filtering.
  */
 final class ResourceCohort {
 

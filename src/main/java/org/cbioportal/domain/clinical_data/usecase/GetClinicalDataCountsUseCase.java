@@ -1,6 +1,9 @@
 package org.cbioportal.domain.clinical_data.usecase;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.cbioportal.domain.clinical_attributes.ClinicalAttribute;
 import org.cbioportal.domain.clinical_attributes.usecase.GetClinicalAttributesForStudiesUseCase;
 import org.cbioportal.domain.clinical_attributes.util.ClinicalAttributeUtil;
@@ -9,6 +12,7 @@ import org.cbioportal.domain.clinical_data.repository.ClinicalDataRepository;
 import org.cbioportal.domain.patient.usecase.GetFilteredPatientCountUseCase;
 import org.cbioportal.domain.sample.usecase.GetFilteredSamplesCountUseCase;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.service.util.StudyViewColumnarServiceUtil;
 import org.springframework.stereotype.Service;
@@ -77,12 +81,19 @@ public class GetClinicalDataCountsUseCase {
     List<String> patientAttributeIds = categorizedAttributeIds.patientAttributeIds();
     List<String> conflictingAttributeIds = categorizedAttributeIds.conflictingAttributeIds();
 
-    var result =
-        clinicalDataRepository.getClinicalDataCounts(
-            studyViewFilterContext,
-            sampleAttributeIds,
-            patientAttributeIds,
-            conflictingAttributeIds);
+    List<ClinicalDataCountItem> result = new ArrayList<>();
+    // skip the query when none of the requested attributes is defined for the involved studies,
+    // since there is nothing to count and the query would be empty
+    if (!sampleAttributeIds.isEmpty()
+        || !patientAttributeIds.isEmpty()
+        || !conflictingAttributeIds.isEmpty()) {
+      result.addAll(
+          clinicalDataRepository.getClinicalDataCounts(
+              studyViewFilterContext,
+              sampleAttributeIds,
+              patientAttributeIds,
+              conflictingAttributeIds));
+    }
 
     // Normalize data counts so that values like TRUE, True, and true are all merged in one count
     result.forEach(
@@ -90,26 +101,44 @@ public class GetClinicalDataCountsUseCase {
 
     // attributes may be missing in result set because they have been filtered out
     // e.g. if the filtered samples happen to have no SEX data, they will not appear in the list
-    // even though the inferred value of those attributes is NA
-    // the following code restores these counts for missing attributes
-    if (result.size() != filteredAttributes.size()) {
-      var attributes =
-          getClinicalAttributesForStudiesUseCase.execute(involvedCancerStudies).stream()
-              .filter(attribute -> filteredAttributes.contains(attribute.attrId()))
-              .toList();
+    // even though the inferred value of those attributes is NA. Attributes that are not defined
+    // for any of the involved studies are missing as well. The following code restores these
+    // attributes with an NA count, once per attribute even if several studies define it.
+    Set<String> returnedAttributeIds =
+        result.stream().map(ClinicalDataCountItem::getAttributeId).collect(Collectors.toSet());
+    List<String> missingAttributeIds =
+        filteredAttributes.stream()
+            .distinct()
+            .filter(attributeId -> !returnedAttributeIds.contains(attributeId))
+            .toList();
 
-      Integer filteredSampleCount = getFilteredSamplesCountUseCase.execute(studyViewFilterContext);
-      Integer filteredPatientCount = getFilteredPatientCountUseCase.execute(studyViewFilterContext);
+    if (!missingAttributeIds.isEmpty()) {
+      int filteredSampleCount = getFilteredSamplesCountUseCase.execute(studyViewFilterContext);
+      int filteredPatientCount = getFilteredPatientCountUseCase.execute(studyViewFilterContext);
 
-      result =
-          StudyViewColumnarServiceUtil.addClinicalDataCountsForMissingAttributes(
-              result,
-              org.cbioportal.legacy.service.util.ClinicalAttributeUtil
-                  .convertToLegacyClinicalAttributeList(attributes),
-              filteredSampleCount,
-              filteredPatientCount);
+      // like the count query, only patient level attributes are counted per patient
+      missingAttributeIds.forEach(
+          attributeId ->
+              result.add(
+                  createNaCountItem(
+                      attributeId,
+                      patientAttributeIds.contains(attributeId)
+                          ? filteredPatientCount
+                          : filteredSampleCount)));
     }
 
     return StudyViewColumnarServiceUtil.mergeClinicalDataCounts(result);
+  }
+
+  private static ClinicalDataCountItem createNaCountItem(String attributeId, int count) {
+    ClinicalDataCount naCount = new ClinicalDataCount();
+    naCount.setAttributeId(attributeId);
+    naCount.setValue("NA");
+    naCount.setCount(count);
+
+    ClinicalDataCountItem item = new ClinicalDataCountItem();
+    item.setAttributeId(attributeId);
+    item.setCounts(List.of(naCount));
+    return item;
   }
 }

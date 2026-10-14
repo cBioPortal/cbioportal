@@ -23,12 +23,11 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
-* Ethan Cerami
 * Tali Mazor
-* Jeremy Easton-Marks
 * Zhaoyuan (Ryan) Fu
-* Augustin Luna
 * James Lindsay
+
+## Harvard Medical School
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto
@@ -72,6 +71,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * M Salih Altun
 * Istemi Bahceci
 * Caitlin Byrne
+* Ethan Cerami
 * Hsiao-Wei Chen
 * Ersin Ciftci
 * Fred Criscuolo
@@ -79,6 +79,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Gideon Dresdner
 * Andy Dufilie
 * Catherine Del Vecchio Fitz
+* Jeremy Easton-Marks
 * Olivier Elemento
 * Ziya Erkoc
 * Arthur Goldberg
@@ -89,6 +90,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Peter Kok
 * Erik Larsson
 * Dong Li
+* Augustin Luna
 * Divya Madala
 * Tamba Monrose
 * Matthijs Pon

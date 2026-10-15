@@ -36,9 +36,9 @@ public class SchemaNamingConventionTest {
           "src/main/resources/db-scripts/clickhouse/populate_derived_tables.sql",
           "src/main/resources/db-scripts/clickhouse/request_log.sql",
           "src/test/resources/schema.sql",
-      // Not loaded by this repository: cbioportal-core fetches it by version for its own
-      // integration tests. Included here because nothing else checks it, and it drifted.
-      "src/test/resources/clickhouse_cgds.sql");
+          // Not loaded by this repository: cbioportal-core fetches it by version for its own
+          // integration tests. Included here because nothing else checks it, and it drifted.
+          "src/test/resources/clickhouse_cgds.sql");
 
   /**
    * Tables whose column names are not lower_snake_case, with the reason. Nothing may be added here

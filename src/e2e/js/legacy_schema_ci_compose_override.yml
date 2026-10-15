@@ -1,0 +1,6 @@
+# Ordinary localdb regression data is still schema 3.0.0. This override is
+# used only by the legacy CircleCI Playwright job.
+services:
+  cbioportal:
+    environment:
+      JAVA_TOOL_OPTIONS: "-Ddb.version=3.0.0"

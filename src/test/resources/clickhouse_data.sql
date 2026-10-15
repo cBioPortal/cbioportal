@@ -736,3 +736,71 @@ insert into resource (internal_id, resource_id, cancer_study_id, resource_scope,
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (11, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-10.svs', 'Set 10', '{"score":10,"file_size_bytes":2000,"is_hne":false,"mpp":0.25}');
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (12, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-20.svs', 'Set 20', '{"score":20,"file_size_bytes":30,"is_hne":true,"mpp":1.0}');
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (13, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-100.svs', 'Set 100', '{"score":100,"file_size_bytes":400,"is_hne":false,"mpp":0.75}');
+
+-- WSI resource test data
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9001,'wsi_test_study','dummy','WSI test study','WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9002,'wsi_snapshot_study','dummy','WSI snapshot study','WSI fixture',1);
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9004,'wsi_missing_data_study','dummy','WSI missing data study','WSI fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'SNAPSHOT-PATIENT',9002);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-DATA',9004);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
+
+-- Resource table privacy fixture. Kept in its own study so the study_tcga_pub resource counts
+-- used by other tests are unchanged.
+--  * WSI_SAMPLE (900501/900502) must never reach the generic resource APIs at all: not as rows,
+--    tabs, search/filter matches, facets or discovered keys. Their public text ("Masson
+--    trichrome", "liver") and slide keys appear nowhere else in the study.
+--  * EXTERNAL_SLIDES (900505/900506) are slide links outside the WSI resources, shown
+--    in the generic table.
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9005,'wsi_resource_table_study','dummy','WSI resource table study','resource table privacy fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9005,'WSI-TABLE-PATIENT',9005);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9005,'WSI-TABLE-SAMPLE-1','primary tumor',9005);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9006,'WSI-TABLE-SAMPLE-2','primary tumor',9005);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9005,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('PATHOLOGY_NOTES',9005,'PATIENT','Pathology notes','Free-text notes',0,2);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('EXTERNAL_SLIDES',9005,'SAMPLE','External slides','Slide links outside the WSI resources',0,3);
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900501,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=5d41402abc4b2a76b9719d911017c592','Masson trichrome - Specimen 1 / Block 1','{"slide_key":"5d41402abc4b2a76b9719d911017c592","stain_name":"Masson trichrome","part_description":"liver wedge biopsy","wsi_serving":{"sealed_source":"zzz-wsipath-1-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900502,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=7d793037a0760186574b0282f2f435e7','Masson trichrome - Specimen 2 / Block 1','{"slide_key":"7d793037a0760186574b0282f2f435e7","stain_name":"Masson trichrome","part_description":"liver margin","wsi_serving":{"sealed_source":"aaa-wsipath-2-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900505,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://slides.example.org/viewer/ext-1','External slide 1','{"stain_name":"Periodic acid-Schiff","part_description":"left kidney core biopsy"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900506,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://slides.example.org/viewer/ext-2','External slide 2','{"stain_name":"H&E, Initial","part_description":"right kidney margin"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900503,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/1.pdf','Board note','{"note":"Reviewed by tumor board"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900504,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/2.pdf','Follow-up note','{"note":"Follow-up imaging"}');
+
+-- WSI is served exclusively from generic resource. The nested wsi_serving object is
+-- intentionally absent from generic table responses and is read only by the access repository.
+-- The servable rows' sealed_source values are genuine seals (contract wsi-serving-v6 test key,
+-- AAD = the row's slide_key); cBioPortal only checks their shape and forwards them.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9001,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_PATIENT',9001,'PATIENT','Pathology slides','Whole-slide images linked to patients',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9002,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=2351e12d49557627b24fe71e17ec5c64','H&E, Initial - Specimen 2 / Block 1','{"slide_key":"2351e12d49557627b24fe71e17ec5c64","reference_sample_id":"WSI-SAMPLE","part_key":"part:2351e12d49557627b24fe71e17ec5c64","part_number":"2","part_type":"FALLOPIAN TUBE","part_description":"Specimen 2","block_key":"block:2351e12d49557627b24fe71e17ec5c64","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":716956681,"can_serve_tiles":true,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::part:2351e12d49557627b24fe71e17ec5c64::block:2351e12d49557627b24fe71e17ec5c64","wsi_serving":{"sealed_source":"AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"safe_min_level":0,"tile_size":256,"tile_metadata_schema_version":2,"decode_policy_version":"geometry-v2;tile-max=16777216;thumbnail-max=16777216","max_decode_pixels":16777216,"thumbnail_max_decode_pixels":16777216},"thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=b3286836fc27c777260ada0dcb8a6857','H&E, Initial - Specimen 1 / Block 1','{"slide_key":"b3286836fc27c777260ada0dcb8a6857","reference_sample_id":"WSI-SAMPLE","part_key":"part:b3286836fc27c777260ada0dcb8a6857","part_number":"1","part_type":"SMALL BOWEL","part_description":"Specimen 1","block_key":"block:b3286836fc27c777260ada0dcb8a6857","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::part:b3286836fc27c777260ada0dcb8a6857::block:b3286836fc27c777260ada0dcb8a6857"}');
+-- A slide row outside the WSI_SAMPLE/WSI_PATIENT resources. The access lookup must
+-- never serve it, even though it carries complete serving metadata.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('OTHER_SLIDES',9001,'PATIENT','Other slides','Slides outside the WSI resources',0,2);
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900103,'OTHER_SLIDES',9001,'PATIENT','WSI-PATIENT',NULL,'https://slides.example.org/viewer/other-1','Other slide','{"slide_key":"0f0e0d0c0b0a09080706050403020100","can_serve_tiles":true,"wsi_serving":{"sealed_source":"AgICAgICAgICAgICc82c3J3ELvii_D38NhOPdEvppO0JGdcHvP1iFH1htmuhz7A-eI-ubwjYnntpC2RNvORyvUFLuyRg9vQIXZcIzPEImdUBa8X96V1xUf1HR3v_9vW6bSMSBEKNmKtxctnoHLqQooRBJZYBrTfKvCVca-SWJs3LM5u30h-4","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"safe_min_level":0,"tile_size":256,"tile_metadata_schema_version":2,"decode_policy_version":"geometry-v2;tile-max=16777216;thumbnail-max=16777216","max_decode_pixels":16777216,"thumbnail_max_decode_pixels":16777216},"thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900201,'WSI_SAMPLE',9002,'SAMPLE','SNAPSHOT-PATIENT','active-sample','https://portal.example.org/wsi/patient/SNAPSHOT-PATIENT?studyId=wsi_snapshot_study&slideKey=e8ac3c1341f0fb1fa1a7c8e69ba27a51','Specimen 1 / Block 1','{"slide_key":"e8ac3c1341f0fb1fa1a7c8e69ba27a51","reference_sample_id":"active-sample","part_key":"part:e8ac3c1341f0fb1fa1a7c8e69ba27a51","part_number":"1","part_type":"active part","part_description":"Specimen 1","block_key":"block:e8ac3c1341f0fb1fa1a7c8e69ba27a51","block_number":"1","block_label":"Block 1","is_hne":false,"is_ihc":false,"can_serve_tiles":false,"slide_type":"Other","match_level":"PART","specimen_key":"part::part:e8ac3c1341f0fb1fa1a7c8e69ba27a51::block:e8ac3c1341f0fb1fa1a7c8e69ba27a51"}');
+

@@ -295,4 +295,18 @@ public class DataBinHelperTest {
   private List<BigDecimal> decList(int... numbers) {
     return Arrays.stream(numbers).mapToObj(BigDecimal::new).collect(Collectors.toList());
   }
+
+  @Test
+  public void isAgeAttribute() {
+    assertTrue(DataBinHelper.isAgeAttribute("AGE"));
+    assertTrue(DataBinHelper.isAgeAttribute("AGE_AT_DIAGNOSIS"));
+    assertTrue(DataBinHelper.isAgeAttribute("CURRENT_AGE_DEID"));
+    assertTrue(DataBinHelper.isAgeAttribute("DIAGNOSIS_AGE"));
+    assertTrue(DataBinHelper.isAgeAttribute("CURRENT_AGE"));
+
+    assertFalse(DataBinHelper.isAgeAttribute(null));
+    assertFalse(DataBinHelper.isAgeAttribute("TUMOR_STAGE"));
+    assertFalse(DataBinHelper.isAgeAttribute("USAGE"));
+    assertFalse(DataBinHelper.isAgeAttribute("DIAGNOSIS_AGE&"));
+  }
 }

@@ -320,7 +320,7 @@ The generic resource APIs (`/api/resource-table/*` and the legacy
 The cBioPortal properties for an authenticated deployment are:
 
 ```properties
-msk.wsi.tile_server.url=https://cbioportal.example.org/wsi
+wsi.tile_server.url=https://cbioportal.example.org/wsi
 wsi.access-token-secret=<at-least-32-byte-secret>
 wsi.access-token-audience=cbioportal-wsi
 wsi.access-token-ttl-seconds=300
@@ -345,7 +345,7 @@ it. The object-prefix allowlists and the source/thumbnail URI checks are
 enforced by the tile server on the opened sources; cBioPortal cannot see the
 URIs and does not read `WSI_ALLOWED_*` settings. The tile server receives only
 v4 capabilities; it does not load a hierarchy, metadata backend, or resource
-index. Setting only `msk.wsi.tile_server.url` configures a frontend URL; the
+index. Setting only `wsi.tile_server.url` configures a frontend URL; the
 WSI resource rows must also carry the `wsi_serving` fields, which the data
 provider produces upstream.
 

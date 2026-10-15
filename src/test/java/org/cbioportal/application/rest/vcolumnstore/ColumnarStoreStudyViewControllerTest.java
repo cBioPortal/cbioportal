@@ -206,8 +206,7 @@ public class ColumnarStoreStudyViewControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(0));
 
-    Mockito.verify(studyViewService)
-        .getFilteredSamples(Mockito.any(StudyViewFilter.class));
+    Mockito.verify(studyViewService).getFilteredSamples(Mockito.any(StudyViewFilter.class));
   }
 
   @Test

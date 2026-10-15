@@ -29,7 +29,7 @@
 ## description: ClickHouse-native migration era begins; collapse derived_table_schema_version into db_schema_version
 ALTER TABLE info DROP COLUMN IF EXISTS derived_table_schema_version;
 
-## db_schema_version: 3.0.1
+## db_schema_version: 3.1.0
 ## description: Add unified resource table and backfill from legacy resource_sample/patient/study tables
 CREATE TABLE IF NOT EXISTS resource (
     `internal_id` Int64,

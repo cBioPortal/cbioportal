@@ -260,7 +260,7 @@
 
     <!--
         Sourced from the unified resource table rather than the legacy
-        resource_sample/resource_patient split, which the importer no longer writes and the 3.0.1
+        resource_sample/resource_patient split, which the importer no longer writes and the 3.1.0
         migration drops. resource stores stable IDs, so the joins onto sample/patient go
         through stable_id rather than internal_id. Stable IDs are unique only within a study, so
         every join is additionally scoped by cancer_study_id; without that scoping the counts

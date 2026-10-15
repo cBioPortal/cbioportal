@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845236632102">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845395784567">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -47,12 +47,12 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.845236632102" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.845395784567" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.845395784567" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
-    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.845236632102" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.845395784567" data-turbo-eval="false" defer></script>
+    <script id="prism-js" data-cfasync="false" src="../resources/js/prism.js?v=4.6.0.845395784567" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -262,7 +262,11 @@
 <li><doc-anchor-trigger to="#mutational-signature-data">Mutational Signature Data</doc-anchor-trigger></li>
 </ul>
 </li>
-<li><doc-anchor-trigger to="#resource-data">Resource Data</doc-anchor-trigger></li>
+<li><doc-anchor-trigger to="#resource-data">Resource Data</doc-anchor-trigger>
+<ul>
+<li><doc-anchor-trigger to="#describing-metadata-columns-with-custom_metadata">Describing metadata columns with CUSTOM_METADATA</doc-anchor-trigger></li>
+</ul>
+</li>
 <li><doc-anchor-trigger to="#custom-namespace-columns">Custom namespace columns</doc-anchor-trigger></li>
 </ul>
 </li>
@@ -2137,59 +2141,194 @@ data_filename: data_resource_sample.txt</code></pre>
 </doc-codeblock></div>
 <h3 id="data-files-1">Data files</h3>
 <h3 id="resource-definition-data-file">Resource Definition Data File</h3>
-<p>The resource definition file should follow this format, it has three <strong>required</strong> columns:</p>
+<p>This file declares the <strong>kinds</strong> of resource a study has. It does not list the resources
+themselves -- the data files below do that, one row per item, each naming the kind it belongs to.
+A study that attaches pathology slides to its samples declares <code translate="no" v-pre>PATHOLOGY_SLIDE</code> here once, then
+lists one row per slide in <code translate="no" v-pre>data_resource_sample.txt</code>.</p>
+<p>The file has three <strong>required</strong> columns:</p>
 <ul>
-<li><strong>RESOURCE_ID (required)</strong>: a unique resource ID. This field allows only numbers, letters, points, underscores and hyphens.</li>
-<li><strong>DISPLAY_NAME (required)</strong>: a display name for resources.</li>
-<li><strong>RESOURCE_TYPE (required)</strong>: resource type for resources, must be SAMPLE, PATIENT or STUDY.</li>
-<li><strong>DESCRIPTION (optional)</strong>: a discription for resources.</li>
-<li><strong>OPEN_BY_DEFAULT (optional)</strong>: define if the resource will be open by default (<code translate="no" v-pre>true</code> / <code translate="no" v-pre>false</code>), dafault is <code translate="no" v-pre>false</code>.</li>
-<li><strong>PRIORITY (optional)</strong>: if not given, will give a default value.</li>
+<li>
+<p><strong>RESOURCE_ID (required)</strong>: the name of this kind of resource, e.g. <code translate="no" v-pre>PATHOLOGY_SLIDE</code>. Every row
+in a resource data file carries a RESOURCE_ID naming the kind it belongs to, so this value is
+repeated by each item of that kind -- it identifies the kind, not an individual item. It has to
+be unique within the study, but it is scoped to the study: two studies may each declare
+<code translate="no" v-pre>PATHOLOGY_SLIDE</code>, independently and with different CUSTOM_METADATA. This field allows only
+numbers, letters, points, underscores and hyphens.</p>
+</li>
+<li>
+<p><strong>DISPLAY_NAME (required)</strong>: how this kind of resource is labelled in the portal, e.g.
+<code translate="no" v-pre>Pathology Slide</code>. Individual items can carry their own DISPLAY_NAME in the data file.</p>
+</li>
+<li>
+<p><strong>RESOURCE_TYPE (required)</strong>: what the resource is attached to -- <code translate="no" v-pre>SAMPLE</code>, <code translate="no" v-pre>PATIENT</code> or
+<code translate="no" v-pre>STUDY</code>. This is the entity level, not a classification of the resource itself: a slide and a
+report are both <code translate="no" v-pre>SAMPLE</code> if both hang off a sample. It decides which data file the items go in
+and where they surface in the portal, which displays it as <strong>Scope</strong>. To classify the resource
+itself -- image versus report, a modality -- use METADATA on the individual rows, where
+CUSTOM_METADATA can label it, type it and decide whether it filters.</p>
+</li>
+<li>
+<p><strong>DESCRIPTION (optional)</strong>: a description for resources.</p>
+</li>
+<li>
+<p><strong>OPEN_BY_DEFAULT (optional)</strong>: whether this resource opens on its own (<code translate="no" v-pre>true</code> / <code translate="no" v-pre>false</code>, default <code translate="no" v-pre>false</code>). With <code translate="no" v-pre>true</code>, loading a patient or study view opens a tab for this resource without the user asking for it, showing the resource&#x27;s URL embedded in the page; the user can close the tab again. With <code translate="no" v-pre>false</code> the resource is reached from the resources table instead. Use it sparingly -- every resource marked <code translate="no" v-pre>true</code> costs the reader a tab on every page load.</p>
+</li>
+<li>
+<p><strong>PRIORITY (optional)</strong>: an integer ordering hint for this resource, defaulting to <code translate="no" v-pre>1</code>. It is carried through the API but nothing currently orders by it -- the resource tabs are ordered by resource id. Set it if you want the intent recorded; expect no visible effect today.</p>
+</li>
+<li>
+<p><strong>CUSTOM_METADATA (optional)</strong>: a JSON object declaring the metadata keys this resource&#x27;s rows carry, so the portal can label, type and filter them. See <doc-anchor-trigger to="#describing-metadata-columns-with-custom_metadata">Describing metadata columns</doc-anchor-trigger> below.</p>
+</li>
 </ul>
 <h3 id="example-resource-definition-data-file">Example <em>Resource Definition</em> data file</h3>
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th></tr></thead>
-<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td></tr>
-<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td></tr>
-<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>DESCRIPTION</th><th>OPEN_BY_DEFAULT</th><th>PRIORITY</th><th>CUSTOM_METADATA</th></tr></thead>
+<tr><td>PATHOLOGY_SLIDE</td><td>Pathology Slide</td><td>SAMPLE</td><td>The pathology slide for the sample</td><td>TRUE</td><td>1</td><td>{"version": 1, "fields": [{"key": "stain", "label": "Stain", "type": "string", "filterable": true}]}</td></tr>
+<tr><td>PATIENT_NOTES</td><td>Patient Notes</td><td>PATIENT</td><td>Notes about the patient</td><td>FALSE</td><td>2</td><td></td></tr>
+<tr><td>STUDY_SPONSORS</td><td>Study Sponsors</td><td>STUDY</td><td>Sponsors of this study</td><td>TRUE</td><td>3</td><td></td></tr>
 </table>
+<h3 id="describing-metadata-columns-with-custom_metadata">Describing metadata columns with CUSTOM_METADATA</h3>
+<p>Resource rows can carry a <code translate="no" v-pre>METADATA</code> column holding a JSON object of per-item fields (see the
+data file formats below). The portal turns each key found in that data into a column of the
+resource table, which a user can search, sort and filter.</p>
+<p><code translate="no" v-pre>CUSTOM_METADATA</code> lets a curator declare those columns and control how they present. The
+declaration is a <strong>contract</strong>: an agreement, written in the study&#x27;s own files, about which
+metadata keys this resource&#x27;s rows carry and how each one is labelled, typed and filtered. The
+importer holds the data files to it and the portal builds the table&#x27;s columns from it, so neither
+side has to guess what a key means. The rest of this page says &quot;contract&quot; for that declaration.</p>
+<p>Where a contract is given it is the whole column list: every declared key becomes a column, in
+declaration order, and no undeclared key is shown. Data carrying a key the contract does not
+declare is <strong>not</strong> quietly filtered out and imported without it — the study fails validation
+with an error, and <code translate="no" v-pre>metaImport.py</code> stops before writing anything to the database. (Errors have no
+<code translate="no" v-pre>--override_warning</code> equivalent.) Either declare the key or remove it from the data file. The
+point is that data never goes in unseen: if the portal would not show a key, the curator is told
+rather than left with an invisible column.</p>
+<p>A resource with no <code translate="no" v-pre>CUSTOM_METADATA</code> keeps the older behaviour, a column per key found in the
+data, labelled by the raw key name, and nothing is checked.</p>
+<p>The contract is declared per study, but a study view cohort can span several studies that each
+declare the same resource. The table then shows the <strong>union</strong> of their contracts, each key taking
+the first declaration by study identifier, and a key two studies type differently falls back to
+being typed from the values. If any study in the cohort has rows for the resource but declares no
+contract, its keys are shown as well — nothing that study imported was ever checked against
+another study&#x27;s contract.</p>
+<div id="describing-metadata-columns-with-custom_metadata-code-1" class="codeblock-wrapper"><doc-codeblock>
+<pre translate="no" class="language-json"><code v-pre class="language-json">{
+  &quot;version&quot;: 1,
+  &quot;fields&quot;: [
+    {
+      &quot;key&quot;: &quot;percent_tumor_cells&quot;,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;label&quot;: &quot;Tumor Cells (%)&quot;,
+      &quot;description&quot;: &quot;Percentage of cells scored as tumor&quot;,
+      &quot;filterable&quot;: true,
+      &quot;visibleByDefault&quot;: true
+    }
+  ]
+}</code></pre>
+</doc-codeblock></div>
+<p>Each entry in <code translate="no" v-pre>fields</code> supports:</p>
+<retype-table copy-text="| Key | Effect |
+| --- | --- |
+| `key` (required) | Matches a key in the row's `METADATA` object |
+| `type` | `string` or `number`. A `number` column gets a numeric range filter rather than a value list. If omitted, the portal infers it: a key is numeric when every non-blank value parses as a number |
+| `label` | Column header. Defaults to the raw key name |
+| `description` | Shown as a tooltip on the column header |
+| `filterable` | `false` removes the filter control for that column. Worth setting on near-unique keys such as identifiers, which would otherwise build a very large dropdown |
+| `visibleByDefault` | `true` shows the column without the user opening &quot;Add columns&quot;. Defaults to `false` |">
+<div class="table-wrapper scrollbar overflow-hidden">
+<table class="comfortable">
+<thead>
+<tr>
+<th>Key</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code translate="no" v-pre>key</code> (required)</td>
+<td>Matches a key in the row&#x27;s <code translate="no" v-pre>METADATA</code> object</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>type</code></td>
+<td><code translate="no" v-pre>string</code> or <code translate="no" v-pre>number</code>. A <code translate="no" v-pre>number</code> column gets a numeric range filter rather than a value list. If omitted, the portal infers it: a key is numeric when every non-blank value parses as a number</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>label</code></td>
+<td>Column header. Defaults to the raw key name</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>description</code></td>
+<td>Shown as a tooltip on the column header</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>filterable</code></td>
+<td><code translate="no" v-pre>false</code> removes the filter control for that column. Worth setting on near-unique keys such as identifiers, which would otherwise build a very large dropdown</td>
+</tr>
+<tr>
+<td><code translate="no" v-pre>visibleByDefault</code></td>
+<td><code translate="no" v-pre>true</code> shows the column without the user opening &quot;Add columns&quot;. Defaults to <code translate="no" v-pre>false</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</retype-table>
+<p>Field order determines column order.</p>
+<p><code translate="no" v-pre>required</code>, <code translate="no" v-pre>enum</code>, <code translate="no" v-pre>format</code> and <code translate="no" v-pre>renderAs</code>, and the <code translate="no" v-pre>boolean</code> and <code translate="no" v-pre>date</code> types, are not
+implemented — a field declaring them imports with a warning and they have no effect.</p>
+<p>The portal ignores a contract it cannot read rather than failing, which makes mistakes invisible
+at run time, so the importer validates the shape instead. A document that cannot be read at all
+is an <strong>error</strong> and blocks the import: not a JSON object, no <code translate="no" v-pre>fields</code> list, or a field with no
+<code translate="no" v-pre>key</code>. A single misdeclared field is a <strong>warning</strong>: an unrecognised <code translate="no" v-pre>type</code>, a quoted boolean, or
+a key the portal does not read.</p>
+<p>Data files are checked against the contract too. A <code translate="no" v-pre>METADATA</code> key the contract does not declare
+is an <strong>error</strong>, and an error blocks the import: the column would never appear and nothing later
+would say so. A declared key no row carries is a <strong>warning</strong>: the column renders, always empty.</p>
 <h3 id="sample-resource-data-file">Sample Resource Data File</h3>
 <p>The sample resource file should follow this format, it has four <strong>required</strong> columns:</p>
 <ul>
 <li><strong>PATIENT_ID (required)</strong>: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.</li>
 <li><strong>SAMPLE_ID (required)</strong>: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.</li>
-<li><strong>RESOURCE_ID (required)</strong>: a unique resource ID which should also be included in the <code translate="no" v-pre>Resource Definition data file</code>.</li>
+<li><strong>RESOURCE_ID (required)</strong>: the kind of resource this item is, naming a RESOURCE_ID declared in the <code translate="no" v-pre>Resource Definition data file</code>. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.</li>
 <li><strong>URL (required)</strong>: url to the resources, start with <code translate="no" v-pre>http</code> or <code translate="no" v-pre>https</code>.</li>
+<li><strong>DISPLAY_NAME (optional)</strong>: a human-readable label for this individual item. Without it the item&#x27;s label column is blank and the table still names the resource itself in its own column.</li>
+<li><strong>METADATA (optional)</strong>: a JSON <strong>object</strong> of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; where the resource definition gives a <doc-anchor-trigger to="#describing-metadata-columns-with-custom_metadata">CUSTOM_METADATA</doc-anchor-trigger> contract, every key used here must be declared in it. Arrays, scalars and malformed JSON are rejected at import.</li>
 </ul>
 <h3 id="example-sample-resource-data-file">Example <em>Sample Resource</em> data file</h3>
 <table>
-<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>SAMPLE_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>TCGA-A2-A04P-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample1</td><td>H&amp;E Slide 1</td><td>{"stain": "H&amp;E", "magnification": "20x", "percent_tumor_cells": 65}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>TCGA-A1-A0SK-01</td><td>PATHOLOGY_SLIDE</td><td>https://url-to-slide-sample2</td><td>H&amp;E Slide 2</td><td>{"stain": "IHC", "magnification": "40x", "percent_tumor_cells": 30}</td></tr>
 </table>
+<p>Both optional columns are independent of one another, and files without them import exactly as
+before. A classification of the item -- <code translate="no" v-pre>IMAGE</code>, <code translate="no" v-pre>REPORT</code>, a modality -- belongs in <code translate="no" v-pre>METADATA</code>,
+where a <code translate="no" v-pre>CUSTOM_METADATA</code> contract can label it, type it and decide whether it filters.</p>
 <h3 id="patient-resource-data-file">Patient Resource Data File</h3>
 <p>The patient resource file should follow this format, it has three <strong>required</strong> columns:</p>
 <ul>
 <li><strong>PATIENT_ID (required)</strong>: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.</li>
-<li><strong>RESOURCE_ID (required)</strong>: a unique resource ID which should also be included in the <code translate="no" v-pre>Resource Definition data file</code>.</li>
+<li><strong>RESOURCE_ID (required)</strong>: the kind of resource this item is, naming a RESOURCE_ID declared in the <code translate="no" v-pre>Resource Definition data file</code>. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.</li>
 <li><strong>URL (required)</strong>: url to the resources, start with <code translate="no" v-pre>http</code> or <code translate="no" v-pre>https</code>.</li>
 </ul>
+<p><code translate="no" v-pre>DISPLAY_NAME</code> and <code translate="no" v-pre>METADATA</code> are also accepted here, with the same meaning as in the
+<doc-anchor-trigger to="#sample-resource-data-file">Sample Resource data file</doc-anchor-trigger>.</p>
 <h3 id="example-patient-resource-data-file">Example <em>Patient Resource</em> data file</h3>
 <table>
-<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td></tr>
-<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td></tr>
+<thead><tr><th>PATIENT_ID</th><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
+<tr><td>TCGA-A2-A04P</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient1</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Smith", "pages": 3}</td></tr>
+<tr><td>TCGA-A1-A0SK</td><td>PATIENT_NOTES</td><td>https://url-to-slide-patient2</td><td>Consult note</td><td>REPORT</td><td>{"author": "Dr Jones", "pages": 5}</td></tr>
 </table>
 <h3 id="study-resource-data-file">Study Resource Data File</h3>
 <p>The study resource file should follow this format, it has two <strong>required</strong> columns:</p>
 <ul>
-<li><strong>RESOURCE_ID (required)</strong>: a unique resource ID which should also be included in the <code translate="no" v-pre>Resource Definition data file</code>.</li>
+<li><strong>RESOURCE_ID (required)</strong>: the kind of resource this item is, naming a RESOURCE_ID declared in the <code translate="no" v-pre>Resource Definition data file</code>. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.</li>
 <li><strong>URL (required)</strong>: url to the resources, start with <code translate="no" v-pre>http</code> or <code translate="no" v-pre>https</code>.</li>
 </ul>
+<p><code translate="no" v-pre>DISPLAY_NAME</code> and <code translate="no" v-pre>METADATA</code> are also accepted here, with the same meaning as in the
+<doc-anchor-trigger to="#sample-resource-data-file">Sample Resource data file</doc-anchor-trigger>.</p>
 <h3 id="example-study-resource-data-file">Example <em>Study Resource</em> data file</h3>
 <table>
-<thead><tr><th>RESOURCE_ID</th><th>URL</th></tr></thead>
-<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td></tr>
+<thead><tr><th>RESOURCE_ID</th><th>URL</th><th>DISPLAY_NAME</th><th>METADATA</th></tr></thead>
+<tr><td>STUDY_SPONSORS</td><td>https://url-to-study-sponsors</td><td>Sponsor list</td><td>{"year": 2026}</td></tr>
 </table>
 <h2 id="custom-namespace-columns">Custom namespace columns</h2>
 <h3 id="adding-annotation-columns-through-namespaces">Adding annotation columns through namespaces</h3>

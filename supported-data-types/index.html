@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845236632102">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="4.6.0.845395784567">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 4.6.0">
@@ -41,11 +41,11 @@
     <script data-cfasync="false">(function(){var cl=document.documentElement.classList,ls=localStorage.getItem("retype_scheme"),hd=cl.contains("dark"),hl=cl.contains("light"),wm=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;if(ls==="dark"||(!ls&&wm&&!hd&&!hl)){cl.remove("light");cl.add("dark")}else if(ls==="light"||(!ls&&!wm&&!hd&&!hl)){cl.remove("dark");cl.add("light")}})();</script>
 
     <link id="retype-favicon" rel="icon" href="../images/cbio-logo.png" />
-    <link href="../resources/css/retype.css?v=4.6.0.845236632102" rel="stylesheet">
+    <link href="../resources/css/retype.css?v=4.6.0.845395784567" rel="stylesheet">
 
-    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
+    <script data-cfasync="false" src="../resources/js/config.js?v=4.6.0.845395784567" data-turbo-eval="false" defer></script>
     <script data-cfasync="false" src="../resources/js/retype.js?v=4.6.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.845236632102" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" data-cfasync="false" src="../resources/js/lunr.js?v=4.6.0.845395784567" data-turbo-eval="false" defer></script>
 
     <link rel="stylesheet" href="/static/custom.css"></link>
 </head>
@@ -325,6 +325,7 @@
 </retype-table>
 <h3 id="external-viewer-integration">External Viewer Integration</h3>
 <p>There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the <a href="../file-formats/#resource-data">Resource Data Format</a>. Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viewers, we also have several suggestions on what kind of derived data can be added from these assays directly into cBioPortal for multimodal analysis. This mainly leverages the <a href="../file-formats/#generic-assay">Generic Assay Format</a>.</p>
+<p>A linked resource can also carry per-item metadata — the stain, magnification or percent tumor cells of an individual slide, say. Those fields become searchable, sortable and filterable columns in the study&#x27;s Files &amp; Links tab, so a researcher can narrow thousands of linked images down to the few worth opening instead of paging through a list of links. A curator decides how each field is labelled, typed and filtered through the <a href="../file-formats/#describing-metadata-columns-with-custom_metadata">CUSTOM_METADATA contract</a>.</p>
 <retype-table copy-text="| Assay | External Viewer | Derived data to load into cBioPortal | Example cBioPortal Study |
 | --- | --- | --- | --- |
 | scRNAseq | [cBioPortal Cell Explorer](https://cell-explorer.cbioportal.org) ([source](https://github.com/cBioPortal/cbioportal-cell-explorer)), CellxGene, Vitessce, Broad Single Cell Portal | Cell fractions per sample, pseudobulk expression per gene per sample | [HTAN Vanderbilt (Cell, 2021)](https://www.cbioportal.org/study/summary?id=msk_spectrum_tme_2022) |

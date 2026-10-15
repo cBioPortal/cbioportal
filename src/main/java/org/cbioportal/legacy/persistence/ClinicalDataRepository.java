@@ -119,6 +119,9 @@ public interface ClinicalDataRepository {
       String sortBy,
       String direction);
 
+  Integer getVisibleSampleInternalIdCountForClinicalTable(
+      List<String> studyIds, List<String> sampleIds, String searchTerm);
+
   List<ClinicalData> getSampleClinicalDataBySampleInternalIds(
       List<Integer> visibleSampleInternalIds);
 

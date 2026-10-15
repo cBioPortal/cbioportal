@@ -367,7 +367,7 @@
     SELECT
       cs.cancer_study_identifier AS studyId,
       rdata.resource_id AS resourceId,
-      coalesce(rdef.display_name, rdata.resource_id) AS resourceDisplayName,
+      coalesce(nullIf(rdef.display_name, ''), rdata.resource_id) AS resourceDisplayName,
       rdata.resource_scope AS resourceType,
       rdata.patient_id AS patientId,
       rdata.sample_id AS sampleId,
@@ -516,7 +516,7 @@
     SELECT count(*) AS rowCount,
            countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.patient_id), rdata.patient_id IS NOT NULL AND rdata.resource_scope IN ('PATIENT', 'SAMPLE')) AS patientCount,
            countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.sample_id), rdata.sample_id IS NOT NULL AND rdata.resource_scope = 'SAMPLE') AS sampleCount,
-           uniqExact(coalesce(rdef.display_name, rdata.resource_id)) AS distinctResourceDisplayNames,
+           uniqExact(coalesce(nullIf(rdef.display_name, ''), rdata.resource_id)) AS distinctResourceDisplayNames,
            uniqExact(rdata.resource_scope) AS distinctScopes,
            uniqExact(ifNull(rdata.display_name, '')) AS distinctDisplayNames
     <include refid="ResourceTableFromClause"/>

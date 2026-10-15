@@ -10,8 +10,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClickhouseJsonMapTypeHandler extends BaseTypeHandler<Map<String, Object>> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ClickhouseJsonMapTypeHandler.class);
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final TypeReference<LinkedHashMap<String, Object>> TYPE_REFERENCE =
       new TypeReference<>() {};
@@ -53,10 +57,21 @@ public class ClickhouseJsonMapTypeHandler extends BaseTypeHandler<Map<String, Ob
       map.forEach((k, v) -> result.put(String.valueOf(k), v));
       return result;
     }
-    try {
-      return OBJECT_MAPPER.readValue(String.valueOf(value), TYPE_REFERENCE);
-    } catch (Exception e) {
-      throw new SQLException("Unable to deserialize JSON metadata", e);
+    String text = String.valueOf(value).trim();
+    if (text.isEmpty()) {
+      return new LinkedHashMap<>();
     }
+    try {
+      return OBJECT_MAPPER.readValue(text, TYPE_REFERENCE);
+    } catch (Exception e) {
+      // One unreadable value must not fail the page it appears on. The column is curator-supplied
+      // and the row is still worth showing; the metadata columns render empty for it.
+      LOG.warn("Ignoring metadata that is not a JSON object: {}", abbreviate(text));
+      return new LinkedHashMap<>();
+    }
+  }
+
+  private static String abbreviate(String text) {
+    return text.length() <= 80 ? text : text.substring(0, 80) + "...";
   }
 }

@@ -109,7 +109,7 @@
     <sql id="selectSampleResourceCounts">
         <include refid="selectResource"/>,
         rs.resource_id AS resourceId,
-        COUNT(DISTINCT s.internal_id) AS sampleCount,
+        COUNT(DISTINCT nullIf(s.internal_id, 0)) AS sampleCount,
         COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
 
@@ -134,7 +134,7 @@
     <sql id="selectPatientResourceCounts">
         <include refid="selectResource"/>,
         rp.resource_id AS resourceId,
-        COUNT(DISTINCT s.internal_id) AS sampleCount,
+        COUNT(DISTINCT nullIf(s.internal_id, 0)) AS sampleCount,
         COUNT(DISTINCT p.internal_id) AS patientCount
     </sql>
 

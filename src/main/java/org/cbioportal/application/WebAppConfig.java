@@ -67,7 +67,9 @@ public class WebAppConfig implements WebMvcConfigurer {
             "/webAPI**",
             "/news**",
             "/visualize**",
-            "/oncotree2genes**");
+            "/oncotree2genes**",
+            // Standalone slide viewer; WSI resource URLs link here.
+            "/wsi/patient/*");
 
     endpoints.forEach(route -> registry.addViewController(route).setViewName(SINGLE_PAGE_APP_ROOT));
   }

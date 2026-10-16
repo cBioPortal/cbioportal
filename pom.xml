@@ -848,15 +848,23 @@
   </pluginRepositories>
 
   <repositories>
+    <!-- Listed first so dependencies available from Maven Central never touch the repositories
+         below. Also needed for keycloak test containers. -->
+    <repository>
+      <id>maven-central</id>
+      <url>https://repo1.maven.org/maven2/</url>
+    </repository>
     <!-- needed for the opensaml dependency (Shibboleth migrated from Nexus to this URL) -->
     <repository>
       <id>shiboleth</id>
       <url>https://build.shibboleth.net/maven/releases/</url>
     </repository>
-    <!-- needed for keycloak test containers -->
+    <!-- Fallback for the opensaml artifacts: build.shibboleth.net intermittently answers CI with
+         403, and Maven then tries the next repository. The JBoss public repository serves the
+         same artifacts (identical checksums). -->
     <repository>
-      <id>maven-central</id>
-      <url>https://repo1.maven.org/maven2/</url>
+      <id>jboss-public</id>
+      <url>https://repository.jboss.org/nexus/repository/public/</url>
     </repository>
   </repositories>
 

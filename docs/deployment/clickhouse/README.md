@@ -281,7 +281,8 @@ After importing studies and rebuilding derived tables, you can verify that your 
 WSI is served from the generic `resource` table: one row per slide in the
 `WSI_SAMPLE` or `WSI_PATIENT` resource. The row format, the private
 `wsi_serving` object, `sealed_source` and the offline converter are described
-in [Pathology Slide Data](../../File-Formats.md#pathology-slide-data).
+in cbioportal-core's
+[WSI study import](https://github.com/cBioPortal/cbioportal-core/blob/main/docs/wsi-study-format.md).
 
 Clients use two endpoints:
 
@@ -362,7 +363,7 @@ row's stored `sealed_source`, copied verbatim; it is sealed upstream with
 Before enabling the Pathology Slides feature for a private study:
 
 1. Convert the study's `meta_wsi.txt`/`data_wsi.txt` pair as described in
-   [Converting a WSI file pair](../../File-Formats.md#converting-a-wsi-file-pair),
+   [Converting legacy files](https://github.com/cBioPortal/cbioportal-core/blob/main/docs/wsi-study-format.md#converting-legacy-files),
    then validate and import the study with the standard importer. MRNs and
    absolute dates must not occur in the study files:
 

@@ -16,7 +16,7 @@ import org.junit.Test;
 
 public class ClickhouseWsiSlideAccessRepositoryTest {
 
-  private static final String SLIDE_KEY = "2351e12d49557627b24fe71e17ec5c64";
+  private static final String SLIDE_KEY = "2351e12d4955";
   // The contract test vector (nonce || ciphertext || tag, base64url without padding).
   private static final String SEALED_SOURCE =
       "AAECAwQFBgcICQoLNpOTYnY8HVb-KcPzu1F5HPykr7D0YY_UhVbbyjOFRlxC63fxCt09YO1aYC-phb85wDhN5PPPpC0X"

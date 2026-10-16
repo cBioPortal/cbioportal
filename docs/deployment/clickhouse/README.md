@@ -299,7 +299,7 @@ Clients use two endpoints:
   or patient gets `404`.
 - `GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`
   returns the pixel access bundle and capability for one slide. `slideKey`
-  must be 32 lowercase hex characters (`400` otherwise). It reads
+  must be 12 lowercase hex characters (`400` otherwise). It reads
   `wsi_serving` from the row whose `metadata.slide_key` matches, and only when
   the row belongs to the study and patient and its resource is `WSI_SAMPLE` or
   `WSI_PATIENT`. The slide key is

@@ -32,9 +32,9 @@ public class ClickhouseWsiSlideAccessMapperTest {
   private static final long WSI_TEST_STUDY = 9001L;
   private static final long WSI_SNAPSHOT_STUDY = 9002L;
 
-  private static final String SAMPLE_SLIDE_KEY = "2351e12d49557627b24fe71e17ec5c64";
-  private static final String PATIENT_SLIDE_KEY = "b3286836fc27c777260ada0dcb8a6857";
-  private static final String OTHER_RESOURCE_SLIDE_KEY = "0f0e0d0c0b0a09080706050403020100";
+  private static final String SAMPLE_SLIDE_KEY = "2351e12d4955";
+  private static final String PATIENT_SLIDE_KEY = "b3286836fc27";
+  private static final String OTHER_RESOURCE_SLIDE_KEY = "0f0e0d0c0b0a";
   private static final String SAMPLE_SEALED_SOURCE =
       "AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5"
           + "wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS";
@@ -91,7 +91,7 @@ public class ClickhouseWsiSlideAccessMapperTest {
 
   @Test
   public void returnsNullForUnknownSlideKey() {
-    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "0".repeat(32)));
+    assertNull(mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", "0".repeat(12)));
   }
 
   @Test

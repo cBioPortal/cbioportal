@@ -33,8 +33,8 @@ public class ClickhouseWsiHierarchyMapperTest {
 
   @Autowired private ClickhouseWsiHierarchyRepository repository;
 
-  private static final String SAMPLE_SLIDE_KEY = "2351e12d49557627b24fe71e17ec5c64";
-  private static final String PATIENT_SLIDE_KEY = "b3286836fc27c777260ada0dcb8a6857";
+  private static final String SAMPLE_SLIDE_KEY = "2351e12d4955";
+  private static final String PATIENT_SLIDE_KEY = "b3286836fc27";
 
   @Test
   public void readsNormalizedActivePatientHierarchy() {
@@ -93,7 +93,7 @@ public class ClickhouseWsiHierarchyMapperTest {
 
     assertEquals(1, hierarchy.sampleGroups().size());
     assertEquals(
-        "e8ac3c1341f0fb1fa1a7c8e69ba27a51",
+        "e8ac3c1341f0",
         hierarchy.sampleGroups().get(0).parts().get(0).blocks().get(0).slides().get(0).slideKey());
   }
 

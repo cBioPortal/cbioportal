@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 public final class WsiDeidentification {
 
   /**
-   * Opaque per-slide key: the first 32 hex chars of a salted SHA-256 of the image identifier. Match
+   * Opaque per-slide key: the first 12 hex chars of a salted SHA-256 of the image identifier. Match
    * it whole ({@code matches()}); it is unanchored so the hierarchy's part/block keys can embed it.
    */
-  public static final Pattern SLIDE_KEY = Pattern.compile("[0-9a-f]{32}");
+  public static final Pattern SLIDE_KEY = Pattern.compile("[0-9a-f]{12}");
 
   /**
    * The resource rows that hold one row per slide. Their rows carry the private {@code wsi_serving}

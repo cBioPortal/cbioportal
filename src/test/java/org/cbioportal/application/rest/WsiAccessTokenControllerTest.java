@@ -33,8 +33,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class WsiAccessTokenControllerTest {
 
   private static final String SECRET = "0123456789abcdef0123456789abcdef";
-  private static final String SLIDE_KEY = "2351e12d49557627b24fe71e17ec5c64";
-  // A genuine seal for SLIDE_KEY under the contract test key; opaque to cBioPortal.
+  private static final String SLIDE_KEY = "2351e12d4955";
+  // A well-formed seal (contract test key); opaque to cBioPortal, which only checks its shape.
   private static final String SEALED_SOURCE =
       "AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5"
           + "wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS";
@@ -170,6 +170,8 @@ public class WsiAccessTokenControllerTest {
           SLIDE_KEY.toUpperCase(),
           SLIDE_KEY + "0",
           SLIDE_KEY.substring(1),
+          // The retired 32-character form.
+          SLIDE_KEY + "a1b2c3d4e5f6a7b8c9d0",
           "",
           null
         }) {
@@ -208,7 +210,7 @@ public class WsiAccessTokenControllerTest {
     assertEquals(
         404,
         controller
-            .issueSlideAccess("study-1", "patient-1", "0".repeat(32))
+            .issueSlideAccess("study-1", "patient-1", "0".repeat(12))
             .getStatusCode()
             .value());
     verify(wsiSlideAccessRepository).getSlideSource(any(), any(), any());

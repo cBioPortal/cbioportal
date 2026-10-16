@@ -21,8 +21,8 @@ import org.junit.Test;
 /** Repository-level de-identification rules, independent of a ClickHouse container. */
 public class ClickhouseWsiHierarchyRepositoryTest {
 
-  private static final String KEY_1 = "2351e12d49557627b24fe71e17ec5c64";
-  private static final String KEY_2 = "e766df6e31f08c1b363951525204ed55";
+  private static final String KEY_1 = "2351e12d4955";
+  private static final String KEY_2 = "e766df6e31f0";
 
   private final ClickhouseWsiHierarchyMapper mapper = mock(ClickhouseWsiHierarchyMapper.class);
   private final ClickhouseWsiContextMapper contextMapper = mock(ClickhouseWsiContextMapper.class);
@@ -68,7 +68,9 @@ public class ClickhouseWsiHierarchyRepositoryTest {
     missing.put("slide_key", "");
     Map<String, Object> rawImageId = row(KEY_2);
     rawImageId.put("slide_key", "3020726");
-    rows(row(KEY_1), missing, rawImageId);
+    Map<String, Object> retiredLongKey = row(KEY_2);
+    retiredLongKey.put("slide_key", KEY_2 + "a1b2c3d4e5f6a7b8c9d0");
+    rows(row(KEY_1), missing, rawImageId, retiredLongKey);
 
     assertEquals(List.of(KEY_1), slideKeys(repository.getPatientHierarchy("study", "patient")));
   }
@@ -76,7 +78,7 @@ public class ClickhouseWsiHierarchyRepositoryTest {
   @Test
   public void acceptsOpaqueKeysWhoseHexLooksLikeACompactDate() {
     // "a20240131b" contains an eight-digit YYYYMMDD-looking run.
-    String dateLikeKey = "a20240131b" + "0".repeat(22);
+    String dateLikeKey = "a20240131b" + "00";
     Map<String, Object> row = row(dateLikeKey);
     row.put("part_key", "part:" + dateLikeKey);
     row.put("block_key", "block:" + dateLikeKey);

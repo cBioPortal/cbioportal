@@ -1,6 +1,7 @@
 package org.cbioportal.application.security.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,20 +19,28 @@ public class CorsConfig {
   @Value("${security.cors.allowed-origins:}")
   private String allowedOrigins;
 
+  @Value("${security.cors.allow-credentials:false}")
+  private boolean allowCredentials;
+
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
-    List<String> parsedAllowedOrigins = List.of(allowedOrigins.split(","));
+    List<String> parsedAllowedOrigins =
+        Arrays.stream(allowedOrigins.split(","))
+            .map(String::trim)
+            .filter(origin -> !origin.isEmpty())
+            .toList();
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // No origins configured: register nothing, so the CORS filter lets every request through
+    // unchanged instead of rejecting each cross-origin one.
     if (parsedAllowedOrigins.isEmpty()) {
       return source;
     }
 
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(parsedAllowedOrigins);
-    // Spring rejects allowCredentials=true with the wildcard origin used by
-    // the public deployments. Enable credentials only for explicit origins
-    // such as a separately hosted frontend.
-    configuration.setAllowCredentials(!parsedAllowedOrigins.contains("*"));
+    // Credentials (the login cookie) are opt-in, for a frontend hosted on another origin. Spring
+    // rejects them with the "*" wildcard, so the wildcard keeps them off.
+    configuration.setAllowCredentials(allowCredentials && !parsedAllowedOrigins.contains("*"));
     configuration.setAllowedMethods(List.of("GET", "POST", "HEAD", "OPTIONS"));
     configuration.setAllowedHeaders(
         List.of(

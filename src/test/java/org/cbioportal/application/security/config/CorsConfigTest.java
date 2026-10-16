@@ -1,10 +1,12 @@
 package org.cbioportal.application.security.config;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -45,22 +47,57 @@ class CorsConfigTest {
   }
 
   @Test
-  void disablesCredentialsForTheWildcardOrigin() {
-    CorsConfig config = new CorsConfig();
-    ReflectionTestUtils.setField(config, "allowedOrigins", "*");
+  void keepsCredentialsOffUnlessEnabled() {
     CorsConfiguration configuration =
-        config
-            .corsConfigurationSource()
+        corsConfigurationSource("https://portal.example.org", false)
+            .getCorsConfiguration(new MockHttpServletRequest("GET", "/api/studies"));
+
+    assertNotNull(configuration);
+    assertFalse(Boolean.TRUE.equals(configuration.getAllowCredentials()));
+  }
+
+  @Test
+  void disablesCredentialsForTheWildcardOrigin() {
+    CorsConfiguration configuration =
+        corsConfigurationSource("*", true)
             .getCorsConfiguration(new MockHttpServletRequest("GET", "/api/studies"));
 
     assertNotNull(configuration);
     assertFalse(configuration.getAllowCredentials());
   }
 
+  @Test
+  void registersNothingWithoutAllowedOrigins() {
+    for (String unset : new String[] {"", " ", ", ,"}) {
+      assertNull(
+          corsConfigurationSource(unset, true)
+              .getCorsConfiguration(new MockHttpServletRequest("GET", "/api/studies")),
+          "allowed-origins='" + unset + "'");
+    }
+  }
+
+  @Test
+  void trimsTheAllowedOrigins() {
+    CorsConfiguration configuration =
+        corsConfigurationSource(" https://portal.example.org , https://preview.example.org ", true)
+            .getCorsConfiguration(new MockHttpServletRequest("GET", "/api/studies"));
+
+    assertNotNull(configuration);
+    assertEquals(
+        List.of("https://portal.example.org", "https://preview.example.org"),
+        configuration.getAllowedOrigins());
+  }
+
   private CorsConfigurationSource corsConfigurationSource() {
+    return corsConfigurationSource(
+        "https://portal.example.org,https://deploy-preview.example.org", true);
+  }
+
+  private CorsConfigurationSource corsConfigurationSource(
+      String allowedOrigins, boolean allowCredentials) {
     CorsConfig config = new CorsConfig();
-    ReflectionTestUtils.setField(
-        config, "allowedOrigins", "https://portal.example.org,https://deploy-preview.example.org");
+    ReflectionTestUtils.setField(config, "allowedOrigins", allowedOrigins);
+    ReflectionTestUtils.setField(config, "allowCredentials", allowCredentials);
     return config.corsConfigurationSource();
   }
 }

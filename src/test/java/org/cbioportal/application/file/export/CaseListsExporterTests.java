@@ -1,3 +1,4 @@
+
 package org.cbioportal.application.file.export;
 
 import static org.junit.Assert.assertEquals;
@@ -130,5 +131,14 @@ public class CaseListsExporterTests {
     case_list_ids: SAMPLE_3\tSAMPLE_4
     """,
         fileContents.get("case_lists/cases_stable_id_2.txt").toString());
+  }
+
+  @Test
+  public void testCaseListTypeStableIdRemovesOnlyLeadingStudyIdentifier() {
+    var metadata = new CaseListMetadata();
+    metadata.setCancerStudyIdentifier("demo");
+    metadata.setStableId("demo_demo_all");
+
+    assertEquals("demo_all", metadata.getCaseListTypeStableId());
   }
 }

@@ -1,3 +1,4 @@
+
 package org.cbioportal.application.file.model;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
   /**
    * Get the stable ID of the genetic datatype without the cancer study identifier.
    *
-   * @return
+   * @return the stable ID without the cancer study identifier prefix
    */
   public String getGeneticDatatypeStableId() {
     if (stableId == null) {
@@ -38,7 +39,9 @@ public class GeneticProfileDatatypeMetadata implements GeneticDatatypeMetadata {
     if (cancerStudyIdentifier == null) {
       return stableId;
     }
-    return stableId.replace(this.cancerStudyIdentifier + "_", "");
+
+    String prefix = this.cancerStudyIdentifier + "_";
+    return stableId.startsWith(prefix) ? stableId.substring(prefix.length()) : stableId;
   }
 
   @Override

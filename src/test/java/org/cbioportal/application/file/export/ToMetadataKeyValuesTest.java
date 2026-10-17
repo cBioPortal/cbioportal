@@ -1,3 +1,4 @@
+
 package org.cbioportal.application.file.export;
 
 import static org.junit.Assert.assertEquals;
@@ -34,11 +35,12 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("groups", "GROUP1;GROUP2");
     expectedMetadata.put("add_global_case_list", "true");
     expectedMetadata.put("reference_genome", "hg38");
+
     assertEquals(expectedMetadata, cancerStudyMetadata.toMetadataKeyValues());
   }
 
   /**
-   * Test for the CancerStudyMetadata class when all fields are null. nulls are still included in
+   * Test for the CancerStudyMetadata class when all fields are null. Nulls are still included in
    * the metadata map for specific metadata keys.
    */
   @Test
@@ -55,6 +57,7 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("groups", null);
     expectedMetadata.put("add_global_case_list", null);
     expectedMetadata.put("reference_genome", null);
+
     assertEquals(expectedMetadata, cancerStudyMetadata.toMetadataKeyValues());
   }
 
@@ -140,5 +143,14 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("generic_entity_meta_properties", null);
 
     assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
+  }
+
+  @Test
+  public void testGeneticDatatypeStableIdRemovesOnlyLeadingStudyIdentifier() {
+    var metadata = new GeneticProfileDatatypeMetadata();
+    metadata.setCancerStudyIdentifier("demo");
+    metadata.setStableId("demo_demo_mutations");
+
+    assertEquals("demo_mutations", metadata.getGeneticDatatypeStableId());
   }
 }

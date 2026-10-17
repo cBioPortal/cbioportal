@@ -1,4 +1,3 @@
-
 package org.cbioportal.application.file.model;
 
 import java.util.SequencedMap;

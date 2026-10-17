@@ -1,4 +1,3 @@
-
 package org.cbioportal.application.file.export;
 
 import static org.junit.Assert.assertEquals;

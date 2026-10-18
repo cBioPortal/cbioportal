@@ -77,7 +77,7 @@ public class JwtUtils {
     }
   }
 
-  @Value("${dat.ttl_seconds:-1}") // default value is -1
+  @Value("${dat.ttl_seconds:2592000}") // default value is 30 days
   private int jwtTtlSeconds;
 
   private static final Logger LOG = LoggerFactory.getLogger(JwtUtils.class);

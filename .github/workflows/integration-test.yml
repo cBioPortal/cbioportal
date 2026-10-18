@@ -1,13 +1,33 @@
 name: Integration tests
-on: [push, pull_request]
+# To test against a cbioportal-core branch/PR instead of the core bundled in the image
+# (e.g. for a db.version bump that needs a matching importer change), either add a line
+#   core-ref: <branch | sha | pull/<number>>
+# to the PR description, or pass core_ref when running this workflow manually.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      core_ref:
+        description: 'cbioportal-core branch, sha or pull/<number> (default: core bundled in the image)'
+        required: false
+        default: ''
 jobs:
   build:
-    name: Integration tests
+    # fresh:   DB initialized from this source's schema/seed
+    # upgrade: DB initialized from the released image in the compose .env, then upgraded by
+    #          cbioportal-migration with this source's migrate_schema.sql
+    name: Integration tests (${{ matrix.db_init }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        db_init: [fresh, upgrade]
     env:
       PORTAL_SOURCE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal
       PORTAL_COMPOSE_DIR: /home/runner/work/cbioportal/cbioportal/cbioportal-docker-compose
       PORTAL_INFO_DIR: /home/runner/work/cbioportal/cbioportal/portalInfo
+      CORE_DIR: /home/runner/work/cbioportal/cbioportal/core-under-test
     steps:
       - name: 'Checkout cbioportal repo'
         uses: actions/checkout@v4
@@ -37,15 +57,51 @@ jobs:
         with:
           repository: cbioportal/cbioportal-docker-compose
           path: ./cbioportal-docker-compose
+      - name: 'Resolve cbioportal-core ref'
+        env:
+          # untrusted input: only ever passed through env, never interpolated into the script
+          PR_BODY: ${{ github.event.pull_request.body }}
+          INPUT_CORE_REF: ${{ inputs.core_ref }}
+        run: |
+          CORE_REF="${INPUT_CORE_REF:-$(printf '%s\n' "$PR_BODY" | tr -d '\r' | sed -n 's/^[[:space:]]*core-ref:[[:space:]]*\([^[:space:]]*\).*/\1/p' | head -n 1)}"
+          if [ -n "$CORE_REF" ] && ! [[ "$CORE_REF" =~ ^[A-Za-z0-9._/-]+$ ]]; then
+            echo "Invalid core ref: $CORE_REF"; exit 1
+          fi
+          echo "CORE_REF=$CORE_REF" >> $GITHUB_ENV
+          COMPOSE_FILE="docker-compose.yml:$PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml"
+          [ -n "$CORE_REF" ] && COMPOSE_FILE="$COMPOSE_FILE:$PORTAL_SOURCE_DIR/test/integration/docker-compose-core.yml"
+          echo "COMPOSE_FILE=$COMPOSE_FILE" >> $GITHUB_ENV
+          echo "cbioportal-core: ${CORE_REF:-bundled in cbioportal/cbioportal:master}"
+      - name: 'Build cbioportal-core'
+        if: env.CORE_REF != ''
+        run: |
+          REF="$CORE_REF"
+          [[ "$REF" =~ ^pull/[0-9]+$ ]] && REF="refs/$REF/head"
+          git init -q cbioportal-core && cd cbioportal-core
+          git fetch -q --depth 1 https://github.com/cBioPortal/cbioportal-core.git "$REF"
+          git checkout -q FETCH_HEAD && git log -1 --oneline
+          # same as docker/web-and-data/Dockerfile: an application.properties is needed to build
+          touch src/main/resources/application.properties
+          mvn -q -DskipTests clean install
+          # assemble the same layout as /core in the image; note that changes to
+          # requirements.txt are not pip-installed into the image
+          mkdir -p $CORE_DIR
+          cp core-*.jar $CORE_DIR/core-IMPORTER.jar
+          cp -r scripts requirements.txt $CORE_DIR/
       - name: 'Initialize cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          # Load the DB scripts from the source under test (not the released image that
-          # data/init.sh extracts from), so the schema always matches db.version in pom.xml
-          DB_SCRIPTS=$PORTAL_SOURCE_DIR/src/main/resources/db-scripts/clickhouse && \
-          cp $DB_SCRIPTS/init/schema.sql ./data/schema.sql && \
-          cp $DB_SCRIPTS/init/seed-*.sql.gz ./data/seed.sql.gz && \
-          cp $DB_SCRIPTS/populate_derived_tables.sql ./data/populate_derived_tables.sql && \
+          if [ "${{ matrix.db_init }}" = "upgrade" ]; then
+            # released schema/seed from the image in .env; cbioportal-migration upgrades it
+            ./data/init.sh
+          else
+            # Load the DB scripts from the source under test (not the released image that
+            # data/init.sh extracts from), so the schema always matches db.version in pom.xml
+            DB_SCRIPTS=$PORTAL_SOURCE_DIR/src/main/resources/db-scripts/clickhouse && \
+            cp $DB_SCRIPTS/init/schema.sql ./data/schema.sql && \
+            cp $DB_SCRIPTS/init/seed-*.sql.gz ./data/seed.sql.gz && \
+            cp $DB_SCRIPTS/populate_derived_tables.sql ./data/populate_derived_tables.sql
+          fi
           cd ./config && \
           cat $PORTAL_SOURCE_DIR/src/main/resources/application.properties | \
               sed 's|spring.datasource.url=.*|spring.datasource.url=jdbc:ch://cbioportal-database:8123/cbioportal|' | \
@@ -61,7 +117,7 @@ jobs:
       - name: 'Start cbioportal-docker-compose'
         working-directory: ./cbioportal-docker-compose
         run: |
-          docker compose -f docker-compose.yml -f $PORTAL_SOURCE_DIR/test/integration/docker-compose-localbuild.yml up -d
+          docker compose up -d
       - name: 'Wait for cbioportal to initialize ...'
         id: startup
         uses: nev7n/wait_for_response@7fef3c1a6e8939d0b09062f14fec50d3c5d15fa1 # v1
@@ -73,7 +129,7 @@ jobs:
       - name: Log cBioPortal Service
         if: ${{ failure() && steps.startup.conclusion == 'failure' }}
         working-directory: ./cbioportal-docker-compose
-        run: docker compose logs cbioportal
+        run: docker compose logs cbioportal-migration cbioportal
       - name: 'TEST - Validate and load study_es_0'
         if: steps.startup.conclusion == 'success'
         working-directory: ./cbioportal-docker-compose

@@ -74,9 +74,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     if (username == null || username.trim().length() == 0) {
       throw new IllegalArgumentException("username cannot be empty");
     }
-    if (getNumberOfTokensForUsername(username) >= maxNumberOfAccessTokens) {
-      revokeOldestDataAccessTokenForUsername(username);
-    }
+    revokeOldestDataAccessTokensToMakeRoomForUsername(username);
     String uuid = UUID.randomUUID().toString();
     Calendar calendar = Calendar.getInstance();
     Date creationDate = calendar.getTime();
@@ -162,18 +160,17 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
     return Boolean.TRUE;
   }
 
-  private int getNumberOfTokensForUsername(String username) {
+  // revokes the user's oldest tokens so that one more token fits within the per-user limit, which
+  // can mean revoking several if the limit was lowered after they were created
+  private void revokeOldestDataAccessTokensToMakeRoomForUsername(String username) {
     List<DataAccessToken> allDataAccessTokens =
         dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
-    return allDataAccessTokens.size();
-  }
-
-  // revokes oldest token in token management system for a user
-  private void revokeOldestDataAccessTokenForUsername(String username) {
-    List<DataAccessToken> allDataAccessTokens =
-        dataAccessTokenRepository.getAllDataAccessTokensForUsername(username);
-    DataAccessToken oldestDataAccessToken = allDataAccessTokens.get(0);
-    dataAccessTokenRepository.removeDataAccessToken(oldestDataAccessToken.getToken());
+    int numberToRevoke =
+        Math.min(
+            allDataAccessTokens.size() - maxNumberOfAccessTokens + 1, allDataAccessTokens.size());
+    for (int i = 0; i < numberToRevoke; i++) {
+      dataAccessTokenRepository.removeDataAccessToken(allDataAccessTokens.get(i).getToken());
+    }
   }
 
   @Override

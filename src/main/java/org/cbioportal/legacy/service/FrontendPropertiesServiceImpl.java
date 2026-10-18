@@ -33,6 +33,8 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
   // There are some properties that require processing before being exposed to the frontend.
   public enum FrontendProperty {
     dat_method("dat.method", null),
+    dat_uuid_max_number_per_user("dat.uuid.max_number_per_user", "1"),
+    dat_ttl_seconds("dat.ttl_seconds", null),
     oncoprint_custom_driver_annotation_binary_menu_label(
         "oncoprint.custom_driver_annotation.binary.menu_label", null),
     oncoprint_custom_driver_annotation_binary_menu_description(

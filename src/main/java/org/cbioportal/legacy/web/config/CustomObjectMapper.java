@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.cbioportal.legacy.model.ClinicalEventData;
 import org.cbioportal.legacy.model.DataAccessToken;
+import org.cbioportal.legacy.model.DataAccessTokenSummary;
 import org.cbioportal.legacy.model.Gistic;
 import org.cbioportal.legacy.model.GisticToGene;
 import org.cbioportal.legacy.model.MutSig;
@@ -71,6 +72,7 @@ public class CustomObjectMapper extends ObjectMapper {
     Map<Class<?>, Class<?>> mixinMap = new HashMap<>();
     mixinMap.put(ClinicalEventData.class, ClinicalEventDataMixin.class);
     mixinMap.put(DataAccessToken.class, DataAccessTokenMixin.class);
+    mixinMap.put(DataAccessTokenSummary.class, DataAccessTokenMixin.class);
     mixinMap.put(Gistic.class, GisticMixin.class);
     mixinMap.put(GisticToGene.class, GisticToGeneMixin.class);
     mixinMap.put(MutSig.class, MutSigMixin.class);

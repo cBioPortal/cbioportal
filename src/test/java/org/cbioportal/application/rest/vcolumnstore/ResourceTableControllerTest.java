@@ -101,6 +101,7 @@ public class ResourceTableControllerTest {
     List<ResourceTableRow> rows =
         List.of(
             new ResourceTableRow(
+                1L,
                 STUDY_ID,
                 RESOURCE_ID,
                 "H&E Slide",
@@ -111,6 +112,7 @@ public class ResourceTableControllerTest {
                 "H&E Sample 1",
                 Map.of("stain", "HE")),
             new ResourceTableRow(
+                2L,
                 STUDY_ID,
                 RESOURCE_ID,
                 "H&E Slide",
@@ -139,6 +141,7 @@ public class ResourceTableControllerTest {
             MockMvcResultMatchers.content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray())
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].internalId").value(1))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].resourceId").value(RESOURCE_ID))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].patientId").value("tcga-a1-a0sb"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].sampleId").value("tcga-a1-a0sb-01"))

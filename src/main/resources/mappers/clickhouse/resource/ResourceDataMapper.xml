@@ -37,6 +37,7 @@
 
   <resultMap id="ResourceTableRowResultMap" type="org.cbioportal.domain.resource.ResourceTableRow">
     <constructor>
+      <arg column="internalId" javaType="java.lang.Long"/>
       <arg column="studyId" javaType="String"/>
       <arg column="resourceId" javaType="String"/>
       <arg column="resourceDisplayName" javaType="String"/>
@@ -75,8 +76,13 @@
 
   <sql id="ResourceTableBaseFilters">
     <where>
-      rdata.resource_id = #{query.resourceId}
-      AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+      <!-- Omitted to list every resource the cohort has, which is how a viewer walks one
+           patient's resources without one request per resource. -->
+      <if test="query.resourceId != null and query.resourceId != ''">
+        rdata.resource_id = #{query.resourceId}
+        AND
+      </if>
+      cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       <!-- Match each row at the level it lives at: patient-level rows (sample_id IS NULL) by
            patient_id, sample-level rows by sample_id. The two lists must be ORed, not ANDed:
            "sample_id IN (...)" is never true for a NULL sample_id. -->
@@ -293,7 +299,11 @@
         toFloat64OrNull(JSONExtractString(ifNull(rdata.metadata, '{}'), #{sortMetadataKey})) <include refid="ResourceTableSortDirection"/>,
         JSONExtractString(ifNull(rdata.metadata, '{}'), #{sortMetadataKey}) <include refid="ResourceTableSortDirection"/>
       </when>
-      <otherwise>ORDER BY rdata.patient_id ASC, rdata.sample_id ASC</otherwise>
+      <otherwise>ORDER BY
+        <!-- A request without a resourceId spans every resource, so group by resource before
+             patient; within one resource this adds nothing. -->
+        <if test="query.resourceId == null or query.resourceId == ''">rdata.resource_id ASC,</if>
+        rdata.patient_id ASC, rdata.sample_id ASC</otherwise>
     </choose>
     , rdata.internal_id ASC
   </sql>
@@ -365,6 +375,7 @@
 
   <select id="getResourceTableRows" resultMap="ResourceTableRowResultMap">
     SELECT
+      rdata.internal_id AS internalId,
       cs.cancer_study_identifier AS studyId,
       rdata.resource_id AS resourceId,
       coalesce(nullIf(rdef.display_name, ''), rdata.resource_id) AS resourceDisplayName,

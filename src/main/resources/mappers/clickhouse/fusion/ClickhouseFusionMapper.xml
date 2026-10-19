@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.fusion.ClickhouseFusionMapper">
+
+    <sql id="select">
+        genetic_profile.stable_id AS "molecularProfileId",
+        sample.stable_id AS "sampleId",
+        patient.stable_id AS "patientId",
+        cancer_study.cancer_study_identifier AS "studyId",
+        structural_variant.site1_entrez_gene_id AS "site1EntrezGeneId",
+        gene1.hugo_gene_symbol AS "site1HugoSymbol",
+        structural_variant.site1_ensembl_transcript_id AS "site1EnsemblTranscriptId",
+        structural_variant.site1_contig AS "site1Contig",
+        structural_variant.site1_region AS "site1Region",
+        structural_variant.site1_region_number AS "site1RegionNumber",
+        structural_variant.site1_chromosome AS "site1Chromosome",
+        structural_variant.site1_position AS "site1Position",
+        structural_variant.site1_description AS "site1Description",
+        structural_variant.site2_entrez_gene_id AS "site2EntrezGeneId",
+        gene2.hugo_gene_symbol AS "site2HugoSymbol",
+        structural_variant.site2_ensembl_transcript_id AS "site2EnsemblTranscriptId",
+        structural_variant.site2_contig AS "site2Contig",
+        structural_variant.site2_region AS "site2Region",
+        structural_variant.site2_region_number AS "site2RegionNumber",
+        structural_variant.site2_chromosome AS "site2Chromosome",
+        structural_variant.site2_position AS "site2Position",
+        structural_variant.site2_description AS "site2Description",
+        structural_variant.site2_effect_on_frame AS "site2EffectOnFrame",
+        structural_variant.ncbi_build AS "ncbiBuild",
+        structural_variant.dna_support AS "dnaSupport",
+        structural_variant.rna_support AS "rnaSupport",
+        structural_variant.normal_read_count AS "normalReadCount",
+        structural_variant.tumor_read_count AS "tumorReadCount",
+        structural_variant.normal_variant_count AS "normalVariantCount",
+        structural_variant.tumor_variant_count AS "tumorVariantCount",
+        structural_variant.normal_paired_end_read_count AS "normalPairedEndReadCount",
+        structural_variant.tumor_paired_end_read_count AS "tumorPairedEndReadCount",
+        structural_variant.normal_split_read_count AS "normalSplitReadCount",
+        structural_variant.tumor_split_read_count AS "tumorSplitReadCount",
+        structural_variant.annotation AS "annotation",
+        structural_variant.breakpoint_type AS "breakpointType",
+        structural_variant.connection_type AS "connectionType",
+        structural_variant.event_info AS "eventInfo",
+        structural_variant.class AS "variantClass",
+        structural_variant.length AS "length",
+        structural_variant.comments AS "comments",
+        structural_variant.sv_status AS "svStatus",
+        structural_variant.annotation_json AS "annotationJson",
+        alteration_driver_annotation.driver_filter AS "driverFilter",
+        alteration_driver_annotation.driver_filter_annotation AS "driverFilterAnn",
+        alteration_driver_annotation.driver_tiers_filter AS "driverTiersFilter",
+        alteration_driver_annotation.driver_tiers_filter_annotation AS "driverTiersFilterAnn"
+    </sql>
+
+    <!--
+        There is no fusion table yet, so fusions are rows of structural_variant that satisfy this
+        criterion.
+        TODO: placeholder -- replace with the real criterion distinguishing fusions from other
+        structural variants. For now every structural variant counts as a fusion.
+    -->
+    <sql id="fusionCriteria">
+        1 = 1
+    </sql>
+
+    <select id="getFusions" resultType="org.cbioportal.legacy.model.StructuralVariant">
+        SELECT
+        <include refid="select"/>
+        FROM structural_variant
+        JOIN genetic_profile ON structural_variant.genetic_profile_id = genetic_profile.genetic_profile_id
+        LEFT JOIN gene gene1 ON structural_variant.site1_entrez_gene_id = gene1.entrez_gene_id
+        LEFT JOIN gene gene2 ON structural_variant.site2_entrez_gene_id = gene2.entrez_gene_id
+        JOIN sample ON structural_variant.sample_id = sample.internal_id
+        JOIN patient ON sample.patient_id = patient.internal_id
+        JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id AND genetic_profile.cancer_study_id = cancer_study.cancer_study_id
+        LEFT JOIN alteration_driver_annotation ON structural_variant.genetic_profile_id = alteration_driver_annotation.genetic_profile_id
+            AND structural_variant.sample_id = alteration_driver_annotation.sample_id
+            AND structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
+        WHERE
+        <include refid="fusionCriteria"/>
+        AND cancer_study.cancer_study_identifier IN
+        <foreach item="item" collection="studyIds" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="molecularProfileIds != null and !molecularProfileIds.isEmpty()">
+            AND genetic_profile.stable_id IN
+            <foreach item="item" collection="molecularProfileIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+            AND (structural_variant.site1_entrez_gene_id IN
+            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            OR structural_variant.site2_entrez_gene_id IN
+            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">
+                #{item}
+            </foreach>)
+        </if>
+        ORDER BY gene1.hugo_gene_symbol, gene2.hugo_gene_symbol
+    </select>
+</mapper>

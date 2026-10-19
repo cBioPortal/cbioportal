@@ -55,12 +55,16 @@
 
     <!--
         There is no fusion table yet, so fusions are rows of structural_variant that satisfy this
-        criterion.
-        TODO: placeholder -- replace with the real criterion distinguishing fusions from other
-        structural variants. For now every structural variant counts as a fusion.
+        criterion. It is the single definition of "fusion": the legacy structural variant mapper
+        includes it negated, so each event is served by exactly one of the two endpoints.
+        TODO: placeholder heuristic (partner genes at both sites, and different); replace with
+        the real criterion distinguishing fusions from other structural variants. It must never
+        evaluate to NULL, or the negation would drop the row from both endpoints.
     -->
     <sql id="fusionCriteria">
-        1 = 1
+        (structural_variant.site1_entrez_gene_id IS NOT NULL
+        AND structural_variant.site2_entrez_gene_id IS NOT NULL
+        AND structural_variant.site1_entrez_gene_id != structural_variant.site2_entrez_gene_id)
     </sql>
 
     <select id="getFusions" resultType="org.cbioportal.legacy.model.StructuralVariant">

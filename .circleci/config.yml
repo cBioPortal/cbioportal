@@ -652,12 +652,6 @@ jobs:
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG-web-shenandoah.tar
         - run:
-            name: TEMP debug - hash context creds
-            command: |
-              echo "API_TEST_DB_PW sha256: $(printf '%s' "$API_TEST_DB_PW" | sha256sum)"
-              echo "API_TEST_DB_USER sha256: $(printf '%s' "$API_TEST_DB_USER" | sha256sum)"
-              echo "API_TEST_DB_URL sha256: $(printf '%s' "$API_TEST_DB_URL" | sha256sum)"
-        - run:
             name: Instantiate a cbioportal instance
             environment:
               APP_CLICKHOUSE_MODE: "true"

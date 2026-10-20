@@ -324,6 +324,13 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              # Public read-only staging ClickHouse creds, from the
+              # clickhouse-public-staging-ro-user context (API_TEST_DB_*) —
+              # renamed here to what the remote-clickhouse compose override
+              # expects, since `environment:` above can't reference them.
+              export CLICKHOUSE_URL="$API_TEST_DB_URL"
+              export CLICKHOUSE_USER="$API_TEST_DB_USER"
+              export CLICKHOUSE_PASSWORD="$API_TEST_DB_PW"
               nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
@@ -505,6 +512,15 @@ jobs:
             command: |
               API="https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job"
               TERMINAL_RE='^(success|failed|canceled|unauthorized|not_run|terminated-unknown)$'
+              # "blocked" is CircleCI's generic "waiting on requires: dependencies"
+              # status and is NOT specific to the approval gate — e2e_localdb_shards
+              # sits in "blocked" during ordinary startup (waiting on build_frontend/
+              # build_web_and_data_image) even with no approve_clickhouse_tests job
+              # in the workflow at all. "on_hold" is the status specific to a job
+              # sitting behind an unapproved `type: approval` gate. Confirmed on a
+              # live same-repo run: "blocked" appeared with zero approval jobs
+              # present, which would have false-positived this check.
+              HOLD_RE='^on_hold$'
               DEADLINE=$(( $(date +%s) + 60 * 60 * 2 ))   # 2h cap
               POLL_INTERVAL=30
               while :; do
@@ -524,6 +540,10 @@ jobs:
                   echo "e2e_localdb_shards not yet visible in workflow — waiting"
                   sleep "$POLL_INTERVAL"
                   continue
+                fi
+                if echo "$STATUS" | grep -qE "$HOLD_RE"; then
+                  echo "e2e_localdb_shards is waiting on the approve_clickhouse_tests manual approval step. A maintainer needs to approve it in the CircleCI UI before this check can run."
+                  exit 1
                 fi
                 if echo "$STATUS" | grep -qE "$TERMINAL_RE"; then
                   echo "e2e_localdb_shards terminal status: $STATUS  (job_number=$JOB_NUMBER)"
@@ -642,16 +662,18 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # Public read-only staging ClickHouse. Hardcoded rather than read from the
-              # clickhouse-public-staging-ro-user context because CircleCI does not pass
-              # context env vars to forked-PR builds. The remote-clickhouse override pushes
-              # these into the container, replacing the local .env default.
-              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
-              CLICKHOUSE_USER: "apitests"
-              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
+              # Public read-only staging ClickHouse creds, from the
+              # clickhouse-public-staging-ro-user context (API_TEST_DB_*).
+              # `environment:` entries above can't reference other env vars —
+              # that only works in a command's own shell — so the rename to
+              # what the remote-clickhouse compose override expects happens
+              # here.
+              export CLICKHOUSE_URL="$API_TEST_DB_URL"
+              export CLICKHOUSE_USER="$API_TEST_DB_USER"
+              export CLICKHOUSE_PASSWORD="$API_TEST_DB_PW"
               nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/docker-compose.study-availability.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
@@ -876,23 +898,52 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
+        # Manual gate for the two jobs below, which both talk to the real
+        # ClickHouse instance (run_api_tests hardcodes its credentials;
+        # e2e_localdb_shards runs against the same remote ClickHouse via
+        # docker-compose.remote.clickhouse.yml). CircleCI runs a job
+        # regardless of fork status — contexts only withhold secrets, they
+        # never block execution — so without this gate a forked PR can run
+        # both jobs unattended.
+        #
+        # Scoped to forked PRs only: CircleCI reports CIRCLE_BRANCH as
+        # pull/<PR#> for a forked PR's build (confirmed on #12431) and the
+        # real branch name otherwise (confirmed on #12361, a same-repo PR).
+        # Filtering this job to pull/.* means it simply doesn't exist in
+        # the compiled workflow for same-repo branches/PRs, and a filtered-
+        # out job is treated as already satisfied by anything that
+        # `requires` it — so run_api_tests/e2e_localdb_shards below run
+        # immediately there, with no approval click needed, and only hold
+        # on an actual fork build until a maintainer approves them.
+        - approve_clickhouse_tests:
+            type: approval
+            filters:
+              branches:
+                only: /^pull\/.*$/
         # Playwright localdb e2e, replacing the retired WDIO run_e2e_localdb_tests.
         # Shards need the frontend dist/specs (build_frontend) and the PR's
         # backend image tar (build_web_and_data_image); cbioportal-test +
         # cbioportal-frontend reach the shards through the workspace closure.
         - e2e_localdb_shards:
+            context:
+              - clickhouse-public-staging-ro-user
             requires:
+              - approve_clickhouse_tests
               - build_frontend
               - build_web_and_data_image
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is
-        # the check to mark required for branch protection.
+        # the check to mark required for branch protection. It has no
+        # `requires:` on approve_clickhouse_tests either, so it starts
+        # immediately and fails fast with an actionable message (rather
+        # than waiting out its 2h poll cap) while shards sit on hold.
         - e2e_localdb_merge
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user
             requires:
+              - approve_clickhouse_tests
               - build_web_image
         - run_security_tests:
             context:

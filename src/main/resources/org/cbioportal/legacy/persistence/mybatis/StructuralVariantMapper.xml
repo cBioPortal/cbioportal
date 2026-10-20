@@ -85,9 +85,7 @@
         always loaded into the same SqlSessionFactory.
     -->
     <sql id="excludeFusions">
-        AND NOT (structural_variant.site1_entrez_gene_id IS NOT NULL
-        AND structural_variant.site2_entrez_gene_id IS NOT NULL
-        AND structural_variant.site1_entrez_gene_id != structural_variant.site2_entrez_gene_id)
+        AND NOT (lower(trim(coalesce(structural_variant.rna_support, ''))) IN ('yes', 'y', 'true', 't', '1'))
     </sql>
 
     <sql id="whereWithGeneQueries">

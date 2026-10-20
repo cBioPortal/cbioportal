@@ -79,11 +79,15 @@
 
     <!--
         Fusions are served by the fusions endpoint only; this endpoint returns the other structural
-        variants. The definition of a fusion lives in ClickhouseFusionMapper.xml (loaded into the
-        same SqlSessionFactory, see ClickhouseMyBatisConfig).
+        variants. The criterion below must stay identical to fusionCriteria in
+        mappers/clickhouse/fusion/ClickhouseFusionMapper.xml (ClickhouseFusionMapperCriteriaTest
+        enforces this). It is duplicated rather than included because the two mapper files are not
+        always loaded into the same SqlSessionFactory.
     -->
     <sql id="excludeFusions">
-        AND NOT <include refid="org.cbioportal.infrastructure.repository.clickhouse.fusion.ClickhouseFusionMapper.fusionCriteria"/>
+        AND NOT (structural_variant.site1_entrez_gene_id IS NOT NULL
+        AND structural_variant.site2_entrez_gene_id IS NOT NULL
+        AND structural_variant.site1_entrez_gene_id != structural_variant.site2_entrez_gene_id)
     </sql>
 
     <sql id="whereWithGeneQueries">

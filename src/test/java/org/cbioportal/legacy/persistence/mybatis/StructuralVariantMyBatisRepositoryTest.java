@@ -164,13 +164,14 @@ public class StructuralVariantMyBatisRepositoryTest {
     geneQueries =
         Arrays.asList(geneFilterQuery1, geneFilterQuery2, geneFilterQuery3, geneFilterQuery4);
 
-    // Only search for the KIAA1549-BRAF and EML4-ALK fusions.
+    // Only search for the intragenic KIAA1549 and EML4 structural variants. Fusions (two different
+    // partner genes) are served by the fusions endpoint and are not returned here.
     structVarFilterQuery1 =
         new StructuralVariantFilterQuery(
             "KIAA1549",
             57670,
-            "BRAF",
-            673,
+            "KIAA1549",
+            57670,
             includeDriver,
             includeVUS,
             includeUnknownOncogenicity,
@@ -183,8 +184,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         new StructuralVariantFilterQuery(
             "EML4",
             27436,
-            "ALK",
-            238,
+            "EML4",
+            27436,
             includeDriver,
             includeVUS,
             includeUnknownOncogenicity,
@@ -198,8 +199,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         new StructuralVariantFilterQuery(
             null,
             null,
-            "BRAF",
-            673,
+            "KIAA1549",
+            57670,
             includeDriver,
             includeVUS,
             includeUnknownOncogenicity,
@@ -270,8 +271,8 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 138536968, structuralVariantFirstResult.getSite1Position());
     Assert.assertEquals(
         "KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantFirstResult.getSite1Description());
-    Assert.assertEquals((Integer) 673, structuralVariantFirstResult.getSite2EntrezGeneId());
-    Assert.assertEquals("BRAF", structuralVariantFirstResult.getSite2HugoSymbol());
+    Assert.assertEquals((Integer) 57670, structuralVariantFirstResult.getSite2EntrezGeneId());
+    Assert.assertEquals("KIAA1549", structuralVariantFirstResult.getSite2HugoSymbol());
     Assert.assertEquals(
         "ENST00000288602", structuralVariantFirstResult.getSite2EnsemblTranscriptId());
     Assert.assertEquals("7", structuralVariantFirstResult.getSite2Chromosome());
@@ -294,7 +295,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509", structuralVariantFirstResult.getAnnotation());
     Assert.assertEquals(null, structuralVariantFirstResult.getBreakpointType());
     Assert.assertEquals(null, structuralVariantFirstResult.getConnectionType());
-    Assert.assertEquals("Fusion", structuralVariantFirstResult.getEventInfo());
+    Assert.assertEquals("Intragenic", structuralVariantFirstResult.getEventInfo());
     Assert.assertEquals(null, structuralVariantFirstResult.getVariantClass());
     Assert.assertEquals(null, structuralVariantFirstResult.getLength());
     Assert.assertEquals("Gain-of-Function", structuralVariantFirstResult.getComments());
@@ -317,8 +318,8 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 138536968, structuralVariantSecondResult.getSite1Position());
     Assert.assertEquals(
         "KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantSecondResult.getSite1Description());
-    Assert.assertEquals((Integer) 673, structuralVariantSecondResult.getSite2EntrezGeneId());
-    Assert.assertEquals("BRAF", structuralVariantSecondResult.getSite2HugoSymbol());
+    Assert.assertEquals((Integer) 57670, structuralVariantSecondResult.getSite2EntrezGeneId());
+    Assert.assertEquals("KIAA1549", structuralVariantSecondResult.getSite2HugoSymbol());
     Assert.assertEquals(
         "ENST00000288602", structuralVariantSecondResult.getSite2EnsemblTranscriptId());
     Assert.assertEquals("7", structuralVariantSecondResult.getSite2Chromosome());
@@ -341,7 +342,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509", structuralVariantSecondResult.getAnnotation());
     Assert.assertEquals(null, structuralVariantSecondResult.getBreakpointType());
     Assert.assertEquals(null, structuralVariantSecondResult.getConnectionType());
-    Assert.assertEquals("Fusion", structuralVariantSecondResult.getEventInfo());
+    Assert.assertEquals("Intragenic", structuralVariantSecondResult.getEventInfo());
     Assert.assertEquals(null, structuralVariantSecondResult.getVariantClass());
     Assert.assertEquals(null, structuralVariantSecondResult.getLength());
     Assert.assertEquals("Gain-of-Function", structuralVariantSecondResult.getComments());
@@ -363,8 +364,8 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 138536968, structuralVariantThirdResult.getSite1Position());
     Assert.assertEquals(
         "KIAA1549-BRAF.K16B10.COSF509_1", structuralVariantThirdResult.getSite1Description());
-    Assert.assertEquals((Integer) 673, structuralVariantThirdResult.getSite2EntrezGeneId());
-    Assert.assertEquals("BRAF", structuralVariantThirdResult.getSite2HugoSymbol());
+    Assert.assertEquals((Integer) 57670, structuralVariantThirdResult.getSite2EntrezGeneId());
+    Assert.assertEquals("KIAA1549", structuralVariantThirdResult.getSite2HugoSymbol());
     Assert.assertEquals(
         "ENST00000288602", structuralVariantThirdResult.getSite2EnsemblTranscriptId());
     Assert.assertEquals("7", structuralVariantThirdResult.getSite2Chromosome());
@@ -387,7 +388,7 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509", structuralVariantThirdResult.getAnnotation());
     Assert.assertEquals(null, structuralVariantThirdResult.getBreakpointType());
     Assert.assertEquals(null, structuralVariantThirdResult.getConnectionType());
-    Assert.assertEquals("Fusion", structuralVariantThirdResult.getEventInfo());
+    Assert.assertEquals("Intragenic", structuralVariantThirdResult.getEventInfo());
     Assert.assertEquals(null, structuralVariantThirdResult.getVariantClass());
     Assert.assertEquals(null, structuralVariantThirdResult.getLength());
     Assert.assertEquals("Gain-of-Function", structuralVariantThirdResult.getComments());
@@ -396,6 +397,28 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilter());
     Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilterAnn());
     Assert.assertEquals("SOMATIC", structuralVariantThirdResult.getSvStatus());
+  }
+
+  @Test
+  public void fetchStructuralVariantsExcludesFusions() {
+    // Fusions (two different partner genes) are served by the fusions endpoint, not this one.
+    // The fixture holds 10 fusions plus 10 intragenic twins in these profiles, and one
+    // single-gene event in acc_tcga_sv.
+    List<StructuralVariant> result =
+        structuralVariantMyBatisRepository.fetchStructuralVariants(
+            Arrays.asList("study_tcga_pub_sv", "acc_tcga_sv"),
+            new ArrayList<>(),
+            noEntrezIds,
+            noStructVars);
+
+    Assert.assertEquals(11, result.size());
+    Assert.assertTrue(
+        result.stream()
+            .noneMatch(
+                sv ->
+                    sv.getSite1EntrezGeneId() != null
+                        && sv.getSite2EntrezGeneId() != null
+                        && !sv.getSite1EntrezGeneId().equals(sv.getSite2EntrezGeneId())));
   }
 
   @Test
@@ -728,7 +751,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     List<StructuralVariantQuery> singleStructVarQuery = new ArrayList<>();
     singleStructVarQuery.add(
         new StructuralVariantQuery(
-            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(238)));
+            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(27436)));
 
     List<StructuralVariant> result =
         structuralVariantMyBatisRepository.fetchStructuralVariants(
@@ -737,8 +760,8 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals(2, result.size());
     StructuralVariant structuralVariantFirstResult = result.get(0);
     Assert.assertEquals((Integer) 27436, structuralVariantFirstResult.getSite1EntrezGeneId());
-    Assert.assertEquals((Integer) 238, structuralVariantFirstResult.getSite2EntrezGeneId());
-    Assert.assertEquals("Fusion", structuralVariantFirstResult.getEventInfo());
+    Assert.assertEquals((Integer) 27436, structuralVariantFirstResult.getSite2EntrezGeneId());
+    Assert.assertEquals("Intragenic", structuralVariantFirstResult.getEventInfo());
   }
 
   @Test
@@ -753,7 +776,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     List<StructuralVariantQuery> singleStructVarQuery = new ArrayList<>();
     singleStructVarQuery.add(
         new StructuralVariantQuery(
-            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(238)));
+            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(27436)));
 
     List<StructuralVariant> result =
         structuralVariantMyBatisRepository.fetchStructuralVariants(
@@ -772,10 +795,10 @@ public class StructuralVariantMyBatisRepositoryTest {
     List<StructuralVariantQuery> multipleStructVarQueries = new ArrayList<>();
     multipleStructVarQueries.add(
         new StructuralVariantQuery(
-            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(238)));
+            new StructuralVariantGeneSubQuery(27436), new StructuralVariantGeneSubQuery(27436)));
     multipleStructVarQueries.add(
         new StructuralVariantQuery(
-            new StructuralVariantGeneSubQuery(57670), new StructuralVariantGeneSubQuery(673)));
+            new StructuralVariantGeneSubQuery(57670), new StructuralVariantGeneSubQuery(57670)));
 
     List<StructuralVariant> result =
         structuralVariantMyBatisRepository.fetchStructuralVariants(
@@ -788,7 +811,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .filter(
                 sv ->
                     Objects.equals(sv.getSite1EntrezGeneId(), 27436)
-                        && Objects.equals(sv.getSite2EntrezGeneId(), 238))
+                        && Objects.equals(sv.getSite2EntrezGeneId(), 27436))
             .collect(Collectors.toList());
     ;
     Assert.assertEquals(2, structuralVariantFirstResult.size());
@@ -798,7 +821,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .filter(
                 sv ->
                     Objects.equals(sv.getSite1EntrezGeneId(), 57670)
-                        && Objects.equals(sv.getSite2EntrezGeneId(), 673))
+                        && Objects.equals(sv.getSite2EntrezGeneId(), 57670))
             .collect(Collectors.toList());
     Assert.assertEquals(3, structuralVariantSecondResults.size());
   }
@@ -821,7 +844,7 @@ public class StructuralVariantMyBatisRepositoryTest {
     StructuralVariantQuery svId2 =
         new StructuralVariantQuery(
             new StructuralVariantGeneSubQuery(StructuralVariantSpecialValue.ANY_GENE),
-            new StructuralVariantGeneSubQuery(673));
+            new StructuralVariantGeneSubQuery(57670));
     structVarQueries.add(svId2);
 
     List<StructuralVariant> result =
@@ -835,7 +858,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .filter(
                 sv ->
                     Objects.equals(sv.getSite1EntrezGeneId(), 27436)
-                        && Objects.equals(sv.getSite2EntrezGeneId(), 238))
+                        && Objects.equals(sv.getSite2EntrezGeneId(), 27436))
             .collect(Collectors.toList());
     ;
     Assert.assertEquals(2, structuralVariantFirstResult.size());
@@ -845,7 +868,7 @@ public class StructuralVariantMyBatisRepositoryTest {
             .filter(
                 sv ->
                     Objects.equals(sv.getSite1EntrezGeneId(), 57670)
-                        && Objects.equals(sv.getSite2EntrezGeneId(), 673))
+                        && Objects.equals(sv.getSite2EntrezGeneId(), 57670))
             .collect(Collectors.toList());
     Assert.assertEquals(3, structuralVariantSecondResults.size());
   }

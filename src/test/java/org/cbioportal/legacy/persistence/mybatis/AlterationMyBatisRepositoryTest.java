@@ -1011,11 +1011,11 @@ public class AlterationMyBatisRepositoryTest {
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
     Assert.assertEquals(3, result.size());
-    Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 2, result57670.getTotalCount());
     Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1039,13 +1039,13 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 6, result57670.getTotalCount());
     Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+    Assert.assertEquals((Integer) 5, result8031.getTotalCount());
     Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1109,11 +1109,11 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 2, result57670.getTotalCount());
     Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1137,13 +1137,13 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 6, result57670.getTotalCount());
     Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+    Assert.assertEquals((Integer) 5, result8031.getTotalCount());
     Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1195,7 +1195,7 @@ public class AlterationMyBatisRepositoryTest {
             svSampleIdToProfileId, alterationFilter);
 
     // Should be one KIAA154-BRAF, one NCOA4-RET and one NCOA4-null
-    Assert.assertEquals(5, result.size());
+    Assert.assertEquals(9, result.size());
     AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
     AlterationCountByStructuralVariant resultKiaaBraf =
         findStructVarCount("KIAA1549", "BRAF", result);
@@ -1241,7 +1241,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getSampleStructuralVariantCounts(
             svSampleIdToProfileId, alterationFilter);
 
-    Assert.assertEquals(3, result.size());
+    Assert.assertEquals(6, result.size());
     AlterationCountByStructuralVariant resultKiaaBraf =
         findStructVarCount("KIAA1549", "BRAF", result);
     AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
@@ -1264,7 +1264,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getSampleStructuralVariantCounts(
             svSampleIdToProfileId, alterationFilter);
 
-    Assert.assertEquals(5, result.size());
+    Assert.assertEquals(9, result.size());
     AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
     AlterationCountByStructuralVariant resultKiaaBraf =
         findStructVarCount("KIAA1549", "BRAF", result);
@@ -1292,7 +1292,7 @@ public class AlterationMyBatisRepositoryTest {
         alterationMyBatisRepository.getPatientStructuralVariantCounts(
             svPatientIdToProfileId, alterationFilter);
 
-    Assert.assertEquals(4, result.size());
+    Assert.assertEquals(8, result.size());
     AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
     AlterationCountByStructuralVariant resultKiaaBraf =
         findStructVarCount("KIAA1549", "BRAF", result);

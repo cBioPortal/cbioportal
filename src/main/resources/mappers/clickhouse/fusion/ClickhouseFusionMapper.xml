@@ -55,8 +55,9 @@
 
     <!--
         There is no fusion table yet, so fusions are rows of structural_variant that satisfy this
-        criterion. It is the single definition of "fusion": the legacy structural variant mapper
-        includes it negated, so each event is served by exactly one of the two endpoints.
+        criterion. The legacy structural variant mapper (excludeFusions in StructuralVariantMapper.xml)
+        carries a negated copy, so each event is served by exactly one of the two endpoints; keep
+        the two in sync (ClickhouseFusionMapperCriteriaTest enforces this).
         TODO: placeholder heuristic (partner genes at both sites, and different); replace with
         the real criterion distinguishing fusions from other structural variants. It must never
         evaluate to NULL, or the negation would drop the row from both endpoints.

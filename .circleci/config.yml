@@ -512,9 +512,15 @@ jobs:
             command: |
               API="https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job"
               TERMINAL_RE='^(success|failed|canceled|unauthorized|not_run|terminated-unknown)$'
-              # Status while e2e_localdb_shards sits behind the approve_clickhouse_tests
-              # manual gate and hasn't been unblocked yet.
-              HOLD_RE='^(on_hold|blocked)$'
+              # "blocked" is CircleCI's generic "waiting on requires: dependencies"
+              # status and is NOT specific to the approval gate — e2e_localdb_shards
+              # sits in "blocked" during ordinary startup (waiting on build_frontend/
+              # build_web_and_data_image) even with no approve_clickhouse_tests job
+              # in the workflow at all. "on_hold" is the status specific to a job
+              # sitting behind an unapproved `type: approval` gate. Confirmed on a
+              # live same-repo run: "blocked" appeared with zero approval jobs
+              # present, which would have false-positived this check.
+              HOLD_RE='^on_hold$'
               DEADLINE=$(( $(date +%s) + 60 * 60 * 2 ))   # 2h cap
               POLL_INTERVAL=30
               while :; do

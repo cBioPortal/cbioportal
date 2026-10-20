@@ -85,3 +85,5 @@ filter_groups_by_appname=false
 ## CORS Configuration (Disabled by default)
 # To Enable CORS uncomment and set the allowed-origins urls. comma delimited. To enable all origins use *
 #security.cors.allowed-origins=*
+# To let a frontend on another origin send the login cookie, list the origins explicitly and set
+#security.cors.allow-credentials=true

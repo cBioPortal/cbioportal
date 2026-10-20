@@ -512,15 +512,6 @@ jobs:
             command: |
               API="https://circleci.com/api/v2/workflow/${CIRCLE_WORKFLOW_ID}/job"
               TERMINAL_RE='^(success|failed|canceled|unauthorized|not_run|terminated-unknown)$'
-              # "blocked" is CircleCI's generic "waiting on requires: dependencies"
-              # status and is NOT specific to the approval gate — e2e_localdb_shards
-              # sits in "blocked" during ordinary startup (waiting on build_frontend/
-              # build_web_and_data_image) even with no approve_clickhouse_tests job
-              # in the workflow at all. "on_hold" is the status specific to a job
-              # sitting behind an unapproved `type: approval` gate. Confirmed on a
-              # live same-repo run: "blocked" appeared with zero approval jobs
-              # present, which would have false-positived this check.
-              HOLD_RE='^on_hold$'
               DEADLINE=$(( $(date +%s) + 60 * 60 * 2 ))   # 2h cap
               POLL_INTERVAL=30
               while :; do
@@ -534,16 +525,24 @@ jobs:
                   sleep "$POLL_INTERVAL"
                   continue
                 fi
+                # Check the gate job itself rather than e2e_localdb_shards' own
+                # status: "blocked" (what shards reports while gated) is also
+                # CircleCI's generic "waiting on requires: dependencies" status
+                # and appears during ordinary startup with no gate involved at
+                # all — ambiguous. approve_clickhouse_tests' own status isn't:
+                # absent (same-repo, filtered out), "on_hold" (unapproved), or
+                # resolved (approved) are the only cases.
+                APPROVAL_STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="approve_clickhouse_tests") | .status' | head -n1)
+                if [ "$APPROVAL_STATUS" = "on_hold" ]; then
+                  echo "e2e_localdb_shards is waiting on the approve_clickhouse_tests manual approval step. A maintainer needs to approve it in the CircleCI UI before this check can run."
+                  exit 1
+                fi
                 STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .status' | head -n1)
                 JOB_NUMBER=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .job_number' | head -n1)
                 if [ -z "$STATUS" ]; then
                   echo "e2e_localdb_shards not yet visible in workflow — waiting"
                   sleep "$POLL_INTERVAL"
                   continue
-                fi
-                if echo "$STATUS" | grep -qE "$HOLD_RE"; then
-                  echo "e2e_localdb_shards is waiting on the approve_clickhouse_tests manual approval step. A maintainer needs to approve it in the CircleCI UI before this check can run."
-                  exit 1
                 fi
                 if echo "$STATUS" | grep -qE "$TERMINAL_RE"; then
                   echo "e2e_localdb_shards terminal status: $STATUS  (job_number=$JOB_NUMBER)"

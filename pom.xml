@@ -139,8 +139,8 @@
   <url>https://www.cbioportal.org</url>
   <licenses>
     <license>
-      <name>GNU AFFERO GENERAL PUBLIC LICENSE v3.0</name>
-      <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
   <developers>

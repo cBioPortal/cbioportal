@@ -7,6 +7,7 @@
 package org.cbioportal.legacy.service.impl;
 
 import java.lang.reflect.Field;
+import org.cbioportal.legacy.model.DataAccessToken;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,7 +22,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * dat.uuid.max_number_per_user} nor {@code dat.ttl_seconds} are explicitly configured. The
  * documented default for {@code dat.uuid.max_number_per_user} is {@code 1}; a default of {@code -1}
  * leaves the service in a state where token creation would attempt to revoke an oldest token even
- * when none exists.
+ * when none exists. The documented default for {@code dat.ttl_seconds} is {@code 2592000} (30
+ * days); a default of {@code -1} makes every token expire one second before it is created.
  */
 @TestPropertySource(
     properties = {"dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s="},
@@ -39,6 +41,25 @@ public class UuidDataAccessTokenServiceImplDefaultsTest {
     int actual = readPrivateInt(uuidDataAccessTokenServiceImpl, "maxNumberOfAccessTokens");
     Assert.assertEquals(
         "Default dat.uuid.max_number_per_user should match the documented value of 1.", 1, actual);
+  }
+
+  @Test
+  public void defaultTtlMatchesDocumentedValue() throws Exception {
+    int actual = readPrivateInt(uuidDataAccessTokenServiceImpl, "datTtlSeconds");
+    Assert.assertEquals(
+        "Default dat.ttl_seconds should match the documented value of 2592000 (30 days).",
+        2592000,
+        actual);
+  }
+
+  @Test
+  public void tokenCreatedWithDefaultTtlIsNotAlreadyExpired() {
+    DataAccessToken token =
+        uuidDataAccessTokenServiceImpl.createDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME);
+    Assert.assertTrue(
+        "Token created with the default dat.ttl_seconds should expire after it is created.",
+        token.getExpiration().after(token.getCreation()));
   }
 
   private static int readPrivateInt(Object target, String fieldName) throws Exception {

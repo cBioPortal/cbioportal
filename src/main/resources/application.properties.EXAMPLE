@@ -23,6 +23,10 @@ db.suppress_schema_version_mismatch_errors=false
 # Enable compression on responses
 server.compression.enabled=true
 
+# When cBioPortal runs behind a trusted reverse proxy that sets X-Forwarded-* headers,
+# uncomment this property so redirects preserve the original protocol and host.
+#server.forward-headers-strategy=NATIVE
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up
@@ -506,5 +510,12 @@ feature.study.export.timeout_ms=600000
 # robots.disallow_paths=/proxy/
 # robots.crawl_delay=5
 # robots.disallow_user_agents=PetalBot
+
+# /llms.txt: guidance for AI agents and other automated clients (e.g. where to download data in
+# bulk instead of crawling the site or looping over the API). Content is deployment-specific, so
+# nothing is built in: set llms_txt.location to a Spring resource location and the backend serves
+# that file as text/markdown (re-read every 5 minutes). Unset (default) returns 404. When set,
+# robots.txt also gets a comment pointing to /llms.txt.
+# llms_txt.location=file:/cbioportal/llms.txt
 
 # EOL - Do not delete the following lines

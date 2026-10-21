@@ -30,7 +30,7 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
 
   @Autowired private DataAccessTokenRepository dataAccessTokenRepository;
 
-  @Value("${dat.ttl_seconds:-1}")
+  @Value("${dat.ttl_seconds:2592000}")
   private int datTtlSeconds;
 
   @Value("${dat.uuid.max_number_per_user:1}")

@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS mut_sig;
 DROP TABLE IF EXISTS clinical_attribute_meta;
 DROP TABLE IF EXISTS clinical_sample;
 DROP TABLE IF EXISTS clinical_patient;
+DROP TABLE IF EXISTS resource;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
@@ -393,32 +394,32 @@ CREATE TABLE mutation_count_by_keyword
 ) ENGINE = MergeTree() ORDER BY genetic_profile_id;
 
 -- --------------------------------------------------------
-CREATE TABLE resource_study
-(
-    resource_id Int32,
-    study_id    Int32
-) ENGINE = MergeTree() ORDER BY resource_id;
-
--- --------------------------------------------------------
-CREATE TABLE resource_patient
-(
-    resource_id Int32,
-    patient_id  Int32
-) ENGINE = MergeTree() ORDER BY resource_id;
-
--- --------------------------------------------------------
-CREATE TABLE resource_sample
-(
-    resource_id Int32,
-    sample_id   Int32
-) ENGINE = MergeTree() ORDER BY resource_id;
-
--- --------------------------------------------------------
 CREATE TABLE resource_definition
 (
-    resource_id Int32,
-    definition  String
-) ENGINE = MergeTree() ORDER BY resource_id;
+    `resource_id` String,
+    `display_name` String,
+    `description` Nullable(String),
+    `resource_type` String,
+    `open_by_default` Nullable(Int32),
+    `priority` Int64,
+    `cancer_study_id` Int64,
+    `custom_metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
+
+-- --------------------------------------------------------
+CREATE TABLE resource
+(
+    `internal_id` Int64,
+    `resource_id` String,
+    `cancer_study_id` Int64,
+    `resource_scope` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
+  SETTINGS allow_nullable_key = 1;
 
 -- --------------------------------------------------------
 CREATE TABLE clinical_patient

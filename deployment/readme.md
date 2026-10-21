@@ -2,7 +2,7 @@
 
 Private instances of cBioPortal are maintained by institutions and companies [around the world](https://www.cbioportal.org/installations).
 
-As of v7, the only officially supported method to deploy cBioPortal is through Docker. The source code of cBioPortal is [available](https://github.com/cBioPortal/cbioportal) on GitHub under the terms of [Affero GPL V3](https://www.gnu.org/licenses/agpl-3.0.en.html).
+As of v7, the only officially supported method to deploy cBioPortal is through Docker. The source code of cBioPortal is [available](https://github.com/cBioPortal/cbioportal) on GitHub under the terms of the [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
 Please note that installing a local version requires system administration skills; for example, installing and configuring Docker and ClickHouse. With limited resources, we cannot provide technical support on system administration.
 

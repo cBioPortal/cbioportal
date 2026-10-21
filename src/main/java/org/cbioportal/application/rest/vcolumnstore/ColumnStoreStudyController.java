@@ -1,3 +1,4 @@
+
 package org.cbioportal.application.rest.vcolumnstore;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -110,10 +111,9 @@ public class ColumnStoreStudyController {
    *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
-   *     and an HTTP status code {@link HttpStatus#OK}. When {@value
-   *     StudyAvailabilityConfig#ENABLED_PROPERTY} is on, {@code readPermission} is false for locked
-   *     or unavailable studies, in every auth mode, so clients leave them out of per-study requests
-   *     that would be answered with 423.
+   *     and an HTTP status code {@link HttpStatus#OK}. Locked studies always have
+   *     {@code readPermission} set to false. When {@value StudyAvailabilityConfig#ENABLED_PROPERTY}
+   *     is on, unavailable studies are also reported as unreadable.
    * @see ProjectionType
    * @see StudySortBy
    * @see Direction
@@ -191,9 +191,7 @@ public class ColumnStoreStudyController {
     } else {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-      // Without the 423 blocking, status does not affect reads, so it does not affect
-      // readPermission either; otherwise data whose importer never set cancer_study.status to
-      // AVAILABLE would show every such study as unreadable in the study list.
+      // Availability lookups are only needed when study availability checking is enabled.
       Map<String, String> unavailable =
           studyAvailabilityEnabled ? unavailableStudyIdentifiers.get() : Map.of();
 
@@ -201,7 +199,7 @@ public class ColumnStoreStudyController {
           studies.stream()
               .map(
                   study -> {
-                    // Default to true if security is disabled (permissionEvaluator is null)
+                    // Default to true if security is disabled (permissionEvaluator is null).
                     boolean hasReadPermission = true;
 
                     if (permissionEvaluator != null && authentication != null) {
@@ -213,13 +211,16 @@ public class ColumnStoreStudyController {
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
 
-                    // A locked study is unreadable when availability checking is enabled.
-                    // Do not let the permission evaluator override this restriction.
-                    if (studyAvailabilityEnabled && Integer.valueOf(0).equals(study.status())) {
+                    // A locked study is unreadable regardless of availability configuration.
+                    // This restriction takes precedence over normal role/group permissions.
+                    if (Integer.valueOf(0).equals(study.status())) {
                       hasReadPermission = false;
                     }
 
-                    hasReadPermission &= !unavailable.containsKey(study.cancerStudyIdentifier());
+                    // Studies identified as unavailable are unreadable when availability checking
+                    // is enabled.
+                    hasReadPermission &=
+                        !unavailable.containsKey(study.cancerStudyIdentifier());
 
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })

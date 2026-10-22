@@ -47,4 +47,36 @@ public class AlterationEnrichmentScoreUtilTest {
     var pValue = AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment);
     assertEquals(0.2964987551514857, pValue.doubleValue(), 1e-10);
   }
+
+  @Test
+  public void calculateEnrichmentScore_noPValueWhenOnlyOneGroupIsProfiled() {
+    // the gene is not on the panel of any groupB sample, so there is nothing to compare
+    AlterationEnrichment alterationEnrichment =
+        alterationEnrichment(countSummary("groupA", 5, 50), countSummary("groupB", 0, 0));
+
+    assertNull(AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment));
+  }
+
+  @Test
+  public void calculateEnrichmentScore_noPValueWhenAlteredCountExceedsProfiledCount() {
+    AlterationEnrichment alterationEnrichment =
+        alterationEnrichment(countSummary("groupA", 12, 10), countSummary("groupB", 3, 40));
+
+    assertNull(AlterationEnrichmentScoreUtil.calculateEnrichmentScore(alterationEnrichment));
+  }
+
+  private static AlterationEnrichment alterationEnrichment(CountSummary... counts) {
+    AlterationEnrichment alterationEnrichment = new AlterationEnrichment();
+    alterationEnrichment.setEntrezGeneId(2);
+    alterationEnrichment.setCounts(List.of(counts));
+    return alterationEnrichment;
+  }
+
+  private static CountSummary countSummary(String name, int alteredCount, int profiledCount) {
+    CountSummary countSummary = new CountSummary();
+    countSummary.setName(name);
+    countSummary.setAlteredCount(alteredCount);
+    countSummary.setProfiledCount(profiledCount);
+    return countSummary;
+  }
 }

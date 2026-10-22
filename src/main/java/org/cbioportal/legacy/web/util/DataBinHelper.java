@@ -380,7 +380,7 @@ public class DataBinHelper {
   }
 
   public static boolean isAgeAttribute(String attributeId) {
-    return attributeId != null && attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE&)");
+    return attributeId != null && attributeId.matches("(^AGE$)|(^AGE_.*)|(.*_AGE_.*)|(.*_AGE$)");
   }
 
   public static Range<BigDecimal> calcRange(

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.core.env.Environment;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -86,5 +87,93 @@ public class FrontendPropertiesServiceImplTest {
   @Test
   public void getSkinHideDownloadControlsValueShouldPreserveNull() {
     assertNull(FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(null));
+  }
+
+  @Test
+  public void annotationFeatureFlagsShouldUseCanonicalPropertyNames() {
+    MockEnvironment environment =
+        new MockEnvironment()
+            .withProperty("feature.annotation.hotspot", "true")
+            .withProperty("feature.annotation.oncokb", "true")
+            .withProperty("feature.annotation.civic", "false")
+            .withProperty("feature.annotation.genomenexus", "false");
+
+    FrontendPropertiesServiceImpl service = initializeService(environment);
+
+    assertEquals(
+        "true",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_hotspot));
+    assertEquals(
+        "true",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_oncokb));
+    assertEquals(
+        "false",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_civic));
+    assertEquals(
+        "false",
+        service.getFrontendProperty(
+            FrontendPropertiesServiceImpl.FrontendProperty.show_genomenexus));
+  }
+
+  @Test
+  public void annotationFeatureFlagsShouldFallBackToLegacyPropertyNames() {
+    MockEnvironment environment =
+        new MockEnvironment()
+            .withProperty("show.hotspot", "true")
+            .withProperty("show.oncokb", "true")
+            .withProperty("show.civic", "false")
+            .withProperty("show.genomenexus", "false");
+
+    FrontendPropertiesServiceImpl service = initializeService(environment);
+
+    assertEquals(
+        "true",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_hotspot));
+    assertEquals(
+        "true",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_oncokb));
+    assertEquals(
+        "false",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_civic));
+    assertEquals(
+        "false",
+        service.getFrontendProperty(
+            FrontendPropertiesServiceImpl.FrontendProperty.show_genomenexus));
+  }
+
+  @Test
+  public void canonicalAnnotationFeatureFlagShouldTakePrecedenceOverLegacyProperty() {
+    MockEnvironment environment =
+        new MockEnvironment()
+            .withProperty("feature.annotation.oncokb", "false")
+            .withProperty("show.oncokb", "true");
+
+    FrontendPropertiesServiceImpl service = initializeService(environment);
+
+    assertEquals(
+        "false",
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_oncokb));
+  }
+
+  @Test
+  public void annotationFeatureFlagsShouldRemainUnsetByDefault() {
+    FrontendPropertiesServiceImpl service = initializeService(new MockEnvironment());
+
+    assertNull(
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_hotspot));
+    assertNull(
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_oncokb));
+    assertNull(
+        service.getFrontendProperty(FrontendPropertiesServiceImpl.FrontendProperty.show_civic));
+    assertNull(
+        service.getFrontendProperty(
+            FrontendPropertiesServiceImpl.FrontendProperty.show_genomenexus));
+  }
+
+  private FrontendPropertiesServiceImpl initializeService(Environment environment) {
+    FrontendPropertiesServiceImpl service = new FrontendPropertiesServiceImpl();
+    ReflectionTestUtils.setField(service, "env", environment);
+    service.init();
+    return service;
   }
 }

@@ -75,10 +75,10 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
     patient_view_use_legacy_timeline("patient_view.use_legacy_timeline", null),
     installation_map_url("installation_map_url", null),
     priority_studies("priority_studies", null),
-    show_hotspot("show.hotspot", null),
-    show_oncokb("show.oncokb", null),
-    show_civic("show.civic", null),
-    show_genomenexus("show.genomenexus", null),
+    show_hotspot("feature.annotation.hotspot", null, "show.hotspot"),
+    show_oncokb("feature.annotation.oncokb", null, "show.oncokb"),
+    show_civic("feature.annotation.civic", null, "show.civic"),
+    show_genomenexus("feature.annotation.genomenexus", null, "show.genomenexus"),
     show_genomenexus_annotation_sources("show.genomenexus.annotation_sources", null),
     show_mutation_mappert_tool_grch38("show.mutation_mappert_tool.grch38", null),
     show_transcript_dropdown("show.transcript_dropdown", null),
@@ -218,10 +218,16 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     private final String propertyName;
     private final String defaultValue;
+    private final String legacyPropertyName;
 
     FrontendProperty(String name, String defaultValue) {
+      this(name, defaultValue, null);
+    }
+
+    FrontendProperty(String name, String defaultValue, String legacyPropertyName) {
       this.propertyName = name;
       this.defaultValue = defaultValue;
+      this.legacyPropertyName = legacyPropertyName;
     }
 
     public String getPropertyName() {
@@ -234,6 +240,10 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     public String getDefaultValue() {
       return defaultValue;
+    }
+
+    public String getLegacyPropertyName() {
+      return legacyPropertyName;
     }
   }
 
@@ -253,7 +263,16 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
   }
 
   private String getPropertyValue(FrontendProperty property) {
-    String propertyValue = env.getProperty(property.getPropertyName(), property.getDefaultValue());
+    String propertyValue;
+    if (property.getLegacyPropertyName() == null) {
+      propertyValue = env.getProperty(property.getPropertyName(), property.getDefaultValue());
+    } else {
+      propertyValue = env.getProperty(property.getPropertyName());
+      if (propertyValue == null) {
+        propertyValue =
+            env.getProperty(property.getLegacyPropertyName(), property.getDefaultValue());
+      }
+    }
     if (propertyValue != null) propertyValue = propertyValue.trim();
     switch (property.getFrontendName()) {
       // First, add properties that require pre-processing.

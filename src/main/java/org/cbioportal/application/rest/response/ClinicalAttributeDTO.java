@@ -9,5 +9,6 @@ public record ClinicalAttributeDTO(
     String datatype,
     Boolean patientAttribute,
     String priority,
+    String chartType,
     String clinicalAttributeId,
     String studyId) {}

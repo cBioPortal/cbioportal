@@ -152,10 +152,13 @@ CREATE TABLE IF NOT EXISTS ascn_seg
     `chr` LowCardinality(String),
     `start` Int64,
     `end` Int64,
-    `tcn` Nullable(Float64),
-    `lcn` Nullable(Float64),
+    `log_ratio` Nullable(Float64),
+    `tcn` Nullable(Int32),
+    `lcn` Nullable(Int32),
     `cellular_fraction` Nullable(Float64),
-    `purity` Nullable(Float64)
+    `purity` Nullable(Float64),
+    `ploidy` Nullable(Float64),
+    `dip_log_r` Nullable(Float64)
 )
     ENGINE = MergeTree
 ORDER BY (cancer_study_id, sample_id, chr, start);
@@ -168,12 +171,14 @@ CREATE TABLE IF NOT EXISTS ascn_gene_level
     `hugo_gene_symbol` String,
     `entrez_gene_id` Int64,
     `chr` LowCardinality(String),
-    `start` Int64,
-    `end` Int64,
-    `tcn` Nullable(Float64),
-    `lcn` Nullable(Float64),
+    `gene_start` Int64,
+    `gene_end` Int64,
+    `tcn` Nullable(Int32),
+    `lcn` Nullable(Int32),
     `cellular_fraction` Nullable(Float64),
     `purity` Nullable(Float64),
+    `ploidy` Nullable(Float64),
+    `dip_log_r` Nullable(Float64),
     INDEX idx_ascn_gene_level_hugo_symbol hugo_gene_symbol TYPE bloom_filter GRANULARITY 4
 )
     ENGINE = MergeTree

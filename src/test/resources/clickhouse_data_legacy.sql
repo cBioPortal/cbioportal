@@ -604,3 +604,9 @@ insert into resource (internal_id, resource_id, cancer_study_id, resource_scope,
 -- tables are no longer created by the schema, and the rows below are the same data in the
 -- unified resource shape.
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (14, 'FIGURES', 2, 'STUDY', NULL, NULL, 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Tumor_Mesothelioma2_legend.jpg/220px-Tumor_Mesothelioma2_legend.jpg', NULL, NULL);
+
+-- Whole-slide image rows. The legacy /resource-data endpoints must never return WSI_SAMPLE or
+-- WSI_PATIENT rows (they are read only by the WSI endpoints). No resource_definition is added so
+-- resource-definition and resource-count expectations elsewhere are unchanged.
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (15, 'WSI_SAMPLE', 1, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=9e107d9d372b', 'H&E - Specimen 1 / Block 1', '{"slide_key":"9e107d9d372b","wsi_serving":{"sealed_source":"AwMDAwMDAwMDAwMD-PvKq5bfGH1bdIIqI8hT7Kbb_WLVT_fgw4R-gcbE75O-_dWAgYpi9dd_8Ntx4FCQlnzH_PNZIR3SDSvE9XZW2qu3kD3YXgh16iZGGpF_xXdtKpZ8ts_s_fJ0xercUJ4zJxlMJLRcIOP7InrggWbEDA8YY_T6wdu7G1dy"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (16, 'WSI_PATIENT', 1, 'PATIENT', 'TCGA-A1-A0SB', NULL, 'https://portal.example.org/wsi/patient/TCGA-A1-A0SB?studyId=study_tcga_pub&slideKey=e4d909c290d0', 'H&E - Specimen 2 / Block 1', '{"slide_key":"e4d909c290d0","wsi_serving":{"sealed_source":"BAQEBAQEBAQEBAQEe58ZbWbknyFDQFZP1Ld6UMrbPg5oyyG8eDRYwSYtj4KBaQY1-KcGTAqm7rP-PPkQkUtKwHHzwBnglMtTbH_LtSzlu3YPuqqiyiVn-h5unuOozsaF5KCJwKZ01SmFB6E8ETuJXyztCSLUCin6FEXj9n3F66M4hWlDOOc_"}}');

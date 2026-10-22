@@ -29,6 +29,42 @@ public class ResourceDataMyBatisRepositoryTest {
   @Autowired private ResourceDataMyBatisRepository resourceDataMyBatisRepository;
 
   @Test
+  public void neverReturnsWholeSlideImageResources() {
+    List<List<ResourceData>> results =
+        List.of(
+            resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
+                "study_tcga_pub", null, null, "SUMMARY", null, null, null, null),
+            resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
+                "study_tcga_pub", "TCGA-A1-A0SB-01", null, "SUMMARY", null, null, null, null),
+            resourceDataMyBatisRepository.getAllResourceDataOfPatientInStudy(
+                "study_tcga_pub", "TCGA-A1-A0SB", null, "SUMMARY", null, null, null, null),
+            resourceDataMyBatisRepository.getResourceDataForAllPatientsInStudy(
+                "study_tcga_pub", null, "SUMMARY", null, null, null, null),
+            resourceDataMyBatisRepository.getResourceDataForAllSamplesInStudy(
+                "study_tcga_pub", null, "SUMMARY", null, null, null, null),
+            resourceDataMyBatisRepository.getAllResourceDataForStudy(
+                "study_tcga_pub", null, "SUMMARY", null, null, null, null));
+    for (List<ResourceData> result : results) {
+      for (ResourceData resourceData : result) {
+        Assert.assertFalse(resourceData.getResourceId().startsWith("WSI_"));
+        Assert.assertFalse(resourceData.getUrl().contains("slideKey="));
+      }
+    }
+    for (String wsiResource : List.of("WSI_SAMPLE", "WSI_PATIENT")) {
+      Assert.assertTrue(
+          resourceDataMyBatisRepository
+              .getResourceDataForAllSamplesInStudy(
+                  "study_tcga_pub", wsiResource, "SUMMARY", null, null, null, null)
+              .isEmpty());
+      Assert.assertTrue(
+          resourceDataMyBatisRepository
+              .getResourceDataForAllPatientsInStudy(
+                  "study_tcga_pub", wsiResource, "SUMMARY", null, null, null, null)
+              .isEmpty());
+    }
+  }
+
+  @Test
   public void getAllResourceDataOfSampleInStudyIdProjection() throws Exception {
 
     List<ResourceData> result =

@@ -73,9 +73,23 @@
      AND rdef.cancer_study_id = rdata.cancer_study_id
   </sql>
 
+  <!--
+    WSI_SAMPLE / WSI_PATIENT hold one row per whole-slide image, with the private wsi_serving
+    object and slide-level metadata. They are read only by the WSI hierarchy and access endpoints
+    and never by the generic resource table: not as rows, tabs, counts, search or filter matches,
+    sort keys, facets, discovered keys, contracts or column info, whether served by query/fetch,
+    metadata/fetch or tabs/fetch. Every statement in this mapper reaches resource through
+    ResourceTableBaseFilters or getResourceTableTabs, and both apply this predicate, so a request
+    naming a WSI resource sees an empty resource.
+  -->
+  <sql id="ExcludeWsiResourceRows">
+    rdata.resource_id NOT IN ('WSI_SAMPLE', 'WSI_PATIENT')
+  </sql>
+
   <sql id="ResourceTableBaseFilters">
     <where>
       rdata.resource_id = #{query.resourceId}
+      AND <include refid="ExcludeWsiResourceRows"/>
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       <!-- Match each row at the level it lives at: patient-level rows (sample_id IS NULL) by
            patient_id, sample-level rows by sample_id. The two lists must be ORed, not ANDed:
@@ -320,6 +334,7 @@
      AND rdef.cancer_study_id = rdata.cancer_study_id
     <where>
       cs.cancer_study_identifier IN (#{request.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+      AND <include refid="ExcludeWsiResourceRows"/>
       <!-- See ResourceTableBaseFilters for why patientIds/sampleIds must be OR'd (by row level),
            not AND'd: resource rows are either patient-level (sample_id IS NULL) or
            sample-level, and the two lists must be ORed, not ANDed. -->

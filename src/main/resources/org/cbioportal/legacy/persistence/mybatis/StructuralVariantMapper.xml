@@ -77,6 +77,17 @@
         </choose>
     </sql>
 
+    <!--
+        Fusions are served by the fusions endpoint only; this endpoint returns the other structural
+        variants. The criterion below must stay identical to fusionCriteria in
+        mappers/clickhouse/fusion/ClickhouseFusionMapper.xml (ClickhouseFusionMapperCriteriaTest
+        enforces this). It is duplicated rather than included because the two mapper files are not
+        always loaded into the same SqlSessionFactory.
+    -->
+    <sql id="excludeFusions">
+        AND NOT (lower(trim(coalesce(structural_variant.rna_support, ''))) IN ('yes', 'y', 'true', 't', '1'))
+    </sql>
+
     <sql id="whereWithGeneQueries">
         AND
         <foreach item="geneFilterQuery" collection="${queries}" open="(" separator=" OR " close=")">
@@ -251,6 +262,7 @@
             AND structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
         <where>
             <include refid="whereInMultipleMolecularProfiles"/>
+            <include refid="excludeFusions"/>
             <trim prefix="AND (" suffix=")" prefixOverrides="OR">
                 <include refid="whereWithEntrezGeneIds"/>
                 <include refid="whereStructuralVariantQueries"/>
@@ -276,6 +288,7 @@
             AND structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
+            <include refid="excludeFusions"/>
             <include refid="whereWithGeneQueries">
                 <property name="singleGeneMode" value="true" />
                 <property name="queries" value="geneQueries" />
@@ -301,6 +314,7 @@
             AND structural_variant.internal_id = alteration_driver_annotation.alteration_event_id
         <where>
             <include refid="whereInMultipleMolecularProfiles" />
+            <include refid="excludeFusions"/>
             <include refid="whereWithGeneQueries">
                 <property name="singleGeneMode" value="false" />
                 <property name="queries" value="structVarQueries" />

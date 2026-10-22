@@ -263,8 +263,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantFirstResult.getSite2Description());
     Assert.assertEquals(null, structuralVariantFirstResult.getSite2EffectOnFrame());
     Assert.assertEquals("GRCh37", structuralVariantFirstResult.getNcbiBuild());
-    Assert.assertEquals("no", structuralVariantFirstResult.getDnaSupport());
-    Assert.assertEquals("yes", structuralVariantFirstResult.getRnaSupport());
+    Assert.assertEquals("yes", structuralVariantFirstResult.getDnaSupport());
+    Assert.assertEquals("no", structuralVariantFirstResult.getRnaSupport());
     Assert.assertEquals(null, structuralVariantFirstResult.getNormalReadCount());
     Assert.assertEquals((Integer) 100000, structuralVariantFirstResult.getTumorReadCount());
     Assert.assertEquals(null, structuralVariantFirstResult.getNormalVariantCount());
@@ -310,8 +310,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantSecondResult.getSite2Description());
     Assert.assertEquals(null, structuralVariantSecondResult.getSite2EffectOnFrame());
     Assert.assertEquals("GRCh37", structuralVariantSecondResult.getNcbiBuild());
-    Assert.assertEquals("no", structuralVariantSecondResult.getDnaSupport());
-    Assert.assertEquals("yes", structuralVariantSecondResult.getRnaSupport());
+    Assert.assertEquals("yes", structuralVariantSecondResult.getDnaSupport());
+    Assert.assertEquals("no", structuralVariantSecondResult.getRnaSupport());
     Assert.assertEquals(null, structuralVariantSecondResult.getNormalReadCount());
     Assert.assertEquals((Integer) 100000, structuralVariantSecondResult.getTumorReadCount());
     Assert.assertEquals(null, structuralVariantSecondResult.getNormalVariantCount());
@@ -356,8 +356,8 @@ public class StructuralVariantMyBatisRepositoryTest {
         "KIAA1549-BRAF.K16B10.COSF509_2", structuralVariantThirdResult.getSite2Description());
     Assert.assertEquals(null, structuralVariantThirdResult.getSite2EffectOnFrame());
     Assert.assertEquals("GRCh37", structuralVariantThirdResult.getNcbiBuild());
-    Assert.assertEquals("no", structuralVariantThirdResult.getDnaSupport());
-    Assert.assertEquals("yes", structuralVariantThirdResult.getRnaSupport());
+    Assert.assertEquals("yes", structuralVariantThirdResult.getDnaSupport());
+    Assert.assertEquals("no", structuralVariantThirdResult.getRnaSupport());
     Assert.assertEquals(null, structuralVariantThirdResult.getNormalReadCount());
     Assert.assertEquals((Integer) 100000, structuralVariantThirdResult.getTumorReadCount());
     Assert.assertEquals(null, structuralVariantThirdResult.getNormalVariantCount());
@@ -379,6 +379,21 @@ public class StructuralVariantMyBatisRepositoryTest {
     Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilter());
     Assert.assertEquals(null, structuralVariantThirdResult.getDriverTiersFilterAnn());
     Assert.assertEquals("SOMATIC", structuralVariantThirdResult.getSvStatus());
+  }
+
+  @Test
+  public void fetchStructuralVariantsExcludesFusions() {
+    // Fusions (RNA supported) are served by the fusions endpoint, not this one. In these profiles
+    // the fixture holds 10 fusions, their 10 DNA-only twins, and one more DNA-only event.
+    List<StructuralVariant> result =
+        structuralVariantMyBatisRepository.fetchStructuralVariants(
+            Arrays.asList("study_tcga_pub_sv", "acc_tcga_sv"),
+            new ArrayList<>(),
+            noEntrezIds,
+            noStructVars);
+
+    Assert.assertEquals(11, result.size());
+    Assert.assertTrue(result.stream().noneMatch(sv -> "yes".equals(sv.getRnaSupport())));
   }
 
   @Test

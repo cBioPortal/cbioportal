@@ -417,4 +417,69 @@ public class ClickhouseAlterationMapperTest {
         "ncoa4 on-panel altered cases", Integer.valueOf(2), ncoa4.getNumberOfAlteredCasesOnPanel());
     assertEquals("ncoa4 total count", Integer.valueOf(3), ncoa4.getTotalCount());
   }
+
+  private static final String SAMPLE_UNIQUE_ID = "study_tcga_pub_tcga-a1-a0sh-01";
+  private static final String MUTATION_PROFILE_ID = "study_tcga_pub_mutations";
+
+  @Test
+  public void getEntityToGenePanels() {
+    var result =
+        mapper.getEntityToGenePanels(
+            List.of(SAMPLE_UNIQUE_ID), List.of(MUTATION_PROFILE_ID), "sample_unique_id");
+
+    assertFalse(result.isEmpty());
+    result.forEach(
+        entityToPanel -> assertEquals(SAMPLE_UNIQUE_ID, entityToPanel.getEntityUniqueId()));
+  }
+
+  @Test
+  public void getEntityToGenePanelsTreatsEntityIdsAsValuesNotAsSql() {
+    // Ids come from the request. Quotes and SQL in them must stay data, whatever they contain.
+    var unionPayload =
+        "x') UNION ALL SELECT cancer_study_identifier, name, description FROM cancer_study --";
+    var tautologyPayload = "x') OR 1=1 --";
+
+    assertTrue(
+        mapper
+            .getEntityToGenePanels(
+                List.of(unionPayload), List.of(MUTATION_PROFILE_ID), "sample_unique_id")
+            .isEmpty());
+
+    // Had the payload ended up in the SQL, this would return the panels of every sample
+    var result =
+        mapper.getEntityToGenePanels(
+            List.of(SAMPLE_UNIQUE_ID, tautologyPayload),
+            List.of(MUTATION_PROFILE_ID),
+            "sample_unique_id");
+    assertFalse(result.isEmpty());
+    result.forEach(
+        entityToPanel -> assertEquals(SAMPLE_UNIQUE_ID, entityToPanel.getEntityUniqueId()));
+  }
+
+  @Test
+  public void getEntityToGenePanelsTreatsProfileIdsAsValuesNotAsSql() {
+    var result =
+        mapper.getEntityToGenePanels(
+            List.of(SAMPLE_UNIQUE_ID),
+            List.of("x') OR 1=1 --", MUTATION_PROFILE_ID),
+            "sample_unique_id");
+
+    assertFalse(result.isEmpty());
+    result.forEach(
+        entityToPanel -> assertEquals(MUTATION_PROFILE_ID, entityToPanel.getGeneticProfileId()));
+  }
+
+  @Test
+  public void getEntityToGenePanelsOnlyUsesTheTwoKnownEntityIdColumns() {
+    // The column is not bound as a parameter, so it must never be taken from the input as is
+    var result =
+        mapper.getEntityToGenePanels(
+            List.of(SAMPLE_UNIQUE_ID),
+            List.of(MUTATION_PROFILE_ID),
+            "sample_unique_id FROM cancer_study --");
+
+    assertFalse(result.isEmpty());
+    result.forEach(
+        entityToPanel -> assertEquals(SAMPLE_UNIQUE_ID, entityToPanel.getEntityUniqueId()));
+  }
 }

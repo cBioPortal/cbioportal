@@ -170,19 +170,30 @@ totalProfiled Count per gene in java.
 
     </select>
 
+    <!--
+        The entity ids and profile ids come from the request, so they are bound as parameters. The
+        id column is not user input: it is picked from the two fixed columns below.
+    -->
+    <sql id="entityUniqueIdColumn">
+        <choose>
+            <when test="field == 'patient_unique_id'">sd.patient_unique_id</when>
+            <otherwise>sd.sample_unique_id</otherwise>
+        </choose>
+    </sql>
+
     <select id="getEntityToGenePanels" resultType="org.cbioportal.legacy.model.EntityToPanel">
-        SELECT DISTINCT sd.${field} as entityUniqueId,
+        SELECT DISTINCT <include refid="entityUniqueIdColumn"/> as entityUniqueId,
                         gene_panel_id as genePanelId, genetic_profile_id as geneticProfileId
         FROM sample_to_gene_panel_derived sgpd
                  JOIN sample_derived sd ON sgpd.sample_unique_id=sd.sample_unique_id
-        WHERE sd.${field} IN
-              (
-                  ${sampleStableIdsJoined}
-                  )
-          AND sgpd.genetic_profile_id IN
-              (
-                  ${profileIdsJoined}
-                  )
+        WHERE <include refid="entityUniqueIdColumn"/> IN
+        <foreach item="entityId" collection="sampleStableIds" open="(" separator="," close=")">
+            #{entityId}
+        </foreach>
+        AND sgpd.genetic_profile_id IN
+        <foreach item="profileId" collection="profileIds" open="(" separator="," close=")">
+            #{profileId}
+        </foreach>
     </select>
 
     <sql id="getAlterationCountByGeneGiven">

@@ -73,10 +73,13 @@ public class ClickhouseAlterationRepository implements AlterationRepository {
 
     var field = enrichmentType == EnrichmentType.SAMPLE ? "sample_unique_id" : "patient_unique_id";
 
-    return mapper.getEntityToGenePanels(
-        sampleStableIds.stream().map(s -> "'" + s + "'").collect(Collectors.joining(",")),
-        profileIds.stream().map(p -> "'" + p + "'").collect(Collectors.joining(",")),
-        field);
+    // An empty IN list is not valid SQL, and nothing can match it anyway
+    if (sampleStableIds.isEmpty() || profileIds.isEmpty()) {
+      return List.of();
+    }
+
+    // The ids come from the request: they are bound as parameters, never put into the SQL text
+    return mapper.getEntityToGenePanels(sampleStableIds, profileIds, field);
   }
 
   @Override

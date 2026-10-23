@@ -7,6 +7,7 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.model.SampleListToSampleId;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.SampleListRepository;
+import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -221,5 +222,22 @@ public class SampleListServiceImplTest extends BaseServiceImplTest {
 
     Assert.assertEquals(expectedSampleLists, result);
     Assert.assertEquals((Integer) 1, expectedSampleLists.get(0).getSampleCount());
+  }
+
+  @Test
+  public void getMetaSampleListsCountsOnlyWhatTheCallerMayRead() throws Exception {
+
+    // With user authorization enabled the count is derived from the list method, whose
+    // @PostFilter removes what the caller may not read, instead of from the repository count query
+    ReflectionTestUtils.setField(sampleListService, "AUTHENTICATE", "true");
+    SampleListService self = Mockito.mock(SampleListService.class);
+    ReflectionTestUtils.setField(sampleListService, "self", self);
+    Mockito.when(self.getAllSampleLists("SUMMARY", null, null, null, null))
+        .thenReturn(Arrays.asList(new SampleList(), new SampleList()));
+
+    BaseMeta result = sampleListService.getMetaSampleLists();
+
+    Assert.assertEquals((Integer) 2, result.getTotalCount());
+    Mockito.verify(sampleListRepository, Mockito.never()).getMetaSampleLists();
   }
 }

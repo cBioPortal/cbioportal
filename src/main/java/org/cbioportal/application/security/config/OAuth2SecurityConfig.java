@@ -115,6 +115,9 @@ public class OAuth2SecurityConfig {
     OidcClientInitiatedLogoutSuccessHandler oidcLogoutSuccessHandler =
         new OidcClientInitiatedLogoutSuccessHandler(clientRegistrationRepository);
     oidcLogoutSuccessHandler.setPostLogoutRedirectUri("{baseUrl}");
+    // Target for providers without an end_session_endpoint (e.g. Google); logout_success stops
+    // /login redirecting back to the provider, which would sign the user in again.
+    oidcLogoutSuccessHandler.setDefaultTargetUrl(LOGIN_URL + "?logout_success");
     return oidcLogoutSuccessHandler;
   }
 }

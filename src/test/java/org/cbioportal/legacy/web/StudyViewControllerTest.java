@@ -237,7 +237,10 @@ public class StudyViewControllerTest {
     tableClinicalDataMap.put(
         uniqueKeySample1, List.of(clinicalData1, clinicalData2, clinicalData3));
     tableClinicalData =
-        SampleClinicalDataCollection.builder().withByUniqueSampleKey(tableClinicalDataMap).build();
+        SampleClinicalDataCollection.builder()
+            .withByUniqueSampleKey(tableClinicalDataMap)
+            .withOrderedSampleKeys(List.of(uniqueKeySample1))
+            .build();
 
     reset(studyViewFilterApplier);
     reset(clinicalDataService);
@@ -1052,7 +1055,9 @@ public class StudyViewControllerTest {
             MockMvcResultMatchers.jsonPath(jsonPath + "[2].clinicalAttributeId")
                 .value(TEST_ATTRIBUTE_ID))
         .andExpect(
-            MockMvcResultMatchers.jsonPath(jsonPath + "[2].sampleId").value(TEST_SAMPLE_ID_3));
+            MockMvcResultMatchers.jsonPath(jsonPath + "[2].sampleId").value(TEST_SAMPLE_ID_3))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$.orderedSampleKeys[0]").value(uniqueKeySample1));
   }
 
   @Test

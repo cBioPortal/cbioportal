@@ -7,6 +7,7 @@ import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalAttributeCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
+import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.ClinicalAttributeNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -205,5 +206,22 @@ public class ClinicalAttributeServiceImplTest extends BaseServiceImplTest {
         clinicalAttributeService.getClinicalAttributeCountsBySampleListId(SAMPLE_LIST_ID);
 
     Assert.assertEquals(expectedClinicalAttributeList, result);
+  }
+
+  @Test
+  public void getMetaClinicalAttributesCountsOnlyWhatTheCallerMayRead() throws Exception {
+
+    // With user authorization enabled the count is derived from the list method, whose
+    // @PostFilter removes what the caller may not read, instead of from the repository count query
+    ReflectionTestUtils.setField(clinicalAttributeService, "AUTHENTICATE", "true");
+    ClinicalAttributeService self = Mockito.mock(ClinicalAttributeService.class);
+    ReflectionTestUtils.setField(clinicalAttributeService, "self", self);
+    Mockito.when(self.getAllClinicalAttributes("ID", null, null, null, null))
+        .thenReturn(Arrays.asList(new ClinicalAttribute(), new ClinicalAttribute()));
+
+    BaseMeta result = clinicalAttributeService.getMetaClinicalAttributes();
+
+    Assert.assertEquals((Integer) 2, result.getTotalCount());
+    Mockito.verify(clinicalAttributeRepository, Mockito.never()).getMetaClinicalAttributes();
   }
 }

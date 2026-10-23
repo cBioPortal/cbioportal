@@ -17,11 +17,15 @@ import org.cbioportal.legacy.service.ReadPermissionService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,6 +36,12 @@ public class StudyServiceImpl implements StudyService {
   @Autowired private CancerTypeService cancerTypeService;
 
   @Autowired private ReadPermissionService readPermissionService;
+
+  @Value("${authenticate:false}")
+  private String AUTHENTICATE;
+
+  // Proxy of this service, so calls through it are subject to the @PostFilter annotations.
+  @Lazy @Autowired private StudyService self;
 
   @Override
   @PostFilter("hasPermission(filterObject,#accessLevel)")
@@ -99,14 +109,33 @@ public class StudyServiceImpl implements StudyService {
 
   @Override
   public BaseMeta getMetaStudies(String keyword) {
-    if (keyword == null) {
-      return studyRepository.getMetaStudies(keyword);
-    } else {
+    if (!PortalSecurityConfig.userAuthorizationEnabled(AUTHENTICATE)) {
+      if (keyword == null) {
+        return studyRepository.getMetaStudies(keyword);
+      }
+      // The keyword also matches primary sites, which a count query cannot express
       BaseMeta baseMeta = new BaseMeta();
       baseMeta.setTotalCount(
           getAllStudies(keyword, "SUMMARY", null, null, null, null, null, AccessLevel.READ).size());
       return baseMeta;
     }
+    // The count has to cover only the studies the caller may read, like the list endpoint does. A
+    // plain count query cannot tell, so count the studies that survive the @PostFilter of
+    // getAllStudies. That filter only applies to calls through the Spring proxy, hence 'self'
+    // rather than 'this'.
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(
+        self.getAllStudies(
+                keyword,
+                "SUMMARY",
+                null,
+                null,
+                null,
+                null,
+                SecurityContextHolder.getContext().getAuthentication(),
+                AccessLevel.READ)
+            .size());
+    return baseMeta;
   }
 
   @Override

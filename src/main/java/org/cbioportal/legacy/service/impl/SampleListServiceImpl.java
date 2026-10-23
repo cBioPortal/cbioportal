@@ -12,8 +12,10 @@ import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,9 @@ public class SampleListServiceImpl implements SampleListService {
 
   @Value("${authenticate:false}")
   private String AUTHENTICATE;
+
+  // Proxy of this service, so calls through it are subject to the @PostFilter annotations.
+  @Lazy @Autowired private SampleListService self;
 
   @Override
   @PostFilter(
@@ -52,7 +57,17 @@ public class SampleListServiceImpl implements SampleListService {
   @Override
   public BaseMeta getMetaSampleLists() {
 
-    return sampleListRepository.getMetaSampleLists();
+    if (!PortalSecurityConfig.userAuthorizationEnabled(AUTHENTICATE)) {
+      return sampleListRepository.getMetaSampleLists();
+    }
+    // The count has to cover only what the caller may read, like the list endpoint does. A plain
+    // count query cannot tell, so when user authorization is on, count the rows that survive the
+    // @PostFilter of the list method. That filter only applies to calls through the Spring proxy,
+    // hence 'self' rather than 'this'.
+    // SUMMARY rather than ID: the permission check needs the study identifier of each sample list
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(self.getAllSampleLists("SUMMARY", null, null, null, null).size());
+    return baseMeta;
   }
 
   @Override

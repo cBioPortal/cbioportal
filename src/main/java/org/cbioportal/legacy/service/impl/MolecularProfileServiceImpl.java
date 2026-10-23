@@ -14,9 +14,11 @@ import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
+import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,9 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
 
   @Value("${authenticate:false}")
   private String AUTHENTICATE;
+
+  // Proxy of this service, so calls through it are subject to the @PostFilter annotations.
+  @Lazy @Autowired private MolecularProfileService self;
 
   @Override
   @PostFilter(
@@ -49,7 +54,16 @@ public class MolecularProfileServiceImpl implements MolecularProfileService {
   @Override
   public BaseMeta getMetaMolecularProfiles() {
 
-    return molecularProfileRepository.getMetaMolecularProfiles();
+    if (!PortalSecurityConfig.userAuthorizationEnabled(AUTHENTICATE)) {
+      return molecularProfileRepository.getMetaMolecularProfiles();
+    }
+    // The count has to cover only what the caller may read, like the list endpoint does. A plain
+    // count query cannot tell, so when user authorization is on, count the rows that survive the
+    // @PostFilter of the list method. That filter only applies to calls through the Spring proxy,
+    // hence 'self' rather than 'this'.
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(self.getAllMolecularProfiles("ID", null, null, null, null).size());
+    return baseMeta;
   }
 
   @Override

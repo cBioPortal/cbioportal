@@ -7,6 +7,7 @@ import java.util.List;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
+import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -235,5 +236,22 @@ public class MolecularProfileServiceImplTest extends BaseServiceImplTest {
         molecularProfileService.getMolecularProfilesReferringTo(MOLECULAR_PROFILE_ID);
 
     Assert.assertEquals(expectedMolecularProfileList, result);
+  }
+
+  @Test
+  public void getMetaMolecularProfilesCountsOnlyWhatTheCallerMayRead() throws Exception {
+
+    // With user authorization enabled the count is derived from the list method, whose
+    // @PostFilter removes what the caller may not read, instead of from the repository count query
+    ReflectionTestUtils.setField(molecularProfileService, "AUTHENTICATE", "true");
+    MolecularProfileService self = Mockito.mock(MolecularProfileService.class);
+    ReflectionTestUtils.setField(molecularProfileService, "self", self);
+    Mockito.when(self.getAllMolecularProfiles("ID", null, null, null, null))
+        .thenReturn(Arrays.asList(new MolecularProfile(), new MolecularProfile()));
+
+    BaseMeta result = molecularProfileService.getMetaMolecularProfiles();
+
+    Assert.assertEquals((Integer) 2, result.getTotalCount());
+    Mockito.verify(molecularProfileRepository, Mockito.never()).getMetaMolecularProfiles();
   }
 }

@@ -1,8 +1,16 @@
 package org.cbioportal.domain.alteration.usecase;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -13,20 +21,35 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.cbioportal.domain.alteration.repository.AlterationRepository;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.AlterationEnrichment;
+import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CountSummary;
+import org.cbioportal.legacy.model.EnrichmentType;
+import org.cbioportal.legacy.model.EntityToPanel;
 import org.cbioportal.legacy.model.GenePanelToGene;
+import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 
 @ExtendWith(MockitoExtension.class)
 class GetAlterationEnrichmentsUseCaseTest {
+
+  private static final String STUDY_ID = "study";
+  private static final String MOLECULAR_PROFILE_ID = "study_mutations";
+  private static final String GENE_PANEL_ID = "panel1";
 
   @Mock private AlterationRepository alterationRepository;
 
@@ -454,5 +477,135 @@ class GetAlterationEnrichmentsUseCaseTest {
     assertTrue(groupNames.contains("group1"));
     assertTrue(groupNames.contains("group2"));
     assertTrue(groupNames.contains("group3"));
+  }
+
+  @Test
+  void testExecute_queriesGroupsConcurrently() {
+    stubMolecularProfilesAndGenePanels();
+    // each group's query waits until the other group's query has started as well; if the groups
+    // were queried one after another, the first query would time out waiting for the second
+    var bothGroupsQuerying = new CyclicBarrier(2);
+    when(alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
+            anyList(), anyList(), any()))
+        .thenAnswer(
+            invocation -> {
+              bothGroupsQuerying.await(10, TimeUnit.SECONDS);
+              return List.of(tp53AlteredIn(1));
+            });
+
+    Collection<AlterationEnrichment> enrichments;
+    try (var executorService = Executors.newFixedThreadPool(2)) {
+      enrichments =
+          new GetAlterationEnrichmentsUseCase(
+                  alterationRepository, new TaskExecutorAdapter(executorService))
+              .execute(
+                  Map.of("groupA", samples("s1", "s2"), "groupB", samples("s3")),
+                  EnrichmentType.SAMPLE,
+                  new AlterationFilter());
+    }
+
+    assertEquals(1, enrichments.size());
+    AlterationEnrichment tp53 = enrichments.iterator().next();
+    assertEquals("TP53", tp53.getHugoGeneSymbol());
+    assertCounts(tp53, "groupA", 1, 2);
+    assertCounts(tp53, "groupB", 1, 1);
+    assertNotNull(tp53.getpValue());
+  }
+
+  @Test
+  void testExecute_fetchesGenePanelsOncePerRequest() {
+    stubMolecularProfilesAndGenePanels();
+    when(alterationRepository.getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
+            anyList(), anyList(), any()))
+        .thenReturn(List.of(tp53AlteredIn(1)));
+
+    new GetAlterationEnrichmentsUseCase(
+            alterationRepository, new TaskExecutorAdapter(Runnable::run))
+        .execute(
+            Map.of("groupA", samples("s1"), "groupB", samples("s2"), "groupC", samples("s3")),
+            EnrichmentType.SAMPLE,
+            new AlterationFilter());
+
+    verify(alterationRepository, times(1)).getGenePanelsToGenes();
+  }
+
+  @Test
+  void testExecute_failsWhenAGroupFails() {
+    when(alterationRepository.getAllMolecularProfiles()).thenReturn(List.of(molecularProfile()));
+    var useCase =
+        new GetAlterationEnrichmentsUseCase(
+            alterationRepository, new TaskExecutorAdapter(Runnable::run));
+
+    var exception =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                useCase.execute(
+                    Map.of(
+                        "groupA",
+                        List.of(new MolecularProfileCaseIdentifier("s1", "unknown_profile"))),
+                    EnrichmentType.SAMPLE,
+                    new AlterationFilter()));
+
+    assertInstanceOf(ExecutionException.class, exception.getCause());
+    assertInstanceOf(MolecularProfileNotFoundException.class, exception.getCause().getCause());
+  }
+
+  /** One mutation profile, and every sample profiled with a single panel covering TP53. */
+  private void stubMolecularProfilesAndGenePanels() {
+    when(alterationRepository.getAllMolecularProfiles()).thenReturn(List.of(molecularProfile()));
+
+    GenePanelToGene tp53 = new GenePanelToGene();
+    tp53.setGenePanelId(GENE_PANEL_ID);
+    tp53.setHugoGeneSymbol("TP53");
+    tp53.setEntrezGeneId(7157);
+    when(alterationRepository.getGenePanelsToGenes())
+        .thenReturn(Map.of(GENE_PANEL_ID, Map.of("TP53", tp53)));
+
+    when(alterationRepository.getEntityToGenePanels(
+            anyList(), anyList(), eq(EnrichmentType.SAMPLE)))
+        .thenAnswer(
+            invocation ->
+                invocation.<List<String>>getArgument(0).stream()
+                    .map(
+                        entityId -> {
+                          EntityToPanel entityToPanel = new EntityToPanel();
+                          entityToPanel.setEntityUniqueId(entityId);
+                          entityToPanel.setGenePanelId(GENE_PANEL_ID);
+                          return entityToPanel;
+                        })
+                    .toList());
+  }
+
+  private static MolecularProfile molecularProfile() {
+    MolecularProfile molecularProfile = new MolecularProfile();
+    molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
+    molecularProfile.setCancerStudyIdentifier(STUDY_ID);
+    return molecularProfile;
+  }
+
+  private static List<MolecularProfileCaseIdentifier> samples(String... sampleIds) {
+    return Arrays.stream(sampleIds)
+        .map(sampleId -> new MolecularProfileCaseIdentifier(sampleId, MOLECULAR_PROFILE_ID))
+        .toList();
+  }
+
+  private static AlterationCountByGene tp53AlteredIn(int alteredCases) {
+    AlterationCountByGene alterationCountByGene = new AlterationCountByGene();
+    alterationCountByGene.setHugoGeneSymbol("TP53");
+    alterationCountByGene.setEntrezGeneId(7157);
+    alterationCountByGene.setNumberOfAlteredCases(alteredCases);
+    return alterationCountByGene;
+  }
+
+  private static void assertCounts(
+      AlterationEnrichment enrichment, String group, int alteredCount, int profiledCount) {
+    CountSummary countSummary =
+        enrichment.getCounts().stream()
+            .filter(count -> count.getName().equals(group))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(alteredCount, countSummary.getAlteredCount());
+    assertEquals(profiledCount, countSummary.getProfiledCount());
   }
 }

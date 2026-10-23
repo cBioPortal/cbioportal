@@ -53,8 +53,10 @@ public class LoginPageController {
       HttpServletRequest request, Authentication authentication, Model model) {
     Map<String, String> oauth2AuthenticationUrls = getOauth2AuthenticationUrls();
     boolean logoutFailure = request.getParameterMap().containsKey("logout_failure");
+    boolean logoutSuccess = request.getParameterMap().containsKey("logout_success");
     if (oauth2AuthenticationUrls.size() == 1
         && !logoutFailure
+        && !logoutSuccess
         && this.forceRedirectOnOneIdentityProvider) {
       log.debug("Redirecting to Identity Provider");
       return "redirect:" + oauth2AuthenticationUrls.values().iterator().next();

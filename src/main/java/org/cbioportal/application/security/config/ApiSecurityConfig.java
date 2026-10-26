@@ -38,7 +38,7 @@ public class ApiSecurityConfig {
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain securityFilterChain(
-      HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
+      HttpSecurity http, @Nullable DataAccessTokenService tokenService) {
     http.csrf(AbstractHttpConfigurer::disable)
         // This filter chain only grabs requests to the '/api' path.
         .securityMatcher("/api/**", "/webservice.do")

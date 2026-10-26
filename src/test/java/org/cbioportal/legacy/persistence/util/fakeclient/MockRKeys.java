@@ -35,7 +35,9 @@ public class MockRKeys implements RKeys {
   }
 
   @Override
-  public void removeListener(int i) {}
+  public void removeListener(int i) {
+    // Not used by any test.
+  }
 
   @Override
   public Iterable<String> getKeysWithLimit(String s, int i) {

@@ -52,8 +52,7 @@ public class Saml2AndBasicConfig {
   public SecurityFilterChain samlFilterChain(
       HttpSecurity http,
       AuthenticationManagerBuilder authenticationManagerBuilder,
-      LogoutSuccessHandler logoutSuccessHandler)
-      throws Exception {
+      LogoutSuccessHandler logoutSuccessHandler) {
     buildAuthenticationManager(authenticationManagerBuilder, userDetailsService());
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())

@@ -23,10 +23,10 @@ public class DataAccessTokenControllerTestConfig {
       new HttpSessionSecurityContextRepository();
 
   @Bean
-  protected SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  protected SecurityFilterChain filterChain(HttpSecurity http) {
     http.securityContext(
             securityContext -> securityContext.securityContextRepository(securityContextRepository))
-        .authorizeHttpRequests((authz) -> authz.anyRequest().authenticated())
+        .authorizeHttpRequests(authz -> authz.anyRequest().authenticated())
         .httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(restAuthenticationEntryPoint()))
         .apply(new TestFilterDsl());
     return http.build();

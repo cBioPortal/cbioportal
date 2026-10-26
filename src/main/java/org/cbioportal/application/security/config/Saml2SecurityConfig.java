@@ -44,8 +44,7 @@ public class Saml2SecurityConfig {
   @Bean
   @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
   public SecurityFilterChain samlFilterChain(
-      HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository)
-      throws Exception {
+      HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
     return http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(

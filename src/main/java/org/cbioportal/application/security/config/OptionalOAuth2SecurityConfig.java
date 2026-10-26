@@ -21,7 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class OptionalOAuth2SecurityConfig {
 
   @Bean
-  public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain optionalOAuth2filterChain(HttpSecurity http) {
     return http.oauth2Login(oauth -> oauth.loginPage("/login"))
         .authorizeHttpRequests(
             auth -> auth.requestMatchers("/").permitAll().anyRequest().permitAll())

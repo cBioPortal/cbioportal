@@ -49,8 +49,7 @@ public class OAuth2SecurityConfig {
   @Bean
   @Order(1)
   public SecurityFilterChain filterChain(
-      HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository)
-      throws Exception {
+      HttpSecurity http, ClientRegistrationRepository clientRegistrationRepository) {
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(

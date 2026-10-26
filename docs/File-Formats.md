@@ -41,7 +41,7 @@ Each molecular profile is defined by one metadata file, and its data must be in 
 
 The additional preprocessing checks described here are opt-in. Run `validateData.py --strict -s STUDY_DIRECTORY` (or pass `--strict` to `metaImport.py`) to check OncoTree annotations, CNA gene identifier syntax and duplicates, unreferenced clinical/timeline/mutation files, mutation samples missing from `_sequenced`, and additional generated case lists. `--strict-mode` is an alias. Without this flag, existing validation errors and warnings still apply, but these additional requirements are not enforced. The existing `--strict_maf_checks` (`-m`) flag controls separate mutation-file checks; neither flag enables the other.
 
-Strict validation reports problems without rewriting study data. For OncoTree checks, select the destination database's reference using `--oncotree-version VERSION`, or supply a matching `oncotree.json` with the other saved portal information through `-p DIRECTORY`. The default version is `oncotree_latest_stable`; it is not automatically matched to the destination database. Without `--strict`, validation does not load or download an OncoTree reference.
+Strict validation reports problems without rewriting study data. OncoTree checks use the cancer types of the portal you validate against: the portal's web API with `-u`, or the saved `cancer-types.json` with `-p DIRECTORY`. These are the cancer types in that portal's `type_of_cancer` table, so validate against the portal you will import into. With `-n`, no portal information is available, and strict validation reports that the OncoTree check could not be completed.
 
 # Formats
 
@@ -289,11 +289,11 @@ These columns can be in either the patient or sample file.
 
 The code and label matching checks in this section run only with `--strict`.
 
-`ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference loaded in the destination portal database. Validate against that database's reference, rather than an independently selected release or the latest OncoTree release.
+`ONCOTREE_CODE` is optional. When provided, each populated code must be a cancer type in the destination portal's `type_of_cancer` table, or a cancer type that the study adds in its own [cancer type file](#cancer-type). Codes are compared without regard to case, because the portal stores cancer type IDs in lower case.
 
-For a sample with an OncoTree code, any populated `CANCER_TYPE` must match the code's `mainType`, and any populated `CANCER_TYPE_DETAILED` must match its `name`. These names are case-sensitive. For example, for `LUAD`, the corresponding values are `Lung` and `Lung Adenocarcinoma` in a reference containing those names.
+For a sample with a recognized code, any populated `CANCER_TYPE_DETAILED` must match that cancer type's `name` in the portal. This comparison is case-sensitive. For example, if the portal's `luad` cancer type is named `Lung Adenocarcinoma`, a sample with the code `LUAD` must use exactly that `CANCER_TYPE_DETAILED`. `CANCER_TYPE` is not checked, because the portal does not store each code's OncoTree main type.
 
-OncoTree releases can rename, remove, or relabel codes. If the OncoTree reference changes, a study that was valid before may need its `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` values updated to pass validation again.
+When a portal's cancer types are updated to a newer OncoTree release, codes can be renamed, removed, or relabeled. A study that was valid before may then need its `ONCOTREE_CODE` and `CANCER_TYPE_DETAILED` values updated to pass validation again.
 
 An empty value, `NA`, `N/A`, `Not Available`, `[Not Available]`, or `[Not Applicable]` is treated as missing, regardless of capitalization. Missing codes and labels do not need to be filled in. When no code is supplied, the OncoTree matching rules do not apply to the cancer type labels.
 

@@ -29,13 +29,19 @@
 
 This page describes the file formats that cancer study data should assume in order to be successfully imported into the database.  Unless otherwise noted, all data files are in tabular-TSV (tab separated value) format and have an associated metadata file which is in a multiline record format.  The metadata and data files should follow a [few rules documented at the Data Loading page](data-loading/README.md#preparing-study-data).
 
-Every data file intended for import must be referenced by a metadata file of the appropriate type, using the metadata property `data_filename`. A file that no metadata file references is not imported, even if its filename matches an example on this page. Data filenames are not fixed; the metadata determines which file is loaded and how it is interpreted. The validator reports an error for a clinical, timeline, or mutation data file whose name starts with `data_clinical`, `data_timeline`, or `data_mutations` but that no metadata file of the matching type references.
+Every data file intended for import must be referenced by a metadata file of the appropriate type, using the metadata property `data_filename`. A file that no metadata file references is not imported, even if its filename matches an example on this page. Data filenames are not fixed; the metadata determines which file is loaded and how it is interpreted. With `--strict`, the validator reports an error for a clinical, timeline, or mutation data file whose name starts with `data_clinical`, `data_timeline`, or `data_mutations` but that no metadata file of the matching type references.
 
 Metadata filenames are not fixed either. The importer and validator treat a file in the study directory as a metadata file when its name contains `meta` as a separate word or underscore-delimited part, such as `meta_cna.txt` or `meta_expression_rnaseq.txt`. The type of a metadata file is determined by its contents, such as its `genetic_alteration_type` and `datatype` fields, not by its filename. The metadata filenames on this page are examples.
 
 For example, `data_clinical_supp.txt` is not loaded just because `meta_clinical_sample.txt` exists. The metadata must reference that file. A study can have only one sample clinical data file and one patient clinical data file. If your study folder contains several files that define clinical attributes, merge them into a single file of all samples and all sample attributes, and a single file of all patients and all patient attributes. If a file such as `data_clinical_supp.txt` adds attributes for samples already in the main sample file, merge those attributes into the main file and resolve conflicting values before import. Likewise, each timeline data file needs its own timeline metadata.
 
 Each molecular profile must have all of its data in a single data file, referenced by a single metadata file. Do not split one profile across several data files. For example, combine mutation files that belong to the same mutation profile into one file. A study can contain several distinct profiles of the same kind, such as expression profiles from different platforms, each with its own data file and metadata file.
+
+## Validation modes
+
+The additional preprocessing checks described here are opt-in. Run `validateData.py --strict -s STUDY_DIRECTORY` (or pass `--strict` to `metaImport.py`) to check OncoTree annotations, CNA gene identifier syntax and duplicates, unreferenced clinical/timeline/mutation files, mutation samples missing from `_sequenced`, and additional generated case lists. `--strict-mode` is an alias. Without this flag, existing validation errors and warnings still apply, but these additional requirements are not enforced. The existing `--strict_maf_checks` (`-m`) flag controls separate mutation-file checks; neither flag enables the other.
+
+Strict validation reports problems without rewriting study data. For OncoTree checks, select the destination database's reference using `--oncotree-version VERSION`, or supply a matching `oncotree.json` with the other saved portal information through `-p DIRECTORY`. The default version is `oncotree_latest_stable`; it is not automatically matched to the destination database. Without `--strict`, validation does not load or download an OncoTree reference.
 
 # Formats
 
@@ -281,6 +287,8 @@ These columns can be in either the patient or sample file.
 
 ### OncoTree annotations
 
+The code and label matching checks in this section run only with `--strict`.
+
 `ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference loaded in the destination portal database. Validate against that database's reference, rather than an independently selected release or the latest OncoTree release.
 
 For a sample with an OncoTree code, any populated `CANCER_TYPE` must match the code's `mainType`, and any populated `CANCER_TYPE_DETAILED` must match its `name`. These names are case-sensitive. For example, for `LUAD`, the corresponding values are `Lung` and `Lung Adenocarcinoma` in a reference containing those names.
@@ -361,6 +369,8 @@ For each gene-sample combination, a copy number level is specified:
 - "2" is a high-level amplification.
 
 ##### Gene identifiers and duplicate rows
+
+By default, duplicate genes produce warnings and later duplicate rows are skipped. With `--strict`, duplicate CNA genes are errors, and CNA Entrez IDs must contain only digits representing a positive signed 32-bit integer. Unresolved genes remain warnings. The duplicate-row checks for expression and methylation remain warnings in both modes; the guidance below describes how to prepare unambiguous input.
 
 These rules apply to wide-format discrete and continuous copy number, expression, and methylation data: a matrix with one gene per row and one sample per column. Each gene must appear at most once in each file. Every data row is resolved to a single Entrez gene ID, the portal's gene identifier: `Entrez_Gene_Id` is used when present, and otherwise the gene symbol or alias in `Hugo_Symbol`. No Entrez gene ID may be resolved from more than one row, so two different symbols that resolve to the same gene are still duplicates. Remove identical duplicate rows. If duplicate rows have different values for a sample, choose a single value before import. The most reliable way to choose is to ask the lab or center that produced the calls. Do not rely on row order to decide which value is loaded.
 
@@ -1137,7 +1147,7 @@ The following case lists are required when the corresponding data is present:
 - `_cna`: all samples profiled for discrete CNA, including samples with no reported copy number events. This case list is required when loading discrete CNA data.
 - `_sv`: all samples profiled for structural variants, including samples with no reported structural variants. This case list is required when loading structural variant data, as described in [Gene Panel Data](#gene-panel-data).
 
-If a mutation, discrete CNA, or structural variant data file reports events for a sample that is not in the matching case list above, the data is in error. Do not fix this by adding the sample to the case list. Find out why a sample that was not profiled has reported events. The sample ID in the data file may be wrong, or the record of which samples were profiled may be incomplete. The lab or center that produced the data may need to correct both.
+Strict validation additionally checks that every sample with a called mutation appears in `_sequenced`. If a mutation, discrete CNA, or structural variant data file reports events for a sample that is not in the matching case list above, the data is in error. Do not fix this by adding the sample to the case list. Find out why a sample that was not profiled has reported events. The sample ID in the data file may be wrong, or the record of which samples were profiled may be incomplete. The lab or center that produced the data may need to correct both.
 
 `add_global_case_list` only generates `_all`. It does not generate the profile-specific lists above. A [gene panel matrix](#gene-panel-matrix-file) does not replace these case lists.
 
@@ -1145,9 +1155,9 @@ All IDs in `case_list_ids` must refer to samples in the study's clinical sample 
 
 For example, if `SAMPLE_1` and `SAMPLE_2` were sequenced but only `SAMPLE_1` has a mutation in the MAF, both samples belong in `_sequenced`. Leaving out `SAMPLE_2` would inflate the computed frequency of mutations across the study, because the absence of mutations in that sample would be ignored.
 
-Required case lists are determined by the four rules above, not by every row in a preprocessing tool's case-list configuration. A custom list may use a filename shown as an example for another list; its metadata determines its role.
+The four rules above describe the baseline case-list requirements. A custom list may use a filename shown as an example for another list; its metadata determines its role. With `--strict`, the validator additionally checks the bundled `case_list_config.tsv` for lists implied by recognized staging filenames, including expression and combined-profile lists. A matching stable ID or an equivalent non-generic curated category can satisfy these additional checks without renaming or rewriting the list. If a required generated list is missing and its suggested filename is occupied by an unrelated list, strict validation reports the conflict; it never overwrites that file.
 
-The other suffixes listed under [Case list stable id suffixes](#case-list-stable-id-suffixes) support profile selection and sample counts, but are not additional required case lists. For combined lists such as `_cnaseq`, include all samples profiled for every relevant profile type, such as both CNA and mutations for `_cnaseq`. Custom case lists may contain any subset of valid study samples.
+The other suffixes listed under [Case list stable id suffixes](#case-list-stable-id-suffixes) support profile selection and sample counts, but are not additional required case lists in default validation. Strict validation can require them when the configured staging files contain samples. For combined lists such as `_cnaseq`, include all samples profiled for every relevant profile type, such as both CNA and mutations for `_cnaseq`. Custom case lists may contain any subset of valid study samples.
 
 ### Case list categories
 These are the valid case lists categories for `case_list_category: ` in the meta file.

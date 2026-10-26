@@ -50,7 +50,13 @@ public class Saml2SecurityConfig {
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
+                auth.requestMatchers(
+                        "/api/health",
+                        "/images/**",
+                        "/js/**",
+                        "/manifest.json",
+                        "/service-worker.js",
+                        "/login")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

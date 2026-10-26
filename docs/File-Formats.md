@@ -281,13 +281,21 @@ These columns can be in either the patient or sample file.
 
 ### OncoTree annotations
 
-`ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference used for validation.
+`ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference loaded in the destination portal database. Validate against that database's reference, rather than an independently selected release or the latest OncoTree release.
 
 For a sample with an OncoTree code, any populated `CANCER_TYPE` must match the code's `mainType`, and any populated `CANCER_TYPE_DETAILED` must match its `name`. These names are case-sensitive. For example, for `LUAD`, the corresponding values are `Lung` and `Lung Adenocarcinoma` in a reference containing those names.
 
 OncoTree releases can rename, remove, or relabel codes. If the OncoTree reference changes, a study that was valid before may need its `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` values updated to pass validation again.
 
 An empty value, `NA`, `N/A`, `Not Available`, `[Not Available]`, or `[Not Applicable]` is treated as missing, regardless of capitalization. Missing codes and labels do not need to be filled in. When no code is supplied, the OncoTree matching rules do not apply to the cancer type labels.
+
+#### Proposed handling of OncoTree updates
+
+The following update policy is proposed for review; it is not a description of automatic behavior in the current importer.
+
+Before updating a portal database's OncoTree reference, identify affected codes and studies and notify users. List the affected codes, the number and proportion of studies affected, and whether each code has a direct successor, requires a curator to choose among successors, or has no replacement. Allow users to prepare corrections before the update.
+
+Where a direct successor exists, migrate the code and its cancer type labels together. Where an update leaves a sample's code invalid and no replacement has been established, keep the study and set that sample's `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` to `NA`. Notify users of the lost annotations. Retain an audit record with the study ID, sample ID, previous values of all three fields, and the old and new reference versions. Choices among multiple successors require curation. The study-level `type_of_cancer` also needs review when its code changes; the sample-level policy does not define how to migrate it.
 
 ### Custom columns in clinical data
 cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
@@ -354,7 +362,7 @@ For each gene-sample combination, a copy number level is specified:
 
 ##### Gene identifiers and duplicate rows
 
-Each gene must appear at most once in a wide-format CNA file. Every data row is resolved to a single Entrez gene ID, the portal's gene identifier: `Entrez_Gene_Id` is used when present, and otherwise the gene symbol or alias in `Hugo_Symbol`. No Entrez gene ID may be resolved from more than one row, so two different symbols that resolve to the same gene are still duplicates. Remove identical duplicate rows. If duplicate rows have different values for a sample, choose a single value before import. The most reliable way to choose is to ask the lab or center that produced the calls. Do not rely on row order to decide which value is loaded.
+These rules apply to wide-format discrete and continuous copy number, expression, and methylation data: a matrix with one gene per row and one sample per column. Each gene must appear at most once in each file. Every data row is resolved to a single Entrez gene ID, the portal's gene identifier: `Entrez_Gene_Id` is used when present, and otherwise the gene symbol or alias in `Hugo_Symbol`. No Entrez gene ID may be resolved from more than one row, so two different symbols that resolve to the same gene are still duplicates. Remove identical duplicate rows. If duplicate rows have different values for a sample, choose a single value before import. The most reliable way to choose is to ask the lab or center that produced the calls. Do not rely on row order to decide which value is loaded.
 
 For example, two rows with `Entrez_Gene_Id` set to `7157` describe the same gene, even if their `Hugo_Symbol` values differ. They must be combined into one row. The integer spellings `07157` and `7157` also identify the same gene.
 
@@ -545,6 +553,8 @@ SAMPLE_ID_2<TAB>2<TAB>5512374<TAB>159004775<TAB>80678<TAB>-0.0013
 ```
 
 ## Expression Data
+
+The [gene identifier and duplicate-row rules](#gene-identifiers-and-duplicate-rows) also apply to expression matrices.
 
 An expression data file is a two dimensional matrix with a gene per row and a sample per column.  For each gene-sample pair, a real number represents the gene expression in that sample.  
 
@@ -838,6 +848,9 @@ A special case for **Entrez_Gene_Id=0** and **Hugo_Symbol=Unknown**: when this c
 
 
 ## Methylation Data
+
+The [gene identifier and duplicate-row rules](#gene-identifiers-and-duplicate-rows) also apply to gene-level methylation matrices.
+
 The Portal expects a single value for each gene in each sample, usually a beta-value from the Infinium methylation array platform.
 
 ### Meta file
@@ -1131,6 +1144,8 @@ If a mutation, discrete CNA, or structural variant data file reports events for 
 All IDs in `case_list_ids` must refer to samples in the study's clinical sample file. Use the samples that were actually profiled to prepare each profile-specific list. A mutation or structural variant file only lists samples with reported events, so it cannot by itself identify every profiled sample.
 
 For example, if `SAMPLE_1` and `SAMPLE_2` were sequenced but only `SAMPLE_1` has a mutation in the MAF, both samples belong in `_sequenced`. Leaving out `SAMPLE_2` would inflate the computed frequency of mutations across the study, because the absence of mutations in that sample would be ignored.
+
+Required case lists are determined by the four rules above, not by every row in a preprocessing tool's case-list configuration. A custom list may use a filename shown as an example for another list; its metadata determines its role.
 
 The other suffixes listed under [Case list stable id suffixes](#case-list-stable-id-suffixes) support profile selection and sample counts, but are not additional required case lists. For combined lists such as `_cnaseq`, include all samples profiled for every relevant profile type, such as both CNA and mutations for `_cnaseq`. Custom case lists may contain any subset of valid study samples.
 

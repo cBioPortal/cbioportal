@@ -35,7 +35,7 @@ Metadata filenames are not fixed either. The importer and validator treat a file
 
 For example, `data_clinical_supp.txt` is not loaded just because `meta_clinical_sample.txt` exists. The metadata must reference that file. A study can have only one sample clinical data file and one patient clinical data file. If your study folder contains several files that define clinical attributes, merge them into a single file of all samples and all sample attributes, and a single file of all patients and all patient attributes. If a file such as `data_clinical_supp.txt` adds attributes for samples already in the main sample file, merge those attributes into the main file and resolve conflicting values before import. Likewise, each timeline data file needs its own timeline metadata.
 
-Each molecular profile must have all of its data in a single data file, referenced by a single metadata file. Do not split one profile across several data files. For example, combine mutation files that belong to the same mutation profile into one file. A study can contain several distinct profiles of the same kind, such as expression profiles from different platforms, each with its own data file and metadata file.
+Each molecular profile is defined by one metadata file, and its data must be in the data file that metadata references. Do not split one profile's data across several data files. For example, combine mutation files that belong to the same mutation profile into one file. A study can contain several distinct profiles of the same kind, such as expression profiles from different platforms, each with its own data file and metadata file. A discrete CNA profile may also reference an optional `pd_annotations_filename`.
 
 ## Validation modes
 

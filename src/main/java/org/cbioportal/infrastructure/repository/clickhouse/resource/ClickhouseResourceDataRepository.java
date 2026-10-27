@@ -23,7 +23,7 @@ import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
-import org.cbioportal.domain.wsi.WsiDeidentification;
+import org.cbioportal.domain.wsi.WsiContract;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -152,13 +152,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   @Override
   public List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request) {
     return mapper.getResourceTableTabs(request).stream()
-        .filter(tab -> !WsiDeidentification.isWsiResourceId(tab.resourceId()))
+        .filter(tab -> !WsiContract.isWsiResourceId(tab.resourceId()))
         .toList();
   }
 
   @Override
   public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+    if (WsiContract.isWsiResourceId(query.resourceId())) {
       return List.of();
     }
     return mapper.getResourceTableRows(query);
@@ -166,7 +166,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+    if (WsiContract.isWsiResourceId(query.resourceId())) {
       return ResourceTableMetadataView.empty();
     }
     // Facets and key discovery are always computed against the query with ALL column-level filters
@@ -406,7 +406,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
+    if (WsiContract.isWsiResourceId(query.resourceId())) {
       return ResourceTableCounts.empty();
     }
     ResourceTableCounts counts = mapper.getResourceTableCounts(query);

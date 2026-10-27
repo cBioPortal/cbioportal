@@ -18,7 +18,7 @@ import org.cbioportal.domain.wsi.WsiSlide;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Repository-level de-identification rules, independent of a ClickHouse container. */
+/** Repository-level hierarchy rules, independent of a ClickHouse container. */
 public class ClickhouseWsiHierarchyRepositoryTest {
 
   private static final String KEY_1 = "2351e12d4955";
@@ -52,17 +52,6 @@ public class ClickhouseWsiHierarchyRepositoryTest {
   }
 
   @Test
-  public void servesOrdinaryFreeText() {
-    Map<String, Object> row = row(KEY_1);
-    row.put("part_description", "Specimen 12");
-    row.put("block_label", "S1-2");
-    row.put("stain_name", "SOX10-123");
-    rows(row);
-
-    assertEquals(List.of(KEY_1), slideKeys(repository.getPatientHierarchy("study", "patient")));
-  }
-
-  @Test
   public void dropsSlidesWithoutAValidSlideKey() {
     Map<String, Object> missing = row(KEY_2);
     missing.put("slide_key", "");
@@ -73,29 +62,6 @@ public class ClickhouseWsiHierarchyRepositoryTest {
     rows(row(KEY_1), missing, rawImageId, retiredLongKey);
 
     assertEquals(List.of(KEY_1), slideKeys(repository.getPatientHierarchy("study", "patient")));
-  }
-
-  @Test
-  public void acceptsOpaqueKeysWhoseHexLooksLikeACompactDate() {
-    // "a20240131b" contains an eight-digit YYYYMMDD-looking run.
-    String dateLikeKey = "a20240131b" + "00";
-    Map<String, Object> row = row(dateLikeKey);
-    row.put("part_key", "part:" + dateLikeKey);
-    row.put("block_key", "block:" + dateLikeKey);
-    row.put("specimen_key", "block::part:" + dateLikeKey + "::block:" + dateLikeKey);
-    rows(row);
-
-    assertEquals(
-        List.of(dateLikeKey), slideKeys(repository.getPatientHierarchy("study", "patient")));
-  }
-
-  @Test
-  public void stillRejectsDatesInFreeText() {
-    Map<String, Object> row = row(KEY_1);
-    row.put("part_description", "Resected 2024-01-31");
-    rows(row);
-
-    assertNull(repository.getPatientHierarchy("study", "patient"));
   }
 
   // ---- reference sample selection ----

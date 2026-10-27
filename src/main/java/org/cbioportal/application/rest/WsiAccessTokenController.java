@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import org.cbioportal.domain.wsi.WsiDeidentification;
+import org.cbioportal.domain.wsi.WsiContract;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
@@ -83,7 +83,7 @@ public class WsiAccessTokenController {
         || studyId.isBlank()
         || patientId == null
         || patientId.isBlank()
-        || !WsiDeidentification.isSlideKey(slideKey)) {
+        || !WsiContract.isSlideKey(slideKey)) {
       return WsiResponses.privateResponse(HttpStatus.BAD_REQUEST).build();
     }
     if (accessTokenSecret == null

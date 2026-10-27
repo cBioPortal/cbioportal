@@ -76,25 +76,6 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
   }
 
   @Test
-  public void rejectsIdentifiersAndAbsoluteDatesInTileMetadata() {
-    for (String text :
-        new String[] {
-          "MRN-123456",
-          "2024-01-31",
-          "01/31/2024",
-          "31/01/2024",
-          "January 31, 2024",
-          "31 January 2024"
-        }) {
-      Map<String, Object> row =
-          row(
-              validMetadata()
-                  .replace("\"tile_size\":256", "\"tile_size\":256,\"vendor\":\"" + text + "\""));
-      assertFalse("should be rejected: " + text, isServableRow(row, objectMapper));
-    }
-  }
-
-  @Test
   public void acceptsOnlyJpegAndPngThumbnails() {
     for (String contentType : new String[] {"image/jpeg", "image/png", " IMAGE/PNG "}) {
       Map<String, Object> row = row(validMetadata());
@@ -112,44 +93,20 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
   }
 
   @Test
-  public void acceptsLargeNumericFieldsWithoutDateFalsePositive() {
-    Map<String, Object> row = row(validMetadata().replace("\"width\":256", "\"width\":20123456"));
-    assertTrue(isServableRow(row, objectMapper));
-  }
-
-  @Test
-  public void acceptsASourceFingerprintWhoseHexLooksLikeACompactDate() {
-    // A real SHA-256 identity digest: "...6ef20939140a7..." contains an eight-digit run that the
-    // compact-date rule would read as YYYYMMDD.
-    Map<String, Object> row =
-        row(withFingerprint("a41afcbce3d16ef20939140a7cfdb3ab5a6d88bf6cb3e586c8cae39cee1bc562"));
-    assertTrue(isServableRow(row, objectMapper));
-  }
-
-  @Test
-  public void rejectsASourceFingerprintThatIsNotALowercaseSha256Digest() {
-    for (String fingerprint :
-        new String[] {
-          "",
-          "2024-01-31",
-          "MRN 12345678",
-          "A41AFCBCE3D16EF20939140A7CFDB3AB5A6D88BF6CB3E586C8CAE39CEE1BC562",
-          "a41afcbce3d16ef20939140a7cfdb3ab5a6d88bf6cb3e586c8cae39cee1bc56",
-          "a41afcbce3d16ef20939140a7cfdb3ab5a6d88bf6cb3e586c8cae39cee1bc5620",
-        }) {
-      assertFalse(
-          "fingerprint should be rejected: " + fingerprint,
-          isServableRow(row(withFingerprint(fingerprint)), objectMapper));
-    }
-  }
-
-  @Test
-  public void rejectsANonTextSourceFingerprint() {
+  public void ignoresTileMetadataKeysOutsideTheContract() throws Exception {
     Map<String, Object> row =
         row(
             validMetadata()
-                .replace("\"tile_size\":256", "\"tile_size\":256,\"source_fingerprint\":1"));
-    assertFalse(isServableRow(row, objectMapper));
+                .replace(
+                    "\"tile_size\":256",
+                    "\"tile_size\":256,\"source_fingerprint\":\"abc\",\"identity_version\":1"));
+
+    String served =
+        objectMapper.writeValueAsString(
+            ClickhouseWsiSlideAccessRepository.servableTileMetadata(row, objectMapper));
+
+    assertFalse(served, served.contains("source_fingerprint"));
+    assertFalse(served, served.contains("identity_version"));
   }
 
   @Test
@@ -260,13 +217,6 @@ public class ClickhouseWsiSlideAccessRepositoryTest {
         + "\"safe_min_level\":0,\"tile_size\":256,\"tile_metadata_schema_version\":2,"
         + "\"decode_policy_version\":\"geometry-v2;tile-max=16777216;thumbnail-max=16777216\","
         + "\"max_decode_pixels\":16777216,\"thumbnail_max_decode_pixels\":16777216}";
-  }
-
-  private static String withFingerprint(String fingerprint) {
-    return validMetadata()
-        .replace(
-            "\"tile_size\":256",
-            "\"tile_size\":256,\"source_fingerprint\":\"" + fingerprint + "\"");
   }
 
   static boolean isServableRow(Map<String, Object> row, ObjectMapper objectMapper) {

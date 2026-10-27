@@ -1,14 +1,12 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
-import org.cbioportal.domain.wsi.WsiDeidentification;
+import org.cbioportal.domain.wsi.WsiContract;
 import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.domain.wsi.WsiThumbnail;
 import org.cbioportal.domain.wsi.WsiTileMetadata;
@@ -23,26 +21,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
   private static final String DECODE_POLICY_VERSION =
       "geometry-v2;tile-max=16777216;thumbnail-max=16777216";
   private static final Set<String> THUMBNAIL_CONTENT_TYPES = Set.of("image/jpeg", "image/png");
-  private static final Set<String> ALLOWED_METADATA_KEYS =
-      Set.of(
-          "dimensions",
-          "levels",
-          "level_dimensions",
-          "level_downsamples",
-          "max_zoom",
-          "tile_size",
-          "mpp",
-          "objective_power",
-          "vendor",
-          "identity_version",
-          "safe_min_level",
-          "tile_metadata_schema_version",
-          "decode_policy_version",
-          "max_decode_pixels",
-          "thumbnail_max_decode_pixels",
-          "source_fingerprint");
-  private static final String SOURCE_FINGERPRINT_KEY = "source_fingerprint";
-  private static final Pattern SHA256_HEX = Pattern.compile("^[0-9a-f]{64}$");
 
   private final ClickhouseWsiSlideAccessMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
@@ -59,7 +37,7 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
 
   @Override
   public WsiSlideSource getSlideSource(String studyId, String patientId, String slideKey) {
-    if (!WsiDeidentification.isSlideKey(slideKey)) {
+    if (!WsiContract.isSlideKey(slideKey)) {
       return null;
     }
     Map<String, Object> context = contextMapper.getStudyContext(studyId);
@@ -102,8 +80,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     String contentType = stringValue(row.get("thumbnail_content_type"));
     int width = numberValue(row.get("thumbnail_width"));
     int height = numberValue(row.get("thumbnail_height"));
-    if (!WsiDeidentification.isSlideKey(slideKey)
-        || !WsiDeidentification.isSealedSource(sealedSource)
+    if (!WsiContract.isSlideKey(slideKey)
+        || !WsiContract.isSealedSource(sealedSource)
         || metadataJson == null
         || contentType == null
         || !THUMBNAIL_CONTENT_TYPES.contains(contentType.trim().toLowerCase(Locale.ROOT))
@@ -114,20 +92,8 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
       return null;
     }
     try {
-      JsonNode metadataNode = objectMapper.readTree(metadataJson);
-      // Metadata is serialized into the portal response. Apply the same
-      // fail-closed identifier/date checks as the importer and hierarchy
-      // endpoint to string values while ignoring numeric geometry.
-      if (!metadataNode.isObject() || containsForbiddenMetadataText(metadataNode)) {
-        return null;
-      }
-      var fieldNames = metadataNode.fieldNames();
-      while (fieldNames.hasNext()) {
-        if (!ALLOWED_METADATA_KEYS.contains(fieldNames.next())) {
-          return null;
-        }
-      }
-      WsiTileMetadata metadata = objectMapper.treeToValue(metadataNode, WsiTileMetadata.class);
+      // Only the fields of WsiTileMetadata are read; any other key is ignored.
+      WsiTileMetadata metadata = objectMapper.readValue(metadataJson, WsiTileMetadata.class);
       return validMetadata(metadata) ? metadata : null;
     } catch (JsonProcessingException | RuntimeException exception) {
       return null;
@@ -160,41 +126,6 @@ public class ClickhouseWsiSlideAccessRepository implements WsiSlideAccessReposit
     }
     return metadata.levelDimensions().stream()
         .allMatch(level -> level != null && level.width() > 0 && level.height() > 0);
-  }
-
-  private static boolean containsForbiddenMetadataText(JsonNode node) {
-    if (node == null) {
-      return false;
-    }
-    if (node.isTextual()) {
-      return WsiDeidentification.containsIdentifyingText(node.asText());
-    }
-    if (node.isObject()) {
-      var fields = node.fields();
-      while (fields.hasNext()) {
-        var field = fields.next();
-        if (SOURCE_FINGERPRINT_KEY.equals(field.getKey())) {
-          // A SHA-256 identity digest, not free text: its hex can contain an eight-digit run
-          // that reads as YYYYMMDD. Held to its exact format instead, as the tile server does.
-          if (!field.getValue().isTextual()
-              || !SHA256_HEX.matcher(field.getValue().asText()).matches()) {
-            return true;
-          }
-        } else if (containsForbiddenMetadataText(field.getValue())) {
-          return true;
-        }
-      }
-      return false;
-    }
-    if (node.isArray()) {
-      var children = node.elements();
-      while (children.hasNext()) {
-        if (containsForbiddenMetadataText(children.next())) {
-          return true;
-        }
-      }
-    }
-    return false;
   }
 
   private static String stringValue(Object value) {

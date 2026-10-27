@@ -307,8 +307,8 @@ Clients use two endpoints:
   reimport. A slide is servable only when `can_serve_tiles` is true, the slide
   key is valid, `sealed_source` is well formed (unpadded base64url, at most
   4096 characters, decoding to at least 29 bytes), the tile metadata has
-  `tile_metadata_schema_version` 2 and passes the key allowlist and
-  identifier/date checks, and the thumbnail is
+  `tile_metadata_schema_version` 2, consistent level geometry and the current
+  decode policy, and the thumbnail is
   `image/jpeg` or `image/png` with dimensions between 1 and 8192; otherwise
   the endpoint returns `404`. The response carries `slideKey`, the tile
   metadata, the thumbnail width/height/content type and the capability;
@@ -360,28 +360,13 @@ blank study IDs receive `400`, and a nonexistent study deliberately returns
 row's stored `sealed_source`, copied verbatim; it is sealed upstream with
 `WSI_SOURCE_SEAL_KEY`, and only the tile server can open it.
 
-Before enabling the Pathology Slides feature for a private study:
-
-1. Convert the study's `meta_wsi.txt`/`data_wsi.txt` pair as described in
-   [Converting legacy files](https://github.com/cBioPortal/cbioportal-core/blob/main/docs/wsi-study-format.md#converting-legacy-files),
-   then validate and import the study with the standard importer. MRNs and
-   absolute dates must not occur in the study files:
-
-   ```bash
-   metaImport.py -s /path/to/study
-   ```
-2. Ensure the backend access endpoint returns no pixel bundle when any of
-   those fields is missing. The browser must obtain a fresh bundle for each
-   slide and send only its capability (`Authorization: Bearer`) to the tile
-   server; it never sees the image ID or an object URI.
-3. Configure protected pixel responses as private/cacheable and hierarchy or
-   access responses as private/no-store. They must not be publicly cached.
-
-Blue/green promotion is the WSI visibility boundary. Build the inactive
-database, import each study's WSI resources once, validate the result, and
-promote only after the build succeeds. If an import fails or must be retried,
-discard and rebuild the inactive database. The core importer does not create
-or migrate production tables.
+To enable Pathology Slides for a study, convert its `meta_wsi.txt`/`data_wsi.txt`
+pair as described in
+[Converting legacy files](https://github.com/cBioPortal/cbioportal-core/blob/main/docs/wsi-study-format.md#converting-legacy-files),
+then validate and import the study with the standard importer
+(`metaImport.py -s /path/to/study`). Hierarchy and access responses are
+private and `no-store`; a proxy in front of the portal must not cache them
+publicly.
 
 ### WSI serving query plan
 

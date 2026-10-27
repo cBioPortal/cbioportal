@@ -2,10 +2,8 @@ package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 import org.cbioportal.domain.wsi.WsiBlock;
-import org.cbioportal.domain.wsi.WsiDeidentification;
+import org.cbioportal.domain.wsi.WsiContract;
 import org.cbioportal.domain.wsi.WsiHierarchy;
 import org.cbioportal.domain.wsi.WsiPart;
 import org.cbioportal.domain.wsi.WsiSampleGroup;
@@ -19,25 +17,6 @@ import org.springframework.stereotype.Repository;
 public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClickhouseWsiHierarchyRepository.class);
-
-  private static final Set<String> APPROVED_IDENTIFIER_FIELDS =
-      Set.of("patient_id", "reference_sample_id", "sample_id");
-  private static final Set<String> NON_TEXT_FIELDS =
-      Set.of("is_hne", "is_ihc", "file_size_bytes", "can_serve_tiles");
-  private static final String HEX_KEY = WsiDeidentification.SLIDE_KEY.pattern();
-
-  /**
-   * Opaque keys derived from salted SHA-256 digests. A hex digest can contain an eight-digit run
-   * that looks like YYYYMMDD, so a value in the canonical opaque format is exempt from the date
-   * heuristics. Any other value in these fields, such as a legacy numeric key, receives the normal
-   * free-text checks.
-   */
-  private static final Map<String, Pattern> OPAQUE_KEY_FIELDS =
-      Map.of(
-          "slide_key", WsiDeidentification.SLIDE_KEY,
-          "part_key", Pattern.compile("part:" + HEX_KEY),
-          "block_key", Pattern.compile("block:" + HEX_KEY),
-          "specimen_key", Pattern.compile("[a-z_]+(?:::(?:part|block):" + HEX_KEY + ")+"));
 
   private final ClickhouseWsiHierarchyMapper mapper;
   private final ClickhouseWsiContextMapper contextMapper;
@@ -64,11 +43,8 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     Map<String, WsiSampleGroupBuilder> samples = new java.util.LinkedHashMap<>();
     int unkeyedSlides = 0;
     for (Map<String, Object> row : rows) {
-      if (!isDeidentifiedRow(row)) {
-        return null;
-      }
       String slideKey = stringValue(row, "slide_key");
-      if (!WsiDeidentification.isSlideKey(slideKey)) {
+      if (!WsiContract.isSlideKey(slideKey)) {
         // A slide without an opaque key cannot be addressed.
         unkeyedSlides++;
         continue;
@@ -192,25 +168,6 @@ public class ClickhouseWsiHierarchyRepository implements WsiHierarchyRepository 
     }
     // A legacy NULL or uncontrolled value is ambiguous, not a confirmed Other.
     return "Unknown";
-  }
-
-  static boolean isDeidentifiedRow(Map<String, Object> row) {
-    for (Map.Entry<String, Object> entry : row.entrySet()) {
-      if (APPROVED_IDENTIFIER_FIELDS.contains(entry.getKey())
-          || NON_TEXT_FIELDS.contains(entry.getKey())
-          || entry.getValue() == null) {
-        continue;
-      }
-      String text = entry.getValue().toString();
-      Pattern opaqueKey = OPAQUE_KEY_FIELDS.get(entry.getKey());
-      if (opaqueKey != null && opaqueKey.matcher(text).matches()) {
-        continue;
-      }
-      if (WsiDeidentification.containsIdentifyingText(text)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private static final class WsiSampleGroupBuilder {

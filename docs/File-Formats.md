@@ -283,9 +283,9 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 
 Whole-slide images (WSI) are imported as standard [Resource Data](#resource-data):
 one resource row per slide, in the `WSI_SAMPLE` resource (slides matched to a
-sample) or `WSI_PATIENT` (unmatched slides). The row format, the
-de-identification rules and the offline converter for legacy
-`meta_wsi.txt`/`data_wsi.txt` pairs are documented with the importer, in
+sample) or `WSI_PATIENT` (unmatched slides). The row format and the offline
+converter for legacy `meta_wsi.txt`/`data_wsi.txt` pairs are documented with
+the importer, in
 cbioportal-core's
 [WSI study import](https://github.com/cBioPortal/cbioportal-core/blob/main/docs/wsi-study-format.md).
 

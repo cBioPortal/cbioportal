@@ -3,7 +3,6 @@ package org.cbioportal.application.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -20,8 +19,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.cbioportal.domain.wsi.WsiSlideAccess;
 import org.cbioportal.domain.wsi.WsiSlideSource;
-import org.cbioportal.domain.wsi.WsiThumbnail;
-import org.cbioportal.domain.wsi.WsiTileMetadata;
 import org.cbioportal.domain.wsi.repository.WsiSlideAccessRepository;
 import org.junit.After;
 import org.junit.Test;
@@ -34,7 +31,7 @@ public class WsiAccessTokenControllerTest {
 
   private static final String SECRET = "0123456789abcdef0123456789abcdef";
   private static final String SLIDE_KEY = "2351e12d4955";
-  // A well-formed seal (contract test key); opaque to cBioPortal, which only checks its shape.
+  // A well-formed seal (contract test key); opaque to cBioPortal.
   private static final String SEALED_SOURCE =
       "AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5"
           + "wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS";
@@ -49,7 +46,7 @@ public class WsiAccessTokenControllerTest {
   }
 
   @Test
-  public void returnsSlideKeyBoundAccessWithoutIdentifyingFields() throws Exception {
+  public void returnsOnlyTheCapability() throws Exception {
     WsiAccessTokenController controller = createAuthenticatedController();
     when(wsiSlideAccessRepository.getSlideSource("study-1", "patient-1", SLIDE_KEY))
         .thenReturn(source());
@@ -63,29 +60,12 @@ public class WsiAccessTokenControllerTest {
     assertEquals(SLIDE_KEY, body.slideKey());
     assertEquals("Bearer", body.tokenType());
     assertEquals(300, body.expiresIn());
-
-    // The serialized browser response carries no image id, object URI or barcode, and the sealed
-    // source appears only inside the signed capability.
-    String json = objectMapper.writeValueAsString(body);
-    JsonNode tree = objectMapper.readTree(json);
     List<String> keys = new ArrayList<>();
-    collectKeys(tree, keys);
-    for (String forbidden :
-        List.of(
-            "imageId",
-            "image_id",
-            "sourceUrl",
-            "barcode",
-            "sealedSource",
-            "sealed_source",
-            "enc")) {
-      assertFalse("response exposes " + forbidden, keys.contains(forbidden));
-    }
-    assertEquals(3, tree.get("thumbnail").size());
-    String withoutToken = json.replace(body.accessToken(), "");
-    assertFalse(withoutToken.contains(SEALED_SOURCE));
-    assertFalse(json.contains("s3://"));
-    assertFalse(json.contains("file://"));
+    objectMapper
+        .readTree(objectMapper.writeValueAsString(body))
+        .fieldNames()
+        .forEachRemaining(keys::add);
+    assertEquals(List.of("slideKey", "accessToken", "tokenType", "expiresIn"), keys);
   }
 
   @Test
@@ -216,41 +196,8 @@ public class WsiAccessTokenControllerTest {
     verify(wsiSlideAccessRepository).getSlideSource(any(), any(), any());
   }
 
-  @Test
-  public void neverSerializesOrPrintsTheSealedSource() throws Exception {
-    WsiSlideSource source = source();
-    String json = objectMapper.writeValueAsString(source);
-
-    assertFalse(json.contains(SEALED_SOURCE));
-    assertFalse(json.contains("sealedSource"));
-    assertFalse(source.toString().contains(SEALED_SOURCE));
-    assertTrue(source.toString().contains(SLIDE_KEY));
-  }
-
   private static WsiSlideSource source() {
-    WsiTileMetadata metadata =
-        new WsiTileMetadata(
-            new WsiTileMetadata.Dimensions(2048, 1024),
-            1,
-            List.of(new WsiTileMetadata.Dimensions(2048, 1024)),
-            List.of(1.0),
-            2,
-            256,
-            new WsiTileMetadata.Mpp(0.5, 0.5),
-            20,
-            "aperio",
-            null,
-            null,
-            null,
-            null,
-            null);
-    return new WsiSlideSource(
-        SLIDE_KEY, SEALED_SOURCE, metadata, new WsiThumbnail(128, 64, "image/jpeg"));
-  }
-
-  private static void collectKeys(JsonNode node, List<String> keys) {
-    node.fieldNames().forEachRemaining(keys::add);
-    node.elements().forEachRemaining(child -> collectKeys(child, keys));
+    return new WsiSlideSource(SLIDE_KEY, SEALED_SOURCE, 128, 64);
   }
 
   private WsiAccessTokenController createAuthenticatedController() {

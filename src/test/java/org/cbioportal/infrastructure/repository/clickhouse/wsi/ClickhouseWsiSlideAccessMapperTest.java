@@ -1,13 +1,11 @@
 package org.cbioportal.infrastructure.repository.clickhouse.wsi;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Map;
+import org.cbioportal.domain.wsi.WsiSlideSource;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.junit.Test;
@@ -20,7 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-/** Exercises the access lookup SQL against the resource fixture rows. */
+/** Exercises the slide lookup SQL against the resource fixture rows. */
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
 @DataJpaTest
@@ -29,8 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @ContextConfiguration(initializers = AbstractTestcontainers.Initializer.class)
 public class ClickhouseWsiSlideAccessMapperTest {
 
-  private static final long WSI_TEST_STUDY = 9001L;
-  private static final long WSI_SNAPSHOT_STUDY = 9002L;
+  private static final String WSI_TEST_STUDY = "wsi_test_study";
+  private static final String WSI_SNAPSHOT_STUDY = "wsi_snapshot_study";
 
   private static final String SAMPLE_SLIDE_KEY = "2351e12d4955";
   private static final String PATIENT_SLIDE_KEY = "b3286836fc27";
@@ -42,41 +40,28 @@ public class ClickhouseWsiSlideAccessMapperTest {
   @Autowired private ClickhouseWsiSlideAccessMapper mapper;
 
   @Test
-  public void readsServingMetadataForTheSlideKey() {
+  public void readsTheCapabilityInputsOfAServableSlide() {
     Map<String, Object> row =
         mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", SAMPLE_SLIDE_KEY);
 
     assertNotNull(row);
-    assertEquals(SAMPLE_SLIDE_KEY, row.get("slide_key"));
-    // sealed_source is read from the private wsi_serving object only to be forwarded as the
-    // capability's enc claim.
-    assertEquals(SAMPLE_SEALED_SOURCE, row.get("sealed_source"));
-    for (String removed : new String[] {"image_id", "source_url", "thumbnail_url"}) {
-      assertFalse("mapper selects " + removed, row.containsKey(removed));
-    }
-    assertEquals(128, ((Number) row.get("thumbnail_width")).intValue());
-    assertEquals(64, ((Number) row.get("thumbnail_height")).intValue());
-    assertEquals("image/jpeg", row.get("thumbnail_content_type"));
+    assertEquals(
+        new WsiSlideSource(SAMPLE_SLIDE_KEY, SAMPLE_SEALED_SOURCE, 128, 64),
+        ClickhouseWsiSlideAccessRepository.servableSource(SAMPLE_SLIDE_KEY, row));
   }
 
   @Test
-  public void servableFixtureRowPassesTheServabilityChecks() {
-    assertTrue(
-        ClickhouseWsiSlideAccessRepositoryTest.isServableRow(
-            mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", SAMPLE_SLIDE_KEY),
-            new ObjectMapper()));
-  }
-
-  @Test
-  public void findsUnmatchedPatientSlidesWithoutServingData() {
+  public void findsUnmatchedPatientSlidesThatCannotServeTiles() {
     Map<String, Object> row =
         mapper.getSlideAccess(WSI_TEST_STUDY, "WSI-PATIENT", PATIENT_SLIDE_KEY);
 
     assertNotNull(row);
-    assertEquals(PATIENT_SLIDE_KEY, row.get("slide_key"));
-    // A slide that cannot serve tiles has no wsi_serving object, so it is not servable.
-    assertEquals("", row.get("sealed_source"));
-    assertFalse(ClickhouseWsiSlideAccessRepositoryTest.isServableRow(row, new ObjectMapper()));
+    assertNull(ClickhouseWsiSlideAccessRepository.servableSource(PATIENT_SLIDE_KEY, row));
+  }
+
+  @Test
+  public void returnsNullForUnknownStudy() {
+    assertNull(mapper.getSlideAccess("no_such_study", "WSI-PATIENT", SAMPLE_SLIDE_KEY));
   }
 
   @Test

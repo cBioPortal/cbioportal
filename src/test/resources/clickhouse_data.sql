@@ -742,49 +742,14 @@ insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer
 values (9001,'wsi_test_study','dummy','WSI test study','WSI fixture',1);
 insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
 values (9002,'wsi_snapshot_study','dummy','WSI snapshot study','WSI fixture',1);
-insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
-values (9004,'wsi_missing_data_study','dummy','WSI missing data study','WSI fixture',1);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
 insert into patient (internal_id,stable_id,cancer_study_id) values (9002,'SNAPSHOT-PATIENT',9002);
-insert into patient (internal_id,stable_id,cancer_study_id) values (9004,'MISSING-DATA',9004);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
 insert into sample (internal_id,stable_id,sample_type,patient_id) values (9002,'active-sample','primary tumor',9002);
 
--- Resource table privacy fixture. Kept in its own study so the study_tcga_pub resource counts
--- used by other tests are unchanged.
---  * WSI_SAMPLE (900501/900502) must never reach the generic resource APIs at all: not as rows,
---    tabs, search/filter matches, facets or discovered keys. Their public text ("Masson
---    trichrome", "liver") and slide keys appear nowhere else in the study.
---  * EXTERNAL_SLIDES (900505/900506) are slide links outside the WSI resources, shown
---    in the generic table.
-insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
-values (9005,'wsi_resource_table_study','dummy','WSI resource table study','resource table privacy fixture',1);
-insert into patient (internal_id,stable_id,cancer_study_id) values (9005,'WSI-TABLE-PATIENT',9005);
-insert into sample (internal_id,stable_id,sample_type,patient_id) values (9005,'WSI-TABLE-SAMPLE-1','primary tumor',9005);
-insert into sample (internal_id,stable_id,sample_type,patient_id) values (9006,'WSI-TABLE-SAMPLE-2','primary tumor',9005);
-insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
-values ('WSI_SAMPLE',9005,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
-insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
-values ('PATHOLOGY_NOTES',9005,'PATIENT','Pathology notes','Free-text notes',0,2);
-insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
-values ('EXTERNAL_SLIDES',9005,'SAMPLE','External slides','Slide links outside the WSI resources',0,3);
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900501,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=5d41402abc4b','Masson trichrome - Specimen 1 / Block 1','{"slide_key":"5d41402abc4b","stain_name":"Masson trichrome","part_description":"liver wedge biopsy","wsi_serving":{"sealed_source":"zzz-wsipath-1-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}}');
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900502,'WSI_SAMPLE',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://portal.example.org/wsi/patient/WSI-TABLE-PATIENT?studyId=wsi_resource_table_study&slideKey=7d793037a076','Masson trichrome - Specimen 2 / Block 1','{"slide_key":"7d793037a076","stain_name":"Masson trichrome","part_description":"liver margin","wsi_serving":{"sealed_source":"aaa-wsipath-2-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}}');
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900505,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-1','https://slides.example.org/viewer/ext-1','External slide 1','{"stain_name":"Periodic acid-Schiff","part_description":"left kidney core biopsy"}');
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900506,'EXTERNAL_SLIDES',9005,'SAMPLE','WSI-TABLE-PATIENT','WSI-TABLE-SAMPLE-2','https://slides.example.org/viewer/ext-2','External slide 2','{"stain_name":"H&E, Initial","part_description":"right kidney margin"}');
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900503,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/1.pdf','Board note','{"note":"Reviewed by tumor board"}');
-insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
-values (900504,'PATHOLOGY_NOTES',9005,'PATIENT','WSI-TABLE-PATIENT',NULL,'https://example.com/notes/2.pdf','Follow-up note','{"note":"Follow-up imaging"}');
-
--- WSI is served exclusively from generic resource. The nested wsi_serving object is
--- intentionally absent from generic table responses and is read only by the access repository.
--- The servable rows' sealed_source values are well-formed seals (contract wsi-serving-v6 test
--- key); cBioPortal never decrypts them, it only checks their shape and forwards them.
+-- WSI slide rows. The access endpoint reads sealed_source and the thumbnail size from a servable
+-- row's wsi_serving object and forwards them in the tile capability; cBioPortal never decrypts
+-- sealed_source (contract test key).
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
 values ('WSI_SAMPLE',9001,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)

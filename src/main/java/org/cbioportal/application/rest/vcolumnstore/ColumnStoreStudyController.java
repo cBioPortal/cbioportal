@@ -213,14 +213,13 @@ public class ColumnStoreStudyController {
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
 
-                    // A locked study is unreadable when availability checking is enabled.
+                    // A locked study is always unreadable.
                     // Do not let the permission evaluator override this restriction.
-                    if (studyAvailabilityEnabled && Integer.valueOf(0).equals(study.status())) {
+                    if (Integer.valueOf(0).equals(study.status())) {
                       hasReadPermission = false;
                     }
 
                     hasReadPermission &= !unavailable.containsKey(study.cancerStudyIdentifier());
-
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })
               .toList();

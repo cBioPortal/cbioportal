@@ -34,7 +34,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
  * Unit tests for {@link ColumnStoreStudyController}.
  *
  * <p>Covers pagination and read-permission mapping, including the rule that locked studies are
- * reported as unreadable when study availability checking is enabled.
+ * always reported as unreadable.
  */
 class ColumnStoreStudyControllerTest {
 
@@ -228,7 +228,7 @@ class ColumnStoreStudyControllerTest {
   }
 
   @Test
-  void getAllStudies_whenAvailabilityDisabled_statusDoesNotAffectReadPermission() throws Exception {
+  void getAllStudies_whenAvailabilityDisabled_lockedStudyIsUnreadable() throws Exception {
     CancerStudyMetadata lockedStudy = Mockito.mock(CancerStudyMetadata.class);
     Mockito.when(lockedStudy.cancerStudyIdentifier()).thenReturn("locked_study");
     Mockito.when(lockedStudy.status()).thenReturn(0);
@@ -268,7 +268,7 @@ class ColumnStoreStudyControllerTest {
                   .accept(MediaType.APPLICATION_JSON))
           .andExpect(MockMvcResultMatchers.status().isOk())
           .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value("locked_study"))
-          .andExpect(MockMvcResultMatchers.jsonPath("$[0].readPermission").value(true));
+          .andExpect(MockMvcResultMatchers.jsonPath("$[0].readPermission").value(false));
     }
 
     Mockito.verify(unavailableStudyIdentifiers, Mockito.never()).get();

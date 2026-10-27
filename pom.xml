@@ -12,7 +12,7 @@
 
   <groupId>io.github.cbioportal</groupId>
   <artifactId>cbioportal</artifactId>
-  <version>v7.2.1-SNAPSHOT</version>
+  <version>v7.2.3-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>cBioPortal for Cancer Genomics</description>
 
@@ -28,7 +28,7 @@
     <!-- TODO replace with version of cbioportal frontend with compatible login url-->
     <frontend.groupId>io.github.cbioportal</frontend.groupId>
     <frontend.artifactId>frontend-cbioportal</frontend.artifactId>
-    <frontend.version>v7.2.0</frontend.version>
+    <frontend.version>v7.2.2</frontend.version>
     <!-- THIS SHOULD BE KEPT IN SYNC WITH src/main/resources/db-scripts/clickhouse/init/schema.sql
          AND src/main/resources/db-scripts/clickhouse/migrate/migrate_schema.sql -->
     <db.version>3.1.0</db.version>
@@ -139,8 +139,8 @@
   <url>https://www.cbioportal.org</url>
   <licenses>
     <license>
-      <name>GNU AFFERO GENERAL PUBLIC LICENSE v3.0</name>
-      <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+      <name>Apache-2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0</url>
     </license>
   </licenses>
   <developers>

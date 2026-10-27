@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceServingMapper">
+    <!--
+      One of the study patient's rows of the resource, found by its serving key. The study,
+      resource and patient constants are in PREWHERE, so the read is pruned by the resource
+      table's sorting key to that patient's rows.
+    -->
+    <select id="getServing" resultType="hashmap">
+        SELECT
+            JSONExtractString(ifNull(r.metadata, '{}'), 'serving', 'sealed_source') AS sealed_source,
+            JSONExtract(ifNull(r.metadata, '{}'), 'serving', 'thumbnail_width', 'Nullable(UInt32)') AS thumbnail_width,
+            JSONExtract(ifNull(r.metadata, '{}'), 'serving', 'thumbnail_height', 'Nullable(UInt32)') AS thumbnail_height
+        FROM resource r
+        PREWHERE r.cancer_study_id = (
+                SELECT cancer_study_id FROM cancer_study WHERE cancer_study_identifier = #{studyId}
+            )
+            AND r.resource_id = #{resourceId}
+            AND r.patient_id = #{patientId}
+        WHERE JSONExtractString(ifNull(r.metadata, '{}'), 'serving', 'key') = #{key}
+        LIMIT 1
+    </select>
+</mapper>

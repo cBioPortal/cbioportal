@@ -23,7 +23,6 @@ import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
-import org.cbioportal.domain.wsi.WsiDeidentification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -141,34 +140,18 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         && schema.fieldsByKey().values().stream().allMatch(field -> field.type() != null);
   }
 
-  /*
-   * WSI_SAMPLE / WSI_PATIENT rows are excluded in SQL by every statement (ExcludeWsiResourceRows in
-   * ResourceDataMapper.xml). Each entry point below checks again here so a future statement that
-   * forgets the predicate still cannot hand a slide row, or anything derived from one, to the
-   * generic resource table: tabs, rows (query/fetch), and columns, facets, ranges and counts
-   * (metadata/fetch).
-   */
-
   @Override
   public List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request) {
-    return mapper.getResourceTableTabs(request).stream()
-        .filter(tab -> !WsiDeidentification.isWsiResourceId(tab.resourceId()))
-        .toList();
+    return mapper.getResourceTableTabs(request);
   }
 
   @Override
   public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
-      return List.of();
-    }
     return mapper.getResourceTableRows(query);
   }
 
   @Override
   public ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
-      return ResourceTableMetadataView.empty();
-    }
     // Facets and key discovery are always computed against the query with ALL column-level filters
     // removed (only resourceId/study/patient/sample/search scoping kept). This keeps every filter
     // dropdown showing its full, stable option set regardless of what is currently selected in ANY
@@ -406,9 +389,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
-    if (WsiDeidentification.isWsiResourceId(query.resourceId())) {
-      return ResourceTableCounts.empty();
-    }
     ResourceTableCounts counts = mapper.getResourceTableCounts(query);
     return counts == null ? ResourceTableCounts.empty() : counts;
   }

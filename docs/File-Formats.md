@@ -291,11 +291,16 @@ cbioportal-core's
 
 The viewer lists a patient's slides through the generic resource API
 (`POST /api/resource-table/query/fetch` for `WSI_SAMPLE` and `WSI_PATIENT`).
-To open a slide it asks the portal for a tile capability,
-`GET /api/wsi/v2/resources/{studyId}/{patientId}/access?slideKey=`, which
-requires login and read access to the study. The capability is an HS256 JWT
-signed with `wsi.access-token-secret`; it carries the slide key and, as its
-`enc` claim, the row's `sealed_source`, which only the tile server can open.
+
+Any resource can be opened through the tile server: a row with a
+`metadata.serving` object (`key`, an upstream-sealed `sealed_source` and the
+thumbnail size) gets a tile capability from
+`GET /api/resources/{studyId}/{resourceId}/access?key=` (optionally
+`&patientId=`, which narrows the lookup to that patient's rows). Whoever may
+read the study may call it. The capability is an HS256 JWT signed with
+`wsi.access-token-secret`; it carries the study, the resource id and the key,
+and, as its `enc` claim, the row's `sealed_source`, which only the tile server
+can open. For whole-slide images the serving key is the slide key.
 Configure the portal with:
 
 ```properties

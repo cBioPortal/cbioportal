@@ -22,7 +22,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * The slide viewer lists a patient's slides through the generic resource table API. Its rows must
- * carry the slide fields and the nested wsi_serving object as JSON objects.
+ * carry the slide fields and the nested serving object as JSON objects.
  */
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
@@ -60,8 +60,8 @@ public class ClickhouseWsiResourceRowsTest {
     ResourceTableRow row = rows.get(0);
     assertThat(row.sampleId()).isEqualTo("WSI-SAMPLE");
     assertThat(row.metadata()).containsEntry("slide_key", "2351e12d4955");
-    Map<String, Object> serving = (Map<String, Object>) row.metadata().get("wsi_serving");
-    assertThat(serving).containsKey("sealed_source");
+    Map<String, Object> serving = (Map<String, Object>) row.metadata().get("serving");
+    assertThat(serving).containsEntry("key", "2351e12d4955").containsKey("sealed_source");
     assertThat(serving.get("tile_metadata_json")).isInstanceOf(Map.class);
   }
 

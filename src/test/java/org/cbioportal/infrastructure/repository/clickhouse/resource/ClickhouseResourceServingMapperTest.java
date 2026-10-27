@@ -39,7 +39,7 @@ public class ClickhouseResourceServingMapperTest {
 
   @Test
   public void findsARowByItsServingKey() {
-    Map<String, Object> row = mapper.getServing(STUDY, "WSI_SAMPLE", SLIDE_KEY, null);
+    Map<String, Object> row = mapper.getServing(STUDY, "WSI_SAMPLE", SLIDE_KEY, "WSI-PATIENT");
 
     assertNotNull(row);
     assertEquals(
@@ -48,7 +48,7 @@ public class ClickhouseResourceServingMapperTest {
   }
 
   @Test
-  public void narrowsToThePatientWhenGiven() {
+  public void findsOnlyThePatientsRows() {
     assertNotNull(mapper.getServing(STUDY, "WSI_SAMPLE", SLIDE_KEY, "WSI-PATIENT"));
     assertNull(mapper.getServing(STUDY, "WSI_SAMPLE", SLIDE_KEY, "SNAPSHOT-PATIENT"));
   }
@@ -57,20 +57,20 @@ public class ClickhouseResourceServingMapperTest {
   public void servesAnyResourceWithServingData() {
     // OTHER_SLIDES is not a WSI resource; its row carries serving data, so it can be opened under
     // its own resource id, and only there.
-    assertNotNull(mapper.getServing(STUDY, "OTHER_SLIDES", OTHER_RESOURCE_KEY, null));
-    assertNull(mapper.getServing(STUDY, "WSI_SAMPLE", OTHER_RESOURCE_KEY, null));
+    assertNotNull(mapper.getServing(STUDY, "OTHER_SLIDES", OTHER_RESOURCE_KEY, "WSI-PATIENT"));
+    assertNull(mapper.getServing(STUDY, "WSI_SAMPLE", OTHER_RESOURCE_KEY, "WSI-PATIENT"));
   }
 
   @Test
   public void findsNoServingKeyForARowWithoutServingData() {
     // The unmatched WSI_PATIENT slide cannot serve tiles, so it has no serving object.
-    assertNull(mapper.getServing(STUDY, "WSI_PATIENT", UNSERVABLE_SLIDE_KEY, null));
+    assertNull(mapper.getServing(STUDY, "WSI_PATIENT", UNSERVABLE_SLIDE_KEY, "WSI-PATIENT"));
   }
 
   @Test
   public void returnsNullForAnotherStudyOrAnUnknownKey() {
-    assertNull(mapper.getServing("wsi_snapshot_study", "WSI_SAMPLE", SLIDE_KEY, null));
-    assertNull(mapper.getServing("no_such_study", "WSI_SAMPLE", SLIDE_KEY, null));
-    assertNull(mapper.getServing(STUDY, "WSI_SAMPLE", "0".repeat(12), null));
+    assertNull(mapper.getServing("wsi_snapshot_study", "WSI_SAMPLE", SLIDE_KEY, "WSI-PATIENT"));
+    assertNull(mapper.getServing("no_such_study", "WSI_SAMPLE", SLIDE_KEY, "WSI-PATIENT"));
+    assertNull(mapper.getServing(STUDY, "WSI_SAMPLE", "0".repeat(12), "WSI-PATIENT"));
   }
 }

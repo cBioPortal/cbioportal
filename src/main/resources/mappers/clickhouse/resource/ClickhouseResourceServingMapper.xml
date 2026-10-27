@@ -3,9 +3,9 @@
 
 <mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceServingMapper">
     <!--
-      One row of the study's resource, found by its serving key. The study, resource and (when
-      given) patient constants are in PREWHERE, so the read is pruned by the resource table's
-      sorting key; without a patient it reads the whole resource of the study.
+      One of the study patient's rows of the resource, found by its serving key. The study,
+      resource and patient constants are in PREWHERE, so the read is pruned by the resource
+      table's sorting key to that patient's rows.
     -->
     <select id="getServing" resultType="hashmap">
         SELECT
@@ -17,9 +17,7 @@
                 SELECT cancer_study_id FROM cancer_study WHERE cancer_study_identifier = #{studyId}
             )
             AND r.resource_id = #{resourceId}
-            <if test="patientId != null">
             AND r.patient_id = #{patientId}
-            </if>
         WHERE JSONExtractString(ifNull(r.metadata, '{}'), 'serving', 'key') = #{key}
         LIMIT 1
     </select>

@@ -37,7 +37,7 @@ public class ResourceAccessController {
   static final int TILE_AUTH_VERSION = 4;
 
   private static final Pattern RESOURCE_ID = Pattern.compile("[A-Za-z0-9_]{1,128}");
-  private static final Pattern KEY = Pattern.compile("[A-Za-z0-9._-]{1,128}");
+  private static final Pattern KEY = Pattern.compile("[A-Za-z0-9_-]{1,128}");
 
   @Value("${wsi.access-token-secret:}")
   private String accessTokenSecret;
@@ -55,9 +55,9 @@ public class ResourceAccessController {
   }
 
   /**
-   * Returns a tile capability for the study's {@code resourceId} row whose serving key is {@code
-   * key}. {@code patientId} is optional; when given, only that patient's rows are searched. The
-   * row's sealed source is copied verbatim into the capability's {@code enc} claim.
+   * Returns a tile capability for the study patient's {@code resourceId} row whose serving key is
+   * {@code key}. The patient keeps the lookup to that patient's rows. The row's sealed source is
+   * copied verbatim into the capability's {@code enc} claim.
    */
   @GetMapping("/{studyId}/{resourceId}/access")
   @PreAuthorize(
@@ -73,7 +73,8 @@ public class ResourceAccessController {
         || !RESOURCE_ID.matcher(resourceId).matches()
         || key == null
         || !KEY.matcher(key).matches()
-        || (patientId != null && patientId.isBlank())) {
+        || patientId == null
+        || patientId.isBlank()) {
       return privateResponse(HttpStatus.BAD_REQUEST).build();
     }
     if (accessTokenSecret == null

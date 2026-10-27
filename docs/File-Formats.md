@@ -295,9 +295,9 @@ The viewer lists a patient's slides through the generic resource API
 Any resource can be opened through the tile server: a row with a
 `metadata.serving` object (`key`, an upstream-sealed `sealed_source` and the
 thumbnail size) gets a tile capability from
-`GET /api/resources/{studyId}/{resourceId}/access?key=` (optionally
-`&patientId=`, which narrows the lookup to that patient's rows). Whoever may
-read the study may call it. The capability is an HS256 JWT signed with
+`GET /api/resources/{studyId}/{resourceId}/access?key=&patientId=`, which
+looks the key up among that patient's rows. Whoever may read the study may
+call it. The capability is an HS256 JWT signed with
 `wsi.access-token-secret`; it carries the study, the resource id and the key,
 and, as its `enc` claim, the row's `sealed_source`, which only the tile server
 can open. For whole-slide images the serving key is the slide key.

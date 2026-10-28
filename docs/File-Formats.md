@@ -41,7 +41,12 @@ Each molecular profile is defined by one metadata file, and its data must be in 
 
 The additional preprocessing checks described here are opt-in. Run `validateData.py --strict -s STUDY_DIRECTORY` (or pass `--strict` to `metaImport.py`) to check OncoTree annotations, CNA gene identifier syntax and duplicates, unreferenced clinical/timeline/mutation files, mutation samples missing from `_sequenced`, and additional generated case lists. `--strict-mode` is an alias. Without this flag, existing validation errors and warnings still apply, but these additional requirements are not enforced. The existing `--strict_maf_checks` (`-m`) flag controls separate mutation-file checks; neither flag enables the other.
 
-Strict validation reports problems without rewriting study data. For OncoTree checks, select the destination database's reference using `--oncotree-version VERSION`, or supply a matching `oncotree.json` with the other saved portal information through `-p DIRECTORY`. The default version is `oncotree_latest_stable`; it is not automatically matched to the destination database. Without `--strict`, validation does not load or download an OncoTree reference.
+Strict validation reports problems without rewriting study data. For OncoTree checks, the reference should match the destination database, but the validator does not discover that database's reference automatically:
+
+- With `-p DIRECTORY`, strict validation reads `DIRECTORY/oncotree.json` alongside the saved portal information. This file takes precedence over `--oncotree-version`. If it is missing or invalid, the OncoTree check reports an error; it does not fall back to a download.
+- Without `-p`, strict validation downloads the release selected by `--oncotree-version VERSION`. The default is `oncotree_latest_stable`, which may differ from the destination database's reference.
+
+Without `--strict`, validation does not load or download an OncoTree reference.
 
 # Formats
 
@@ -289,7 +294,9 @@ These columns can be in either the patient or sample file.
 
 The code and label matching checks in this section run only with `--strict`.
 
-`ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference loaded in the destination portal database. Validate against that database's reference, rather than an independently selected release or the latest OncoTree release.
+`ONCOTREE_CODE` is optional. When provided, each populated code must exist in the OncoTree reference used for validation. Codes are case-sensitive: `luad` does not match `LUAD`. Leading and trailing whitespace is ignored for the matching check; the study file is not rewritten.
+
+The validation reference should match the OncoTree reference loaded in the destination portal database. The current validator uses the supplied JSON or selected release described in [Validation modes](#validation-modes); it does not automatically validate against the database's `type_of_cancer` table.
 
 For a sample with an OncoTree code, any populated `CANCER_TYPE` must match the code's `mainType`, and any populated `CANCER_TYPE_DETAILED` must match its `name`. These names are case-sensitive. For example, for `LUAD`, the corresponding values are `Lung` and `Lung Adenocarcinoma` in a reference containing those names.
 
@@ -301,9 +308,9 @@ An empty value, `NA`, `N/A`, `Not Available`, `[Not Available]`, or `[Not Applic
 
 The following update policy is proposed for review; it is not a description of automatic behavior in the current importer.
 
-Before updating a portal database's OncoTree reference, identify affected codes and studies and notify users. List the affected codes, the number and proportion of studies affected, and whether each code has a direct successor, requires a curator to choose among successors, or has no replacement. Allow users to prepare corrections before the update.
+Before updating a portal database's OncoTree reference, compare its current reference with the proposed replacement, identify affected codes and studies, and notify users. List the affected codes, the number and proportion of studies affected, and whether each code has a direct successor, requires a curator to choose among successors, or has no replacement. Allow users to prepare corrections before the update, and ask anyone concerned about an affected study to contact the portal maintainers.
 
-Where a direct successor exists, migrate the code and its cancer type labels together. Where an update leaves a sample's code invalid and no replacement has been established, keep the study and set that sample's `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` to `NA`. Notify users of the lost annotations. Retain an audit record with the study ID, sample ID, previous values of all three fields, and the old and new reference versions. Choices among multiple successors require curation. The study-level `type_of_cancer` also needs review when its code changes; the sample-level policy does not define how to migrate it.
+Where a direct successor exists, migrate the code and its cancer type labels together, using a mapping script such as `oncotree_to_oncotree.py` or an equivalent reviewed mapping. Where an update leaves a sample's code invalid and no replacement has been established, keep the study and set that sample's `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` to `NA`. Notify users of the lost annotations. Retain an audit record with the study ID, sample ID, previous values of all three fields, and the old and new reference versions. Choices among multiple successors require curation. The study-level `type_of_cancer` also needs review when its code changes; the sample-level policy does not define how to migrate it.
 
 ### Custom columns in clinical data
 cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
@@ -370,13 +377,15 @@ For each gene-sample combination, a copy number level is specified:
 
 ##### Gene identifiers and duplicate rows
 
-By default, duplicate genes produce warnings and later duplicate rows are skipped. With `--strict`, duplicate CNA genes are errors, and CNA Entrez IDs must contain only digits representing a positive signed 32-bit integer. Unresolved genes remain warnings. The duplicate-row checks for expression and methylation remain warnings in both modes; the guidance below describes how to prepare unambiguous input.
+By default, duplicate genes produce warnings and later duplicate rows are skipped during import. With `--strict`, duplicate CNA genes are errors, and supplied CNA Entrez IDs must contain only digits representing a positive integer, without a decimal point or sign. Unresolved genes remain warnings. The duplicate-row checks for expression and methylation remain warnings in both modes.
 
-These rules apply to wide-format discrete and continuous copy number, expression, and methylation data: a matrix with one gene per row and one sample per column. Each gene must appear at most once in each file. Every data row is resolved to a single Entrez gene ID, the portal's gene identifier: `Entrez_Gene_Id` is used when present, and otherwise the gene symbol or alias in `Hugo_Symbol`. No Entrez gene ID may be resolved from more than one row, so two different symbols that resolve to the same gene are still duplicates. Remove identical duplicate rows. If duplicate rows have different values for a sample, choose a single value before import. The most reliable way to choose is to ask the lab or center that produced the calls. Do not rely on row order to decide which value is loaded.
+The following preparation guidance applies to wide-format discrete and continuous copy number, expression, and methylation data: a matrix with one gene per row and one sample per column. Every data row is resolved to a single Entrez gene ID, the portal's gene identifier: `Entrez_Gene_Id` is used when present, and otherwise the gene symbol or alias in `Hugo_Symbol`. For CNA files validated with `--strict`, no Entrez gene ID may be resolved from more than one row, so two different symbols that resolve to the same gene are still duplicates. For expression, methylation, and default-mode CNA validation, such duplicates remain warnings.
 
-For example, two rows with `Entrez_Gene_Id` set to `7157` describe the same gene, even if their `Hugo_Symbol` values differ. They must be combined into one row. The integer spellings `07157` and `7157` also identify the same gene.
+To avoid losing later rows during import, remove identical duplicate rows and curate conflicting values into a single row per gene before import. The most reliable way to choose is to ask the lab or center that produced the calls. Do not rely on row order to decide which value is loaded.
 
-When supplied, `Entrez_Gene_Id` must contain a positive integer written as digits, without a decimal point or sign. A row that cannot be matched to an Entrez gene ID in the portal's `gene` table produces a validation warning and is skipped during import.
+For example, strict CNA validation treats two rows with `Entrez_Gene_Id` set to `7157` as duplicates even if their `Hugo_Symbol` values differ. It also normalizes the integer spellings `07157` and `7157` to the same gene ID. That normalization is limited to CNA under `--strict`: default-mode CNA, expression, and methylation validation count those two spellings as different gene identifiers.
+
+The file format does not impose a signed 32-bit maximum on Entrez gene IDs; the portal's `gene.entrez_gene_id` field is `Int64`. The companion validator in [cbioportal-core #183](https://github.com/cBioPortal/cbioportal-core/pull/183) currently rejects strict CNA IDs above `2147483647`; removing that implementation restriction remains follow-up work in that PR. A row that cannot be matched to an Entrez gene ID in the portal's `gene` table produces a validation warning and is skipped during import.
 
 ##### Example
 An example data file which includes the required column header would look like:

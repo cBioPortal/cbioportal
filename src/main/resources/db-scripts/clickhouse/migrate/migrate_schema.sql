@@ -143,16 +143,12 @@ DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
 
 ## db_schema_version: 3.2.0
-## description: Add allele-specific copy number (ASCN) tables ascn_seg (segment-level) and ascn_gene_level (gene-level)
+## description: Add allele-specific copy number (ASCN) table ascn_seg (segment-level)
 CREATE TABLE IF NOT EXISTS ascn_seg
 (
     `seg_id` Int64,
     `cancer_study_id` Int64,
     `sample_id` Int64,
-    `chr` LowCardinality(String),
-    `start` Int64,
-    `end` Int64,
-    `log_ratio` Nullable(Float64),
     `tcn` Nullable(Int32),
     `lcn` Nullable(Int32),
     `cellular_fraction` Nullable(Float64),
@@ -161,25 +157,4 @@ CREATE TABLE IF NOT EXISTS ascn_seg
     `dip_log_r` Nullable(Float64)
 )
     ENGINE = MergeTree
-ORDER BY (cancer_study_id, sample_id, chr, start);
-
-CREATE TABLE IF NOT EXISTS ascn_gene_level
-(
-    `gene_id` Int64,
-    `cancer_study_id` Int64,
-    `sample_id` Int64,
-    `hugo_gene_symbol` String,
-    `entrez_gene_id` Int64,
-    `chr` LowCardinality(String),
-    `gene_start` Int64,
-    `gene_end` Int64,
-    `tcn` Nullable(Int32),
-    `lcn` Nullable(Int32),
-    `cellular_fraction` Nullable(Float64),
-    `purity` Nullable(Float64),
-    `ploidy` Nullable(Float64),
-    `dip_log_r` Nullable(Float64),
-    INDEX idx_ascn_gene_level_hugo_symbol hugo_gene_symbol TYPE bloom_filter GRANULARITY 4
-)
-    ENGINE = MergeTree
-ORDER BY (cancer_study_id, sample_id, hugo_gene_symbol);
+ORDER BY (cancer_study_id, sample_id, seg_id);

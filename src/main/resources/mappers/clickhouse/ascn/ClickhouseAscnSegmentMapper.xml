@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.ascn.ClickhouseAscnSegmentMapper">
+
+    <resultMap id="AscnSegmentResultMap" type="org.cbioportal.domain.ascn.AscnSegment">
+        <constructor>
+            <arg name="segId" column="segId" javaType="Long"/>
+            <arg name="cancerStudyId" column="cancerStudyId" javaType="Long"/>
+            <arg name="sampleId" column="sampleId" javaType="Long"/>
+            <arg name="tcn" column="tcn" javaType="Integer"/>
+            <arg name="lcn" column="lcn" javaType="Integer"/>
+            <arg name="cellularFraction" column="cellularFraction" javaType="Double"/>
+            <arg name="purity" column="purity" javaType="Double"/>
+            <arg name="ploidy" column="ploidy" javaType="Double"/>
+            <arg name="dipLogR" column="dipLogR" javaType="Double"/>
+        </constructor>
+    </resultMap>
+
+    <!-- Always constrains results to the supplied studies; sampleIds, when given, narrows to those samples (matched independently of the study pairing, like the mutation mapper). -->
+    <sql id="filterAscnSegments">
+        <where>
+            <bind name="studyIdsArray" value="studyIds.toArray(new String[studyIds.size()])"/>
+            <if test="studyIds.isEmpty() or (sampleIds != null and sampleIds.isEmpty())">
+                1 = 0
+            </if>
+            <if test="!studyIds.isEmpty() and (sampleIds == null or !sampleIds.isEmpty())">
+                <if test="sampleIds == null">
+                    sd.cancer_study_identifier IN (#{studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+                <if test="sampleIds != null">
+                    <bind name="sampleIdsArray" value="sampleIds.toArray(new String[sampleIds.size()])"/>
+                    <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() == 1">
+                        sd.cancer_study_identifier = #{studyIds[0]}
+                    </if>
+                    <if test="@java.util.Arrays@stream(studyIds.toArray()).distinct().count() > 1">
+                        sd.cancer_study_identifier IN (#{studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                    </if>
+                    AND sd.sample_stable_id IN (#{sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <select id="getAscnSegments" resultMap="AscnSegmentResultMap">
+        SELECT
+            a.seg_id AS segId,
+            a.cancer_study_id AS cancerStudyId,
+            a.sample_id AS sampleId,
+            a.tcn AS tcn,
+            a.lcn AS lcn,
+            a.cellular_fraction AS cellularFraction,
+            a.purity AS purity,
+            a.ploidy AS ploidy,
+            a.dip_log_r AS dipLogR
+        FROM ascn_seg a
+        INNER JOIN sample_derived sd ON a.sample_id = sd.internal_id
+        <include refid="filterAscnSegments"/>
+        ORDER BY a.cancer_study_id ASC, a.sample_id ASC, a.seg_id ASC
+        <if test="limit != null and limit != 0">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+
+    <select id="getMetaAscnSegments" resultType="org.cbioportal.legacy.model.meta.BaseMeta">
+        SELECT
+            COUNT(*) AS totalCount
+        FROM ascn_seg a
+        INNER JOIN sample_derived sd ON a.sample_id = sd.internal_id
+        <include refid="filterAscnSegments"/>
+    </select>
+</mapper>

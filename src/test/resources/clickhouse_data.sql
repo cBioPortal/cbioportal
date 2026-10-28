@@ -736,3 +736,7 @@ insert into resource (internal_id, resource_id, cancer_study_id, resource_scope,
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (11, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-10.svs', 'Set 10', '{"score":10,"file_size_bytes":2000,"is_hne":false,"mpp":0.25}');
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (12, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-20.svs', 'Set 20', '{"score":20,"file_size_bytes":30,"is_hne":true,"mpp":1.0}');
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (13, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-100.svs', 'Set 100', '{"score":100,"file_size_bytes":400,"is_hne":false,"mpp":0.75}');
+
+insert into ascn_seg (seg_id, cancer_study_id, sample_id, tcn, lcn, cellular_fraction, purity, ploidy, dip_log_r) values (1, 1, 1, 3, 1, 0.8, 0.7, 2.1, 0.1);
+insert into ascn_seg (seg_id, cancer_study_id, sample_id, tcn, lcn, cellular_fraction, purity, ploidy, dip_log_r) values (2, 1, 1, 2, 0, 0.9, 0.7, 2.1, 0.1);
+insert into ascn_seg (seg_id, cancer_study_id, sample_id, tcn, lcn, cellular_fraction, purity, ploidy, dip_log_r) values (3, 1, 2, 4, 2, null, null, null, null);

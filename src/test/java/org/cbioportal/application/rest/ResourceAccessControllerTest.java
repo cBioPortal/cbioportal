@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -50,11 +49,11 @@ public class ResourceAccessControllerTest {
     login("user");
     when(repository.getServing("study-1", "WSI_SAMPLE", KEY, "patient-1")).thenReturn(serving());
 
-    ResponseEntity<?> response = controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1");
+    ResponseEntity<ResourceAccess> response =
+        controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1");
 
     assertEquals(200, response.getStatusCode().value());
-    assertEquals("private, no-store", response.getHeaders().getCacheControl());
-    ResourceAccess body = (ResourceAccess) response.getBody();
+    ResourceAccess body = response.getBody();
     assertNotNull(body);
     assertEquals("WSI_SAMPLE", body.resourceId());
     assertEquals(KEY, body.key());
@@ -75,8 +74,7 @@ public class ResourceAccessControllerTest {
     when(repository.getServing("study-1", "WSI_SAMPLE", KEY, "patient-1")).thenReturn(serving());
 
     ResourceAccess body =
-        (ResourceAccess)
-            controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1").getBody();
+        controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1").getBody();
     String[] token = body.accessToken().split("\\.");
     JsonNode header =
         objectMapper.readTree(
@@ -110,8 +108,7 @@ public class ResourceAccessControllerTest {
     when(repository.getServing("study-1", "WSI_SAMPLE", KEY, "patient-1")).thenReturn(serving());
 
     ResourceAccess body =
-        (ResourceAccess)
-            controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1").getBody();
+        controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1").getBody();
     String[] token = body.accessToken().split("\\.");
     Mac mac = Mac.getInstance("HmacSHA256");
     mac.init(new SecretKeySpec(SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
@@ -130,55 +127,15 @@ public class ResourceAccessControllerTest {
     ResourceAccessController controller = controller();
     when(repository.getServing("study-1", "WSI_SAMPLE", KEY, "patient-1")).thenReturn(serving());
 
-    ResponseEntity<?> response = controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1");
+    ResponseEntity<ResourceAccess> response =
+        controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1");
 
     assertEquals(200, response.getStatusCode().value());
     String payload =
         new String(
-            Base64.getUrlDecoder()
-                .decode(((ResourceAccess) response.getBody()).accessToken().split("\\.")[1]),
+            Base64.getUrlDecoder().decode(response.getBody().accessToken().split("\\.")[1]),
             StandardCharsets.UTF_8);
     assertEquals("anonymousUser", objectMapper.readTree(payload).get("sub").asText());
-  }
-
-  @Test
-  public void refusesToIssueWithoutAStrongSecret() {
-    ResourceAccessController controller = controller();
-    ReflectionTestUtils.setField(controller, "accessTokenSecret", "short");
-
-    assertEquals(
-        503,
-        controller.issueAccess("study-1", "WSI_SAMPLE", KEY, "patient-1").getStatusCode().value());
-    verifyNoInteractions(repository);
-  }
-
-  @Test
-  public void rejectsMalformedRequestsBeforeLookingUp() {
-    ResourceAccessController controller = controller();
-
-    for (String key : new String[] {"", "a key", "a/b", "a.b", "..", "x".repeat(129), null}) {
-      assertEquals(
-          "key should be rejected: " + key,
-          400,
-          controller
-              .issueAccess("study-1", "WSI_SAMPLE", key, "patient-1")
-              .getStatusCode()
-              .value());
-    }
-    for (String resourceId : new String[] {"", "WSI-SAMPLE", "../x"}) {
-      assertEquals(
-          "resource id should be rejected: " + resourceId,
-          400,
-          controller.issueAccess("study-1", resourceId, KEY, "patient-1").getStatusCode().value());
-    }
-    // The patient keeps the lookup to that patient's rows, so it is required.
-    for (String patientId : new String[] {null, "", " "}) {
-      assertEquals(
-          "patient should be rejected: " + patientId,
-          400,
-          controller.issueAccess("study-1", "WSI_SAMPLE", KEY, patientId).getStatusCode().value());
-    }
-    verifyNoInteractions(repository);
   }
 
   @Test

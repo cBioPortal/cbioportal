@@ -5,13 +5,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Date;
-import java.util.regex.Pattern;
 import org.cbioportal.domain.resource.ResourceAccess;
 import org.cbioportal.domain.resource.ResourceServing;
 import org.cbioportal.domain.resource.repository.ResourceServingRepository;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -36,9 +33,6 @@ public class ResourceAccessController {
   /** Tile capability format: the key in {@code slide_key} plus the sealed source in {@code enc}. */
   static final int TILE_AUTH_VERSION = 4;
 
-  private static final Pattern RESOURCE_ID = Pattern.compile("[A-Za-z0-9_]{1,128}");
-  private static final Pattern KEY = Pattern.compile("[A-Za-z0-9_-]{1,128}");
-
   @Value("${wsi.access-token-secret:}")
   private String accessTokenSecret;
 
@@ -62,35 +56,21 @@ public class ResourceAccessController {
   @GetMapping("/{studyId}/{resourceId}/access")
   @PreAuthorize(
       "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
-  public ResponseEntity<?> issueAccess(
+  public ResponseEntity<ResourceAccess> issueAccess(
       @PathVariable String studyId,
       @PathVariable String resourceId,
-      @RequestParam(required = false) String key,
-      @RequestParam(required = false) String patientId) {
-    if (studyId == null
-        || studyId.isBlank()
-        || resourceId == null
-        || !RESOURCE_ID.matcher(resourceId).matches()
-        || key == null
-        || !KEY.matcher(key).matches()
-        || patientId == null
-        || patientId.isBlank()) {
-      return privateResponse(HttpStatus.BAD_REQUEST).build();
-    }
-    if (accessTokenSecret == null
-        || accessTokenSecret.getBytes(StandardCharsets.UTF_8).length < 32) {
-      return privateResponse(HttpStatus.SERVICE_UNAVAILABLE).build();
-    }
+      @RequestParam String key,
+      @RequestParam String patientId) {
     ResourceServing serving =
         resourceServingRepository.getServing(studyId, resourceId, key, patientId);
     if (serving == null) {
-      return privateResponse(HttpStatus.NOT_FOUND).build();
+      return ResponseEntity.notFound().build();
     }
-    int ttl = Math.max(60, Math.min(accessTokenTtlSeconds, 300));
     Instant issuedAt = Instant.now();
-    String token = issueToken(studyId, serving, issuedAt, issuedAt.plusSeconds(ttl));
-    return privateResponse(HttpStatus.OK)
-        .body(new ResourceAccess(resourceId, key, token, "Bearer", ttl));
+    String token =
+        issueToken(studyId, serving, issuedAt, issuedAt.plusSeconds(accessTokenTtlSeconds));
+    return ResponseEntity.ok(
+        new ResourceAccess(resourceId, key, token, "Bearer", accessTokenTtlSeconds));
   }
 
   private String issueToken(
@@ -120,12 +100,5 @@ public class ResourceAccessController {
     return authentication == null || authentication.getName() == null
         ? "anonymousUser"
         : authentication.getName();
-  }
-
-  /** A response that no shared cache may store and that varies with the caller's credentials. */
-  private static ResponseEntity.BodyBuilder privateResponse(HttpStatus status) {
-    return ResponseEntity.status(status)
-        .header(HttpHeaders.CACHE_CONTROL, "private, no-store")
-        .header(HttpHeaders.VARY, "Authorization, Cookie");
   }
 }

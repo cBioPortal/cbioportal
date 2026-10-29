@@ -157,6 +157,13 @@ public class ClinicalEventMyBatisRepositoryTest {
   }
 
   @Test
+  public void getDataOfClinicalEventsEmptyIdsReturnsEmpty() throws Exception {
+
+    Assert.assertTrue(
+        clinicalEventMyBatisRepository.getDataOfClinicalEvents(new ArrayList<>()).isEmpty());
+  }
+
+  @Test
   public void getAllClinicalEventsInStudyIdProjection() throws Exception {
     List<ClinicalEvent> result =
         clinicalEventMyBatisRepository.getAllClinicalEventsInStudy(

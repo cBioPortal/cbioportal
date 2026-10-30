@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -130,6 +132,56 @@ public class ClinicalEventServiceImplTest extends BaseServiceImplTest {
     assertEquals(clinicalEvent, result.get(0));
     assertEquals(1, result.get(0).getAttributes().size());
     assertEquals(clinicalEventData, result.get(0).getAttributes().get(0));
+  }
+
+  @Test
+  public void getAllClinicalEventsInStudyEmptyPageSkipsDataQuery() {
+
+    when(clinicalEventRepository.getAllClinicalEventsInStudy(
+            STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(new ArrayList<>());
+
+    List<ClinicalEvent> result =
+        clinicalEventService.getAllClinicalEventsInStudy(
+            STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+    assertTrue(result.isEmpty());
+    verify(clinicalEventRepository, never()).getDataOfClinicalEvents(anyList());
+  }
+
+  @Test
+  public void getAllClinicalEventsInStudyAssignsAttributesByEventId() {
+
+    ClinicalEvent event1 = new ClinicalEvent();
+    event1.setClinicalEventId(1L);
+    ClinicalEvent event2 = new ClinicalEvent();
+    event2.setClinicalEventId(2L);
+    ClinicalEvent eventWithoutData = new ClinicalEvent();
+    eventWithoutData.setClinicalEventId(3L);
+
+    when(clinicalEventRepository.getAllClinicalEventsInStudy(
+            STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION))
+        .thenReturn(Arrays.asList(event1, event2, eventWithoutData));
+
+    ClinicalEventData data2a = clinicalEventData(2L, "a");
+    ClinicalEventData data1a = clinicalEventData(1L, "a");
+    ClinicalEventData data2b = clinicalEventData(2L, "b");
+    when(clinicalEventRepository.getDataOfClinicalEvents(Arrays.asList(1L, 2L, 3L)))
+        .thenReturn(Arrays.asList(data2a, data1a, data2b));
+
+    clinicalEventService.getAllClinicalEventsInStudy(
+        STUDY_ID, PROJECTION, PAGE_SIZE, PAGE_NUMBER, SORT, DIRECTION);
+
+    assertEquals(Arrays.asList(data1a), event1.getAttributes());
+    assertEquals(Arrays.asList(data2a, data2b), event2.getAttributes());
+    assertTrue(eventWithoutData.getAttributes().isEmpty());
+  }
+
+  private static ClinicalEventData clinicalEventData(Long clinicalEventId, String key) {
+    ClinicalEventData data = new ClinicalEventData();
+    data.setClinicalEventId(clinicalEventId);
+    data.setKey(key);
+    return data;
   }
 
   @Test

@@ -292,22 +292,17 @@ that can serve tiles, the `serving` object described below.
 The viewer lists a patient's slides through the generic resource API
 (`POST /api/resource-table/query/fetch` for `WSI_SAMPLE` and `WSI_PATIENT`).
 
-Any resource can be opened through the tile server: a row with a
-`metadata.serving` object (`key`, an upstream-sealed `sealed_source` and the
-thumbnail size) gets a tile capability from
-`GET /api/resources/{studyId}/{resourceId}/access?key=&patientId=`, which
-looks the key up among that patient's rows. Whoever may read the study may
-call it. The capability is an HS256 JWT signed with
-`wsi.access-token-secret`; it carries the study, the resource id and the key,
-and, as its `enc` claim, the row's `sealed_source`, which only the tile server
-can open. For whole-slide images the serving key is the slide key.
-Configure the portal with:
+For a slide that can serve tiles, `metadata.serving` carries the serving `key`
+(the slide key), an upstream-sealed `sealed_source`, the tile metadata and the
+thumbnail size. The viewer reads it from those resource rows and sends the key
+and the sealed source straight to the tile server. Access is checked at the
+ingress, which asks `GET /api/studies/{studyId}` with the user's session before
+passing a tile request on; the portal issues no tile tokens. Only the tile
+server can open the sealed source. Configure the portal with the tile server's
+URL:
 
 ```properties
 wsi.tile_server.url=https://cbioportal.example.org/wsi
-wsi.access-token-secret=<at least 32 bytes, shared with the tile server>
-wsi.access-token-audience=cbioportal-wsi
-wsi.access-token-ttl-seconds=300
 ```
 
 ## Discrete Copy Number Data

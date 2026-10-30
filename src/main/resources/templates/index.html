@@ -30,18 +30,21 @@
         <!-- write configuration to page so we do not have to load it via service-->
         window.rawServerConfig = [(${propertiesJson})];
 
-        if (/localdev=true/.test(window.location.href)) {
-            localStorage.setItem("localdev", "true");
+        // localdev can be "true" (port 3000) or a 4-digit port number, e.g. localdev=3001
+        var localdevParam = window.location.href.match(/localdev=(true|\d{4})\b/);
+        if (localdevParam) {
+            localStorage.setItem("localdev", localdevParam[1]);
         }
         if (/localdist=true/.test(window.location.href)) {
             localStorage.setItem("localdist", "true");
         }
-        window.localdev = localStorage.localdev === 'true';
+        var localdevPort = /^\d{4}$/.test(localStorage.localdev) ? localStorage.localdev : '3000';
+        window.localdev = localStorage.localdev === 'true' || /^\d{4}$/.test(localStorage.localdev);
         window.localdist = localStorage.localdist === 'true';
         window.netlify = localStorage.netlify;
 
         if (window.localdev || window.localdist) {
-            window.frontendConfig.frontendUrl = "https://localhost:3000/"
+            window.frontendConfig.frontendUrl = "https://localhost:" + localdevPort + "/"
             localStorage.setItem("e2etest", "true");
         } else if (window.netlify) {
             window.frontendConfig.frontendUrl = ['//',localStorage.netlify,'.netlify.app','/'].join('');

@@ -279,6 +279,32 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
+## Pathology Slide Data
+
+Whole-slide images (WSI) are imported as standard [Resource Data](#resource-data):
+one resource row per slide, in the `WSI_SAMPLE` resource (slides matched to a
+sample) or `WSI_PATIENT` (unmatched slides). A row's `URL` links to the
+standalone viewer (`/wsi/patient/{patientId}?studyId=…&slideKey=…`), and its
+`METADATA` holds the slide's fields: `slide_key`, part and block keys, numbers
+and labels, `match_level`, stain fields, `can_serve_tiles`, and, for a slide
+that can serve tiles, the `serving` object described below.
+
+The viewer lists a patient's slides through the generic resource API
+(`POST /api/resource-table/query/fetch` for `WSI_SAMPLE` and `WSI_PATIENT`).
+
+For a slide that can serve tiles, `metadata.serving` carries the serving `key`
+(the slide key), an upstream-sealed `sealed_source`, the tile metadata and the
+thumbnail size. The viewer reads it from those resource rows and sends the key
+and the sealed source straight to the tile server. Access is checked at the
+ingress, which asks `GET /api/studies/{studyId}` with the user's session before
+passing a tile request on; the portal issues no tile tokens. Only the tile
+server can open the sealed source. Configure the portal with the tile server's
+URL:
+
+```properties
+wsi.tile_server.url=https://cbioportal.example.org/wsi
+```
+
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 

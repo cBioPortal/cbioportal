@@ -6,7 +6,12 @@ public class PaginationCalculator {
 
   /** PageNumber '0' represents the first page (no offset). */
   public static Integer offset(Integer pageSize, Integer pageNumber) {
-    return pageSize == null || pageNumber == null ? null : pageSize * pageNumber;
+    if (pageSize == null || pageNumber == null) {
+      return null;
+    }
+
+    long calculatedOffset = (long) pageSize * pageNumber;
+    return calculatedOffset > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) calculatedOffset;
   }
 
   /**
@@ -16,6 +21,8 @@ public class PaginationCalculator {
     if (offset == null || pageSize == null || listLength == null) {
       return null;
     }
-    return (offset + pageSize) <= listLength ? (offset + pageSize) : listLength;
+
+    long calculatedEnd = (long) offset + pageSize;
+    return (int) Math.min(calculatedEnd, listLength);
   }
 }

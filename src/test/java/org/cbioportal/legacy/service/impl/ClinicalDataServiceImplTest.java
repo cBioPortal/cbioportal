@@ -1,6 +1,9 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
@@ -510,6 +513,24 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(
         "Study2",
         clinicalDataCollection.getByUniqueSampleKey().get(uniqueKeySample2).get(0).getStudyId());
+  }
+
+  @Test
+  public void fetchSampleClinicalTableLargePageNumberOverflow() {
+    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+            sampleStudyIds, sampleIds, null, null, searchTerm, sortBy, direction))
+        .thenReturn(sampleInternalIdsAll);
+
+    ImmutablePair<SampleClinicalDataCollection, Integer> result =
+        clinicalDataService.fetchSampleClinicalTable(
+            sampleStudyIds, sampleIds, 100, Integer.MAX_VALUE, searchTerm, sortBy, direction);
+
+    Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());
+    Assert.assertEquals(Integer.valueOf(0), result.getRight());
+
+    verify(clinicalDataRepository, never()).getSampleClinicalDataBySampleInternalIds(anyList());
+
+    verify(clinicalDataRepository, never()).getPatientClinicalDataBySampleInternalIds(anyList());
   }
 
   @Test

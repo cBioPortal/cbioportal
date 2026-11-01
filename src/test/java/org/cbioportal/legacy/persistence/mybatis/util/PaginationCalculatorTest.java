@@ -25,11 +25,16 @@ public class PaginationCalculatorTest {
   }
 
   @Test
+  public void testOffsetOverflow() {
+    Assert.assertEquals(
+        Integer.MAX_VALUE, (int) PaginationCalculator.offset(100, Integer.MAX_VALUE));
+  }
+
+  @Test
   public void testLastIndexNull() {
     Assert.assertNull(PaginationCalculator.lastIndex(null, 1, 1));
     Assert.assertNull(PaginationCalculator.lastIndex(1, null, 1));
     Assert.assertNull(PaginationCalculator.lastIndex(null, null, 1));
-    Assert.assertNull(PaginationCalculator.lastIndex(null, 1, 1));
     Assert.assertNull(PaginationCalculator.lastIndex(1, 1, null));
     Assert.assertNull(PaginationCalculator.lastIndex(null, 1, null));
     Assert.assertNull(PaginationCalculator.lastIndex(1, null, null));
@@ -41,5 +46,12 @@ public class PaginationCalculatorTest {
     Assert.assertEquals(3, (int) PaginationCalculator.lastIndex(0, 3, 26));
     Assert.assertEquals(6, (int) PaginationCalculator.lastIndex(3, 3, 26));
     Assert.assertEquals(26, (int) PaginationCalculator.lastIndex(25, 3, 26));
+  }
+
+  @Test
+  public void testLastIndexOverflow() {
+    Assert.assertEquals(
+        Integer.MAX_VALUE,
+        (int) PaginationCalculator.lastIndex(Integer.MAX_VALUE - 5, 100, Integer.MAX_VALUE));
   }
 }

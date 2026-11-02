@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.cbioportal.legacy.AbstractLegacyTestcontainers;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PersistenceConstants;
 import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
@@ -490,10 +491,38 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabShowAllSamples() {
 
     List<Integer> result =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, noSearch, noSort, "DESC");
+        visibleSampleInternalIds(studyIds, sampleIds, noPaging, noPaging, noSearch, noSort, "DESC");
 
     Assert.assertEquals(14, result.size());
+  }
+
+  private List<Integer> visibleSampleInternalIds(
+      List<String> studyIds,
+      List<String> sampleIds,
+      Integer pageSize,
+      Integer pageNumber,
+      String searchTerm,
+      String sortBy,
+      String direction) {
+    return clinicalDataMyBatisRepository
+        .getVisibleSamplesForClinicalTable(
+            studyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction)
+        .stream()
+        .map(Sample::getInternalId)
+        .collect(Collectors.toList());
+  }
+
+  @Test
+  public void fetchClinicalSamplesClinicalTabIncludeSampleKeyFields() {
+
+    List<Sample> result =
+        clinicalDataMyBatisRepository.getVisibleSamplesForClinicalTable(
+            studyIds, sampleIds, 1, 0, "A0SB-01", noSort, noSort);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals((Integer) 1, result.get(0).getInternalId());
+    Assert.assertEquals("TCGA-A1-A0SB-01", result.get(0).getStableId());
+    Assert.assertEquals("study_tcga_pub", result.get(0).getCancerStudyIdentifier());
   }
 
   @Test
@@ -512,8 +541,7 @@ public class ClinicalDataMyBatisRepositoryTest {
     // There are only two patients in total. The second page (index 1) with pageSize 2 does not
     // refer to any records.
     List<Integer> resultNonExistingPage =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 2, 100, noSearch, noSort, "DESC");
+        visibleSampleInternalIds(studyIds, sampleIds, 2, 100, noSearch, noSort, "DESC");
 
     Assert.assertEquals(0, resultNonExistingPage.size());
   }
@@ -522,11 +550,9 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabStringSort() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "ASC");
+        visibleSampleInternalIds(studyIds, sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "ASC");
     List<Integer> visibleSampleIdsDesc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "DESC");
+        visibleSampleInternalIds(studyIds, sampleIds, 2, 0, noSearch, "SAMPLE_TYPE", "DESC");
 
     Assert.assertEquals(2, visibleSampleIdsAsc.size());
     Assert.assertEquals(2, visibleSampleIdsDesc.size());
@@ -540,10 +566,9 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabNumericSort() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "ASC");
+        visibleSampleInternalIds(studyIds, sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "ASC");
     List<Integer> visibleSampleIdsDesc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
+        visibleSampleInternalIds(
             studyIds, sampleIds, 14, 0, noSearch, "DAYS_TO_COLLECTION", "DESC");
 
     Assert.assertEquals(14, visibleSampleIdsAsc.size());
@@ -556,8 +581,7 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabPageing() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 1, 1, noSearch, "SAMPLE_TYPE", "ASC");
+        visibleSampleInternalIds(studyIds, sampleIds, 1, 1, noSearch, "SAMPLE_TYPE", "ASC");
 
     Assert.assertEquals(1, visibleSampleIdsAsc.size());
     // offset 1 in ASC SAMPLE_TYPE sort lands in the "" group (samples without SAMPLE_TYPE data)
@@ -568,7 +592,7 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabSearchBySampleId() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
+        visibleSampleInternalIds(
             studyIds, sampleIds, noPaging, noPaging, "A0SB-01", noSort, noSort);
 
     Assert.assertEquals(1, visibleSampleIdsAsc.size());
@@ -579,8 +603,7 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabSearchByEmptyStringShowsAllSample() {
 
     List<Integer> result =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, "", noSort, "DESC");
+        visibleSampleInternalIds(studyIds, sampleIds, noPaging, noPaging, "", noSort, "DESC");
 
     Assert.assertEquals(14, result.size());
   }
@@ -589,8 +612,7 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabSearchByAttributeValue() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, noPaging, noPaging, "2013", noSort, noSort);
+        visibleSampleInternalIds(studyIds, sampleIds, noPaging, noPaging, "2013", noSort, noSort);
 
     Assert.assertEquals(1, visibleSampleIdsAsc.size());
     Assert.assertEquals(1, (int) visibleSampleIdsAsc.get(0));
@@ -600,11 +622,9 @@ public class ClinicalDataMyBatisRepositoryTest {
   public void fetchClinicalSampleIdsClinicalTabSearchAndSort() {
 
     List<Integer> visibleSampleIdsAsc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "ASC");
+        visibleSampleInternalIds(studyIds, sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "ASC");
     List<Integer> visibleSampleIdsDesc =
-        clinicalDataMyBatisRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "DESC");
+        visibleSampleInternalIds(studyIds, sampleIds, 2, 0, "-01", "SAMPLE_TYPE", "DESC");
 
     Assert.assertEquals(2, visibleSampleIdsAsc.size());
     Assert.assertEquals(2, visibleSampleIdsDesc.size());

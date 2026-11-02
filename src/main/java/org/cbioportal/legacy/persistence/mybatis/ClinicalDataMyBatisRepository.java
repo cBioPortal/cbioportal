@@ -7,6 +7,7 @@ import org.cbioportal.legacy.model.ClinicalAttribute;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalAttributeRepository;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
@@ -202,7 +203,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
     }
   }
 
-  public List<Integer> getVisibleSampleInternalIdsForClinicalTable(
+  public List<Sample> getVisibleSamplesForClinicalTable(
       List<String> studyIds,
       List<String> sampleIds,
       Integer pageSize,
@@ -230,7 +231,7 @@ public class ClinicalDataMyBatisRepository implements ClinicalDataRepository {
       }
     }
 
-    return clinicalDataMapper.getVisibleSampleInternalIdsForClinicalTable(
+    return clinicalDataMapper.getVisibleSamplesForClinicalTable(
         studyIds,
         sampleIds,
         "SUMMARY",

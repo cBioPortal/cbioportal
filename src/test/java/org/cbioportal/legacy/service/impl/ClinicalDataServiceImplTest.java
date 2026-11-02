@@ -1,6 +1,9 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
@@ -487,10 +490,8 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
             sampleStudyIds, sampleIds, searchTerm))
         .thenReturn(4);
-    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+    when(clinicalDataRepository.getVisibleSamplesForClinicalTable(
             sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction))
-        .thenReturn(sampleInternalIds);
-    when(sampleService.getSamplesByInternalIds(sampleInternalIds))
         .thenReturn(List.of(sample1, sample2));
 
     when(clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(sampleInternalIds))
@@ -524,6 +525,8 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(
         "Study2",
         clinicalDataCollection.getByUniqueSampleKey().get(uniqueKeySample2).get(0).getStudyId());
+    Assert.assertEquals(
+        List.of(uniqueKeySample1, uniqueKeySample2), clinicalDataCollection.getOrderedSampleKeys());
   }
 
   @Test
@@ -573,13 +576,26 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
             sampleStudyIds, sampleIds, searchTerm))
         .thenReturn(501);
-    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
-            sampleStudyIds, sampleIds, pageSize, 25, searchTerm, sortBy, direction))
-        .thenReturn(Collections.emptyList());
 
     ImmutablePair<SampleClinicalDataCollection, Integer> result =
         clinicalDataService.fetchSampleClinicalTable(
-            sampleStudyIds, sampleIds, pageSize, 25, searchTerm, sortBy, direction);
+            sampleStudyIds, sampleIds, pageSize, 251, searchTerm, sortBy, direction);
+
+    Assert.assertEquals((Integer) 501, result.getRight());
+    Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());
+    verify(clinicalDataRepository, never())
+        .getVisibleSamplesForClinicalTable(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void fetchSampleClinicalTableHugePageNumberDoesNotOverflow() {
+    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
+            sampleStudyIds, sampleIds, searchTerm))
+        .thenReturn(501);
+
+    ImmutablePair<SampleClinicalDataCollection, Integer> result =
+        clinicalDataService.fetchSampleClinicalTable(
+            sampleStudyIds, sampleIds, 1000, Integer.MAX_VALUE, searchTerm, sortBy, direction);
 
     Assert.assertEquals((Integer) 501, result.getRight());
     Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());

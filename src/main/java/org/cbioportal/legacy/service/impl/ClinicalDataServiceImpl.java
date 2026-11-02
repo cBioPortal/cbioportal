@@ -310,48 +310,51 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
       return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
     }
 
-    List<Integer> visibleSampleInternalIds;
+    List<Sample> visibleSamples;
     Integer totalSampleCount;
     if (pageSize == null || pageSize == 0) {
-      visibleSampleInternalIds =
-          clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+      visibleSamples =
+          clinicalDataRepository.getVisibleSamplesForClinicalTable(
               studyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction);
-      totalSampleCount = visibleSampleInternalIds.size();
+      totalSampleCount = visibleSamples.size();
     } else {
       totalSampleCount =
           clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
               studyIds, sampleIds, searchTerm);
-      visibleSampleInternalIds =
-          clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
+      // Long math so a huge page number cannot overflow into a negative offset.
+      if (pageNumber != null && (long) pageSize * pageNumber >= totalSampleCount) {
+        return new ImmutablePair<>(
+            SampleClinicalDataCollection.builder().build(), totalSampleCount);
+      }
+      visibleSamples =
+          clinicalDataRepository.getVisibleSamplesForClinicalTable(
               studyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction);
     }
 
-    if (visibleSampleInternalIds.isEmpty()) {
+    if (visibleSamples.isEmpty()) {
       return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), totalSampleCount);
     }
 
-    return buildSampleClinicalDataCollection(visibleSampleInternalIds, totalSampleCount);
+    return buildSampleClinicalDataCollection(visibleSamples, totalSampleCount);
   }
 
   private ImmutablePair<SampleClinicalDataCollection, Integer> buildSampleClinicalDataCollection(
-      List<Integer> visibleSampleInternalIds, Integer totalSampleCount) {
+      List<Sample> visibleSamples, Integer totalSampleCount) {
 
+    List<Integer> visibleSampleInternalIds =
+        visibleSamples.stream().map(Sample::getInternalId).collect(Collectors.toList());
     List<ClinicalData> sampleClinicalData =
         clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(visibleSampleInternalIds);
     List<ClinicalData> patientClinicalData =
         clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
 
-    Map<Integer, Sample> samplesByInternalId =
-        sampleService.getSamplesByInternalIds(visibleSampleInternalIds).stream()
-            .collect(Collectors.toMap(Sample::getInternalId, Function.identity()));
     List<String> orderedSampleKeys =
-        visibleSampleInternalIds.stream()
-            .map(samplesByInternalId::get)
-            .filter(Objects::nonNull)
+        visibleSamples.stream()
             .map(sample -> calculateBase64(sample.getStableId(), sample.getCancerStudyIdentifier()))
             .collect(Collectors.toList());
 
-    // Merge sample and patient level clinical data and key by unique sample-key.
+    // Merge sample and patient level clinical data and key by unique sample-key. Samples without
+    // clinical values are kept as empty rows so every requested sample appears on the page.
     Map<String, List<ClinicalData>> clinicalDataBySampleKey =
         Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
             .collect(

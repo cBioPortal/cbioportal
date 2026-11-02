@@ -5,9 +5,12 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import org.redisson.api.ObjectEncoding;
 import org.redisson.api.ObjectListener;
 import org.redisson.api.RBucket;
 import org.redisson.api.RFuture;
+import org.redisson.api.bucket.CompareAndDeleteArgs;
+import org.redisson.api.bucket.CompareAndSetArgs;
 import org.redisson.client.codec.Codec;
 
 public class MockRBucket implements RBucket {
@@ -190,6 +193,11 @@ public class MockRBucket implements RBucket {
 
   @Override
   public String getName() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getDigest() {
     throw new UnsupportedOperationException();
   }
 
@@ -546,6 +554,154 @@ public class MockRBucket implements RBucket {
 
   @Override
   public RFuture<Void> removeListenerAsync(int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  /*
+   * Methods we don't use (Redisson 4.x additions)
+   */
+  @Override
+  public boolean setIfExists(Object p1, Duration p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean compareAndSet(CompareAndSetArgs p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean compareAndDelete(CompareAndDeleteArgs p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Object getAndSet(Object p1, Duration p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void set(Object p1, Duration p2) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Object findCommon(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public long findCommonLength(String p1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean copyAndReplace(String s, int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean copyAndReplace(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean copy(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public boolean copy(String s, int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getReferenceCount() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public int getAccessFrequency() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ObjectEncoding getInternalEncoding() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> compareAndSetAsync(CompareAndSetArgs q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> compareAndDeleteAsync(CompareAndDeleteArgs q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture findCommonAsync(String q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Long> findCommonLengthAsync(String q1) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<String> getDigestAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> copyAndReplaceAsync(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> copyAndReplaceAsync(String s, int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> copyAsync(String s) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> copyAsync(String s, int i) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Integer> getReferenceCountAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Integer> getAccessFrequencyAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<ObjectEncoding> getInternalEncodingAsync() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Boolean> setIfExistsAsync(Object o, Duration duration) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture getAndSetAsync(Object o, Duration duration) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public RFuture<Void> setAsync(Object o, Duration duration) {
     throw new UnsupportedOperationException();
   }
 }

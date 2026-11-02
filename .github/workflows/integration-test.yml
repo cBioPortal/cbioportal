@@ -18,6 +18,7 @@ jobs:
         with:
           website: oracle.com
           release: 21
+          version: 21.0.12
       - name: 'Cache Maven packages'
         uses: actions/cache@v4
         with:

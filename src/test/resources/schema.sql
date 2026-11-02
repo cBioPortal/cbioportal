@@ -1,31 +1,7 @@
 --
 -- Copyright (c) 2016 - 2026 Memorial Sloan Kettering Cancer Center.
 --
--- This library is distributed in the hope that it will be useful, but WITHOUT
--- ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
--- FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
--- is on an "as is" basis, and Memorial Sloan Kettering Cancer Center has no
--- obligations to provide maintenance, support, updates, enhancements or
--- modifications. In no event shall Memorial Sloan Kettering Cancer Center be
--- liable to any party for direct, indirect, special, incidental or
--- consequential damages, including lost profits, arising out of the use of this
--- software and its documentation, even if Memorial Sloan Kettering Cancer
--- Center has been advised of the possibility of such damage.
---
--- This file is part of cBioPortal.
---
--- cBioPortal is free software: you can redistribute it and/or modify
--- it under the terms of the GNU Affero General Public License as
--- published by the Free Software Foundation, either version 3 of the
--- License.
---
--- This program is distributed in the hope that it will be useful,
--- but WITHOUT ANY WARRANTY; without even the implied warranty of
--- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
--- GNU Affero General Public License for more details.
---
--- You should have received a copy of the GNU Affero General Public License
--- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-- SPDX-License-Identifier: Apache-2.0
 -- ----------------------------------------------------------------------------
 --
 -- This cBioPortal database table schema initialization script will set up
@@ -90,9 +66,7 @@ DROP TABLE IF EXISTS patient;
 DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
 DROP TABLE IF EXISTS resource_definition;
-DROP TABLE IF EXISTS resource_patient;
-DROP TABLE IF EXISTS resource_sample;
-DROP TABLE IF EXISTS resource_study;
+DROP TABLE IF EXISTS resource;
 DROP TABLE IF EXISTS sample;
 DROP TABLE IF EXISTS sample_cna_event;
 DROP TABLE IF EXISTS sample_derived;
@@ -612,23 +586,21 @@ CREATE TABLE resource_definition (
     `custom_metadata` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
-CREATE TABLE resource_patient (
+CREATE TABLE resource (
     `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+    `resource_id`      String,
+    `cancer_study_id`  Int64,
+    `resource_scope`   String,
+    `patient_id`       Nullable(String),
+    `sample_id`        Nullable(String),
+    `url`              String,
+    `display_name`     Nullable(String),
+    `metadata`         Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
+  SETTINGS allow_nullable_key = 1;
 
-CREATE TABLE resource_sample (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
 
-CREATE TABLE resource_study (
-    `internal_id` Int64,
-    `resource_id` String,
-    `url` String
-) ENGINE = MergeTree ORDER BY (internal_id, resource_id, url);
+
 
 CREATE TABLE sample (
     `internal_id` Int64,
@@ -751,4 +723,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('2.14.5', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.1.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

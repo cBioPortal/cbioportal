@@ -54,6 +54,27 @@ An ArchUnit test (`EndpointAuthorizationArchTest`) verifies that all `@RequestMa
 1. Add `@PreAuthorize` to the method, OR
 2. Add the controller to `AUTHORIZED_EXCEPTIONS` (or the method to `METHOD_EXCEPTIONS`) with a justification comment
 
+## Study Filtering in Mappers (Security-Critical)
+
+`@PreAuthorize` checks that the user may read the studies named in the request. It cannot check
+what the query then reads. A query that does not restrict its results to those studies will hand a
+user who is legitimately authorized for one study the rows of every other study -- authorization
+passes and the data still leaks.
+
+So a mapper that reads study-specific data must constrain `cancer_study_identifier` (or
+`cancer_study_id`) to the list the caller supplied, in **every** select. Use a shared `<sql>`
+fragment where the selects take the same parameter object, and repeat the condition inline where
+they do not.
+
+`ResourceDataMapperStudyFilterTest` enforces this for `ResourceDataMapper.xml`: a select there that
+neither includes `ResourceTableBaseFilters` nor filters on `cancer_study_identifier IN` fails the
+build. No other ClickHouse mapper is covered by a test. Nearly all of their selects carry the same
+condition; the few that do not read reference data, or are scoped by sample or profile identifiers
+that the request was already authorized for, rather than by study. That has not been audited.
+
+The check is textual. It catches a select added or copied without the filter; it does not prove the
+filter is reachable in every branch of a select that has one.
+
 ## Code Conventions
 
 - Follow existing patterns in the codebase when adding new endpoints or services

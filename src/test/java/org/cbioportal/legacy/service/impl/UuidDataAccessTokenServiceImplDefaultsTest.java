@@ -1,38 +1,13 @@
 /*
  * Copyright (c) 2026 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.cbioportal.legacy.service.impl;
 
 import java.lang.reflect.Field;
+import org.cbioportal.legacy.model.DataAccessToken;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +22,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  * dat.uuid.max_number_per_user} nor {@code dat.ttl_seconds} are explicitly configured. The
  * documented default for {@code dat.uuid.max_number_per_user} is {@code 1}; a default of {@code -1}
  * leaves the service in a state where token creation would attempt to revoke an oldest token even
- * when none exists.
+ * when none exists. The documented default for {@code dat.ttl_seconds} is {@code 2592000} (30
+ * days); a default of {@code -1} makes every token expire one second before it is created.
  */
 @TestPropertySource(
     properties = {"dat.jwt.secret_key = +NbopXzb/AIQNrVEGzxzP5CF42e5drvrXTQot3gfW/s="},
@@ -65,6 +41,25 @@ public class UuidDataAccessTokenServiceImplDefaultsTest {
     int actual = readPrivateInt(uuidDataAccessTokenServiceImpl, "maxNumberOfAccessTokens");
     Assert.assertEquals(
         "Default dat.uuid.max_number_per_user should match the documented value of 1.", 1, actual);
+  }
+
+  @Test
+  public void defaultTtlMatchesDocumentedValue() throws Exception {
+    int actual = readPrivateInt(uuidDataAccessTokenServiceImpl, "datTtlSeconds");
+    Assert.assertEquals(
+        "Default dat.ttl_seconds should match the documented value of 2592000 (30 days).",
+        2592000,
+        actual);
+  }
+
+  @Test
+  public void tokenCreatedWithDefaultTtlIsNotAlreadyExpired() {
+    DataAccessToken token =
+        uuidDataAccessTokenServiceImpl.createDataAccessToken(
+            UuidDataAccessTokenServiceImplTestConfiguration.MOCK_USERNAME);
+    Assert.assertTrue(
+        "Token created with the default dat.ttl_seconds should expire after it is created.",
+        token.getExpiration().after(token.getCreation()));
   }
 
   private static int readPrivateInt(Object target, String fieldName) throws Exception {

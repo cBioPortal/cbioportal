@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -85,9 +84,12 @@ public class WebAppConfig implements WebMvcConfigurer {
         .addPathPatterns("/**");
   }
 
-  @Override
-  public void configurePathMatch(PathMatchConfigurer configurer) {
-    // Adds support for trailing slash Matches
-    configurer.setUseTrailingSlashMatch(true);
-  }
+  // NOTE (Spring Boot 4 migration): this used to override configurePathMatch(...) to call
+  // PathMatchConfigurer.setUseTrailingSlashMatch(true), restoring the pre-Spring-6 default of
+  // tolerating a trailing slash on any mapped path. That method (and its PathPatternParser
+  // equivalent) no longer exist anywhere in Spring 7 -- there is no remaining configuration hook
+  // to control this. NEEDS RUNTIME VERIFICATION: confirm whether trailing-slash requests still
+  // resolve as expected before merging (this app selects the legacy AntPathMatcher strategy via
+  // spring.mvc.pathmatch.matching-strategy=ANT_PATH_MATCHER, which may have its own default
+  // trailing-slash tolerance independent of this removed override).
 }

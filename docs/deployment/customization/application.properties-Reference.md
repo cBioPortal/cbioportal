@@ -47,11 +47,22 @@ persistence.cache_type=no-cache
 # cache.endpoint.api-key=<uuid>
 ```
 
+### Annotation feature flags
+
+Annotation feature flags use the `feature.annotation.*` namespace. The former names remain supported for compatibility, but the canonical name takes precedence when both are set.
+
+| Canonical name | Legacy name |
+| --- | --- |
+| `feature.annotation.oncokb` | `show.oncokb` |
+| `feature.annotation.civic` | `show.civic` |
+| `feature.annotation.hotspot` | `show.hotspot` |
+| `feature.annotation.genomenexus` | `show.genomenexus` |
+
 ### OncoKB
 
 ```properties
 # Enable OncoKB annotations
-show.oncokb=true
+feature.annotation.oncokb=true
 
 # OncoKB public API URL
 oncokb.public_api.url=https://public.api.oncokb.org/api/v1
@@ -458,7 +469,7 @@ app.name should be set to the name of the portal instance referenced in the "AUT
 OncoKB integration can be turned on or off with the following property (default: true):
 
 ```
-show.oncokb=true|false
+feature.annotation.oncokb=true|false
 ```
 
 A private token is required to access the OncoKB Data (for details see the section [OncoKB Data Access](../integration-with-other-webservices/OncoKB-Data-Access.md)):
@@ -472,7 +483,7 @@ oncokb.token=
 CIViC integration can be turned on or off with the following property (default: true):
 
 ```
-show.civic=true|false
+feature.annotation.civic=true|false
 ```
 
 The CIViC API url is set to https://civic.genome.wustl.edu/api/ by default. It can be overridden using the following property:
@@ -557,7 +568,7 @@ oncoprint.custom_driver_annotation.tiers.menu_description=Custom driver tiers
 
 **Automatic selection of OncoKB, hotspots and custom annotations**
 
-OncoKB and Hotspots are by default automatically selected as annotation source, if `show.oncokb` and `show.hotspots` are set to `true`. To add automatic selection of custom driver or custom driver tiers annotations, set the respective property to `true`. Default is `false`.
+OncoKB and Hotspots are by default automatically selected as annotation source, if `feature.annotation.oncokb` and `feature.annotation.hotspot` are set to `true`. To add automatic selection of custom driver or custom driver tiers annotations, set the respective property to `true`. Default is `false`.
 
 ```
 oncoprint.custom_driver_annotation.binary.default=true|false

@@ -28,7 +28,7 @@ public interface ClickhouseCancerStudyMapper {
    *     criteria.
    */
   List<CancerStudyMetadata> getCancerStudiesMetadata(
-      SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
+      @Param("userId") String userId, SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
 
   /**
    * Retrieves a summarized version of cancer study metadata based on the provided sorting, search
@@ -45,7 +45,7 @@ public interface ClickhouseCancerStudyMapper {
    *     the criteria.
    */
   List<CancerStudyMetadata> getCancerStudiesMetadataSummary(
-      SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
+      @Param("userId") String userId, SortAndSearchCriteria sortAndSearchCriteria, List<String> studyIds);
 
   List<String> getFilteredStudyIds(
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);

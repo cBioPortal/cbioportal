@@ -95,13 +95,6 @@ public class GetCancerStudyMetadataUseCase {
    * @see ProjectionType
    * @see CancerStudyMetadata
    */
-  @PostFilter(
-      HAS_PERMISSION_TO_READ
-          + " or ("
-          + SHOW_UNAUTHORIZED_STUDIES_CONDITION
-          + " and "
-          + HAS_PERMISSION_TO_LIST
-          + ")")
   public List<CancerStudyMetadata> execute(
       ProjectionType projectionType, SortAndSearchCriteria sortAndSearchCriteria) {
     List<ResourceCount> resourceCounts = getResourceCountsForAllStudies(projectionType);

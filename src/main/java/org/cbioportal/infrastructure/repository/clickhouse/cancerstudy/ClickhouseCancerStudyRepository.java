@@ -8,7 +8,8 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 /**
  * Repository implementation for accessing cancer study metadata from ClickHouse. This class
  * delegates database queries to {@link ClickhouseCancerStudyMapper}.
@@ -41,7 +42,11 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       condition = "@cacheEnabledConfig.getEnabled()")
   public List<CancerStudyMetadata> getCancerStudiesMetadata(
       SortAndSearchCriteria sortAndSearchCriteria) {
-    return cancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
+
+    String userId = SecurityContextHolder.getContext()
+      .getAuthentication()
+      .getName();
+    return cancerStudyMapper.getCancerStudiesMetadata(userId, sortAndSearchCriteria, List.of());
   }
 
   /**

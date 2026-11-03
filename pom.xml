@@ -95,8 +95,10 @@
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
     <selenium.version>4.31.0</selenium.version>
     <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-    <!-- Also used by importer/pom.xml (keep in sync) -->
-    <clickhouse_jdbc.version>0.6.4</clickhouse_jdbc.version>
+    <!-- Also used by importer/pom.xml (keep in sync). 0.6.4 breaks 21 ClickHouse mapper tests
+         (empty clinical data counts and resource metadata stats); stay on 0.6.2 until the cause
+         is found. See cbiohackathon-importer-drop.md. -->
+    <clickhouse_jdbc.version>0.6.2</clickhouse_jdbc.version>
     <!-- 1.85 clears CVE-2026-8763 (critical) and CVE-2026-13506 (high) -->
     <bouncy_castle.version>1.85</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>

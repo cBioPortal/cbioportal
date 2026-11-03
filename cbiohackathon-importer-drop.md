@@ -69,7 +69,7 @@ The comparison uses the resolved dependency lists (`mvn dependency:list`, all sc
 | `net.minidev:json-smart` | 2.5.2 | 2.6.0 | 2.6.0 | test | aligned |
 | `net.minidev:accessors-smart` | 2.5.2 | 2.6.0 | 2.6.0 | test | aligned |
 | `org.xmlunit:xmlunit-core` | 2.10.1 | 2.11.0 | 2.11.0 | test | aligned |
-| `com.clickhouse:clickhouse-jdbc` | 0.6.4 | 0.6.4 (`http` classifier) | 0.6.4 (`http` classifier; was 0.6.2) | compile | aligned (follow-up) |
+| `com.clickhouse:clickhouse-jdbc` | 0.6.4 | 0.6.2 (`http` classifier) | 0.6.2 (`http` classifier) | compile | aligned (follow-up) |
 | `org.testcontainers:clickhouse` | 1.21.4 | 1.21.4 | 1.19.7 | test | **open** |
 
 Artifacts that only the importer uses, and that changed as a side effect:
@@ -100,9 +100,9 @@ Artifacts that only the importer uses, and that changed as a side effect:
 
 ### Dependencies
 
-1. **ClickHouse JDBC driver: resolved (decided Nov 3, 2026).** Both builds now use `clickhouse-jdbc` 0.6.4 with the `http` classifier, plus `httpclient5` 5.6.4 / `httpcore5` 5.4.3 (the root's CVE pins, GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6). The version is a `clickhouse_jdbc.version` property in both POMs.
-    - **Web application:** upgraded from 0.6.2 to 0.6.4. It compiles, but the backend tests haven't been run against it yet.
-    - **Importer:** moved from the classifier-less JAR to `http` and gained `httpclient5`. This changes its HTTP transport. Before, the driver's default Apache HttpClient provider failed to load (`NoClassDefFoundError`), and the driver silently fell back to the JDK's `HttpURLConnection`. Now the importer uses Apache HttpClient 5, the same as the web app. The importer JAR grew from 21.6 MB to 23.8 MB, and an import run is needed to confirm the new transport works (issue 6).
+1. **ClickHouse JDBC driver: resolved on 0.6.2 (decided Nov 3, 2026).** Both builds use `clickhouse-jdbc` 0.6.2 with the `http` classifier, plus `httpclient5` 5.6.4 / `httpcore5` 5.4.3 (the root's CVE pins, GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6). The version is a `clickhouse_jdbc.version` property in both POMs.
+    - **Why not 0.6.4:** both builds were first moved to 0.6.4. On 0.6.4, 21 web app tests in `ClickhouseClinicalDataMapperTest`, `ClickhouseResourceDataMapperTest` and `ClickhouseResourceDataRepositoryTest` fail: queries return empty or wrong results (clinical data counts, resource metadata key stats and facet ranges). On 0.6.2, all 92 tests in those classes pass, with nothing else changed. The root cause isn't known yet; comparing the SQL each driver sends is the next step. Both builds were therefore reverted to 0.6.2.
+    - **Importer:** moved down from 0.6.4 (classifier-less) to 0.6.2 `http`, and gained `httpclient5`. This changes its HTTP transport. Before, the driver's default Apache HttpClient provider failed to load (`NoClassDefFoundError`), and the driver silently fell back to the JDK's `HttpURLConnection`. Now the importer uses Apache HttpClient 5, the same as the web app. The importer JAR grows by about 2 MB with HttpClient 5. An import run is needed to confirm the importer works on 0.6.2 with the new transport (issue 6).
     - **Possibly redundant:** the `http` JAR bundles its own copy of lz4 (`com.clickhouse.client.internal.jpountz`), so the importer's separate `lz4-java` dependency may no longer be needed. Check this during the import run.
 2. **ClickHouse Testcontainers module (open, test only).** The importer uses 1.21.4, matching the root's own `testcontainers.version`. The root pins `org.testcontainers:clickhouse` separately at `clickhouse_testcontainer.version` 1.19.7, so the root isn't consistent with itself. The fix is probably on the root side.
 3. **Versions are still declared in two POMs.** Because the root can't be a parent, `importer/pom.xml` repeats `spring-boot.version` and the root's CVE overrides (`jackson-2-bom.version`, `log4j2.version`, `commons-lang3.version`, guava, collections4). They match today, but nothing enforces it. Option A in the RFC (a root aggregator POM) removes this; until then, a CI check comparing the two would.

@@ -21,7 +21,7 @@ The immediate goals for the hackathon are below. Goal 2 comes first, because the
 ### Goal 1: Trim redundancies and consolidate the shared models
 
 - **One copy of each shared type.** Merge the five `org.mskcc.cbio.portal.model.shared` classes that have cbioportal counterparts (see [Duplicated types](#duplicated-types)) into `shared-model`. This includes reconciling the values of `GeneticAlterationType` with `MolecularAlterationType`, and of `MolecularProfileDataType` with `MolecularProfile.DataType` / `ImportType`.
-- **Duplicates within cbioportal.** `GeneticEntity` and `GenericEntityProperty` each exist in both `legacy/model` and `application/file/model`.
+- **Duplicates within cbioportal: done.** The `legacy/model` copies of `GeneticEntity` and `GenericEntityProperty` were unused, and have been deleted. The `application/file/model` classes with the same names aren't copies: they're smaller, export-specific classes used by the file-export MyBatis mapper, so they stay.
 - **Other parallel models.** Audit the importer's `org.mskcc.cbio.portal.model` package against `legacy/model` (for example `Sample` and `CancerStudy`), and merge the ones that represent the same thing.
 - **Unused dependencies and leftover files: done.** `dom4j`, `commons-text`, `opencsv`, `commons-io` and the unused `commons_cli.version` property are removed. `importer/.github/` was ported to the root workflows and removed, `importer/LICENSE` was removed, and `importer/README.md` was rewritten. `importer/Dockerfile` stays, because the ported workflow still publishes `cbioportal/cbioportal-core` from it.
 - **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, an ArchUnit rule keeps it that way, and both modules build.
@@ -42,7 +42,7 @@ cbioportal/
 
 - **Artifact coordinates (decided, Nov 3, 2026):** the web module keeps `io.github.cbioportal:cbioportal`, so consumers of the published web artifact on Maven Central and JitPack see no change. The new root aggregator/parent POM becomes `io.github.cbioportal:cbioportal-parent`. Because the published web artifact now references that parent, the parent POM and `shared-model` must also be published to Maven Central. Whether the importer itself is published is still open.
 - Every version is declared once, in the root, which ends the "keep in sync with `../pom.xml`" comments.
-- **ClickHouse JDBC driver (decided and applied, Nov 3, 2026):** 0.6.4 with the `http` classifier and the root's `httpclient5`/`httpcore5` pins, in both modules. It's a `clickhouse_jdbc.version` property today and becomes a single parent entry in the reactor. Still needed: one Testcontainers ClickHouse version.
+- **ClickHouse JDBC driver (decided and applied, Nov 3, 2026):** 0.6.2 with the `http` classifier and the root's `httpclient5`/`httpcore5` pins, in both modules. 0.6.4 was tried first and reverted, because it breaks 21 ClickHouse mapper tests in the web app (cause not yet known; see the drop report). It's a `clickhouse_jdbc.version` property today and becomes a single parent entry in the reactor. Still needed: one Testcontainers ClickHouse version.
 - **Importer version (decided, Nov 3, 2026):** modules inherit the parent's version (`v7.2.5-SNAPSHOT` today) instead of keeping 1.0.x. The release workflow's `mvn versions:set` then updates every module at once. The JAR keeps the `core-*.jar` name, so the Docker and Docker Compose paths are unaffected. This takes effect when the importer gets the root as its parent; `importer/pom.xml` stays at 1.0.16 until then.
 - Web-only build settings (frontend dependency, git-commit-id, Spring Boot repackage, JaCoCo/Sonar paths, Spotless includes) move to `web/pom.xml`.
 - The importer must override the shade transformers it would otherwise inherit from `spring-boot-starter-parent`'s pluginManagement.
@@ -133,7 +133,7 @@ cbioportal/
 
 The two repos are on different framework generations. Core uses Spring 6.2.x and mostly JUnit 4. cbioportal just moved to Spring Boot 4.1 / Spring Framework 7. If the importer inherits the parent POM's dependency management, its dependencies will be upgraded under it.
 
-**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. One difference remains open, the Testcontainers ClickHouse module; the ClickHouse JDBC driver was aligned afterwards at 0.6.4 `http`. The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
+**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. One difference remains open, the Testcontainers ClickHouse module; the ClickHouse JDBC driver was aligned afterwards at 0.6.2 `http` (0.6.4 breaks web app tests). The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
 
 ## Shared Code
 
@@ -145,8 +145,8 @@ The two repos are on different framework generations. Core uses Spring 6.2.x and
 | `MolecularProfileDataType` | None as a class; closest are `MolecularProfile.DataType` / `ImportType` | Values need to be reconciled, not just deduplicated |
 | `EntityType` | `legacy/model/EntityType` | |
 | `GenericAssayMeta` | `legacy/model/meta/GenericAssayMeta` | |
-| `GenericEntityProperty` | `legacy/model/GenericEntityProperty`, `application/file/model/GenericEntityProperty` | Also duplicated within cbioportal |
-| `GeneticEntity` | `legacy/model/GeneticEntity`, `application/file/model/GeneticEntity` | Also duplicated within cbioportal |
+| `GenericEntityProperty` | ~~`legacy/model/GenericEntityProperty`~~ (unused; deleted) | The importer copy becomes the shared one; the export-only `application/file/model/GenericEntityProperty` is a different class |
+| `GeneticEntity` | ~~`legacy/model/GeneticEntity`~~ (unused; deleted) | The importer copy becomes the shared one; the export-only `application/file/model/GeneticEntity` is a different class |
 | `ResourceType` | `legacy/model/ResourceType` | |
 
 Other models, such as `Sample` and `CancerStudy`, are reported to differ in field names and constructors. Phase 4 should check the full list.
@@ -282,7 +282,8 @@ Please comment on this document or open a GitHub discussion thread.
 
 - [ ] Upgrade the importer to the parent's dependency versions (recommended), or allow overrides?
 - [x] ~~Should the importer's version always match the parent version?~~ Decided: yes, modules inherit the parent's version.
-- [x] ~~Which ClickHouse JDBC driver?~~ Decided: 0.6.4 with the `http` classifier, in both modules.
+- [x] ~~Which ClickHouse JDBC driver?~~ Decided: 0.6.2 with the `http` classifier, in both modules. 0.6.4 was reverted after it broke 21 web app tests.
+- [ ] What in 0.6.4 breaks the ClickHouse mapper queries, and is upgrading worth fixing it?
 - [ ] What happens to the `core` Maven artifact and the 1.0.x version line?
 
 **Tests and CI**

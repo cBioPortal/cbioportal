@@ -76,8 +76,7 @@ public class ProxyController {
     }
 
     String decodedBody = body == null ? null : this.monkifier.decodeBase64(body);
-    String encodedPath =
-        request.getRequestURI().replaceFirst("/proxy/A8F74CD7851BDEE8DCD2E86AB4E2A711/", "");
+    String encodedPath = getEncodedPath(request);
     String decodedPath = this.monkifier.decodeBase64(encodedPath);
     String decodedQueryString = this.monkifier.decodeQueryString(request);
 
@@ -86,6 +85,11 @@ public class ProxyController {
             decodedBody, decodedPath, decodedQueryString, method, getOncokbHeaders(request));
 
     return "\"" + this.monkifier.encodeBase64(response) + "\"";
+  }
+
+  String getEncodedPath(HttpServletRequest request) {
+    String requestPath = request.getRequestURI().substring(request.getContextPath().length());
+    return requestPath.replaceFirst("/proxy/A8F74CD7851BDEE8DCD2E86AB4E2A711/", "");
   }
 
   private String exchangeOncokbData(

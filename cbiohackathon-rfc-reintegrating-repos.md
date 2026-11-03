@@ -280,15 +280,19 @@ If anyone wants to stay on the 0.6.x line but move past 0.6.2, the mapper-side w
 
 **What moving to 0.11.0 involves.** 0.11.0 isn't an incremental upgrade. Since 0.8.0 the default driver is a rewritten implementation (`jdbc-v2`, built on `client-v2`), and since 0.9.0 the `http`, `shaded` and `shaded-all` classifiers are no longer published.
 
-- **Web application: likely a small change.**
+- **Web application: moderate work.**
   - Both query shapes above work on 0.11.0.
   - The web app imports nothing from `com.clickhouse` directly; it uses the driver through MyBatis and Spring. Its custom type handlers (`ClickhouseMapTypeHandler`, `ClickhouseJsonMapTypeHandler`) and the `ArrayTypeHandler` parameters still need to be covered by the test suite.
   - Packaging gets simpler. The plain 0.11.0 JAR depends on `httpclient5` 5.6.4 / `httpcore5` 5.4.3, exactly the versions the root pins for GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. The `http` classifier and the explicit `httpclient5` dependency can go.
-  - Full web test suite on 0.11.0: *result pending*.
+  - **Full web test suite on 0.11.0 (Nov 3, 2026):** 1,580 tests: 0 failures, **571 errors**, 5 skipped. All 43 database-backed test classes fail before any query runs, for two reasons:
+    1. **Test setup (29 legacy MyBatis test classes).** `AbstractLegacyTestcontainers` adds the V1 option `use_server_time_zone=false` to the JDBC URL. V2 then refuses to connect ("Nor server timezone nor specific timezone is set"). The fix is in that test base: drop the option, or also set a time zone. Exactly which V2 option to use still needs checking.
+    2. **Transactions (14 ClickHouse repository test classes, and production code).** V2 throws `SQLFeatureNotSupportedException: setAutoCommit(false) is not supported` instead of simulating transactions as V1 did. Spring's `DataSourceTransactionManager`, configured in `ClickhouseMyBatisConfig`, calls it whenever a transaction begins. That affects the tests and also the seven `@Transactional(readOnly = true)` methods in `ExpressionEnrichmentServiceImpl`, `CoExpressionServiceImpl` and `ExportService`, which would fail at run time. Options: remove those annotations, or stop using a transaction manager for the ClickHouse datasource. Also check whether V2 has a setting that ignores unsupported calls.
+
+    So the web app's upgrade is more than a version bump. It needs those two fixes, then another full test run to find whatever the 571 errors are currently hiding.
 - **Importer: real porting work.**
   - The importer's bulk-load path doesn't work on 0.11.0. `ClickHouseBulkLoader`, `ClickHouseBulkDeleter` and `ClickHouseBulkUploader` send data as `INSERT INTO … FORMAT TSV(WithNames)` with the payload bound through `PreparedStatement.setBinaryStream`. That's a V1-only "stream-based PreparedStatement" feature, which V2 removed. A probe of exactly this pattern inserts 3 rows on 0.6.2; on 0.11.0 it throws `ArrayIndexOutOfBoundsException` and inserts nothing.
   - These three classes would need to move to the `client-v2` insert API (an insert from an `InputStream` with a TSV format) or to a different insert approach.
-  - V2 also drops JDBC transactions, which V1 only simulated. That affects the importer's Spring `TransactionTemplate` usage (`TransactionalScriptRunner`) and `DaoGenericAssay`'s `setAutoCommit(false)`. Check whether either relies on rollback.
+  - V2 also drops JDBC transactions, which V1 only simulated; it throws on `setAutoCommit(false)` (confirmed in the web suite above). That affects the importer's Spring `TransactionTemplate` usage (`TransactionalScriptRunner`) and `DaoGenericAssay`'s `setAutoCommit(false)`. Check whether either relies on rollback.
 - **Dependency conflicts.**
   - With today's root pins, Maven resolves three of the driver's dependencies to *older* versions than 0.11.0 declares: Guava 32.1.3-jre (wants 33.7.2-jre), commons-lang3 3.18.0 (wants 3.20.0) and commons-compress 1.24.0 (wants 1.28.0). Each needs checking or raising.
   - 0.11.0 also brings in `at.yawk.lz4:lz4-java`, a fork that provides the same `net.jpountz` classes as the importer's `org.lz4:lz4-java` 1.8.0. Keep only one.

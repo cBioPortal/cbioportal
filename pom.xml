@@ -456,6 +456,10 @@
       <groupId>com.clickhouse</groupId>
       <artifactId>clickhouse-jdbc</artifactId>
       <version>${clickhouse_jdbc.version}</version>
+      <!-- the "http" classifier does not shade Apache HttpClient (the "all" uber jar
+      bundles a vulnerable httpcore5 that Maven cannot override); the HTTP transport
+      is supplied by the explicit httpclient5 dependency instead -->
+      <classifier>http</classifier>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>

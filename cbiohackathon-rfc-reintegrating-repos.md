@@ -264,6 +264,44 @@ The goal is one approach for both: the same API and backend (SLF4J and Logback),
 - Deciding how the Python wrappers (`metaImport.py`, `cbioportalImporter.py`, `validateData.py`) and the Java importer they call share log levels and output format.
 - Retiring the logging config templates that are no longer used.
 
+### Upgrade the ClickHouse JDBC driver
+
+Both modules are pinned to `clickhouse-jdbc` 0.6.2 with the `http` classifier (see [Goal 2](#goal-2-consolidate-the-root-pom-and-importerpomxml)). The latest release is 0.11.0. Findings from Nov 3, 2026, for whoever picks this up:
+
+**Why 0.6.4 was reverted.** The 0.6.3 and 0.6.4 release notes don't mention it, but 0.6.4 changed what the legacy (V1) JDBC driver does with statements it can't classify. 0.6.2 treats them as queries and returns their rows. 0.6.4 treats them as returning nothing: the server sends the rows, and the driver discards them ("N bytes skipped before closing input stream"). A JDBC probe against ClickHouse 24.5 confirmed two triggers, both used by the web app's ClickHouse mappers:
+
+| Query shape | 0.6.2 | 0.6.4 | 0.11.0 | Where it's used |
+| --- | --- | --- | --- | --- |
+| Statement starting with `(`, e.g. `(SELECT 1)`, `(WITH … SELECT …)`, `(SELECT …) UNION ALL (SELECT …)` | Rows returned | **No result set** | Rows returned | `getClinicalDataCountsByStudyViewFilter`: 12 failing tests in `ClickhouseClinicalDataMapperTest` |
+| `?` placeholder in a `SETTINGS` clause, e.g. `… SETTINGS max_memory_usage = ?` (the driver's own parser can't handle it, so it logs a parse error) | Rows returned | **No result set** | Rows returned | `getResourceTableMetadataKeyStats` in `ResourceDataMapper.xml`: 9 failing tests in `ClickhouseResourceDataMapperTest` / `ClickhouseResourceDataRepositoryTest` |
+| Plain `SELECT …`, `WITH … SELECT …`, `LIMIT ?`, string literal `'{}'` | Rows returned | Rows returned | Rows returned | — |
+
+If anyone wants to stay on the 0.6.x line but move past 0.6.2, the mapper-side workarounds are: wrap parenthesized statements as `SELECT * FROM ( … )`, and put the `SETTINGS` value inline instead of binding it as a parameter.
+
+**What moving to 0.11.0 involves.** 0.11.0 isn't an incremental upgrade. Since 0.8.0 the default driver is a rewritten implementation (`jdbc-v2`, built on `client-v2`), and since 0.9.0 the `http`, `shaded` and `shaded-all` classifiers are no longer published.
+
+- **Web application: likely a small change.**
+  - Both query shapes above work on 0.11.0.
+  - The web app imports nothing from `com.clickhouse` directly; it uses the driver through MyBatis and Spring. Its custom type handlers (`ClickhouseMapTypeHandler`, `ClickhouseJsonMapTypeHandler`) and the `ArrayTypeHandler` parameters still need to be covered by the test suite.
+  - Packaging gets simpler. The plain 0.11.0 JAR depends on `httpclient5` 5.6.4 / `httpcore5` 5.4.3, exactly the versions the root pins for GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. The `http` classifier and the explicit `httpclient5` dependency can go.
+  - Full web test suite on 0.11.0: *result pending*.
+- **Importer: real porting work.**
+  - The importer's bulk-load path doesn't work on 0.11.0. `ClickHouseBulkLoader`, `ClickHouseBulkDeleter` and `ClickHouseBulkUploader` send data as `INSERT INTO … FORMAT TSV(WithNames)` with the payload bound through `PreparedStatement.setBinaryStream`. That's a V1-only "stream-based PreparedStatement" feature, which V2 removed. A probe of exactly this pattern inserts 3 rows on 0.6.2; on 0.11.0 it throws `ArrayIndexOutOfBoundsException` and inserts nothing.
+  - These three classes would need to move to the `client-v2` insert API (an insert from an `InputStream` with a TSV format) or to a different insert approach.
+  - V2 also drops JDBC transactions, which V1 only simulated. That affects the importer's Spring `TransactionTemplate` usage (`TransactionalScriptRunner`) and `DaoGenericAssay`'s `setAutoCommit(false)`. Check whether either relies on rollback.
+- **Dependency conflicts.**
+  - With today's root pins, Maven resolves three of the driver's dependencies to *older* versions than 0.11.0 declares: Guava 32.1.3-jre (wants 33.7.2-jre), commons-lang3 3.18.0 (wants 3.20.0) and commons-compress 1.24.0 (wants 1.28.0). Each needs checking or raising.
+  - 0.11.0 also brings in `at.yawk.lz4:lz4-java`, a fork that provides the same `net.jpountz` classes as the importer's `org.lz4:lz4-java` 1.8.0. Keep only one.
+- **Other V2 behavior changes to review:**
+  - No multi-statement SQL and no named parameters.
+  - Since 0.11.0: no default socket buffer sizes; `TIMEOUT_EXCEEDED` is no longer retried; `DatabaseMetaData.getTables` returns `null` remarks; and a new `User-Agent` format.
+  - A `migration-helpers` module converts V1 configuration properties and URLs to the V2 format.
+
+**Suggested order:**
+1. Upgrade the web app first. It can move as soon as its test suite passes on 0.11.0.
+2. Port the importer's three bulk classes to `client-v2`.
+3. Return both modules to a single driver version, as the reactor's one dependency entry.
+
 ## Open Questions
 
 Please comment on this document or open a GitHub discussion thread.
@@ -283,7 +321,8 @@ Please comment on this document or open a GitHub discussion thread.
 - [ ] Upgrade the importer to the parent's dependency versions (recommended), or allow overrides?
 - [x] ~~Should the importer's version always match the parent version?~~ Decided: yes, modules inherit the parent's version.
 - [x] ~~Which ClickHouse JDBC driver?~~ Decided: 0.6.2 with the `http` classifier, in both modules. 0.6.4 was reverted after it broke 21 web app tests.
-- [ ] What in 0.6.4 breaks the ClickHouse mapper queries, and is upgrading worth fixing it?
+- [x] ~~What in 0.6.4 breaks the ClickHouse mapper queries?~~ Answered: statements starting with `(` and `SETTINGS … = ?` placeholders return no result set on 0.6.4. See [Upgrade the ClickHouse JDBC driver](#upgrade-the-clickhouse-jdbc-driver).
+- [ ] When should the driver upgrade to 0.11.0 (a future goal) be scheduled, and who ports the importer's bulk-load classes to `client-v2`?
 - [ ] What happens to the `core` Maven artifact and the 1.0.x version line?
 
 **Tests and CI**

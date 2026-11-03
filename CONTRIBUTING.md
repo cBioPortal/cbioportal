@@ -49,6 +49,7 @@ Once you have forked the repo, you need to create your code contributions within
 
 * To begin, create a topic branch from where you want to base your work.
  * For any change that requires database migrations, this will be the **rc branch**. For all other changes, this will be the **master branch**. For additional details, see [Branches within cBioPortal](#branches-within-cbioportal) below.
+ * For changes that require database migrations, also see [Making a schema change](docs/development/Database-Versioning.md#making-a-schema-change) for the files to update and how to test together with a cbioportal-core PR.
 
 You usually create a branch like so:
 

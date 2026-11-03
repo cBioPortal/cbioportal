@@ -1,0 +1,7 @@
+#Patient Identifier	Sample Identifier	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Patient Identifier	Sample identifier	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
+#STRING	STRING	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1	1
+SAMPLE_ID	PATIENT_ID	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
+TCGA-A1-A0SH-01	TCGA-A1-A0SH	1:DECEASED	45.67	1:Recurred/Progressed	123
+TCGA-XX-0800-01	TCGA-XX-0800	0:LIVING	56.78	1:Recurred/Progressed	234

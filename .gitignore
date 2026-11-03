@@ -117,3 +117,10 @@ command-audit.md
 
 # Local MCP server config (may hold credentials)
 .mcp.json
+
+# Importer (moved from cbioportal-core); its own .gitignore is skipped by the */**/.gitignore rule above
+importer/*.jar
+importer/application.properties
+importer/maven.properties
+importer/**/__pycache__/
+importer/.venv/

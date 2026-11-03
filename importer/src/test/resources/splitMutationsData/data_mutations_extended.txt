@@ -1,0 +1,8 @@
+#sequenced_samples: TCGA-AA-3664-01	TCGA-AA-3665-01
+Hugo_Symbol	Entrez_Gene_Id	Center	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	HGVSp_Short	MA:FImpact	MA:link.MSA	MA:link.PDB
+TMEM216	51259	broad.mit.edu	TCGA-AA-3664-01	Unknown	valid	Somatic	Illumina GAIIx	chr11	60921958	60921958	Nonsense_Mutation	G61G	--	--	--
+ACTN3	89	broad.mit.edu	TCGA-AA-3664-01	Unknown	Unknown	Somatic	Illumina GAIIx	chr11	66075660	66075660	Missense_Mutation	S116R	medium	mutationassessor.org/?cm=msa&ty=f&p=ACTN3_HUMAN&rb=46&re=149&var=S116R	mutationassessor.org/pdb.php?prot=ACTN3_HUMAN&from=46&to=149&var=S116R
+CLEC7A	64581	broad.mit.edu	TCGA-AA-3664-01	Unknown	Unknown	Germline	Illumina GAIIx	chr12	10162443	10162443	Missense_Mutation	T209A	neutral	mutationassessor.org/?cm=msa&ty=f&p=CLC7A_HUMAN&rb=137&re=243&var=T209A	mutationassessor.org/pdb.php?prot=CLC7A_HUMAN&from=137&to=243&var=T209A
+TAS2R10	50839	broad.mit.edu	TCGA-AA-3664-01	Unknown	valid	Germline	Illumina GAIIx	chr12	10869904	10869904	Missense_Mutation	G78S	medium	mutationassessor.org/?cm=msa&ty=f&p=T2R10_HUMAN&rb=1&re=296&var=G78S	
+GPR19	2842	broad.mit.edu	TCGA-AA-3664-01	Unknown	valid	Germline	Illumina GAIIx	chr12	12706312	12706312	Nonsense_Mutation	L113P	high	mutationassessor.org/?cm=msa&ty=f&p=GPR19_HUMAN&rb=82&re=330&var=L113P	mutationassessor.org/pdb.php?prot=GPR19_HUMAN&from=82&to=330&var=L113P
+SLC38A2	54407	broad.mit.edu	TCGA-AA-3664-01	Unknown	Unknown	Somatic	Illumina GAIIx	chr12	45042571	45042571	Missense_Mutation	T433A	low	mutationassessor.org/?cm=msa&ty=f&p=S38A2_HUMAN&rb=69&re=495&var=T433A	

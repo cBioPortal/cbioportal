@@ -1,0 +1,5 @@
+RESOURCE_ID	DISPLAY_NAME	DESCRIPTION	RESOURCE_TYPE	OPEN_BY_DEFAULT	PRIORITY	CUSTOM_METADATA
+PATHOLOGY_SLIDE	Pathology Slide	The pathology slide for the sample	SAMPLE	TRUE	1	{"version":1,"fields":[{"key":"stain","type":"string","label":"Stain","description":"Stain applied to the slide","filterable":true,"visibleByDefault":true},{"key":"magnification","type":"string","label":"Magnification","filterable":true},{"key":"slide_number","type":"number","label":"Slide #"}]}
+CT_SCAN	CT Scan	CT scan DICOM for the patient	PATIENT	TRUE	2	
+PATIENT_NOTES	Patient Notes	Notes about the patient	PATIENT	FALSE	3	
+STUDY_SPONSORS	Study Sponsors	Sponsors of this study	STUDY	TRUE	4	{"version":1,"fields":[{"key":"pages","type":"number","label":"Pages"},{"key":"year","type":"number","label":"Year","filterable":true}]}

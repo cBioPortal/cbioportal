@@ -1,0 +1,5 @@
+requests==2.32.3
+markupsafe==2.0.1
+Jinja2==2.11.3
+PyYAML==6.0.1
+dsnparse==0.1.15

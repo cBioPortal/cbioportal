@@ -1,0 +1,20 @@
+name: Python validator
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Validate Data
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+        with:
+          path: ./cbioportal-core
+      - name: 'Validate tests'
+        working-directory: ./cbioportal-core
+        run: |
+          docker run -v ${PWD}:/cbioportal-core python:3.9 /bin/sh -c '
+            cd cbioportal-core &&
+            pip install -r requirements.txt &&
+            ./test_scripts.sh'

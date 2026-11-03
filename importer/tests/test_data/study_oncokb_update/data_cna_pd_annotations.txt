@@ -1,0 +1,2 @@
+SAMPLE_ID	Entrez_Gene_Id	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+TCGA-A1-A0SB-01	7157	Putative_Passenger			

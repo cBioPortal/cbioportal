@@ -1,0 +1,26 @@
+Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+ETV1	2115	TCGA-A1-A0SB-11	2				
+P2RY10	27334	TCGA-A1-A0SB-11	2				
+KIAA1549	57670	TCGA-A1-A0SB-11	2				
+ADAMTS20	80070	TCGA-A1-A0SB-11	2				
+ABLIM1	3983	TCGA-A1-A0SB-11	2				
+
+ETV1	2115	TCGA-A2-A04U-11	-2	Putative_Passenger	Test passenger	Class 2	Class annotation
+P2RY10	27334	TCGA-A2-A04U-11	-2	Putative_Driver	Test driver	Class 1	Class annotation
+KIAA1549	57670	TCGA-A2-A04U-11	-2				
+ADAMTS20	80070	TCGA-A2-A04U-11	-2				
+
+# partial deletion gets converted into full deletion:
+ABLIM1	3983	TCGA-A2-A04U-11	-1.5	Putative_Passenger	Test passenger		
+
+# Ignore hemizygous deletion and value gain:
+OTOR	56914	TCGA-A2-A04U-11	0				
+OTOR	56914	TCGA-A1-A0SB-11	1				
+FGFR3	2261	TCGA-A2-A04U-11	0	Putative_Driver	Test driver		
+FGFR3	2261	TCGA-A1-A0SB-11	-1				
+
+# This line references two genes: it will be ignored
+AKT1 /// AKT2	2	2	2	2	2	2	2	2	2	2	2	2	2	2
+
+# This gene-sample combi already exists: it will be ignored
+KIAA1549	57670	TCGA-A2-A04U-11	2				

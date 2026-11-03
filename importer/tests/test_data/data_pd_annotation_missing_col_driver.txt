@@ -1,0 +1,2 @@
+Entrez_Gene_Id	Hugo_Symbol	SAMPLE_ID	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+219293	ATAD3C	TCGA-A1-A0SB-01	Test passenger	Class 2	Class annotation

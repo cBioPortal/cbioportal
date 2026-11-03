@@ -1,0 +1,6 @@
+#Patient Identifier	Sample Identifier	Subtype	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Patient Identifier	Sample identifier	Subtype description	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
+#STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1	1	1
+SAMPLE_ID	PATIENT_ID	SUBTYPE	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
+TEST-INC-TCGA-P2-S1	TEST-INC-TCGA-P2	Luminal A	0:LIVING	23.45	1:Recurred/Progressed	100

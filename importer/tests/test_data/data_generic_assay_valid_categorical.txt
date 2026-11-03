@@ -1,0 +1,4 @@
+ENTITY_STABLE_ID	name	description	url	TCGA-A1-A0SB-01	TCGA-A1-A0SD-01	TCGA-A1-A0SE-01	TCGA-A1-A0SH-01	TCGA-A2-A04U-01	TCGA-B6-A0RS-01	TCGA-BH-A0HP-01	TCGA-BH-A18P-01
+mean_1	mean_1	mean_1	url_1	category_1	category_2	category_2	category_2	category_1	category_1	category_3	category_4
+mean_2	mean_2	mean_2	url_2	category_2	category_1	category_1	category_2	category_1	category_2	category_3	category_4
+mean_3	mean_3	mean_3	url_3	category_2	category_1	category_2	category_2	category_1	category_2	NA	category_3

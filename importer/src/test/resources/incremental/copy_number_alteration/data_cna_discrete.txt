@@ -1,0 +1,17 @@
+Hugo_Symbol	Entrez_Gene_Id	TCGA-XX-0800-01	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	TCGA-A1-A0SO-01
+AKT3	10000	0	-2	-2
+AKT1	207	-1	2	2
+# All after the pipe has to be removed				
+AKT2|TEST	208	-2	2	-1
+HRAS	3265	2	2	0
+KRAS	3845	0	-2	2
+# This gene absent in this file, but it's still part of the profile and has to be updated
+#ATM	472
+# This line missing the hugo symbol and the gene has to be detected by entrez id				
+	4893	-2	-2	-1
+# This line missing the entrez id and the gene has to be detected by hugo symbol				
+BRCA1		2	2	0
+BRAF	673	2	-2	-2
+BRCA2	675	-1.5	2	0
+# This gene is new! the empty values should be set for the already existing samples in the database				
+CDK1	983	-2	-2	2

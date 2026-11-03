@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<svg width="640" height="100" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit-->
+ <title>clickhouse_tools_img1</title>
+ <g class="layer">
+  <title>Layer 1</title>
+  <rect fill="#ffc6c6" height="73" id="svg_2" stroke="#000000" stroke-width="5" width="132" x="56.5" y="18.5"/>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_3" stroke="#000000" stroke-width="0" text-anchor="middle" x="122.5" xml:space="preserve" y="46.51">cBioPortal</text>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_5" stroke="#000000" stroke-width="0" style="cursor: move;" text-anchor="middle" x="125.5" xml:space="preserve" y="73.51">data update</text>
+  <ellipse cx="313.75" cy="15" fill="#ffc6c6" id="svg_6" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="312.5" cy="85" fill="#000000" fill-opacity="0" id="svg_7" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_9" stroke="#000000" stroke-width="5" x1="248.5" x2="247.5" y1="16" y2="87"/>
+  <line fill="none" id="svg_10" stroke="#000000" stroke-width="5" x1="379.5" x2="378.5" y1="16" y2="87"/>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_12" stroke="#000000" stroke-width="0" text-anchor="middle" x="311.74" xml:space="preserve" y="57.75">MySQL DB</text>
+  <line fill="none" id="svg_13" stroke="#000000" stroke-width="5" x1="191" x2="248.5" y1="53.5" y2="53"/>
+  <line fill="none" id="svg_15" stroke="#000000" stroke-width="5" x1="247" x2="231.5" y1="53" y2="45.5"/>
+  <line fill="none" id="svg_16" stroke="#000000" stroke-width="5" x1="245.5" x2="231.5" y1="54.5" y2="61"/>
+  <ellipse cx="504.25" cy="17" fill="#ffc6c6" id="svg_17" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="503" cy="87" fill="#000000" fill-opacity="0" id="svg_18" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_19" stroke="#000000" stroke-width="5" x1="439" x2="438" y1="18" y2="89"/>
+  <line fill="none" id="svg_20" stroke="#000000" stroke-width="5" x1="570" x2="569" y1="18" y2="89"/>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_22" stroke="#000000" stroke-width="0" style="cursor: move;" text-anchor="middle" x="504.74" xml:space="preserve" y="59.75">ClickHouse DB</text>
+  <line fill="none" id="svg_23" stroke="#000000" stroke-width="5" x1="381.5" x2="439" y1="55.5" y2="55"/>
+  <line fill="none" id="svg_24" stroke="#000000" stroke-width="5" x1="437.5" x2="422" y1="55" y2="47.5"/>
+  <line fill="none" id="svg_25" stroke="#000000" stroke-width="5" x1="436" x2="422" y1="56.5" y2="63"/>
+  <rect fill="#ffffff" height="11" id="svg_26" stroke="#ffffff" stroke-width="5" width="120.75" x="252.75" y="71.25"/>
+  <rect fill="#ffffff" height="11" id="svg_27" stroke="#ffffff" stroke-width="5" width="120.75" x="443.25" y="73.25"/>
+ </g>
+</svg>

@@ -1,0 +1,15 @@
+TUMORRESIDUALDISEASE : Tumor Residual Disease
+
+TUMORGRADE : Tumor Grade
+
+VITALSTATUS : Vital Status
+PlatinumStatus : Platinum Status
+
+# this line is intentionally constructed incorrectly...
+
+  TUMORSTAGE : Tumor Stage  
+PERSONNEOPLASMCANCERSTATUS : Person Neoplasm Cancer Status
+	ProgressionFreeStatus : Progression Free Status	
+PRIMARYTHERAPYOUTCOMESUCCESS : Primary Therapy Outcome Success
+
+## another incorrect line ##

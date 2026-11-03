@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<svg width="800" height="300" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+ <!-- Created with SVG-edit - https://github.com/SVG-Edit/svgedit-->
+ <title>clickhouse_tools_img2</title>
+ <g class="layer">
+  <title>Layer 1</title>
+  <rect fill="#ffc6c6" height="73" id="svg_2" stroke="#000000" stroke-width="5" width="132" x="12" y="79.75"/>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_3" stroke="#000000" stroke-width="0" text-anchor="middle" x="78" xml:space="preserve" y="107.76">cBioPortal</text>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_5" stroke="#000000" stroke-width="0" text-anchor="middle" x="81" xml:space="preserve" y="134.76">data update</text>
+  <ellipse cx="267.75" cy="14.5" fill="#ffc6c6" id="svg_6" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="266.5" cy="84.5" fill="#000000" fill-opacity="0" id="svg_7" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_9" stroke="#000000" stroke-width="5" x1="202.5" x2="201.5" y1="15.5" y2="86.5"/>
+  <line fill="none" id="svg_10" stroke="#000000" stroke-width="5" x1="333.5" x2="332.5" y1="15.5" y2="86.5"/>
+  <ellipse cx="458.25" cy="16.5" fill="#ffc6c6" id="svg_17" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="457" cy="86.5" fill="#000000" fill-opacity="0" id="svg_18" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_19" stroke="#000000" stroke-width="5" x1="393" x2="392" y1="17.5" y2="88.5"/>
+  <line fill="none" id="svg_20" stroke="#000000" stroke-width="5" x1="524" x2="523" y1="17.5" y2="88.5"/>
+  <line fill="none" id="svg_23" stroke="#000000" stroke-width="5" x1="335.5" x2="393" y1="55" y2="54.5"/>
+  <line fill="none" id="svg_24" stroke="#000000" stroke-width="5" x1="391.5" x2="376" y1="54.5" y2="47"/>
+  <line fill="none" id="svg_25" stroke="#000000" stroke-width="5" x1="390" x2="376" y1="56" y2="62.5"/>
+  <rect fill="#ffffff" height="11" id="svg_26" stroke="#ffffff" stroke-width="5" width="120.75" x="206.75" y="70.75"/>
+  <rect fill="#ffffff" height="11" id="svg_27" stroke="#ffffff" stroke-width="5" width="120.75" x="397.25" y="72.75"/>
+  <rect fill="#ffffff" height="73" id="svg_28" stroke="#000000" stroke-width="5" width="132" x="591.75" y="87.25"/>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_34" stroke="#000000" stroke-width="0" text-anchor="middle" x="659.25" xml:space="preserve" y="116.76">cBioPortal</text>
+  <text fill="#000000" font-family="Serif" font-size="20" id="svg_35" stroke="#000000" stroke-width="0" text-anchor="middle" x="662.25" xml:space="preserve" y="143.76">website</text>
+  <ellipse cx="266.25" cy="137.25" fill="#ffc6c6" id="svg_53" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="265" cy="207.25" fill="#000000" fill-opacity="0" id="svg_54" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_55" stroke="#000000" stroke-width="5" x1="201" x2="200" y1="138.25" y2="209.25"/>
+  <line fill="none" id="svg_56" stroke="#000000" stroke-width="5" x1="332" x2="331" y1="138.25" y2="209.25"/>
+  <ellipse cx="456.75" cy="139.25" fill="#ffc6c6" id="svg_58" rx="65.75" ry="11" stroke="#000000" stroke-width="5"/>
+  <ellipse cx="455.5" cy="209.25" fill="#000000" fill-opacity="0" id="svg_59" rx="66" ry="11" stroke="#000000" stroke-width="5"/>
+  <line fill="none" id="svg_60" stroke="#000000" stroke-width="5" x1="391.5" x2="390.5" y1="140.25" y2="211.25"/>
+  <line fill="none" id="svg_61" stroke="#000000" stroke-width="5" x1="522.5" x2="521.5" y1="140.25" y2="211.25"/>
+  <line fill="none" id="svg_63" stroke="#000000" stroke-width="5" x1="334" x2="391.5" y1="177.75" y2="177.25"/>
+  <line fill="none" id="svg_64" stroke="#000000" stroke-width="5" x1="390" x2="374.5" y1="177.25" y2="169.75"/>
+  <line fill="none" id="svg_65" stroke="#000000" stroke-width="5" x1="388.5" x2="374.5" y1="178.75" y2="185.25"/>
+  <rect fill="#ffffff" height="11" id="svg_66" stroke="#ffffff" stroke-width="5" width="120.75" x="205.25" y="193.5"/>
+  <rect fill="#ffffff" height="11" id="svg_67" stroke="#ffffff" stroke-width="5" width="120.75" x="395.75" y="195.5"/>
+  <text fill="#228abf" font-family="Serif" font-size="20" id="svg_22" stroke="#000000" stroke-width="0" text-anchor="middle" transform="matrix(1 0 0 1 0 0)" x="458.74" xml:space="preserve" y="78.5">ClickHouse DB</text>
+  <text fill="#228abf" font-family="Serif" font-size="20" id="svg_12" stroke="#005682" stroke-width="0" text-anchor="middle" transform="matrix(1 0 0 1 0 0)" x="265.74" xml:space="preserve" y="76.5">MySQL DB</text>
+  <text fill="#228abf" font-family="Serif" font-size="20" id="svg_68" stroke="#005682" stroke-width="0" text-anchor="middle" x="264.49" xml:space="preserve" y="53.75">production</text>
+  <text fill="#228abf" font-family="Serif" font-size="20" id="svg_69" stroke="#000000" stroke-width="0" style="cursor: move;" text-anchor="middle" transform="matrix(1 0 0 1 0 0)" x="459.49" xml:space="preserve" y="54">production</text>
+  <text fill="#44c433" font-family="Serif" font-size="20" id="svg_62" stroke="#000000" stroke-width="0" text-anchor="middle" x="457.24" xml:space="preserve" y="199.5">ClickHouse DB</text>
+  <text fill="#44c433" font-family="Serif" font-size="20" id="svg_57" stroke="#000000" stroke-width="0" text-anchor="middle" x="264.24" xml:space="preserve" y="197.5">MySQL DB</text>
+  <text fill="#44c433" font-family="Serif" font-size="20" id="svg_70" stroke="#000000" stroke-width="0" text-anchor="middle" x="263.24" xml:space="preserve" y="175.5">standby</text>
+  <text fill="#44c433" font-family="Serif" font-size="20" id="svg_71" stroke="#000000" stroke-width="0" style="cursor: move;" text-anchor="middle" x="458.24" xml:space="preserve" y="175.75">standby</text>
+  <line fill="none" id="svg_73" stroke="#000000" stroke-width="5" x1="145.33" x2="200.08" y1="117.42" y2="175.92"/>
+  <line fill="none" id="svg_74" stroke="#000000" stroke-width="5" transform="rotate(8.00474 192.708 173.667)" x1="198.33" x2="187.08" y1="174.17" y2="173.17"/>
+  <line fill="none" id="svg_75" stroke="#000000" stroke-width="5" x1="192.58" x2="200.08" y1="158.92" y2="174.42"/>
+  <line fill="none" id="svg_76" stroke="#000000" stroke-width="5" x1="524.33" x2="591.08" y1="52.67" y2="129.42"/>
+  <line fill="none" id="svg_77" stroke="#000000" stroke-width="5" transform="matrix(1 0 0 1 0 0)" x1="590.58" x2="578.83" y1="129.17" y2="126.42"/>
+  <line fill="none" id="svg_78" stroke="#000000" stroke-width="5" x1="589.83" x2="585.08" y1="125.42" y2="112.67"/>
+ </g>
+</svg>

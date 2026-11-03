@@ -1,0 +1,2 @@
+luad	Lung Adenocarcinoma	Gainsboro	Long
+new	new type	PaleGreen	tissue

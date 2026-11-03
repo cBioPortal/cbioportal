@@ -1,0 +1,12 @@
+PATIENT_ID	RESOURCE_ID	URL	DISPLAY_NAME
+TCGA-A2-A04P	CT_SCAN	https://imaging.example.com/ct/TCGA-A2-A04P.dcm	CT Scan - TCGA-A2-A04P
+TCGA-A1-A0SK	CT_SCAN	https://imaging.example.com/ct/TCGA-A1-A0SK.dcm	CT Scan - TCGA-A1-A0SK
+TCGA-A2-A0CM	CT_SCAN	https://imaging.example.com/ct/TCGA-A2-A0CM.dcm	CT Scan - TCGA-A2-A0CM
+TCGA-AR-A1AR	CT_SCAN	https://imaging.example.com/ct/TCGA-AR-A1AR.dcm	CT Scan - TCGA-AR-A1AR
+TCGA-B6-A0WX	CT_SCAN	https://imaging.example.com/ct/TCGA-B6-A0WX.dcm	CT Scan - TCGA-B6-A0WX
+TCGA-BH-A1F0	CT_SCAN	https://imaging.example.com/ct/TCGA-BH-A1F0.dcm	CT Scan - TCGA-BH-A1F0
+TCGA-B6-A0I6	CT_SCAN	https://imaging.example.com/ct/TCGA-B6-A0I6.dcm	CT Scan - TCGA-B6-A0I6
+TCGA-BH-A18V	CT_SCAN	https://imaging.example.com/ct/TCGA-BH-A18V.dcm	CT Scan - TCGA-BH-A18V
+TCGA-A2-A04P	PATIENT_NOTES	http://url-to-patient-notes-tcga-a2-a04p	
+TCGA-A1-A0SK	PATIENT_NOTES	http://url-to-patient-notes-tcga-a1-a0sk	
+TCGA-A2-A0CM	PATIENT_NOTES	http://url-to-patient-notes-tcga-a2-a0cm	

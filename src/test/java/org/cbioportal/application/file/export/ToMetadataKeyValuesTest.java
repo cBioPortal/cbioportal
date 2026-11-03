@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
+import org.cbioportal.application.file.model.CaseListMetadata;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.junit.Test;
@@ -118,6 +119,24 @@ public class ToMetadataKeyValuesTest {
     expectedMetadata.put("generic_entity_meta_properties", "property1,property2");
 
     assertEquals(expectedMetadata, geneticProfileMetadata.toMetadataKeyValues());
+  }
+
+  @Test
+  public void testGeneticProfileDatatypeStableIdPreservesRepeatedStudyIdentifier() {
+    var geneticProfileMetadata = new GeneticProfileDatatypeMetadata();
+    geneticProfileMetadata.setCancerStudyIdentifier("study");
+    geneticProfileMetadata.setStableId("study_study_mutations");
+
+    assertEquals("study_mutations", geneticProfileMetadata.getGeneticDatatypeStableId());
+  }
+
+  @Test
+  public void testCaseListTypeStableIdPreservesRepeatedStudyIdentifier() {
+    var caseListMetadata = new CaseListMetadata();
+    caseListMetadata.setCancerStudyIdentifier("study");
+    caseListMetadata.setStableId("study_study_sequenced");
+
+    assertEquals("study_sequenced", caseListMetadata.getCaseListTypeStableId());
   }
 
   @Test

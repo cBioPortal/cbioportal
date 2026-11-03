@@ -21,7 +21,7 @@ The immediate goals for the hackathon are below. Goal 2 comes first, because the
 ### Goal 1: Trim redundancies and consolidate the shared models
 
 - **One copy of each shared type.** Merge the five `org.mskcc.cbio.portal.model.shared` classes that have cbioportal counterparts (see [Duplicated types](#duplicated-types)) into `shared-model`. This includes reconciling the values of `GeneticAlterationType` with `MolecularAlterationType`, and of `MolecularProfileDataType` with `MolecularProfile.DataType` / `ImportType`.
-- **Duplicates within cbioportal.** `GeneticEntity` and `GenericEntityProperty` each exist in both `legacy/model` and `application/file/model`.
+- **Duplicates within cbioportal: done.** The `legacy/model` copies of `GeneticEntity` and `GenericEntityProperty` were unused, and have been deleted. The `application/file/model` classes with the same names aren't copies: they're smaller, export-specific classes used by the file-export MyBatis mapper, so they stay.
 - **Other parallel models.** Audit the importer's `org.mskcc.cbio.portal.model` package against `legacy/model` (for example `Sample` and `CancerStudy`), and merge the ones that represent the same thing.
 - **Unused dependencies and leftover files: done.** `dom4j`, `commons-text`, `opencsv`, `commons-io` and the unused `commons_cli.version` property are removed. `importer/.github/` was ported to the root workflows and removed, `importer/LICENSE` was removed, and `importer/README.md` was rewritten. `importer/Dockerfile` stays, because the ported workflow still publishes `cbioportal/cbioportal-core` from it.
 - **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, an ArchUnit rule keeps it that way, and both modules build.
@@ -40,8 +40,10 @@ cbioportal/
   importer/pom.xml   ← parent = ../pom.xml; declares no versions of its own
 ```
 
+- **Artifact coordinates (decided, Nov 3, 2026):** the web module keeps `io.github.cbioportal:cbioportal`, so consumers of the published web artifact on Maven Central and JitPack see no change. The new root aggregator/parent POM becomes `io.github.cbioportal:cbioportal-parent`. Because the published web artifact now references that parent, the parent POM and `shared-model` must also be published to Maven Central. Whether the importer itself is published is still open.
 - Every version is declared once, in the root, which ends the "keep in sync with `../pom.xml`" comments.
-- One ClickHouse JDBC version and classifier for both modules, and one Testcontainers ClickHouse version.
+- **ClickHouse JDBC driver (decided and applied, Nov 3, 2026):** 0.6.2 with the `http` classifier and the root's `httpclient5`/`httpcore5` pins, in both modules. 0.6.4 was tried first and reverted, because it breaks 21 ClickHouse mapper tests in the web app (cause not yet known; see the drop report). It's a `clickhouse_jdbc.version` property today and becomes a single parent entry in the reactor. Still needed: one Testcontainers ClickHouse version.
+- **Importer version (decided, Nov 3, 2026):** modules inherit the parent's version (`v7.2.5-SNAPSHOT` today) instead of keeping 1.0.x. The release workflow's `mvn versions:set` then updates every module at once. The JAR keeps the `core-*.jar` name, so the Docker and Docker Compose paths are unaffected. This takes effect when the importer gets the root as its parent; `importer/pom.xml` stays at 1.0.16 until then.
 - Web-only build settings (frontend dependency, git-commit-id, Spring Boot repackage, JaCoCo/Sonar paths, Spotless includes) move to `web/pom.xml`.
 - The importer must override the shade transformers it would otherwise inherit from `spring-boot-starter-parent`'s pluginManagement.
 - The Dockerfile builds the importer from this repository; the `build-core` stage that clones `cbioportal-core` goes away.
@@ -131,7 +133,7 @@ cbioportal/
 
 The two repos are on different framework generations. Core uses Spring 6.2.x and mostly JUnit 4. cbioportal just moved to Spring Boot 4.1 / Spring Framework 7. If the importer inherits the parent POM's dependency management, its dependencies will be upgraded under it.
 
-**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. Two differences remain open: the ClickHouse JDBC driver and the Testcontainers ClickHouse module. The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
+**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. One difference remains open, the Testcontainers ClickHouse module; the ClickHouse JDBC driver was aligned afterwards at 0.6.2 `http` (0.6.4 breaks web app tests). The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
 
 ## Shared Code
 
@@ -143,8 +145,8 @@ The two repos are on different framework generations. Core uses Spring 6.2.x and
 | `MolecularProfileDataType` | None as a class; closest are `MolecularProfile.DataType` / `ImportType` | Values need to be reconciled, not just deduplicated |
 | `EntityType` | `legacy/model/EntityType` | |
 | `GenericAssayMeta` | `legacy/model/meta/GenericAssayMeta` | |
-| `GenericEntityProperty` | `legacy/model/GenericEntityProperty`, `application/file/model/GenericEntityProperty` | Also duplicated within cbioportal |
-| `GeneticEntity` | `legacy/model/GeneticEntity`, `application/file/model/GeneticEntity` | Also duplicated within cbioportal |
+| `GenericEntityProperty` | ~~`legacy/model/GenericEntityProperty`~~ (unused; deleted) | The importer copy becomes the shared one; the export-only `application/file/model/GenericEntityProperty` is a different class |
+| `GeneticEntity` | ~~`legacy/model/GeneticEntity`~~ (unused; deleted) | The importer copy becomes the shared one; the export-only `application/file/model/GeneticEntity` is a different class |
 | `ResourceType` | `legacy/model/ResourceType` | |
 
 Other models, such as `Sample` and `CancerStudy`, are reported to differ in field names and constructors. Phase 4 should check the full list.
@@ -262,6 +264,44 @@ The goal is one approach for both: the same API and backend (SLF4J and Logback),
 - Deciding how the Python wrappers (`metaImport.py`, `cbioportalImporter.py`, `validateData.py`) and the Java importer they call share log levels and output format.
 - Retiring the logging config templates that are no longer used.
 
+### Upgrade the ClickHouse JDBC driver
+
+Both modules are pinned to `clickhouse-jdbc` 0.6.2 with the `http` classifier (see [Goal 2](#goal-2-consolidate-the-root-pom-and-importerpomxml)). The latest release is 0.11.0. Findings from Nov 3, 2026, for whoever picks this up:
+
+**Why 0.6.4 was reverted.** The 0.6.3 and 0.6.4 release notes don't mention it, but 0.6.4 changed what the legacy (V1) JDBC driver does with statements it can't classify. 0.6.2 treats them as queries and returns their rows. 0.6.4 treats them as returning nothing: the server sends the rows, and the driver discards them ("N bytes skipped before closing input stream"). A JDBC probe against ClickHouse 24.5 confirmed two triggers, both used by the web app's ClickHouse mappers:
+
+| Query shape | 0.6.2 | 0.6.4 | 0.11.0 | Where it's used |
+| --- | --- | --- | --- | --- |
+| Statement starting with `(`, e.g. `(SELECT 1)`, `(WITH … SELECT …)`, `(SELECT …) UNION ALL (SELECT …)` | Rows returned | **No result set** | Rows returned | `getClinicalDataCountsByStudyViewFilter`: 12 failing tests in `ClickhouseClinicalDataMapperTest` |
+| `?` placeholder in a `SETTINGS` clause, e.g. `… SETTINGS max_memory_usage = ?` (the driver's own parser can't handle it, so it logs a parse error) | Rows returned | **No result set** | Rows returned | `getResourceTableMetadataKeyStats` in `ResourceDataMapper.xml`: 9 failing tests in `ClickhouseResourceDataMapperTest` / `ClickhouseResourceDataRepositoryTest` |
+| Plain `SELECT …`, `WITH … SELECT …`, `LIMIT ?`, string literal `'{}'` | Rows returned | Rows returned | Rows returned | — |
+
+If anyone wants to stay on the 0.6.x line but move past 0.6.2, the mapper-side workarounds are: wrap parenthesized statements as `SELECT * FROM ( … )`, and put the `SETTINGS` value inline instead of binding it as a parameter.
+
+**What moving to 0.11.0 involves.** 0.11.0 isn't an incremental upgrade. Since 0.8.0 the default driver is a rewritten implementation (`jdbc-v2`, built on `client-v2`), and since 0.9.0 the `http`, `shaded` and `shaded-all` classifiers are no longer published.
+
+- **Web application: likely a small change.**
+  - Both query shapes above work on 0.11.0.
+  - The web app imports nothing from `com.clickhouse` directly; it uses the driver through MyBatis and Spring. Its custom type handlers (`ClickhouseMapTypeHandler`, `ClickhouseJsonMapTypeHandler`) and the `ArrayTypeHandler` parameters still need to be covered by the test suite.
+  - Packaging gets simpler. The plain 0.11.0 JAR depends on `httpclient5` 5.6.4 / `httpcore5` 5.4.3, exactly the versions the root pins for GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. The `http` classifier and the explicit `httpclient5` dependency can go.
+  - Full web test suite on 0.11.0: *result pending*.
+- **Importer: real porting work.**
+  - The importer's bulk-load path doesn't work on 0.11.0. `ClickHouseBulkLoader`, `ClickHouseBulkDeleter` and `ClickHouseBulkUploader` send data as `INSERT INTO … FORMAT TSV(WithNames)` with the payload bound through `PreparedStatement.setBinaryStream`. That's a V1-only "stream-based PreparedStatement" feature, which V2 removed. A probe of exactly this pattern inserts 3 rows on 0.6.2; on 0.11.0 it throws `ArrayIndexOutOfBoundsException` and inserts nothing.
+  - These three classes would need to move to the `client-v2` insert API (an insert from an `InputStream` with a TSV format) or to a different insert approach.
+  - V2 also drops JDBC transactions, which V1 only simulated. That affects the importer's Spring `TransactionTemplate` usage (`TransactionalScriptRunner`) and `DaoGenericAssay`'s `setAutoCommit(false)`. Check whether either relies on rollback.
+- **Dependency conflicts.**
+  - With today's root pins, Maven resolves three of the driver's dependencies to *older* versions than 0.11.0 declares: Guava 32.1.3-jre (wants 33.7.2-jre), commons-lang3 3.18.0 (wants 3.20.0) and commons-compress 1.24.0 (wants 1.28.0). Each needs checking or raising.
+  - 0.11.0 also brings in `at.yawk.lz4:lz4-java`, a fork that provides the same `net.jpountz` classes as the importer's `org.lz4:lz4-java` 1.8.0. Keep only one.
+- **Other V2 behavior changes to review:**
+  - No multi-statement SQL and no named parameters.
+  - Since 0.11.0: no default socket buffer sizes; `TIMEOUT_EXCEEDED` is no longer retried; `DatabaseMetaData.getTables` returns `null` remarks; and a new `User-Agent` format.
+  - A `migration-helpers` module converts V1 configuration properties and URLs to the V2 format.
+
+**Suggested order:**
+1. Upgrade the web app first. It can move as soon as its test suite passes on 0.11.0.
+2. Port the importer's three bulk classes to `client-v2`.
+3. Return both modules to a single driver version, as the reactor's one dependency entry.
+
 ## Open Questions
 
 Please comment on this document or open a GitHub discussion thread.
@@ -275,8 +315,14 @@ Please comment on this document or open a GitHub discussion thread.
 
 **Build and release**
 
+- [x] ~~Who keeps the `io.github.cbioportal:cbioportal` coordinates?~~ Decided: the web module keeps them; the root becomes `cbioportal-parent`; the parent POM and `shared-model` are published.
+- [ ] Should the importer module be published to Maven Central too, or skipped (`maven.deploy.skip`)? If published, it has to pass the `maven-central` profile's javadoc, sources and GPG steps.
+
 - [ ] Upgrade the importer to the parent's dependency versions (recommended), or allow overrides?
-- [ ] Should the importer's version always match the parent version?
+- [x] ~~Should the importer's version always match the parent version?~~ Decided: yes, modules inherit the parent's version.
+- [x] ~~Which ClickHouse JDBC driver?~~ Decided: 0.6.2 with the `http` classifier, in both modules. 0.6.4 was reverted after it broke 21 web app tests.
+- [x] ~~What in 0.6.4 breaks the ClickHouse mapper queries?~~ Answered: statements starting with `(` and `SETTINGS … = ?` placeholders return no result set on 0.6.4. See [Upgrade the ClickHouse JDBC driver](#upgrade-the-clickhouse-jdbc-driver).
+- [ ] When should the driver upgrade to 0.11.0 (a future goal) be scheduled, and who ports the importer's bulk-load classes to `client-v2`?
 - [ ] What happens to the `core` Maven artifact and the 1.0.x version line?
 
 **Tests and CI**

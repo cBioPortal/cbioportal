@@ -109,7 +109,7 @@ Artifacts that only the importer uses, and that changed as a side effect:
 ### Not yet tested at runtime
 
 6. **Spring 7 at run time.** The importer compiles, but no import has been run against a database. The code paths most exposed to the Spring 6 → 7 change are the XML application context (`FileSystemXmlApplicationContext`), `TransactionTemplate` and `JdbcTemplate`. Before going further, load a study, for example `study_es_0`, with the new JAR.
-7. **No SLF4J provider in the shaded JAR.** The JAR logs "No SLF4J providers were found" and falls back to no-op logging, because logback is only on the test classpath. This was already the case before the drop.
+7. **No SLF4J provider in the shaded JAR.** The JAR logs "No SLF4J providers were found" and falls back to no-op logging, because logback is only on the test classpath. This was already the case before the drop. Fixing it is part of the logging harmonization future goal in the RFC, which is out of scope for the hackathon.
 
 ### Build, packaging and repo integration
 
@@ -121,7 +121,7 @@ Artifacts that only the importer uses, and that changed as a side effect:
     - `importer/Dockerfile` builds a standalone importer image. Keep it or retire it.
     - `importer/README.md` and `importer/LICENSE` duplicate root files and reference the old repo.
     - The `maven-resources-plugin` FIXME in `importer/pom.xml` still links to the old Docker setup.
-12. **Git history.** The files were copied, not merged, so `git log` and `blame` for `importer/` start at the drop commit. If history matters, redo the drop with `git filter-repo --to-subdirectory-filter importer` and a merge with `--allow-unrelated-histories` before anyone builds on it.
+12. **Git history: resolved, not needed.** The files were copied, not merged, so `git log` and blame for `importer/` start at the drop commit. That's the decided approach; earlier history stays in the archived `cbioportal-core` repository.
 13. **Code style.** The root's Spotless configuration only covers `src/main/java` and `src/test/java`. The importer uses its own formatting (tabs in the POM, different Java style) and isn't checked.
 
 ### Shared code (unchanged by this step)
@@ -129,7 +129,7 @@ Artifacts that only the importer uses, and that changed as a side effect:
 14. **Duplicated domain types.** Five of the seven classes in `importer/src/main/java/org/mskcc/cbio/portal/model/shared/` still have separate counterparts under `src/main/java/org/cbioportal/legacy/model/`. Now that both copies are in one repo, the duplication is easier to see. RFC Phase 4 covers these.
 15. **Schema location and version.** `db.version` (3.1.0) is declared in both POMs. The comment in `importer/pom.xml` now points to `../pom.xml` and `../src/main/resources/db-scripts/clickhouse/init/schema.sql`.
 
-### Test environments (out of scope for now)
+### Test environments (now hackathon goal 3 in the RFC)
 
 16. **Schema download.** `IntegrationTestBase` still downloads `clickhouse_cgds.sql` from GitHub at `cbioportal.version` v6.4.1, which is stale. It could now read `../src/test/resources/clickhouse_cgds.sql` directly.
 17. **Old Surefire with JUnit 4 tests.** Surefire is still pinned at 2.21.0, and 76 of 82 test classes use JUnit 4. `spring-boot-starter-test` 4.1 brings in JUnit Jupiter 6, and there's no Vintage engine. Expect test discovery to need attention before the suites run.

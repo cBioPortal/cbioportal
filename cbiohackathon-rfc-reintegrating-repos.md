@@ -12,6 +12,61 @@ This RFC proposes freezing the `cbioportal-core` repository and moving its impor
 
 After the merge, one repository would hold separate Maven modules for the web application, the importer and the types they share. It would have one build, one version and one CI setup that runs only the tests a change touches. `cbioportal-core` would be archived (read-only) once the migration is complete and downstream users have been updated.
 
+## Hackathon Goals (In Scope)
+
+**Done so far:** the importer code is in `importer/`, and its dependencies are aligned with the web application's (50 of the 52 version differences resolved). See [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
+
+The immediate goals for the hackathon are below. Goal 2 comes first, because the shared module it creates is where goal 1's merged types go. The importer half of goal 3 can run alongside it.
+
+### Goal 1: Trim redundancies and consolidate the shared models
+
+- **One copy of each shared type.** Merge the five `org.mskcc.cbio.portal.model.shared` classes that have cbioportal counterparts (see [Duplicated types](#duplicated-types)) into `shared-model`. This includes reconciling the values of `GeneticAlterationType` with `MolecularAlterationType`, and of `MolecularProfileDataType` with `MolecularProfile.DataType` / `ImportType`.
+- **Duplicates within cbioportal.** `GeneticEntity` and `GenericEntityProperty` each exist in both `legacy/model` and `application/file/model`.
+- **Other parallel models.** Audit the importer's `org.mskcc.cbio.portal.model` package against `legacy/model` (for example `Sample` and `CancerStudy`), and merge the ones that represent the same thing.
+- **Unused dependencies and leftover files.**
+  - Remove `dom4j`, `commons-text`, `opencsv` and `commons-io`, which no importer code references, along with the unused `commons_cli.version` property.
+  - Once their contents have been ported, remove the leftover core-repo files: `importer/.github/`, `importer/Dockerfile`, and the copies of `README.md` / `LICENSE`.
+- **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, an ArchUnit rule keeps it that way, and both modules build.
+
+### Goal 2: Consolidate the root POM and `importer/pom.xml`
+
+Proposed layout for the hackathon: a reactor that doesn't move `src/`. It's a variant of Option A in [Build Structure](#build-structure-and-file-organization).
+
+```
+cbioportal/
+  pom.xml            ← parent/aggregator (<packaging>pom</packaging>): Spring Boot parent,
+                       all version properties, dependencyManagement, pluginManagement
+  web/pom.xml        ← the web application; builds ../src in place (Spring Boot JAR)
+  src/               ← unchanged
+  shared-model/      ← the merged shared types (goal 1)
+  importer/pom.xml   ← parent = ../pom.xml; declares no versions of its own
+```
+
+- Every version is declared once, in the root, which ends the "keep in sync with `../pom.xml`" comments.
+- One ClickHouse JDBC version and classifier for both modules, and one Testcontainers ClickHouse version.
+- Web-only build settings (frontend dependency, git-commit-id, Spring Boot repackage, JaCoCo/Sonar paths, Spotless includes) move to `web/pom.xml`.
+- The importer must override the shade transformers it would otherwise inherit from `spring-boot-starter-parent`'s pluginManagement.
+- The Dockerfile builds the importer from this repository; the `build-core` stage that clones `cbioportal-core` goes away.
+- **Trade-off:** the web module's sources live outside its own folder (`../src`). That's less conventional, but it avoids the mass rename. The `backend/` move can still happen later.
+- **Done when:** `mvn package` at the root builds both JARs, versions appear only in the root POM, and the Docker image builds without cloning `cbioportal-core`.
+
+### Goal 3: Fix the test environments for each module
+
+**Importer**
+
+- Use the Surefire version Spring Boot manages instead of the pinned 2.21.0. Then add the JUnit Vintage engine, or migrate the 76 JUnit 4 classes to JUnit Jupiter.
+- Have `IntegrationTestBase` read `clickhouse_cgds.sql` from the repository instead of downloading it from GitHub, and drop the stale `cbioportal.version` (v6.4.1) property.
+- Make the Python tests (`test_scripts.sh` / `tests/`) runnable from `importer/`.
+- Port `maven.yml` and `validate-python.yml` into the root `.github/workflows/`, scoped to the paths each covers.
+
+**Web application**
+
+- Confirm the backend unit and integration tests still pass after the POM restructure.
+- Rename `core-test.yml`; it tests the web application, not the importer.
+- Fix the root's internal Testcontainers mismatch (ClickHouse module 1.19.7 vs everything else at 1.21.4).
+
+**Done when:** `mvn verify` at the root runs both modules' unit and integration tests, and CI runs them.
+
 ## Current State
 
 | | `cbioportal` | `cbioportal-core` |
@@ -78,13 +133,7 @@ cbioportal/
 
 The two repos are on different framework generations. Core uses Spring 6.2.x and mostly JUnit 4. cbioportal just moved to Spring Boot 4.1 / Spring Framework 7. If the importer inherits the parent POM's dependency management, its dependencies will be upgraded under it.
 
-Recommendation: **upgrade the importer in `cbioportal-core` first**, as its own phase, before moving any code. This keeps "it broke because of the upgrade" separate from "it broke because of the move". The work includes:
-
-- Spring 6.2 → 7 for `spring-context`, `spring-jdbc` and `spring-tx`.
-- JUnit 4 → JUnit 5 for 76 test files (or run them on the JUnit Vintage engine for now).
-- Matching shared libraries (Jackson, commons-*, Testcontainers, ClickHouse JDBC) to the versions the parent POM manages.
-
-The alternative is to let `importer/pom.xml` override the parent's managed versions. That's cheaper now, but the two modules stay on different stacks, which works against the goal of this RFC.
+**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. Two differences remain open: the ClickHouse JDBC driver and the Testcontainers ClickHouse module. The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
 
 ## Shared Code
 
@@ -160,7 +209,7 @@ The integration tests already share one ClickHouse container across the suite, s
 
 ## Migration Mechanics
 
-- **Keep history.** Use `git filter-repo --to-subdirectory-filter importer` on a copy of `cbioportal-core`, then merge it into cbioportal with `--allow-unrelated-histories`. That keeps `git log` and blame for every importer file.
+- **Git history: not carried over (decided).** The importer is copied in as a snapshot of `cbioportal-core@6146cdb`. `git log` and blame for `importer/` start at the drop commit; earlier history stays in the archived `cbioportal-core` repository.
 - **Open PRs and issues.** Before the freeze, merge or close open `cbioportal-core` PRs, and use GitHub's issue transfer to move open issues to `cbioportal`.
 - **Freeze, then archive.** Announce a freeze date. After it, `cbioportal-core` accepts only critical fixes, which are also applied in `cbioportal/importer`, until the archive phase.
 - **Rollback.** Until the archive phase, `cbioportal-core` keeps building and publishing. If the migration stalls, the Dockerfile can go back to the `build-core` stage.
@@ -186,13 +235,34 @@ Durations are rough and assume 2–3 engineers. Each phase must finish before th
 | 0: RFC | Circulate; decide layout (A/B), module names, package name, CI rules | 2 weeks | RFC approved by maintainers |
 | 1: Importer dependency upgrade | In `cbioportal-core`: Spring 7, JUnit 5 (or Vintage), match the parent's library versions | 1–2 weeks | Core CI passes on the upgraded stack |
 | 2: Build restructure | Aggregator POM; empty `shared-model`; under Option A, move `src/` to `backend/` | 1 week | `mvn package` from root produces the backend JAR; backend tests pass |
-| 3: Importer move | Bring in core's history under `importer/`; move workflows; importer tests read the schema from the repo | 1–2 weeks | Importer Java and Python tests pass in cbioportal CI; no GitHub schema download |
+| 3: Importer move | Copy core into `importer/` (no history); move workflows; importer tests read the schema from the repo | 1–2 weeks | Importer Java and Python tests pass in cbioportal CI; no GitHub schema download |
 | 4: Shared type consolidation | Move the duplicated types into `shared-model`; reconcile the enums; add ArchUnit rules | 1–2 weeks | `org.mskcc.cbio.portal.model.shared` is empty; ArchUnit rules pass |
 | 5: Docker and CI | Remove the `build-core` stage; path filters; required gate job | 1 week | Image builds from one commit; importer suites run only on relevant changes |
 | 6: Downstream and docs | Docker Compose test, documentation, community notice | 1–2 weeks | Docker Compose deployment tested end-to-end with the new image |
 | 7: Archive `cbioportal-core` | Archive notice in README; archive the repo on GitHub | 1 day | Repo archived; README points to `cbioportal/importer/` |
 
 **Total estimate:** 9–14 weeks from RFC approval to archive.
+
+## Future Goals (Out of Scope)
+
+These are goals for after the reintegration. They are out of scope for the hackathon and for the phases above.
+
+### Harmonize logging
+
+The web application and the importer write logs in different ways:
+
+| | Web application | Importer (Java) | Importer scripts (Python) |
+| --- | --- | --- | --- |
+| Logging API | SLF4J through Spring Boot (`spring-boot-starter-logging`) | SLF4J in 13 classes; 51 classes report through the custom `ProgressMonitor`; 17 classes print directly with `System.out` / `System.err` | Python `logging` module (7 files) |
+| Backend | Logback | None in the shaded JAR (logback is test-only), so SLF4J falls back to no-op and those messages are lost | Python handlers |
+| Configuration | `logging.*` in `application.properties`; `logback.xml.EXAMPLE`, `log4j.properties.EXAMPLE` and `logging.properties` templates in `src/main/resources` | `logback.xml` in test resources only | Per-script |
+
+The goal is one approach for both: the same API and backend (SLF4J and Logback), one configuration format, consistent log levels and message format, and output that a deployment can collect the same way from both the web app and the importer. That would likely involve:
+
+- Shipping a logging backend in the importer JAR, so its SLF4J messages are actually written.
+- Replacing direct `System.out` / `System.err` calls with a logger, and deciding whether `ProgressMonitor` becomes a thin layer over SLF4J or stays a separate user-facing progress channel.
+- Deciding how the Python wrappers (`metaImport.py`, `cbioportalImporter.py`, `validateData.py`) and the Java importer they call share log levels and output format.
+- Retiring the logging config templates that are no longer used.
 
 ## Open Questions
 
@@ -237,5 +307,5 @@ Please comment on this document or open a GitHub discussion thread.
 - Removed the Liquibase references; described the actual ClickHouse SQL schema files.
 - Corrected the importer packaging (`maven-shade-plugin`, not Spring Boot) and kept the `/core/core-IMPORTER.jar` path that Docker Compose relies on.
 - Corrected the test inventory: there's no `e2e/` directory, the Testcontainers instance is already shared, and the branch is `master`.
-- Added migration mechanics (history, open PRs and issues, rollback, Maven coordinates) and the GitHub path-filter catch with required status checks.
+- Added migration mechanics (git history, open PRs and issues, rollback, Maven coordinates) and the GitHub path-filter catch with required status checks.
 - Combined the stakeholder questions into one list and dropped the ones the codebase already answers.

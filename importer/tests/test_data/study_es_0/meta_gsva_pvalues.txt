@@ -1,0 +1,9 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: GENESET_SCORE
+datatype: P-VALUE
+stable_id: gsva_pvalues
+source_stable_id: gsva_scores
+profile_name: Pvalues of GSVA scores on oncogenic signatures gene sets
+profile_description: Pvalues GSVA scores using mRNA expression data
+data_filename: data_gsva_pvalues.txt
+geneset_def_version: msigdb_7.5.1

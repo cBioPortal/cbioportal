@@ -1,0 +1,3 @@
+PATIENT_ID	SAMPLE_ID	RESOURCE_ID	URL	METADATA
+TCGA-A2-A04P	TCGA-A2-A04P-01	PATHOLOGY_SLIDE	https://slide1	{"stain":"H&E","magnification":"20x","slide_id":"SL-1"}
+TCGA-A1-A0SK	TCGA-A1-A0SK-01	PATHOLOGY_SLIDE	https://slide2	{"stain":"IHC","magnification":"40x","slide_id":"SL-2"}

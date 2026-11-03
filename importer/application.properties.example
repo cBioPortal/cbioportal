@@ -1,0 +1,4 @@
+spring.datasource.url=jdbc:clickhouse://localhost:8123/cbioportal
+spring.datasource.username=cbio_user
+spring.datasource.password=somepassword
+spring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver

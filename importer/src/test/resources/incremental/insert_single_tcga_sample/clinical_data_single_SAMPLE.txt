@@ -1,0 +1,6 @@
+#Sample Identifier	Patient Identifier	Subtype	Overall Survival Status	Overall Survival (Months)	Disease Free Status	Disease Free (Months)
+#Sample identifier	Patient Identifier	Subtype description	Overall survival status	Overall survival in months since diagnosis	Disease free status	Disease free in months since treatment
+#STRING	STRING	STRING	STRING	NUMBER	STRING	NUMBER
+#1	1	1	1	1	1	1
+SAMPLE_ID	PATIENT_ID	SUBTYPE	OS_STATUS	OS_MONTHS	DFS_STATUS	DFS_MONTHS
+TEST-INC-TCGA-P1-S1	TEST-INC-TCGA-P1	basal-like	1:DECEASED	12.34	1:Recurred/Progressed	NA

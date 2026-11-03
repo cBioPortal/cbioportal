@@ -1,0 +1,37 @@
+Hugo_Symbol	Entrez_Gene_Id	Sample_Id	Value	cbp_driver	cbp_driver_annotation	cbp_driver_tiers	cbp_driver_tiers_annotation
+AKT3	10000	TCGA-XX-0800-01	0				
+AKT3	10000	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	-2				
+AKT3	10000	TCGA-A1-A0SO-01	-2				
+AKT1	207	TCGA-XX-0800-01	-1				
+AKT1	207	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	2				
+AKT1	207	TCGA-A1-A0SO-01	2				
+# All after the pipe has to be removed							
+AKT2|TEST	208	TCGA-XX-0800-01	-2				
+AKT2|TEST	208	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	2				
+AKT2|TEST	208	TCGA-A1-A0SO-01	-1	Putative_Driver	Test driver	Class 1	Class annotation
+HRAS	3265	TCGA-XX-0800-01	2				
+HRAS	3265	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	2				
+HRAS	3265	TCGA-A1-A0SO-01	0				
+KRAS	3845	TCGA-XX-0800-01	0			Class 2	Class annotation
+KRAS	3845	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	-2				
+KRAS	3845	TCGA-A1-A0SO-01	2	Putative_Passenger	Test passenger	Class 2	Class annotation
+# This gene absent in this file, but it's still part of the profile and has to be updated							
+#ATM	472						
+# This line missing the hugo symbol and the gene has to be detected by entrez id							
+	4893	TCGA-XX-0800-01	-2				
+	4893	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	-2				
+	4893	TCGA-A1-A0SO-01	-1				
+# This line missing the entrez id and the gene has to be detected by hugo symbol							
+BRCA1		TCGA-XX-0800-01	2				
+BRCA1		TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	2				
+BRCA1		TCGA-A1-A0SO-01	0				
+BRAF	673	TCGA-XX-0800-01	2				
+BRAF	673	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	-2				
+BRAF	673	TCGA-A1-A0SO-01	-2				
+BRCA2	675	TCGA-XX-0800-01	-1.5				
+BRCA2	675	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	2				
+BRCA2	675	TCGA-A1-A0SO-01	0				
+# This gene is new! the empty values should be set for the already existing samples in the database							
+CDK1	983	TCGA-XX-0800-01	-2	Putative_Driver			
+CDK1	983	TCGA-AB-CDEF-10-BLOOD_DERIVED_NORMAL	-2				
+CDK1	983	TCGA-A1-A0SO-01	2	Putative_Passenger	Test passenger		

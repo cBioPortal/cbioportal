@@ -1,0 +1,10 @@
+RESOURCE_ID	DISPLAY_NAME	DESCRIPTION	RESOURCE_TYPE	OPEN_BY_DEFAULT	PRIORITY	CUSTOM_METADATA
+RES_WELL_FORMED	Well Formed	Every key the portal reads	SAMPLE	TRUE	1	{"version": 1, "fields": [{"key": "stain", "type": "string", "label": "Stain", "description": "Stain used", "filterable": true, "visibleByDefault": true}]}
+RES_NO_FIELDS	No Fields	Typo: field instead of fields	SAMPLE	TRUE	2	{"version": 1, "field": [{"key": "stain"}]}
+RES_FIELDS_NOT_LIST	Fields Not List	fields is an object	SAMPLE	TRUE	3	{"version": 1, "fields": {"key": "stain"}}
+RES_ENTRY_NOT_OBJECT	Entry Not Object	fields holds a bare string	SAMPLE	TRUE	4	{"version": 1, "fields": ["stain"]}
+RES_ENTRY_NO_KEY	Entry No Key	field entry without key	SAMPLE	TRUE	5	{"version": 1, "fields": [{"label": "Stain"}]}
+RES_NOT_AN_OBJECT	Not An Object	contract is a JSON array	SAMPLE	TRUE	6	[{"key": "stain"}]
+RES_UNKNOWN_TYPE	Unknown Type	type the portal does not implement	SAMPLE	TRUE	7	{"version": 1, "fields": [{"key": "stain", "type": "integer"}]}
+RES_QUOTED_FLAG	Quoted Flag	filterable as a string	SAMPLE	TRUE	8	{"version": 1, "fields": [{"key": "stain", "filterable": "false"}]}
+RES_UNREAD_KEY	Unread Key	renderAs is not implemented	SAMPLE	TRUE	9	{"version": 1, "fields": [{"key": "stain", "renderAs": "badge"}]}

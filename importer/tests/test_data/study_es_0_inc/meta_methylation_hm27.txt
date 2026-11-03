@@ -1,0 +1,8 @@
+cancer_study_identifier: study_es_0
+genetic_alteration_type: METHYLATION
+datatype: CONTINUOUS
+stable_id: methylation_hm27
+profile_description: Methylation beta-values (HM27 platform). For genes with multiple methylation probes, the probe least correlated with expression is selected.
+show_profile_in_analysis_tab: false
+profile_name: Methylation (HM27)
+data_filename: data_methylation_hm27.txt

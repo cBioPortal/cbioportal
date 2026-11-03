@@ -1,0 +1,26 @@
+PATIENT_ID	SAMPLE_ID	RESOURCE_ID	URL	DISPLAY_NAME	METADATA
+TCGA-A2-A04P	TCGA-A2-A04P-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A2-A04P-01.svs	H&E Slide - TCGA-A2-A04P-01	{"stain": "H&E", "magnification": "20x", "slide_number": 1}
+TCGA-A1-A0SK	TCGA-A1-A0SK-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A1-A0SK-01.svs	H&E Slide - TCGA-A1-A0SK-01	{"stain": "PAS", "magnification": "40x", "slide_number": 2}
+TCGA-A2-A0CM	TCGA-A2-A0CM-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A2-A0CM-01.svs	H&E Slide - TCGA-A2-A0CM-01	{"stain": "IHC", "magnification": "20x", "slide_number": 3}
+TCGA-AR-A1AR	TCGA-AR-A1AR-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-AR-A1AR-01.svs	H&E Slide - TCGA-AR-A1AR-01	{"stain": "H&E", "magnification": "40x", "slide_number": 4}
+TCGA-B6-A0WX	TCGA-B6-A0WX-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-B6-A0WX-01.svs	H&E Slide - TCGA-B6-A0WX-01	{"stain": "PAS", "magnification": "20x", "slide_number": 5}
+TCGA-BH-A1F0	TCGA-BH-A1F0-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A1F0-01.svs	H&E Slide - TCGA-BH-A1F0-01	{"stain": "IHC", "magnification": "40x", "slide_number": 6}
+TCGA-B6-A0I6	TCGA-B6-A0I6-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-B6-A0I6-01.svs	H&E Slide - TCGA-B6-A0I6-01	{"stain": "H&E", "magnification": "20x", "slide_number": 7}
+TCGA-BH-A18V	TCGA-BH-A18V-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A18V-01.svs	H&E Slide - TCGA-BH-A18V-01	{"stain": "PAS", "magnification": "40x", "slide_number": 8}
+TCGA-BH-A18Q	TCGA-BH-A18Q-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A18Q-01.svs	H&E Slide - TCGA-BH-A18Q-01	{"stain": "IHC", "magnification": "20x", "slide_number": 9}
+TCGA-BH-A18K	TCGA-BH-A18K-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A18K-01.svs	H&E Slide - TCGA-BH-A18K-01	{"stain": "H&E", "magnification": "40x", "slide_number": 10}
+TCGA-BH-A0HL	TCGA-BH-A0HL-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A0HL-01.svs	H&E Slide - TCGA-BH-A0HL-01	{"stain": "H&E", "magnification": "20x", "slide_number": 11}
+TCGA-BH-A0E0	TCGA-BH-A0E0-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A0E0-01.svs	H&E Slide - TCGA-BH-A0E0-01	{"stain": "PAS", "magnification": "40x", "slide_number": 12}
+TCGA-BH-A0RX	TCGA-BH-A0RX-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A0RX-01.svs	H&E Slide - TCGA-BH-A0RX-01	{"stain": "IHC", "magnification": "20x", "slide_number": 13}
+TCGA-A7-A13D	TCGA-A7-A13D-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A7-A13D-01.svs	H&E Slide - TCGA-A7-A13D-01	{"stain": "H&E", "magnification": "40x", "slide_number": 14}
+TCGA-BH-A0E6	TCGA-BH-A0E6-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A0E6-01.svs	H&E Slide - TCGA-BH-A0E6-01	{"stain": "PAS", "magnification": "20x", "slide_number": 15}
+TCGA-AO-A0J4	TCGA-AO-A0J4-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-AO-A0J4-01.svs	H&E Slide - TCGA-AO-A0J4-01	{"stain": "IHC", "magnification": "40x", "slide_number": 16}
+TCGA-A7-A0CE	TCGA-A7-A0CE-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A7-A0CE-01.svs	H&E Slide - TCGA-A7-A0CE-01	{"stain": "H&E", "magnification": "20x", "slide_number": 17}
+TCGA-A7-A13E	TCGA-A7-A13E-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A7-A13E-01.svs	H&E Slide - TCGA-A7-A13E-01	{"stain": "PAS", "magnification": "40x", "slide_number": 18}
+TCGA-A7-A0DA	TCGA-A7-A0DA-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A7-A0DA-01.svs	H&E Slide - TCGA-A7-A0DA-01	{"stain": "IHC", "magnification": "20x", "slide_number": 19}
+TCGA-D8-A142	TCGA-D8-A142-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-D8-A142-01.svs	H&E Slide - TCGA-D8-A142-01	{"stain": "H&E", "magnification": "40x", "slide_number": 20}
+TCGA-D8-A143	TCGA-D8-A143-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-D8-A143-01.svs	H&E Slide - TCGA-D8-A143-01	{"stain": "H&E", "magnification": "20x", "slide_number": 21}
+TCGA-AQ-A04J	TCGA-AQ-A04J-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-AQ-A04J-01.svs	H&E Slide - TCGA-AQ-A04J-01	{"stain": "PAS", "magnification": "40x", "slide_number": 22}
+TCGA-BH-A0HN	TCGA-BH-A0HN-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-BH-A0HN-01.svs	H&E Slide - TCGA-BH-A0HN-01	{"stain": "IHC", "magnification": "20x", "slide_number": 23}
+TCGA-A2-A0T0	TCGA-A2-A0T0-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A2-A0T0-01.svs	H&E Slide - TCGA-A2-A0T0-01	{"stain": "H&E", "magnification": "40x", "slide_number": 24}
+TCGA-A2-A0YE	TCGA-A2-A0YE-01	PATHOLOGY_SLIDE	https://pathology.example.com/slides/TCGA-A2-A0YE-01.svs	H&E Slide - TCGA-A2-A0YE-01	{"stain": "PAS", "magnification": "20x", "slide_number": 25}

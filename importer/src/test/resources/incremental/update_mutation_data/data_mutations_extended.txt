@@ -1,0 +1,4 @@
+Hugo_Symbol	Entrez_Gene_Id	Center	NCBI_Build	Tumor_Sample_Barcode	Verification_Status	Validation_Status	Mutation_Status	Sequencer	Chromosome	Start_position	End_position	Variant_Classification	HGVSp_Short	MA:FImpact	MA:link.MSA	MA:link.PDB
+AKT1	207	broad.mit.edu	GRCh37	TCGA-A1-A0SH-01	Unknown	valid	Unknown	Illumina GAIIx	chr1	22078087	22078087	Missense_Mutation	D820N	neutral	mutationassessor.org/?cm=msa&ty=f&p=PGBM_HUMAN&rb=814&re=869&var=D820N
+AKT2	208	broad.mit.edu	GRCh37	TCGA-A1-A0SH-01	Unknown	valid	Unknown	Illumina GAIIx	chr1	34085156	34085156	Missense_Mutation	V277I	low	mutationassessor.org/?cm=msa&ty=f&p=CSMD2_HUMAN&rb=202&re=303&var=V277I	mutationassessor.org/pdb.php?prot=CSMD2_HUMAN&from=202&to=303&var=V277I
+BRCA1	672	broad.mit.edu	GRCh37	TCGA-A1-A0SH-01	Unknown	valid	Unknown	Illumina GAIIx	chr17	35989584	35989584	Missense_Mutation	F628L		mutationassessor.org/?cm=msa&ty=f&p=CLSPN_HUMAN&rb=601&re=800&var=F628L

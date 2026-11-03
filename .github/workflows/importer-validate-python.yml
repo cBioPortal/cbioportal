@@ -1,0 +1,29 @@
+# Ported from cbioportal-core's validate-python.yml. Runs the importer's Python tests
+# (importer/tests) against importer/scripts.
+
+name: Importer Python validator
+
+on:
+  push:
+    paths:
+      - 'importer/**'
+      - '.github/workflows/importer-validate-python.yml'
+  pull_request:
+    paths:
+      - 'importer/**'
+      - '.github/workflows/importer-validate-python.yml'
+
+jobs:
+  build:
+    name: Validate Data
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+      - name: 'Validate tests'
+        working-directory: ./importer
+        run: |
+          docker run -v ${PWD}:/importer python:3.9 /bin/sh -c '
+            cd /importer &&
+            pip install -r requirements.txt &&
+            ./test_scripts.sh'

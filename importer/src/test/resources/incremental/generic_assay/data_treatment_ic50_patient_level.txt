@@ -1,0 +1,8 @@
+ENTITY_STABLE_ID	NAME	DESCRIPTION	URL	TCGA-A1-A0SB	TCGA-A1-A0SD
+Erlotinib	Name of Erlotinib	Desc of Erlotinib	Url of Erlotinib	>8	7.5
+Irinotecan	Name of Irinotecan	Desc of Irinotecan	Url of Irinotecan		0.081
+# The database has this entity, but not the file
+#L-685458
+Lapatinib	Name of Lapatinib	Desc of Lapatinib	Url of Lapatinib	6.2	7.848
+#The entity will be added
+LBW242	Name of LBW242	Desc of LBW242	Url of LBW242	0.1	>~8

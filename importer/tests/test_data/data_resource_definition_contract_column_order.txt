@@ -1,0 +1,2 @@
+CUSTOM_METADATA	RESOURCE_ID	DISPLAY_NAME	RESOURCE_TYPE
+{"version": 1, "fields": [{"key": "stain", "type": "string", "label": "Stain"}]}	PATHOLOGY_SLIDE	Pathology Slide	SAMPLE

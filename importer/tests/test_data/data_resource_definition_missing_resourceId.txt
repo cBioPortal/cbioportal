@@ -1,0 +1,4 @@
+RESOURCE_ID	DISPLAY_NAME	DESCRIPTION	RESOURCE_TYPE	OPEN_BY_DEFAULT	PRIORITY
+PATHOLOGY_SLIDE	Pathology Slide	The pathology slide for the sample	SAMPLE	TRUE	1
+	Patient Notes	Notes about the patient	PATIENT	FALSE	2
+STUDY_SPONSORS	Study Sponsors	Sponsors of this study	STUDY	TRUE	3

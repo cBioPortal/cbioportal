@@ -1,0 +1,15 @@
+Custom Gene sets:
+  Gene sets:
+    - UNITTEST_GENESET1
+Different Gene sets from Random Institute:
+  Gene sets:
+    - UNITTEST_GENESET2
+    - UNITTEST_GENESET3
+  Institutes Subcategory 1:
+    Gene sets:
+      - UNITTEST_GENESET4
+  Institutes Subcategory 2:
+    Gene sets:
+      - UNITTEST_GENESET1
+      - UNITTEST_GENESET8
+      - UNITTEST_GENESET10

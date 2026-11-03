@@ -1,0 +1,2 @@
+RESOURCE_ID	URL	DISPLAY_NAME	METADATA
+STUDY_SPONSORS	https://example.com/sponsors.pdf	Study Sponsors	{"pages": 3, "year": 2024}

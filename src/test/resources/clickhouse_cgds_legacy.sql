@@ -397,6 +397,7 @@ CREATE TABLE clinical_attribute_meta (
   datatype Nullable(String),
   patient_attribute Nullable(UInt8),
   priority Nullable(String),
+  chart_type Nullable(String),
   cancer_study_id Nullable(Int32)
 ) ENGINE = MergeTree()
 ORDER BY (attr_id);

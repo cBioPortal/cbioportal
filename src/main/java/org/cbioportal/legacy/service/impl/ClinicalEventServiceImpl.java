@@ -51,20 +51,8 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
         clinicalEventRepository.getAllClinicalEventsOfPatientInStudy(
             studyId, patientId, projection, pageSize, pageNumber, sortBy, direction);
 
-    if (!projection.equals("ID") && !clinicalEvents.isEmpty()) {
-
-      List<ClinicalEventData> clinicalEventDataList =
-          clinicalEventRepository.getDataOfClinicalEvents(
-              clinicalEvents.stream()
-                  .map(ClinicalEvent::getClinicalEventId)
-                  .collect(Collectors.toList()));
-
-      clinicalEvents.forEach(
-          c ->
-              c.setAttributes(
-                  clinicalEventDataList.stream()
-                      .filter(a -> a.getClinicalEventId().equals(c.getClinicalEventId()))
-                      .collect(Collectors.toList())));
+    if (!projection.equals("ID")) {
+      attachAttributes(clinicalEvents);
     }
 
     return clinicalEvents;
@@ -93,22 +81,28 @@ public class ClinicalEventServiceImpl implements ClinicalEventService {
             studyId, projection, pageSize, pageNumber, sortBy, direction);
 
     if (!projection.equals("ID")) {
-
-      List<ClinicalEventData> clinicalEventDataList =
-          clinicalEventRepository.getDataOfClinicalEvents(
-              clinicalEvents.stream()
-                  .map(ClinicalEvent::getClinicalEventId)
-                  .collect(Collectors.toList()));
-
-      clinicalEvents.forEach(
-          c ->
-              c.setAttributes(
-                  clinicalEventDataList.stream()
-                      .filter(a -> a.getClinicalEventId().equals(c.getClinicalEventId()))
-                      .collect(Collectors.toList())));
+      attachAttributes(clinicalEvents);
     }
 
     return clinicalEvents;
+  }
+
+  private void attachAttributes(List<ClinicalEvent> clinicalEvents) {
+    if (clinicalEvents.isEmpty()) {
+      return;
+    }
+    Map<Long, List<ClinicalEventData>> attributesByEventId =
+        clinicalEventRepository
+            .getDataOfClinicalEvents(
+                clinicalEvents.stream()
+                    .map(ClinicalEvent::getClinicalEventId)
+                    .collect(Collectors.toList()))
+            .stream()
+            .collect(Collectors.groupingBy(ClinicalEventData::getClinicalEventId));
+    clinicalEvents.forEach(
+        c ->
+            c.setAttributes(
+                attributesByEventId.getOrDefault(c.getClinicalEventId(), new ArrayList<>())));
   }
 
   @Override

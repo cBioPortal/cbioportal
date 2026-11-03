@@ -20,7 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 @ConditionalOnProperty(
@@ -38,7 +38,7 @@ public class ApiSecurityConfig {
   @Bean
   @Order(Ordered.HIGHEST_PRECEDENCE)
   public SecurityFilterChain securityFilterChain(
-      HttpSecurity http, @Nullable DataAccessTokenService tokenService) throws Exception {
+      HttpSecurity http, @Nullable DataAccessTokenService tokenService) {
     http.csrf(AbstractHttpConfigurer::disable)
         // This filter chain only grabs requests to the '/api' path.
         .securityMatcher("/api/**", "/webservice.do")
@@ -60,7 +60,7 @@ public class ApiSecurityConfig {
             eh ->
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    AntPathRequestMatcher.antMatcher("/api/**")));
+                    PathPatternRequestMatcher.pathPattern("/api/**")));
     // When dat.method is not 'none' and a tokenService bean is present,
     // the apiTokenAuthenticationFilter is added to the filter chain.
     if (tokenService != null) {

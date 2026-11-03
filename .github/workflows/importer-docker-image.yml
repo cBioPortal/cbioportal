@@ -1,21 +1,27 @@
-name: Docker Image CI
+# Ported from cbioportal-core's docker-image.yml. Builds importer/Dockerfile and publishes
+# the standalone importer image, cbioportal/cbioportal-core.
+
+name: Importer Docker Image CI
 on:
   push:
     branches:
-      - main
+      - master
       - 'demo*'
     tags: '*'
+    paths:
+      - 'importer/**'
+      - '.github/workflows/importer-docker-image.yml'
 
 jobs:
   build_and_publish_image:
-    if: github.repository == 'cBioPortal/cbioportal-core'
+    if: github.repository == 'cBioPortal/cbioportal'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout git repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: |
             cbioportal/cbioportal-core
@@ -33,7 +39,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       # The following two actions are required to build multi-platform images
-      # buildx is an extension of docker build, QUEM is used to convert the binary to varies architecture
+      # buildx is an extension of docker build, QEMU is used to convert the binary to various architectures
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
@@ -42,10 +48,11 @@ jobs:
       - name: Publish Docker Image on Tag
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: importer
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64
-          file: Dockerfile
-          cache-from: type=gha
-          cache-to: type=gha
+          file: importer/Dockerfile
+          # Own cache scope so this build doesn't evict the web-and-data image's cache
+          cache-from: type=gha,scope=importer
+          cache-to: type=gha,scope=importer

@@ -1,0 +1,40 @@
+# Ported from cbioportal-core's maven.yml. Builds the importer (importer/) and runs its
+# unit and Testcontainers integration tests.
+
+name: Importer Java CI with Maven
+
+on:
+  push:
+    paths:
+      - 'importer/**'
+      - '.github/workflows/importer-maven.yml'
+  pull_request:
+    paths:
+      - 'importer/**'
+      - '.github/workflows/importer-maven.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./importer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          cache-dependency-path: importer/pom.xml
+
+      - name: Build and run integration tests (Testcontainers)
+        run: mvn -B integration-test --file pom.xml
+
+      # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
+      - name: Update dependency graph
+        continue-on-error: true
+        uses: advanced-security/maven-dependency-submission-action@v4.1.1
+        with:
+          directory: importer

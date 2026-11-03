@@ -103,8 +103,8 @@ Artifacts that only the importer uses, and that changed as a side effect:
 1. **ClickHouse JDBC driver (open).** The importer uses `clickhouse-jdbc` 0.6.4 (no classifier). The web application uses 0.6.2 with the `http` classifier and pins `httpclient5` 5.6.4 / `httpcore5` 5.4.3 for CVE reasons (see the comment in `../pom.xml`). Neither JAR bundles `httpcore5`. Moving the importer down to 0.6.2 might undo fixes it relies on, and moving the web app up to 0.6.4 needs backend testing. Pick one driver version and classifier for both.
 2. **ClickHouse Testcontainers module (open, test only).** The importer uses 1.21.4, matching the root's own `testcontainers.version`. The root pins `org.testcontainers:clickhouse` separately at `clickhouse_testcontainer.version` 1.19.7, so the root isn't consistent with itself. The fix is probably on the root side.
 3. **Versions are still declared in two POMs.** Because the root can't be a parent, `importer/pom.xml` repeats `spring-boot.version` and the root's CVE overrides (`jackson-2-bom.version`, `log4j2.version`, `commons-lang3.version`, guava, collections4). They match today, but nothing enforces it. Option A in the RFC (a root aggregator POM) removes this; until then, a CI check comparing the two would.
-4. **Libraries the code doesn't reference.** No source, test or script in `importer/` refers to `dom4j` 1.6.1, `commons-text` 1.9, `opencsv` 2.4 or `commons-io` 2.14.0, yet all four ship in the shaded JAR. `commons-text` 1.9 is in the range affected by CVE-2022-42889, and `dom4j` 1.6.1 has known XXE issues (CVE-2018-1000632, CVE-2020-10683). Removing them is likely safe but should be confirmed with an import run. (`lz4-java` is also never imported, but it's a runtime companion of the ClickHouse driver for compression, so keep it.)
-5. **Unused property.** `commons_cli.version` (1.4) has no matching dependency.
+4. **Libraries the code doesn't reference: resolved.** `dom4j` 1.6.1, `commons-text` 1.9, `opencsv` 2.4 and `commons-io` 2.14.0 were removed from `importer/pom.xml`; none of them, nor `xml-apis` (pulled in by dom4j), is still on the classpath. The build passes and the shaded JAR shrank from 22.7 MB to 21.6 MB. `commons-text` 1.9 had been in the CVE-2022-42889 range, and `dom4j` 1.6.1 had XXE issues (CVE-2018-1000632, CVE-2020-10683). Still to confirm with an import run (issue 6). (`lz4-java` is never imported either, but the ClickHouse driver uses it at run time for compression, so it stays.)
+5. **Unused property: resolved.** `commons_cli.version` was removed.
 
 ### Not yet tested at runtime
 
@@ -116,11 +116,16 @@ Artifacts that only the importer uses, and that changed as a side effect:
 8. **Not in the root build.** `mvn install` at the root doesn't build `importer/`; it has to be built with `mvn -f importer/pom.xml package`. Decide between Option A and Option B (see the RFC).
 9. **Docker still clones `cbioportal-core`.** `docker/web-and-data/Dockerfile` still has the `build-core` stage, which clones the core repo by branch name, so the image doesn't use `importer/` yet. Also, the web build stage runs `COPY . .`, so `importer/` (about 60 MB, mostly `tests/` data) is now sent in the Docker build context. Add `importer/tests` to `.dockerignore`, or rewrite the `build-core` stage to build from `importer/`.
 10. **Maven coordinates and version.** The importer is still `org.mskcc.cbio:core:1.0.16`, while the web app is `io.github.cbioportal:cbioportal:v7.2.5-SNAPSHOT`. The JAR name `core-*.jar` was kept on purpose, because the Dockerfile copies `core-*.jar` to `/core/core-IMPORTER.jar` and `cbioportal-docker-compose/entrypoint.sh` uses that path.
-11. **Leftover files from the core repo:**
-    - `importer/.github/workflows/` is ignored by GitHub. Port it to the root `.github/workflows/`, or delete it.
-    - `importer/Dockerfile` builds a standalone importer image. Keep it or retire it.
-    - `importer/README.md` and `importer/LICENSE` duplicate root files and reference the old repo.
-    - The `maven-resources-plugin` FIXME in `importer/pom.xml` still links to the old Docker setup.
+11. **Leftover files from the core repo: resolved.**
+    - `importer/.github/workflows/` was ported to the root as `importer-maven.yml`, `importer-validate-python.yml` and `importer-docker-image.yml`, each limited to `importer/**` and its own file. `importer/.github/` was removed.
+    - `importer/Dockerfile` stays: the ported Docker workflow still builds it and publishes `cbioportal/cbioportal-core`.
+    - `importer/LICENSE` (identical to the root's) was removed. `importer/README.md` was rewritten for the importer's new home and keeps the AGPL-3.0 licensing note.
+    - The `maven-resources-plugin` FIXME was replaced with a comment explaining why the scripts are still bundled: the root Dockerfile's `build-core` stage extracts them from the JAR.
+    - The root `core-test.yml` was renamed `backend-test.yml` ("Backend tests").
+    - **Still open:**
+      - If "Core tests" is a required status check in branch protection, it has to be updated there.
+      - The importer image's tags change. Branch builds are now tagged `master` instead of `main`. Every cbioportal release tag (for example `v7.2.5`) now also publishes `cbioportal/cbioportal-core:7.2.5`, so the image moves from the 1.0.x version line to cbioportal's.
+      - `importer-maven.yml` runs the importer's Java tests, which are expected to fail until goal 3 is done.
 12. **Git history: resolved, not needed.** The files were copied, not merged, so `git log` and blame for `importer/` start at the drop commit. That's the decided approach; earlier history stays in the archived `cbioportal-core` repository.
 13. **Code style.** The root's Spotless configuration only covers `src/main/java` and `src/test/java`. The importer uses its own formatting (tabs in the POM, different Java style) and isn't checked.
 
@@ -140,3 +145,7 @@ Artifacts that only the importer uses, and that changed as a side effect:
 - `importer/`: new; 905 files from `cbioportal-core@6146cdb` (its `.gitignore` removed).
 - `importer/pom.xml`: Spring Boot 4.1.0 BOM import and root overrides; explicit versions removed where managed; `db.version` comment paths updated.
 - `.gitignore`: new `importer/` block.
+- `importer/pom.xml` (cleanups): removed `dom4j`, `commons-text`, `opencsv`, `commons-io` and the unused version properties; FIXME comment replaced.
+- `importer/LICENSE`, `importer/.github/`: removed. `importer/README.md`: rewritten.
+- `.github/workflows/core-test.yml` → `backend-test.yml`, renamed "Backend tests".
+- `.github/workflows/importer-maven.yml`, `importer-validate-python.yml`, `importer-docker-image.yml`: new, ported from `cbioportal-core`.

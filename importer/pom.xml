@@ -43,12 +43,6 @@
 		<clickhouse_jdbc.version>0.6.4</clickhouse_jdbc.version>
 		<lz4.version>1.8.0</lz4.version>
 
-		<commons_io.version>2.14.0</commons_io.version>
-
-		<commons_cli.version>1.4</commons_cli.version>
-		<commons_text.version>1.9</commons_text.version>
-		<opencsv.version>2.4</opencsv.version>
-		<dom4j.version>1.6.1</dom4j.version>
 		<easymock.version>4.3</easymock.version>
 		<junitparams.version>1.1.0</junitparams.version>
 		<testcontainers.version>1.21.4</testcontainers.version>
@@ -151,16 +145,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-tx</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons_io.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>${commons_text.version}</version>
-		</dependency>
 
 		<!-- jackson -->
 		<dependency>
@@ -170,18 +154,6 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
-		</dependency>
-
-		<!--xml parser-->
-		<dependency>
-			<groupId>dom4j</groupId>
-			<artifactId>dom4j</artifactId>
-			<version>${dom4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>au.com.bytecode</groupId>
-			<artifactId>opencsv</artifactId>
-			<version>${opencsv.version}</version>
 		</dependency>
 
 		<!-- Testing -->
@@ -251,9 +223,9 @@
 								<resource>
 									<directory>${project.basedir}</directory>
 									<includes>
-										<!-- FIXME Remove these includes when running loader from the cbioportal docker image is deprecated. Loading should be done from cbioportal-core docker image directly instead. -->
-										<!-- Includes python/perl/shell scripts with the jar to transfer to cbioportal project -->
-										<!-- See here https://github.com/cBioPortal/cbioportal/blob/14e00a6c5580700b96152c45f34baf150e652c89/docker/web-and-data/Dockerfile#L48 -->
+										<!-- Bundles the scripts and requirements.txt into the JAR because the build-core stage of
+										     ../docker/web-and-data/Dockerfile extracts them from it. Remove these includes once that
+										     Dockerfile copies them from importer/ directly. -->
 										<include>requirements.txt</include>
 										<include>scripts/</include>
 									</includes>

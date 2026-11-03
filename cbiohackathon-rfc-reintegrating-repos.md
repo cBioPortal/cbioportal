@@ -23,9 +23,7 @@ The immediate goals for the hackathon are below. Goal 2 comes first, because the
 - **One copy of each shared type.** Merge the five `org.mskcc.cbio.portal.model.shared` classes that have cbioportal counterparts (see [Duplicated types](#duplicated-types)) into `shared-model`. This includes reconciling the values of `GeneticAlterationType` with `MolecularAlterationType`, and of `MolecularProfileDataType` with `MolecularProfile.DataType` / `ImportType`.
 - **Duplicates within cbioportal.** `GeneticEntity` and `GenericEntityProperty` each exist in both `legacy/model` and `application/file/model`.
 - **Other parallel models.** Audit the importer's `org.mskcc.cbio.portal.model` package against `legacy/model` (for example `Sample` and `CancerStudy`), and merge the ones that represent the same thing.
-- **Unused dependencies and leftover files.**
-  - Remove `dom4j`, `commons-text`, `opencsv` and `commons-io`, which no importer code references, along with the unused `commons_cli.version` property.
-  - Once their contents have been ported, remove the leftover core-repo files: `importer/.github/`, `importer/Dockerfile`, and the copies of `README.md` / `LICENSE`.
+- **Unused dependencies and leftover files: done.** `dom4j`, `commons-text`, `opencsv`, `commons-io` and the unused `commons_cli.version` property are removed. `importer/.github/` was ported to the root workflows and removed, `importer/LICENSE` was removed, and `importer/README.md` was rewritten. `importer/Dockerfile` stays, because the ported workflow still publishes `cbioportal/cbioportal-core` from it.
 - **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, an ArchUnit rule keeps it that way, and both modules build.
 
 ### Goal 2: Consolidate the root POM and `importer/pom.xml`
@@ -57,12 +55,12 @@ cbioportal/
 - Use the Surefire version Spring Boot manages instead of the pinned 2.21.0. Then add the JUnit Vintage engine, or migrate the 76 JUnit 4 classes to JUnit Jupiter.
 - Have `IntegrationTestBase` read `clickhouse_cgds.sql` from the repository instead of downloading it from GitHub, and drop the stale `cbioportal.version` (v6.4.1) property.
 - Make the Python tests (`test_scripts.sh` / `tests/`) runnable from `importer/`.
-- Port `maven.yml` and `validate-python.yml` into the root `.github/workflows/`, scoped to the paths each covers.
+- ~~Port `maven.yml` and `validate-python.yml` into the root `.github/workflows/`~~ Done: `importer-maven.yml` and `importer-validate-python.yml`. The Python suite passes from `importer/` (192 tests). The Java suite still needs the fixes above.
 
 **Web application**
 
 - Confirm the backend unit and integration tests still pass after the POM restructure.
-- Rename `core-test.yml`; it tests the web application, not the importer.
+- ~~Rename `core-test.yml`~~ Done: it's now `backend-test.yml` ("Backend tests"). Update branch protection if the old check was required.
 - Fix the root's internal Testcontainers mismatch (ClickHouse module 1.19.7 vs everything else at 1.21.4).
 
 **Done when:** `mvn verify` at the root runs both modules' unit and integration tests, and CI runs them.
@@ -185,8 +183,8 @@ These apply to any type, constant or resource that both the importer and the bac
 
 ### Workflows
 
-- Move core's `maven.yml`, `validate-python.yml` and `docker-image.yml` into cbioportal, scoped to `importer/**`.
-- Rename cbioportal's `core-test.yml`. It tests the web application, and after the merge its name would be confused with the importer suite.
+- Done: core's `maven.yml`, `validate-python.yml` and `docker-image.yml` are now `importer-maven.yml`, `importer-validate-python.yml` and `importer-docker-image.yml` in the root, each limited to `importer/**`.
+- Done: cbioportal's `core-test.yml` is now `backend-test.yml`.
 
 ### Path-based triggers
 

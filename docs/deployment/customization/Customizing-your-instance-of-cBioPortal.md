@@ -117,7 +117,7 @@ Below you can find the complete list of all the available skin properties.
 		</tr>
 		<tr>
 			<td>skin.left_logo</td>
-			<td>sets the left logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.left_logo value has to contain the folder, e.g. skin.right_logo = myFolder/myImage.jpg</td>
+			<td>sets the left logo in the header. Logo should be placed in the images directory or in a subdirectory of the images directory. If placed in a subfolder, the skin.left_logo value has to contain the folder, e.g. skin.left_logo = myFolder/myImage.jpg</td>
 			<td>cBioPortal Logo</td>
 			<td>text</td>
 		</tr>
@@ -294,7 +294,7 @@ If the download_group is present in user groups then download options are shown 
 </table>
 
 # Customization when using Docker
-To add images or other files to the Docker image one can mount them inside the `cbioportal-webapp` folder. For example to use a custom logo for `skin.right_logo`. Mount the image inside the`cbioportal-webapp` folder with `-v /path/to/custom_logo.png:/cbioportal-webapp/images/custom_logo.png` and set `skin.right_logo=custom_logo.png` in your properties file.
+To add images or other files to the Docker image one can mount them inside the `cbioportal-webapp` folder. For example to use a custom logo for `skin.right_logo`. Mount the image inside the`cbioportal-webapp` folder with `-v /path/to/custom_logo.png:/cbioportal-webapp/webapp/images/custom_logo.png` and set `skin.right_logo=custom_logo.png` in your properties file. Ensure the custom logo file is readable by the container user.
 
 # Creating your own local news/about or FAQ page
 

@@ -15,7 +15,7 @@ The root build is unchanged; `mvn install` at the root doesn't build `importer/`
 
 ## Dependency discrepancies
 
-The comparison uses the resolved dependency lists (`mvn dependency:list`, all scopes) of the root project and the importer. The two builds shared 81 artifacts, and **52 of them resolved to different versions**. After the change, 50 match and 2 remain open.
+The comparison uses the resolved dependency lists (`mvn dependency:list`, all scopes) of the root project and the importer. The two builds shared 81 artifacts, and **52 of them resolved to different versions**. After the change, 50 match and 2 remain open. A follow-up change aligned the ClickHouse JDBC driver (see issue 1), leaving 1 open.
 
 | Artifact | Importer before | Importer after | cbioportal | Scope (importer) | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -69,7 +69,7 @@ The comparison uses the resolved dependency lists (`mvn dependency:list`, all sc
 | `net.minidev:json-smart` | 2.5.2 | 2.6.0 | 2.6.0 | test | aligned |
 | `net.minidev:accessors-smart` | 2.5.2 | 2.6.0 | 2.6.0 | test | aligned |
 | `org.xmlunit:xmlunit-core` | 2.10.1 | 2.11.0 | 2.11.0 | test | aligned |
-| `com.clickhouse:clickhouse-jdbc` | 0.6.4 | 0.6.4 | 0.6.2 (`http` classifier) | compile | **open** |
+| `com.clickhouse:clickhouse-jdbc` | 0.6.4 | 0.6.4 (`http` classifier) | 0.6.4 (`http` classifier; was 0.6.2) | compile | aligned (follow-up) |
 | `org.testcontainers:clickhouse` | 1.21.4 | 1.21.4 | 1.19.7 | test | **open** |
 
 Artifacts that only the importer uses, and that changed as a side effect:
@@ -94,13 +94,16 @@ Artifacts that only the importer uses, and that changed as a side effect:
 | **JUnit / test libraries** | 14 (JUnit Jupiter/Platform 5.12 → 6.0, mockito-junit-jupiter, byte-buddy-agent, assertj, hamcrest, json-path, json-smart, accessors-smart, xmlunit) | BOM; explicit `junit`, `mockito-core` and `jsonassert` versions removed (the BOM gives the same versions the root resolves) |
 | **Already equal; now from one source** | `guava` 32.1.3-jre, `commons-collections4` 4.4, `testcontainers` 1.21.4 | Pinned with the same property names and values as the root, with a "keep in sync with ../pom.xml" comment |
 
-**Total:** 50 of 52 discrepancies addressed.
+**Total:** 51 of 52 discrepancies addressed (50 in the drop, plus the ClickHouse driver in a follow-up).
 
 ## Remaining issues
 
 ### Dependencies
 
-1. **ClickHouse JDBC driver (open).** The importer uses `clickhouse-jdbc` 0.6.4 (no classifier). The web application uses 0.6.2 with the `http` classifier and pins `httpclient5` 5.6.4 / `httpcore5` 5.4.3 for CVE reasons (see the comment in `../pom.xml`). Neither JAR bundles `httpcore5`. Moving the importer down to 0.6.2 might undo fixes it relies on, and moving the web app up to 0.6.4 needs backend testing. Pick one driver version and classifier for both.
+1. **ClickHouse JDBC driver: resolved (decided Nov 3, 2026).** Both builds now use `clickhouse-jdbc` 0.6.4 with the `http` classifier, plus `httpclient5` 5.6.4 / `httpcore5` 5.4.3 (the root's CVE pins, GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6). The version is a `clickhouse_jdbc.version` property in both POMs.
+    - **Web application:** upgraded from 0.6.2 to 0.6.4. It compiles, but the backend tests haven't been run against it yet.
+    - **Importer:** moved from the classifier-less JAR to `http` and gained `httpclient5`. This changes its HTTP transport. Before, the driver's default Apache HttpClient provider failed to load (`NoClassDefFoundError`), and the driver silently fell back to the JDK's `HttpURLConnection`. Now the importer uses Apache HttpClient 5, the same as the web app. The importer JAR grew from 21.6 MB to 23.8 MB, and an import run is needed to confirm the new transport works (issue 6).
+    - **Possibly redundant:** the `http` JAR bundles its own copy of lz4 (`com.clickhouse.client.internal.jpountz`), so the importer's separate `lz4-java` dependency may no longer be needed. Check this during the import run.
 2. **ClickHouse Testcontainers module (open, test only).** The importer uses 1.21.4, matching the root's own `testcontainers.version`. The root pins `org.testcontainers:clickhouse` separately at `clickhouse_testcontainer.version` 1.19.7, so the root isn't consistent with itself. The fix is probably on the root side.
 3. **Versions are still declared in two POMs.** Because the root can't be a parent, `importer/pom.xml` repeats `spring-boot.version` and the root's CVE overrides (`jackson-2-bom.version`, `log4j2.version`, `commons-lang3.version`, guava, collections4). They match today, but nothing enforces it. Option A in the RFC (a root aggregator POM) removes this; until then, a CI check comparing the two would.
 4. **Libraries the code doesn't reference: resolved.** `dom4j` 1.6.1, `commons-text` 1.9, `opencsv` 2.4 and `commons-io` 2.14.0 were removed from `importer/pom.xml`; none of them, nor `xml-apis` (pulled in by dom4j), is still on the classpath. The build passes and the shaded JAR shrank from 22.7 MB to 21.6 MB. `commons-text` 1.9 had been in the CVE-2022-42889 range, and `dom4j` 1.6.1 had XXE issues (CVE-2018-1000632, CVE-2020-10683). Still to confirm with an import run (issue 6). (`lz4-java` is never imported either, but the ClickHouse driver uses it at run time for compression, so it stays.)
@@ -115,7 +118,7 @@ Artifacts that only the importer uses, and that changed as a side effect:
 
 8. **Not in the root build.** `mvn install` at the root doesn't build `importer/`; it has to be built with `mvn -f importer/pom.xml package`. Decide between Option A and Option B (see the RFC).
 9. **Docker still clones `cbioportal-core`.** `docker/web-and-data/Dockerfile` still has the `build-core` stage, which clones the core repo by branch name, so the image doesn't use `importer/` yet. Also, the web build stage runs `COPY . .`, so `importer/` (about 60 MB, mostly `tests/` data) is now sent in the Docker build context. Add `importer/tests` to `.dockerignore`, or rewrite the `build-core` stage to build from `importer/`.
-10. **Maven coordinates and version.** The importer is still `org.mskcc.cbio:core:1.0.16`, while the web app is `io.github.cbioportal:cbioportal:v7.2.5-SNAPSHOT`. The JAR name `core-*.jar` was kept on purpose, because the Dockerfile copies `core-*.jar` to `/core/core-IMPORTER.jar` and `cbioportal-docker-compose/entrypoint.sh` uses that path.
+10. **Maven coordinates and version.** The importer is still `org.mskcc.cbio:core:1.0.16`, while the web app is `io.github.cbioportal:cbioportal:v7.2.5-SNAPSHOT`. Decided for the reactor: the web module keeps `io.github.cbioportal:cbioportal`, the root becomes `cbioportal-parent`, and the parent POM and `shared-model` are published (see RFC goal 2). The importer's own coordinates and publishing are still open. The JAR name `core-*.jar` was kept on purpose, because the Dockerfile copies `core-*.jar` to `/core/core-IMPORTER.jar` and `cbioportal-docker-compose/entrypoint.sh` uses that path.
 11. **Leftover files from the core repo: resolved.**
     - `importer/.github/workflows/` was ported to the root as `importer-maven.yml`, `importer-validate-python.yml` and `importer-docker-image.yml`, each limited to `importer/**` and its own file. `importer/.github/` was removed.
     - `importer/Dockerfile` stays: the ported Docker workflow still builds it and publishes `cbioportal/cbioportal-core`.

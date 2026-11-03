@@ -40,8 +40,10 @@ cbioportal/
   importer/pom.xml   ← parent = ../pom.xml; declares no versions of its own
 ```
 
+- **Artifact coordinates (decided, Nov 3, 2026):** the web module keeps `io.github.cbioportal:cbioportal`, so consumers of the published web artifact on Maven Central and JitPack see no change. The new root aggregator/parent POM becomes `io.github.cbioportal:cbioportal-parent`. Because the published web artifact now references that parent, the parent POM and `shared-model` must also be published to Maven Central. Whether the importer itself is published is still open.
 - Every version is declared once, in the root, which ends the "keep in sync with `../pom.xml`" comments.
-- One ClickHouse JDBC version and classifier for both modules, and one Testcontainers ClickHouse version.
+- **ClickHouse JDBC driver (decided and applied, Nov 3, 2026):** 0.6.4 with the `http` classifier and the root's `httpclient5`/`httpcore5` pins, in both modules. It's a `clickhouse_jdbc.version` property today and becomes a single parent entry in the reactor. Still needed: one Testcontainers ClickHouse version.
+- **Importer version (decided, Nov 3, 2026):** modules inherit the parent's version (`v7.2.5-SNAPSHOT` today) instead of keeping 1.0.x. The release workflow's `mvn versions:set` then updates every module at once. The JAR keeps the `core-*.jar` name, so the Docker and Docker Compose paths are unaffected. This takes effect when the importer gets the root as its parent; `importer/pom.xml` stays at 1.0.16 until then.
 - Web-only build settings (frontend dependency, git-commit-id, Spring Boot repackage, JaCoCo/Sonar paths, Spotless includes) move to `web/pom.xml`.
 - The importer must override the shade transformers it would otherwise inherit from `spring-boot-starter-parent`'s pluginManagement.
 - The Dockerfile builds the importer from this repository; the `build-core` stage that clones `cbioportal-core` goes away.
@@ -131,7 +133,7 @@ cbioportal/
 
 The two repos are on different framework generations. Core uses Spring 6.2.x and mostly JUnit 4. cbioportal just moved to Spring Boot 4.1 / Spring Framework 7. If the importer inherits the parent POM's dependency management, its dependencies will be upgraded under it.
 
-**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. Two differences remain open: the ClickHouse JDBC driver and the Testcontainers ClickHouse module. The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
+**Status: done as part of the drop.** `importer/pom.xml` now uses the same Spring Boot 4.1.0 BOM and version overrides as the root, and the importer compiles against Spring 7 with no source changes. One difference remains open, the Testcontainers ClickHouse module; the ClickHouse JDBC driver was aligned afterwards at 0.6.4 `http`. The JUnit 4 tests still need a Vintage engine or a migration; that's part of hackathon goal 3. Details are in [cbiohackathon-importer-drop.md](cbiohackathon-importer-drop.md).
 
 ## Shared Code
 
@@ -275,8 +277,12 @@ Please comment on this document or open a GitHub discussion thread.
 
 **Build and release**
 
+- [x] ~~Who keeps the `io.github.cbioportal:cbioportal` coordinates?~~ Decided: the web module keeps them; the root becomes `cbioportal-parent`; the parent POM and `shared-model` are published.
+- [ ] Should the importer module be published to Maven Central too, or skipped (`maven.deploy.skip`)? If published, it has to pass the `maven-central` profile's javadoc, sources and GPG steps.
+
 - [ ] Upgrade the importer to the parent's dependency versions (recommended), or allow overrides?
-- [ ] Should the importer's version always match the parent version?
+- [x] ~~Should the importer's version always match the parent version?~~ Decided: yes, modules inherit the parent's version.
+- [x] ~~Which ClickHouse JDBC driver?~~ Decided: 0.6.4 with the `http` classifier, in both modules.
 - [ ] What happens to the `core` Maven artifact and the 1.0.x version line?
 
 **Tests and CI**

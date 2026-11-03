@@ -1,7 +1,10 @@
 package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 
 import java.util.*;
+import org.cbioportal.domain.mutation.PatientGenePanel;
+import org.cbioportal.domain.mutation.PatientMutatedGene;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
@@ -92,5 +95,41 @@ public class ClickhouseMutationRepository implements MutationRepository {
         groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
     return mapper.getMetaMutationsInMultipleMolecularProfiles(
         allMolecularProfileIds, allSampleIds, entrezGeneIds, false);
+  }
+
+  @Override
+  public boolean isMutationMolecularProfileOfStudy(String studyId, String molecularProfileId) {
+    return mapper.isMutationMolecularProfileOfStudy(studyId, molecularProfileId);
+  }
+
+  @Override
+  public List<PatientMutatedGene> getMutatedGenesOfPatients(
+      String molecularProfileId, List<String> hugoGeneSymbols) {
+    if (hugoGeneSymbols.isEmpty()) {
+      return List.of();
+    }
+    return mapper.getMutatedGenesOfPatients(molecularProfileId, hugoGeneSymbols);
+  }
+
+  @Override
+  public List<PatientGenePanel> getGenePanelsOfPatients(
+      String studyId,
+      String molecularProfileId,
+      List<String> hugoGeneSymbols,
+      String referencePatientId) {
+    if (hugoGeneSymbols.isEmpty()) {
+      return List.of();
+    }
+    return mapper.getGenePanelsOfPatients(
+        studyId, molecularProfileId, hugoGeneSymbols, referencePatientId);
+  }
+
+  @Override
+  public List<GenePanelToGene> getGenePanelGenes(
+      Collection<String> genePanelIds, List<String> hugoGeneSymbols) {
+    if (genePanelIds.isEmpty() || hugoGeneSymbols.isEmpty()) {
+      return List.of();
+    }
+    return mapper.getGenePanelGenes(genePanelIds, hugoGeneSymbols);
   }
 }

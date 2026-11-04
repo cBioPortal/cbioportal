@@ -1740,6 +1740,13 @@ rather than left with an invisible column.
 A resource with no `CUSTOM_METADATA` keeps the older behaviour, a column per key found in the
 data, labelled by the raw key name, and nothing is checked.
 
+The contract also decides how fast the resource can be browsed per patient or per sample (for
+example, a study-view tab listing each patient with counts of their slides). Rebuilding the
+derived tables copies the rows of every resource with a contract into a compact table holding only
+the declared keys, and those grouped views read it whenever every key they count or filter on is
+declared. A resource without a contract, or a view reading an undeclared key, still works but reads
+every row's full metadata.
+
 The contract is declared per study, but a study view cohort can span several studies that each
 declare the same resource. The table then shows the **union** of their contracts, each key taking
 the first declaration by study identifier, and a key two studies type differently falls back to

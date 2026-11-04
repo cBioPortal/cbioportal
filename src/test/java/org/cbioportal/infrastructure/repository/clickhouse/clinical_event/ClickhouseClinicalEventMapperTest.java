@@ -32,6 +32,35 @@ public class ClickhouseClinicalEventMapperTest {
   @Autowired private ClickhouseClinicalEventMapper mapper;
 
   @Test
+  public void getPatientClinicalEvents() {
+    var events = mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sd");
+
+    assertEquals(3, events.size());
+    var treatment = events.get(1);
+    assertEquals(Long.valueOf(3), treatment.getClinicalEventId());
+    assertEquals(STUDY_TCGA_PUB, treatment.getStudyId());
+    assertEquals("tcga-a1-a0sd", treatment.getPatientId());
+    assertEquals("Treatment", treatment.getEventType());
+    assertEquals(Integer.valueOf(213), treatment.getStartDate());
+    assertEquals(Integer.valueOf(445), treatment.getStopDate());
+    assertEquals(4, treatment.getAttributes().size());
+    var agent =
+        treatment.getAttributes().stream()
+            .filter(attribute -> "AGENT".equals(attribute.getKey()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(Long.valueOf(3), agent.getClinicalEventId());
+    assertEquals("madeupanib", agent.getValue());
+  }
+
+  @Test
+  public void getPatientClinicalEventsRestrictsStudyAndPatient() {
+    assertTrue(mapper.getPatientClinicalEvents("study_other", "tcga-a1-a0sd").isEmpty());
+    assertTrue(mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "unknown-patient").isEmpty());
+    assertEquals(1, mapper.getPatientClinicalEvents(STUDY_TCGA_PUB, "tcga-a1-a0sb").size());
+  }
+
+  @Test
   public void getClinicalEventTypeCounts() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(List.of(STUDY_TCGA_PUB));

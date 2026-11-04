@@ -4,6 +4,39 @@
 <mapper
         namespace="org.cbioportal.infrastructure.repository.clickhouse.clinical_event.ClickhouseClinicalEventMapper">
 
+    <resultMap id="clinicalEvent" type="org.cbioportal.legacy.model.ClinicalEvent">
+        <id property="clinicalEventId" column="clinicalEventId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="patientId" column="patientId"/>
+        <result property="eventType" column="eventType"/>
+        <result property="startDate" column="startDate"/>
+        <result property="stopDate" column="stopDate"/>
+        <collection property="attributes" ofType="org.cbioportal.legacy.model.ClinicalEventData"
+                    notNullColumn="attributeKey">
+            <id property="key" column="attributeKey"/>
+            <result property="clinicalEventId" column="clinicalEventId"/>
+            <result property="value" column="attributeValue"/>
+        </collection>
+    </resultMap>
+
+    <select id="getPatientClinicalEvents" resultMap="clinicalEvent">
+        SELECT
+            ce.clinical_event_id AS clinicalEventId,
+            ce.cancer_study_identifier AS studyId,
+            ce.patient_stable_id AS patientId,
+            ce.event_type AS eventType,
+            ce.start_date AS startDate,
+            ce.stop_date AS stopDate,
+            ced.key AS attributeKey,
+            ced.value AS attributeValue
+        FROM clinical_event_derived ce
+        LEFT JOIN clinical_event_data ced ON ce.clinical_event_id = ced.clinical_event_id
+        WHERE ce.cancer_study_identifier = #{studyId}
+            AND ce.patient_stable_id = #{patientId}
+        ORDER BY ce.clinical_event_id, ced.key
+        SETTINGS join_use_nulls = 1
+    </select>
+
     <select id="getClinicalEventTypeCounts" resultType="org.cbioportal.legacy.model.ClinicalEventTypeCount">
         SELECT
         event_type as eventType,

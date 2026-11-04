@@ -10,7 +10,6 @@ import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
-import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
 /**

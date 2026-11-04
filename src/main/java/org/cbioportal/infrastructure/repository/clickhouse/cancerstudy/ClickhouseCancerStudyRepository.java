@@ -7,9 +7,9 @@ import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Repository;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Repository;
+
 /**
  * Repository implementation for accessing cancer study metadata from ClickHouse. This class
  * delegates database queries to {@link ClickhouseCancerStudyMapper}.
@@ -43,9 +43,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   public List<CancerStudyMetadata> getCancerStudiesMetadata(
       SortAndSearchCriteria sortAndSearchCriteria) {
 
-    String userId = SecurityContextHolder.getContext()
-      .getAuthentication()
-      .getName();
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
     return cancerStudyMapper.getCancerStudiesMetadata(userId, sortAndSearchCriteria, List.of());
   }
 
@@ -63,7 +61,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       condition = "@cacheEnabledConfig.getEnabled()")
   public List<CancerStudyMetadata> getCancerStudiesMetadataSummary(
       SortAndSearchCriteria sortAndSearchCriteria) {
-    return cancerStudyMapper.getCancerStudiesMetadataSummary(sortAndSearchCriteria, List.of());
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    return cancerStudyMapper.getCancerStudiesMetadataSummary(
+        userId, sortAndSearchCriteria, List.of());
   }
 
   /**
@@ -77,9 +77,10 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
   public CancerStudyMetadata getCancerStudyMetadata(String studyId) {
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
     List<CancerStudyMetadata> results =
         cancerStudyMapper.getCancerStudiesMetadata(
-            new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
+            userId, new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
     return results.isEmpty() ? null : results.getFirst();
   }
 

@@ -1,7 +1,10 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,19 +13,25 @@ import java.util.Set;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceContractRow;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceGroupCountColumn;
 import org.cbioportal.domain.resource.ResourceMetadataFacetValue;
 import org.cbioportal.domain.resource.ResourceMetadataField;
 import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceMetadataSchema;
 import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceQueryContext;
+import org.cbioportal.domain.resource.ResourceScope;
 import org.cbioportal.domain.resource.ResourceTableCounts;
+import org.cbioportal.domain.resource.ResourceTableGroup;
+import org.cbioportal.domain.resource.ResourceTableGroupPage;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -50,6 +59,10 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   /** Backstop so a single request cannot exhaust server memory if the sample is raised. */
   private static final long KEY_DISCOVERY_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
+
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+  private static final TypeReference<Map<String, Map<String, Long>>> GROUP_COUNTS_TYPE =
+      new TypeReference<>() {};
 
   private final ClickhouseResourceDataMapper mapper;
 
@@ -121,7 +134,27 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
   }
 
-  private MetadataContext resolveMetadataContext(ResourceTableQuery scoped) {
+  /**
+   * How one request reads: its query, its study-view cohort, and whether it reads the compact
+   * metadata table. Carried together because every statement below takes all three.
+   */
+  private record Reads(ResourceTableQuery query, ResourceQueryContext context, boolean compact) {
+
+    static Reads of(ResourceTableQuery query, ResourceQueryContext context) {
+      ResourceQueryContext resolved = context == null ? ResourceQueryContext.none() : context;
+      return new Reads(query, resolved, resolved.readsCompactTable(query));
+    }
+
+    StudyViewFilterContext cohort() {
+      return context.cohort();
+    }
+
+    Reads withQuery(ResourceTableQuery other) {
+      return new Reads(other, context, compact);
+    }
+  }
+
+  private MetadataContext resolveMetadataContext(Reads scoped) {
     List<ResourceContractRow> contractRows = contractRows(scoped);
     ResourceMetadataSchema schema = mergedSchema(scoped, contractRows);
     boolean coversEveryStudy =
@@ -146,38 +179,44 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   @Override
-  public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    return mapper.getResourceTableRows(query);
+  public List<ResourceTableRow> getResourceTableRows(
+      ResourceTableQuery query, ResourceQueryContext context) {
+    // Rows always come from resource: they return the full metadata, which the compact table
+    // does not hold.
+    return mapper.getResourceTableRows(query, Reads.of(query, context).cohort());
   }
 
   @Override
-  public ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
+  public ResourceTableMetadataView getResourceTableMetadata(
+      ResourceTableQuery query, ResourceQueryContext context) {
     // Facets and key discovery are always computed against the query with ALL column-level filters
     // removed (only resourceId/study/patient/sample/search scoping kept). This keeps every filter
     // dropdown showing its full, stable option set regardless of what is currently selected in ANY
     // column, itself or another — e.g. deselecting every option in one column (a "1 = 0" filter
     // that zeroes out all matching rows) must not make that column's own options, or any other
     // column's options or keys, disappear.
-    ResourceTableQuery scoped = withoutColumnFilters(query);
-    MetadataContext context = resolveMetadataContext(scoped);
+    // The table is chosen on the full query, so a column filter on a key the compact table lacks
+    // keeps every statement of the request on resource.
+    Reads scoped = Reads.of(query, context).withQuery(withoutColumnFilters(query));
+    MetadataContext metadataContext = resolveMetadataContext(scoped);
 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
 
     Map<String, ResourceNumericRange> facetRanges = new LinkedHashMap<>();
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
-    for (String key : context.columnKeys()) {
-      if (!context.isFilterable(key)) {
+    for (String key : metadataContext.columnKeys()) {
+      if (!metadataContext.isFilterable(key)) {
         continue;
       }
       // Numeric columns get a min/max range instead of an enumerated value list, which would be
       // huge and unhelpful for a continuous measurement.
-      (context.isNumeric(key) ? numericKeys : categoricalKeys).add(key);
+      (metadataContext.isNumeric(key) ? numericKeys : categoricalKeys).add(key);
     }
     facetRanges.putAll(metadataRanges(scoped, numericKeys));
     facets.putAll(metadataFacets(scoped, categoricalKeys));
 
-    return new ResourceTableMetadataView(metadataColumns(context), facets, facetRanges);
+    return new ResourceTableMetadataView(metadataColumns(metadataContext), facets, facetRanges);
   }
 
   /**
@@ -185,14 +224,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * sample: these bounds are what the slider offers, and a narrowed range would put rows beyond it
    * out of reach.
    */
-  private Map<String, ResourceNumericRange> metadataRanges(
-      ResourceTableQuery scoped, List<String> keys) {
+  private Map<String, ResourceNumericRange> metadataRanges(Reads scoped, List<String> keys) {
     if (keys.isEmpty()) {
       return Map.of();
     }
     Map<String, ResourceNumericRange> ranges = new LinkedHashMap<>();
     for (ResourceMetadataRange range :
-        mapper.getResourceTableMetadataRanges(scoped, keys.toArray(new String[0]))) {
+        mapper.getResourceTableMetadataRanges(
+            scoped.query(), scoped.cohort(), scoped.compact(), keys.toArray(new String[0]))) {
       if (range.isUsable()) {
         ranges.put(
             ResourceColumnInfo.METADATA_COLUMN_PREFIX + range.metaKey(),
@@ -203,14 +242,22 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   /** All categorical metadata facets in one query, grouped by key, with over-cap keys dropped. */
-  private Map<String, List<ResourceFacetOption>> metadataFacets(
-      ResourceTableQuery scoped, List<String> keys) {
+  private Map<String, List<ResourceFacetOption>> metadataFacets(Reads scoped, List<String> keys) {
     if (keys.isEmpty()) {
       return Map.of();
     }
+    String[] keyArray = keys.toArray(new String[0]);
     List<ResourceMetadataFacetValue> rows =
-        mapper.getResourceTableMetadataFacets(
-            scoped, keys.toArray(new String[0]), MAX_FACET_VALUES + 1);
+        scoped.query().grouped()
+            ? mapper.getResourceTableGroupedMetadataFacets(
+                scoped.query(),
+                scoped.cohort(),
+                scoped.compact(),
+                keyArray,
+                ClickhouseResourceDataMapper.facetTupleType(keyArray),
+                MAX_FACET_VALUES + 1)
+            : mapper.getResourceTableMetadataFacets(
+                scoped.query(), scoped.cohort(), keyArray, MAX_FACET_VALUES + 1);
 
     Map<String, List<ResourceFacetOption>> byKey = new LinkedHashMap<>();
     for (ResourceMetadataFacetValue row : rows) {
@@ -288,10 +335,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * Returns per-key stats for every metadata key discovered in the current tab, keyed by the raw
    * metadata key (not prefixed with "metadata:").
    */
-  private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(ResourceTableQuery query) {
+  private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(Reads scoped) {
     List<ResourceMetadataKeyStats> stats =
         mapper.getResourceTableMetadataKeyStats(
-            query, KEY_DISCOVERY_SAMPLE_ROWS, KEY_DISCOVERY_MAX_MEMORY_BYTES);
+            scoped.query(),
+            scoped.cohort(),
+            scoped.compact(),
+            KEY_DISCOVERY_SAMPLE_ROWS,
+            KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
     if (stats != null) {
       for (ResourceMetadataKeyStats stat : stats) {
@@ -301,8 +352,17 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return byKey;
   }
 
-  private List<ResourceContractRow> contractRows(ResourceTableQuery query) {
-    List<ResourceContractRow> rows = mapper.getResourceDefinitionCustomMetadata(query);
+  /**
+   * The contracts in scope. A request that resolved its resource scope already holds them, read
+   * from the definitions; otherwise they are read over the rows the request matches.
+   */
+  private List<ResourceContractRow> contractRows(Reads scoped) {
+    ResourceScope scope = scoped.context().scope();
+    if (scope != null && scoped.query().grouped()) {
+      return scope.contractRows();
+    }
+    List<ResourceContractRow> rows =
+        mapper.getResourceDefinitionCustomMetadata(scoped.query(), scoped.cohort());
     return rows == null ? List.of() : rows;
   }
 
@@ -313,8 +373,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    * can be described by several. They are merged rather than chosen between, so that no study's
    * declared keys are dropped on account of another study's contract.
    */
-  private ResourceMetadataSchema mergedSchema(
-      ResourceTableQuery query, List<ResourceContractRow> rows) {
+  private ResourceMetadataSchema mergedSchema(Reads scoped, List<ResourceContractRow> rows) {
+    ResourceTableQuery query = scoped.query();
     List<ResourceMetadataSchema> schemas =
         rows.stream()
             .filter(ResourceContractRow::declared)
@@ -348,7 +408,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
       LOG.warn(
           "Resource '{}' declares custom_metadata in some of the selected studies but not in {};"
               + " showing the declared columns alongside the keys found in the data.",
-          query.resourceId(),
+          query.effectiveResourceIds(),
           undeclaredStudies);
     }
     if (schemas.size() > 1) {
@@ -356,14 +416,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
           "Resource '{}' has {} differing custom_metadata contracts across the selected studies;"
               + " showing the union of their fields, each taking the first declaration by study"
               + " identifier.",
-          query.resourceId(),
+          query.effectiveResourceIds(),
           schemas.size());
       List<String> conflicts = ResourceMetadataSchema.conflictingTypeKeys(schemas);
       if (!conflicts.isEmpty()) {
         LOG.warn(
             "Resource '{}' has keys typed differently by those contracts: {}. Their type is taken"
                 + " from the data instead.",
-            query.resourceId(),
+            query.effectiveResourceIds(),
             conflicts);
       }
     }
@@ -374,22 +434,138 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     if (query.filters() == null || query.filters().isEmpty()) {
       return query;
     }
-    return new ResourceTableQuery(
-        query.studyIds(),
-        query.resourceId(),
-        query.patientIdentifiers(),
-        query.sampleIdentifiers(),
-        query.search(),
-        query.pageNumber(),
-        query.pageSize(),
-        query.sortBy(),
-        query.direction(),
-        List.of());
+    return query.withoutColumnFilters();
   }
 
   @Override
-  public ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
-    ResourceTableCounts counts = mapper.getResourceTableCounts(query);
+  public ResourceTableCounts getResourceTableCounts(
+      ResourceTableQuery query, ResourceQueryContext context) {
+    Reads reads = Reads.of(query, context);
+    ResourceTableCounts counts =
+        mapper.getResourceTableCounts(query, reads.cohort(), reads.compact());
     return counts == null ? ResourceTableCounts.empty() : counts;
+  }
+
+  @Override
+  public ResourceScope getResourceScope(ResourceTableQuery query) {
+    return new ResourceScope(mapper.getResourceScope(query));
+  }
+
+  /**
+   * A page of groups in at most three statements: the page with its totals, the value counts for
+   * that page's groups, and the located group's position. Counting values only for the page's
+   * groups is what keeps a page cheap: the page itself is ordered on keys and row counts, which
+   * need no metadata parsed.
+   */
+  @Override
+  public ResourceTableGroupPage getResourceTableGroups(
+      ResourceTableQuery query, ResourceQueryContext context) {
+    Reads reads = Reads.of(query, context);
+    List<ResourceTableGroupRow> page =
+        mapper.getResourceTableGroupPage(query, reads.cohort(), reads.compact());
+
+    long totalGroups;
+    long totalRows;
+    if (!page.isEmpty()) {
+      totalGroups = page.getFirst().totalGroups();
+      totalRows = page.getFirst().totalRows();
+    } else if (query.offset() == 0) {
+      totalGroups = 0L;
+      totalRows = 0L;
+    } else {
+      ResourceTableGroupTotals totals =
+          mapper.getResourceTableGroupTotals(query, reads.cohort(), reads.compact());
+      totalGroups = totals == null ? 0L : totals.totalGroups();
+      totalRows = totals == null ? 0L : totals.totalRows();
+    }
+
+    Map<String, Map<String, Map<String, Long>>> countsByGroup = groupCounts(reads, page);
+    List<ResourceTableGroup> groups = new ArrayList<>(page.size());
+    for (ResourceTableGroupRow row : page) {
+      String key = groupKey(query, row.patientId(), row.sampleId());
+      groups.add(
+          new ResourceTableGroup(
+              row.studyId(),
+              row.patientId(),
+              row.sampleId(),
+              row.rowCount(),
+              countsByGroup.getOrDefault(
+                  tuple(row.studyId(), key), emptyCounts(query.groupCountColumns()))));
+    }
+
+    // The page carries the located group's position; a page past the last group has no row to
+    // carry it, so only then is it read on its own.
+    Long locatedIndex = null;
+    if (query.locate() != null) {
+      if (!page.isEmpty()) {
+        locatedIndex = page.getFirst().locatedIndex();
+      } else if (query.offset() > 0) {
+        locatedIndex = mapper.locateResourceTableGroup(query, reads.cohort(), reads.compact());
+      }
+    }
+    return new ResourceTableGroupPage(totalGroups, totalRows, locatedIndex, List.copyOf(groups));
+  }
+
+  /** Value counts for the page's groups, keyed by study-qualified group key. */
+  private Map<String, Map<String, Map<String, Long>>> groupCounts(
+      Reads reads, List<ResourceTableGroupRow> page) {
+    List<ResourceGroupCountColumn> columns = reads.query().groupCountColumns();
+    if (columns.isEmpty() || page.isEmpty()) {
+      return Map.of();
+    }
+    Set<String> keys = new LinkedHashSet<>();
+    Set<String> tuples = new LinkedHashSet<>();
+    for (ResourceTableGroupRow row : page) {
+      String key = groupKey(reads.query(), row.patientId(), row.sampleId());
+      keys.add(key);
+      tuples.add(tuple(row.studyId(), key));
+    }
+    Map<String, Map<String, Map<String, Long>>> byGroup = new HashMap<>();
+    for (ResourceGroupCountsRow row :
+        mapper.getResourceTableGroupCounts(
+            reads.query(),
+            reads.cohort(),
+            reads.compact(),
+            keys.toArray(new String[0]),
+            tuples.toArray(new String[0]))) {
+      byGroup.put(tuple(row.studyId(), row.groupKey()), parseCounts(row.counts(), columns));
+    }
+    return byGroup;
+  }
+
+  /** Every requested column, in request order, each with its value counts (possibly none). */
+  private static Map<String, Map<String, Long>> parseCounts(
+      String json, List<ResourceGroupCountColumn> columns) {
+    Map<String, Map<String, Long>> parsed;
+    try {
+      parsed =
+          json == null || json.isBlank()
+              ? Map.of()
+              : OBJECT_MAPPER.readValue(json, GROUP_COUNTS_TYPE);
+    } catch (Exception e) {
+      throw new IllegalStateException("Unreadable group counts from ClickHouse: " + json, e);
+    }
+    Map<String, Map<String, Long>> counts = new LinkedHashMap<>();
+    for (ResourceGroupCountColumn column : columns) {
+      Map<String, Long> values = parsed.get(column.columnId());
+      counts.put(column.columnId(), values == null ? Map.of() : values);
+    }
+    return counts;
+  }
+
+  private static Map<String, Map<String, Long>> emptyCounts(
+      List<ResourceGroupCountColumn> columns) {
+    Map<String, Map<String, Long>> counts = new LinkedHashMap<>();
+    columns.forEach(column -> counts.put(column.columnId(), Map.of()));
+    return counts;
+  }
+
+  private static String groupKey(ResourceTableQuery query, String patientId, String sampleId) {
+    return query.groupBySample() ? sampleId : patientId;
+  }
+
+  /** Same study-qualified composition the SQL uses; see ResourceCohort. */
+  private static String tuple(String studyId, String stableId) {
+    return studyId + "_" + stableId;
   }
 }

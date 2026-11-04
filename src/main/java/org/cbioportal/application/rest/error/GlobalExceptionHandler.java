@@ -7,6 +7,7 @@ import jakarta.validation.Path;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.cbioportal.application.rest.availability.StudyUnavailableException;
+import org.cbioportal.domain.resource.InvalidResourceTableQueryException;
 import org.cbioportal.legacy.service.exception.AccessForbiddenException;
 import org.cbioportal.legacy.service.exception.CacheNotFoundException;
 import org.cbioportal.legacy.service.exception.CacheOperationException;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ErrorResponse> handleUnsupportedOperation() {
     return new ResponseEntity<>(
         new ErrorResponse("Requested API is not implemented yet"), HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  @ExceptionHandler(InvalidResourceTableQueryException.class)
+  public ResponseEntity<ErrorResponse> handleInvalidResourceTableQuery(
+      InvalidResourceTableQueryException ex) {
+    return new ResponseEntity<>(new ErrorResponse(ex.getMessage()), HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(StudyNotFoundException.class)

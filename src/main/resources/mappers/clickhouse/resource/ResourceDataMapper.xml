@@ -25,6 +25,42 @@
     </constructor>
   </resultMap>
 
+  <resultMap id="ResourceScopeRowResultMap" type="org.cbioportal.domain.resource.ResourceScopeRow">
+    <constructor>
+      <arg column="resourceId" javaType="String"/>
+      <arg column="studyId" javaType="String"/>
+      <arg column="customMetadata" javaType="String"/>
+      <arg column="hasRows" javaType="_boolean"/>
+    </constructor>
+  </resultMap>
+
+  <resultMap id="ResourceTableGroupRowResultMap" type="org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceTableGroupRow">
+    <constructor>
+      <arg column="studyId" javaType="String"/>
+      <arg column="patientId" javaType="String"/>
+      <arg column="sampleId" javaType="String"/>
+      <arg column="rowCount" javaType="_long"/>
+      <arg column="totalGroups" javaType="_long"/>
+      <arg column="totalRows" javaType="_long"/>
+      <arg column="locatedIndex" javaType="Long"/>
+    </constructor>
+  </resultMap>
+
+  <resultMap id="ResourceTableGroupTotalsResultMap" type="org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceTableGroupTotals">
+    <constructor>
+      <arg column="totalGroups" javaType="_long"/>
+      <arg column="totalRows" javaType="_long"/>
+    </constructor>
+  </resultMap>
+
+  <resultMap id="ResourceGroupCountsRowResultMap" type="org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceGroupCountsRow">
+    <constructor>
+      <arg column="studyId" javaType="String"/>
+      <arg column="groupKey" javaType="String"/>
+      <arg column="counts" javaType="String"/>
+    </constructor>
+  </resultMap>
+
   <resultMap id="ResourceTableTabResultMap" type="org.cbioportal.domain.resource.ResourceTableTab">
     <constructor>
       <arg column="resourceId" javaType="String"/>
@@ -73,9 +109,103 @@
      AND rdef.cancer_study_id = rdata.cancer_study_id
   </sql>
 
+  <!--
+    The same FROM clause for the statements a grouped query can answer from the compact metadata
+    table, which holds each row of a resource with a custom_metadata contract and only the keys that
+    contract declares. Only statements taking a "compact" parameter may include this; the
+    repository sets it when the table holds every key the query reads (ResourceScope.compactCovers).
+  -->
+  <sql id="ResourceTableSourceFromClause">
+    FROM <choose><when test="compact">resource_compact_derived</when><otherwise>resource</otherwise></choose> rdata
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
+    LEFT JOIN resource_definition rdef
+      ON rdef.resource_id = rdata.resource_id
+     AND rdef.cancer_study_id = rdata.cancer_study_id
+  </sql>
+
+  <!--
+    The FROM clause of the grouped statements: the same table switch without the definition join,
+    which only the row and count statements read from.
+  -->
+  <sql id="ResourceGroupedFromClause">
+    FROM <choose><when test="compact">resource_compact_derived</when><otherwise>resource</otherwise></choose> rdata
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdata.cancer_study_id
+  </sql>
+
+  <!--
+    The cohort as a study-view filter: the samples the shared study-view filter SQL selects, and
+    the patients those samples belong to. A sample-level row matches by its sample, a patient-level
+    row by its patient, the same split the identifier-list cohort makes. sample_derived's unique ids
+    are the study-qualified <studyId>_<stableId> form, so the match cannot cross studies.
+  -->
+  <sql id="ResourceTableStudyViewCohort">
+    <!-- One set holds both the cohort's samples and their patients, tagged by level, so the
+         study-view filter SQL runs once per statement rather than once for each level. -->
+    <choose>
+      <when test="query.multiStudy()">
+        AND concat(if(rdata.sample_id IS NULL, 'p:', 's:'), cs.cancer_study_identifier, '_',
+                   ifNull(rdata.sample_id, ifNull(rdata.patient_id, ''))) IN (
+          SELECT arrayJoin([concat('s:', sample_unique_id), concat('p:', patient_unique_id)])
+          FROM sample_derived
+          WHERE sample_unique_id IN (
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+          )
+          <include refid="ResourceTableStudyViewCohortPageNarrowing"/>
+        )
+      </when>
+      <otherwise>
+        <!-- One study: stable ids cannot collide once the cohort is narrowed to that study, so
+             the bare ids are matched and no per-row concat with the study is needed. -->
+        AND if(rdata.sample_id IS NULL,
+               concat('p:', ifNull(rdata.patient_id, '')),
+               concat('s:', rdata.sample_id)) IN (
+          SELECT arrayJoin([concat('s:', sample_stable_id), concat('p:', patient_stable_id)])
+          FROM sample_derived
+          WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            AND sample_unique_id IN (
+              <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+            )
+            <include refid="ResourceTableStudyViewCohortPageNarrowing"/>
+        )
+      </otherwise>
+    </choose>
+  </sql>
+
+  <!--
+    In getResourceTableGroupCounts only the page's groups are read, so the cohort set is narrowed
+    to their samples before it is built rather than holding every sample and patient of the cohort.
+    Statements without a groupKeys parameter skip this.
+  -->
+  <sql id="ResourceTableStudyViewCohortPageNarrowing">
+    <if test="_parameter.containsKey('groupKeys')">
+      <choose>
+        <when test="query.groupBySample()">
+          AND sample_stable_id IN (#{groupKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          <if test="query.multiStudy()">AND sample_unique_id IN (#{groupKeyTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})</if>
+        </when>
+        <otherwise>
+          AND patient_stable_id IN (#{groupKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+          <if test="query.multiStudy()">AND patient_unique_id IN (#{groupKeyTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})</if>
+        </otherwise>
+      </choose>
+    </if>
+  </sql>
+
+  <!-- The column a grouped query groups on. -->
+  <sql id="ResourceGroupKeyColumn">
+    <choose><when test="query.groupBySample()">rdata.sample_id</when><otherwise>rdata.patient_id</otherwise></choose>
+  </sql>
+
   <sql id="ResourceTableBaseFilters">
     <where>
-      rdata.resource_id = #{query.resourceId}
+      <choose>
+        <when test="query.hasResourceIds()">
+          rdata.resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        </when>
+        <otherwise>
+          rdata.resource_id = #{query.resourceId}
+        </otherwise>
+      </choose>
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
       <!-- Match each row at the level it lives at: patient-level rows (sample_id IS NULL) by
            patient_id, sample-level rows by sample_id. The two lists must be ORed, not ANDed:
@@ -85,36 +215,48 @@
            the match to the cohort's own (study, id) pairs; the bare-id conditions stay because
            the sorting key can prune on them. Same composition as SampleDataFilterUtil. -->
       <choose>
-        <when test="query.hasPatients() and query.hasSamples()">
-          AND (
-            (rdata.sample_id IS NOT NULL
-             AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-             <if test="query.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-             </if>
-            )
-            OR
-            (rdata.sample_id IS NULL
-             AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-             <if test="query.multiStudy()">
-             AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-             </if>
-            )
-          )
+        <when test="studyViewFilterContext != null">
+          <include refid="ResourceTableStudyViewCohort"/>
         </when>
-        <when test="query.hasPatients()">
-          AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          <if test="query.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          </if>
-        </when>
-        <when test="query.hasSamples()">
-          AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          <if test="query.multiStudy()">
-          AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          </if>
-        </when>
+        <otherwise>
+          <choose>
+            <when test="query.hasPatients() and query.hasSamples()">
+              AND (
+                (rdata.sample_id IS NOT NULL
+                 AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                 <if test="query.multiStudy()">
+                 AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                 </if>
+                )
+                OR
+                (rdata.sample_id IS NULL
+                 AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                 <if test="query.multiStudy()">
+                 AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+                 </if>
+                )
+              )
+            </when>
+            <when test="query.hasPatients()">
+              AND rdata.patient_id IN (#{query.patientIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+              <if test="query.multiStudy()">
+              AND concat(cs.cancer_study_identifier, '_', rdata.patient_id) IN (#{query.patientTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+              </if>
+            </when>
+            <when test="query.hasSamples()">
+              AND rdata.sample_id IN (#{query.sampleIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+              <if test="query.multiStudy()">
+              AND concat(cs.cancer_study_identifier, '_', rdata.sample_id) IN (#{query.sampleTuplesArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+              </if>
+            </when>
+          </choose>
+        </otherwise>
       </choose>
+      <!-- A grouped query reads only rows that belong to a group: under patient grouping every row
+           with a patient, under sample grouping only sample-level rows. -->
+      <if test="query.grouped()">
+        AND <include refid="ResourceGroupKeyColumn"/> IS NOT NULL
+      </if>
       <if test="query.search != null and query.search != ''">
         AND (
           rdata.patient_id LIKE CONCAT('%', #{query.search}, '%')
@@ -440,7 +582,7 @@
       SELECT kv.1 AS metaKey, toFloat64OrNull(JSONExtractString(kv.2)) AS parsedValue
       FROM (
         SELECT arrayJoin(JSONExtractKeysAndValuesRaw(ifNull(rdata.metadata, '{}'))) AS kv
-        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableSourceFromClause"/>
         <include refid="ResourceTableBaseFilters"/>
         AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
       ) pairs
@@ -463,7 +605,7 @@
         SELECT arrayJoin(JSONExtractKeysAndValuesRaw(metadataJson)) AS kv
         FROM (
           SELECT ifNull(rdata.metadata, '{}') AS metadataJson
-          <include refid="ResourceTableFromClause"/>
+          <include refid="ResourceTableSourceFromClause"/>
           <include refid="ResourceTableBaseFilters"/>
           AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
           LIMIT #{sampleRows}
@@ -519,7 +661,237 @@
            uniqExact(coalesce(nullIf(rdef.display_name, ''), rdata.resource_id)) AS distinctResourceDisplayNames,
            uniqExact(rdata.resource_scope) AS distinctScopes,
            uniqExact(ifNull(rdata.display_name, '')) AS distinctDisplayNames
-    <include refid="ResourceTableFromClause"/>
+    <include refid="ResourceTableSourceFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
+  </select>
+  <!--
+    The scope of a scoped request: one row per requested resource that a requested study defines
+    or holds rows of, with that study's contract. It never reads rows' metadata.
+
+    A pair whose definition declares a contract is taken to hold rows without looking: the compact
+    table copies whatever rows it has, so nothing about the table choice depends on it. Only the
+    other pairs are probed in resource, and the probe excludes the contracted pairs by sorting key,
+    so for a fully contracted request it reads no granules at all. A pair found there holds rows the
+    compact table lacks, which is what makes a grouped query fall back to resource.
+  -->
+  <select id="getResourceScope" resultMap="ResourceScopeRowResultMap">
+    SELECT scope.resource_id AS resourceId,
+           cs.cancer_study_identifier AS studyId,
+           max(scope.customMetadata) AS customMetadata,
+           max(scope.hasRows) AS hasRows
+    FROM (
+      SELECT resource_id, cancer_study_id,
+             ifNull(custom_metadata, '') AS customMetadata,
+             toUInt8(customMetadata != '') AS hasRows
+      FROM resource_definition
+      WHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+      UNION ALL
+      SELECT DISTINCT resource_id, cancer_study_id, '' AS customMetadata, toUInt8(1) AS hasRows
+      FROM resource
+      WHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        AND cancer_study_id IN (
+            SELECT cancer_study_id FROM cancer_study
+            WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
+        AND (cancer_study_id, resource_id) NOT IN (
+            SELECT cancer_study_id, resource_id FROM resource_definition
+            WHERE custom_metadata IS NOT NULL AND custom_metadata != '')
+    ) scope
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = scope.cancer_study_id
+    WHERE cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    GROUP BY resourceId, studyId
+    ORDER BY resourceId, studyId
+  </select>
+
+  <!--
+    One row per group: its study, patient, sample (under sample grouping) and the number of rows it
+    holds once the base filters (cohort, search and column filters) have removed rows. A group
+    whose rows are all removed does not appear.
+
+    Split in two around the base filters, which each select includes itself between them, so that
+    ResourceDataMapperStudyFilterTest sees the study filter in every select.
+  -->
+  <sql id="ResourceGroupedRowsSelect">
+    SELECT cs.cancer_study_identifier AS studyId,
+      <choose>
+        <when test="query.groupBySample()">
+          any(rdata.patient_id) AS patientId,
+          rdata.sample_id AS sampleId,
+        </when>
+        <otherwise>
+          rdata.patient_id AS patientId,
+          CAST(NULL AS Nullable(String)) AS sampleId,
+        </otherwise>
+      </choose>
+      count() AS rowCount
+    <include refid="ResourceGroupedFromClause"/>
+  </sql>
+
+  <sql id="ResourceGroupedRowsGroupBy">
+    GROUP BY studyId, <include refid="ResourceGroupKeyColumn"/>
+  </sql>
+
+  <!--
+    Group order over the aliases ResourceGroupedRowsSelect produces. Every branch ends on the study and
+    the group key, which together identify a group, so the order is total and LIMIT/OFFSET paging
+    and the located index agree with each other.
+  -->
+  <sql id="ResourceGroupOrder">
+    <choose>
+      <when test="query.sortBy == 'rowCount'">
+        rowCount <include refid="ResourceTableSortDirection"/>, studyId ASC, <include refid="ResourceGroupKeyAlias"/> ASC
+      </when>
+      <when test="query.sortBy == 'studyId'">
+        studyId <include refid="ResourceTableSortDirection"/>, <include refid="ResourceGroupKeyAlias"/> ASC
+      </when>
+      <when test="query.sortBy == 'patientId' and query.groupBySample()">
+        patientId <include refid="ResourceTableSortDirection"/>, studyId ASC, sampleId ASC
+      </when>
+      <otherwise>
+        <include refid="ResourceGroupKeyAlias"/> <include refid="ResourceTableSortDirection"/>, studyId ASC
+      </otherwise>
+    </choose>
+  </sql>
+
+  <sql id="ResourceGroupKeyAlias">
+    <choose><when test="query.groupBySample()">sampleId</when><otherwise>patientId</otherwise></choose>
+  </sql>
+
+  <!--
+    A page of groups. The window aggregates run over every group before LIMIT applies, so each row
+    of the page carries the totals and they cost no second round trip. Only keys and row counts are
+    read here, no metadata unless a filter or search needs it; the value counts for the page come
+    from getResourceTableGroupCounts.
+
+    With a locate group, every group is numbered in page order and the located group's number rides
+    along on each row the same way, so locating costs no second pass over the rows either.
+  -->
+  <select id="getResourceTableGroupPage" resultMap="ResourceTableGroupRowResultMap">
+    <choose>
+      <when test="query.locate != null">
+        SELECT studyId, patientId, sampleId, rowCount,
+               count() OVER () AS totalGroups,
+               sum(rowCount) OVER () AS totalRows,
+               max(if(studyId = #{query.locate.studyId} AND <include refid="ResourceGroupKeyAlias"/> = #{query.locateKey}, groupIndex, NULL)) OVER () AS locatedIndex
+        FROM (
+          SELECT studyId, patientId, sampleId, rowCount,
+                 toInt64(row_number() OVER (ORDER BY <include refid="ResourceGroupOrder"/>)) - 1 AS groupIndex
+          FROM (
+            <include refid="ResourceGroupedRowsSelect"/>
+            <include refid="ResourceTableBaseFilters"/>
+            <include refid="ResourceGroupedRowsGroupBy"/>
+          ) grouped
+        ) ranked
+        ORDER BY groupIndex
+      </when>
+      <otherwise>
+        SELECT studyId, patientId, sampleId, rowCount,
+               count() OVER () AS totalGroups,
+               sum(rowCount) OVER () AS totalRows,
+               CAST(NULL AS Nullable(Int64)) AS locatedIndex
+        FROM (
+          <include refid="ResourceGroupedRowsSelect"/>
+          <include refid="ResourceTableBaseFilters"/>
+          <include refid="ResourceGroupedRowsGroupBy"/>
+        ) grouped
+        ORDER BY <include refid="ResourceGroupOrder"/>
+      </otherwise>
+    </choose>
+    LIMIT #{query.limit} OFFSET #{query.offset}
+  </select>
+
+  <select id="getResourceTableGroupTotals" resultMap="ResourceTableGroupTotalsResultMap">
+    SELECT count() AS totalGroups, sum(rowCount) AS totalRows
+    FROM (
+      <include refid="ResourceGroupedRowsSelect"/>
+      <include refid="ResourceTableBaseFilters"/>
+      <include refid="ResourceGroupedRowsGroupBy"/>
+    ) grouped
+  </select>
+
+  <!--
+    How many of each page group's rows carry each value of each requested column, as one JSON
+    object per group: {"<columnId>": {"<value>": <count>, ...}, ...}. Rows with no value for a
+    column are not counted for it. The value expression is the one the column filters use, so a
+    count and a filter on the same value agree.
+
+    The groups are named by bare key, which the sorting key can prune on, and by study-qualified key
+    when the request spans studies, the same pair of predicates the identifier-list cohort uses.
+    The base filters still apply in full: under a cohort or filter only some of a group's rows count.
+  -->
+  <select id="getResourceTableGroupCounts" resultMap="ResourceGroupCountsRowResultMap">
+    SELECT cs.cancer_study_identifier AS studyId,
+           <include refid="ResourceGroupKeyColumn"/> AS groupKey,
+           toJSONString(map(
+             <foreach collection="query.groupCountColumns" item="column" separator=",">
+               #{column.columnId},
+               CAST(sumMapIf(map(<include refid="ResourceGroupCountValue"/>, toUInt32(1)),
+                             <include refid="ResourceGroupCountValue"/> != '')
+                    AS Map(String, UInt32))
+             </foreach>
+           )) AS counts
+    <include refid="ResourceGroupedFromClause"/>
+    <include refid="ResourceTableBaseFilters"/>
+    AND <include refid="ResourceGroupKeyColumn"/> IN (#{groupKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    <if test="query.multiStudy()">
+    AND concat(cs.cancer_study_identifier, '_', <include refid="ResourceGroupKeyColumn"/>) IN (#{groupKeyTuples, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    </if>
+    GROUP BY studyId, groupKey
+  </select>
+
+  <sql id="ResourceGroupCountValue">
+    <choose>
+      <when test="column.metadataKey != null">JSONExtractString(ifNull(rdata.metadata, '{}'), #{column.metadataKey})</when>
+      <otherwise>rdata.resource_id</otherwise>
+    </choose>
+  </sql>
+
+  <!--
+    The zero-based position of the locate group in the same order the page uses, or no row when
+    the group is not among the filtered groups. The page statement reports it too; this is for a
+    page past the last group, which has no row to carry it.
+  -->
+  <select id="locateResourceTableGroup" resultType="java.lang.Long">
+    SELECT groupIndex
+    FROM (
+      SELECT studyId, patientId, sampleId,
+             toInt64(row_number() OVER (ORDER BY <include refid="ResourceGroupOrder"/>)) - 1 AS groupIndex
+      FROM (
+        <include refid="ResourceGroupedRowsSelect"/>
+        <include refid="ResourceTableBaseFilters"/>
+        <include refid="ResourceGroupedRowsGroupBy"/>
+      ) grouped
+    ) ranked
+    WHERE studyId = #{query.locate.studyId}
+      AND <include refid="ResourceGroupKeyAlias"/> = #{query.locateKey}
+  </select>
+
+  <!--
+    Facets for a grouped query: each value counts the groups with at least one row carrying it,
+    not the rows.
+
+    Each document is parsed once, into a named tuple holding only the requested keys
+    (facetTupleType, built by the repository), rather than into every key/value pair it carries.
+    Extracting a key as String yields the same text JSONExtractString gives the column filters, so
+    a facet value and a filter on it agree.
+  -->
+  <select id="getResourceTableGroupedMetadataFacets" resultType="org.cbioportal.domain.resource.ResourceMetadataFacetValue">
+    SELECT kv.1 AS metaKey, kv.2 AS value, uniqExact(groupKey) AS count
+    FROM (
+      SELECT arrayJoin(arrayZip(
+               #{metadataKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler},
+               [<foreach collection="metadataKeys" item="key" separator=",">tupleElement(extracted, #{key})</foreach>])) AS kv,
+             groupKey
+      FROM (
+        SELECT JSONExtract(ifNull(rdata.metadata, '{}'), #{facetTupleType}) AS extracted,
+               (rdata.cancer_study_id, <include refid="ResourceGroupKeyColumn"/>) AS groupKey
+        <include refid="ResourceGroupedFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+        AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+      ) parsed
+    ) pairs
+    WHERE kv.2 != ''
+    GROUP BY metaKey, value
+    ORDER BY metaKey ASC, value ASC
+    LIMIT #{limitPerKey} BY metaKey
   </select>
 </mapper>

@@ -197,7 +197,12 @@ public class ClickhouseResourceDataRepositoryTest {
     new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
 
     Mockito.verify(spy, Mockito.never())
-        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+        .getResourceTableMetadataKeyStats(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.anyBoolean(),
+            Mockito.anyInt(),
+            Mockito.anyLong());
   }
 
   @Test
@@ -211,7 +216,12 @@ public class ClickhouseResourceDataRepositoryTest {
     new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
 
     Mockito.verify(spy)
-        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+        .getResourceTableMetadataKeyStats(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.anyBoolean(),
+            Mockito.anyInt(),
+            Mockito.anyLong());
   }
 
   @Test
@@ -330,7 +340,12 @@ public class ClickhouseResourceDataRepositoryTest {
     new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
 
     Mockito.verify(spy)
-        .getResourceTableMetadataKeyStats(Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+        .getResourceTableMetadataKeyStats(
+            Mockito.any(),
+            Mockito.any(),
+            Mockito.anyBoolean(),
+            Mockito.anyInt(),
+            Mockito.anyLong());
   }
 
   @Test

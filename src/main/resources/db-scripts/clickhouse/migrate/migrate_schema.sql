@@ -141,3 +141,18 @@ SELECT throwIf(
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
+
+## db_schema_version: 3.2.0
+## description: Add resource_compact_derived, resource rows with metadata reduced to their contract's declared keys
+CREATE TABLE IF NOT EXISTS resource_compact_derived (
+    `internal_id` Int64,
+    `resource_id` String,
+    `cancer_study_id` Int64,
+    `resource_scope` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `metadata` Nullable(String)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
+  SETTINGS allow_nullable_key = 1;

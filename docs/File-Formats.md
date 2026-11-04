@@ -281,6 +281,10 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 
 ## Pathology Slide Data
 
+**Note:** Pathology slide support is an internal MSK prototype. It only works
+with [cbioportal-tile-server](https://github.com/cbioportal/cbioportal-tile-server),
+which serves the slide tiles.
+
 Whole-slide images (WSI) are imported as standard [Resource Data](#resource-data):
 one resource row per slide, in the `WSI_SAMPLE` resource (slides matched to a
 sample) or `WSI_PATIENT` (unmatched slides). A row's `URL` links to the

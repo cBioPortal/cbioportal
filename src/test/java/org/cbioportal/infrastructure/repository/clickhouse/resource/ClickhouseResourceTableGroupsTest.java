@@ -289,6 +289,25 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(page.totalRows()).isEqualTo(11);
   }
 
+  @Test
+  public void offset_isComputedInLong_soAPageFarPastTheEndReadsNothing() {
+    Q q = combined();
+    q.groupBy = null;
+    q.pageNumber = Integer.MAX_VALUE;
+    q.pageSize = 1000;
+    ResourceTableQuery query = q.build();
+
+    assertThat(query.offset()).isEqualTo(Integer.MAX_VALUE * 1000L);
+    assertThat(repository.getResourceTableRows(query, context(query, null))).isEmpty();
+
+    Q grouped = combined();
+    grouped.pageNumber = Integer.MAX_VALUE;
+    grouped.pageSize = 1000;
+    ResourceTableGroupPage page = groups(grouped.build());
+    assertThat(page.groups()).isEmpty();
+    assertThat(page.totalGroups()).isEqualTo(6);
+  }
+
   // ---- locate ----
 
   @Test

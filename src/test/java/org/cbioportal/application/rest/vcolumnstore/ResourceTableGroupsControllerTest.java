@@ -177,6 +177,18 @@ public class ResourceTableGroupsControllerTest {
 
   @Test
   @WithMockUser
+  public void groups_offsetBeyondAnInt_isABadRequest() throws Exception {
+    Map<String, Object> body = request();
+    body.put("pageNumber", Integer.MAX_VALUE);
+    body.put("pageSize", GetResourceTableGroupsUseCase.MAX_PAGE_SIZE);
+    expectBadRequest(GROUPS, body, "pageNumber * pageSize must not exceed 2147483647");
+    // The last page whose offset still fits is answered.
+    body.put("pageNumber", Integer.MAX_VALUE / GetResourceTableGroupsUseCase.MAX_PAGE_SIZE);
+    post(GROUPS, body).andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  @WithMockUser
   public void groups_sortThatIsNotAGroupSort_isABadRequest() throws Exception {
     Map<String, Object> body = request();
     body.put("sortBy", "metadata:stain_group");

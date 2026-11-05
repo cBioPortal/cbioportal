@@ -58,6 +58,10 @@ public class GetResourceTableGroupsUseCase {
       throw new InvalidResourceTableQueryException(
           "pageNumber must not be negative, not " + query.pageNumber());
     }
+    if (query.offset() > Integer.MAX_VALUE) {
+      throw new InvalidResourceTableQueryException(
+          "pageNumber * pageSize must not exceed " + Integer.MAX_VALUE);
+    }
     if (query.groupCountColumns().size() > MAX_GROUP_COUNTS) {
       throw new InvalidResourceTableQueryException(
           "groupCounts may name at most " + MAX_GROUP_COUNTS + " columns");

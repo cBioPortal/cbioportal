@@ -303,9 +303,13 @@ public record ResourceTableQuery(
     return sampleIdentifiers != null && !sampleIdentifiers.isEmpty();
   }
 
-  /** Zero-based page index times page size: the row this page starts at. */
-  public int offset() {
-    return Math.max(pageNumber, 0) * limit();
+  /**
+   * Zero-based page index times page size: the row this page starts at. Computed in {@code long},
+   * which the two {@code int} factors cannot overflow, and bound as a {@code long}, so a page far
+   * past the end reads nothing rather than wrapping to a negative offset.
+   */
+  public long offset() {
+    return (long) Math.max(pageNumber, 0) * limit();
   }
 
   /** The page size, floored at zero so a negative request reads nothing rather than erroring. */

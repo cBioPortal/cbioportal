@@ -1,5 +1,7 @@
 package org.cbioportal.domain.resource;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Locale;
 
 /**
@@ -16,8 +18,10 @@ public enum ResourceGroupBy {
 
   /**
    * Parses the request value, ignoring case. Null means no grouping; anything other than the two
-   * modes is a bad request.
+   * modes is a bad request. The request body is parsed through this once, so the rest of the
+   * request reads the mode rather than the text.
    */
+  @JsonCreator
   public static ResourceGroupBy parse(String value) {
     if (value == null) {
       return null;
@@ -29,5 +33,11 @@ public enum ResourceGroupBy {
           throw new InvalidResourceTableQueryException(
               "groupBy must be 'patient' or 'sample', not '" + value + "'");
     };
+  }
+
+  /** The request value: {@code patient} or {@code sample}. */
+  @JsonValue
+  public String value() {
+    return name().toLowerCase(Locale.ROOT);
   }
 }

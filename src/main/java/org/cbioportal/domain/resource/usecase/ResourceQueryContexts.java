@@ -15,6 +15,31 @@ final class ResourceQueryContexts {
 
   private ResourceQueryContexts() {}
 
+  /** Each counted column adds an aggregation per group. */
+  static final int MAX_GROUP_COUNTS = 10;
+
+  /**
+   * Rejects grouping parameters a request cannot use: {@code groupCounts} or {@code locate} without
+   * {@code groupBy}, which no endpoint would read, a {@code groupCounts} entry that is not a
+   * countable column, and more than {@link #MAX_GROUP_COUNTS} of them. Every endpoint taking the
+   * query applies the same rule, so a body one endpoint accepts another does not silently ignore in
+   * part.
+   */
+  static void validateGroupingParameters(ResourceTableQuery query) {
+    if (query == null) {
+      return;
+    }
+    boolean hasGroupCounts = query.groupCounts() != null && !query.groupCounts().isEmpty();
+    if (!query.grouped() && (hasGroupCounts || query.locate() != null)) {
+      throw new InvalidResourceTableQueryException(
+          "groupCounts and locate apply only to a grouped query; set groupBy");
+    }
+    if (query.groupCountColumns().size() > MAX_GROUP_COUNTS) {
+      throw new InvalidResourceTableQueryException(
+          "groupCounts may name at most " + MAX_GROUP_COUNTS + " columns");
+    }
+  }
+
   /**
    * Resolves the study-view cohort, if the query has one, and the resource scope, if the query
    * needs it: grouped queries do, to choose their table, and so does any query naming {@code

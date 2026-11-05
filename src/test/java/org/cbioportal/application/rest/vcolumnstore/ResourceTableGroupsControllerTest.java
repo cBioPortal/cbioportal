@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceScope;
 import org.cbioportal.domain.resource.ResourceScopeRow;
+import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableGroup;
 import org.cbioportal.domain.resource.ResourceTableGroupPage;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableGroupsUseCase;
@@ -53,6 +55,8 @@ public class ResourceTableGroupsControllerTest {
 
   private static final String STUDY_ID = "study_genie_pub";
   private static final String GROUPS = "/api/resource-table/groups/fetch";
+  private static final String ROWS = "/api/resource-table/query/fetch";
+  private static final String METADATA = "/api/resource-table/metadata/fetch";
 
   @MockitoBean private ResourceDataRepository resourceDataRepository;
   @MockitoBean private StudyViewService studyViewService;
@@ -82,6 +86,12 @@ public class ResourceTableGroupsControllerTest {
                         null,
                         3L,
                         Map.of("metadata:stain_group", Map.of("H&E", 2L, "IHC", 1L))))));
+    Mockito.when(resourceDataRepository.getResourceTableCounts(Mockito.any(), Mockito.any()))
+        .thenReturn(ResourceTableCounts.empty());
+    Mockito.when(resourceDataRepository.getResourceTableMetadata(Mockito.any(), Mockito.any()))
+        .thenReturn(ResourceTableMetadataView.empty());
+    Mockito.when(resourceDataRepository.getResourceTableRows(Mockito.any(), Mockito.any()))
+        .thenReturn(List.of());
   }
 
   private static Map<String, Object> request() {
@@ -217,7 +227,7 @@ public class ResourceTableGroupsControllerTest {
   @Test
   @WithMockUser
   public void rowQuery_withGroupBy_isABadRequest() throws Exception {
-    expectBadRequest("/api/resource-table/query/fetch", request(), "/resource-table/groups/fetch");
+    expectBadRequest(ROWS, request(), "/resource-table/groups/fetch");
   }
 
   @Test
@@ -225,7 +235,7 @@ public class ResourceTableGroupsControllerTest {
   public void metadata_badGroupBy_isABadRequest() throws Exception {
     Map<String, Object> body = request();
     body.put("groupBy", "slide");
-    expectBadRequest("/api/resource-table/metadata/fetch", body, "groupBy must be");
+    expectBadRequest(METADATA, body, "groupBy must be 'patient' or 'sample', not 'slide'");
   }
 
   @Test
@@ -233,6 +243,7 @@ public class ResourceTableGroupsControllerTest {
   public void rowQuery_unknownResourceInResourceIds_isABadRequest() throws Exception {
     Map<String, Object> body = request();
     body.remove("groupBy");
+    body.remove("groupCounts");
     body.put("resourceIds", List.of("NOT_A_RESOURCE"));
     expectBadRequest("/api/resource-table/query/fetch", body, "Unknown resource");
   }
@@ -252,5 +263,73 @@ public class ResourceTableGroupsControllerTest {
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
     Mockito.verify(resourceDataRepository, Mockito.never()).getResourceScope(Mockito.any());
+  }
+
+  @Test
+  @WithMockUser
+  public void groups_nullBody_isABadRequest() throws Exception {
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post(GROUPS)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest())
+        .andExpect(
+            MockMvcResultMatchers.jsonPath(
+                "$.message", Matchers.containsString("groupBy is required")));
+  }
+
+  @Test
+  @WithMockUser
+  public void groupBy_isParsedIgnoringCase() throws Exception {
+    Map<String, Object> body = request();
+    body.put("groupBy", "PATIENT");
+    post(GROUPS, body).andExpect(MockMvcResultMatchers.status().isOk());
+  }
+
+  @Test
+  @WithMockUser
+  public void invalidStudyViewFilter_isABadRequestOnEveryEndpoint() throws Exception {
+    // A study-view filter names its cohort by studyIds or by sampleIdentifiers, not both.
+    Map<String, Object> body = request();
+    body.put(
+        "studyViewFilter",
+        Map.of(
+            "studyIds",
+            List.of(STUDY_ID),
+            "sampleIdentifiers",
+            List.of(Map.of("studyId", STUDY_ID, "sampleId", "S-1"))));
+    post(GROUPS, body).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    post(METADATA, body).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    body.remove("groupBy");
+    body.remove("groupCounts");
+    post(ROWS, body).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    Mockito.verify(studyViewService, Mockito.never()).buildStudyViewFilterContext(Mockito.any());
+  }
+
+  @Test
+  @WithMockUser
+  public void groupCountsOrLocateWithoutGroupBy_isABadRequest() throws Exception {
+    for (String path : List.of(ROWS, METADATA)) {
+      Map<String, Object> body = request();
+      body.remove("groupBy");
+      expectBadRequest(path, body, "groupCounts and locate apply only to a grouped query");
+      body.remove("groupCounts");
+      body.put("locate", Map.of("studyId", STUDY_ID, "patientId", "P-1"));
+      expectBadRequest(path, body, "groupCounts and locate apply only to a grouped query");
+    }
+  }
+
+  @Test
+  @WithMockUser
+  public void metadata_boundsGroupCountsLikeTheGroupsEndpoint() throws Exception {
+    Map<String, Object> body = request();
+    post(METADATA, body).andExpect(MockMvcResultMatchers.status().isOk());
+    body.put(
+        "groupCounts",
+        java.util.stream.IntStream.rangeClosed(1, 11).mapToObj(i -> "metadata:k" + i).toList());
+    expectBadRequest(METADATA, body, "groupCounts may name at most 10 columns");
+    expectBadRequest(GROUPS, body, "groupCounts may name at most 10 columns");
   }
 }

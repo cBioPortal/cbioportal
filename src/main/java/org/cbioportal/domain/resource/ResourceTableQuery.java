@@ -53,13 +53,16 @@ import org.cbioportal.legacy.web.parameter.StudyViewFilter;
  *     and their patients the same way the study-view charts resolve it. When present it replaces
  *     {@code patientIdentifiers} and {@code sampleIdentifiers}: a sample-level row matches when its
  *     sample is in the cohort, a patient-level row when its patient has a sample in the cohort.
- * @param groupBy {@code patient} or {@code sample}: answer with one entry per patient or sample
- *     instead of one per row. Only the groups endpoint and the metadata endpoint accept it; see
- *     {@link ResourceGroupBy}.
+ * @param groupBy {@code patient} or {@code sample}, in any case: answer with one entry per patient
+ *     or sample instead of one per row. Only the groups endpoint and the metadata endpoint accept
+ *     it; see {@link ResourceGroupBy}, which parses it when the body is read and rejects any other
+ *     value as a bad request.
  * @param groupCounts columns to count values of within each group, e.g. {@code
- *     metadata:stain_group} or {@code resourceId}; see {@link ResourceGroupCountColumn}.
+ *     metadata:stain_group} or {@code resourceId}; see {@link ResourceGroupCountColumn}. At most
+ *     ten, and only with {@code groupBy}.
  * @param locate a group whose position under the current filters and sort the groups endpoint
- *     should report alongside the page.
+ *     should report alongside the page. Only with {@code groupBy}; the metadata endpoint ignores
+ *     it.
  */
 public record ResourceTableQuery(
     List<String> studyIds,
@@ -74,7 +77,7 @@ public record ResourceTableQuery(
     List<ResourceColumnFilter> filters,
     List<String> resourceIds,
     @Valid StudyViewFilter studyViewFilter,
-    String groupBy,
+    ResourceGroupBy groupBy,
     List<String> groupCounts,
     ResourceGroupLocator locate) {
 
@@ -198,17 +201,12 @@ public record ResourceTableQuery(
     return studyViewFilter != null;
   }
 
-  /** The grouping mode, or null for a row query. Throws for a value that is not a mode. */
-  public ResourceGroupBy groupByMode() {
-    return ResourceGroupBy.parse(groupBy);
-  }
-
   public boolean grouped() {
     return groupBy != null;
   }
 
   public boolean groupBySample() {
-    return groupByMode() == ResourceGroupBy.SAMPLE;
+    return groupBy == ResourceGroupBy.SAMPLE;
   }
 
   /** {@code groupCounts} parsed, in request order without repeats. */

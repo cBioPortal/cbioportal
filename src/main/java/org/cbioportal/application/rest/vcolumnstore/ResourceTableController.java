@@ -80,8 +80,8 @@ public class ResourceTableController {
   // endpoints check it: the filter is resolved against every study it names.
   @PreAuthorize(
       "hasPermission(#query?.studyIds(), 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and (#query.studyViewFilter() == null"
-          + " or hasPermission(#query.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
+          + " and (#query?.studyViewFilter() == null"
+          + " or hasPermission(#query?.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
   @RequestMapping(
       value = "/resource-table/query/fetch",
       method = RequestMethod.POST,
@@ -104,8 +104,8 @@ public class ResourceTableController {
   // endpoints check it: the filter is resolved against every study it names.
   @PreAuthorize(
       "hasPermission(#query?.studyIds(), 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and (#query.studyViewFilter() == null"
-          + " or hasPermission(#query.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
+          + " and (#query?.studyViewFilter() == null"
+          + " or hasPermission(#query?.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
   @RequestMapping(
       value = "/resource-table/metadata/fetch",
       method = RequestMethod.POST,
@@ -115,8 +115,10 @@ public class ResourceTableController {
       summary = "Fetch the resource table's columns, filter options and counts",
       description =
           "Everything that does not change as the user pages. Fetch once per study, resource,"
-              + " cohort, search and filter combination and reuse it across pages; pageNumber and"
-              + " pageSize in the request are ignored.")
+              + " cohort, search and filter combination and reuse it across pages; pageNumber,"
+              + " pageSize and locate in the request are ignored, and groupCounts is only"
+              + " validated. With groupBy, each facet value counts the patients or samples"
+              + " carrying it; the columns, ranges and counts are as without groupBy.")
   @ApiResponse(
       responseCode = "200",
       description = "OK",
@@ -130,8 +132,8 @@ public class ResourceTableController {
   // Same request body and authorization as query/fetch; see fetchResourceTableData.
   @PreAuthorize(
       "hasPermission(#query?.studyIds(), 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and (#query.studyViewFilter() == null"
-          + " or hasPermission(#query.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
+          + " and (#query?.studyViewFilter() == null"
+          + " or hasPermission(#query?.studyViewFilter(), 'StudyViewFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ))")
   @RequestMapping(
       value = "/resource-table/groups/fetch",
       method = RequestMethod.POST,

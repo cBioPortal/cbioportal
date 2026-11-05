@@ -30,6 +30,7 @@ public class GetResourceTableDataUseCase {
       throw new InvalidResourceTableQueryException(
           "groupBy is answered by /resource-table/groups/fetch, not by the row endpoint");
     }
+    ResourceQueryContexts.validateGroupingParameters(query);
     if (!isAnswerable(query)) {
       return List.of();
     }

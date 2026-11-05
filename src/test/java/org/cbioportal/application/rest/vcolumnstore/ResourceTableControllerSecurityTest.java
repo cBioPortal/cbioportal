@@ -320,4 +320,50 @@ public class ResourceTableControllerSecurityTest {
                         + "\"],\"resourceId\":\"HE_SLIDE\",\"groupBy\":\"patient\",\"pageSize\":25}"))
         .andExpect(MockMvcResultMatchers.status().isForbidden());
   }
+
+  @Test
+  @WithMockUser
+  public void metadataAndGroupsFetch_permittedUser_isAllowed() throws Exception {
+    for (String path :
+        List.of("/api/resource-table/metadata/fetch", "/api/resource-table/groups/fetch")) {
+      Mockito.reset(permissionEvaluator);
+      grantByTargetType(true, true);
+
+      mockMvc
+          .perform(
+              MockMvcRequestBuilders.post(path)
+                  .with(csrf())
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(studyViewFilterQuery(path)))
+          .andExpect(MockMvcResultMatchers.status().isOk());
+
+      Mockito.verify(permissionEvaluator)
+          .hasPermission(
+              Mockito.any(Authentication.class),
+              Mockito.<Serializable>eq((Serializable) List.of(STUDY_ID)),
+              Mockito.eq("Collection<CancerStudyId>"),
+              Mockito.any());
+      Mockito.verify(permissionEvaluator)
+          .hasPermission(
+              Mockito.any(Authentication.class),
+              Mockito.<Serializable>any(),
+              Mockito.eq("StudyViewFilter"),
+              Mockito.any());
+    }
+  }
+
+  @Test
+  @WithMockUser
+  public void groupsFetch_withoutABody_isNotAServerError() throws Exception {
+    // The expression navigates the missing body safely on both of its terms; whatever the
+    // evaluator says about a null target, the request does not fail inside the expression.
+    grant(true);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/groups/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+  }
 }

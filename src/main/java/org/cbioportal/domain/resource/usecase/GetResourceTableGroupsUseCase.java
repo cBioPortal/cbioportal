@@ -21,9 +21,6 @@ public class GetResourceTableGroupsUseCase {
   /** A page of groups is a navigator's page, not an export. */
   public static final int MAX_PAGE_SIZE = 1000;
 
-  /** Each counted column adds an aggregation per group. */
-  public static final int MAX_GROUP_COUNTS = 10;
-
   private static final Set<String> GROUP_SORTS = Set.of("patientId", "studyId", "rowCount");
 
   private final ResourceDataRepository resourceDataRepository;
@@ -49,7 +46,7 @@ public class GetResourceTableGroupsUseCase {
     if (query == null || query.groupBy() == null) {
       throw new InvalidResourceTableQueryException("groupBy is required: 'patient' or 'sample'");
     }
-    ResourceGroupBy groupBy = query.groupByMode();
+    ResourceGroupBy groupBy = query.groupBy();
     if (query.pageSize() < 1 || query.pageSize() > MAX_PAGE_SIZE) {
       throw new InvalidResourceTableQueryException(
           "pageSize must be between 1 and " + MAX_PAGE_SIZE + ", not " + query.pageSize());
@@ -62,10 +59,7 @@ public class GetResourceTableGroupsUseCase {
       throw new InvalidResourceTableQueryException(
           "pageNumber * pageSize must not exceed " + Integer.MAX_VALUE);
     }
-    if (query.groupCountColumns().size() > MAX_GROUP_COUNTS) {
-      throw new InvalidResourceTableQueryException(
-          "groupCounts may name at most " + MAX_GROUP_COUNTS + " columns");
-    }
+    ResourceQueryContexts.validateGroupingParameters(query);
     String sortBy = query.sortBy();
     if (sortBy != null
         && !GROUP_SORTS.contains(sortBy)

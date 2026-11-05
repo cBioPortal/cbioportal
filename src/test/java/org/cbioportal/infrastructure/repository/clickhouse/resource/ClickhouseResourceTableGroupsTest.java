@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceGroupBy;
 import org.cbioportal.domain.resource.ResourceGroupLocator;
 import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceScope;
@@ -92,7 +93,7 @@ public class ClickhouseResourceTableGroupsTest {
           filters,
           resourceIds,
           studyViewFilter,
-          groupBy,
+          ResourceGroupBy.parse(groupBy),
           groupCounts,
           locate);
     }

@@ -160,6 +160,11 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
       HttpMessageNotReadableException ex) {
+    // A value the body's own types reject while it is read, e.g. a resource-table groupBy that is
+    // not a grouping mode, says what was wrong with it.
+    if (ex.getMostSpecificCause() instanceof InvalidResourceTableQueryException invalid) {
+      return handleInvalidResourceTableQuery(invalid);
+    }
     return new ResponseEntity<>(
         new ErrorResponse("There is an error in the JSON format of the request payload"),
         HttpStatus.BAD_REQUEST);

@@ -33,10 +33,7 @@ public class GetResourceTableMetadataUseCase {
    * apply here.
    */
   public ResourceTableMetadataResult execute(ResourceTableQuery query) {
-    if (query != null) {
-      // Rejects a groupBy that is not a grouping mode before anything is read.
-      query.groupByMode();
-    }
+    ResourceQueryContexts.validateGroupingParameters(query);
     if (!GetResourceTableDataUseCase.isAnswerable(query)) {
       return ResourceTableMetadataResult.empty();
     }

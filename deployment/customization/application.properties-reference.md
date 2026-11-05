@@ -518,6 +518,30 @@ MDACC Heatmap integration (button in OncoPrint heatmap dropdown and tab on Study
 show.mdacc.heatmap=true
 ```
 
+## Whole-Slide Image Viewer
+
+Pathology slides (whole-slide images) can be stored as standard
+[Resource Data](/File-Formats.md#resource-data). The resource URL can link to
+any external slide viewer.
+
+When the resource type is `WSI_SAMPLE` or `WSI_PATIENT`, cBioPortal uses its
+built-in slide viewer instead: a **Pathology Slides** tab on the patient page
+that lists slides by specimen and renders the selected slide with
+[OpenSeadragon](https://openseadragon.github.io/), a zoomable tile-based
+image viewer. Tiles and thumbnails are served by a
+[cbioportal-tile-server](https://github.com/cbioportal/cbioportal-tile-server)
+instance. To enable the viewer, configure its URL:
+
+```properties
+wsi.tile_server.url=https://cbioportal.example.org/wsi
+```
+
+If this property is unset, the viewer is hidden.
+
+**Note:** This is an internal MSK prototype. The tile server checks access by
+calling `GET /api/studies/{studyId}` with the user's session cookie at the
+ingress.
+
 ## OncoPrint
 
 The default view in OncoPrint ("patient" or "sample") can be set with the following option. The default is "patient".

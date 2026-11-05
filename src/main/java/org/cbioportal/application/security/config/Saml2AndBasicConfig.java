@@ -86,6 +86,7 @@ public class Saml2AndBasicConfig {
                     .logoutUrl(LOGOUT_URL)
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
                     .logoutSuccessHandler(logoutSuccessHandler));
 
     // Add basic auth logout filter

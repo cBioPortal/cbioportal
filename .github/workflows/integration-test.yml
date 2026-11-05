@@ -29,10 +29,12 @@ jobs:
         working-directory: ./cbioportal
         run: |
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
+      # Builds every module. Note: the tests below still run the importer from the
+      # cbioportal/cbioportal:master image (/core), not the importer built here.
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |
-          mvn -DskipTests clean install -pl web -am
+          mvn -DskipTests clean install
       - name: 'Checkout cbioportal-docker-compose repo'
         uses: actions/checkout@master
         with:

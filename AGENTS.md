@@ -6,7 +6,8 @@ This file contains rules and conventions that AI coding agents (Claude Code, Cop
 
 - The root `pom.xml` is the parent (`cbioportal-parent`) of two modules: `web/` (the web application, artifact `io.github.cbioportal:cbioportal`, built from the root `src/` into the root `target/`) and `importer/`. Declare dependency versions only in the root `pom.xml`.
 - Build: `mvn install -DskipTests` (both modules); web application only: `mvn install -DskipTests -pl web -am`
-- Run the web application's tests: `mvn integration-test -pl web -am` (the importer's tests don't pass yet)
+- Run the web application's tests: `mvn integration-test -pl web -am`
+- Run the importer's tests: `mvn integration-test -pl importer -am` (needs Docker; about 3 minutes). The integration tests share one JVM and one ClickHouse container: `IntegrationTestBase` rebuilds the database and resets the importer's static state (bulk-load mode, pending bulk loads and deletes, DAO caches) before each test. If you add static state to the importer, reset it there too.
 - All new development targets the `master` branch (v7)
 
 ## Shared Types

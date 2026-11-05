@@ -26,8 +26,6 @@
 	</licenses>
 
 	<properties>
-		<!-- Used only by IntegrationTestBase to download clickhouse_cgds.sql from GitHub -->
-		<cbioportal.version>v6.4.1</cbioportal.version>
 		<!-- The importer isn't a Spring Boot application -->
 		<start-class></start-class>
 	</properties>
@@ -122,6 +120,13 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Runs the JUnit 4 tests (most of this module's tests) on the JUnit Platform, alongside the
+		     JUnit Jupiter ones. Remove once the tests are migrated to Jupiter. -->
+		<dependency>
+			<groupId>org.junit.vintage</groupId>
+			<artifactId>junit-vintage-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>jakarta.ws.rs</groupId>
 			<artifactId>jakarta.ws.rs-api</artifactId>
@@ -191,7 +196,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.21.0</version>
+				<!-- Version managed by spring-boot-starter-parent (Surefire 3, JUnit Platform) -->
 				<configuration>
 					<trimStackTrace>false</trimStackTrace>
 				</configuration>
@@ -218,8 +223,13 @@
 							<includes>
 								<include>**/integrationTest/**/*</include>
 							</includes>
+							<!-- One JVM, and so one ClickHouse container, for all integration test classes.
+							     IntegrationTestBase rebuilds the database and resets the importer's static state
+							     before each test. A JVM per class costs a container start and the ClickHouse
+							     driver's start-up (which resolves every local network address, about 40 s on
+							     some macOS machines) for each of the ~60 classes. -->
 							<forkCount>1</forkCount>
-							<reuseForks>false</reuseForks>
+							<reuseForks>true</reuseForks>
 						</configuration>
 					</execution>
 				</executions>

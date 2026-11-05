@@ -115,6 +115,14 @@ public class ClickHouseBulkDeleter {
         return countOfDeletedRecords;
     }
 
+    /**
+     * Discards every registered deleter and its pending ids without deleting anything. For tests that
+     * share one JVM and rebuild the database between tests; the deleters' staging tables go with it.
+     */
+    public static void reset() {
+        BULK_DELETERS.clear();
+    }
+
 // --- Static helper functions
 
     // might be made public in the future for partial flushes (would require testing)

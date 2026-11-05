@@ -1,13 +1,9 @@
 package org.mskcc.cbio.portal.integrationTest;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -16,16 +12,18 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.mskcc.cbio.portal.dao.JdbcUtil;
 import org.mskcc.cbio.portal.dao.ClickHouseAutoIncrement;
+import org.mskcc.cbio.portal.dao.ClickHouseBulkDeleter;
+import org.mskcc.cbio.portal.dao.ClickHouseBulkLoader;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGenePanel;
+import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
@@ -43,14 +41,8 @@ public abstract class IntegrationTestBase {
     private static final int CLICKHOUSE_HTTP_PORT = 8123;
     private static final String CLICKHOUSE_IMAGE = "clickhouse/clickhouse-server:24.3";
     private static final String SKIP_ENV = "CBIOPORTAL_TEST_DB_SKIP";
-    private static final String TARGET_DIR = "target/test-db";
-    private static final String VERSION_FILE = "cbioportal.version";
     private static final String CGDS_SQL_FILE = "clickhouse_cgds.sql";
     private static final String SEED_SQL_FILE = "seed_mini.sql";
-    private static final String CGDS_URL_TEMPLATE =
-        "https://raw.githubusercontent.com/cBioPortal/cbioportal/%s/src/test/resources/clickhouse_cgds.sql";
-    private static final Pattern CBIOPORTAL_VERSION_PATTERN =
-        Pattern.compile("<cbioportal\\.version>\\s*([^<]+)\\s*</cbioportal\\.version>");
 
     private static ClickHouseContainer container;
 
@@ -63,20 +55,37 @@ public abstract class IntegrationTestBase {
         startContainer();
     }
 
+    /**
+     * All test classes share one JVM (see the integration-test execution in importer/pom.xml), so
+     * the importer's static state would otherwise carry over from earlier tests: bulk-load mode left
+     * on, pending bulk loads and deletes, and caches filled from a database that has since been
+     * rebuilt. Reset all of it before each test.
+     */
     @Before
     public void reCache() {
+        ClickHouseBulkLoader.reset();
+        ClickHouseBulkDeleter.reset();
+        DaoGeneOptimized.getInstance().reCache();
+        DaoGenePanel.reCache();
+        DaoReferenceGenome.reCache();
         DaoCancerStudy.reCacheAll();
     }
 
+    /**
+     * Gives the next test a fresh database without starting a new container: drops the test
+     * database and rebuilds it from the schema and seed files already copied into the container.
+     * Dropping the whole database, rather than truncating tables, also removes the tables the
+     * importer creates while it runs (backup tables, bulk-delete scratch tables, the auto-increment
+     * sequence table). The container itself is started once and stopped by the shutdown hook.
+     */
     @After
     public void resetDatabase() {
-        recreateContainer();
+        synchronized (LOCK) {
+            if (container != null) {
+                rebuildDatabase(container);
+            }
+        }
         ClickHouseAutoIncrement.resetCounters();
-    }
-
-    @AfterClass
-    public static void teardownTestDatabase() {
-        stopContainer();
     }
 
     private static void startContainer() {
@@ -96,9 +105,11 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    private static void recreateContainer() {
-        stopContainer();
-        startContainer();
+    private static void rebuildDatabase(ClickHouseContainer clickhouse) {
+        executeClickHouseQuery(clickhouse, "DROP DATABASE IF EXISTS " + DB_NAME + " SYNC");
+        executeClickHouseQuery(clickhouse, "CREATE DATABASE " + DB_NAME);
+        applySqlFile(clickhouse, "/tmp/" + CGDS_SQL_FILE);
+        applySqlFile(clickhouse, "/tmp/" + SEED_SQL_FILE);
     }
 
     private static boolean shouldSkip() {
@@ -261,25 +272,14 @@ public abstract class IntegrationTestBase {
         }
     }
 
+    // The importer's own copy of the schema, read from this repository. It is not the same file as
+    // the web app's src/main/resources/db-scripts/clickhouse/init/schema.sql (see the RFC's
+    // "Choose the schema's source of truth").
     private static Path ensureCgdsSql() {
-        //FIXME Uncomment when cbioportal contains the complete clickhouse_cgds.sql for the current version
-        /*
-        String cbioportalVersion = readCbioportalVersion();
-        Path targetDir = Paths.get(System.getProperty("user.dir"), TARGET_DIR);
-        Path cgdsPath = targetDir.resolve(CGDS_SQL_FILE);
-        Path versionPath = targetDir.resolve(VERSION_FILE);
-        try {
-            Files.createDirectories(targetDir);
-            if (!Files.exists(cgdsPath) || !Files.exists(versionPath)
-                || !cbioportalVersion.equals(readFile(versionPath).trim())) {
-                downloadCgdsSql(cbioportalVersion, cgdsPath);
-                Files.writeString(versionPath, cbioportalVersion, StandardCharsets.UTF_8);
-            }
-        } catch (IOException ex) {
-            throw new IllegalStateException("Failed to prepare clickhouse_cgds.sql for integration tests", ex);
-        }
-        */
         Path cgdsPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", CGDS_SQL_FILE);
+        if (!Files.exists(cgdsPath)) {
+            throw new IllegalStateException(CGDS_SQL_FILE + " not found at " + cgdsPath);
+        }
         return cgdsPath;
     }
 
@@ -289,31 +289,5 @@ public abstract class IntegrationTestBase {
             throw new IllegalStateException("seed_mini.sql not found at " + seedPath);
         }
         return seedPath;
-    }
-
-    private static String readCbioportalVersion() {
-        Path pomPath = Paths.get(System.getProperty("user.dir"), "pom.xml");
-        try {
-            String pomContents = readFile(pomPath);
-            Matcher matcher = CBIOPORTAL_VERSION_PATTERN.matcher(pomContents);
-            if (matcher.find()) {
-                return matcher.group(1).trim();
-            }
-        } catch (IOException ex) {
-            throw new IllegalStateException("Failed to read pom.xml for cbioportal.version", ex);
-        }
-        throw new IllegalStateException("cbioportal.version not found in pom.xml");
-    }
-
-    private static String readFile(Path path) throws IOException {
-        return Files.readString(path, StandardCharsets.UTF_8);
-    }
-
-    private static void downloadCgdsSql(String version, Path destination) throws IOException {
-        String url = String.format(CGDS_URL_TEMPLATE, version);
-        System.out.println("Downloading clickhouse_cgds.sql for " + version + "...");
-        try (InputStream input = new URL(url).openStream()) {
-            Files.copy(input, destination, StandardCopyOption.REPLACE_EXISTING);
-        }
     }
 }

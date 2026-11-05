@@ -22,7 +22,11 @@ import static org.mskcc.cbio.portal.util.GenePanelUtil.getAddRemove;
 public class DaoGenePanel {
 
     private static final String GENE_PANEL_SEQUENCE = "seq_gene_panel";
-    private static final Map<String, GenePanel> genePanelMap = initMap();
+    private static final Map<String, GenePanel> genePanelMap = new HashMap<>();
+
+    static {
+        reCache();
+    }
 
     /**
      * @param stableId Name of the gene panel, e.g. TESTPANEL1
@@ -37,6 +41,17 @@ public class DaoGenePanel {
      */
     public static Collection<GenePanel> getAllGenePanels() {
         return genePanelMap.values();
+    }
+
+    /**
+     * Reloads the gene panel cache from the database.
+     */
+    public static synchronized void reCache() {
+        Map<String, GenePanel> fresh = initMap();
+        genePanelMap.clear();
+        if (fresh != null) {
+            genePanelMap.putAll(fresh);
+        }
     }
 
     private static Map<String, GenePanel> initMap() {

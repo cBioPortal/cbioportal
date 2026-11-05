@@ -159,6 +159,14 @@ public record ResourceTableQuery(
     return effectiveResourceIds().toArray(new String[0]);
   }
 
+  /**
+   * Whether the search box holds text. Any text counts, blanks included, since the search matches
+   * it verbatim.
+   */
+  public boolean hasSearch() {
+    return search != null && !search.isEmpty();
+  }
+
   /** Whether the cohort is a study-view filter rather than explicit identifier lists. */
   public boolean hasStudyViewFilter() {
     return studyViewFilter != null;
@@ -199,7 +207,9 @@ public record ResourceTableQuery(
 
   /**
    * Metadata keys the query reads values of, through its filters and group counts. The compact
-   * metadata table can answer a grouped query only when it holds every one of them.
+   * metadata table can answer a grouped query only when it holds every one of them. A search reads
+   * every key, so it is not reduced to keys here; see {@link
+   * ResourceQueryContext#readsCompactTable}.
    */
   public Set<String> referencedMetadataKeys() {
     Set<String> keys = new LinkedHashSet<>();

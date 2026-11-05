@@ -516,15 +516,19 @@ SELECT
                            arrayFilter(kv -> has(d.declared_keys, kv.1),
                                        JSONExtractKeysAndValuesRaw(assumeNotNull(r.metadata)))),
                   ','),
-              '}')) AS metadata
+              '}')) AS metadata,
+    d.contract_hash
 FROM resource r
 INNER JOIN (
     -- One row per definition, so a duplicated definition cannot duplicate the resource's rows.
+    -- max() picks the same contract the resource table's scope lookup picks.
     SELECT resource_id,
            cancer_study_id,
+           max(assumeNotNull(custom_metadata)) AS contract,
+           cityHash64(contract) AS contract_hash,
            arrayFilter(k -> k != '',
                        arrayMap(f -> JSONExtractString(f, 'key'),
-                                JSONExtractArrayRaw(any(assumeNotNull(custom_metadata)), 'fields'))) AS declared_keys
+                                JSONExtractArrayRaw(contract, 'fields'))) AS declared_keys
     FROM resource_definition
     WHERE custom_metadata IS NOT NULL AND custom_metadata != ''
     GROUP BY resource_id, cancer_study_id

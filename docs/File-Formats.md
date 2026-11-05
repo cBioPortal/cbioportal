@@ -1744,8 +1744,15 @@ The contract also decides how fast the resource can be browsed per patient or pe
 example, a study-view tab listing each patient with counts of their slides). Rebuilding the
 derived tables copies the rows of every resource with a contract into a compact table holding only
 the declared keys, and those grouped views read it whenever every key they count or filter on is
-declared. A resource without a contract, or a view reading an undeclared key, still works but reads
-every row's full metadata.
+declared and no search text is entered. A resource without a contract, a view reading an undeclared
+key, or a search still works but reads every row's full metadata.
+
+The compact table is derived, so it is only as current as the last rebuild: **repopulate the
+derived tables (`populate_derived_tables.sql`) after migrating the database to schema 3.2.0, and
+after importing a study's resources or changing a resource's `CUSTOM_METADATA`**. A study whose
+compact copy is out of date -- a different number of rows than the resource table holds, or rows
+copied under a different contract -- is detected and read from the full table instead, so results
+stay correct, but the grouped views lose their speed-up until the rebuild.
 
 The contract is declared per study, but a study view cohort can span several studies that each
 declare the same resource. The table then shows the **union** of their contracts, each key taking

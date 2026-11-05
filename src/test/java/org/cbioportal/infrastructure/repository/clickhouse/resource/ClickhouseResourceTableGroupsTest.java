@@ -9,6 +9,7 @@ import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceGroupLocator;
 import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceScope;
+import org.cbioportal.domain.resource.ResourceScopeRow;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableGroup;
 import org.cbioportal.domain.resource.ResourceTableGroupPage;
@@ -31,6 +32,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Grouped resource-table reads, the study-view cohort, combined resources and the compact metadata
@@ -349,7 +352,8 @@ public class ClickhouseResourceTableGroupsTest {
     ResourceScope scope = repository.getResourceScope(q.build());
 
     assertThat(scope.resourceIds()).containsExactlyInAnyOrder(SLIDES, PATIENT_SLIDES);
-    assertThat(scope.rows()).allMatch(row -> row.hasRows() && row.declared());
+    assertThat(scope.rows())
+        .allMatch(row -> row.defined() && row.hasRows() && row.declared() && row.compactCurrent());
   }
 
   @Test
@@ -558,6 +562,132 @@ public class ClickhouseResourceTableGroupsTest {
     List<ResourceTableGroupRow> fromFull = mapper.getResourceTableGroupPage(query, null, false);
 
     assertThat(fromCompact).isEqualTo(fromFull).isNotEmpty();
+  }
+
+  @Test
+  public void search_readsTheFullTable_andMatchesValuesOfUndeclaredKeys() {
+    // "opaque-101" is only in slide 101's undeclared serving key, which the compact table drops.
+    Q q = combined();
+    q.search = "opaque-101";
+    q.groupCounts = List.of(STAIN, "metadata:stain_name");
+    ResourceTableQuery query = q.build();
+    ResourceQueryContext scoped = context(query, null);
+    ResourceQueryContext fullTable = ResourceQueryContext.none();
+    assertThat(scoped.readsCompactTable(query)).isFalse();
+
+    ResourceTableGroupPage page = repository.getResourceTableGroups(query, scoped);
+    assertThat(page).isEqualTo(repository.getResourceTableGroups(query, fullTable));
+    assertThat(keys(page)).containsExactly("GENIE-TEST-301");
+    assertThat(page.totalRows()).isEqualTo(1);
+    assertThat(page.groups().getFirst().counts().get(STAIN)).isEqualTo(Map.of("H&E", 1L));
+    // The compact table alone would have found nothing.
+    assertThat(mapper.getResourceTableGroupPage(query, null, true)).isEmpty();
+
+    assertThat(repository.getResourceTableMetadata(query, scoped))
+        .isEqualTo(repository.getResourceTableMetadata(query, fullTable));
+    assertThat(repository.getResourceTableCounts(query, scoped))
+        .isEqualTo(repository.getResourceTableCounts(query, fullTable));
+    assertThat(repository.getResourceTableMetadata(query, scoped).facets().get(STAIN))
+        .containsExactly(new ResourceFacetOption("H&E", 1L));
+  }
+
+  // The tests below change the tables between two reads of the same statement. They run outside
+  // the test transaction, since inside it MyBatis would answer the second read from the first
+  // one's session cache.
+
+  /** The default grouped query's groups, which must come out the same from either table. */
+  private static final List<String> ALL_SLIDE_PATIENTS =
+      List.of(
+          "GENIE-TEST-301", "GENIE-TEST-302", "GENIE-TEST-303", "GENIE-TEST-304", "GENIE-TEST-305");
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void anEmptyCompactTable_isNotTrusted_andGroupsComeFromTheFullTable() {
+    jdbcTemplate.execute("DROP TABLE IF EXISTS compact_backup");
+    jdbcTemplate.execute("CREATE TABLE compact_backup AS resource_compact_derived");
+    jdbcTemplate.execute("INSERT INTO compact_backup SELECT * FROM resource_compact_derived");
+    try {
+      jdbcTemplate.execute("TRUNCATE TABLE resource_compact_derived");
+      ResourceTableQuery query = q().build();
+      ResourceQueryContext context = context(query, null);
+
+      assertThat(context.scope().rows()).noneMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.readsCompactTable(query)).isFalse();
+      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
+      assertThat(keys(page)).isEqualTo(ALL_SLIDE_PATIENTS);
+      assertThat(page.totalRows()).isEqualTo(8);
+      assertThat(page.groups().getFirst().counts().get(STAIN))
+          .isEqualTo(Map.of("H&E", 1L, "IHC", 2L));
+    } finally {
+      jdbcTemplate.execute("INSERT INTO resource_compact_derived SELECT * FROM compact_backup");
+      jdbcTemplate.execute("DROP TABLE compact_backup");
+    }
+    ResourceTableQuery query = q().build();
+    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void rowsImportedWithoutRepopulating_areNotMissed() {
+    // A row added to resource after the compact table was built, as a study import that skipped
+    // populate_derived_tables.sql would leave it.
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9101, ?, 3, 'SAMPLE',"
+            + " 'GENIE-TEST-307', 'GENIE-TEST-307-01', 'https://example.com/g9101.svs',"
+            + " 'Slide 9101', '{\"stain_group\":\"IHC\"}')",
+        SLIDES);
+    try {
+      ResourceTableQuery query = q().build();
+      ResourceQueryContext context = context(query, null);
+
+      assertThat(context.scope().rows()).noneMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.readsCompactTable(query)).isFalse();
+      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
+      assertThat(keys(page)).contains("GENIE-TEST-307");
+      assertThat(page.totalRows()).isEqualTo(9);
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9101 SETTINGS mutations_sync = 2");
+    }
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void rowsCopiedUnderAnEarlierContract_areNotTrusted() {
+    // Rows copied under some other contract than the definition declares now, as a contract
+    // changed without repopulating would leave them. Such a copy can lack a key the contract now
+    // declares, which only the full table holds.
+    String hash =
+        jdbcTemplate.queryForObject(
+            "SELECT toString(any(contract_hash)) FROM resource_compact_derived WHERE resource_id = ?",
+            String.class,
+            PATIENT_SLIDES);
+    jdbcTemplate.update(
+        "ALTER TABLE resource_compact_derived UPDATE contract_hash = 42 WHERE resource_id = ?"
+            + " SETTINGS mutations_sync = 2",
+        PATIENT_SLIDES);
+    try {
+      ResourceTableQuery query = combined().build();
+      ResourceQueryContext context = context(query, null);
+
+      assertThat(context.scope().rows())
+          .filteredOn(row -> row.resourceId().equals(PATIENT_SLIDES))
+          .noneMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.scope().rows())
+          .filteredOn(row -> row.resourceId().equals(SLIDES))
+          .allMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.readsCompactTable(query)).isFalse();
+      assertThat(repository.getResourceTableGroups(query, context).totalRows()).isEqualTo(11);
+    } finally {
+      jdbcTemplate.update(
+          "ALTER TABLE resource_compact_derived UPDATE contract_hash = toUInt64(?)"
+              + " WHERE resource_id = ? SETTINGS mutations_sync = 2",
+          hash,
+          PATIENT_SLIDES);
+    }
+    ResourceTableQuery query = combined().build();
+    assertThat(context(query, null).readsCompactTable(query)).isTrue();
   }
 
   @Test

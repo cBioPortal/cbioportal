@@ -20,9 +20,13 @@ public record ResourceQueryContext(StudyViewFilterContext cohort, ResourceScope 
 
   /**
    * Whether a query is read from the compact metadata table: only grouped queries, which never
-   * return metadata, and only where the table holds everything they read.
+   * return metadata, only without a search, which matches text anywhere in a row's full metadata,
+   * and only where the table holds everything they read.
    */
   public boolean readsCompactTable(ResourceTableQuery query) {
-    return query.grouped() && scope != null && scope.compactCovers(query.referencedMetadataKeys());
+    return query.grouped()
+        && !query.hasSearch()
+        && scope != null
+        && scope.compactCovers(query.referencedMetadataKeys());
   }
 }

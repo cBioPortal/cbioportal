@@ -67,8 +67,8 @@ public class ResourceTableGroupsControllerTest {
         .thenReturn(
             new ResourceScope(
                 List.of(
-                    new ResourceScopeRow("WSI_SAMPLE", STUDY_ID, "", true),
-                    new ResourceScopeRow("WSI_PATIENT", STUDY_ID, "", true))));
+                    new ResourceScopeRow("WSI_SAMPLE", STUDY_ID, "", true, true, false),
+                    new ResourceScopeRow("WSI_PATIENT", STUDY_ID, "", true, true, false))));
     Mockito.when(resourceDataRepository.getResourceTableGroups(Mockito.any(), Mockito.any()))
         .thenReturn(
             new ResourceTableGroupPage(

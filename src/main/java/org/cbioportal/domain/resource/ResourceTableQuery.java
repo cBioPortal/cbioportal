@@ -81,36 +81,6 @@ public record ResourceTableQuery(
     List<String> groupCounts,
     ResourceGroupLocator locate) {
 
-  /** A row query over one resource and an explicit cohort, without grouping. */
-  public ResourceTableQuery(
-      List<String> studyIds,
-      String resourceId,
-      List<PatientIdentifier> patientIdentifiers,
-      List<SampleIdentifier> sampleIdentifiers,
-      String search,
-      int pageNumber,
-      int pageSize,
-      String sortBy,
-      String direction,
-      List<ResourceColumnFilter> filters) {
-    this(
-        studyIds,
-        resourceId,
-        patientIdentifiers,
-        sampleIdentifiers,
-        search,
-        pageNumber,
-        pageSize,
-        sortBy,
-        direction,
-        filters,
-        null,
-        null,
-        null,
-        null,
-        null);
-  }
-
   /** The same query with every column-level filter removed. */
   public ResourceTableQuery withoutColumnFilters() {
     return new ResourceTableQuery(

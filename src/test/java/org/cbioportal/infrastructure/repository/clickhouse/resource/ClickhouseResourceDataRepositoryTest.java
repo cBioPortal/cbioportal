@@ -8,6 +8,7 @@ import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -55,10 +56,15 @@ public class ClickhouseResourceDataRepositoryTest {
             10,
             null,
             null,
-            List.of(zeroingFilter));
+            List.of(zeroingFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, List<ResourceFacetOption>> facets =
-        repository.getResourceTableMetadata(query).facets();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facets();
 
     assertThat(facets).containsKey("metadata:magnification");
     assertThat(facets.get("metadata:magnification"))
@@ -72,10 +78,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // override, so this must be auto-detected as numeric.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "FIGURES",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, ResourceNumericRange> ranges =
-        repository.getResourceTableMetadata(query).facetRanges();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facetRanges();
 
     assertThat(ranges).containsEntry("metadata:pages", new ResourceNumericRange(10.0, 25.0));
   }
@@ -85,10 +105,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // A numeric column shouldn't also show up as an enumerated categorical facet.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "FIGURES",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, List<ResourceFacetOption>> facets =
-        repository.getResourceTableMetadata(query).facets();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facets();
 
     assertThat(facets).doesNotContainKey("metadata:pages");
   }
@@ -99,10 +133,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // stay categorical (no facetRange) even though it looks numeric-ish.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, ResourceNumericRange> ranges =
-        repository.getResourceTableMetadata(query).facetRanges();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facetRanges();
 
     assertThat(ranges).doesNotContainKey("metadata:magnification");
   }
@@ -113,12 +161,26 @@ public class ClickhouseResourceDataRepositoryTest {
     // ("1001", "1002") look numeric — the explicit override must win over auto-detection.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, ResourceNumericRange> ranges =
-        repository.getResourceTableMetadata(query).facetRanges();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facetRanges();
     Map<String, List<ResourceFacetOption>> facets =
-        repository.getResourceTableMetadata(query).facets();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facets();
 
     assertThat(ranges).doesNotContainKey("metadata:dose_id");
     assertThat(facets).containsKey("metadata:dose_id");
@@ -130,10 +192,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // this confirms the schema path resolves correctly end-to-end.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, ResourceNumericRange> ranges =
-        repository.getResourceTableMetadata(query).facetRanges();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facetRanges();
 
     assertThat(ranges).containsEntry("metadata:score", new ResourceNumericRange(42.0, 85.0));
   }
@@ -144,7 +220,21 @@ public class ClickhouseResourceDataRepositoryTest {
   public void getResourceTableMetadataColumns_usesContractLabelAndDescription() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     ResourceColumnInfo score = columnById(query, "metadata:score");
 
@@ -161,9 +251,23 @@ public class ClickhouseResourceDataRepositoryTest {
     // cannot decide whether a column appears.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(repository.getResourceTableMetadata(query).columns())
+    assertThat(repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns())
         .extracting(ResourceColumnInfo::id)
         .doesNotContain("metadata:aperture");
   }
@@ -173,10 +277,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // The columns and their order both come from the contract: score, dose_id, operator, series.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     List<String> ids =
-        repository.getResourceTableMetadata(query).columns().stream()
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns().stream()
             .map(ResourceColumnInfo::id)
             .toList();
 
@@ -192,9 +310,24 @@ public class ClickhouseResourceDataRepositoryTest {
     ClickhouseResourceDataMapper spy = Mockito.spy(mapper);
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+    new ClickhouseResourceDataRepository(spy)
+        .getResourceTableMetadata(query, ResourceQueryContext.none());
 
     Mockito.verify(spy, Mockito.never())
         .getResourceTableMetadataKeyStats(
@@ -211,9 +344,24 @@ public class ClickhouseResourceDataRepositoryTest {
     ClickhouseResourceDataMapper spy = Mockito.spy(mapper);
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+    new ClickhouseResourceDataRepository(spy)
+        .getResourceTableMetadata(query, ResourceQueryContext.none());
 
     Mockito.verify(spy)
         .getResourceTableMetadataKeyStats(
@@ -240,9 +388,14 @@ public class ClickhouseResourceDataRepositoryTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    assertThat(repository.getResourceTableMetadata(query).columns())
+    assertThat(repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns())
         .extracting(ResourceColumnInfo::id)
         .containsExactly("metadata:grade", "metadata:reviewer", "metadata:stain");
   }
@@ -258,6 +411,11 @@ public class ClickhouseResourceDataRepositoryTest {
             null,
             0,
             10,
+            null,
+            null,
+            null,
+            null,
+            null,
             null,
             null,
             null);
@@ -281,6 +439,11 @@ public class ClickhouseResourceDataRepositoryTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
     assertThat(columnById(query, "metadata:grade").dataType()).isEqualTo("string");
@@ -301,9 +464,15 @@ public class ClickhouseResourceDataRepositoryTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    assertThat(repository.getResourceTableMetadata(bothStudies).columns())
+    assertThat(
+            repository.getResourceTableMetadata(bothStudies, ResourceQueryContext.none()).columns())
         .extracting(ResourceColumnInfo::id)
         .containsExactly("metadata:preparation", "metadata:fixative");
   }
@@ -312,9 +481,26 @@ public class ClickhouseResourceDataRepositoryTest {
   public void thatSameContractIsAuthoritativeForItsOwnStudyAlone() {
     ResourceTableQuery declaringStudyOnly =
         new ResourceTableQuery(
-            List.of(STUDY_ACC), "CYTOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_ACC),
+            "CYTOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(repository.getResourceTableMetadata(declaringStudyOnly).columns())
+    assertThat(
+            repository
+                .getResourceTableMetadata(declaringStudyOnly, ResourceQueryContext.none())
+                .columns())
         .extracting(ResourceColumnInfo::id)
         .containsExactly("metadata:preparation");
   }
@@ -335,9 +521,15 @@ public class ClickhouseResourceDataRepositoryTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    new ClickhouseResourceDataRepository(spy).getResourceTableMetadata(query);
+    new ClickhouseResourceDataRepository(spy)
+        .getResourceTableMetadata(query, ResourceQueryContext.none());
 
     Mockito.verify(spy)
         .getResourceTableMetadataKeyStats(
@@ -354,7 +546,21 @@ public class ClickhouseResourceDataRepositoryTest {
     // column set stays stable no matter which rows happen to be populated.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     ResourceColumnInfo series = columnById(query, "metadata:series");
 
@@ -366,9 +572,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // HE_SLIDE has no custom_metadata at all, so the pre-contract behavior must be preserved.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceColumnInfo> columns = repository.getResourceTableMetadata(query).columns();
+    List<ResourceColumnInfo> columns =
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns();
 
     assertThat(columns.stream().map(ResourceColumnInfo::id).toList())
         .containsExactly("metadata:magnification", "metadata:stain");
@@ -382,9 +603,24 @@ public class ClickhouseResourceDataRepositoryTest {
     // discovered, stays hidden so a resource with many keys cannot bury the builtin columns.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceColumnInfo> columns = repository.getResourceTableMetadata(query).columns();
+    List<ResourceColumnInfo> columns =
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns();
 
     assertThat(columns)
         .filteredOn(ResourceColumnInfo::visibleByDefault)
@@ -397,9 +633,23 @@ public class ClickhouseResourceDataRepositoryTest {
     // HE_SLIDE has no custom_metadata at all.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(repository.getResourceTableMetadata(query).columns())
+    assertThat(repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns())
         .noneMatch(ResourceColumnInfo::visibleByDefault);
   }
 
@@ -409,11 +659,25 @@ public class ClickhouseResourceDataRepositoryTest {
     // still renders, it just gets no filter control and costs no facet aggregation.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     ResourceColumnInfo operator = columnById(query, "metadata:operator");
     Map<String, List<ResourceFacetOption>> facets =
-        repository.getResourceTableMetadata(query).facets();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facets();
 
     assertThat(operator.filterable()).isFalse();
     assertThat(facets).doesNotContainKey("metadata:operator");
@@ -426,17 +690,34 @@ public class ClickhouseResourceDataRepositoryTest {
     // render a range slider.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, ResourceNumericRange> ranges =
-        repository.getResourceTableMetadata(query).facetRanges();
+        repository.getResourceTableMetadata(query, ResourceQueryContext.none()).facetRanges();
 
     assertThat(ranges).containsKey("metadata:score");
     assertThat(ranges).doesNotContainKey("metadata:operator");
   }
 
   private ResourceColumnInfo columnById(ResourceTableQuery query, String id) {
-    return repository.getResourceTableMetadata(query).columns().stream()
+    return repository
+        .getResourceTableMetadata(query, ResourceQueryContext.none())
+        .columns()
+        .stream()
         .filter(c -> c.id().equals(id))
         .findFirst()
         .orElseThrow(() -> new AssertionError("no metadata column " + id));

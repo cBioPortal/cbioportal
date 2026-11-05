@@ -19,9 +19,9 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
  *
  * <p>Every statement filtered by the request's cohort takes a {@code studyViewFilterContext}: when
  * it is non-null the cohort is that study-view filter, resolved by the shared study-view filter
- * SQL, and the request's identifier lists are ignored. The single-query forms pass null, so the
- * cohort is the request's identifier lists. Statements that can read the compact table take a
- * {@code compact} flag that switches the table they read.
+ * SQL, and the request's identifier lists are ignored; when it is null the cohort is the request's
+ * identifier lists. Statements that can read the compact table take a {@code compact} flag that
+ * switches the table they read.
  */
 public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
@@ -29,10 +29,6 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceTableRow> getResourceTableRows(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
-
-  default List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    return getResourceTableRows(query, null);
-  }
 
   /**
    * Facet values for every requested key in one pass over resource, capped per key. Returns a flat
@@ -43,11 +39,6 @@ public interface ClickhouseResourceDataMapper {
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
       @Param("metadataKeys") String[] metadataKeys,
       @Param("limitPerKey") int limitPerKey);
-
-  default List<ResourceMetadataFacetValue> getResourceTableMetadataFacets(
-      ResourceTableQuery query, String[] metadataKeys, int limitPerKey) {
-    return getResourceTableMetadataFacets(query, null, metadataKeys, limitPerKey);
-  }
 
   /**
    * Facet values for a grouped query: each value counts the groups (patients or samples) with at
@@ -95,22 +86,12 @@ public interface ClickhouseResourceDataMapper {
       @Param("sampleRows") int sampleRows,
       @Param("maxMemoryBytes") long maxMemoryBytes);
 
-  default List<ResourceMetadataKeyStats> getResourceTableMetadataKeyStats(
-      ResourceTableQuery query, int sampleRows, long maxMemoryBytes) {
-    return getResourceTableMetadataKeyStats(query, null, false, sampleRows, maxMemoryBytes);
-  }
-
   /** Exact min/max for keys already classified numeric; see the mapper XML for why. */
   List<ResourceMetadataRange> getResourceTableMetadataRanges(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
       @Param("compact") boolean compact,
       @Param("metadataKeys") String[] metadataKeys);
-
-  default List<ResourceMetadataRange> getResourceTableMetadataRanges(
-      ResourceTableQuery query, String[] metadataKeys) {
-    return getResourceTableMetadataRanges(query, null, false, metadataKeys);
-  }
 
   /**
    * The current resource tab's {@code resource_definition.custom_metadata} JSON schema, if any
@@ -120,18 +101,10 @@ public interface ClickhouseResourceDataMapper {
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
-  default List<ResourceContractRow> getResourceDefinitionCustomMetadata(ResourceTableQuery query) {
-    return getResourceDefinitionCustomMetadata(query, null);
-  }
-
   ResourceTableCounts getResourceTableCounts(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
       @Param("compact") boolean compact);
-
-  default ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
-    return getResourceTableCounts(query, null, false);
-  }
 
   /**
    * One (resource, study) row per requested resource that a requested study defines or holds rows

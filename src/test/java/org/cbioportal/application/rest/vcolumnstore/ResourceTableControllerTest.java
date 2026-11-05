@@ -127,7 +127,21 @@ public class ResourceTableControllerTest {
 
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_ID), RESOURCE_ID, null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_ID),
+            RESOURCE_ID,
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     mockMvc
         .perform(

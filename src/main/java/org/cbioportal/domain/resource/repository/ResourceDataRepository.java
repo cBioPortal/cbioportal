@@ -13,8 +13,8 @@ import org.cbioportal.domain.resource.ResourceTabsRequest;
 
 /**
  * Reads the resource table. Each read takes the query and the {@link ResourceQueryContext} it
- * resolved to; the single-argument forms are for a query whose cohort is identifier lists and that
- * reads one resource without grouping.
+ * resolved to; {@link ResourceQueryContext#none()} for a query whose cohort is identifier lists and
+ * that reads one resource without grouping.
  */
 public interface ResourceDataRepository {
   List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request);
@@ -22,20 +22,12 @@ public interface ResourceDataRepository {
   List<ResourceTableRow> getResourceTableRows(
       ResourceTableQuery query, ResourceQueryContext context);
 
-  default List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
-    return getResourceTableRows(query, ResourceQueryContext.none());
-  }
-
   /**
    * Row, patient and sample counts for the filtered set, in one pass. They count rows whether or
    * not the query groups them.
    */
   ResourceTableCounts getResourceTableCounts(
       ResourceTableQuery query, ResourceQueryContext context);
-
-  default ResourceTableCounts getResourceTableCounts(ResourceTableQuery query) {
-    return getResourceTableCounts(query, ResourceQueryContext.none());
-  }
 
   /**
    * Metadata column info, categorical facets and numeric ranges together. They share the contract
@@ -45,10 +37,6 @@ public interface ResourceDataRepository {
    */
   ResourceTableMetadataView getResourceTableMetadata(
       ResourceTableQuery query, ResourceQueryContext context);
-
-  default ResourceTableMetadataView getResourceTableMetadata(ResourceTableQuery query) {
-    return getResourceTableMetadata(query, ResourceQueryContext.none());
-  }
 
   /** One page of groups, with the totals and, if asked for, the located group's position. */
   ResourceTableGroupPage getResourceTableGroups(

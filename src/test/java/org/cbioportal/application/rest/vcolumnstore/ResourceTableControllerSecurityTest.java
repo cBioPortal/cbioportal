@@ -181,6 +181,11 @@ public class ResourceTableControllerSecurityTest {
                             25,
                             null,
                             null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
                             null))))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -207,6 +212,11 @@ public class ResourceTableControllerSecurityTest {
                             null,
                             0,
                             25,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
                             null,
                             null,
                             null))))

@@ -39,7 +39,21 @@ public class GetResourceTableDataUseCaseTest {
   public void execute_returnsComputedFacets() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of("study_tcga_pub"), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of("study_tcga_pub"),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     List<ResourceTableRow> rows = List.of();
     Map<String, List<ResourceFacetOption>> facets =
         Map.of(
@@ -66,7 +80,21 @@ public class GetResourceTableDataUseCaseTest {
   public void execute_returnsOnlyTheRequestedPage() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of("study_tcga_pub"), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of("study_tcga_pub"),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     List<ResourceTableRow> rows = List.of();
     when(resourceDataRepository.getResourceTableRows(query, ResourceQueryContext.none()))
         .thenReturn(rows);

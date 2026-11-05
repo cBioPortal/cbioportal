@@ -34,7 +34,7 @@ import org.mskcc.cbio.portal.dao.JdbcUtil;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.CopyNumberStatus;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.shared.MolecularProfileDataType;
+import org.cbioportal.shared.model.MolecularProfileDataType;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.scripts.ImportCnaDiscreteLongData;
 import org.mskcc.cbio.portal.util.StableIdUtil;

@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.ResourceDefinition;
-import org.mskcc.cbio.portal.model.shared.ResourceType;
+import org.cbioportal.shared.model.ResourceType;
 
 /**
  * Data Access Object for `resource_definition` table

@@ -3,9 +3,9 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
+import org.cbioportal.shared.model.CancerStudyTags;
 
 public interface StudyMapper {
 

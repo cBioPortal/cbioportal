@@ -9,7 +9,7 @@ package org.mskcc.cbio.portal.dao;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
@@ -333,7 +333,7 @@ public class DaoSample {
         Set<Integer> actualInternalSampleIdsToRemove = orderedSampleList.stream()
                 .filter(internalSampleIdsToRemove::contains).collect(Collectors.toUnmodifiableSet());
         if (!actualInternalSampleIdsToRemove.isEmpty()) {
-            if (GeneticAlterationType.GENESET_SCORE.equals(geneticProfile.getGeneticAlterationType())) {
+            if (MolecularAlterationType.GENESET_SCORE.equals(geneticProfile.getGeneticAlterationType())) {
                 List<String> sampleStableIds = actualInternalSampleIdsToRemove.stream()
                         .map(internalSampleID ->
                                 DaoSample.getSampleById(internalSampleID).getStableId())

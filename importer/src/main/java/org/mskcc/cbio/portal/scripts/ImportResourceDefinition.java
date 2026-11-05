@@ -12,7 +12,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoResourceDefinition;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ResourceDefinition;
-import org.mskcc.cbio.portal.model.shared.ResourceType;
+import org.cbioportal.shared.model.ResourceType;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.MissingValues;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

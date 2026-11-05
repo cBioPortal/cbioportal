@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.cbioportal.legacy.model.CoExpression;
-import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.GeneMolecularData;
 import org.cbioportal.legacy.model.Geneset;
@@ -19,6 +18,8 @@ import org.cbioportal.legacy.service.GenesetService;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.util.CoExpressionAsyncMethods;
+import org.cbioportal.shared.model.EntityType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -522,15 +523,13 @@ public class CoExpressionServiceImplTest extends BaseServiceImplTest {
 
   private MolecularProfile createGeneMolecularProfile() {
     MolecularProfile geneMolecularProfile = new MolecularProfile();
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     return geneMolecularProfile;
   }
 
   private MolecularProfile createGenesetMolecularProfile() {
     MolecularProfile genesetMolecularProfile = new MolecularProfile();
-    genesetMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENESET_SCORE);
+    genesetMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENESET_SCORE);
     return genesetMolecularProfile;
   }
 }

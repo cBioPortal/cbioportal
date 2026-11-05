@@ -2,6 +2,7 @@ package org.cbioportal.legacy.model;
 
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import org.cbioportal.shared.model.ResourceType;
 
 public class ResourceDefinition implements Serializable {
 

@@ -7,7 +7,7 @@ import java.util.Scanner;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudyTags;
+import org.cbioportal.shared.model.CancerStudyTags;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 public class CancerStudyTagsReader {

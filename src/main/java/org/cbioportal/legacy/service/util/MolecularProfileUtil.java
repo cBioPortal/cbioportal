@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,20 +19,15 @@ public class MolecularProfileUtil {
   public final String STRUCTURAL_VARIANT_PROFILE_SUFFIX = "_structural_variants";
 
   public Predicate<MolecularProfile> isStructuralVariantMolecularProfile =
-      m ->
-          m.getMolecularAlterationType()
-              .equals(MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+      m -> m.getMolecularAlterationType().equals(MolecularAlterationType.STRUCTURAL_VARIANT);
 
   public Predicate<MolecularProfile> isDiscreteCNAMolecularProfile =
       m ->
-          m.getMolecularAlterationType()
-                  .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION)
+          m.getMolecularAlterationType().equals(MolecularAlterationType.COPY_NUMBER_ALTERATION)
               && m.getDatatype().equals("DISCRETE");
 
   public Predicate<MolecularProfile> isMutationProfile =
-      m ->
-          m.getMolecularAlterationType()
-              .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+      m -> m.getMolecularAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED);
 
   public Map<String, List<MolecularProfile>> categorizeMolecularProfilesByStableIdSuffixes(
       List<MolecularProfile> molecularProfiles) {

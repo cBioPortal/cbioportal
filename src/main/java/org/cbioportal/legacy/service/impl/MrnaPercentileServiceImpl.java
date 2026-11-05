@@ -15,6 +15,7 @@ import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MrnaPercentileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,7 +86,7 @@ public class MrnaPercentileServiceImpl implements MrnaPercentileService {
 
     if (!molecularProfile
         .getMolecularAlterationType()
-        .equals(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION)) {
+        .equals(MolecularAlterationType.MRNA_EXPRESSION)) {
 
       throw new MolecularProfileNotFoundException(molecularProfileId);
     }

@@ -45,7 +45,7 @@ import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.model.SampleList;
 import org.mskcc.cbio.portal.model.StructuralVariant;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.GeneticEntity;
 import org.mskcc.cbio.portal.scripts.ImportGenePanel;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

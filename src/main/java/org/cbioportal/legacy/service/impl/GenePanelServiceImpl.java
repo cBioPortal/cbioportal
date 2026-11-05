@@ -21,6 +21,7 @@ import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -218,7 +219,7 @@ public class GenePanelServiceImpl implements GenePanelService {
   private List<GenePanelData> annotateDataFromSequencedSampleLists(
       List<GenePanelData> genePanelData, MolecularProfile molecularProfile) {
 
-    if (MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED.equals(
+    if (MolecularAlterationType.MUTATION_EXTENDED.equals(
         molecularProfile.getMolecularAlterationType())) {
       try {
         SampleList sampleList =

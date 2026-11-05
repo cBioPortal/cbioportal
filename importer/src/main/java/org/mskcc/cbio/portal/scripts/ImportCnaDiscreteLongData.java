@@ -20,8 +20,8 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.shared.MolecularProfileDataType;
+import org.cbioportal.shared.model.MolecularAlterationType;
+import org.cbioportal.shared.model.MolecularProfileDataType;
 import org.mskcc.cbio.portal.util.CnaUtil;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileUtil;
@@ -100,7 +100,7 @@ public class ImportCnaDiscreteLongData {
                 this.cnaUtil = new CnaUtil(headerParts, this.namespaces);
 
                 boolean isDiscretizedCnaProfile = geneticProfile != null
-                        && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                        && geneticProfile.getGeneticAlterationType() == MolecularAlterationType.COPY_NUMBER_ALTERATION
                         && geneticProfile.showProfileInAnalysisTab();
 
                 if (isDiscretizedCnaProfile) {

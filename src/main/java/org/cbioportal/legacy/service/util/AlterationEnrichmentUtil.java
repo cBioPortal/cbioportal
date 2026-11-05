@@ -18,12 +18,12 @@ import org.cbioportal.legacy.model.CountSummary;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.GenePanelData;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.GenePanelService;
 import org.cbioportal.legacy.service.GeneService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

@@ -26,7 +26,7 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
@@ -68,7 +68,7 @@ public class TestImportExtendedMutationData extends IntegrationTestBase {
         geneticProfile.setCancerStudyId(studyId);
         geneticProfile.setProfileName("test profile");
         geneticProfile.setStableId("test");
-        geneticProfile.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
+        geneticProfile.setGeneticAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         geneticProfile.setDatatype("test");
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
         geneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test").getGeneticProfileId();
@@ -78,7 +78,7 @@ public class TestImportExtendedMutationData extends IntegrationTestBase {
         geneticProfile2.setCancerStudyId(studyId);
         geneticProfile2.setProfileName("test duplicate mutation events profile");
         geneticProfile2.setStableId("test_importer_id");
-        geneticProfile2.setGeneticAlterationType(GeneticAlterationType.MUTATION_EXTENDED);
+        geneticProfile2.setGeneticAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
         geneticProfile2.setDatatype("test");
         DaoGeneticProfile.addGeneticProfile(geneticProfile2);
         testGeneticProfileId = DaoGeneticProfile.getGeneticProfileByStableId("test_importer_id").getGeneticProfileId();

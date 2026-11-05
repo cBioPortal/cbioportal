@@ -3,11 +3,11 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
+import org.cbioportal.shared.model.CancerStudyTags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

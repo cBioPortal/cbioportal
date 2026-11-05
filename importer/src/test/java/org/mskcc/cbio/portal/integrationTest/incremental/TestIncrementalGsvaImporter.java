@@ -12,7 +12,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.scripts.ImportTabDelimData;
 import org.springframework.test.context.ContextConfiguration;
@@ -35,7 +35,7 @@ public class TestIncrementalGsvaImporter extends IntegrationTestBase {
         gsvaProfile.setCancerStudyId(DaoCancerStudy.getCancerStudyByStableId("study_tcga_pub").getInternalId());
         gsvaProfile.setStableId("gsva_scores");
         gsvaProfile.setDatatype("GENESET_SCORE");
-        gsvaProfile.setGeneticAlterationType(GeneticAlterationType.GENESET_SCORE);
+        gsvaProfile.setGeneticAlterationType(MolecularAlterationType.GENESET_SCORE);
         gsvaProfile.setProfileName("gsva test platform");
         DaoGeneticProfile.addGeneticProfile(gsvaProfile);
 

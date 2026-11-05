@@ -7,6 +7,7 @@ on:
       - 'OPEN-SOURCE-DOCUMENTATION'
       - 'bom.json'
       - 'pom.xml'
+      - 'web/pom.xml'
       - 'scripts/generate-third-party-report.sh'
   workflow_dispatch:
 

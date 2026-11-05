@@ -1,7 +1,7 @@
 package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.cbioportal.legacy.model.ResourceType;
+import org.cbioportal.shared.model.ResourceType;
 
 @Schema(name = "ResourceDefinition", description = "Represents a resource definition")
 public class ResourceDefinitionDTO {

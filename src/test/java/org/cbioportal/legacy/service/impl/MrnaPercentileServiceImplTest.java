@@ -8,6 +8,7 @@ import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MrnaPercentile;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,8 +67,7 @@ public class MrnaPercentileServiceImplTest extends BaseServiceImplTest {
     molecularDataList.add(molecularData6);
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 

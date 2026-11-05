@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.slf4j.Logger;
 
@@ -275,7 +275,7 @@ public final class DaoGeneticProfile {
         } catch (SQLException e) {
             profileType.setShowProfileInAnalysisTab(true);
         }
-        profileType.setGeneticAlterationType(GeneticAlterationType.valueOf(rs.getString("genetic_alteration_type")));
+        profileType.setGeneticAlterationType(MolecularAlterationType.valueOf(rs.getString("genetic_alteration_type")));
         profileType.setDatatype(rs.getString("datatype"));
         profileType.setGeneticProfileId(rs.getInt("genetic_profile_id"));
         if (rs.getFloat("pivot_threshold") != 0) {

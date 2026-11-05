@@ -16,6 +16,7 @@ import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -291,8 +292,7 @@ public class SampleServiceImplTest extends BaseServiceImplTest {
     List<MolecularProfile> expectedMolecularProfileList = new ArrayList<>();
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.STRUCTURAL_VARIANT);
     expectedMolecularProfileList.add(molecularProfile);
 
     Mockito.when(

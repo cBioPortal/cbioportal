@@ -2,11 +2,11 @@ package org.cbioportal.legacy.service;
 
 import java.util.List;
 import org.cbioportal.legacy.model.CoExpression;
-import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
+import org.cbioportal.shared.model.EntityType;
 
 public interface CoExpressionService {
 

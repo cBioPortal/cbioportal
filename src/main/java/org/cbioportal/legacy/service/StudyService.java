@@ -2,10 +2,10 @@ package org.cbioportal.legacy.service;
 
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.shared.model.CancerStudyTags;
 import org.springframework.security.core.Authentication;
 
 public interface StudyService {

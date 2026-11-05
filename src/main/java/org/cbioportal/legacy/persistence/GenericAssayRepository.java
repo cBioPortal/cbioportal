@@ -2,7 +2,7 @@ package org.cbioportal.legacy.persistence;
 
 import java.util.List;
 import org.cbioportal.legacy.model.GenericAssayAdditionalProperty;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.shared.model.GenericAssayMeta;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface GenericAssayRepository {

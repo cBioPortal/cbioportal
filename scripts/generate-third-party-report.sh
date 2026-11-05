@@ -11,7 +11,7 @@ sbom=target/generated-resources/sbom/bom.json
 rendered_report=$(mktemp)
 trap 'rm -f "$rendered_report"' EXIT
 
-"$maven_bin" --batch-mode -q -Pthird-party-report -DskipTests \
+"$maven_bin" --batch-mode -q -Pthird-party-report -DskipTests -pl web -am \
   license:add-third-party cyclonedx:makeAggregateBom
 
 test -s "$license_report"

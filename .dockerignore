@@ -19,6 +19,10 @@ docker
 # ...but the web-and-data entrypoint script must still be sent.
 !docker/web-and-data/docker-entrypoint.sh
 
+# The importer's Python test data, and importer JARs left over from local builds
+importer/tests
+importer/*.jar
+
 # Only test/test_data/study_es_0 is copied into the image; the rest of test/
 # (e2e suites, integration tests) is not needed to build it.
 test/api-e2e

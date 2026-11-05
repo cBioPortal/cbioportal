@@ -4,8 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
-import org.mskcc.cbio.portal.model.shared.EntityType;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.EntityType;
+import org.cbioportal.shared.model.GeneticEntity;
 
 public class GenericAssayMetaUtils {
     public static Map<String, Integer> buildGenericAssayStableIdToEntityIdMap() {

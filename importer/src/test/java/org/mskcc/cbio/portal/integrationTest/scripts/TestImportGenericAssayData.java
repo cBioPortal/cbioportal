@@ -21,8 +21,8 @@ import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoGenericAssay;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.JdbcUtil;
-import org.mskcc.cbio.portal.model.shared.GenericAssayMeta;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.GenericAssayMeta;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.scripts.ImportGenericAssayEntity;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +48,7 @@ public class TestImportGenericAssayData extends IntegrationTestBase {
         File file = new File("src/test/resources/treatments/data_treatment_ic50.txt");
         
         // import data and test all treatments were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
+        ImportGenericAssayEntity.importData(file, MolecularAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
         assertEquals(10, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
@@ -62,7 +62,7 @@ public class TestImportGenericAssayData extends IntegrationTestBase {
 
         // test fields are updated after loading new treatment file
         File fileNewDesc = new File("src/test/resources/treatments/data_treatment_ic50_newdesc.txt");
-        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
+        ImportGenericAssayEntity.importData(fileNewDesc, MolecularAlterationType.GENERIC_ASSAY, "NAME,DESCRIPTION,URL", true);
         GenericAssayMeta treatment2 = DaoGenericAssay.getGenericAssayMetaByStableId("Irinotecan");
         assertEquals("New desc of Irinotecan", treatment2.getGenericEntityMetaProperties().get("DESCRIPTION"));
     }
@@ -77,7 +77,7 @@ public class TestImportGenericAssayData extends IntegrationTestBase {
         int numRecordsForGenericAssayBefore = getNumRecordsForGenericAssay();
 
         // import data and test all mutational signatures were added
-        ImportGenericAssayEntity.importData(file, GeneticAlterationType.GENERIC_ASSAY, "name,description", false);
+        ImportGenericAssayEntity.importData(file, MolecularAlterationType.GENERIC_ASSAY, "name,description", false);
         assertEquals(numRecordsForGenericAssayBefore + 60, getNumRecordsForGenericAssay());
  
         // test wether a record can be retrieved via stable id 
@@ -90,12 +90,12 @@ public class TestImportGenericAssayData extends IntegrationTestBase {
 
         // // test fields should not be updated after loading new generic assay meta file
         File fileNewDesc = new File("src/test/resources/data_mutational_signature_new.txt");
-        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description", false);
+        ImportGenericAssayEntity.importData(fileNewDesc, MolecularAlterationType.GENERIC_ASSAY, "name,description", false);
         GenericAssayMeta genericAssayMeta2 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
         assertEquals("mean_1", genericAssayMeta2.getGenericEntityMetaProperties().get("description"));
 
         // // test fields should be updated after loading new generic assay meta file
-        ImportGenericAssayEntity.importData(fileNewDesc, GeneticAlterationType.GENERIC_ASSAY, "name,description", true);
+        ImportGenericAssayEntity.importData(fileNewDesc, MolecularAlterationType.GENERIC_ASSAY, "name,description", true);
         GenericAssayMeta genericAssayMeta3 = DaoGenericAssay.getGenericAssayMetaByStableId("mean_1");
         assertEquals("new mean_1", genericAssayMeta3.getGenericEntityMetaProperties().get("description"));
 

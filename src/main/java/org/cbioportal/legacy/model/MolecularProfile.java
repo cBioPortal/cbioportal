@@ -2,39 +2,9 @@ package org.cbioportal.legacy.model;
 
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
+import org.cbioportal.shared.model.MolecularAlterationType;
 
 public class MolecularProfile implements Serializable {
-
-  // Copied from org.mskcc.cbio.portal.model.GeneticAlterationType, if you alter this,
-  // don't forget to change the original one too
-  public enum MolecularAlterationType {
-    MUTATION_EXTENDED,
-    // uncalled mutations (mskcc internal) for showing read counts even if
-    // mutation wasn't called
-    MUTATION_UNCALLED,
-    STRUCTURAL_VARIANT,
-    COPY_NUMBER_ALTERATION,
-    MICRO_RNA_EXPRESSION,
-    MRNA_EXPRESSION,
-    MRNA_EXPRESSION_NORMALS,
-    RNA_EXPRESSION,
-    METHYLATION,
-    METHYLATION_BINARY,
-    PHOSPHORYLATION,
-    PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PROTEIN_LEVEL,
-    PROTEIN_ARRAY_PHOSPHORYLATION,
-    GENESET_SCORE,
-    GENERIC_ASSAY
-  }
-
-  public enum DataType {
-    DISCRETE;
-  }
-
-  public enum ImportType {
-    DISCRETE_LONG;
-  }
 
   private Integer molecularProfileId;
   @NotNull private String stableId;

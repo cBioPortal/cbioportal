@@ -86,7 +86,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl web -am
       - name: Build, collect coverage and analyze (pull request)
         if: github.event_name == 'workflow_run'
         env:
@@ -97,7 +97,7 @@ jobs:
           PR_BASE_REF: ${{ steps.pr-info.outputs.base-ref }}
           PR_HEAD_SHA: ${{ steps.pr-info.outputs.head-sha }}
         run: |
-          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+          mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -pl web -am \
             -Dsonar.pullrequest.key="$PR_NUMBER" \
             -Dsonar.pullrequest.branch="$PR_HEAD_REF" \
             -Dsonar.pullrequest.base="$PR_BASE_REF" \

@@ -12,6 +12,7 @@ import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.config.MyBatisLegacyConfig;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,7 +61,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
     Assert.assertEquals("study_tcga_pub", molecularProfile.getCancerStudyIdentifier());
     Assert.assertEquals(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION,
+        MolecularAlterationType.COPY_NUMBER_ALTERATION,
         molecularProfile.getMolecularAlterationType());
     Assert.assertEquals("DISCRETE", molecularProfile.getDatatype());
     Assert.assertEquals("Putative copy-number alterations from GISTIC", molecularProfile.getName());
@@ -86,7 +87,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
     Assert.assertEquals("study_tcga_pub", molecularProfile.getCancerStudyIdentifier());
     Assert.assertEquals(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION,
+        MolecularAlterationType.COPY_NUMBER_ALTERATION,
         molecularProfile.getMolecularAlterationType());
     Assert.assertEquals("DISCRETE", molecularProfile.getDatatype());
     Assert.assertEquals("Putative copy-number alterations from GISTIC", molecularProfile.getName());
@@ -174,7 +175,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
     Assert.assertEquals("study_tcga_pub", molecularProfile.getCancerStudyIdentifier());
     Assert.assertEquals(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION,
+        MolecularAlterationType.COPY_NUMBER_ALTERATION,
         molecularProfile.getMolecularAlterationType());
     Assert.assertEquals("DISCRETE", molecularProfile.getDatatype());
     Assert.assertEquals("Putative copy-number alterations from GISTIC", molecularProfile.getName());
@@ -237,7 +238,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 1, molecularProfile.getCancerStudyId());
     Assert.assertEquals("study_tcga_pub", molecularProfile.getCancerStudyIdentifier());
     Assert.assertEquals(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION,
+        MolecularAlterationType.COPY_NUMBER_ALTERATION,
         molecularProfile.getMolecularAlterationType());
     Assert.assertEquals("DISCRETE", molecularProfile.getDatatype());
     Assert.assertEquals("Putative copy-number alterations from GISTIC", molecularProfile.getName());
@@ -273,8 +274,7 @@ public class MolecularProfileMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 2, molecularProfile.getCancerStudyId());
     Assert.assertEquals("acc_tcga", molecularProfile.getCancerStudyIdentifier());
     Assert.assertEquals(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED,
-        molecularProfile.getMolecularAlterationType());
+        MolecularAlterationType.MUTATION_EXTENDED, molecularProfile.getMolecularAlterationType());
     Assert.assertEquals("MAF", molecularProfile.getDatatype());
     Assert.assertEquals("Mutations", molecularProfile.getName());
     Assert.assertEquals(

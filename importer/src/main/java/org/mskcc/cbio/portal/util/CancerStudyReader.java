@@ -12,7 +12,7 @@ import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
 import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**

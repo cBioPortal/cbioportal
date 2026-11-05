@@ -8,8 +8,8 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import java.util.*;
-import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.portal.model.UserAuthorities;
+import org.cbioportal.shared.model.User;
+import org.cbioportal.shared.model.UserAuthorities;
 
 /**
  * DAO into authorities table.

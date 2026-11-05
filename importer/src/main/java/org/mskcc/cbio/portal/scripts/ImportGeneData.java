@@ -18,7 +18,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenomeGene;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.model.ReferenceGenomeGene;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.DataValidator;

@@ -8,7 +8,7 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import java.util.ArrayList;
-import org.mskcc.cbio.portal.model.User;
+import org.cbioportal.shared.model.User;
 
 /**
  * A User. They must have an EMAIL & ENABLED.

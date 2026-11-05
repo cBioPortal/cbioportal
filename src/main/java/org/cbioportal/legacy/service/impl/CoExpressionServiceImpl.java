@@ -6,7 +6,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.CoExpression;
-import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.model.MolecularAlteration;
 import org.cbioportal.legacy.model.MolecularData;
 import org.cbioportal.legacy.model.MolecularProfile;
@@ -24,6 +23,8 @@ import org.cbioportal.legacy.service.exception.GenesetNotFoundException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
 import org.cbioportal.legacy.service.util.CoExpressionAsyncMethods;
+import org.cbioportal.shared.model.EntityType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,7 +76,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     Boolean isMolecularProfileBOfGenesetType =
         molecularProfileB
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.GENESET_SCORE);
+            .equals(MolecularAlterationType.GENESET_SCORE);
     if (isMolecularProfileBOfGenesetType) {
       molecularDataListB =
           genesetDataService.fetchGenesetData(molecularProfileIdB, sampleListId, null);
@@ -269,7 +270,7 @@ public class CoExpressionServiceImpl implements CoExpressionService {
     Boolean isMolecularProfileBOfGenesetType =
         molecularProfileB
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.GENESET_SCORE);
+            .equals(MolecularAlterationType.GENESET_SCORE);
     if (isMolecularProfileBOfGenesetType) {
       molecularDataListB =
           genesetDataService.fetchGenesetData(molecularProfileIdB, sampleIds, null).stream()

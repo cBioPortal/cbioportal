@@ -17,6 +17,7 @@ import org.cbioportal.legacy.service.impl.StructuralVariantServiceImpl;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.cbioportal.legacy.web.util.StudyViewFilterUtil;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,8 +64,7 @@ public class StructuralVariantSubFilterApplierTest {
     MolecularProfile molecularProfile1 = new MolecularProfile();
     molecularProfile1.setStableId(MP_1_ID);
     molecularProfile1.setCancerStudyIdentifier(ST_1_ID);
-    molecularProfile1.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+    molecularProfile1.setMolecularAlterationType(MolecularAlterationType.STRUCTURAL_VARIANT);
 
     when(molecularProfileService.getMolecularProfilesInStudies(anyList(), eq("SUMMARY")))
         .thenReturn(Arrays.asList(molecularProfile1));

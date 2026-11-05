@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.cbioportal.legacy.model;
+package org.cbioportal.shared.model;
 
 // imports
 import java.io.Serializable;

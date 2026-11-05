@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.model;
+package org.cbioportal.shared.model;
 
 import java.io.Serializable;
 

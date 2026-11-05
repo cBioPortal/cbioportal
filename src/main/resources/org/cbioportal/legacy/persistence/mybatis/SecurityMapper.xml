@@ -5,14 +5,14 @@
     <!-- do not cache these queries -->
 
     <!-- user AUTHORITIES are grouped by email and grouping is CASE SENSITIVE -->
-    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.legacy.model.UserAuthorities">
+    <resultMap id="userAuthoritiesResultMap" type="org.cbioportal.shared.model.UserAuthorities">
         <result property="email" column="email"/>
         <collection property="authorities" ofType="String">
             <result property="authority" column="authority"/>
         </collection>
     </resultMap>
 
-    <select id="getPortalUser" resultType="org.cbioportal.legacy.model.User">
+    <select id="getPortalUser" resultType="org.cbioportal.shared.model.User">
         SELECT
             LOWER(u.email) AS email,
             u.name,

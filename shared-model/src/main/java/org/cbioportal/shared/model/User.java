@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.cbioportal.legacy.model;
+package org.cbioportal.shared.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * This represents a user, identified by an email address.
@@ -70,7 +71,7 @@ public class User implements Serializable {
     }
 
     User that = (User) otherUser;
-    return this.email == that.email && this.name == that.name;
+    return Objects.equals(this.email, that.email) && Objects.equals(this.name, that.name);
   }
 
   @Override

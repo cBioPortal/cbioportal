@@ -32,7 +32,7 @@ jobs:
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |
-          mvn -DskipTests clean install
+          mvn -DskipTests clean install -pl web -am
       - name: 'Checkout cbioportal-docker-compose repo'
         uses: actions/checkout@master
         with:

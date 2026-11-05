@@ -12,6 +12,7 @@ import org.cbioportal.legacy.persistence.MutationRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MutationService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -194,10 +195,10 @@ public class MutationServiceImpl implements MutationService {
 
     if (!(molecularProfile
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)
+            .equals(MolecularAlterationType.MUTATION_EXTENDED)
         || molecularProfile
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_UNCALLED))) {
+            .equals(MolecularAlterationType.MUTATION_UNCALLED))) {
 
       throw new MolecularProfileNotFoundException(molecularProfileId);
     }

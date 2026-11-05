@@ -9,7 +9,7 @@ package org.mskcc.cbio.portal.model;
 import java.io.Serializable;
 import java.util.*;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 
 /**
  * Class for genetic profile
@@ -18,7 +18,7 @@ public class GeneticProfile implements Serializable {
     private int geneticProfileId;
     private String stableId;
     private int cancerStudyId;
-    private GeneticAlterationType geneticAlterationType;
+    private MolecularAlterationType geneticAlterationType;
     private String genericAssayType;
     private String datatype;
     private String profileName;
@@ -34,7 +34,7 @@ public class GeneticProfile implements Serializable {
         super();
     }
 
-    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
+    public GeneticProfile(String stableId, int cancerStudyId, MolecularAlterationType geneticAlterationType,
     String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
         this();
         this.stableId = stableId;
@@ -46,7 +46,7 @@ public class GeneticProfile implements Serializable {
         this.showProfileInAnalysisTab = showProfileInAnalysisTab;
     }
     
-    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
+    public GeneticProfile(String stableId, int cancerStudyId, MolecularAlterationType geneticAlterationType,
     String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab, float pivotThreshold, String sortOrder) {
         this(stableId, cancerStudyId, geneticAlterationType, datatype, profileName, profileDescription, showProfileInAnalysisTab);
         this.pivotThreshold = pivotThreshold;
@@ -100,11 +100,11 @@ public class GeneticProfile implements Serializable {
         this.cancerStudyId = cancerStudyId;
     }
     
-    public GeneticAlterationType getGeneticAlterationType() {
+    public MolecularAlterationType getGeneticAlterationType() {
         return geneticAlterationType;
     }
     
-    public void setGeneticAlterationType(GeneticAlterationType geneticAlterationType) {
+    public void setGeneticAlterationType(MolecularAlterationType geneticAlterationType) {
         this.geneticAlterationType = geneticAlterationType;
     }
     

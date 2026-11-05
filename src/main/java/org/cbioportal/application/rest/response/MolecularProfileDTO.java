@@ -1,13 +1,13 @@
 package org.cbioportal.application.rest.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.cbioportal.legacy.model.MolecularProfile;
+import org.cbioportal.shared.model.MolecularAlterationType;
 
 @Schema(name = "MolecularProfile", description = "Represents a molecular profile")
 public class MolecularProfileDTO {
   private String molecularProfileId;
   private String studyId;
-  private MolecularProfile.MolecularAlterationType molecularAlterationType;
+  private MolecularAlterationType molecularAlterationType;
   private String genericAssayType;
   private String datatype;
   private String name;
@@ -34,12 +34,11 @@ public class MolecularProfileDTO {
     this.studyId = studyId;
   }
 
-  public MolecularProfile.MolecularAlterationType getMolecularAlterationType() {
+  public MolecularAlterationType getMolecularAlterationType() {
     return molecularAlterationType;
   }
 
-  public void setMolecularAlterationType(
-      MolecularProfile.MolecularAlterationType molecularAlterationType) {
+  public void setMolecularAlterationType(MolecularAlterationType molecularAlterationType) {
     this.molecularAlterationType = molecularAlterationType;
   }
 

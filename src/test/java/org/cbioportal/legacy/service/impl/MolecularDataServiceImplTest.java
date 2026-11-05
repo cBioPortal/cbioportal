@@ -19,6 +19,7 @@ import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.persistence.SampleListRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleService;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,8 +53,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -104,8 +104,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -140,8 +139,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
   public void getMolecularDataOfAllSamplesOfMolecularProfile() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -200,8 +198,7 @@ public class MolecularDataServiceImplTest extends BaseServiceImplTest {
   public void fetchMetaMolecularData() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
     when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 

@@ -2,9 +2,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-package org.cbioportal.legacy.model;
+package org.cbioportal.shared.model;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * This represents the reference genome used by molecular profiling
@@ -141,9 +142,9 @@ public class ReferenceGenome {
     }
 
     ReferenceGenome that = (ReferenceGenome) otherReferenceGenome;
-    return (this.genomeName).equals(that.genomeName)
-        && (this.species).equals(that.species)
-        && (this.buildName).equals(that.buildName);
+    return Objects.equals(this.genomeName, that.genomeName)
+        && Objects.equals(this.species, that.species)
+        && Objects.equals(this.buildName, that.buildName);
   }
 
   @Override

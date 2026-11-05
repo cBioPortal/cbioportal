@@ -214,7 +214,9 @@ public class FrontendPropertiesServiceImpl implements FrontendPropertiesService 
 
     clickhouse_mode("clickhouse_mode", "false"),
     feature_study_export("feature.study.export", "false"),
-    study_availability_enabled("study_availability.enabled", "false");
+    study_availability_enabled("study_availability.enabled", "false"),
+
+    wsi_tile_server_url("wsi.tile_server.url", null);
 
     private final String propertyName;
     private final String defaultValue;

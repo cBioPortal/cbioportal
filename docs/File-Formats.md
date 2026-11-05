@@ -1744,8 +1744,9 @@ The contract also decides how fast the resource can be browsed per patient or pe
 example, a study-view tab listing each patient with counts of their slides). Rebuilding the
 derived tables copies the rows of every resource with a contract into a compact table holding only
 the declared keys, and those grouped views read it for their filter options and metadata filters
-whenever every key they count or filter on is declared and no search text is entered. A resource without a contract, a view reading an undeclared
-key, or a search still works but reads every row's full metadata.
+whenever every key they count or filter on is declared and no search text is entered. A resource
+without a contract, a view reading an undeclared key, or a search still works but reads every
+row's full metadata.
 
 The compact table is derived, so it is only as current as the last rebuild: **repopulate the
 derived tables (`populate_derived_tables.sql`) after migrating the database to schema 3.2.0, and

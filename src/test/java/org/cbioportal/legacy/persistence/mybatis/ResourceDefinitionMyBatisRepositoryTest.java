@@ -89,4 +89,21 @@ public class ResourceDefinitionMyBatisRepositoryTest {
     Assert.assertEquals("1", resourceDefinition.getPriority());
     Assert.assertEquals(true, resourceDefinition.getOpenByDefault());
   }
+
+  @Test
+  public void fetchResourceDefinitionsReadsTheUrlTemplate() throws Exception {
+
+    List<ResourceDefinition> result =
+        resourceDefinitionMyBatisRepository.fetchResourceDefinitions(
+            List.of("acc_tcga"), "SUMMARY", null, null, "resourceId", "ASC");
+
+    ResourceDefinition slide =
+        result.stream().filter(d -> "SLIDE".equals(d.getResourceId())).findFirst().orElseThrow();
+    Assert.assertEquals(
+        "${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}",
+        slide.getUrlTemplate());
+    ResourceDefinition figures =
+        result.stream().filter(d -> "FIGURES".equals(d.getResourceId())).findFirst().orElseThrow();
+    Assert.assertNull(figures.getUrlTemplate());
+  }
 }

@@ -403,7 +403,8 @@ CREATE TABLE resource_definition
     `open_by_default` Nullable(Int32),
     `priority` Int64,
     `cancer_study_id` Int64,
-    `custom_metadata` Nullable(String)
+    `custom_metadata` Nullable(String),
+    `url_template` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
 -- --------------------------------------------------------

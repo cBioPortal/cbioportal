@@ -5,10 +5,9 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.cbioportal.domain.resource.ResourceIdentifierFixtures.patients;
 
 import java.util.List;
-import java.util.Map;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
-import org.cbioportal.domain.resource.ResourceUrlTemplateRow;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -23,8 +22,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * resource_definition.url_template is read for the studies a request names, and rows without a URL
- * of their own are served with it expanded. Fixtures: TEMPLATED_SLIDE in wsi_test_study.
+ * Each resource row is read with its own definition's url_template, and rows without a URL of their
+ * own are served with it expanded. Fixtures: TEMPLATED_SLIDE and TEMPLATED_VIEWER in
+ * wsi_test_study, which declare different templates.
  */
 @RunWith(SpringRunner.class)
 @Import({
@@ -44,7 +44,6 @@ public class ClickhouseResourceUrlTemplateTest {
       "${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}";
 
   @Autowired private ClickhouseResourceDataMapper mapper;
-  @Autowired private ClickhouseResourceDataRepository repository;
   @Autowired private GetResourceTableDataUseCase useCase;
 
   private static ResourceTableQuery query(List<String> studyIds, String resourceId) {
@@ -52,35 +51,50 @@ public class ClickhouseResourceUrlTemplateTest {
         studyIds, resourceId, null, null, null, 0, 100, "displayName", "asc", null);
   }
 
+  private static final String VIEWER = "TEMPLATED_VIEWER";
+  private static final String VIEWER_TEMPLATE =
+      "https://viewer.example.org/${RESOURCE_ID}/${metadata.slide_key}";
+
   @Test
-  public void mapperReadsTheTemplateColumn() {
-    assertThat(mapper.getResourceUrlTemplates(query(List.of(STUDY), RESOURCE)))
-        .containsExactly(new ResourceUrlTemplateRow(STUDY, TEMPLATE));
+  public void eachRowCarriesItsOwnDefinitionsTemplate() {
+    assertThat(mapper.getResourceTableRows(query(List.of(STUDY), RESOURCE)))
+        .extracting(StoredResourceTableRow::url, StoredResourceTableRow::urlTemplate)
+        .containsExactlyInAnyOrder(
+            tuple("", TEMPLATE),
+            tuple("", TEMPLATE),
+            tuple("https://example.com/own-url.svs", TEMPLATE));
   }
 
   @Test
-  public void mapperReturnsNothingForAResourceWithoutATemplate() {
-    assertThat(mapper.getResourceUrlTemplates(query(List.of(STUDY), "WSI_SAMPLE"))).isEmpty();
+  public void rowsOfAResourceWithoutATemplateCarryNone() {
+    assertThat(mapper.getResourceTableRows(query(List.of(STUDY), "WSI_SAMPLE")))
+        .isNotEmpty()
+        .extracting(StoredResourceTableRow::urlTemplate)
+        .containsOnlyNulls();
   }
 
   @Test
-  public void mapperOnlyReadsTheRequestedStudies() {
-    assertThat(mapper.getResourceUrlTemplates(query(List.of("study_tcga_pub"), RESOURCE)))
-        .isEmpty();
-  }
+  public void twoResourcesInOneStudyEachUseTheirOwnTemplate() {
+    String base = "https://portal.example.org";
 
-  @Test
-  public void repositoryKeysTemplatesByStudy() {
-    assertThat(
-            repository.getResourceUrlTemplates(query(List.of(STUDY, "study_tcga_pub"), RESOURCE)))
-        .containsExactly(Map.entry(STUDY, TEMPLATE));
-  }
-
-  @Test
-  public void templatedRowsAreStoredWithoutAUrl() {
-    assertThat(repository.getResourceTableRows(query(List.of(STUDY), RESOURCE)))
+    assertThat(useCase.execute(query(List.of(STUDY), RESOURCE), base))
         .extracting(ResourceTableRow::url)
-        .containsExactlyInAnyOrder("", "", "https://example.com/own-url.svs");
+        .containsExactly(
+            "https://example.com/own-url.svs",
+            base + "/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=c0ffee000002",
+            base + "/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=c0ffee000001");
+    assertThat(useCase.execute(query(List.of(STUDY), VIEWER), base))
+        .extracting(ResourceTableRow::url)
+        .containsExactly("https://viewer.example.org/TEMPLATED_VIEWER/c0ffee000004");
+  }
+
+  @Test
+  public void templatedRowsAreNotMultipliedByTheDefinitionJoin() {
+    assertThat(mapper.getResourceTableRows(query(List.of(STUDY), RESOURCE))).hasSize(3);
+    assertThat(mapper.getResourceTableRows(query(List.of(STUDY), VIEWER)))
+        .singleElement()
+        .extracting(StoredResourceTableRow::urlTemplate)
+        .isEqualTo(VIEWER_TEMPLATE);
   }
 
   @Test

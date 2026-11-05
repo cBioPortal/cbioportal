@@ -1801,20 +1801,39 @@ The template is text with placeholders in it:
 
 | Placeholder | Replaced by |
 |---|---|
-| `${base_url}` | The portal's own base URL: scheme, host and context path, with no trailing slash, e.g. `https://cbioportal.example.org` or `https://example.org/cbioportal`. It is taken from the request being served, so behind a reverse proxy it is the client-facing address only when the portal honours forwarded headers (`server.forward-headers-strategy`). |
+| `${base_url}` | The portal's own base URL: scheme, host and context path, with no trailing slash, e.g. `https://cbioportal.example.org` or `https://example.org/cbioportal`. See [The base URL](#the-base-url) below. |
 | `${STUDY_ID}` | The row's study identifier. |
 | `${PATIENT_ID}` | The row's patient ID. |
 | `${SAMPLE_ID}` | The row's sample ID. |
 | `${RESOURCE_ID}` | The row's RESOURCE_ID. |
-| `${metadata.<key>}` | The value of `<key>` in the row's METADATA: a string as it is, any other JSON value (number, boolean, array, object) as its JSON text. |
+| `${metadata.<key>}` | The value of `<key>` in the row's METADATA: a string as it is, any other JSON value (number, boolean, array, object) as its JSON text, re-serialised, so `1.50` becomes `1.5`. |
 
 Every value except `${base_url}` is percent-encoded as a URI component: all characters other than
 letters, digits and `-` `.` `_` `~` are encoded, as UTF-8, so a value cannot add path segments or
 query parameters of its own. `${base_url}` is inserted as it is.
 
-A placeholder with no value expands to an empty string: `${SAMPLE_ID}` on a patient-level row, or
-`${metadata.<key>}` on a row whose METADATA lacks that key. A placeholder the portal does not
-recognise is left in the URL unchanged.
+The validator checks the template and the rows that rely on it, and an error blocks the import:
+- The template must start with `${base_url}`, `http://` or `https://` (the scheme in any case).
+- Placeholder names are case-sensitive: only the six forms above are allowed, so `${patient_id}`
+  or `${BASE_URL}` is an error.
+- Metadata keys are flat: `${metadata.a.b}` reads the METADATA key `"a.b"`, not `b` inside an
+  object `a`. `${metadata.}` with no key is an error.
+- Every `${` must be closed by a `}`. There is no escape for a literal `${`, so a template cannot
+  contain one outside a placeholder.
+- A row that leaves `URL` empty must carry, in its METADATA, a non-empty value for every
+  `${metadata.<key>}` the template reads. (A `${SAMPLE_ID}` in a patient- or study-level
+  resource's template, or `${PATIENT_ID}` in a study-level one, is a warning: those rows have no
+  such value.)
+- Two rows that both leave `URL` empty are duplicates when they are of the same resource and
+  agree on PATIENT_ID, SAMPLE_ID and the values of the metadata keys the template reads: they
+  would be served the same URL. Rows with a URL of their own are duplicates when they agree on
+  PATIENT_ID, SAMPLE_ID and URL.
+
+When the portal serves data that did not go through the validator, it is lenient instead: a
+placeholder with no value expands to an empty string (`${SAMPLE_ID}` on a patient-level row, or
+`${metadata.<key>}` on a row whose METADATA lacks that key), a placeholder it does not recognise is
+left in the URL unchanged, and a template that does not start with `${base_url}`, `http://` or
+`https://` is not used at all, as if the resource had no template.
 
 Each row is served with:
 1. its own `URL`, if that is not empty;
@@ -1833,9 +1852,35 @@ METADATA `{"slide_key": "2351e12d4955"}`, is then served on `https://cbioportal.
 the URL `https://cbioportal.example.org/wsi/patient/P-0000001?studyId=mskimpact&slideKey=2351e12d4955`.
 
 The URL is filled in wherever the portal serves resource rows: the resource table and the
-`resource-data` API endpoints. The resource definition API returns the template itself as
-`urlTemplate`. Searching, sorting and filtering on the URL column use the stored `URL`, which is
-empty for templated rows.
+`resource-data` API endpoints. Each row uses its own resource definition's template, so a table
+showing rows of several resources or studies expands each row with the template of the resource
+and study it belongs to. The resource definition API and the studies' resource counts return the
+template itself as `urlTemplate`. Searching, sorting and filtering on the URL column use the stored
+`URL`, which is empty for templated rows.
+
+Re-importing a resource definition without its `URL_TEMPLATE` removes the template: rows that left
+`URL` empty are then served with an empty URL until the template is restored or the rows are
+reloaded with URLs of their own.
+
+#### The base URL
+
+`${base_url}` is, by default, read from the request being served, so a portal reached under more
+than one address gives each its own links. Behind a reverse proxy, the request reflects the
+client-facing address only when the portal applies the proxy's `X-Forwarded-*` / `Forwarded`
+headers. Spring Boot does so when `server.forward-headers-strategy` is `NATIVE` or `FRAMEWORK`, and
+also when the property is not set and it detects a cloud platform such as Kubernetes, where it uses
+`NATIVE`. With `NATIVE`, Tomcat trusts the headers only from proxies whose address matches
+`server.tomcat.remoteip.internal-proxies` (private-network addresses by default). Where the headers
+are not applied, `${base_url}` is the address the proxy used to reach the portal.
+
+To pin `${base_url}` to one value whatever the request, set it in `application.properties`:
+
+```
+resource.url_template.base_url=https://cbioportal.example.org
+```
+
+A trailing slash is dropped. When the property is set, request headers play no part in the URLs
+served.
 
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:

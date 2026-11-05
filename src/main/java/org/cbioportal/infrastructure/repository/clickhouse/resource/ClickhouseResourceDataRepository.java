@@ -19,10 +19,9 @@ import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
-import org.cbioportal.domain.resource.ResourceUrlTemplateRow;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,20 +146,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   @Override
-  public List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
+  public List<StoredResourceTableRow> getResourceTableRows(ResourceTableQuery query) {
     return mapper.getResourceTableRows(query);
-  }
-
-  @Override
-  public Map<String, String> getResourceUrlTemplates(ResourceTableQuery query) {
-    Map<String, String> templates = new LinkedHashMap<>();
-    List<ResourceUrlTemplateRow> rows = mapper.getResourceUrlTemplates(query);
-    if (rows != null) {
-      for (ResourceUrlTemplateRow row : rows) {
-        templates.putIfAbsent(row.studyId(), row.urlTemplate());
-      }
-    }
-    return templates;
   }
 
   @Override

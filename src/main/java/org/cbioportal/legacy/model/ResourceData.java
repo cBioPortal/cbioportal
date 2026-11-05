@@ -17,7 +17,10 @@ public class ResourceData extends UniqueKeyBase implements Serializable {
    */
   private String urlTemplate;
 
-  /** The row's metadata JSON. Read only when the row's own URL is empty. */
+  /**
+   * The part of the row's metadata JSON its URL template reads, for a row without a URL of its own;
+   * otherwise null. Trimmed as the rows are loaded so the cached rows do not hold the rest.
+   */
   private String metadata;
 
   public String getSampleId() {

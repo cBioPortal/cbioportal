@@ -25,13 +25,6 @@
     </constructor>
   </resultMap>
 
-  <resultMap id="ResourceUrlTemplateRowResultMap" type="org.cbioportal.domain.resource.ResourceUrlTemplateRow">
-    <constructor>
-      <arg column="studyId" javaType="String"/>
-      <arg column="urlTemplate" javaType="String"/>
-    </constructor>
-  </resultMap>
-
   <resultMap id="ResourceTableTabResultMap" type="org.cbioportal.domain.resource.ResourceTableTab">
     <constructor>
       <arg column="resourceId" javaType="String"/>
@@ -42,7 +35,7 @@
     </constructor>
   </resultMap>
 
-  <resultMap id="ResourceTableRowResultMap" type="org.cbioportal.domain.resource.ResourceTableRow">
+  <resultMap id="StoredResourceTableRowResultMap" type="org.cbioportal.domain.resource.StoredResourceTableRow">
     <constructor>
       <arg column="studyId" javaType="String"/>
       <arg column="resourceId" javaType="String"/>
@@ -54,6 +47,7 @@
       <arg column="displayName" javaType="String"/>
       <arg column="metadata" javaType="java.util.Map"
            typeHandler="org.cbioportal.infrastructure.repository.clickhouse.typehandlers.ClickhouseJsonMapTypeHandler"/>
+      <arg column="urlTemplate" javaType="String"/>
     </constructor>
   </resultMap>
 
@@ -370,7 +364,12 @@
     ORDER BY resourceId
   </select>
 
-  <select id="getResourceTableRows" resultMap="ResourceTableRowResultMap">
+  <!--
+    Each row carries its own definition's url_template, read through the rdef join
+    ResourceTableFromClause already makes, so rows of different resources or studies each expand
+    their own template.
+  -->
+  <select id="getResourceTableRows" resultMap="StoredResourceTableRowResultMap">
     SELECT
       cs.cancer_study_identifier AS studyId,
       rdata.resource_id AS resourceId,
@@ -380,7 +379,8 @@
       rdata.sample_id AS sampleId,
       rdata.url AS url,
       rdata.display_name AS displayName,
-      rdata.metadata AS metadata
+      rdata.metadata AS metadata,
+      nullIf(rdef.url_template, '') AS urlTemplate
     <include refid="ResourceTableFromClause"/>
     <include refid="ResourceTableBaseFilters"/>
     <include refid="ResourceTableOrderBy"/>
@@ -519,20 +519,6 @@
     every row, which conveys nothing. They ride along on a scan that already happens, so they cost
     no extra round trip.
   -->
-  <!--
-    The URL template each study in scope declares for the resource. Read once per page, and only
-    for a page holding a row without a URL of its own, rather than joined onto every row.
-  -->
-  <select id="getResourceUrlTemplates" resultMap="ResourceUrlTemplateRowResultMap">
-    SELECT cs.cancer_study_identifier AS studyId, rdef.url_template AS urlTemplate
-    FROM resource_definition rdef
-    INNER JOIN cancer_study cs ON cs.cancer_study_id = rdef.cancer_study_id
-    WHERE rdef.resource_id = #{query.resourceId}
-      AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-      AND rdef.url_template IS NOT NULL
-      AND rdef.url_template != ''
-  </select>
-
   <select id="getResourceTableCounts" resultType="org.cbioportal.domain.resource.ResourceTableCounts">
     SELECT count(*) AS rowCount,
            countDistinctIf(concat(cs.cancer_study_identifier, '_', rdata.patient_id), rdata.patient_id IS NOT NULL AND rdata.resource_scope IN ('PATIENT', 'SAMPLE')) AS patientCount,

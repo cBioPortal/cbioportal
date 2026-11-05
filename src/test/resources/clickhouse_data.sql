@@ -765,3 +765,8 @@ insert into resource (internal_id, resource_id, cancer_study_id, resource_scope,
 values (900202,'TEMPLATED_SLIDE',9001,'PATIENT','WSI-PATIENT',NULL,'','Templated patient slide','{"slide_key":"c0ffee000002"}');
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
 values (900203,'TEMPLATED_SLIDE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://example.com/own-url.svs','Slide with its own URL','{"slide_key":"c0ffee000003"}');
+-- A second templated resource in the same study, with a template of its own.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, url_template)
+values ('TEMPLATED_VIEWER',9001,'PATIENT','Templated viewer','Viewer links through a second URL template',0,3,'https://viewer.example.org/${RESOURCE_ID}/${metadata.slide_key}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900204,'TEMPLATED_VIEWER',9001,'PATIENT','WSI-PATIENT',NULL,'','Templated viewer link','{"slide_key":"c0ffee000004"}');

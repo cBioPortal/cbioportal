@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -30,7 +31,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ResourceTableController.class, TestConfig.class})
+@ContextConfiguration(
+    classes = {ResourceTableController.class, PortalBaseUrl.class, TestConfig.class})
 public class ResourceTableControllerTest {
 
   private static final String STUDY_ID = "study_tcga_pub";

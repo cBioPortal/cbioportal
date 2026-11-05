@@ -8,15 +8,15 @@ import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
-import org.cbioportal.domain.resource.ResourceUrlTemplateRow;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 
 public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
 
-  List<ResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
+  /** One page of rows, each with its own resource definition's url_template. */
+  List<StoredResourceTableRow> getResourceTableRows(@Param("query") ResourceTableQuery query);
 
   /**
    * Facet values for every requested key in one pass over resource, capped per key. Returns a flat
@@ -50,7 +50,4 @@ public interface ClickhouseResourceDataMapper {
       @Param("query") ResourceTableQuery query);
 
   ResourceTableCounts getResourceTableCounts(@Param("query") ResourceTableQuery query);
-
-  /** The non-empty {@code resource_definition.url_template} of each study in scope. */
-  List<ResourceUrlTemplateRow> getResourceUrlTemplates(@Param("query") ResourceTableQuery query);
 }

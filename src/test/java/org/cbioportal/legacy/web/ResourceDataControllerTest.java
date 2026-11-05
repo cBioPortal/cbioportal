@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.List;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.legacy.model.ResourceData;
 import org.cbioportal.legacy.service.ResourceDataService;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -25,7 +26,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ResourceDataController.class, TestConfig.class})
+@ContextConfiguration(
+    classes = {ResourceDataController.class, PortalBaseUrl.class, TestConfig.class})
 public class ResourceDataControllerTest {
 
   @MockitoBean private ResourceDataService resourceDataService;

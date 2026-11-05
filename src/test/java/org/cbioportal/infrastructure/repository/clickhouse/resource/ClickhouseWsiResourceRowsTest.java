@@ -6,7 +6,7 @@ import static org.cbioportal.domain.resource.ResourceIdentifierFixtures.patients
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableRow;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.junit.Test;
@@ -35,7 +35,7 @@ public class ClickhouseWsiResourceRowsTest {
 
   @Autowired private ClickhouseResourceDataMapper mapper;
 
-  private List<ResourceTableRow> rows(String resourceId) {
+  private List<StoredResourceTableRow> rows(String resourceId) {
     return mapper.getResourceTableRows(
         new ResourceTableQuery(
             List.of(STUDY),
@@ -53,10 +53,10 @@ public class ClickhouseWsiResourceRowsTest {
   @Test
   @SuppressWarnings("unchecked")
   public void returnsThePatientsSampleSlideWithItsServingData() {
-    List<ResourceTableRow> rows = rows("WSI_SAMPLE");
+    List<StoredResourceTableRow> rows = rows("WSI_SAMPLE");
 
     assertThat(rows).hasSize(1);
-    ResourceTableRow row = rows.get(0);
+    StoredResourceTableRow row = rows.get(0);
     assertThat(row.sampleId()).isEqualTo("WSI-SAMPLE");
     assertThat(row.metadata()).containsEntry("slide_key", "2351e12d4955");
     Map<String, Object> serving = (Map<String, Object>) row.metadata().get("serving");
@@ -66,7 +66,7 @@ public class ClickhouseWsiResourceRowsTest {
 
   @Test
   public void returnsThePatientsUnmatchedSlideWithoutASample() {
-    List<ResourceTableRow> rows = rows("WSI_PATIENT");
+    List<StoredResourceTableRow> rows = rows("WSI_PATIENT");
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).sampleId()).isNull();

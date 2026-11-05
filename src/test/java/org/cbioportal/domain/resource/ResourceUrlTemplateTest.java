@@ -211,4 +211,95 @@ public class ResourceUrlTemplateTest {
     assertThat(ResourceUrlTemplate.resolve("", null, BASE, sampleRow(Map.of()))).isEmpty();
     assertThat(ResourceUrlTemplate.resolve(null, "", BASE, sampleRow(Map.of()))).isEmpty();
   }
+
+  @Test
+  public void resolve_acceptsBaseUrlAndWebSchemesInAnyCase() {
+    ResourceUrlTemplate.Values row = sampleRow(Map.of("slide_key", "k"));
+
+    assertThat(ResourceUrlTemplate.resolve("", "${base_url}/s/${metadata.slide_key}", BASE, row))
+        .isEqualTo(BASE + "/s/k");
+    assertThat(
+            ResourceUrlTemplate.resolve(
+                "", "https://v.example.org/${metadata.slide_key}", BASE, row))
+        .isEqualTo("https://v.example.org/k");
+    assertThat(
+            ResourceUrlTemplate.resolve(
+                "", "HTTP://v.example.org/${metadata.slide_key}", BASE, row))
+        .isEqualTo("HTTP://v.example.org/k");
+    assertThat(ResourceUrlTemplate.resolve("", "HttpS://v.example.org/x", BASE, row))
+        .isEqualTo("HttpS://v.example.org/x");
+  }
+
+  @Test
+  public void resolve_treatsATemplateWithoutAWebSchemeAsAbsent() {
+    ResourceUrlTemplate.Values row = sampleRow(Map.of("slide_key", "k"));
+
+    for (String template :
+        List.of(
+            "javascript:alert(${metadata.slide_key})",
+            "data:text/html,${metadata.slide_key}",
+            "//v.example.org/${metadata.slide_key}",
+            "/wsi/${metadata.slide_key}",
+            "ftp://v.example.org/x",
+            " ${base_url}/x",
+            "${BASE_URL}/x",
+            "${PATIENT_ID}")) {
+      assertThat(ResourceUrlTemplate.resolve("", template, BASE, row)).as(template).isEmpty();
+      assertThat(ResourceUrlTemplate.resolve(null, template, BASE, row)).as(template).isEmpty();
+    }
+  }
+
+  @Test
+  public void resolve_rowUrlWinsOverAnUnusableTemplate() {
+    assertThat(
+            ResourceUrlTemplate.resolve(
+                "https://example.com/own", "javascript:x", BASE, sampleRow(Map.of())))
+        .isEqualTo("https://example.com/own");
+  }
+
+  @Test
+  public void metadataKeysAreFlatAndInOrderOfFirstUse() {
+    assertThat(
+            ResourceUrlTemplate.metadataKeys(
+                "${base_url}/${metadata.a.b}/${PATIENT_ID}/${metadata.key}/${metadata.a.b}/${metadata.}"))
+        .containsExactly("a.b", "key");
+    assertThat(ResourceUrlTemplate.metadataKeys("${base_url}/${PATIENT_ID}")).isEmpty();
+    assertThat(ResourceUrlTemplate.metadataKeys(null)).isEmpty();
+  }
+
+  @Test
+  public void dottedMetadataKeyIsReadAsOneFlatKey() {
+    Map<String, Object> metadata = new LinkedHashMap<>();
+    metadata.put("a.b", "flat");
+    metadata.put("a", Map.of("b", "nested"));
+
+    assertThat(ResourceUrlTemplate.expand("${base_url}/${metadata.a.b}", BASE, sampleRow(metadata)))
+        .isEqualTo(BASE + "/flat");
+  }
+
+  @Test
+  public void retainedMetadataExpandsToTheSameUrl() {
+    String template = "${base_url}/v/${metadata.a.b}?n=${metadata.n}&o=${metadata.o}";
+    String json = "{\"a.b\":\"x y\",\"n\":1.50,\"o\":{\"k\":[1,true]},\"big\":\"drop me\"}";
+
+    String retained = ResourceUrlTemplate.retainTemplateMetadata(json, template);
+
+    assertThat(ResourceUrlTemplate.parseMetadata(retained)).doesNotContainKey("big");
+    assertThat(
+            ResourceUrlTemplate.expand(
+                template, BASE, sampleRow(ResourceUrlTemplate.parseMetadata(retained))))
+        .isEqualTo(
+            ResourceUrlTemplate.expand(
+                template, BASE, sampleRow(ResourceUrlTemplate.parseMetadata(json))));
+  }
+
+  @Test
+  public void retainedMetadataIsNullWhenTheTemplateReadsNothingPresent() {
+    assertThat(ResourceUrlTemplate.retainTemplateMetadata("{\"a\":1}", "${base_url}/${PATIENT_ID}"))
+        .isNull();
+    assertThat(ResourceUrlTemplate.retainTemplateMetadata("{\"a\":1}", "${base_url}/${metadata.b}"))
+        .isNull();
+    assertThat(ResourceUrlTemplate.retainTemplateMetadata(null, "${base_url}/${metadata.b}"))
+        .isNull();
+  }
 }

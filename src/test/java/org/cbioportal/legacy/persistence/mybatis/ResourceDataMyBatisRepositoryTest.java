@@ -190,7 +190,49 @@ public class ResourceDataMyBatisRepositoryTest {
     Assert.assertEquals("TCGA-A1-B0SQ", templated.getPatientId());
     Assert.assertEquals("", templated.getUrl());
     Assert.assertEquals(SLIDE_TEMPLATE, templated.getUrlTemplate());
+    // Only the keys the template reads are kept; the row also carries "notes".
     Assert.assertEquals("{\"slide_key\":\"c0ffee000001\"}", templated.getMetadata());
+  }
+
+  @Test
+  public void aDuplicatedDefinitionDoesNotMultiplyTheRows() throws Exception {
+
+    List<ResourceData> result =
+        resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
+            "acc_tcga", null, "DUP_SLIDE", "SUMMARY", null, null, null, null);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals("${base_url}/slides/${metadata.slide_key}", result.get(0).getUrlTemplate());
+    Assert.assertEquals("{\"slide_key\":\"c0ffee000004\"}", result.get(0).getMetadata());
+  }
+
+  @Test
+  public void retainTemplateMetadataKeepsOnlyTheKeysTheTemplateReads() {
+    ResourceData templated = new ResourceData();
+    templated.setUrl("");
+    templated.setUrlTemplate(
+        "${base_url}/v/${metadata.a.b}?k=${metadata.key}&m=${metadata.missing}");
+    templated.setMetadata(
+        "{\"key\":1.50,\"a.b\":\"x\",\"a\":{\"b\":\"nested\"},\"big\":\"drop me\"}");
+    ResourceData ownUrl = new ResourceData();
+    ownUrl.setUrl("https://example.com/own");
+    ownUrl.setUrlTemplate("${base_url}/v/${metadata.key}");
+    ownUrl.setMetadata("{\"key\":\"k\"}");
+    ResourceData noTemplate = new ResourceData();
+    noTemplate.setUrl("");
+    noTemplate.setMetadata("{\"key\":\"k\"}");
+    ResourceData readsNone = new ResourceData();
+    readsNone.setUrl("");
+    readsNone.setUrlTemplate("${base_url}/v/${PATIENT_ID}");
+    readsNone.setMetadata("{\"key\":\"k\"}");
+
+    ResourceDataMyBatisRepository.retainTemplateMetadata(
+        List.of(templated, ownUrl, noTemplate, readsNone));
+
+    Assert.assertEquals("{\"a.b\":\"x\",\"key\":1.5}", templated.getMetadata());
+    Assert.assertNull(ownUrl.getMetadata());
+    Assert.assertNull(noTemplate.getMetadata());
+    Assert.assertNull(readsNone.getMetadata());
   }
 
   @Test

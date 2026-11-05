@@ -53,6 +53,8 @@ public class ResourceDataController {
   @Autowired private ResourceDataService resourceDataService;
 
   @Autowired private ApplicationContext applicationContext;
+
+  @Autowired private PortalBaseUrl portalBaseUrl;
   ResourceDataController instance;
 
   private ResourceDataController getInstance() {
@@ -291,11 +293,11 @@ public class ResourceDataController {
     String baseUrl = null;
     for (int i = 0; i < rows.size(); i++) {
       ResourceData row = rows.get(i);
-      if (row.getUrlTemplate() == null || (row.getUrl() != null && !row.getUrl().isBlank())) {
+      if (row.getUrlTemplate() == null || ResourceUrlTemplate.hasUrl(row.getUrl())) {
         continue;
       }
       if (baseUrl == null) {
-        baseUrl = PortalBaseUrl.current();
+        baseUrl = portalBaseUrl.current();
       }
       dtos.get(i)
           .setUrl(

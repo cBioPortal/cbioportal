@@ -1708,6 +1708,7 @@ The file has three **required** columns:
 - **OPEN_BY_DEFAULT (optional)**: whether this resource opens on its own (`true` / `false`, default `false`). With `true`, loading a patient or study view opens a tab for this resource without the user asking for it, showing the resource's URL embedded in the page; the user can close the tab again. With `false` the resource is reached from the resources table instead. Use it sparingly -- every resource marked `true` costs the reader a tab on every page load.
 - **PRIORITY (optional)**: an integer ordering hint for this resource, defaulting to `1`. It is carried through the API but nothing currently orders by it -- the resource tabs are ordered by resource id. Set it if you want the intent recorded; expect no visible effect today.
 - **CUSTOM_METADATA (optional)**: a JSON object declaring the metadata keys this resource's rows carry, so the portal can label, type and filter them. See [Describing metadata columns](#describing-metadata-columns-with-custom_metadata) below.
+- **URL_TEMPLATE (optional)**: a URL pattern the portal fills in for each row of this resource that has no URL of its own, e.g. `${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}`. See [Building URLs with URL_TEMPLATE](#building-urls-with-url_template) below.
 
 ### Example *Resource Definition* data file
 <table>
@@ -1789,12 +1790,59 @@ Data files are checked against the contract too. A `METADATA` key the contract d
 is an **error**, and an error blocks the import: the column would never appear and nothing later
 would say so. A declared key no row carries is a **warning**: the column renders, always empty.
 
+### Building URLs with URL_TEMPLATE
+
+A resource whose URLs all follow one pattern can declare that pattern once, as the definition's
+`URL_TEMPLATE`, and leave the `URL` column of its rows empty. The portal builds each row's URL from
+the template when it serves the row. Because the template can refer to the portal's own address,
+the same data files work on any portal they are loaded into.
+
+The template is text with placeholders in it:
+
+| Placeholder | Replaced by |
+|---|---|
+| `${base_url}` | The portal's own base URL: scheme, host and context path, with no trailing slash, e.g. `https://cbioportal.example.org` or `https://example.org/cbioportal`. It is taken from the request being served, so behind a reverse proxy it is the client-facing address only when the portal honours forwarded headers (`server.forward-headers-strategy`). |
+| `${STUDY_ID}` | The row's study identifier. |
+| `${PATIENT_ID}` | The row's patient ID. |
+| `${SAMPLE_ID}` | The row's sample ID. |
+| `${RESOURCE_ID}` | The row's RESOURCE_ID. |
+| `${metadata.<key>}` | The value of `<key>` in the row's METADATA: a string as it is, any other JSON value (number, boolean, array, object) as its JSON text. |
+
+Every value except `${base_url}` is percent-encoded as a URI component: all characters other than
+letters, digits and `-` `.` `_` `~` are encoded, as UTF-8, so a value cannot add path segments or
+query parameters of its own. `${base_url}` is inserted as it is.
+
+A placeholder with no value expands to an empty string: `${SAMPLE_ID}` on a patient-level row, or
+`${metadata.<key>}` on a row whose METADATA lacks that key. A placeholder the portal does not
+recognise is left in the URL unchanged.
+
+Each row is served with:
+1. its own `URL`, if that is not empty;
+2. otherwise the definition's `URL_TEMPLATE`, filled in for the row;
+3. otherwise an empty URL.
+
+For example, a slide viewer link built from a slide key stored in each row's metadata:
+
+<table>
+<thead><tr><th>RESOURCE_ID</th><th>DISPLAY_NAME</th><th>RESOURCE_TYPE</th><th>URL_TEMPLATE</th></tr></thead>
+<tr><td>WSI_SAMPLE</td><td>Pathology slides</td><td>SAMPLE</td><td>${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&amp;slideKey=${metadata.slide_key}</td></tr>
+</table>
+
+A sample resource row for patient `P-0000001` in study `mskimpact`, with an empty `URL` and
+METADATA `{"slide_key": "2351e12d4955"}`, is then served on `https://cbioportal.example.org` with
+the URL `https://cbioportal.example.org/wsi/patient/P-0000001?studyId=mskimpact&slideKey=2351e12d4955`.
+
+The URL is filled in wherever the portal serves resource rows: the resource table and the
+`resource-data` API endpoints. The resource definition API returns the template itself as
+`urlTemplate`. Searching, sorting and filtering on the URL column use the stored `URL`, which is
+empty for templated rows.
+
 ### Sample Resource Data File
 The sample resource file should follow this format, it has four **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **SAMPLE_ID (required)**: a unique sample ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: the kind of resource this item is, naming a RESOURCE_ID declared in the `Resource Definition data file`. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resources, start with `http` or `https`. It may be left empty when the resource definition gives a [URL_TEMPLATE](#building-urls-with-url_template).
 - **DISPLAY_NAME (optional)**: a human-readable label for this individual item. Without it the item's label column is blank and the table still names the resource itself in its own column.
 - **METADATA (optional)**: a JSON **object** of descriptive fields for this item. Each key becomes a searchable, sortable, filterable column in the resource table; where the resource definition gives a [CUSTOM_METADATA](#describing-metadata-columns-with-custom_metadata) contract, every key used here must be declared in it. Arrays, scalars and malformed JSON are rejected at import.
 
@@ -1813,7 +1861,7 @@ where a `CUSTOM_METADATA` contract can label it, type it and decide whether it f
 The patient resource file should follow this format, it has three **required** columns:
 - **PATIENT_ID (required)**: a unique patient ID. This field allows only numbers, letters, points, underscores and hyphens.
 - **RESOURCE_ID (required)**: the kind of resource this item is, naming a RESOURCE_ID declared in the `Resource Definition data file`. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resources, start with `http` or `https`. It may be left empty when the resource definition gives a [URL_TEMPLATE](#building-urls-with-url_template).
 
 `DISPLAY_NAME` and `METADATA` are also accepted here, with the same meaning as in the
 [Sample Resource data file](#sample-resource-data-file).
@@ -1828,7 +1876,7 @@ The patient resource file should follow this format, it has three **required** c
 ### Study Resource Data File
 The study resource file should follow this format, it has two **required** columns:
 - **RESOURCE_ID (required)**: the kind of resource this item is, naming a RESOURCE_ID declared in the `Resource Definition data file`. Many rows share one RESOURCE_ID -- it groups items of the same kind rather than identifying this one.
-- **URL (required)**: url to the resources, start with `http` or `https`.
+- **URL (required)**: url to the resources, start with `http` or `https`. It may be left empty when the resource definition gives a [URL_TEMPLATE](#building-urls-with-url_template).
 
 `DISPLAY_NAME` and `METADATA` are also accepted here, with the same meaning as in the
 [Sample Resource data file](#sample-resource-data-file).

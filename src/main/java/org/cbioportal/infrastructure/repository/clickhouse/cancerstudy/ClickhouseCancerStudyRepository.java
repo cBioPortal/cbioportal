@@ -7,6 +7,7 @@ import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -41,7 +42,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<CancerStudyMetadata> getCancerStudiesMetadata(
       SortAndSearchCriteria sortAndSearchCriteria) {
-    return cancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
+
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    return cancerStudyMapper.getCancerStudiesMetadata(userId, sortAndSearchCriteria, List.of());
   }
 
   /**
@@ -58,7 +61,9 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<CancerStudyMetadata> getCancerStudiesMetadataSummary(
       SortAndSearchCriteria sortAndSearchCriteria) {
-    return cancerStudyMapper.getCancerStudiesMetadataSummary(sortAndSearchCriteria, List.of());
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    return cancerStudyMapper.getCancerStudiesMetadataSummary(
+        userId, sortAndSearchCriteria, List.of());
   }
 
   /**
@@ -72,9 +77,10 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
       cacheResolver = "staticRepositoryCacheOneResolver",
       condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public CancerStudyMetadata getCancerStudyMetadata(String studyId) {
+    String userId = SecurityContextHolder.getContext().getAuthentication().getName();
     List<CancerStudyMetadata> results =
         cancerStudyMapper.getCancerStudiesMetadata(
-            new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
+            userId, new SortAndSearchCriteria(null, "", "ASC", null, null), List.of(studyId));
     return results.isEmpty() ? null : results.getFirst();
   }
 

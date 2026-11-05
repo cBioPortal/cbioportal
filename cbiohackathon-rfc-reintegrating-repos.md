@@ -66,7 +66,7 @@ cbioportal/
                        into the root's target/, so target/cbioportal-exec.jar keeps its path
   src/               ← unchanged
   importer/pom.xml   ← org.mskcc.cbio:core, parent = ../pom.xml, declares no versions
-  shared-model/      ← next: the merged shared types (goal 1)
+  shared-model/      ← io.github.cbioportal:shared-model, the 11 shared types (goal 1)
 ```
 
 **What was decided:**
@@ -94,7 +94,7 @@ cbioportal/
 - `mvn spotless:check` still checks the root `src/` and still catches violations.
 
 **Other files updated:**
-- `docker/web-and-data/Dockerfile`: copies the module POMs and builds with `-pl web -am`.
+- `docker/web-and-data/Dockerfile`: copies the module POMs and builds every module (see Docker below).
 - `backend-test.yml`, `integration-test.yml` and `sonarcloud.yml`: run with `-pl web -am`, because the importer's tests don't pass yet.
 - `maven-package-build.yml`: deploys `-pl web -am`.
 - `third-party-report-check.yml` and `scripts/generate-third-party-report.sh`: also cover `web/pom.xml`, and run with `-pl web -am`.
@@ -116,14 +116,14 @@ cbioportal/
 
 - Use the Surefire version Spring Boot manages instead of the pinned 2.21.0. Then add the JUnit Vintage engine, or migrate the 76 JUnit 4 classes to JUnit Jupiter.
 - Have `IntegrationTestBase` read `clickhouse_cgds.sql` from the repository instead of downloading it from GitHub, and drop the stale `cbioportal.version` (v6.4.1) property.
-- Make the Python tests (`test_scripts.sh` / `tests/`) runnable from `importer/`.
+- ~~Make the Python tests (`test_scripts.sh` / `tests/`) runnable from `importer/`.~~ Done (see below).
 - ~~Port `maven.yml` and `validate-python.yml` into the root `.github/workflows/`~~ Done: `importer-maven.yml` and `importer-validate-python.yml`. The Python suite passes from `importer/` (192 tests). The Java suite still needs the fixes above.
 
 **Web application**
 
-- Confirm the backend unit and integration tests still pass after the POM restructure.
+- ~~Confirm the backend unit and integration tests still pass after the POM restructure.~~ Done: 1,581 tests, 0 failures, 0 errors, 5 skipped (Nov 4, with UTC and Docker).
 - ~~Rename `core-test.yml`~~ Done: it's now `backend-test.yml` ("Backend tests"). Update branch protection if the old check was required.
-- Fix the root's internal Testcontainers mismatch (ClickHouse module 1.19.7 vs everything else at 1.21.4).
+- ~~Fix the root's internal Testcontainers mismatch (ClickHouse module 1.19.7 vs everything else at 1.21.4).~~ Done: all at 1.21.4 through `testcontainers-bom`.
 
 **Done when:** `mvn verify` at the root runs both modules' unit and integration tests, and CI runs them.
 
@@ -302,6 +302,45 @@ Durations are rough and assume 2–3 engineers. Each phase must finish before th
 | 7: Archive `cbioportal-core` | Archive notice in README; archive the repo on GitHub | 1 day | Repo archived; README points to `cbioportal/importer/` |
 
 **Total estimate:** 9–14 weeks from RFC approval to archive.
+
+## Planned Future Work
+
+Status as of Nov 5, 2026. Goals 1 and 2 are done; the repository builds the web app and the importer from one reactor, and the Docker image no longer clones `cbioportal-core`. What's left is below, in the order it should happen. Nothing in it changes the decisions recorded above.
+
+### 1. Finish the hackathon goals
+
+| Step | Goal | Why it matters | Effort |
+| --- | --- | --- | --- |
+| **Fix the `cbioportal/cbioportal-core` image build.** `importer/Dockerfile` still builds `importer/pom.xml` on its own (build context `importer/`), but that POM now needs the parent `../pom.xml` and the `shared-model` module, so `importer-docker-image.yml` will fail. Either build from the repository root (context `.`, as `docker/web-and-data/Dockerfile` does) or stop publishing this image. | 2 | It's a regression introduced by the reactor | Small |
+| **Make the importer's Java tests run.** Drop the Surefire 2.21.0 pin; add the JUnit Vintage engine or migrate the 76 JUnit 4 classes; have `IntegrationTestBase` read `src/test/resources/clickhouse_cgds.sql` from the repository instead of GitHub; remove the `cbioportal.version` (v6.4.1) property. | 3 | The importer's integration tests currently test against a stale schema, downloaded from GitHub | Medium; the largest remaining item |
+| **Run every module in CI.** Once the importer's tests pass, switch `backend-test.yml`, `integration-test.yml` and `sonarcloud.yml` from `-pl web -am` to the full reactor, so `mvn verify` at the root is the single check. | 3 | Meets goal 3's "done when" | Small |
+| **Test the new image with Docker Compose,** end to end: start the stack and import a study through `/core/core-IMPORTER.jar`. | 2 | The image was only checked by a local build and a few commands inside it | Small |
+| **Check the IDE import** of the `web/` module whose sources live in `../src`. If IntelliJ or VS Code mishandles it, move `src/` to `backend/` (Option A) in one `git mv` commit. | 2 | The layout is unusual and untested in an IDE | Small to check; medium if the move is needed |
+| **Update branch protection** if "Core tests" was a required check; the workflow is now "Backend tests". | 3 | A required check that never reports blocks merges | Trivial |
+
+### 2. Clean up after the merge
+
+- **Stop bundling the scripts in the importer JAR.** `importer/pom.xml` still copies `scripts/` into the JAR because the old Dockerfile extracted them from it. The root Dockerfile now copies them directly; check `importer/Dockerfile` and any other users before removing this.
+- **Update the docs that describe two repositories:** `docs/Inter-Repository-Dependencies.md` (now obsolete; replace it with a short description of `shared-model`) and `docs/Architecture-Overview.md` (validator links point to `cbioportal-core`). The import how-tos on docs.cbioportal.org also link to the core repository and its script paths.
+- **Path filters and a gate job** (Phase 5): run the importer suites only for `importer/**`, run everything for `shared-model/**`, the root POM or schema files, and make one always-running gate job the required check (see [Path-based triggers](#path-based-triggers)).
+- **Choose the schema's source of truth** for both production (`db-scripts/clickhouse/`) and tests (`clickhouse_cgds.sql`), and add a check that keeps them in sync.
+- **Plan the deploy** of the shared-model change: flush the Redis cache, or expect a burst of cache misses for values that contain a `MolecularProfile` (see goal 1).
+- **Speed up the importer tests** once they run on JUnit 5: parallel execution, a unit/integration split and a cached ClickHouse image (see [Reducing importer test time](#reducing-importer-test-time)).
+
+### 3. Decide, then retire `cbioportal-core`
+
+These need maintainers rather than code (see [Open Questions](#open-questions)):
+
+- **Publishing:** whether the importer module is published to Maven Central, and what happens to the `org.mskcc.cbio:core` artifact, its 1.0.x version line and the `cbioportal/cbioportal-core` Docker image.
+- **Naming:** whether to rename the importer's `org.mskcc.cbio.portal` package, and whether its scripts stay under `importer/scripts/`.
+- **Migration** (Phases 6–7): survey institutional users and forks; announce a freeze date; merge or close open `cbioportal-core` PRs and transfer its issues; update `cbioportal-docker-compose` if needed; then archive `cbioportal-core` with a README that points to `cbioportal/importer/`.
+
+### 4. Later improvements (out of scope for the hackathon)
+
+- **Harmonize logging** across the web app, the importer and its Python scripts. See [Harmonize logging](#harmonize-logging).
+- **Upgrade the ClickHouse JDBC driver** from 0.6.2 to 0.11.0: the web app first (test-base time zone option, transaction manager), then port the importer's three bulk-load classes to `client-v2`. See [Upgrade the ClickHouse JDBC driver](#upgrade-the-clickhouse-jdbc-driver).
+- **`StructuralVariant`:** the one same-name model pair close enough to consider merging, but only as a deliberate design for both reading and writing. The other 16 pairs stay separate (see goal 1).
+- **Shared test data:** if the web app and the importer later need the same fixtures, consider one dataset (for example Parquet files loaded into the test ClickHouse) instead of each module's own SQL.
 
 ## Future Goals (Out of Scope)
 

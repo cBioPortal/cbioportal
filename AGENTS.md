@@ -4,9 +4,14 @@ This file contains rules and conventions that AI coding agents (Claude Code, Cop
 
 ## Build & Test
 
-- Build: `mvn install -DskipTests`
-- Run all tests: `mvn integration-test`
+- The root `pom.xml` is the parent (`cbioportal-parent`) of two modules: `web/` (the web application, artifact `io.github.cbioportal:cbioportal`, built from the root `src/` into the root `target/`) and `importer/`. Declare dependency versions only in the root `pom.xml`.
+- Build: `mvn install -DskipTests` (both modules); web application only: `mvn install -DskipTests -pl web -am`
+- Run the web application's tests: `mvn integration-test -pl web -am` (the importer's tests don't pass yet)
 - All new development targets the `master` branch (v7)
+
+## Shared Types
+
+Types used by both the web application and the importer live once, in `shared-model/` (package `org.cbioportal.shared.model`): `CancerStudyTags`, `EntityType`, `GenericAssayMeta`, `GenericEntityProperty`, `GeneticEntity`, `MolecularAlterationType`, `MolecularProfileDataType`, `ReferenceGenome`, `ResourceType`, `User` and `UserAuthorities`. Change them there; do not add a copy to either module. `SharedModelDuplicationTest` fails the build if a type with one of these names is declared anywhere else. The two file-export row classes in `org.cbioportal.application.file.model` are the documented exception.
 
 ## Endpoint Authorization (Security-Critical)
 

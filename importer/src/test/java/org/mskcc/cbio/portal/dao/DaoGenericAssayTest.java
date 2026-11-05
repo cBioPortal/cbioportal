@@ -3,7 +3,7 @@ package org.mskcc.cbio.portal.dao;
 import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
-import org.mskcc.cbio.portal.model.shared.GenericEntityProperty;
+import org.cbioportal.shared.model.GenericEntityProperty;
 
 import javax.sql.DataSource;
 import java.sql.Connection;

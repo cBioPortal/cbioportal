@@ -18,6 +18,8 @@ import org.cbioportal.legacy.service.DiscreteCopyNumberService;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
+import org.cbioportal.shared.model.MolecularProfileDataType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -281,8 +283,8 @@ public class DiscreteCopyNumberServiceImpl implements DiscreteCopyNumberService 
 
     if (!molecularProfile
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION)
-        || !MolecularProfile.DataType.DISCRETE.name().equals(molecularProfile.getDatatype())) {
+            .equals(MolecularAlterationType.COPY_NUMBER_ALTERATION)
+        || !MolecularProfileDataType.DISCRETE.equals(molecularProfile.getDatatype())) {
       throw new MolecularProfileNotFoundException(molecularProfileId);
     }
 

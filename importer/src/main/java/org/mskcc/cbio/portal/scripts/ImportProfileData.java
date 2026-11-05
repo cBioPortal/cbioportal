@@ -10,9 +10,9 @@ import java.io.*;
 import java.util.*;
 import joptsimple.OptionSet;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.shared.MolecularProfileDataType;
+import org.cbioportal.shared.model.MolecularProfileDataType;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -60,8 +60,8 @@ public class ImportProfileData extends ConsoleRunnable {
                     "\n --> genetic alteration type:  " + geneticProfile.getGeneticAlterationType().name());
 
             // Check genetic alteration type 
-            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED || 
-                geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_UNCALLED) {
+            if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.MUTATION_EXTENDED || 
+                geneticProfile.getGeneticAlterationType() == MolecularAlterationType.MUTATION_UNCALLED) {
                 Set<String> filteredMutations = GeneticProfileReader.getVariantClassificationFilter( descriptorFile );
                 Set<String> namespaces = GeneticProfileReader.getNamespaces( descriptorFile );
                 ImportExtendedMutationData importer = new ImportExtendedMutationData(dataFile, geneticProfile.getGeneticProfileId(), genePanel, filteredMutations, namespaces, overwriteExisting);
@@ -72,7 +72,7 @@ public class ImportProfileData extends ConsoleRunnable {
                     throw new RuntimeException( "Unrecognized swissprot_identifier specification, must be 'name' or 'accession'.");
                 }
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.STRUCTURAL_VARIANT) {
+            } else if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.STRUCTURAL_VARIANT) {
                 Set<String> namespaces = GeneticProfileReader.getNamespaces(descriptorFile);
                 ImportStructuralVariantData importer = new ImportStructuralVariantData(
                     dataFile, 
@@ -82,7 +82,7 @@ public class ImportProfileData extends ConsoleRunnable {
                     overwriteExisting
                 );
                 importer.importData();
-            } else if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
+            } else if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENERIC_ASSAY) {
                 // add all missing `genetic_entities` for this assay to the database
                 ImportGenericAssayEntity.importData(dataFile, geneticProfile.getGeneticAlterationType(), geneticProfile.getOtherMetaDataField("generic_entity_meta_properties"), updateInfo);
                 // use a different importer for patient level data
@@ -107,7 +107,7 @@ public class ImportProfileData extends ConsoleRunnable {
                     genericAssayProfileImporter.importData();
                 }
             } else if(
-                geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION 
+                geneticProfile.getGeneticAlterationType() == MolecularAlterationType.COPY_NUMBER_ALTERATION 
                 && MolecularProfileDataType.DISCRETE_LONG.equals(geneticProfile.getOtherMetaDataField("datatype"))
             ) {
                 Set<String> namespaces = GeneticProfileReader.getNamespaces(descriptorFile);

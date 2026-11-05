@@ -16,15 +16,16 @@ import org.cbioportal.legacy.model.GroupStatistics;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.MolecularProfileSamples;
-import org.cbioportal.legacy.model.ReferenceGenome;
 import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.GenericAssayService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.util.ExpressionEnrichmentUtil;
+import org.cbioportal.shared.model.GenericAssayMeta;
+import org.cbioportal.shared.model.MolecularAlterationType;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -138,8 +139,7 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest {
 
   @Test
   public void getGenericAssayBinaryEnrichments() throws Exception {
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
     geneMolecularProfile.setDatatype("BINARY");
     List<GenericAssayMolecularAlteration> molecularDataList =
         new ArrayList<GenericAssayMolecularAlteration>();
@@ -257,8 +257,7 @@ public class GenericAssayEnrichmentServiceImplTest extends BaseServiceImplTest {
 
   @Test
   public void getGenericAssayCategoricalEnrichments() throws MolecularProfileNotFoundException {
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
     geneMolecularProfile.setDatatype("CATEGORICAL");
     List<GenericAssayMolecularAlteration> molecularDataList =
         new ArrayList<GenericAssayMolecularAlteration>();

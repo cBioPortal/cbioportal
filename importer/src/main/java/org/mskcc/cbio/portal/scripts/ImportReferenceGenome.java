@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.dao.ClickHouseBulkLoader;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

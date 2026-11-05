@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -51,14 +51,14 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		GeneticProfile geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
 		assertEquals("Putative copy-number from GISTIC 2.0. Values: -2 = homozygous deletion; -1 = hemizygous deletion; 0 = neutral / no change; 1 = gain; 2 = high level amplification.", 
 				geneticProfile.getProfileDescription());
 
 		geneticProfile = list.get(1);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
 		assertEquals(false, geneticProfile.showProfileInAnalysisTab());
 	}
 	
@@ -69,7 +69,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		geneticProfile.setCancerStudyId(studyId);
 		geneticProfile.setProfileName("test profile");
 		geneticProfile.setStableId("test");
-		geneticProfile.setGeneticAlterationType(GeneticAlterationType.STRUCTURAL_VARIANT);
+		geneticProfile.setGeneticAlterationType(MolecularAlterationType.STRUCTURAL_VARIANT);
 		geneticProfile.setDatatype("test");
 		DaoGeneticProfile.addGeneticProfile(geneticProfile);
 		
@@ -77,7 +77,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		assertEquals(studyId, readGeneticProfile.getCancerStudyId());
 		assertEquals("test", readGeneticProfile.getStableId());
 		assertEquals("test profile", readGeneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.STRUCTURAL_VARIANT, readGeneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.STRUCTURAL_VARIANT, readGeneticProfile.getGeneticAlterationType());
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId("study_tcga_pub_gistic");
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("Putative copy-number alterations from GISTIC", geneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.COPY_NUMBER_ALTERATION, geneticProfile.getGeneticAlterationType());
 	}
 	
 	@Test
@@ -112,7 +112,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		geneticProfile = list.get(0);
 		assertEquals(studyId, geneticProfile.getCancerStudyId());
 		assertEquals("mRNA expression (microarray)", geneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.MRNA_EXPRESSION, geneticProfile.getGeneticAlterationType());
 	}
 
 	@Test
@@ -126,7 +126,7 @@ public class TestDaoGeneticProfile extends IntegrationTestBase {
 		GeneticProfile updatedGeneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfile.getGeneticProfileId());
 		assertEquals(studyId, updatedGeneticProfile.getCancerStudyId());
 		assertEquals("Updated Name", updatedGeneticProfile.getProfileName());
-		assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION, updatedGeneticProfile.getGeneticAlterationType());
+		assertEquals(MolecularAlterationType.COPY_NUMBER_ALTERATION, updatedGeneticProfile.getGeneticAlterationType());
 		assertEquals("Updated Description", updatedGeneticProfile.getProfileDescription());
 	}
 }

@@ -14,7 +14,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.springframework.test.context.ContextConfiguration;
@@ -47,7 +47,7 @@ public class TestGeneticProfileReader extends IntegrationTestBase {
         List<String> profileNames = DaoGeneticProfile.getAllGeneticProfiles
                 (cancerStudy.getInternalId()).stream().map(GeneticProfile::getProfileName).toList();
         assertTrue(profileNames.contains("Putative copy-number alterations from GISTIC"));
-        assertEquals(GeneticAlterationType.COPY_NUMBER_ALTERATION,
+        assertEquals(MolecularAlterationType.COPY_NUMBER_ALTERATION,
                 geneticProfile.getGeneticAlterationType());
     }
 

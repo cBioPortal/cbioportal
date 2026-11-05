@@ -14,9 +14,7 @@ import org.cbioportal.legacy.model.GroupStatistics;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.MolecularProfileSamples;
-import org.cbioportal.legacy.model.ReferenceGenome;
 import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.GeneService;
 import org.cbioportal.legacy.service.GenericAssayService;
@@ -24,6 +22,9 @@ import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.util.ExpressionEnrichmentUtil;
+import org.cbioportal.shared.model.GenericAssayMeta;
+import org.cbioportal.shared.model.MolecularAlterationType;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -137,8 +138,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
   @Test
   public void getGenomicEnrichments() throws Exception {
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
 
     List<GeneMolecularAlteration> molecularDataList = new ArrayList<GeneMolecularAlteration>();
     GeneMolecularAlteration geneMolecularAlteration1 = new GeneMolecularAlteration();
@@ -253,8 +253,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
   @Test
   public void getGenericAssayNumericalEnrichments() throws Exception {
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
 
     List<GenericAssayMolecularAlteration> molecularDataList =
         new ArrayList<GenericAssayMolecularAlteration>();
@@ -364,8 +363,7 @@ public class ExpressionEnrichmentServiceImplTest extends BaseServiceImplTest {
 
   @Test
   public void getGenericAssayPatientLevelEnrichments() throws Exception {
-    geneMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+    geneMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
     geneMolecularProfile.setPatientLevel(true);
 
     List<GenericAssayMolecularAlteration> molecularDataList =

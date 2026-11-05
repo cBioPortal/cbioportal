@@ -14,6 +14,7 @@ import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.HeaderKeyConstants;
 import org.cbioportal.legacy.web.parameter.MolecularProfileFilter;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +39,8 @@ public class MolecularProfileControllerTest {
   private static final String TEST_STABLE_ID_1 = "test_stable_id_1";
   private static final int TEST_CANCER_STUDY_ID_1 = 1;
   private static final String TEST_STUDY_IDENTIFIER_1 = "test_study_identifier_1";
-  private static final MolecularProfile.MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_1 =
-      MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED;
+  private static final MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_1 =
+      MolecularAlterationType.MUTATION_EXTENDED;
   private static final String TEST_DATATYPE_1 = "MAF";
   private static final String TEST_NAME_1 = "test_name_1";
   private static final String TEST_DESCRIPTION_1 = "test_description_1";
@@ -57,8 +58,8 @@ public class MolecularProfileControllerTest {
   private static final String TEST_STABLE_ID_2 = "test_stable_id_2";
   private static final int TEST_CANCER_STUDY_ID_2 = 2;
   private static final String TEST_STUDY_IDENTIFIER_2 = "test_study_identifier_2";
-  private static final MolecularProfile.MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_2 =
-      MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION;
+  private static final MolecularAlterationType TEST_MOLECULAR_ALTERATION_TYPE_2 =
+      MolecularAlterationType.COPY_NUMBER_ALTERATION;
   private static final String TEST_DATATYPE_2 = "CONTINUOUS";
   private static final String TEST_NAME_2 = "test_name_2";
   private static final String TEST_DESCRIPTION_2 = "test_description_2";

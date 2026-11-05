@@ -20,7 +20,7 @@ import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CopyNumberSegment;
 import org.mskcc.cbio.portal.model.CopyNumberSegmentFile;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;

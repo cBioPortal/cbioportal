@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import org.cbioportal.domain.generic_assay.repository.GenericAssayRepository;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.shared.model.GenericAssayMeta;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 

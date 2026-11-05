@@ -27,7 +27,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
@@ -478,7 +478,7 @@ public class ImportExtendedMutationData {
          * profiles that shouldn't be included when determining the number of
          * mutations for a sample
          */
-        if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+        if (geneticProfile.getGeneticAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED)) {
             DaoMutation.createMutationCountClinicalData(geneticProfile);
         }
         // the mutation count by keyword is on a per genetic profile basis so

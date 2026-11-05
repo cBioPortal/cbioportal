@@ -19,6 +19,7 @@ import org.cbioportal.legacy.persistence.DiscreteCopyNumberRepository;
 import org.cbioportal.legacy.service.MolecularDataService;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -424,8 +425,7 @@ public class DiscreteCopyNumberServiceImplTest extends BaseServiceImplTest {
   private void createMolecularProfile() throws MolecularProfileNotFoundException {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
     molecularProfile.setDatatype("DISCRETE");
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);

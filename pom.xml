@@ -10,11 +10,20 @@
     <version>4.1.0</version>
   </parent>
 
+  <!-- Parent and aggregator for the web application (web/, artifact io.github.cbioportal:cbioportal),
+       the importer (importer/) and the types both use (shared-model/). Every dependency version is
+       declared here, once. -->
   <groupId>io.github.cbioportal</groupId>
-  <artifactId>cbioportal</artifactId>
+  <artifactId>cbioportal-parent</artifactId>
   <version>v7.2.5-SNAPSHOT</version>
-  <packaging>jar</packaging>
-  <description>cBioPortal for Cancer Genomics</description>
+  <packaging>pom</packaging>
+  <description>cBioPortal for Cancer Genomics: parent POM</description>
+
+  <modules>
+    <module>shared-model</module>
+    <module>web</module>
+    <module>importer</module>
+  </modules>
 
   <properties>
     <m2e.apt.activation>jdt_apt</m2e.apt.activation>
@@ -94,14 +103,18 @@
     <datumbox.version>0.8.2</datumbox.version>
     <selenium_chrome_driver.version>3.14.0</selenium_chrome_driver.version>
     <selenium.version>4.31.0</selenium.version>
-    <clickhouse_testcontainer.version>1.19.7</clickhouse_testcontainer.version>
-    <!-- Also used by importer/pom.xml (keep in sync). 0.6.4 breaks 21 ClickHouse mapper tests
-         (empty clinical data counts and resource metadata stats); stay on 0.6.2 until the cause
-         is found. See cbiohackathon-importer-drop.md. -->
+    <!-- 0.6.4 breaks 21 ClickHouse mapper tests (empty clinical data counts and resource
+         metadata stats); stay on 0.6.2 until the cause is found. See the RFC's
+         "Upgrade the ClickHouse JDBC driver" section. -->
     <clickhouse_jdbc.version>0.6.2</clickhouse_jdbc.version>
     <!-- 1.85 clears CVE-2026-8763 (critical) and CVE-2026-13506 (high) -->
     <bouncy_castle.version>1.85</bouncy_castle.version>
     <mapstruct.version>1.6.3</mapstruct.version>
+    <!-- Importer-only dependencies -->
+    <maf.version>1.0.0</maf.version>
+    <lz4.version>1.8.0</lz4.version>
+    <easymock.version>4.3</easymock.version>
+    <junitparams.version>1.1.0</junitparams.version>
     <!-- CVE fixes ahead of the Spring Boot BOM: Boot 4.1.0 manages Tomcat 11.0.22, which is
          flagged for CVE-2026-65182 (important), CVE-2026-65905 and CVE-2026-68525, all fixed
          in 11.0.25. Stay on the 11.0.x line Boot 4 is built against. -->
@@ -163,340 +176,6 @@
     <url>https://github.com/cBioPortal/cbioportal/tree/master</url>
   </scm>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!-- Boot 4 split spring-boot-test-autoconfigure's per-technology test support
-         (@WebMvcTest/@AutoConfigureMockMvc, @AutoConfigureTestDatabase, @DataJpaTest) into their
-         own modules, no longer pulled in transitively by spring-boot-starter-test. -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-webmvc-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-jdbc-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-data-jpa-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.tngtech.archunit</groupId>
-      <artifactId>archunit-junit5</artifactId>
-      <version>1.3.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>pl.pragmatists</groupId>
-      <artifactId>JUnitParams</artifactId>
-      <version>1.1.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-web</artifactId>
-      <exclusions>
-        <!-- Boot 4 defaults spring-boot-starter-web to the new Jackson 3
-             (tools.jackson) autoconfiguration. This project's model classes still use
-             Jackson 2 annotations (com.fasterxml.jackson.annotation.*), so keep the
-             Jackson 2 autoconfiguration below instead. -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-jackson</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-jackson2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-validation</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.mybatis.spring.boot</groupId>
-      <artifactId>mybatis-spring-boot-starter</artifactId>
-      <version>${mybatis.starter.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.redisson</groupId>
-      <artifactId>redisson</artifactId>
-      <version>${redisson.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-math3</artifactId>
-      <version>${commons-math3.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springdoc</groupId>
-      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-      <version>${springdoc.version}</version>
-      <exclusions>
-        <!-- Keep Jackson 2 as the only JSON stack in the context (see the
-             spring-boot-starter-web exclusion above); springdoc 3.0.0 otherwise pulls
-             in the new Jackson 3 autoconfiguration transitively. -->
-        <exclusion>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-jackson</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-collections4</artifactId>
-      <version>${apache-commons-collections.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-api</artifactId>
-      <version>${io-jsonwebtoken.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-impl</artifactId>
-      <version>${io-jsonwebtoken.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>io.jsonwebtoken</groupId>
-      <artifactId>jjwt-jackson</artifactId>
-      <version>${io-jsonwebtoken.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>${google_guava.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>${commons_codec.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-validator</groupId>
-      <artifactId>commons-validator</artifactId>
-      <version>${commons_validator.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.romain-warnan</groupId>
-      <artifactId>simple-java-bitly</artifactId>
-      <version>${simple_java_bitly.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.httpcomponents</groupId>
-          <artifactId>httpclient</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>${ehcache.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.googlecode.json-simple</groupId>
-      <artifactId>json-simple</artifactId>
-      <version>${json_simple.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-cache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.datumbox</groupId>
-      <artifactId>datumbox-framework-lib</artifactId>
-      <version>${datumbox.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-config</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-web</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-jwt</artifactId>
-      <version>1.1.1.RELEASE</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcprov-jdk15on</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.bouncycastle</groupId>
-          <artifactId>bcpkix-jdk15on</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.auth0</groupId>
-      <artifactId>jwks-rsa</artifactId>
-      <version>0.22.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
-      <version>${mysql.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.seleniumhq.selenium</groupId>
-      <artifactId>selenium-java</artifactId>
-      <version>${selenium.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mysql</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>selenium</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-mongodb</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-client</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-saml2-service-provider</artifactId>
-    </dependency>
-    <!-- Boot 4 split SAML2 relying-party autoconfiguration into its own module,
-         no longer pulled in transitively by the security starters. -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-security-saml2</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-redis</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-devtools</artifactId>
-      <scope>runtime</scope>
-      <optional>true</optional>
-    </dependency>
-    <!-- Runtime scope: the HTTP transport for clickhouse-jdbc (the "http" classifier
-         does not bundle it). Versions pinned via httpclient5.version/httpcore5.version
-         properties to stay clear of GHSA-hf6x-8p5f-cgmf / GHSA-v3jc-474w-2wm6. -->
-    <dependency>
-      <groupId>org.apache.httpcomponents.client5</groupId>
-      <artifactId>httpclient5</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.clickhouse</groupId>
-      <artifactId>clickhouse-jdbc</artifactId>
-      <version>${clickhouse_jdbc.version}</version>
-      <!-- the "http" classifier does not shade Apache HttpClient (the "all" uber jar
-      bundles a vulnerable httpcore5 that Maven cannot override); the HTTP transport
-      is supplied by the explicit httpclient5 dependency instead -->
-      <classifier>http</classifier>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>clickhouse</artifactId>
-      <version>${clickhouse_testcontainer.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mybatis.spring.boot</groupId>
-      <artifactId>mybatis-spring-boot-test-autoconfigure</artifactId>
-      <version>3.0.3</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mapstruct</groupId>
-      <artifactId>mapstruct</artifactId>
-      <version>${mapstruct.version}</version>
-    </dependency>
-    <!-- Add OSGi dependency needed  because compile time of org.ehcache -->
-    <!-- ehcache should be removed -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.service.component.annotations</artifactId>
-      <version>1.5.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-    </dependency>
-  </dependencies>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -522,11 +201,56 @@
         <artifactId>velocity-engine-core</artifactId>
         <version>${velocity.version}</version>
       </dependency>
+      <!-- Shared by the web application and the importer -->
+      <dependency>
+        <groupId>io.github.cbioportal</groupId>
+        <artifactId>shared-model</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.clickhouse</groupId>
+        <artifactId>clickhouse-jdbc</artifactId>
+        <version>${clickhouse_jdbc.version}</version>
+        <!-- the "http" classifier does not shade Apache HttpClient (the "all" uber jar
+        bundles a vulnerable httpcore5 that Maven cannot override); the HTTP transport
+        is supplied by the explicit httpclient5 dependency instead -->
+        <classifier>http</classifier>
+      </dependency>
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${google_guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-collections4</artifactId>
+        <version>${apache-commons-collections.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>pl.pragmatists</groupId>
+        <artifactId>JUnitParams</artifactId>
+        <version>${junitparams.version}</version>
+      </dependency>
+      <!-- Importer-only -->
+      <dependency>
+        <groupId>io.github.cbioportal</groupId>
+        <artifactId>maf</artifactId>
+        <version>${maf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.lz4</groupId>
+        <artifactId>lz4-java</artifactId>
+        <version>${lz4.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <build>
-    <finalName>cbioportal</finalName>
     <pluginManagement>
       <plugins>
         <plugin>
@@ -536,291 +260,25 @@
         </plugin>
       </plugins>
     </pluginManagement>
-
-    <filters>
-      <filter>src/main/resources/application.properties</filter>
-      <filter>src/main/resources/maven.properties</filter>
-    </filters>
-
-    <resources>
-      <!-- copy over resources directory into classpath of product -->
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-        <excludes>
-          <exclude>artwork/**</exclude>
-          <exclude>content/**</exclude>
-          <exclude>tutorials/**</exclude>
-          <exclude>webapp/**</exclude>
-          <exclude>templates/**</exclude>
-          <exclude>*.pdf</exclude>
-          <exclude>db-scripts/**</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>webapp/**</include>
-          <include>templates/**</include>
-        </includes>
-      </resource>
-      <!-- copy over database schema and migration logic into classpath of
-      product -->
-      <resource>
-        <directory>src/main/resources/db-scripts</directory>
-        <targetPath>db-scripts</targetPath>
-        <filtering>false</filtering>
-        <includes>
-          <include>clickhouse/populate_derived_tables.sql</include>
-          <include>clickhouse/materialized_views.sql</include>
-          <include>clickhouse/migrate/migrate_schema.sql</include>
-          <include>clickhouse/migrate/migrate_db.py</include>
-        </includes>
-      </resource>
-    </resources>
-    <testResources>
-      <testResource>
-        <directory>src/main/resources/db-scripts</directory>
-        <filtering>false</filtering>
-        <includes>
-          <include>clickhouse/materialized_views.sql</include>
-        </includes>
-      </testResource>
-      <testResource>
-        <directory>src/test/resources</directory>
-        <filtering>false</filtering>
-      </testResource>
-    </testResources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <release>21</release>
-          <annotationProcessorPaths>
-            <path>
-              <groupId>org.mapstruct</groupId>
-              <artifactId>mapstruct-processor</artifactId>
-              <version>${mapstruct.version}</version>
-            </path>
-          </annotationProcessorPaths>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>repackage</id>
-            <configuration>
-              <classifier>exec</classifier>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!-- write git version properties file (git.properties) -->
-      <plugin>
-        <groupId>io.github.git-commit-id</groupId>
-        <artifactId>git-commit-id-maven-plugin</artifactId>
-        <version>5.0.0</version>
-        <executions>
-          <execution>
-            <id>get-the-git-infos</id>
-            <phase>initialize</phase>
-            <goals>
-              <goal>revision</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>validate-the-git-infos</id>
-            <phase>package</phase>
-            <goals>
-              <goal>validateRevision</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-          <generateGitPropertiesFile>true</generateGitPropertiesFile>
-          <generateGitPropertiesFilename>
-            ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
-          <commitIdGenerationMode>full</commitIdGenerationMode>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>unpack</id>
-            <phase>prepare-package</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>${frontend.groupId}</groupId>
-                  <artifactId>${frontend.artifactId}</artifactId>
-                  <version>${frontend.version}</version>
-                  <type>jar</type>
-                  <outputDirectory>
-                    ${project.build.directory}/classes</outputDirectory>
-                  <excludes>*index*</excludes>
-                  <overWrite>true</overWrite>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-wrapper-plugin</artifactId>
+        <inherited>false</inherited>
       </plugin>
-      <plugin>
-        <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>${jacoco.version}</version>
-        <executions>
-          <execution>
-            <id>default-prepare-agent</id>
-            <goals>
-              <goal>prepare-agent</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>default-report</id>
-            <goals>
-              <goal>report</goal>
-            </goals>
-            <configuration>
-              <formats>
-                <format>XML</format>
-              </formats>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <!-- config for unit and integration tests -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.6.0</version>
-        <executions>
-          <execution>
-            <id>add-integration-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/integration/java</source>
-              </sources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-integration-test-resource</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>add-test-resource</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>src/integration/resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-e2e-test-source</id>
-            <phase>generate-test-sources</phase>
-            <goals>
-              <goal>add-test-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>src/e2e/java</source>
-              </sources>
-            </configuration>
-          </execution>
-          <execution>
-            <id>add-e2e-test-resource</id>
-            <phase>generate-test-resources</phase>
-            <goals>
-              <goal>add-test-resource</goal>
-            </goals>
-            <configuration>
-              <resources>
-                <resource>
-                  <directory>src/e2e/resources</directory>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <skipTests>${skipTests}</skipTests>
-          <excludes>
-            <exclude>**/*IntegrationTest.java</exclude>
-            <exclude>**/*E2ETest.java</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <configuration>
-              <!-- Skip clickhouse integration tests for now -->
-              <skipTests>true</skipTests>
-              <includes>
-                <include>**/*IntegrationTest.java</include>
-              </includes>
-            </configuration>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>e2e-test</id>
-            <configuration>
-              <skipTests>${skipE2ETests}</skipTests>
-              <includes>
-                <include>**/*E2ETest.java</include>
-              </includes>
-            </configuration>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <!-- Configuration for code formatting -->
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>2.44.3</version>
+        <!-- Root only: the include paths below are relative to the repository root -->
+        <inherited>false</inherited>
         <configuration>
           <java>
             <includes>
               <include>src/main/java/**/*.java</include> <!-- Check application code -->
               <include>src/test/java/**/*.java</include> <!-- Check application tests code -->
+              <include>shared-model/src/main/java/**/*.java</include> <!-- Check shared types -->
             </includes>
             <googleJavaFormat>
               <version>1.25.2</version>
@@ -844,6 +302,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <version>3.1.0</version>
+        <inherited>false</inherited>
         <executions>
           <execution>
             <phase>validate</phase>
@@ -863,25 +322,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <doclet>org.umlgraph.doclet.UmlGraphDoc</doclet>
-          <docletArtifact>
-            <groupId>org.umlgraph</groupId>
-            <artifactId>umlgraph</artifactId>
-            <version>5.6</version>
-          </docletArtifact>
-          <additionalparam>-views -all</additionalparam>
-          <useStandardDocletOptions>true</useStandardDocletOptions>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 
   <pluginRepositories>
     <pluginRepository>
@@ -1058,5 +498,4 @@
       </build>
     </profile>
   </profiles>
-
 </project>

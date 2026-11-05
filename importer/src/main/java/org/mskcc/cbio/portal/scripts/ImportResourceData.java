@@ -19,7 +19,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.ResourceDefinition;
 import org.mskcc.cbio.portal.model.Sample;
-import org.mskcc.cbio.portal.model.shared.ResourceType;
+import org.cbioportal.shared.model.ResourceType;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.MissingValues;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

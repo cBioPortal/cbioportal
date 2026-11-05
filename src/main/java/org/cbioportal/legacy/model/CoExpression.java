@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import org.cbioportal.shared.model.EntityType;
 
 public class CoExpression implements Serializable {
 

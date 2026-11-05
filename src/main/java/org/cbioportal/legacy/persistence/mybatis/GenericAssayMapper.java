@@ -3,7 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import org.cbioportal.legacy.model.GenericAssayAdditionalProperty;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.shared.model.GenericAssayMeta;
 
 public interface GenericAssayMapper {
 

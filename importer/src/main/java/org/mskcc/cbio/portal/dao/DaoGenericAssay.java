@@ -4,11 +4,11 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
-import org.mskcc.cbio.portal.model.shared.GenericAssayMeta;
-import org.mskcc.cbio.portal.model.shared.GenericEntityProperty;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.GenericAssayMeta;
+import org.cbioportal.shared.model.GenericEntityProperty;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.GeneticEntity;
 
 public class DaoGenericAssay {
 
@@ -158,7 +158,7 @@ public class DaoGenericAssay {
      */
     public static void checkAndDeleteGenericAssayMetaInStudy(int internalCancerStudyId) throws DaoException {
         List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalCancerStudyId);
-        List<GeneticProfile> genericAssayProfiles = geneticProfiles.stream().filter(profile -> profile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY).collect(Collectors.toList());
+        List<GeneticProfile> genericAssayProfiles = geneticProfiles.stream().filter(profile -> profile.getGeneticAlterationType() == MolecularAlterationType.GENERIC_ASSAY).collect(Collectors.toList());
         List<Pair<Integer, String>> deleteGenericAssayStatements = new ArrayList<>();
 
         for (GeneticProfile profile : genericAssayProfiles) {

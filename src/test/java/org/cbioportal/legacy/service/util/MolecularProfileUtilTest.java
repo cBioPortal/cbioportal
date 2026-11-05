@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.service.impl.BaseServiceImplTest;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,8 +25,7 @@ public class MolecularProfileUtilTest {
     MolecularProfile mutationMolecularProfile = new MolecularProfile();
     mutationMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     mutationMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_mutations");
-    mutationMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    mutationMolecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     mutationMolecularProfile.setDatatype("MAF");
 
     MolecularProfile structuralVariantMolecularProfile = new MolecularProfile();
@@ -33,28 +33,28 @@ public class MolecularProfileUtilTest {
     structuralVariantMolecularProfile.setStableId(
         BaseServiceImplTest.STUDY_ID + "_structural_variants");
     structuralVariantMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        MolecularAlterationType.STRUCTURAL_VARIANT);
     structuralVariantMolecularProfile.setDatatype("SV");
 
     MolecularProfile discreteCNAMolecularProfile = new MolecularProfile();
     discreteCNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     discreteCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_gistic");
     discreteCNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        MolecularAlterationType.COPY_NUMBER_ALTERATION);
     discreteCNAMolecularProfile.setDatatype("DISCRETE");
 
     MolecularProfile linearCNAMolecularProfile = new MolecularProfile();
     linearCNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     linearCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_linear_CNA");
     linearCNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        MolecularAlterationType.COPY_NUMBER_ALTERATION);
     linearCNAMolecularProfile.setDatatype("CONTINUOUS");
 
     MolecularProfile continuousMRNAMolecularProfile = new MolecularProfile();
     continuousMRNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     continuousMRNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_rna_seq_mrna");
     continuousMRNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        MolecularAlterationType.MRNA_EXPRESSION);
     continuousMRNAMolecularProfile.setDatatype("CONTINUOUS");
 
     MolecularProfile discreteMRNAMolecularProfile = new MolecularProfile();
@@ -62,7 +62,7 @@ public class MolecularProfileUtilTest {
     discreteMRNAMolecularProfile.setStableId(
         BaseServiceImplTest.STUDY_ID + "_rna_seq_mrna_median_Zscores");
     discreteMRNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        MolecularAlterationType.MRNA_EXPRESSION);
     discreteMRNAMolecularProfile.setDatatype("DISCRETE");
 
     List<String> studyIds =
@@ -131,8 +131,7 @@ public class MolecularProfileUtilTest {
     MolecularProfile mutationMolecularProfile = new MolecularProfile();
     mutationMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     mutationMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_mutations");
-    mutationMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    mutationMolecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     mutationMolecularProfile.setDatatype("MAF");
 
     MolecularProfile structuralVariantMolecularProfile = new MolecularProfile();
@@ -140,28 +139,28 @@ public class MolecularProfileUtilTest {
     structuralVariantMolecularProfile.setStableId(
         BaseServiceImplTest.STUDY_ID + "_structural_variants");
     structuralVariantMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.STRUCTURAL_VARIANT);
+        MolecularAlterationType.STRUCTURAL_VARIANT);
     structuralVariantMolecularProfile.setDatatype("SV");
 
     MolecularProfile discreteCNAMolecularProfile = new MolecularProfile();
     discreteCNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     discreteCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_gistic");
     discreteCNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        MolecularAlterationType.COPY_NUMBER_ALTERATION);
     discreteCNAMolecularProfile.setDatatype("DISCRETE");
 
     MolecularProfile linearCNAMolecularProfile = new MolecularProfile();
     linearCNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     linearCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_linear_CNA");
     linearCNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        MolecularAlterationType.COPY_NUMBER_ALTERATION);
     linearCNAMolecularProfile.setDatatype("CONTINUOUS");
 
     MolecularProfile continuousMRNAMolecularProfile = new MolecularProfile();
     continuousMRNAMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     continuousMRNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_rna_seq_mrna");
     continuousMRNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        MolecularAlterationType.MRNA_EXPRESSION);
     continuousMRNAMolecularProfile.setDatatype("CONTINUOUS");
 
     MolecularProfile discreteMRNAMolecularProfile = new MolecularProfile();
@@ -169,7 +168,7 @@ public class MolecularProfileUtilTest {
     discreteMRNAMolecularProfile.setStableId(
         BaseServiceImplTest.STUDY_ID + "_rna_seq_mrna_median_Zscores");
     discreteMRNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        MolecularAlterationType.MRNA_EXPRESSION);
     discreteMRNAMolecularProfile.setDatatype("DISCRETE");
 
     List<String> studyIds =
@@ -233,9 +232,7 @@ public class MolecularProfileUtilTest {
 
     // filtered MRNA expression profile case identifiers (multiple molecular profiles)
     Predicate<MolecularProfile> isMRNAProfile =
-        m ->
-            m.getMolecularAlterationType()
-                .equals(MolecularProfile.MolecularAlterationType.MRNA_EXPRESSION);
+        m -> m.getMolecularAlterationType().equals(MolecularAlterationType.MRNA_EXPRESSION);
     result =
         molecularProfileUtil.getFilteredMolecularProfileCaseIdentifiers(
             allMolecularProfiles, studyIds, sampleIds, Optional.of(isMRNAProfile));

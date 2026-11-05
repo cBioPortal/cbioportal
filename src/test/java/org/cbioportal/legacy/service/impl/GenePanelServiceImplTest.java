@@ -11,6 +11,7 @@ import org.cbioportal.legacy.persistence.GenePanelRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.GenePanelNotFoundException;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -140,8 +141,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
@@ -177,8 +177,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
@@ -205,8 +204,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
     Mockito.when(
             molecularProfileService.getMolecularProfiles(
@@ -277,8 +275,7 @@ public class GenePanelServiceImplTest extends BaseServiceImplTest {
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setStableId(MOLECULAR_PROFILE_ID);
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
 
     // Profile metadata is now looked up only for the profiles present in the returned rows.
     Mockito.when(

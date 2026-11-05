@@ -4,7 +4,7 @@
 <mapper namespace="org.cbioportal.legacy.persistence.mybatis.GenericAssayMapper">
     <cache readOnly="true"/>
 
-    <select id="getGenericAssayMeta" resultType="org.cbioportal.legacy.model.meta.GenericAssayMeta">
+    <select id="getGenericAssayMeta" resultType="org.cbioportal.shared.model.GenericAssayMeta">
         SELECT genetic_entity.stable_id as stableId,
         genetic_entity.entity_type as entityType
         FROM genetic_entity

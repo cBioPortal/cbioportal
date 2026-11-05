@@ -1,4 +1,4 @@
-package org.cbioportal.legacy.model;
+package org.cbioportal.shared.model;
 
 public enum ResourceType {
   STUDY,

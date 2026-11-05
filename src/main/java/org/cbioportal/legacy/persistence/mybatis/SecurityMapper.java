@@ -8,8 +8,8 @@ package org.cbioportal.legacy.persistence.mybatis;
 
 // imports
 import org.apache.ibatis.annotations.Param;
-import org.cbioportal.legacy.model.User;
-import org.cbioportal.legacy.model.UserAuthorities;
+import org.cbioportal.shared.model.User;
+import org.cbioportal.shared.model.UserAuthorities;
 
 /** Interface to use to retrieve portal user information. */
 public interface SecurityMapper {

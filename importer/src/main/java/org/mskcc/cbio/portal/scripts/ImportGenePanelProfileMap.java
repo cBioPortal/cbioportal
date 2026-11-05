@@ -21,7 +21,7 @@ import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GenePanel;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -176,7 +176,7 @@ public class ImportGenePanelProfileMap extends ConsoleRunnable {
         ProgressMonitor.logWarning("Updating mutation counts for genetic profiles.");
         for (int i = 0; i < profileIds.size(); i++) {
             GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(profileIds.get(i));
-            if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MUTATION_EXTENDED) {
+            if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.MUTATION_EXTENDED) {
                 DaoMutation.createMutationCountClinicalData(geneticProfile);
             }
         }

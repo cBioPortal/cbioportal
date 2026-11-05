@@ -27,7 +27,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          cache-dependency-path: importer/pom.xml
+          cache-dependency-path: |
+            pom.xml
+            importer/pom.xml
 
       - name: Build and run integration tests (Testcontainers)
         run: mvn -B integration-test --file pom.xml

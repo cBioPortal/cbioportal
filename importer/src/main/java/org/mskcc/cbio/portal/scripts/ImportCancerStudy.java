@@ -8,7 +8,7 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.File;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudyTags;
+import org.cbioportal.shared.model.CancerStudyTags;
 import org.mskcc.cbio.portal.util.CancerStudyReader;
 import org.mskcc.cbio.portal.util.CancerStudyTagsReader;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

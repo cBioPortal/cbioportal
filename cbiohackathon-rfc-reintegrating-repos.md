@@ -20,35 +20,95 @@ The immediate goals for the hackathon are below. Goal 2 comes first, because the
 
 ### Goal 1: Trim redundancies and consolidate the shared models
 
-- **One copy of each shared type.** Merge the five `org.mskcc.cbio.portal.model.shared` classes that have cbioportal counterparts (see [Duplicated types](#duplicated-types)) into `shared-model`. This includes reconciling the values of `GeneticAlterationType` with `MolecularAlterationType`, and of `MolecularProfileDataType` with `MolecularProfile.DataType` / `ImportType`.
+- **One copy of each shared type: done (Nov 4, 2026).** The new `shared-model` module (`io.github.cbioportal:shared-model`, package `org.cbioportal.shared.model`) holds the only definitions of `EntityType`, `ResourceType`, `GenericAssayMeta`, `GenericEntityProperty`, `GeneticEntity`, `MolecularAlterationType` and `MolecularProfileDataType`, plus, after the audit below, `User`, `UserAuthorities`, `ReferenceGenome` and `CancerStudyTags`. Both the web module and the importer depend on it.
+  - **Naming (decided Nov 4):**
+    - The new package keeps these types out of `legacy/model`, as AGENTS.md asks.
+    - The alteration enum takes the API field's name, `MolecularAlterationType`, so the importer's `GeneticAlterationType` was renamed (whole word only: methods such as `getGeneticAlterationType()` are unchanged).
+    - `MolecularProfileDataType` stays a class of `String` constants, because the `datatype` column holds many values neither side models. The web app's one-value `MolecularProfile.DataType` and `ImportType` enums were removed.
+  - **Values unchanged:** the enum values were already identical on both sides, so nothing stored in the database or returned by the API changes.
+  - **Changes:**
+    - 61 web files and 34 importer files now import from `org.cbioportal.shared.model`, and both MyBatis `GenericAssayMeta` mappers use the new class name.
+    - `MolecularProfile` lost its nested enums.
+    - The old copies, including `importer/.../model/shared/`, are deleted.
+  - **Guard:** `SharedModelDuplicationTest` (web tests) fails if the web or importer sources declare any of these type names again, including as nested types, apart from the two file-export classes. It reads source files, like `ResourceDataMapperStudyFilterTest`, because the web tests run before the importer is compiled. A copy under a new name isn't caught.
+  - **After deploy:** cached Redis values that contain a `MolecularProfile` were serialized with the old nested enum class, so they won't deserialize. `CustomRedisCache` logs that and reloads the value, so expect a burst of cache misses rather than errors, or flush the cache on deploy.
 - **Duplicates within cbioportal: done.** The `legacy/model` copies of `GeneticEntity` and `GenericEntityProperty` were unused, and have been deleted. The `application/file/model` classes with the same names aren't copies: they're smaller, export-specific classes used by the file-export MyBatis mapper, so they stay.
-- **Other parallel models.** Audit the importer's `org.mskcc.cbio.portal.model` package against `legacy/model` (for example `Sample` and `CancerStudy`), and merge the ones that represent the same thing.
+- **Other parallel models: audited (Nov 4, 2026); four merged.** 21 of the importer's 36 model classes share a name with a web class. A field-by-field comparison found four real duplicates, which are now in `shared-model` (web version kept, with these fixes):
+
+  | Class | Difference found | Result |
+  | --- | --- | --- |
+  | `User` | Same fields. The web `equals` compared strings with `==` (identity, a bug) | Merged; `equals` uses `Objects.equals`, as the importer's did |
+  | `UserAuthorities` | Same fields; web `List` vs importer `Collection`, plus a no-arg constructor on the web side | Merged; the importer already passed `List`s |
+  | `ReferenceGenome` | Same fields. The web `equals` threw on a null field | Merged; `equals` is null-safe, as the importer's was |
+  | `CancerStudyTags` | The web class was a superset (`Integer` id plus `studyId`) | Merged |
+
+  These classes moved to `org.cbioportal.shared.model`. The `SecurityMapper.xml` and `StudyMapper.xml` result types were updated, and `SharedModelDuplicationTest` now covers them too.
+
+  The other 17 share a name only. They are not copies:
+  - **Read side vs write side.** The importer's classes are mutable objects for writing, keyed by internal ids. The web side has read models, export row classes, and records in `domain/` (`Sample`, `Patient`, `ClinicalData`, `ClinicalAttribute`, `TypeOfCancer`).
+  - **Low overlap.** Most pairs share well under half their fields, and often with different types. Examples: `GenePanel` holds `Set<CanonicalGene>` vs `List<GenePanelToGene>`; `ClinicalEvent` a `Map` of event data vs a list of attributes; `SampleList`, `Geneset`, `Gistic` and `MutSig` use different ids and fields.
+  - **Closest candidate.** `StructuralVariant` comes closest (44 of 52 field names shared), but the two sides use different id fields and types (`geneticProfileId` and internal ids vs `molecularProfileId`/`patientId`/`studyId`). Merging it would mean designing one model for both reading and writing, not removing a copy.
+  - **Recommendation:** keep the 17 as separate read and write models.
 - **Unused dependencies and leftover files: done.** `dom4j`, `commons-text`, `opencsv`, `commons-io` and the unused `commons_cli.version` property are removed. `importer/.github/` was ported to the root workflows and removed, `importer/LICENSE` was removed, and `importer/README.md` was rewritten. `importer/Dockerfile` stays, because the ported workflow still publishes `cbioportal/cbioportal-core` from it.
-- **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, an ArchUnit rule keeps it that way, and both modules build.
+- **Done when:** `org.mskcc.cbio.portal.model.shared` is empty, a check keeps it that way, and both modules build. **Met (Nov 4)** for the shared types. The other parallel models are a separate, larger item.
 
 ### Goal 2: Consolidate the root POM and `importer/pom.xml`
 
-Proposed layout for the hackathon: a reactor that doesn't move `src/`. It's a variant of Option A in [Build Structure](#build-structure-and-file-organization).
+**Status: done (Nov 4, 2026), including the Docker image.** The layout is a reactor that doesn't move `src/`, a variant of Option A in [Build Structure](#build-structure-and-file-organization).
 
 ```
 cbioportal/
-  pom.xml            ← parent/aggregator (<packaging>pom</packaging>): Spring Boot parent,
-                       all version properties, dependencyManagement, pluginManagement
-  web/pom.xml        ← the web application; builds ../src in place (Spring Boot JAR)
+  pom.xml            ← io.github.cbioportal:cbioportal-parent (<packaging>pom</packaging>), parent
+                       spring-boot-starter-parent 4.1.0: every version property, dependencyManagement,
+                       Spotless and the pre-commit hook (root only), test-skip profiles,
+                       Maven Central and third-party-report profiles
+  web/pom.xml        ← io.github.cbioportal:cbioportal, the web application. Builds ../src in place
+                       into the root's target/, so target/cbioportal-exec.jar keeps its path
   src/               ← unchanged
-  shared-model/      ← the merged shared types (goal 1)
-  importer/pom.xml   ← parent = ../pom.xml; declares no versions of its own
+  importer/pom.xml   ← org.mskcc.cbio:core, parent = ../pom.xml, declares no versions
+  shared-model/      ← next: the merged shared types (goal 1)
 ```
 
-- **Artifact coordinates (decided, Nov 3, 2026):** the web module keeps `io.github.cbioportal:cbioportal`, so consumers of the published web artifact on Maven Central and JitPack see no change. The new root aggregator/parent POM becomes `io.github.cbioportal:cbioportal-parent`. Because the published web artifact now references that parent, the parent POM and `shared-model` must also be published to Maven Central. Whether the importer itself is published is still open.
-- Every version is declared once, in the root, which ends the "keep in sync with `../pom.xml`" comments.
-- **ClickHouse JDBC driver (decided and applied, Nov 3, 2026):** 0.6.2 with the `http` classifier and the root's `httpclient5`/`httpcore5` pins, in both modules. 0.6.4 was tried first and reverted, because it breaks 21 ClickHouse mapper tests in the web app (cause not yet known; see the drop report). It's a `clickhouse_jdbc.version` property today and becomes a single parent entry in the reactor. Still needed: one Testcontainers ClickHouse version.
-- **Importer version (decided, Nov 3, 2026):** modules inherit the parent's version (`v7.2.5-SNAPSHOT` today) instead of keeping 1.0.x. The release workflow's `mvn versions:set` then updates every module at once. The JAR keeps the `core-*.jar` name, so the Docker and Docker Compose paths are unaffected. This takes effect when the importer gets the root as its parent; `importer/pom.xml` stays at 1.0.16 until then.
-- Web-only build settings (frontend dependency, git-commit-id, Spring Boot repackage, JaCoCo/Sonar paths, Spotless includes) move to `web/pom.xml`.
-- The importer must override the shade transformers it would otherwise inherit from `spring-boot-starter-parent`'s pluginManagement.
-- The Dockerfile builds the importer from this repository; the `build-core` stage that clones `cbioportal-core` goes away.
-- **Trade-off:** the web module's sources live outside its own folder (`../src`). That's less conventional, but it avoids the mass rename. The `backend/` move can still happen later.
-- **Done when:** `mvn package` at the root builds both JARs, versions appear only in the root POM, and the Docker image builds without cloning `cbioportal-core`.
+**What was decided:**
+- **Artifact coordinates (Nov 3):** the web module keeps `io.github.cbioportal:cbioportal`, so consumers of the published web artifact on Maven Central and JitPack see no change. The root becomes `io.github.cbioportal:cbioportal-parent`. The parent POM, and later `shared-model`, must also be published, because the published web artifact references them. Whether the importer is published is still open; for now the publish workflow deploys only `-pl web -am`.
+- **Importer version (Nov 3):** the importer inherits the parent's version, so it builds `importer/core-v7.2.5-SNAPSHOT.jar`. The `core-*.jar` name is kept, so the Docker and Docker Compose paths still work. `mvn versions:set` updates every module at once.
+- **ClickHouse JDBC driver (Nov 3):** 0.6.2 with the `http` classifier is one entry in the parent's `dependencyManagement`. 0.6.4 was tried and reverted, because it breaks 21 ClickHouse mapper tests (see [Upgrade the ClickHouse JDBC driver](#upgrade-the-clickhouse-jdbc-driver)).
+- **Testcontainers ClickHouse:** aligned to 1.21.4 through `testcontainers-bom`. The separate 1.19.7 pin is gone.
+
+**How the web module keeps working from `web/`:**
+- `sourceDirectory`, `testSourceDirectory`, the resource filter files, `resources`/`testResources` and the build-helper source folders all point at `../src`.
+- The build directory is `../target`.
+- `git-commit-id` reads `../.git`.
+- Surefire and Failsafe run with the repository root as their working directory, because some tests (for example `SchemaParityTest` and `DtoOpenApiSchemaTest`) read files by paths relative to it.
+
+**How the importer handles what it inherits from `spring-boot-starter-parent`:**
+- Its shade execution is named `default`, so it merges with the parent's instead of shading twice.
+- Its transformers use `combine.self="override"`, so Spring Boot's transformers aren't added.
+- `start-class` is set to empty, so the JAR manifest has no `Main-Class`.
+
+**Verified:**
+- `mvn package` at the root builds both JARs.
+- The web module resolves exactly the same dependencies as before, apart from the intended Testcontainers ClickHouse change. The importer's are unchanged.
+- The web boot JAR matches a clean build of the previous commit: all 1,315 classes are byte-identical, and the libraries and resources match. (Two git-ignored local files in `src/main/resources`, `log4j.properties` and `portal.properties`, also end up in the JAR. That was already true before.)
+- Web suite: 1,580 tests, 0 failures, 0 errors, 5 skipped (UTC, Docker).
+- `mvn spotless:check` still checks the root `src/` and still catches violations.
+
+**Other files updated:**
+- `docker/web-and-data/Dockerfile`: copies the module POMs and builds with `-pl web -am`.
+- `backend-test.yml`, `integration-test.yml` and `sonarcloud.yml`: run with `-pl web -am`, because the importer's tests don't pass yet.
+- `maven-package-build.yml`: deploys `-pl web -am`.
+- `third-party-report-check.yml` and `scripts/generate-third-party-report.sh`: also cover `web/pom.xml`, and run with `-pl web -am`.
+- `importer-maven.yml`: its cache key includes the root `pom.xml`.
+- `AGENTS.md`: the build and test commands.
+
+**Remaining:**
+- **Docker: done (Nov 4).** `docker/web-and-data/Dockerfile` builds every module from this repository.
+  - **Removed:** the `build-core` stage, the `cbioportal-core` clone, the GitHub API call and `CORE_BRANCH`.
+  - **What the image gets from `importer/`:** the JAR (as `/core/core-IMPORTER.jar`), `scripts/` (as `/core/scripts`) and `requirements.txt`, so the `/core` paths Docker Compose uses are unchanged.
+  - **Caching:** the dependency layer copies all four POMs.
+  - **`.dockerignore`:** leaves out `importer/tests` (9.6 MB of Python test data) and locally built importer JARs.
+  - **Checked with a local build:** the image builds; inside it, `ImportTypesOfCancers` and `metaImport.py -h` run, and the web app's start class is in place. Not yet checked end to end with Docker Compose.
+- **Trade-off:** the web module's sources live outside its own folder (`../src`). That's less conventional, but it avoided the mass rename. Moving `src/` to `backend/` can still happen later. The IDE check was skipped; if an IDE has trouble importing the project, that move is the fix.
 
 ### Goal 3: Fix the test environments for each module
 
@@ -166,7 +226,7 @@ As part of this work, decide which file is the source of truth and how the test 
 
 These apply to any type, constant or resource that both the importer and the backend use:
 
-1. **One definition.** A shared type lives in exactly one file, in `shared-model`. Enforce this with ArchUnit rules that check something concrete: no classes left in `org.mskcc.cbio.portal.model.shared`, and no dependency from `importer` on backend packages. Copies that a rule can't detect are caught in code review.
+1. **One definition.** A shared type lives in exactly one file, in `shared-model`. `SharedModelDuplicationTest` enforces this by failing if the web or importer sources declare a shared type's name anywhere else. It's a source-text check (the web tests run before the importer compiles), so a copy under a new name is caught only in code review.
 2. **Explicit dependencies.** Modules use shared code only through a declared Maven dependency on `shared-model`.
 3. **Backward compatibility.** Changes to shared types follow a deprecation cycle: mark the old form `@Deprecated` and keep it for at least one release, unless the change is part of a major version bump.
 4. **Importer-only code stays in the importer.** Write-path DAO helpers, MAF parsing models and similar code belong in `importer/` and aren't visible to the backend.

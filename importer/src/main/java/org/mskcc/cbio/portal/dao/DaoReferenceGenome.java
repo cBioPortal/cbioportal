@@ -6,7 +6,7 @@ package org.mskcc.cbio.portal.dao;
 
 import java.sql.*;
 import java.util.*;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 
 /**
  * Adding or updating Reference Genomes used by molecular profiling

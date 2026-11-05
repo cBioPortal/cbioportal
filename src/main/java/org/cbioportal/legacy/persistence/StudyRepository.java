@@ -2,9 +2,9 @@ package org.cbioportal.legacy.persistence;
 
 import java.util.List;
 import org.cbioportal.legacy.model.CancerStudy;
-import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.ResourceCount;
 import org.cbioportal.legacy.model.meta.BaseMeta;
+import org.cbioportal.shared.model.CancerStudyTags;
 import org.springframework.cache.annotation.Cacheable;
 
 public interface StudyRepository {

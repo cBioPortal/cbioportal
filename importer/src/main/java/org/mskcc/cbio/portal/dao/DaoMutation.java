@@ -15,7 +15,7 @@ import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
@@ -1464,7 +1464,7 @@ public final class DaoMutation {
             ));
         }
         for (GeneticProfile geneticProfile : geneticProfiles) {
-            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            if (geneticProfile.getGeneticAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED)) {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(
@@ -1520,7 +1520,7 @@ public final class DaoMutation {
             );
         }
         for (GeneticProfile geneticProfile : geneticProfiles) {
-            if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+            if (geneticProfile.getGeneticAlterationType().equals(MolecularAlterationType.MUTATION_EXTENDED)) {
                 try {
                     con = JdbcUtil.getDbConnection(DaoMutation.class);
                     pstmt = con.prepareStatement(

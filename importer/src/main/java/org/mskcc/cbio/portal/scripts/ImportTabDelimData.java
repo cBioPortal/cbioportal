@@ -24,7 +24,7 @@ import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CnaEvent;
 import org.mskcc.cbio.portal.model.Geneset;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Sample;
 import org.mskcc.cbio.portal.util.CnaUtil;
@@ -136,7 +136,7 @@ public class ImportTabDelimData {
         this.geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
         if (this.isIncrementalUpdateMode
                 && geneticProfile != null
-                && this.geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
+                && this.geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENESET_SCORE) {
             throw new UnsupportedOperationException("Incremental upload of geneset scores is not supported.");
         }
     }
@@ -159,16 +159,16 @@ public class ImportTabDelimData {
             String[] headerParts = TsvUtil.splitTsvLine(headerLine);
             //Whether data regards CNA or RPPA:
             boolean isDiscretizedCnaProfile = geneticProfile != null
-                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.COPY_NUMBER_ALTERATION
+                && geneticProfile.getGeneticAlterationType() == MolecularAlterationType.COPY_NUMBER_ALTERATION
                 && geneticProfile.showProfileInAnalysisTab();
             boolean isRppaProfile = geneticProfile != null
-                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.PROTEIN_LEVEL
+                && geneticProfile.getGeneticAlterationType() == MolecularAlterationType.PROTEIN_LEVEL
                 && "Composite.Element.Ref".equalsIgnoreCase(headerParts[0]);
             boolean isGsvaProfile = geneticProfile != null
-                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE
+                && geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENESET_SCORE
                 && headerParts[0].equalsIgnoreCase("geneset_id");
             boolean isGenericAssayProfile = geneticProfile != null
-                && geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY
+                && geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENERIC_ASSAY
                 && headerParts[0].equalsIgnoreCase("ENTITY_STABLE_ID");
 
             long typesDetected = List.of(isDiscretizedCnaProfile, isRppaProfile, isGsvaProfile, isGenericAssayProfile).stream().filter(Boolean::booleanValue).count();

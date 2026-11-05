@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.GeneticEntity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -18,7 +18,7 @@ import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
-import org.mskcc.cbio.portal.model.shared.EntityType;
+import org.cbioportal.shared.model.EntityType;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileUtil;

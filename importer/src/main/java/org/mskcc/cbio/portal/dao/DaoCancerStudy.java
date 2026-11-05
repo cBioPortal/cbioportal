@@ -8,8 +8,8 @@ package org.mskcc.cbio.portal.dao;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.CancerStudyTags;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.CancerStudyTags;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
 
 import java.sql.Connection;

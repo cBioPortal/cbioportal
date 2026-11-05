@@ -4,7 +4,7 @@ import java.io.*;
 import org.junit.runner.RunWith;
 import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoReferenceGenome;
-import org.mskcc.cbio.portal.model.ReferenceGenome;
+import org.cbioportal.shared.model.ReferenceGenome;
 import org.mskcc.cbio.portal.scripts.ImportReferenceGenome;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;

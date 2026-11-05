@@ -11,7 +11,6 @@
 # NOTE: the .git folder is included in the build stage (the git-commit-id Maven
 # plugin needs it), but excluded from the final image. No confidential
 # information is exposed. (see: stackoverflow.com/questions/56278325)
-ARG CORE_BRANCH=main
 
 FROM maven:3-eclipse-temurin-21 AS build
 
@@ -26,10 +25,14 @@ WORKDIR /cbioportal
 # because that cache is builder-local and would be empty on every ephemeral CI
 # runner, forcing a full re-download whenever source changes.
 COPY pom.xml version.sh ./
+COPY shared-model/pom.xml shared-model/
+COPY web/pom.xml web/
+COPY importer/pom.xml importer/
 RUN mvn -q dependency:go-offline --fail-never
 
-# Copy the source and build the JAR with the example application.properties; the
-# user overrides these application.properties at runtime, injected via
+# Copy the source and build both programs from this repository: the web app's JAR
+# (target/) and the importer's JAR (importer/core-*.jar). The web app is built with the
+# example application.properties; the user overrides these at runtime, injected via
 # spring.config.location (see the cbioportal-docker-compose repo).
 COPY . .
 # `package` (not `install`) is enough to produce the executable boot jar and
@@ -40,17 +43,6 @@ RUN cp src/main/resources/application.properties.EXAMPLE src/main/resources/appl
     && mvn -q package -DskipTests \
     && mkdir -p target/dependency \
     && (cd target/dependency && jar -xf ../*-exec.jar)
-
-FROM maven:3-eclipse-temurin-21 AS build-core
-ARG CORE_BRANCH
-# This invalidates the Docker cache iff the latest commit hash for the CORE_BRANCH has changed
-ADD https://api.github.com/repos/cBioPortal/cbioportal-core/commits/${CORE_BRANCH} /dev/null
-# We touch application.properties here just to get cbioportal-core building
-# Later we will inject the user-provided application.properties using 'jar uf ..', see the cbioportal-docker-compose repo
-RUN git clone --branch ${CORE_BRANCH} --depth 1 https://github.com/cBioPortal/cbioportal-core.git /cbioportal-core \
-    && touch /cbioportal-core/src/main/resources/application.properties \
-    && mvn -f /cbioportal-core/pom.xml clean install -DskipTests \
-    && mkdir -p /core && cd /core && cp /cbioportal-core/core-*.jar . && jar -xf core-*.jar scripts/ requirements.txt
 
 # JRE (not JDK) runtime: the final image only runs prebuilt jars, so the JDK's
 # compiler/dev tooling is not needed.
@@ -84,16 +76,17 @@ RUN ARCH="$(dpkg --print-architecture)" \
     && install -m 755 "/tmp/clickhouse-common-static-${CLICKHOUSE_VERSION}/usr/bin/clickhouse" /usr/bin/clickhouse \
     && rm -rf /tmp/clickhouse.tgz "/tmp/clickhouse-common-static-${CLICKHOUSE_VERSION}"
 
-# copy over core files (scripts, requirements) built from cbioportal-core
-COPY --from=build-core /core/scripts /core/scripts
-COPY --from=build-core /core/core-*.jar /core/core-IMPORTER.jar
+# The importer: its JAR, scripts and Python requirements, from importer/. The /core paths are
+# kept because cbioportal-docker-compose and existing deployments use them.
+COPY --from=build /cbioportal/importer/scripts /core/scripts
+COPY --from=build /cbioportal/importer/core-*.jar /core/core-IMPORTER.jar
 RUN chmod -R a+x /core/scripts/
 
 # Install the Python import dependencies. build-essential + python3-dev are only
 # needed to compile any sdist wheels during pip install, so they are installed
 # and purged within this single layer -- the compiler toolchain never lands in
 # the final image.
-COPY --from=build-core /core/requirements.txt /core/requirements.txt
+COPY --from=build /cbioportal/importer/requirements.txt /core/requirements.txt
 RUN apt-get update \
     && apt-get install -y --no-install-recommends build-essential python3-dev \
     && pip3 install --break-system-packages --no-cache-dir -r /core/requirements.txt \

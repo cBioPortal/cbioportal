@@ -10,6 +10,7 @@ import org.cbioportal.legacy.service.SampleListService;
 import org.cbioportal.legacy.service.VariantCountService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,10 +62,10 @@ public class VariantCountServiceImpl implements VariantCountService {
 
     if (!(molecularProfile
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED)
+            .equals(MolecularAlterationType.MUTATION_EXTENDED)
         || molecularProfile
             .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.MUTATION_UNCALLED))) {
+            .equals(MolecularAlterationType.MUTATION_UNCALLED))) {
 
       throw new MolecularProfileNotFoundException(molecularProfileId);
     }

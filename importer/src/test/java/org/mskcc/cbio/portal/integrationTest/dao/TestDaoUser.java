@@ -10,7 +10,7 @@ import java.util.*;
 import org.junit.runner.RunWith;
 import org.junit.Test;
 import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.portal.model.User;
+import org.cbioportal.shared.model.User;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.mskcc.cbio.portal.integrationTest.IntegrationTestBase;

@@ -5,9 +5,9 @@ import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.GenericAssayDataCountItem;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataBinFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataFilter;
+import org.cbioportal.shared.model.GenericAssayMeta;
 
 /** Repository interface for retrieving molecular profiles and assay-related data. */
 public interface GenericAssayRepository {

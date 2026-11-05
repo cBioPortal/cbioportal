@@ -11,6 +11,7 @@ import org.cbioportal.legacy.persistence.VariantCountRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.MutationService;
 import org.cbioportal.legacy.service.SampleListService;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +35,7 @@ public class VariantCountServiceImplTest extends BaseServiceImplTest {
 
     MolecularProfile molecularProfile = new MolecularProfile();
     molecularProfile.setCancerStudyIdentifier(STUDY_ID);
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 

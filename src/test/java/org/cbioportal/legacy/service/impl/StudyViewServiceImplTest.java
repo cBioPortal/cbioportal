@@ -42,6 +42,7 @@ import org.cbioportal.legacy.service.NamespaceDataService;
 import org.cbioportal.legacy.service.SignificantCopyNumberRegionService;
 import org.cbioportal.legacy.service.SignificantlyMutatedGeneService;
 import org.cbioportal.legacy.service.util.MolecularProfileUtil;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,8 +78,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     mutationMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     mutationMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_mutations");
     mutationMolecularProfile.setName("Mutations");
-    mutationMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    mutationMolecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     mutationMolecularProfile.setDatatype("MAF");
     mutationMolecularProfile.setPatientLevel(false);
     molecularProfiles.add(mutationMolecularProfile);
@@ -88,7 +88,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     discreteCNAMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_gistic");
     discreteCNAMolecularProfile.setName("Discrete CNA");
     discreteCNAMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.COPY_NUMBER_ALTERATION);
+        MolecularAlterationType.COPY_NUMBER_ALTERATION);
     discreteCNAMolecularProfile.setDatatype("DISCRETE");
     discreteCNAMolecularProfile.setPatientLevel(false);
     molecularProfiles.add(discreteCNAMolecularProfile);
@@ -97,8 +97,7 @@ public class StudyViewServiceImplTest extends BaseServiceImplTest {
     patientLevelMolecularProfile.setCancerStudyIdentifier(BaseServiceImplTest.STUDY_ID);
     patientLevelMolecularProfile.setStableId(BaseServiceImplTest.STUDY_ID + "_patient");
     patientLevelMolecularProfile.setName("Patient Profile");
-    patientLevelMolecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.GENERIC_ASSAY);
+    patientLevelMolecularProfile.setMolecularAlterationType(MolecularAlterationType.GENERIC_ASSAY);
     patientLevelMolecularProfile.setDatatype("LIMIT-VALUE");
     patientLevelMolecularProfile.setPatientLevel(true);
     molecularProfiles.add(patientLevelMolecularProfile);

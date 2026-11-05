@@ -7,7 +7,6 @@ import org.apache.commons.math3.distribution.TDistribution;
 import org.cbioportal.domain.coexpression.repository.CoExpressionRepository;
 import org.cbioportal.infrastructure.repository.clickhouse.coexpression.CoExpressionResult;
 import org.cbioportal.legacy.model.CoExpression;
-import org.cbioportal.legacy.model.EntityType;
 import org.cbioportal.legacy.model.Gene;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.SampleListRepository;
@@ -16,6 +15,7 @@ import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.GeneNotFoundException;
 import org.cbioportal.legacy.service.exception.GeneWithMultipleEntrezIdsException;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.EntityType;
 import org.springframework.stereotype.Service;
 
 @Service

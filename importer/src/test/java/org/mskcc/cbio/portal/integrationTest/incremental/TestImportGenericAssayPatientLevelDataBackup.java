@@ -13,9 +13,9 @@ import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.GeneticEntity;
 import org.mskcc.cbio.portal.scripts.ImportGenericAssayPatientLevelData;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -47,7 +47,7 @@ public class TestImportGenericAssayPatientLevelDataBackup extends AbstractBackup
 
         GeneticProfile profile = new GeneticProfile();
         profile.setCancerStudyId(study.getInternalId());
-        profile.setGeneticAlterationType(GeneticAlterationType.GENERIC_ASSAY);
+        profile.setGeneticAlterationType(MolecularAlterationType.GENERIC_ASSAY);
         profile.setStableId("study_tcga_pub_generic_assay_patient_backup_test");
         profile.setProfileName("Generic Assay Patient Level Backup Test");
         profile.setDatatype("LIMIT-VALUE");

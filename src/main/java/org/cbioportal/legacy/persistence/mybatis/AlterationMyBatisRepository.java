@@ -8,12 +8,12 @@ import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.CNA;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.MutationEventType;
 import org.cbioportal.legacy.model.util.Select;
 import org.cbioportal.legacy.persistence.AlterationRepository;
 import org.cbioportal.legacy.persistence.MolecularProfileRepository;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 

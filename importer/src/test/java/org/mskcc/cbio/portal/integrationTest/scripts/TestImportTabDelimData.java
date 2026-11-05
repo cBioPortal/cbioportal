@@ -23,7 +23,7 @@ import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CopyNumberStatus;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
@@ -73,7 +73,7 @@ public class TestImportTabDelimData extends IntegrationTestBase {
 
         GeneticProfile newGeneticProfile = new GeneticProfile();
         newGeneticProfile.setCancerStudyId(studyId);
-        newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+        newGeneticProfile.setGeneticAlterationType(MolecularAlterationType.COPY_NUMBER_ALTERATION);
         newGeneticProfile.setStableId("study_tcga_pub_test");
         newGeneticProfile.setProfileName("Barry CNA Results");
         newGeneticProfile.setDatatype("test");
@@ -263,7 +263,7 @@ public class TestImportTabDelimData extends IntegrationTestBase {
 
         geneticProfile.setCancerStudyId(studyId);
         geneticProfile.setStableId("gbm_mrna");
-        geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
+        geneticProfile.setGeneticAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
         geneticProfile.setDatatype("CONTINUOUS");
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
@@ -316,7 +316,7 @@ public class TestImportTabDelimData extends IntegrationTestBase {
 
         geneticProfile.setCancerStudyId(studyId);
         geneticProfile.setStableId("gbm_mrna");
-        geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
+        geneticProfile.setGeneticAlterationType(MolecularAlterationType.MRNA_EXPRESSION);
         geneticProfile.setDatatype("CONTINUOUS");
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
@@ -408,7 +408,7 @@ public class TestImportTabDelimData extends IntegrationTestBase {
 
         geneticProfile.setCancerStudyId(studyId);
         geneticProfile.setStableId("gbm_rppa");
-        geneticProfile.setGeneticAlterationType(GeneticAlterationType.PROTEIN_LEVEL);
+        geneticProfile.setGeneticAlterationType(MolecularAlterationType.PROTEIN_LEVEL);
         geneticProfile.setDatatype("LOG2-VALUE");
         geneticProfile.setProfileName("RPPA Data");
         geneticProfile.setProfileDescription("RPPA Data");

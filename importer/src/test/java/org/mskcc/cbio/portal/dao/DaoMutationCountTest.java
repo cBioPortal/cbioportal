@@ -4,7 +4,7 @@ import org.easymock.EasyMock;
 import org.junit.Before;
 import org.junit.Test;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -58,7 +58,7 @@ public class DaoMutationCountTest {
 
     private GeneticProfile makeProfile() {
         GeneticProfile profile = new GeneticProfile(
-                "study_mutations", 1, GeneticAlterationType.MUTATION_EXTENDED,
+                "study_mutations", 1, MolecularAlterationType.MUTATION_EXTENDED,
                 "MAF", "Mutations", "", false);
         profile.setGeneticProfileId(42);
         return profile;

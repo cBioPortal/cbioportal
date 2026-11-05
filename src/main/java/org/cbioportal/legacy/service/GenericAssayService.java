@@ -2,8 +2,8 @@ package org.cbioportal.legacy.service;
 
 import java.util.List;
 import org.cbioportal.legacy.model.GenericAssayData;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.GenericAssayMeta;
 
 public interface GenericAssayService {
 

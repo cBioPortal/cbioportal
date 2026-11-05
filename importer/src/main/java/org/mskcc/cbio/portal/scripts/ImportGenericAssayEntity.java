@@ -17,10 +17,10 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.mskcc.cbio.portal.dao.DaoGenericAssay;
 import org.mskcc.cbio.portal.dao.DaoGeneticEntity;
-import org.mskcc.cbio.portal.model.shared.EntityType;
-import org.mskcc.cbio.portal.model.shared.GenericEntityProperty;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.EntityType;
+import org.cbioportal.shared.model.GenericEntityProperty;
+import org.cbioportal.shared.model.MolecularAlterationType;
+import org.cbioportal.shared.model.GeneticEntity;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.TsvUtil;
 
@@ -113,7 +113,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     public static void startImport(OptionSet options, OptionSpec<String> data, OptionSpec<String> geneticAlterationType, OptionSpec<String> additionalProperties, boolean updateInfo) throws Exception {
         if (options.hasArgument(data) && options.hasArgument(geneticAlterationType)) {
             File genericAssayFile = new File(options.valueOf(data));
-            GeneticAlterationType geneticAlterationTypeArg = GeneticAlterationType.valueOf(options.valueOf(geneticAlterationType));
+            MolecularAlterationType geneticAlterationTypeArg = MolecularAlterationType.valueOf(options.valueOf(geneticAlterationType));
             String additionalPropertiesArg = options.valueOf(additionalProperties);
             importData(genericAssayFile, geneticAlterationTypeArg, additionalPropertiesArg, updateInfo);
         }
@@ -127,7 +127,7 @@ public class ImportGenericAssayEntity extends ConsoleRunnable {
     * @param additionalProperties
     * @throws Exception
     */
-    public static void importData(File dataFile, GeneticAlterationType geneticAlterationType, String additionalProperties, boolean updateInfo) throws Exception {
+    public static void importData(File dataFile, MolecularAlterationType geneticAlterationType, String additionalProperties, boolean updateInfo) throws Exception {
         ProgressMonitor.setCurrentMessage("Reading data from: " + dataFile.getCanonicalPath());
         
         // read generic assay data file

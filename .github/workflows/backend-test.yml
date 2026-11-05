@@ -66,15 +66,15 @@ jobs:
       - name: 'Build cBioPortal once without tests'
         working-directory: ./cbioportal
         run: |
-          mvn --settings settings.xml -q -U -DskipTests clean install
+          mvn --settings settings.xml -q -U -DskipTests clean install -pl web -am
       - name: 'Build cbioportal with tests'
         working-directory: ./cbioportal
         run: |
-          mvn --settings settings.xml -q -U clean install
+          mvn --settings settings.xml -q -U clean install -pl web -am
       - name: 'Run tests separately'
         working-directory: ./cbioportal
         run: |
-          mvn -U test -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
+          mvn -U test -pl web -am -Ddb.test.username=cbio_user -Ddb.test.password=somepassword
 #     TODO: decide if we want to keep this in the future, or remove it entirely
 #      - name: 'Run integration tests separately'
 #        working-directory: ./cbioportal

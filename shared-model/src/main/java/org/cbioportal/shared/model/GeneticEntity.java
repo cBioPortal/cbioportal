@@ -1,4 +1,4 @@
-package org.mskcc.cbio.portal.model.shared;
+package org.cbioportal.shared.model;
 
 import java.io.Serializable;
 

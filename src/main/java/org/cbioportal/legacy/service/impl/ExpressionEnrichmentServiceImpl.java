@@ -14,10 +14,8 @@ import org.cbioportal.legacy.model.GenericAssayEnrichment;
 import org.cbioportal.legacy.model.GenericAssayMolecularAlteration;
 import org.cbioportal.legacy.model.GenomicEnrichment;
 import org.cbioportal.legacy.model.MolecularProfile;
-import org.cbioportal.legacy.model.MolecularProfile.MolecularAlterationType;
 import org.cbioportal.legacy.model.MolecularProfileCaseIdentifier;
 import org.cbioportal.legacy.model.Sample;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
 import org.cbioportal.legacy.persistence.MolecularDataRepository;
 import org.cbioportal.legacy.service.ExpressionEnrichmentService;
 import org.cbioportal.legacy.service.GeneService;
@@ -27,6 +25,8 @@ import org.cbioportal.legacy.service.SampleService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
 import org.cbioportal.legacy.service.util.ExpressionEnrichmentUtil;
 import org.cbioportal.legacy.service.util.FisherExactTestCalculator;
+import org.cbioportal.shared.model.GenericAssayMeta;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -278,15 +278,13 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
     MolecularProfile molecularProfile =
         molecularProfileService.getMolecularProfile(molecularProfileId);
     validateMolecularProfile(
-        molecularProfile,
-        Arrays.asList(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY),
-        dataType);
+        molecularProfile, Arrays.asList(MolecularAlterationType.GENERIC_ASSAY), dataType);
     return molecularProfile;
   }
 
   private void validateMolecularProfile(
       MolecularProfile molecularProfile,
-      List<MolecularProfile.MolecularAlterationType> validMolecularAlterationTypes,
+      List<MolecularAlterationType> validMolecularAlterationTypes,
       String dataType)
       throws MolecularProfileNotFoundException {
     if (!validMolecularAlterationTypes.contains(molecularProfile.getMolecularAlterationType())) {
@@ -294,9 +292,7 @@ public class ExpressionEnrichmentServiceImpl implements ExpressionEnrichmentServ
       throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
     }
     // Check datatype for binary or categorical
-    if (molecularProfile
-            .getMolecularAlterationType()
-            .equals(MolecularProfile.MolecularAlterationType.GENERIC_ASSAY)
+    if (molecularProfile.getMolecularAlterationType().equals(MolecularAlterationType.GENERIC_ASSAY)
         && !molecularProfile.getDatatype().equals(dataType))
       throw new MolecularProfileNotFoundException(molecularProfile.getStableId());
   }

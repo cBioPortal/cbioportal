@@ -23,11 +23,11 @@ import org.mskcc.cbio.portal.dao.DaoPatient;
 import org.mskcc.cbio.portal.dao.DaoSample;
 import org.mskcc.cbio.portal.dao.DaoSampleProfile;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.Sample;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.GeneticEntity;
 import org.mskcc.cbio.portal.scripts.ImportGenericAssayPatientLevelData;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.springframework.test.context.ContextConfiguration;
@@ -63,7 +63,7 @@ public class TestImportGenericAssayPatientLevelData extends IntegrationTestBase 
 
         GeneticProfile newGeneticProfile = new GeneticProfile();
         newGeneticProfile.setCancerStudyId(studyId);
-        newGeneticProfile.setGeneticAlterationType(GeneticAlterationType.GENERIC_ASSAY);
+        newGeneticProfile.setGeneticAlterationType(MolecularAlterationType.GENERIC_ASSAY);
         newGeneticProfile.setStableId("study_tcga_pub_generic_assay_patient_test");
         newGeneticProfile.setProfileName("Generic Assay Patient Level data");
         newGeneticProfile.setDatatype("LIMIT-VALUE");

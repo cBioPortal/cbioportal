@@ -20,6 +20,7 @@ import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.MutationRepository;
 import org.cbioportal.legacy.service.MolecularProfileService;
 import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +41,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
   public void getMutationsInMolecularProfileBySampleListId() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -103,8 +103,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
   public void getMetaMutationsInMolecularProfileBySampleListId() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -229,8 +228,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
   public void fetchMutationsInMolecularProfile() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 
@@ -291,8 +289,7 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
   public void fetchMetaMutationsInMolecularProfile() throws Exception {
 
     MolecularProfile molecularProfile = new MolecularProfile();
-    molecularProfile.setMolecularAlterationType(
-        MolecularProfile.MolecularAlterationType.MUTATION_EXTENDED);
+    molecularProfile.setMolecularAlterationType(MolecularAlterationType.MUTATION_EXTENDED);
     Mockito.when(molecularProfileService.getMolecularProfile(MOLECULAR_PROFILE_ID))
         .thenReturn(molecularProfile);
 

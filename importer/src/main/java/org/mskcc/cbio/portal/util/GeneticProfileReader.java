@@ -15,10 +15,10 @@ import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfileLink;
 import org.mskcc.cbio.portal.dao.DaoInfo;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.shared.GeneticAlterationType;
+import org.cbioportal.shared.model.MolecularAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.GeneticProfileLink;
-import org.mskcc.cbio.portal.model.shared.MolecularProfileDataType;
+import org.cbioportal.shared.model.MolecularProfileDataType;
 import org.mskcc.cbio.portal.scripts.TrimmedProperties;
 
 /**
@@ -87,8 +87,8 @@ public class GeneticProfileReader {
         // This geneticProfileLink is required for the oncoprint in a GSVA study. In the future it might
         // be useful to make this a requirement for every expression zscore file.
         GeneticProfileLink geneticProfileLink = null;
-        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE ||
-                (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION &&
+        if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENESET_SCORE ||
+                (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.MRNA_EXPRESSION &&
                 geneticProfile.getDatatype().equals("Z-SCORE") &&
                 geneticProfile.getAllOtherMetadataFields().getProperty("source_stable_id") != null)) {
             geneticProfileLink = createGeneticProfileLink(geneticProfile);
@@ -96,11 +96,11 @@ public class GeneticProfileReader {
 
         // For GSVA profiles, we want to check that the version in the meta file is
         // the same as the version of the gene sets in the database (genesets_info table).
-        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENESET_SCORE) {
+        if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENESET_SCORE) {
             validateGenesetProfile(geneticProfile, file);
         }
 
-        if (geneticProfile.getGeneticAlterationType() == GeneticAlterationType.GENERIC_ASSAY) {
+        if (geneticProfile.getGeneticAlterationType() == MolecularAlterationType.GENERIC_ASSAY) {
             validateGenericAssay(geneticProfile, file);
             geneticProfile.setGenericAssayType(geneticProfile.getOtherMetaDataField("generic_assay_type"));
             // if genericAssayType is TREATMENT_RESPONSE, validate if pivotThreshold and sortOrder exist
@@ -275,7 +275,7 @@ public class GeneticProfileReader {
         boolean patientLevel = patientLevelStr != null && patientLevelStr.equalsIgnoreCase("TRUE");
 
         profileDescription = profileDescription.replaceAll("\t", " ");
-        GeneticAlterationType alterationType = GeneticAlterationType.valueOf(geneticAlterationTypeString);
+        MolecularAlterationType alterationType = MolecularAlterationType.valueOf(geneticAlterationTypeString);
         GeneticProfile geneticProfile = new GeneticProfile();
         geneticProfile.setCancerStudyId(cancerStudy.getInternalId());
         geneticProfile.setStableId(stableId);

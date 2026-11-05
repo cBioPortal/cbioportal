@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Geneset;
-import org.mskcc.cbio.portal.model.shared.EntityType;
-import org.mskcc.cbio.portal.model.shared.GeneticEntity;
+import org.cbioportal.shared.model.EntityType;
+import org.cbioportal.shared.model.GeneticEntity;
 import org.mskcc.cbio.portal.scripts.ImportGenesetData;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 

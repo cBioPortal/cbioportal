@@ -2,7 +2,7 @@ package org.cbioportal.application.rest.mapper;
 
 import java.util.List;
 import org.cbioportal.application.rest.response.GenericAssayMetaDTO;
-import org.cbioportal.legacy.model.meta.GenericAssayMeta;
+import org.cbioportal.shared.model.GenericAssayMeta;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

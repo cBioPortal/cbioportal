@@ -8,8 +8,8 @@ package org.cbioportal.legacy.persistence;
 
 // imports
 import java.util.Set;
-import org.cbioportal.legacy.model.User;
-import org.cbioportal.legacy.model.UserAuthorities;
+import org.cbioportal.shared.model.User;
+import org.cbioportal.shared.model.UserAuthorities;
 
 /** Interface to use to retrieve portal user information. */
 public interface SecurityRepository {

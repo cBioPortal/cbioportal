@@ -294,7 +294,7 @@
         ORDER BY toUInt32OrZero(extract(entity_stable_id, '^[0-9]+')) ASC, entity_stable_id ASC
     </select>
 
-    <resultMap id="GenericAssayMetaResultMap" type="org.cbioportal.legacy.model.meta.GenericAssayMeta">
+    <resultMap id="GenericAssayMetaResultMap" type="org.cbioportal.shared.model.GenericAssayMeta">
         <result property="stableId" column="stableId"/>
         <result property="entityType" column="entityType"/>
         <result property="genericEntityMetaProperties" column="properties"

@@ -7,18 +7,19 @@ on:
   push:
     paths:
       - 'importer/**'
+      - 'shared-model/**'
+      - 'pom.xml'
       - '.github/workflows/importer-maven.yml'
   pull_request:
     paths:
       - 'importer/**'
+      - 'shared-model/**'
+      - 'pom.xml'
       - '.github/workflows/importer-maven.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./importer
     steps:
       - uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -32,7 +33,9 @@ jobs:
             importer/pom.xml
 
       - name: Build and run integration tests (Testcontainers)
-        run: mvn -B integration-test --file pom.xml
+        # From the repository root: the importer is a module of the reactor and needs shared-model.
+        run: mvn -B -pl importer -am integration-test
+        timeout-minutes: 30
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
       - name: Update dependency graph

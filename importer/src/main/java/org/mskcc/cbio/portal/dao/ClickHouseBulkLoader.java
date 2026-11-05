@@ -167,6 +167,17 @@ public class ClickHouseBulkLoader {
         pendingRecords.add(fieldValues);
     }
 
+    /**
+     * Discards every loader's pending records without writing them, and turns bulk load and relaxed
+     * mode off. For tests that share one JVM, where these static settings would otherwise carry over
+     * from one test to the next.
+     */
+    public static synchronized void reset() {
+        BULK_LOADERS.clear();
+        bulkLoad = false;
+        relaxedMode = false;
+    }
+
     public static boolean isBulkLoad() {
         return bulkLoad;
     }

@@ -40,7 +40,10 @@ public final class DaoReferenceGenome {
         genomeInternalIds.put(referenceGenome.getGenomeName(), referenceGenome.getReferenceGenomeId());
     }
 
-    private static synchronized void reCache() {
+    /**
+     * Reloads the reference genome cache from the database.
+     */
+    public static synchronized void reCache() {
         clearCache();
         Connection con = null;
         PreparedStatement pstmt = null;

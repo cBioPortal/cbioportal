@@ -209,6 +209,12 @@
         </otherwise>
       </choose>
       AND cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+      <!-- The same restriction on rdata's own column, which leads the sorting key of resource and
+           resource_compact_derived, so the primary key prunes to the requested studies' granules
+           before the join. The join condition above alone is not pushed into the index. -->
+      AND rdata.cancer_study_id IN (
+          SELECT cancer_study_id FROM cancer_study
+          WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
       <!-- Match each row at the level it lives at: patient-level rows (sample_id IS NULL) by
            patient_id, sample-level rows by sample_id. The two lists must be ORed, not ANDed:
            "sample_id IN (...)" is never true for a NULL sample_id. -->

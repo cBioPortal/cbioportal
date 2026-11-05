@@ -1,6 +1,7 @@
 package org.cbioportal.domain.resource.repository;
 
 import java.util.List;
+import java.util.Map;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
@@ -12,6 +13,12 @@ public interface ResourceDataRepository {
   List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request);
 
   List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query);
+
+  /**
+   * The URL template each study in scope declares for the query's resource, keyed by study
+   * identifier. Studies declaring none are absent.
+   */
+  Map<String, String> getResourceUrlTemplates(ResourceTableQuery query);
 
   /** Row, patient and sample counts for the filtered set, in one pass. */
   ResourceTableCounts getResourceTableCounts(ResourceTableQuery query);

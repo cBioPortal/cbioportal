@@ -121,7 +121,8 @@ public class ResourceTableControllerTest {
                 "H&E Sample 2",
                 Map.of("stain", "HE")));
 
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(rows);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(rows);
 
     ResourceTableQuery query =
         new ResourceTableQuery(
@@ -151,7 +152,8 @@ public class ResourceTableControllerTest {
   @Test
   @WithMockUser
   public void fetchResourceTableData_nullQuery_returnsEmptyResult() throws Exception {
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(List.of());
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(List.of());
 
     mockMvc
         .perform(

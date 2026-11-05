@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.domain.resource.ResourceTableMetadataResult;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -86,7 +87,7 @@ public class ResourceTableController {
           @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceTableRow.class))))
   public ResponseEntity<List<ResourceTableRow>> fetchResourceTableData(
       @Valid @RequestBody(required = false) ResourceTableQuery query) {
-    return ResponseEntity.ok(getDataUseCase.execute(query));
+    return ResponseEntity.ok(getDataUseCase.execute(query, PortalBaseUrl.current()));
   }
 
   @Hidden

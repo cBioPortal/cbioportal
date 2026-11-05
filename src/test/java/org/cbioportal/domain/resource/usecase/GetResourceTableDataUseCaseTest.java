@@ -64,11 +64,67 @@ public class GetResourceTableDataUseCaseTest {
     List<ResourceTableRow> rows = List.of();
     when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
 
-    assertThat(useCase.execute(query)).isEqualTo(rows);
+    assertThat(useCase.execute(query, "https://portal.example.org")).isEqualTo(rows);
 
     // The rows endpoint must not pay for the page-invariant work; that is the whole point of
     // splitting them.
     verify(resourceDataRepository, never()).getResourceTableMetadata(query);
     verify(resourceDataRepository, never()).getResourceTableCounts(query);
+  }
+
+  private static final String TEMPLATE =
+      "${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}";
+
+  private static ResourceTableRow slide(String studyId, String patientId, String url, String key) {
+    return new ResourceTableRow(
+        studyId,
+        "WSI_SAMPLE",
+        "Slides",
+        "SAMPLE",
+        patientId,
+        patientId + "-T01",
+        url,
+        null,
+        Map.of("slide_key", key));
+  }
+
+  private static ResourceTableQuery slideQuery(List<String> studyIds) {
+    return new ResourceTableQuery(
+        studyIds, "WSI_SAMPLE", null, null, null, 0, 10, null, null, null);
+  }
+
+  @Test
+  public void execute_expandsTheTemplateForRowsWithoutAUrl() {
+    ResourceTableQuery query = slideQuery(List.of("mskimpact", "other_study"));
+    when(resourceDataRepository.getResourceTableRows(query))
+        .thenReturn(
+            List.of(
+                slide("mskimpact", "P-1", "", "k1"),
+                slide("mskimpact", "P-2", "https://example.com/own.svs", "k2"),
+                slide("other_study", "P 3", null, "k3")));
+    when(resourceDataRepository.getResourceUrlTemplates(query))
+        .thenReturn(Map.of("mskimpact", TEMPLATE));
+
+    List<ResourceTableRow> rows = useCase.execute(query, "https://portal.example.org/cbio");
+
+    assertThat(rows)
+        .extracting(ResourceTableRow::url)
+        .containsExactly(
+            "https://portal.example.org/cbio/wsi/patient/P-1?studyId=mskimpact&slideKey=k1",
+            "https://example.com/own.svs",
+            // other_study declares no template, so its row is left as it is.
+            null);
+    assertThat(rows.get(0).metadata()).containsEntry("slide_key", "k1");
+    assertThat(rows.get(0).sampleId()).isEqualTo("P-1-T01");
+  }
+
+  @Test
+  public void execute_skipsTheTemplateLookupWhenEveryRowHasAUrl() {
+    ResourceTableQuery query = slideQuery(List.of("mskimpact"));
+    List<ResourceTableRow> rows = List.of(slide("mskimpact", "P-1", "https://example.com/a", "k"));
+    when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
+
+    assertThat(useCase.execute(query, "https://portal.example.org")).isEqualTo(rows);
+    verify(resourceDataRepository, never()).getResourceUrlTemplates(query);
   }
 }

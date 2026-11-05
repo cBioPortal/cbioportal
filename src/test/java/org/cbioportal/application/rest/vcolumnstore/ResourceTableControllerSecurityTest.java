@@ -159,7 +159,8 @@ public class ResourceTableControllerSecurityTest {
   public void queryFetch_permittedUser_isAllowedAndCheckedAgainstTheRequestedStudies()
       throws Exception {
     grant(true);
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(null);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(null);
 
     mockMvc
         .perform(

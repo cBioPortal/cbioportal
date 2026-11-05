@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import org.cbioportal.application.rest.mapper.ResourceDataMapper;
 import org.cbioportal.application.rest.response.ResourceDataDTO;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
+import org.cbioportal.domain.resource.ResourceUrlTemplate;
 import org.cbioportal.legacy.model.ResourceData;
 import org.cbioportal.legacy.service.ResourceDataService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
@@ -101,7 +103,7 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          ResourceDataMapper.INSTANCE.toDtos(
+          toDtos(
               resourceDataService.getAllResourceDataOfSampleInStudy(
                   studyId,
                   sampleId,
@@ -156,7 +158,7 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          ResourceDataMapper.INSTANCE.toDtos(
+          toDtos(
               resourceDataService.getAllResourceDataOfPatientInStudy(
                   studyId,
                   patientId,
@@ -209,7 +211,7 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          ResourceDataMapper.INSTANCE.toDtos(
+          toDtos(
               resourceDataService.getAllResourceDataForStudy(
                   studyId,
                   resourceId,
@@ -262,7 +264,7 @@ public class ResourceDataController {
       throw new UnsupportedOperationException("Requested API is not implemented yet");
     } else {
       return new ResponseEntity<>(
-          ResourceDataMapper.INSTANCE.toDtos(
+          toDtos(
               this.getInstance()
                   .cacheableFetchAllResourceDataForStudyPatientSample(
                       studyId,
@@ -274,6 +276,41 @@ public class ResourceDataController {
                       direction.name())),
           HttpStatus.OK);
     }
+  }
+
+  /**
+   * Maps rows to their response form, giving each row without a URL of its own the expansion of its
+   * definition's URL template.
+   *
+   * <p>The expansion happens here rather than in the service because the base URL depends on the
+   * request, and the study-wide rows are cached: a URL expanded before caching would be served to
+   * requests arriving through another host or context path. The cached rows are not modified.
+   */
+  private List<ResourceDataDTO> toDtos(List<ResourceData> rows) {
+    List<ResourceDataDTO> dtos = ResourceDataMapper.INSTANCE.toDtos(rows);
+    String baseUrl = null;
+    for (int i = 0; i < rows.size(); i++) {
+      ResourceData row = rows.get(i);
+      if (row.getUrlTemplate() == null || (row.getUrl() != null && !row.getUrl().isBlank())) {
+        continue;
+      }
+      if (baseUrl == null) {
+        baseUrl = PortalBaseUrl.current();
+      }
+      dtos.get(i)
+          .setUrl(
+              ResourceUrlTemplate.resolve(
+                  row.getUrl(),
+                  row.getUrlTemplate(),
+                  baseUrl,
+                  new ResourceUrlTemplate.Values(
+                      row.getStudyId(),
+                      row.getResourceId(),
+                      row.getPatientId(),
+                      row.getSampleId(),
+                      ResourceUrlTemplate.parseMetadata(row.getMetadata()))));
+    }
+    return dtos;
   }
 
   @Cacheable(

@@ -11,6 +11,7 @@ import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
+import org.cbioportal.domain.resource.ResourceUrlTemplateRow;
 
 public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
@@ -49,4 +50,7 @@ public interface ClickhouseResourceDataMapper {
       @Param("query") ResourceTableQuery query);
 
   ResourceTableCounts getResourceTableCounts(@Param("query") ResourceTableQuery query);
+
+  /** The non-empty {@code resource_definition.url_template} of each study in scope. */
+  List<ResourceUrlTemplateRow> getResourceUrlTemplates(@Param("query") ResourceTableQuery query);
 }

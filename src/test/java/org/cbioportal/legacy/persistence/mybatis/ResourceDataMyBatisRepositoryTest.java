@@ -166,6 +166,62 @@ public class ResourceDataMyBatisRepositoryTest {
     Assert.assertEquals("acc_tcga", resourceDefinition.getCancerStudyIdentifier());
   }
 
+  private static final String SLIDE_TEMPLATE =
+      "${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}";
+
+  @Test
+  public void templatedSampleRowsCarryTheTemplateAndMetadata() throws Exception {
+
+    List<ResourceData> result =
+        sortedResult(
+            resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
+                "acc_tcga", null, "SLIDE", "SUMMARY", null, null, null, null));
+
+    Assert.assertEquals(2, result.size());
+    ResourceData ownUrl = result.get(0);
+    Assert.assertEquals("TCGA-A1-A0SB-01", ownUrl.getSampleId());
+    Assert.assertEquals("https://example.com/own-url.svs", ownUrl.getUrl());
+    Assert.assertEquals(SLIDE_TEMPLATE, ownUrl.getUrlTemplate());
+    // Metadata is only read for rows that need it to expand their URL.
+    Assert.assertNull(ownUrl.getMetadata());
+
+    ResourceData templated = result.get(1);
+    Assert.assertEquals("TCGA-A1-B0SQ-01", templated.getSampleId());
+    Assert.assertEquals("TCGA-A1-B0SQ", templated.getPatientId());
+    Assert.assertEquals("", templated.getUrl());
+    Assert.assertEquals(SLIDE_TEMPLATE, templated.getUrlTemplate());
+    Assert.assertEquals("{\"slide_key\":\"c0ffee000001\"}", templated.getMetadata());
+  }
+
+  @Test
+  public void templatedPatientRowsCarryTheTemplateAndMetadata() throws Exception {
+
+    List<ResourceData> result =
+        resourceDataMyBatisRepository.getAllResourceDataOfPatientInStudy(
+            "acc_tcga", "TCGA-A1-B0SP", "SLIDE", "DETAILED", null, null, null, null);
+
+    Assert.assertEquals(1, result.size());
+    ResourceData templated = result.get(0);
+    Assert.assertEquals("", templated.getUrl());
+    Assert.assertEquals(SLIDE_TEMPLATE, templated.getUrlTemplate());
+    Assert.assertEquals("{\"slide_key\":\"c0ffee000002\"}", templated.getMetadata());
+    Assert.assertEquals(SLIDE_TEMPLATE, templated.getResourceDefinition().getUrlTemplate());
+  }
+
+  @Test
+  public void rowsOfAResourceWithoutATemplateCarryNone() throws Exception {
+
+    List<ResourceData> result =
+        resourceDataMyBatisRepository.getAllResourceDataOfSampleInStudy(
+            "study_tcga_pub", null, null, "SUMMARY", null, null, null, null);
+
+    Assert.assertFalse(result.isEmpty());
+    for (ResourceData row : result) {
+      Assert.assertNull(row.getUrlTemplate());
+      Assert.assertNull(row.getMetadata());
+    }
+  }
+
   private List<ResourceData> sortedResult(List<ResourceData> result) {
     return result.stream()
         .sorted(

@@ -19,7 +19,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -89,6 +91,14 @@ public class Saml2SecurityConfig {
       Saml2Authentication authentication = delegate.convert(responseToken);
       var principal =
           (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+      // The default converter sets the registrationId on
+      // Saml2AssertionAuthentication, not the principal. The logout resolver
+      // reads it from the principal, so propagate it here.
+      if (principal instanceof DefaultSaml2AuthenticatedPrincipal defaultPrincipal
+          && authentication instanceof Saml2AssertionAuthentication assertionAuth) {
+        defaultPrincipal.setRelyingPartyRegistrationId(
+            assertionAuth.getRelyingPartyRegistrationId());
+      }
       Collection<String> roles = principal.getAttribute(this.roleAttributeName);
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
       if (!Objects.isNull(roles)) {

@@ -10,6 +10,8 @@ on:
     tags: '*'
     paths:
       - 'importer/**'
+      - 'shared-model/**'
+      - 'pom.xml'
       - '.github/workflows/importer-docker-image.yml'
 
 jobs:
@@ -48,7 +50,8 @@ jobs:
       - name: Publish Docker Image on Tag
         uses: docker/build-push-action@v6
         with:
-          context: importer
+          # The repository root: the importer builds as a module of the Maven reactor
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           platforms: linux/amd64,linux/arm64

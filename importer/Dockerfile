@@ -1,13 +1,29 @@
+# The standalone importer image, published as cbioportal/cbioportal-core.
+#
+# The importer is a module of the cbioportal Maven reactor: its POM inherits from the root
+# pom.xml and it depends on the shared-model module. So the build context must be the
+# repository root, not importer/:
+#
+# docker build -f importer/Dockerfile -t cbioportal-core:tag-name .
+
 # -------- Build the JAR --------
 FROM maven:3-eclipse-temurin-21 AS jar_builder
 WORKDIR /app
 
-# Copy only pom first to leverage cache if deps don't change
-COPY pom.xml .
+# Resolve dependencies in their own layer, keyed only on the POMs. Maven reads every module
+# the root POM lists, so web/pom.xml is needed even though the web module isn't built here.
+COPY pom.xml ./
+COPY shared-model/pom.xml shared-model/
+COPY web/pom.xml web/
+COPY importer/pom.xml importer/
+RUN mvn -q -pl importer -am dependency:go-offline --fail-never
 
-# Now copy sources and build
-COPY src ./src
-RUN mvn clean package -DskipTests
+# Copy only what the importer build needs, then build it and the modules it depends on.
+# The root POM's pre-commit hook script is copied so its validate step has nothing to complain about.
+COPY .githooks .githooks
+COPY shared-model shared-model
+COPY importer importer
+RUN mvn -q -pl importer -am package -DskipTests
 
 # -------- Runtime image --------
 FROM maven:3-eclipse-temurin-21
@@ -29,7 +45,7 @@ ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv "$VIRTUAL_ENV" && "$VIRTUAL_ENV/bin/pip" install --upgrade pip
 
 # Install Python deps into the venv
-COPY requirements.txt /tmp/requirements.txt
+COPY importer/requirements.txt /tmp/requirements.txt
 RUN "$VIRTUAL_ENV/bin/pip" install --no-cache-dir wheel \
  && "$VIRTUAL_ENV/bin/pip" install --no-cache-dir -r /tmp/requirements.txt
 
@@ -40,10 +56,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN ln -s "$(which python3)" /usr/local/bin/python || true
 
 # Copy the built JAR
-COPY --from=jar_builder /app/core-*.jar /
+COPY --from=jar_builder /app/importer/core-*.jar /
 
 # Scripts
-COPY scripts/ /scripts/
+COPY importer/scripts/ /scripts/
 RUN chmod -R a+x /scripts/
 
 WORKDIR /scripts/

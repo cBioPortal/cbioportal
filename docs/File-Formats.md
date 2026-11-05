@@ -279,32 +279,6 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 ### Banned column names
 `MUTATION_COUNT` and `FRACTION_GENOME_ALTERED` are auto populated clinical attributes, and should therefore not be present in clinical data files.
 
-## Whole-Slide Image Tile Server
-
-Pathology slides (whole-slide images) can be stored as standard
-[Resource Data](#resource-data). The resource URL can link to any external
-slide viewer.
-
-When the resource type is `WSI_SAMPLE` or `WSI_PATIENT`, cBioPortal uses its
-built-in slide viewer instead: a **Pathology Slides** tab on the patient page
-that lists slides by specimen and renders the selected slide with
-[OpenSeadragon](https://openseadragon.github.io/), a zoomable tile-based
-image viewer
-([frontend PR](https://github.com/cBioPortal/cbioportal-frontend/pull/5732)).
-Tiles and thumbnails are served by a
-[cbioportal-tile-server](https://github.com/cbioportal/cbioportal-tile-server)
-instance. To enable the viewer, configure its URL:
-
-```properties
-wsi.tile_server.url=https://cbioportal.example.org/wsi
-```
-
-If this property is unset, the viewer is hidden.
-
-**Note:** This is an internal MSK prototype. The tile server checks access by
-calling `GET /api/studies/{studyId}` with the user's session cookie at the
-ingress.
-
 ## Discrete Copy Number Data
 The discrete copy number data file contain values that would be derived from copy-number analysis algorithms like [GISTIC 2.0](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18077431) or [RAE](https://www.ncbi.nlm.nih.gov/sites/entrez?term=18784837). GISTIC 2.0 can be [installed](https://www.broadinstitute.org/cgi-bin/cancer/publications/pub_paper.cgi?mode=view&paper_id=216&p=t) or run online using the GISTIC 2.0 module on [GenePattern](https://cloud.genepattern.org). For some help on using GISTIC 2.0, check the [Data Loading: Tips and Best Practices](data-loading/Data-Loading-Tips-and-Best-Practices.md) page. When loading case list data, the `_cna` case list is required. See the [case list section](#case-lists).
 

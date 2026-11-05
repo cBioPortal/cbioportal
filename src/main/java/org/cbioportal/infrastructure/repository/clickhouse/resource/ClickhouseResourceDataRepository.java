@@ -60,6 +60,15 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   /** Backstop so a single request cannot exhaust server memory if the sample is raised. */
   private static final long KEY_DISCOVERY_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
 
+  /**
+   * Backstop for the grouped facets, which keep a set of groups per distinct value until the cap
+   * per key applies: a near-unique key holds about one entry per row. Past the first bound the
+   * aggregation spills to disk; past the second the request fails rather than the server.
+   */
+  private static final long GROUPED_FACETS_MAX_MEMORY_BYTES = 2L * 1024 * 1024 * 1024;
+
+  private static final long GROUPED_FACETS_EXTERNAL_GROUP_BY_BYTES = 1024L * 1024 * 1024;
+
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final TypeReference<Map<String, Map<String, Long>>> GROUP_COUNTS_TYPE =
       new TypeReference<>() {};
@@ -213,7 +222,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
     for (String key : metadataContext.columnKeys()) {
-      if (!metadataContext.isFilterable(key)) {
+      // A blank key cannot name a facet: the grouped facets parse each key as a tuple element.
+      if (key.isBlank() || !metadataContext.isFilterable(key)) {
         continue;
       }
       // Numeric columns get a min/max range instead of an enumerated value list, which would be
@@ -262,7 +272,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
                 scoped.compact(),
                 keyArray,
                 ClickhouseResourceDataMapper.facetTupleType(keyArray),
-                MAX_FACET_VALUES + 1)
+                MAX_FACET_VALUES + 1,
+                GROUPED_FACETS_MAX_MEMORY_BYTES,
+                GROUPED_FACETS_EXTERNAL_GROUP_BY_BYTES)
             : mapper.getResourceTableMetadataFacets(
                 scoped.query(), scoped.cohort(), keyArray, MAX_FACET_VALUES + 1);
 
@@ -353,7 +365,10 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
     if (stats != null) {
       for (ResourceMetadataKeyStats stat : stats) {
-        byKey.put(stat.key(), stat);
+        // A blank key in the data names no column anyone could have declared or filter on.
+        if (stat.key() != null && !stat.key().isBlank()) {
+          byKey.put(stat.key(), stat);
+        }
       }
     }
     return byKey;
@@ -453,10 +468,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   /**
-   * A page of groups in at most three statements: the page with its totals, the value counts for
-   * that page's groups, and the located group's position. Counting values only for the page's
-   * groups is what keeps a page cheap: the page itself is ordered on keys and row counts, which
-   * need no metadata parsed.
+   * A page of groups in at most two statements: the page with its totals and located index, and the
+   * value counts for that page's groups. Counting values only for the page's groups is what keeps a
+   * page cheap: the page itself is ordered on keys and row counts, which need no metadata parsed.
    */
   @Override
   public ResourceTableGroupPage getResourceTableGroups(
@@ -465,25 +479,18 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<ResourceTableGroupRow> page =
         mapper.getResourceTableGroupPage(query, reads.cohort(), reads.compact());
 
-    long totalGroups;
-    long totalRows;
-    if (!page.isEmpty()) {
-      totalGroups = page.getFirst().totalGroups();
-      totalRows = page.getFirst().totalRows();
-    } else if (query.offset() == 0) {
-      totalGroups = 0L;
-      totalRows = 0L;
-    } else {
-      ResourceTableGroupTotals totals =
-          mapper.getResourceTableGroupTotals(query, reads.cohort(), reads.compact());
-      totalGroups = totals == null ? 0L : totals.totalGroups();
-      totalRows = totals == null ? 0L : totals.totalRows();
+    // Every row of the page carries the totals and the located index. A page past the last group
+    // has no row to carry them, so the first group is read alone for them instead.
+    ResourceTableGroupRow carrier = page.isEmpty() ? null : page.getFirst();
+    if (carrier == null && query.offset() > 0) {
+      List<ResourceTableGroupRow> first =
+          mapper.getResourceTableGroupPage(firstGroupOnly(query), reads.cohort(), reads.compact());
+      carrier = first.isEmpty() ? null : first.getFirst();
     }
 
-    Map<String, Map<String, Map<String, Long>>> countsByGroup = groupCounts(reads, page);
+    Map<GroupRef, Map<String, Map<String, Long>>> countsByGroup = groupCounts(reads, page);
     List<ResourceTableGroup> groups = new ArrayList<>(page.size());
     for (ResourceTableGroupRow row : page) {
-      String key = groupKey(query, row.patientId(), row.sampleId());
       groups.add(
           new ResourceTableGroup(
               row.studyId(),
@@ -491,24 +498,53 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
               row.sampleId(),
               row.rowCount(),
               countsByGroup.getOrDefault(
-                  tuple(row.studyId(), key), emptyCounts(query.groupCountColumns()))));
+                  GroupRef.of(query, row), emptyCounts(query.groupCountColumns()))));
     }
-
-    // The page carries the located group's position; a page past the last group has no row to
-    // carry it, so only then is it read on its own.
-    Long locatedIndex = null;
-    if (query.locate() != null) {
-      if (!page.isEmpty()) {
-        locatedIndex = page.getFirst().locatedIndex();
-      } else if (query.offset() > 0) {
-        locatedIndex = mapper.locateResourceTableGroup(query, reads.cohort(), reads.compact());
-      }
-    }
-    return new ResourceTableGroupPage(totalGroups, totalRows, locatedIndex, List.copyOf(groups));
+    return new ResourceTableGroupPage(
+        carrier == null ? 0L : carrier.totalGroups(),
+        carrier == null ? 0L : carrier.totalRows(),
+        carrier == null || query.locate() == null ? null : carrier.locatedIndex(),
+        List.copyOf(groups));
   }
 
-  /** Value counts for the page's groups, keyed by study-qualified group key. */
-  private Map<String, Map<String, Map<String, Long>>> groupCounts(
+  /** The same query reduced to its first group, which carries the totals of every page. */
+  private static ResourceTableQuery firstGroupOnly(ResourceTableQuery query) {
+    return new ResourceTableQuery(
+        query.studyIds(),
+        query.resourceId(),
+        query.patientIdentifiers(),
+        query.sampleIdentifiers(),
+        query.search(),
+        0,
+        1,
+        query.sortBy(),
+        query.direction(),
+        query.filters(),
+        query.resourceIds(),
+        query.studyViewFilter(),
+        query.groupBy(),
+        query.groupCounts(),
+        query.locate());
+  }
+
+  /**
+   * A group as its study and its key, the patient or sample id it groups on. Stable ids repeat
+   * across studies, so the key alone does not identify a group.
+   */
+  private record GroupRef(String studyId, String key) {
+
+    static GroupRef of(ResourceTableQuery query, ResourceTableGroupRow row) {
+      return new GroupRef(row.studyId(), query.groupBySample() ? row.sampleId() : row.patientId());
+    }
+
+    /** The study-qualified key, composed as the SQL composes it; see ResourceCohort. */
+    String tuple() {
+      return studyId + "_" + key;
+    }
+  }
+
+  /** Value counts for the page's groups. */
+  private Map<GroupRef, Map<String, Map<String, Long>>> groupCounts(
       Reads reads, List<ResourceTableGroupRow> page) {
     List<ResourceGroupCountColumn> columns = reads.query().groupCountColumns();
     if (columns.isEmpty() || page.isEmpty()) {
@@ -517,11 +553,11 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Set<String> keys = new LinkedHashSet<>();
     Set<String> tuples = new LinkedHashSet<>();
     for (ResourceTableGroupRow row : page) {
-      String key = groupKey(reads.query(), row.patientId(), row.sampleId());
-      keys.add(key);
-      tuples.add(tuple(row.studyId(), key));
+      GroupRef group = GroupRef.of(reads.query(), row);
+      keys.add(group.key());
+      tuples.add(group.tuple());
     }
-    Map<String, Map<String, Map<String, Long>>> byGroup = new HashMap<>();
+    Map<GroupRef, Map<String, Map<String, Long>>> byGroup = new HashMap<>();
     for (ResourceGroupCountsRow row :
         mapper.getResourceTableGroupCounts(
             reads.query(),
@@ -529,7 +565,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
             reads.compact(),
             keys.toArray(new String[0]),
             tuples.toArray(new String[0]))) {
-      byGroup.put(tuple(row.studyId(), row.groupKey()), parseCounts(row.counts(), columns));
+      byGroup.put(new GroupRef(row.studyId(), row.groupKey()), parseCounts(row.counts(), columns));
     }
     return byGroup;
   }
@@ -559,14 +595,5 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, Map<String, Long>> counts = new LinkedHashMap<>();
     columns.forEach(column -> counts.put(column.columnId(), Map.of()));
     return counts;
-  }
-
-  private static String groupKey(ResourceTableQuery query, String patientId, String sampleId) {
-    return query.groupBySample() ? sampleId : patientId;
-  }
-
-  /** Same study-qualified composition the SQL uses; see ResourceCohort. */
-  private static String tuple(String studyId, String stableId) {
-    return studyId + "_" + stableId;
   }
 }

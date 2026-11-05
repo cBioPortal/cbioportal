@@ -62,7 +62,9 @@ public interface ClickhouseResourceDataMapper {
       @Param("compact") boolean compact,
       @Param("metadataKeys") String[] metadataKeys,
       @Param("facetTupleType") String facetTupleType,
-      @Param("limitPerKey") int limitPerKey);
+      @Param("limitPerKey") int limitPerKey,
+      @Param("maxMemoryBytes") long maxMemoryBytes,
+      @Param("externalGroupByBytes") long externalGroupByBytes);
 
   /**
    * The ClickHouse type {@code Tuple(`k1` String, `k2` String, ...)} that parses just these keys
@@ -138,14 +140,11 @@ public interface ClickhouseResourceDataMapper {
    */
   List<ResourceScopeRow> getResourceScope(@Param("query") ResourceTableQuery query);
 
-  /** The requested page of groups, each carrying the totals over every group. */
+  /**
+   * The requested page of groups, each carrying the totals over every group and, with a {@code
+   * locate} group, its zero-based position (null if the filters remove it).
+   */
   List<ResourceTableGroupRow> getResourceTableGroupPage(
-      @Param("query") ResourceTableQuery query,
-      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact);
-
-  /** Totals alone, for a page past the last group, which carries none. */
-  ResourceTableGroupTotals getResourceTableGroupTotals(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
       @Param("compact") boolean compact);
@@ -160,10 +159,4 @@ public interface ClickhouseResourceDataMapper {
       @Param("compact") boolean compact,
       @Param("groupKeys") String[] groupKeys,
       @Param("groupKeyTuples") String[] groupKeyTuples);
-
-  /** The zero-based position of the query's {@code locate} group, or null if it is filtered out. */
-  Long locateResourceTableGroup(
-      @Param("query") ResourceTableQuery query,
-      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact);
 }

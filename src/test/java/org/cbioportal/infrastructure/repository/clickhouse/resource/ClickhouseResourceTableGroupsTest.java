@@ -339,6 +339,24 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(groups(q.build()).locatedIndex()).isEqualTo(2L);
   }
 
+  @Test
+  public void locate_givesTheIndexOfAGroupOnTheLastPage_andThatPageHoldsIt() {
+    Q q = combined();
+    q.pageSize = 4;
+    q.locate = new ResourceGroupLocator(STUDY, "GENIE-TEST-306", null);
+    ResourceTableGroupPage first = groups(q.build());
+
+    assertThat(first.locatedIndex()).isEqualTo(5L);
+    assertThat(keys(first)).doesNotContain("GENIE-TEST-306");
+
+    q.pageNumber = (int) (first.locatedIndex() / q.pageSize);
+    ResourceTableGroupPage last = groups(q.build());
+    assertThat(q.pageNumber).isEqualTo(1);
+    assertThat(keys(last)).containsExactly("GENIE-TEST-305", "GENIE-TEST-306");
+    assertThat(last.locatedIndex()).isEqualTo(5L);
+    assertThat(last.totalGroups()).isEqualTo(6);
+  }
+
   // ---- combined resources ----
 
   @Test
@@ -350,6 +368,35 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(group(page, "GENIE-TEST-301").rowCount()).isEqualTo(4);
     assertThat(group(page, "GENIE-TEST-302").counts().get(STAIN)).isEqualTo(Map.of("H&E", 2L));
     assertThat(group(page, "GENIE-TEST-306").rowCount()).isEqualTo(1);
+  }
+
+  @Test
+  public void combinedResources_whereOneResourceIsMissingFromOneStudy() {
+    // HE_SLIDE is in both studies; CT_SCAN only in study_tcga_pub, as one patient-level row.
+    Q q = q();
+    q.studyIds = List.of("study_tcga_pub", "acc_tcga");
+    q.resourceId = null;
+    q.resourceIds = List.of("HE_SLIDE", "CT_SCAN");
+    q.groupCounts = List.of("resourceId");
+    ResourceTableQuery query = q.build();
+    ResourceQueryContext context = context(query, null);
+
+    assertThat(context.scope().resourceIds()).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN");
+    assertThat(context.scope().rows())
+        .extracting(row -> row.resourceId() + ":" + row.studyId() + ":" + row.hasRows())
+        .containsExactly(
+            "CT_SCAN:study_tcga_pub:true",
+            "HE_SLIDE:acc_tcga:true",
+            "HE_SLIDE:study_tcga_pub:true");
+    ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
+    assertThat(page.groups())
+        .extracting(g -> g.studyId() + ":" + g.patientId() + "=" + g.counts().get("resourceId"))
+        .containsExactly(
+            "acc_tcga:tcga-a1-a0sb={HE_SLIDE=1}",
+            "study_tcga_pub:tcga-a1-a0sb={CT_SCAN=1, HE_SLIDE=1}",
+            "study_tcga_pub:tcga-a1-a0sd={HE_SLIDE=1}",
+            "acc_tcga:tcga-zz-9999={HE_SLIDE=1}");
+    assertThat(page.totalRows()).isEqualTo(5);
   }
 
   @Test
@@ -448,6 +495,23 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   @Test
+  public void studyViewCohort_selectingNoSamples_givesNoGroups() {
+    Q q = combined();
+    q.studyViewFilter = centerFilter("nowhere");
+    q.locate = new ResourceGroupLocator(STUDY, "GENIE-TEST-301", null);
+    ResourceTableQuery query = q.build();
+
+    ResourceTableGroupPage page =
+        repository.getResourceTableGroups(query, context(query, cohort(q.studyViewFilter)));
+
+    assertThat(query.offset()).isZero();
+    assertThat(page.groups()).isEmpty();
+    assertThat(page.totalGroups()).isZero();
+    assertThat(page.totalRows()).isZero();
+    assertThat(page.locatedIndex()).isNull();
+  }
+
+  @Test
   public void studyViewCohort_appliesToRowsAndCounts_andReplacesIdentifierLists() {
     Q q = combined();
     q.groupBy = null;
@@ -508,6 +572,33 @@ public class ClickhouseResourceTableGroupsTest {
         .containsExactly(new ResourceFacetOption("H&E", 4L), new ResourceFacetOption("IHC", 2L));
     assertThat(rowMetadata.facets().get(STAIN))
         .containsExactly(new ResourceFacetOption("H&E", 6L), new ResourceFacetOption("IHC", 5L));
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void aBlankMetadataKey_namesNoColumnOrFacet() {
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9102, ?, 3, 'SAMPLE',"
+            + " 'GENIE-TEST-301', 'GENIE-TEST-301-01', 'https://example.com/g9102.svs',"
+            + " 'Slide 9102', '{\"\":\"blank\",\"stain_group\":\"IHC\"}')",
+        NO_CONTRACT);
+    try {
+      Q q = q();
+      q.resourceId = NO_CONTRACT;
+      ResourceTableQuery query = q.build();
+
+      ResourceTableMetadataView metadata =
+          repository.getResourceTableMetadata(query, context(query, null));
+
+      assertThat(metadata.columns())
+          .extracting(column -> column.id())
+          .containsExactly("metadata:extra", STAIN);
+      assertThat(metadata.facets()).containsOnlyKeys("metadata:extra", STAIN);
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9102 SETTINGS mutations_sync = 2");
+    }
   }
 
   @Test
@@ -762,7 +853,14 @@ public class ClickhouseResourceTableGroupsTest {
     String[] keys = {"stain_group", "odd key`"};
     List<org.cbioportal.domain.resource.ResourceMetadataFacetValue> values =
         mapper.getResourceTableGroupedMetadataFacets(
-            query, null, true, keys, ClickhouseResourceDataMapper.facetTupleType(keys), 10);
+            query,
+            null,
+            true,
+            keys,
+            ClickhouseResourceDataMapper.facetTupleType(keys),
+            10,
+            1L << 30,
+            1L << 29);
     assertThat(values).extracting(v -> v.metaKey()).containsOnly("stain_group");
   }
 

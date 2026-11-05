@@ -26,7 +26,10 @@ public interface ResourceDataRepository {
     return getResourceTableRows(query, ResourceQueryContext.none());
   }
 
-  /** Row, patient and sample counts for the filtered set, in one pass. */
+  /**
+   * Row, patient and sample counts for the filtered set, in one pass. They count rows whether or
+   * not the query groups them.
+   */
   ResourceTableCounts getResourceTableCounts(
       ResourceTableQuery query, ResourceQueryContext context);
 
@@ -38,7 +41,7 @@ public interface ResourceDataRepository {
    * Metadata column info, categorical facets and numeric ranges together. They share the contract
    * and key-stats lookups, so resolving them in one call is what keeps a request from re-fetching
    * the same two things for every question it asks. For a grouped query a facet counts the groups
-   * carrying each value rather than the rows.
+   * carrying each value rather than the rows; everything else is read as without grouping.
    */
   ResourceTableMetadataView getResourceTableMetadata(
       ResourceTableQuery query, ResourceQueryContext context);

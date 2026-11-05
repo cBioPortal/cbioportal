@@ -26,8 +26,11 @@ public class GetResourceTableMetadataUseCase {
   }
 
   /**
-   * With {@code groupBy} set, the counts still count rows, patients and samples, but each facet
-   * value counts the groups carrying it: how many patients (or samples) have a row with that value.
+   * With {@code groupBy} set, only the facets change: each facet value counts the groups carrying
+   * it, i.e. how many patients (or samples) have a row with that value, over the rows that belong
+   * to a group. The columns, the numeric ranges and the row, patient and sample counts are the same
+   * as for the query without {@code groupBy}. {@code groupCounts}, {@code locate} and paging do not
+   * apply here.
    */
   public ResourceTableMetadataResult execute(ResourceTableQuery query) {
     if (query != null) {

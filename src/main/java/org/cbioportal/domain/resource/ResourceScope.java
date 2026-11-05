@@ -1,10 +1,7 @@
 package org.cbioportal.domain.resource;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,8 +9,8 @@ import java.util.Set;
  * the definitions and the sorting keys of {@code resource} and {@code resource_compact_derived}
  * rather than from the rows' metadata.
  *
- * <p>It answers three questions: whether every requested resource exists, which contracts describe
- * the table, and whether the compact metadata table holds everything a grouped query needs.
+ * <p>It answers two questions: whether every requested resource exists, and whether the compact
+ * metadata table holds everything a grouped query needs.
  */
 public record ResourceScope(List<ResourceScopeRow> rows) {
 
@@ -28,26 +25,6 @@ public record ResourceScope(List<ResourceScopeRow> rows) {
         .filter(row -> row.defined() || row.hasRows())
         .forEach(row -> ids.add(row.resourceId()));
     return ids;
-  }
-
-  /**
-   * The distinct contracts over the (resource, study) pairs that hold rows, each with the lowest
-   * study identifier carrying it, plus a blank row when some pair holds rows without one. Same
-   * shape as the contract lookup the row queries use, so the column logic can take either.
-   */
-  public List<ResourceContractRow> contractRows() {
-    Map<String, String> firstStudyByContract = new LinkedHashMap<>();
-    rows.stream()
-        .filter(ResourceScopeRow::hasRows)
-        .sorted(Comparator.comparing(ResourceScopeRow::studyId))
-        .forEach(
-            row ->
-                firstStudyByContract.putIfAbsent(
-                    row.declared() ? row.customMetadata() : "", row.studyId()));
-    return firstStudyByContract.entrySet().stream()
-        .map(entry -> new ResourceContractRow(entry.getKey(), entry.getValue()))
-        .sorted(Comparator.comparing(ResourceContractRow::firstStudy))
-        .toList();
   }
 
   /**

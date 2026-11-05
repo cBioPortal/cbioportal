@@ -129,6 +129,32 @@ public record ResourceTableQuery(
   }
 
   /**
+   * The same query read as rows rather than groups: without {@code groupBy}, {@code groupCounts}
+   * and {@code locate}.
+   */
+  public ResourceTableQuery withoutGrouping() {
+    if (groupBy == null && groupCounts == null && locate == null) {
+      return this;
+    }
+    return new ResourceTableQuery(
+        studyIds,
+        resourceId,
+        patientIdentifiers,
+        sampleIdentifiers,
+        search,
+        pageNumber,
+        pageSize,
+        sortBy,
+        direction,
+        filters,
+        resourceIds,
+        studyViewFilter,
+        null,
+        null,
+        null);
+  }
+
+  /**
    * Every resource the query reads: {@code resourceId} followed by {@code resourceIds}, without
    * blanks or repeats.
    */

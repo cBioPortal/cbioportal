@@ -13,6 +13,7 @@ import org.cbioportal.domain.resource.ResourceScopeRow;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableGroup;
 import org.cbioportal.domain.resource.ResourceTableGroupPage;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
@@ -459,6 +460,35 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(facets.get(STAIN))
         .containsExactly(new ResourceFacetOption("H&E", 4L), new ResourceFacetOption("IHC", 3L));
     assertThat(facets).doesNotContainKey("metadata:block");
+  }
+
+  @Test
+  public void groupedMetadata_countsGroupsInItsFacetsOnly() {
+    Q q = combined();
+    q.groupBy = "sample";
+    ResourceTableQuery grouped = q.build();
+    ResourceTableQuery rows = grouped.withoutGrouping();
+    ResourceQueryContext groupedContext = context(grouped, null);
+    ResourceQueryContext rowsContext = context(rows, null);
+
+    // The three patient-level rows belong to no sample, but they are still rows of the table.
+    ResourceTableCounts counts = repository.getResourceTableCounts(grouped, groupedContext);
+    assertThat(counts).isEqualTo(repository.getResourceTableCounts(rows, rowsContext));
+    assertThat(counts.rowCount()).isEqualTo(11);
+    assertThat(counts.patientCount()).isEqualTo(6);
+    assertThat(counts.sampleCount()).isEqualTo(5);
+
+    ResourceTableMetadataView groupedMetadata =
+        repository.getResourceTableMetadata(grouped, groupedContext);
+    ResourceTableMetadataView rowMetadata = repository.getResourceTableMetadata(rows, rowsContext);
+    assertThat(groupedMetadata.columns()).isEqualTo(rowMetadata.columns());
+    assertThat(groupedMetadata.facetRanges()).isEqualTo(rowMetadata.facetRanges());
+    // Samples carrying each value: H&E on 301-01, 302-01, 303-01 and 305-01; IHC on 301-01 and
+    // 304-01. The rows would count 6 and 5.
+    assertThat(groupedMetadata.facets().get(STAIN))
+        .containsExactly(new ResourceFacetOption("H&E", 4L), new ResourceFacetOption("IHC", 2L));
+    assertThat(rowMetadata.facets().get(STAIN))
+        .containsExactly(new ResourceFacetOption("H&E", 6L), new ResourceFacetOption("IHC", 5L));
   }
 
   @Test

@@ -197,7 +197,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // column's options or keys, disappear.
     // The table is chosen on the full query, so a column filter on a key the compact table lacks
     // keeps every statement of the request on resource.
-    Reads scoped = Reads.of(query, context).withQuery(withoutColumnFilters(query));
+    //
+    // Grouping changes only what a facet value counts: the groups carrying it rather than the rows.
+    // The columns, the key classification and the numeric ranges describe the rows, so they are
+    // read exactly as for the same query without groupBy; only the facets keep the grouping, and
+    // with it the restriction to rows that belong to a group.
+    Reads reads = Reads.of(query, context);
+    Reads grouped = reads.withQuery(withoutColumnFilters(query));
+    Reads scoped = reads.withQuery(withoutColumnFilters(query).withoutGrouping());
     MetadataContext metadataContext = resolveMetadataContext(scoped);
 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
@@ -214,7 +221,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
       (metadataContext.isNumeric(key) ? numericKeys : categoricalKeys).add(key);
     }
     facetRanges.putAll(metadataRanges(scoped, numericKeys));
-    facets.putAll(metadataFacets(scoped, categoricalKeys));
+    facets.putAll(metadataFacets(grouped, categoricalKeys));
 
     return new ResourceTableMetadataView(metadataColumns(metadataContext), facets, facetRanges);
   }
@@ -352,15 +359,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return byKey;
   }
 
-  /**
-   * The contracts in scope. A request that resolved its resource scope already holds them, read
-   * from the definitions; otherwise they are read over the rows the request matches.
-   */
+  /** The contracts in scope, read over the rows the request matches. */
   private List<ResourceContractRow> contractRows(Reads scoped) {
-    ResourceScope scope = scoped.context().scope();
-    if (scope != null && scoped.query().grouped()) {
-      return scope.contractRows();
-    }
     List<ResourceContractRow> rows =
         mapper.getResourceDefinitionCustomMetadata(scoped.query(), scoped.cohort());
     return rows == null ? List.of() : rows;
@@ -440,9 +440,10 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   @Override
   public ResourceTableCounts getResourceTableCounts(
       ResourceTableQuery query, ResourceQueryContext context) {
-    Reads reads = Reads.of(query, context);
+    // Counts are over rows whether or not the query groups them; see getResourceTableMetadata.
+    Reads reads = Reads.of(query, context).withQuery(query.withoutGrouping());
     ResourceTableCounts counts =
-        mapper.getResourceTableCounts(query, reads.cohort(), reads.compact());
+        mapper.getResourceTableCounts(reads.query(), reads.cohort(), reads.compact());
     return counts == null ? ResourceTableCounts.empty() : counts;
   }
 

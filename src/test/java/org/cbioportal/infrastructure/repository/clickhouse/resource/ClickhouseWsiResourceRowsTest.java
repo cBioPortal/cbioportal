@@ -1,4 +1,4 @@
-package org.cbioportal.infrastructure.repository.clickhouse.wsi;
+package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.cbioportal.domain.resource.ResourceIdentifierFixtures.patients;
@@ -9,7 +9,6 @@ import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
-import org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

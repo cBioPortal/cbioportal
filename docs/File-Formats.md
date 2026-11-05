@@ -281,12 +281,19 @@ The Clinical Data Dictionary from MSKCC is used to normalize clinical data, and 
 
 ## Whole-Slide Image Tile Server
 
-Pathology slides (whole-slide images) are stored as standard
-[Resource Data](#resource-data) in the `WSI_SAMPLE` and `WSI_PATIENT` resource
-types. To enable the built-in slide viewer, which can display tiles from these
-slides, configure the URL of a
+Pathology slides (whole-slide images) can be stored as standard
+[Resource Data](#resource-data). The resource URL can link to any external
+slide viewer.
+
+When the resource type is `WSI_SAMPLE` or `WSI_PATIENT`, cBioPortal uses its
+built-in slide viewer instead: a **Pathology Slides** tab on the patient page
+that lists slides by specimen and renders the selected slide with
+[OpenSeadragon](https://openseadragon.github.io/), a zoomable tile-based
+image viewer
+([frontend PR](https://github.com/cBioPortal/cbioportal-frontend/pull/5732)).
+Tiles and thumbnails are served by a
 [cbioportal-tile-server](https://github.com/cbioportal/cbioportal-tile-server)
-instance:
+instance. To enable the viewer, configure its URL:
 
 ```properties
 wsi.tile_server.url=https://cbioportal.example.org/wsi

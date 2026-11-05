@@ -31,8 +31,7 @@
       <arg column="studyId" javaType="String"/>
       <arg column="customMetadata" javaType="String"/>
       <arg column="defined" javaType="_boolean"/>
-      <arg column="hasRows" javaType="_boolean"/>
-      <arg column="compactCurrent" javaType="_boolean"/>
+      <arg column="mayHoldRows" javaType="_boolean"/>
     </constructor>
   </resultMap>
 
@@ -657,65 +656,85 @@
     <include refid="ResourceTableBaseFilters"/>
   </select>
   <!--
-    The scope of a scoped request: one row per requested resource that a requested study defines,
-    holds rows of, or holds stale compact rows of, with that study's contract. It never reads rows'
-    metadata.
+    The scope of a scoped request: one row per requested resource that a requested study defines
+    or holds rows of, with that study's contract. It never reads rows' metadata.
 
-    The two probes count rows per (resource, study) in resource and in resource_compact_derived.
-    Both restrict cancer_study_id and resource_id, the first two columns of both tables' sorting
-    key, so only the granules of the requested pairs are read, and of those only the key columns
-    and, in the compact table, the constant contract_hash. A pair's compact copy is current when
-    the counts agree and the rows were copied under the contract its definition declares now.
-    Anything else (a study imported, or a contract changed, without repopulating the derived
-    tables) leaves it stale, and a grouped query reading that pair falls back to resource.
-
-    The contract is max() over the definitions, the same choice populate_derived_tables.sql makes,
-    so a duplicated definition resolves the same way in both places.
+    A pair whose definition declares a contract is taken to hold rows without looking. Only the
+    other pairs are probed in resource, and the probe excludes the contracted pairs by sorting key,
+    so for a fully contracted request it reads no granules at all. Whether the compact table's copy
+    of the contracted pairs is current is a separate question; see isCompactTableCurrent.
   -->
   <select id="getResourceScope" resultMap="ResourceScopeRowResultMap">
-    SELECT resourceId, studyId, customMetadata, defined,
-           resourceRows > 0 AS hasRows,
-           compactRows = resourceRows
-             AND (compactRows = 0 OR compactContractHash = cityHash64(customMetadata)) AS compactCurrent
+    SELECT scope.resource_id AS resourceId,
+           cs.cancer_study_identifier AS studyId,
+           max(scope.customMetadata) AS customMetadata,
+           max(scope.defined) AS defined,
+           max(scope.mayHoldRows) AS mayHoldRows
     FROM (
-      SELECT scope.resource_id AS resourceId,
-             cs.cancer_study_identifier AS studyId,
-             max(scope.customMetadata) AS customMetadata,
-             max(scope.defined) AS defined,
-             sum(scope.resourceRows) AS resourceRows,
-             sum(scope.compactRows) AS compactRows,
-             max(scope.compactContractHash) AS compactContractHash
-      FROM (
-        SELECT resource_id, cancer_study_id,
-               ifNull(custom_metadata, '') AS customMetadata,
-               toUInt8(1) AS defined,
-               toUInt64(0) AS resourceRows,
-               toUInt64(0) AS compactRows,
-               toUInt64(0) AS compactContractHash
-        FROM resource_definition
-        WHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-        UNION ALL
-        SELECT resource_id, cancer_study_id, '', toUInt8(0), count(), toUInt64(0), toUInt64(0)
-        FROM resource
-        PREWHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          AND cancer_study_id IN (
-              SELECT cancer_study_id FROM cancer_study
-              WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
-        GROUP BY resource_id, cancer_study_id
-        UNION ALL
-        SELECT resource_id, cancer_study_id, '', toUInt8(0), toUInt64(0), count(), max(contract_hash)
-        FROM resource_compact_derived
-        PREWHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-          AND cancer_study_id IN (
-              SELECT cancer_study_id FROM cancer_study
-              WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
-        GROUP BY resource_id, cancer_study_id
-      ) scope
-      INNER JOIN cancer_study cs ON cs.cancer_study_id = scope.cancer_study_id
-      WHERE cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
-      GROUP BY resourceId, studyId
-    ) pairs
+      SELECT resource_id, cancer_study_id,
+             ifNull(custom_metadata, '') AS customMetadata,
+             toUInt8(1) AS defined,
+             toUInt8(customMetadata != '') AS mayHoldRows
+      FROM resource_definition
+      WHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+      UNION ALL
+      SELECT DISTINCT resource_id, cancer_study_id, '' AS customMetadata, toUInt8(0) AS defined, toUInt8(1) AS mayHoldRows
+      FROM resource
+      WHERE resource_id IN (#{query.resourceIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+        AND cancer_study_id IN (
+            SELECT cancer_study_id FROM cancer_study
+            WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
+        AND (cancer_study_id, resource_id) NOT IN (
+            SELECT cancer_study_id, resource_id FROM resource_definition
+            WHERE custom_metadata IS NOT NULL AND custom_metadata != '')
+    ) scope
+    INNER JOIN cancer_study cs ON cs.cancer_study_id = scope.cancer_study_id
+    WHERE cs.cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+    GROUP BY resourceId, studyId
     ORDER BY resourceId, studyId
+  </select>
+
+  <!--
+    Whether the compact table's copy of every requested resource, over the requested studies, is
+    current: it holds as many rows copied under the contract each study declares now as resource
+    holds. A study imported, or a contract changed, without repopulating the derived tables leaves
+    the two counts apart, and the grouped query reads resource instead.
+
+    Both counts are answered from the primary key alone, reading only the boundary granules: one
+    resource_id and a set of cancer_study_id values select whole key ranges of resource, and
+    contract_hash follows resource_id in the compact table's sorting key, so the rows copied under
+    the current contracts form whole key ranges too. That is why each resource is counted on its own
+    rather than through one IN list. The contract is max() over the definitions, the same choice
+    populate_derived_tables.sql makes, so a duplicated definition hashes the same in both places.
+  -->
+  <select id="isCompactTableCurrent" resultType="java.lang.Boolean">
+    SELECT min(current) FROM (
+      SELECT resourceId, toUInt8(sum(resourceRows) = sum(compactRows)) AS current
+      FROM (
+        <foreach collection="query.resourceIdsArray" item="probedId" separator="UNION ALL">
+          SELECT #{probedId} AS resourceId, count() AS resourceRows, toUInt64(0) AS compactRows
+          FROM resource
+          WHERE resource_id = #{probedId}
+            AND cancer_study_id IN (
+                SELECT cancer_study_id FROM cancer_study
+                WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
+          UNION ALL
+          SELECT #{probedId}, toUInt64(0), count()
+          FROM resource_compact_derived
+          WHERE resource_id = #{probedId}
+            AND (cancer_study_id, contract_hash) IN (
+                SELECT cancer_study_id, cityHash64(max(assumeNotNull(custom_metadata)))
+                FROM resource_definition
+                WHERE resource_id = #{probedId}
+                  AND custom_metadata IS NOT NULL AND custom_metadata != ''
+                  AND cancer_study_id IN (
+                      SELECT cancer_study_id FROM cancer_study
+                      WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
+                GROUP BY cancer_study_id)
+        </foreach>
+      ) counted
+      GROUP BY resourceId
+    ) perResource
   </select>
 
   <!--

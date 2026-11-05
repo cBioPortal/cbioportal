@@ -613,9 +613,11 @@ CREATE TABLE resource (
 -- metadata reduced to the keys that contract declares. Grouped resource-table queries read it so
 -- that filters, group counts and facets parse short documents rather than every key a row carries.
 -- Rows of resources without a contract are not copied; queries over them read resource.
--- contract_hash is cityHash64 of the custom_metadata the rows were copied under. The resource
--- table compares it, and each pair's row count, with the current definition and the resource
--- table, and reads resource instead of a stale copy; repopulate after importing or changing one.
+-- contract_hash is cityHash64 of the custom_metadata the rows were copied under. It follows
+-- resource_id in the sorting key, which is constant per (study, resource), so the resource table can
+-- count the rows copied under today's contract from the primary key alone, compare that with the
+-- resource table's count, and read resource instead of a stale copy. Repopulate after importing a
+-- study's resources or changing a contract.
 CREATE TABLE resource_compact_derived (
     `internal_id` Int64,
     `resource_id` String,
@@ -627,7 +629,7 @@ CREATE TABLE resource_compact_derived (
     `display_name` Nullable(String),
     `metadata` Nullable(String),
     `contract_hash` UInt64
-) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, contract_hash, patient_id, sample_id, internal_id)
   SETTINGS allow_nullable_key = 1;
 
 

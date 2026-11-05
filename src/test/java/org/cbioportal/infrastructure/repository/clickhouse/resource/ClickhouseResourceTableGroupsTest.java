@@ -10,7 +10,6 @@ import org.cbioportal.domain.resource.ResourceGroupBy;
 import org.cbioportal.domain.resource.ResourceGroupLocator;
 import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceScope;
-import org.cbioportal.domain.resource.ResourceScopeRow;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableGroup;
 import org.cbioportal.domain.resource.ResourceTableGroupPage;
@@ -384,7 +383,7 @@ public class ClickhouseResourceTableGroupsTest {
 
     assertThat(context.scope().resourceIds()).containsExactlyInAnyOrder("HE_SLIDE", "CT_SCAN");
     assertThat(context.scope().rows())
-        .extracting(row -> row.resourceId() + ":" + row.studyId() + ":" + row.hasRows())
+        .extracting(row -> row.resourceId() + ":" + row.studyId() + ":" + row.mayHoldRows())
         .containsExactly(
             "CT_SCAN:study_tcga_pub:true",
             "HE_SLIDE:acc_tcga:true",
@@ -420,8 +419,12 @@ public class ClickhouseResourceTableGroupsTest {
     ResourceScope scope = repository.getResourceScope(q.build());
 
     assertThat(scope.resourceIds()).containsExactlyInAnyOrder(SLIDES, PATIENT_SLIDES);
-    assertThat(scope.rows())
-        .allMatch(row -> row.defined() && row.hasRows() && row.declared() && row.compactCurrent());
+    assertThat(scope.rows()).allMatch(row -> row.defined() && row.mayHoldRows() && row.declared());
+    assertThat(scope.compactCurrent()).isTrue();
+    // A row query never reads the compact table, so its freshness is not checked.
+    q.groupBy = null;
+    q.groupCounts = null;
+    assertThat(repository.getResourceScope(q.build()).compactCurrent()).isFalse();
   }
 
   @Test
@@ -752,7 +755,7 @@ public class ClickhouseResourceTableGroupsTest {
       ResourceTableQuery query = q().build();
       ResourceQueryContext context = context(query, null);
 
-      assertThat(context.scope().rows()).noneMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.scope().compactCurrent()).isFalse();
       assertThat(context.readsCompactTable(query)).isFalse();
       ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
       assertThat(keys(page)).isEqualTo(ALL_SLIDE_PATIENTS);
@@ -782,7 +785,7 @@ public class ClickhouseResourceTableGroupsTest {
       ResourceTableQuery query = q().build();
       ResourceQueryContext context = context(query, null);
 
-      assertThat(context.scope().rows()).noneMatch(ResourceScopeRow::compactCurrent);
+      assertThat(context.scope().compactCurrent()).isFalse();
       assertThat(context.readsCompactTable(query)).isFalse();
       ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
       assertThat(keys(page)).contains("GENIE-TEST-307");
@@ -796,36 +799,31 @@ public class ClickhouseResourceTableGroupsTest {
   @Test
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   public void rowsCopiedUnderAnEarlierContract_areNotTrusted() {
-    // Rows copied under some other contract than the definition declares now, as a contract
-    // changed without repopulating would leave them. Such a copy can lack a key the contract now
-    // declares, which only the full table holds.
-    String hash =
-        jdbcTemplate.queryForObject(
-            "SELECT toString(any(contract_hash)) FROM resource_compact_derived WHERE resource_id = ?",
-            String.class,
-            PATIENT_SLIDES);
+    // The contract changed after the compact table was built: a second definition whose contract
+    // max() now picks declares "serving", which the compact rows were copied without.
+    String contract =
+        "{\"version\":2,\"fields\":[{\"key\":\"stain_group\"},{\"key\":\"serving\"}]}";
     jdbcTemplate.update(
-        "ALTER TABLE resource_compact_derived UPDATE contract_hash = 42 WHERE resource_id = ?"
-            + " SETTINGS mutations_sync = 2",
-        PATIENT_SLIDES);
+        "INSERT INTO resource_definition (resource_id, cancer_study_id, resource_type,"
+            + " display_name, description, open_by_default, priority, custom_metadata)"
+            + " VALUES (?, 3, 'PATIENT', 'Slides', 'Patient-level slides', 1, 2, ?)",
+        PATIENT_SLIDES,
+        contract);
     try {
       ResourceTableQuery query = combined().build();
       ResourceQueryContext context = context(query, null);
 
-      assertThat(context.scope().rows())
-          .filteredOn(row -> row.resourceId().equals(PATIENT_SLIDES))
-          .noneMatch(ResourceScopeRow::compactCurrent);
-      assertThat(context.scope().rows())
-          .filteredOn(row -> row.resourceId().equals(SLIDES))
-          .allMatch(ResourceScopeRow::compactCurrent);
+      // The contracts alone would let the query read the compact table; its copy is stale.
+      assertThat(context.scope().contractsCover(query.referencedMetadataKeys())).isTrue();
+      assertThat(context.scope().compactCurrent()).isFalse();
       assertThat(context.readsCompactTable(query)).isFalse();
       assertThat(repository.getResourceTableGroups(query, context).totalRows()).isEqualTo(11);
     } finally {
       jdbcTemplate.update(
-          "ALTER TABLE resource_compact_derived UPDATE contract_hash = toUInt64(?)"
-              + " WHERE resource_id = ? SETTINGS mutations_sync = 2",
-          hash,
-          PATIENT_SLIDES);
+          "ALTER TABLE resource_definition DELETE WHERE resource_id = ? AND custom_metadata = ?"
+              + " SETTINGS mutations_sync = 2",
+          PATIENT_SLIDES,
+          contract);
     }
     ResourceTableQuery query = combined().build();
     assertThat(context(query, null).readsCompactTable(query)).isTrue();
@@ -923,7 +921,7 @@ public class ClickhouseResourceTableGroupsTest {
 
     assertThat(context.scope().rows())
         .anyMatch(
-            row -> row.studyId().equals("study_tcga_pub") && row.hasRows() && !row.declared());
+            row -> row.studyId().equals("study_tcga_pub") && row.mayHoldRows() && !row.declared());
     assertThat(context.readsCompactTable(query)).isFalse();
     assertThat(repository.getResourceTableGroups(query, context).groups())
         .extracting(g -> g.studyId() + ":" + g.patientId())

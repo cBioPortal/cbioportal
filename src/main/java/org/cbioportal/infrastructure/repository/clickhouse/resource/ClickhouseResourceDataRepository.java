@@ -163,8 +163,8 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
   }
 
-  private MetadataContext resolveMetadataContext(Reads scoped) {
-    List<ResourceContractRow> contractRows = contractRows(scoped);
+  private MetadataContext resolveMetadataContext(Reads scoped, boolean grouped) {
+    List<ResourceContractRow> contractRows = contractRows(scoped, grouped);
     ResourceMetadataSchema schema = mergedSchema(scoped, contractRows);
     boolean coversEveryStudy =
         !contractRows.isEmpty() && contractRows.stream().allMatch(ResourceContractRow::declared);
@@ -208,13 +208,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // keeps every statement of the request on resource.
     //
     // Grouping changes only what a facet value counts: the groups carrying it rather than the rows.
-    // The columns, the key classification and the numeric ranges describe the rows, so they are
-    // read exactly as for the same query without groupBy; only the facets keep the grouping, and
-    // with it the restriction to rows that belong to a group.
+    // The key classification and the numeric ranges describe the rows, so they are read exactly as
+    // for the same query without groupBy; only the facets keep the grouping, and with it the
+    // restriction to rows that belong to a group. The contracts are the one exception; see
+    // contractRows.
     Reads reads = Reads.of(query, context);
     Reads grouped = reads.withQuery(withoutColumnFilters(query));
     Reads scoped = reads.withQuery(withoutColumnFilters(query).withoutGrouping());
-    MetadataContext metadataContext = resolveMetadataContext(scoped);
+    MetadataContext metadataContext = resolveMetadataContext(scoped, query.grouped());
 
     Map<String, List<ResourceFacetOption>> facets = new LinkedHashMap<>();
 
@@ -374,8 +375,21 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     return byKey;
   }
 
-  /** The contracts in scope, read over the rows the request matches. */
-  private List<ResourceContractRow> contractRows(Reads scoped) {
+  /**
+   * The contracts in scope.
+   *
+   * <p>A grouped request has already read its resource scope from the definitions, so it takes the
+   * contracts from there: the contract of every (resource, study) pair that may hold rows. Any
+   * other request reads them over the rows it matches, which joins every matching row to its
+   * definition and costs a scan of the cohort's rows (about 0.4 s over 1.7M rows). The two agree
+   * unless the cohort or the search removes every row of a study whose contract differs from the
+   * rest; a grouped table then still shows that study's declared columns, empty.
+   */
+  private List<ResourceContractRow> contractRows(Reads scoped, boolean grouped) {
+    ResourceScope scope = scoped.context().scope();
+    if (grouped && scope != null) {
+      return scope.contractRows();
+    }
     List<ResourceContractRow> rows =
         mapper.getResourceDefinitionCustomMetadata(scoped.query(), scoped.cohort());
     return rows == null ? List.of() : rows;
@@ -464,7 +478,15 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   @Override
   public ResourceScope getResourceScope(ResourceTableQuery query) {
-    return new ResourceScope(mapper.getResourceScope(query));
+    ResourceScope scope = new ResourceScope(mapper.getResourceScope(query));
+    // The freshness probe is a statement of its own, so it runs only for a query that could read
+    // the compact table at all: grouped, without a search, over contracts covering its keys.
+    if (query.grouped()
+        && !query.hasSearch()
+        && scope.contractsCover(query.referencedMetadataKeys())) {
+      scope = scope.withCompactCurrent(Boolean.TRUE.equals(mapper.isCompactTableCurrent(query)));
+    }
+    return scope;
   }
 
   /**

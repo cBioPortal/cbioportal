@@ -42,6 +42,9 @@ public interface ResourceDataRepository {
   ResourceTableGroupPage getResourceTableGroups(
       ResourceTableQuery query, ResourceQueryContext context);
 
-  /** The query's resources as its studies define and hold them; see {@link ResourceScope}. */
+  /**
+   * The query's resources as its studies define and hold them, and, for a query that could read the
+   * compact metadata table, whether that table is current; see {@link ResourceScope}.
+   */
   ResourceScope getResourceScope(ResourceTableQuery query);
 }

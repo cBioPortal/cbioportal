@@ -118,7 +118,7 @@ public class ResourceTableController {
               + " cohort, search and filter combination and reuse it across pages; pageNumber,"
               + " pageSize and locate in the request are ignored, and groupCounts is only"
               + " validated. With groupBy, each facet value counts the patients or samples"
-              + " carrying it; the columns, ranges and counts are as without groupBy.")
+              + " carrying it; the ranges and counts are as without groupBy.")
   @ApiResponse(
       responseCode = "200",
       description = "OK",

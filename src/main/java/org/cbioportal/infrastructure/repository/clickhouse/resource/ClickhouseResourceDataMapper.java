@@ -114,6 +114,13 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceScopeRow> getResourceScope(@Param("query") ResourceTableQuery query);
 
   /**
+   * Whether the compact table holds a current copy of every requested resource over the requested
+   * studies: as many rows, copied under each study's present contract, as {@code resource} holds.
+   * Answered from the sorting keys alone.
+   */
+  Boolean isCompactTableCurrent(@Param("query") ResourceTableQuery query);
+
+  /**
    * The requested page of groups, each carrying the totals over every group and, with a {@code
    * locate} group, its zero-based position (null if the filters remove it).
    */

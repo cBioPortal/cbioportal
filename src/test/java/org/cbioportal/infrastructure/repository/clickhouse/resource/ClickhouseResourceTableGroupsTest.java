@@ -110,7 +110,7 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   private ResourceQueryContext context(ResourceTableQuery query, StudyViewFilterContext cohort) {
-    return new ResourceQueryContext(cohort, repository.getResourceScope(query));
+    return new ResourceQueryContext(cohort, repository.getResourceScope(query, true));
   }
 
   private ResourceTableGroupPage groups(ResourceTableQuery query) {
@@ -416,7 +416,7 @@ public class ClickhouseResourceTableGroupsTest {
   public void resourceScope_listsEachResourceThatTheStudiesDefineOrHold() {
     Q q = combined();
     q.resourceIds = List.of(SLIDES, PATIENT_SLIDES, "NOT_A_RESOURCE");
-    ResourceScope scope = repository.getResourceScope(q.build());
+    ResourceScope scope = repository.getResourceScope(q.build(), true);
 
     assertThat(scope.resourceIds()).containsExactlyInAnyOrder(SLIDES, PATIENT_SLIDES);
     assertThat(scope.rows()).allMatch(row -> row.defined() && row.mayHoldRows() && row.declared());
@@ -424,7 +424,10 @@ public class ClickhouseResourceTableGroupsTest {
     // A row query never reads the compact table, so its freshness is not checked.
     q.groupBy = null;
     q.groupCounts = null;
-    assertThat(repository.getResourceScope(q.build()).compactCurrent()).isFalse();
+    assertThat(repository.getResourceScope(q.build(), true).compactCurrent()).isFalse();
+    // Nor for a request that parses no metadata beyond a page of groups.
+    q.groupBy = "patient";
+    assertThat(repository.getResourceScope(q.build(), false).compactCurrent()).isFalse();
   }
 
   @Test

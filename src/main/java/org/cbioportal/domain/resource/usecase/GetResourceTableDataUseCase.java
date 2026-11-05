@@ -35,7 +35,8 @@ public class GetResourceTableDataUseCase {
       return List.of();
     }
     return resourceDataRepository.getResourceTableRows(
-        query, ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService));
+        query,
+        ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService, false));
   }
 
   /** A query naming no study or no resource cannot be answered, and is not an error. */

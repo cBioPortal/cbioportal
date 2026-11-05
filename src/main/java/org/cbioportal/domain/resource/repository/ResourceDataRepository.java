@@ -43,8 +43,13 @@ public interface ResourceDataRepository {
       ResourceTableQuery query, ResourceQueryContext context);
 
   /**
-   * The query's resources as its studies define and hold them, and, for a query that could read the
-   * compact metadata table, whether that table is current; see {@link ResourceScope}.
+   * The query's resources as its studies define and hold them; see {@link ResourceScope}.
+   *
+   * @param scansMetadata whether the request will parse the metadata of every row the query matches
+   *     (facets, key discovery, ranges, metadata column filters). Only such a request gains from
+   *     the compact metadata table, so only for it, and only for a grouped query without a search
+   *     over contracts covering its keys, is the table's freshness checked; otherwise the scope
+   *     reports it as not current and the request reads {@code resource}.
    */
-  ResourceScope getResourceScope(ResourceTableQuery query);
+  ResourceScope getResourceScope(ResourceTableQuery query, boolean scansMetadata);
 }

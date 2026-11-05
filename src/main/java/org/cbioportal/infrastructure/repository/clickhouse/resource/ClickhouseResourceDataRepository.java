@@ -477,11 +477,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   @Override
-  public ResourceScope getResourceScope(ResourceTableQuery query) {
+  public ResourceScope getResourceScope(ResourceTableQuery query, boolean scansMetadata) {
     ResourceScope scope = new ResourceScope(mapper.getResourceScope(query));
-    // The freshness probe is a statement of its own, so it runs only for a query that could read
-    // the compact table at all: grouped, without a search, over contracts covering its keys.
-    if (query.grouped()
+    // The freshness probe is a statement of its own, so it runs only for a request the compact
+    // table can speed up: one scanning metadata, for a grouped query without a search, over
+    // contracts covering its keys.
+    if (scansMetadata
+        && query.grouped()
         && !query.hasSearch()
         && scope.contractsCover(query.referencedMetadataKeys())) {
       scope = scope.withCompactCurrent(Boolean.TRUE.equals(mapper.isCompactTableCurrent(query)));

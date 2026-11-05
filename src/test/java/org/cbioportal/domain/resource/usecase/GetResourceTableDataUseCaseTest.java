@@ -136,6 +136,6 @@ public class GetResourceTableDataUseCaseTest {
     verify(resourceDataRepository)
         .getResourceTableRows(query, new ResourceQueryContext(cohort, null));
     // A single resource without grouping needs no scope lookup.
-    verify(resourceDataRepository, never()).getResourceScope(Mockito.any());
+    verify(resourceDataRepository, never()).getResourceScope(Mockito.any(), Mockito.anyBoolean());
   }
 }

@@ -1,17 +1,22 @@
 package org.cbioportal.domain.resource;
 
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.cbioportal.legacy.web.parameter.PatientIdentifier;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 
 /**
- * The request body of both resource-table endpoints: one kind of resource, restricted to the
- * studies and to the patient and sample selection the caller names, with the table's search box,
- * column filters, sort and page applied.
+ * The request body of the resource-table endpoints: one kind of resource, restricted to the studies
+ * and to the patient and sample selection the caller names, with the table's search box, column
+ * filters, sort and page applied.
  *
  * <p>This is the request only. Nothing here describes what comes back: the rows are {@link
- * ResourceTableRow}, and the columns, filter options and counts are {@link
- * ResourceTableMetadataResult}.
+ * ResourceTableRow}, the groups are {@link ResourceTableGroupPage}, and the columns, filter options
+ * and counts are {@link ResourceTableMetadataResult}.
  *
  * @param studyIds the studies to read, by study identifier. Every select in {@code
  *     ResourceDataMapper.xml} restricts {@code cancer_study_identifier} to this list, so the rows
@@ -41,6 +46,23 @@ import org.cbioportal.legacy.web.parameter.SampleIdentifier;
  * @param filters per-column filters, all of which a row must satisfy. Each names {@code patientId},
  *     {@code sampleId}, {@code url}, {@code displayName} or a {@code metadata:<key>}; see {@link
  *     ResourceColumnFilter}.
+ * @param resourceIds several resources to read together as one table, e.g. a sample-level and a
+ *     patient-level resource holding the same kind of item. Combined with {@code resourceId} when
+ *     both are given. Every id must exist in at least one of {@code studyIds}.
+ * @param studyViewFilter the cohort as a study-view filter, resolved on the server to its samples
+ *     and their patients the same way the study-view charts resolve it. When present it replaces
+ *     {@code patientIdentifiers} and {@code sampleIdentifiers}: a sample-level row matches when its
+ *     sample is in the cohort, a patient-level row when its patient has a sample in the cohort.
+ * @param groupBy {@code patient} or {@code sample}, in any case: answer with one entry per patient
+ *     or sample instead of one per row. Only the groups endpoint and the metadata endpoint accept
+ *     it; see {@link ResourceGroupBy}, which parses it when the body is read and rejects any other
+ *     value as a bad request.
+ * @param groupCounts columns to count values of within each group, e.g. {@code
+ *     metadata:stain_group} or {@code resourceId}; see {@link ResourceGroupCountColumn}. At most
+ *     ten, and only with {@code groupBy}.
+ * @param locate a group whose position under the current filters and sort the groups endpoint
+ *     should report alongside the page. Only with {@code groupBy}; the metadata endpoint ignores
+ *     it.
  */
 public record ResourceTableQuery(
     List<String> studyIds,
@@ -52,7 +74,153 @@ public record ResourceTableQuery(
     int pageSize,
     String sortBy,
     String direction,
-    List<ResourceColumnFilter> filters) {
+    List<ResourceColumnFilter> filters,
+    List<String> resourceIds,
+    @Valid StudyViewFilter studyViewFilter,
+    ResourceGroupBy groupBy,
+    List<String> groupCounts,
+    ResourceGroupLocator locate) {
+
+  /** The same query with every column-level filter removed. */
+  public ResourceTableQuery withoutColumnFilters() {
+    return new ResourceTableQuery(
+        studyIds,
+        resourceId,
+        patientIdentifiers,
+        sampleIdentifiers,
+        search,
+        pageNumber,
+        pageSize,
+        sortBy,
+        direction,
+        List.of(),
+        resourceIds,
+        studyViewFilter,
+        groupBy,
+        groupCounts,
+        locate);
+  }
+
+  /**
+   * The same query read as rows rather than groups: without {@code groupBy}, {@code groupCounts}
+   * and {@code locate}.
+   */
+  public ResourceTableQuery withoutGrouping() {
+    if (groupBy == null && groupCounts == null && locate == null) {
+      return this;
+    }
+    return new ResourceTableQuery(
+        studyIds,
+        resourceId,
+        patientIdentifiers,
+        sampleIdentifiers,
+        search,
+        pageNumber,
+        pageSize,
+        sortBy,
+        direction,
+        filters,
+        resourceIds,
+        studyViewFilter,
+        null,
+        null,
+        null);
+  }
+
+  /**
+   * Every resource the query reads: {@code resourceId} followed by {@code resourceIds}, without
+   * blanks or repeats.
+   */
+  public List<String> effectiveResourceIds() {
+    Set<String> ids = new LinkedHashSet<>();
+    if (resourceId != null && !resourceId.isBlank()) {
+      ids.add(resourceId);
+    }
+    if (resourceIds != null) {
+      for (String id : resourceIds) {
+        if (id != null && !id.isBlank()) {
+          ids.add(id);
+        }
+      }
+    }
+    return List.copyOf(ids);
+  }
+
+  /**
+   * Whether the query names its resources through {@code resourceIds}. A query naming only {@code
+   * resourceId} keeps the single-resource equality predicate.
+   */
+  public boolean hasResourceIds() {
+    return resourceIds != null && resourceIds.stream().anyMatch(id -> id != null && !id.isBlank());
+  }
+
+  public String[] resourceIdsArray() {
+    return effectiveResourceIds().toArray(new String[0]);
+  }
+
+  /**
+   * Whether the search box holds text. Any text counts, blanks included, since the search matches
+   * it verbatim.
+   */
+  public boolean hasSearch() {
+    return search != null && !search.isEmpty();
+  }
+
+  /** Whether the cohort is a study-view filter rather than explicit identifier lists. */
+  public boolean hasStudyViewFilter() {
+    return studyViewFilter != null;
+  }
+
+  public boolean grouped() {
+    return groupBy != null;
+  }
+
+  public boolean groupBySample() {
+    return groupBy == ResourceGroupBy.SAMPLE;
+  }
+
+  /** {@code groupCounts} parsed, in request order without repeats. */
+  public List<ResourceGroupCountColumn> groupCountColumns() {
+    if (groupCounts == null || groupCounts.isEmpty()) {
+      return List.of();
+    }
+    List<ResourceGroupCountColumn> columns = new ArrayList<>();
+    for (String columnId : new LinkedHashSet<>(groupCounts)) {
+      columns.add(ResourceGroupCountColumn.parse(columnId));
+    }
+    return List.copyOf(columns);
+  }
+
+  /** The group key {@link #locate} names: its sample id under sample grouping, else patient id. */
+  public String locateKey() {
+    if (locate == null) {
+      return null;
+    }
+    return groupBySample() ? locate.sampleId() : locate.patientId();
+  }
+
+  /**
+   * Metadata keys the query reads values of, through its filters and group counts. The compact
+   * metadata table can answer a grouped query only when it holds every one of them. A search reads
+   * every key, so it is not reduced to keys here; see {@link
+   * ResourceQueryContext#readsCompactTable}.
+   */
+  public Set<String> referencedMetadataKeys() {
+    Set<String> keys = new LinkedHashSet<>();
+    if (filters != null) {
+      for (ResourceColumnFilter filter : filters) {
+        if (filter != null && filter.metadataColumn()) {
+          keys.add(filter.metadataKey());
+        }
+      }
+    }
+    for (ResourceGroupCountColumn column : groupCountColumns()) {
+      if (column.metadataKey() != null) {
+        keys.add(column.metadataKey());
+      }
+    }
+    return keys;
+  }
 
   /**
    * The id lists above as ClickHouse native arrays, bound as a single JDBC array parameter via
@@ -103,9 +271,13 @@ public record ResourceTableQuery(
     return sampleIdentifiers != null && !sampleIdentifiers.isEmpty();
   }
 
-  /** Zero-based page index times page size: the row this page starts at. */
-  public int offset() {
-    return Math.max(pageNumber, 0) * limit();
+  /**
+   * Zero-based page index times page size: the row this page starts at. Computed in {@code long},
+   * which the two {@code int} factors cannot overflow, and bound as a {@code long}, so a page far
+   * past the end reads nothing rather than wrapping to a negative offset.
+   */
+  public long offset() {
+    return (long) Math.max(pageNumber, 0) * limit();
   }
 
   /** The page size, floored at zero so a negative request reads nothing rather than erroring. */

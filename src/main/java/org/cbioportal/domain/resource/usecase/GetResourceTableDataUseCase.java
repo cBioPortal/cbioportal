@@ -1,18 +1,23 @@
 package org.cbioportal.domain.resource.usecase;
 
 import java.util.List;
+import org.cbioportal.domain.resource.InvalidResourceTableQueryException;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.cbioportal.domain.studyview.StudyViewService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GetResourceTableDataUseCase {
   private final ResourceDataRepository resourceDataRepository;
+  private final StudyViewService studyViewService;
 
-  public GetResourceTableDataUseCase(ResourceDataRepository resourceDataRepository) {
+  public GetResourceTableDataUseCase(
+      ResourceDataRepository resourceDataRepository, StudyViewService studyViewService) {
     this.resourceDataRepository = resourceDataRepository;
+    this.studyViewService = studyViewService;
   }
 
   /**
@@ -21,10 +26,17 @@ public class GetResourceTableDataUseCase {
    * per page was most of the cost of a large resource's response.
    */
   public List<ResourceTableRow> execute(ResourceTableQuery query) {
+    if (query != null && query.groupBy() != null) {
+      throw new InvalidResourceTableQueryException(
+          "groupBy is answered by /resource-table/groups/fetch, not by the row endpoint");
+    }
+    ResourceQueryContexts.validateGroupingParameters(query);
     if (!isAnswerable(query)) {
       return List.of();
     }
-    return resourceDataRepository.getResourceTableRows(query);
+    return resourceDataRepository.getResourceTableRows(
+        query,
+        ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService, false));
   }
 
   /** A query naming no study or no resource cannot be answered, and is not an error. */
@@ -32,8 +44,7 @@ public class GetResourceTableDataUseCase {
     return query != null
         && query.studyIds() != null
         && !query.studyIds().isEmpty()
-        && query.resourceId() != null
-        && !query.resourceId().isBlank();
+        && !query.effectiveResourceIds().isEmpty();
   }
 
   static List<ResourceColumnInfo> builtinColumns() {

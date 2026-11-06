@@ -10,6 +10,7 @@ import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
+import org.cbioportal.domain.resource.usecase.GetResourceTableGroupsUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableMetadataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableTabsUseCase;
 import org.cbioportal.legacy.web.config.TestConfig;
@@ -39,6 +40,7 @@ public class ResourceTableControllerTest {
   @MockitoBean private GetResourceTableTabsUseCase getResourceTableTabsUseCase;
   @MockitoBean private GetResourceTableDataUseCase getResourceTableDataUseCase;
   @MockitoBean private GetResourceTableMetadataUseCase getResourceTableMetadataUseCase;
+  @MockitoBean private GetResourceTableGroupsUseCase getResourceTableGroupsUseCase;
 
   @Autowired private MockMvc mockMvc;
 
@@ -125,7 +127,21 @@ public class ResourceTableControllerTest {
 
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_ID), RESOURCE_ID, null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_ID),
+            RESOURCE_ID,
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     mockMvc
         .perform(

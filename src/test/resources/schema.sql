@@ -606,9 +606,9 @@ CREATE TABLE resource (
 -- Rows of resources without a contract are not copied; queries over them read resource.
 -- contract_hash is cityHash64 of the custom_metadata the rows were copied under. It follows
 -- resource_id in the sorting key, which is constant per (study, resource), so the resource table can
--- count the rows copied under today's contract from the primary key alone, compare that with the
--- resource table's count, and read resource instead of a stale copy. Repopulate after importing a
--- study's resources or changing a contract.
+-- select the rows copied under today's contract by key range, compare their count and internal_id
+-- fingerprint with resource's per study, and read resource instead of a stale copy. Repopulate
+-- after importing a study's resources or changing a contract.
 CREATE TABLE resource_compact_derived (
     `internal_id` Int64,
     `resource_id` String,

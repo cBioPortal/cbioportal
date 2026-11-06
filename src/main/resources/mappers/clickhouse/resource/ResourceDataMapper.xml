@@ -695,31 +695,42 @@
   </select>
 
   <!--
-    Whether the compact table's copy of every requested resource, over the requested studies, is
-    current: it holds as many rows copied under the contract each study declares now as resource
-    holds. A study imported, or a contract changed, without repopulating the derived tables leaves
-    the two counts apart, and the grouped query reads resource instead.
+    Whether the compact table's copy of every requested resource, in each requested study, is
+    current: for each (resource, study) it holds the same rows, copied under the contract the study
+    declares now, as resource holds. "The same rows" is a row count plus a fingerprint, the wrapping
+    sum of cityHash64(internal_id). The importer deletes a study's rows and reinserts them with new
+    internal_ids from a sequence that only grows, so a reimport changes the fingerprint even when it
+    keeps the count (a metadata correction, one slide swapped for another). A sum rather than an XOR
+    keeps a duplicated row from cancelling out. Comparing each study on its own stops a study with
+    too many compact rows from hiding one with too few. A study imported, or a contract changed,
+    without repopulating the derived tables fails the check, and the grouped query reads resource
+    instead.
 
-    Both counts are answered from the primary key alone, reading only the boundary granules: one
-    resource_id and a set of cancer_study_id values select whole key ranges of resource, and
-    contract_hash follows resource_id in the compact table's sorting key, so the rows copied under
-    the current contracts form whole key ranges too. That is why each resource is counted on its own
-    rather than through one IN list. The contract is max() over the definitions, the same choice
-    populate_derived_tables.sql makes, so a duplicated definition hashes the same in both places.
+    Both sides read one Int64 column over whole sorting-key ranges: one resource_id and a set of
+    cancer_study_id values select whole key ranges of resource, and contract_hash follows resource_id
+    in the compact table's sorting key, so the rows copied under the current contracts form whole key
+    ranges too. That is why each resource is probed on its own rather than through one IN list. The
+    contract is max() over the definitions, the same choice populate_derived_tables.sql makes, so a
+    duplicated definition hashes the same in both places. With no rows on either side there is
+    nothing to be stale, and the answer is true.
   -->
   <select id="isCompactTableCurrent" resultType="java.lang.Boolean">
-    SELECT min(current) FROM (
-      SELECT resourceId, toUInt8(sum(resourceRows) = sum(compactRows)) AS current
+    SELECT toUInt8(count() = 0) FROM (
+      SELECT resourceId, cancer_study_id
       FROM (
         <foreach collection="query.resourceIdsArray" item="probedId" separator="UNION ALL">
-          SELECT #{probedId} AS resourceId, count() AS resourceRows, toUInt64(0) AS compactRows
+          SELECT #{probedId} AS resourceId, cancer_study_id,
+                 count() AS resourceRows, sum(cityHash64(internal_id)) AS resourceFingerprint,
+                 toUInt64(0) AS compactRows, toUInt64(0) AS compactFingerprint
           FROM resource
           WHERE resource_id = #{probedId}
             AND cancer_study_id IN (
                 SELECT cancer_study_id FROM cancer_study
                 WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
+          GROUP BY cancer_study_id
           UNION ALL
-          SELECT #{probedId}, toUInt64(0), count()
+          SELECT #{probedId}, cancer_study_id, toUInt64(0), toUInt64(0),
+                 count(), sum(cityHash64(internal_id))
           FROM resource_compact_derived
           WHERE resource_id = #{probedId}
             AND (cancer_study_id, contract_hash) IN (
@@ -731,10 +742,13 @@
                       SELECT cancer_study_id FROM cancer_study
                       WHERE cancer_study_identifier IN (#{query.studyIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}))
                 GROUP BY cancer_study_id)
+          GROUP BY cancer_study_id
         </foreach>
-      ) counted
-      GROUP BY resourceId
-    ) perResource
+      ) probed
+      GROUP BY resourceId, cancer_study_id
+      HAVING sum(resourceRows) != sum(compactRows)
+          OR sum(resourceFingerprint) != sum(compactFingerprint)
+    ) stale
   </select>
 
   <!--

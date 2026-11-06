@@ -14,6 +14,7 @@ public class ResourceCountDTO {
   private Boolean openByDefault;
   private String studyId;
   private String customMetaData;
+  private String urlTemplate;
   private Integer sampleCount;
   private Integer patientCount;
 
@@ -106,5 +107,13 @@ public class ResourceCountDTO {
 
   public void setPatientCount(Integer patientCount) {
     this.patientCount = patientCount;
+  }
+
+  public String getUrlTemplate() {
+    return urlTemplate;
+  }
+
+  public void setUrlTemplate(String urlTemplate) {
+    this.urlTemplate = urlTemplate;
   }
 }

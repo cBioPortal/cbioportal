@@ -103,7 +103,8 @@
         rd.priority AS priority,
         rd.open_by_default AS openByDefault,
         cancer_study_identifier as cancerStudyIdentifier,
-        rd.custom_metadata AS customMetaData
+        rd.custom_metadata AS customMetaData,
+        rd.url_template AS urlTemplate
     </sql>
 
     <sql id="selectSampleResourceCounts">
@@ -253,12 +254,12 @@
         SELECT
         <include refid="selectSampleResourceCounts"/>
         <include refid="fromResourceSample"/>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, urlTemplate, resourceId
         UNION ALL
         SELECT
         <include refid="selectPatientResourceCounts"/>
         <include refid="fromResourcePatient"/>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, urlTemplate, resourceId
         ORDER BY resourceId
     </select>
 
@@ -274,7 +275,7 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, urlTemplate, resourceId
         UNION ALL
         SELECT
         <include refid="selectPatientResourceCounts"/>
@@ -287,7 +288,7 @@
                 </foreach>
             </if>
         </where>
-        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, resourceId
+        GROUP BY displayName, description, resourceType, priority, openByDefault, cancerStudyIdentifier, customMetaData, urlTemplate, resourceId
         ORDER BY resourceId
     </select>
 

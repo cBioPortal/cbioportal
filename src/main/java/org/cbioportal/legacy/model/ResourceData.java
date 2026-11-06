@@ -12,6 +12,17 @@ public class ResourceData extends UniqueKeyBase implements Serializable {
   @NotNull private String url;
   private ResourceDefinition resourceDefinition;
 
+  /**
+   * The definition's URL template, from which the URL is expanded when {@link #getUrl()} is empty.
+   */
+  private String urlTemplate;
+
+  /**
+   * The part of the row's metadata JSON its URL template reads, for a row without a URL of its own;
+   * otherwise null. Trimmed as the rows are loaded so the cached rows do not hold the rest.
+   */
+  private String metadata;
+
   public String getSampleId() {
     return sampleId;
   }
@@ -58,5 +69,21 @@ public class ResourceData extends UniqueKeyBase implements Serializable {
 
   public void setResourceDefinition(ResourceDefinition resourceDefinition) {
     this.resourceDefinition = resourceDefinition;
+  }
+
+  public String getUrlTemplate() {
+    return urlTemplate;
+  }
+
+  public void setUrlTemplate(String urlTemplate) {
+    this.urlTemplate = urlTemplate;
+  }
+
+  public String getMetadata() {
+    return metadata;
+  }
+
+  public void setMetadata(String metadata) {
+    this.metadata = metadata;
   }
 }

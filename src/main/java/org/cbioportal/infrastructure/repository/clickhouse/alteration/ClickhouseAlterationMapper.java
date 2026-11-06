@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.alteration;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 import org.cbioportal.legacy.model.AlterationCountByGene;
 import org.cbioportal.legacy.model.CopyNumberCountByGene;
@@ -87,10 +88,14 @@ public interface ClickhouseAlterationMapper {
    *
    * @param sampleStableIds the list of sample stable IDs to retrieve panel mappings for
    * @param profileIds the list of profile IDs to filter by
+   * @param field the column holding the entity id, {@code sample_unique_id} or {@code
+   *     patient_unique_id}; anything else is treated as {@code sample_unique_id}
    * @return a list of EntityToPanel objects representing the entity-to-panel associations
    */
   List<EntityToPanel> getEntityToGenePanels(
-      String sampleStableIdsJoined, String profileIdsJoined, String field);
+      @Param("sampleStableIds") List<String> sampleStableIds,
+      @Param("profileIds") List<String> profileIds,
+      @Param("field") String field);
 
   List<AlterationCountByGene> getAlterationCountByGeneGivenSamplesAndMolecularProfiles(
       String[] samples, String[] molecularProfiles, AlterationFilterHelper alterationFilterHelper);

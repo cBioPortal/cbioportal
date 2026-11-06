@@ -136,3 +136,10 @@ To enable all origins use *
 security.cors.allowed-origins=*
 ##Or http://localhost:8080,http://localhost:8081
 ```
+
+To let a frontend hosted on another origin send the user's login cookie, list that origin
+explicitly and allow credentials (ignored with `*`):
+```properties
+security.cors.allowed-origins=https://portal.example.org,https://frontend.example.org
+security.cors.allow-credentials=true
+```

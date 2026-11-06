@@ -141,3 +141,23 @@ SELECT throwIf(
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
+
+## db_schema_version: 3.2.0
+## description: Add resource_compact_derived, resource rows with metadata reduced to their contract's declared keys
+-- The table is created empty. Run populate_derived_tables.sql after this migration, and again after
+-- importing a study's resources or changing a resource's custom_metadata contract. Until then the
+-- grouped resource table finds the copy stale (its rows under the current contract differ from
+-- resource's) and reads resource instead: correct, but slower.
+CREATE TABLE IF NOT EXISTS resource_compact_derived (
+    `internal_id` Int64,
+    `resource_id` String,
+    `cancer_study_id` Int64,
+    `resource_scope` String,
+    `patient_id` Nullable(String),
+    `sample_id` Nullable(String),
+    `url` String,
+    `display_name` Nullable(String),
+    `metadata` Nullable(String),
+    `contract_hash` UInt64
+) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, contract_hash, patient_id, sample_id, internal_id)
+  SETTINGS allow_nullable_key = 1;

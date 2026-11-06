@@ -15,6 +15,7 @@ TRUNCATE TABLE IF EXISTS generic_assay_data_derived SETTINGS alter_sync = 2;
 TRUNCATE TABLE IF EXISTS mutation_derived SETTINGS alter_sync = 2;
 TRUNCATE TABLE IF EXISTS generic_assay_profile_entity_derived SETTINGS alter_sync = 2;
 TRUNCATE TABLE IF EXISTS generic_assay_meta_derived SETTINGS alter_sync = 2;
+TRUNCATE TABLE IF EXISTS resource_compact_derived SETTINGS alter_sync = 2;
 
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;
@@ -496,6 +497,44 @@ LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
 WHERE ge.entity_type = 'GENERIC_ASSAY'
 GROUP BY ge.stable_id, ge.entity_type;
 
+INSERT INTO resource_compact_derived
+SELECT
+    r.internal_id,
+    r.resource_id,
+    r.cancer_study_id,
+    r.resource_scope,
+    r.patient_id,
+    r.sample_id,
+    r.url,
+    r.display_name,
+    -- Rebuilds the document from the declared pairs only. Raw values are copied verbatim, so a
+    -- string stays quoted, a number stays a number and a nested object stays an object.
+    if(r.metadata IS NULL, NULL,
+       concat('{',
+              arrayStringConcat(
+                  arrayMap(kv -> concat(toJSONString(kv.1), ':', kv.2),
+                           arrayFilter(kv -> has(d.declared_keys, kv.1),
+                                       JSONExtractKeysAndValuesRaw(assumeNotNull(r.metadata)))),
+                  ','),
+              '}')) AS metadata,
+    d.contract_hash
+FROM resource r
+INNER JOIN (
+    -- One row per definition, so a duplicated definition cannot duplicate the resource's rows.
+    -- max() picks the same contract the resource table's scope lookup picks.
+    SELECT resource_id,
+           cancer_study_id,
+           max(assumeNotNull(custom_metadata)) AS contract,
+           cityHash64(contract) AS contract_hash,
+           arrayFilter(k -> k != '',
+                       arrayMap(f -> JSONExtractString(f, 'key'),
+                                JSONExtractArrayRaw(contract, 'fields'))) AS declared_keys
+    FROM resource_definition
+    WHERE custom_metadata IS NOT NULL AND custom_metadata != ''
+    GROUP BY resource_id, cancer_study_id
+) d ON d.resource_id = r.resource_id AND d.cancer_study_id = r.cancer_study_id
+WHERE notEmpty(d.declared_keys);
+
 OPTIMIZE TABLE sample_to_gene_panel_derived;
 OPTIMIZE TABLE gene_panel_to_gene_derived;
 OPTIMIZE TABLE sample_derived;
@@ -507,3 +546,4 @@ OPTIMIZE TABLE genetic_alteration_derived;
 OPTIMIZE TABLE generic_assay_data_derived;
 OPTIMIZE TABLE generic_assay_profile_entity_derived;
 OPTIMIZE TABLE generic_assay_meta_derived;
+OPTIMIZE TABLE resource_compact_derived;

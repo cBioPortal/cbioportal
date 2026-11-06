@@ -15,6 +15,11 @@ services:
      - $PORTAL_SOURCE_DIR:/cbioportal/
      - $PORTAL_SOURCE_DIR/src/main/resources/db-scripts:/cbioportal/db-scripts
      - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh
+     # ...and the importer-under-test, at the image's /core paths (the scripts look for exactly
+     # one core-*.jar next to scripts/). IMPORTER_JAR is the built importer/core-<version>.jar.
+     # The image's Python packages are kept; changes to importer/requirements.txt aren't installed.
+     - $PORTAL_SOURCE_DIR/importer/scripts:/core/scripts
+     - ${IMPORTER_JAR:?set IMPORTER_JAR to the importer JAR built in importer/}:/core/core-IMPORTER.jar
   cbioportal-database:
     healthcheck:
       # check via the container IP instead of localhost: during initdb ClickHouse only listens on

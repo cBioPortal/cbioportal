@@ -29,12 +29,21 @@ jobs:
         working-directory: ./cbioportal
         run: |
           cp src/main/resources/application.properties.EXAMPLE src/main/resources/application.properties
-      # Builds every module. Note: the tests below still run the importer from the
-      # cbioportal/cbioportal:master image (/core), not the importer built here.
+      # Builds every module. The tests below run both the web app and the importer built here:
+      # docker-compose-localbuild.yml mounts them over the cbioportal/cbioportal:master image.
       - name: 'Build cbioportal'
         working-directory: ./cbioportal
         run: |
           mvn -DskipTests clean install
+      - name: 'Locate the importer JAR'
+        working-directory: ./cbioportal
+        run: |
+          jars=(importer/core-*.jar)
+          if [ ${#jars[@]} -ne 1 ] || [ ! -f "${jars[0]}" ]; then
+            echo "Expected exactly one importer/core-*.jar, found: ${jars[*]}" >&2
+            exit 1
+          fi
+          echo "IMPORTER_JAR=$PORTAL_SOURCE_DIR/${jars[0]}" >> "$GITHUB_ENV"
       - name: 'Checkout cbioportal-docker-compose repo'
         uses: actions/checkout@master
         with:

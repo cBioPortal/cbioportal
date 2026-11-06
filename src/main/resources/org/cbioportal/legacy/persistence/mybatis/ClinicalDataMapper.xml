@@ -278,14 +278,17 @@
           ON clinical_sample.internal_id = sample_id_subquery.internal_id
     </sql>
 
-    <select id="getVisibleSampleInternalIdsForClinicalTable" resultType="Integer">
+    <select id="getVisibleSamplesForClinicalTable" resultType="org.cbioportal.legacy.model.Sample">
         <bind name="doSearch"        value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
         <bind name="doSort"          value="_parameter.containsKey('sortAttrId') and sortAttrId != null" />
         <bind name="doPaginate"      value="_parameter.containsKey('limit') and limit != null and limit != 0" />
         <bind name="sortBySampleId"  value="sortAttrId == 'sampleId'" />
         <bind name="sortByPatientId" value="sortAttrId == 'patientId'" />
-        <bind name="sortByAttribute" value="sortAttrId != 'sampleId' and sortAttrId != 'patientId'" />
-        SELECT sample.internal_id FROM sample
+        SELECT
+            sample.internal_id AS "internalId",
+            sample.stable_id AS "stableId",
+            cancer_study.cancer_study_identifier AS "cancerStudyIdentifier"
+        FROM sample
         INNER JOIN patient ON sample.patient_id = patient.internal_id
         INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
         <if test="doSort">
@@ -297,23 +300,32 @@
             ON sample.internal_id = searchData.sampleInternalId
         </if>
         <include refid="whereSample"/>
+        ORDER BY
         <if test="doSort">
             <choose>
-                <when test="sortBySampleId">
-                    ORDER BY sample.stable_id ${direction}
-                </when>
-                <when test="sortByPatientId">
-                    ORDER BY patient.stable_id ${direction}
-                </when>
-                <when test="sortByAttribute">
-                    ORDER BY sortData.sortAttrValue ${direction} NULLS LAST
-                </when>
-                <otherwise></otherwise>
+                <when test="sortBySampleId">sample.stable_id ${direction},</when>
+                <when test="sortByPatientId">patient.stable_id ${direction},</when>
+                <otherwise>sortData.sortAttrValue ${direction} NULLS LAST,</otherwise>
             </choose>
         </if>
+        <!-- Tie-breaker keeps pages stable across requests. -->
+        sample.internal_id ASC
         <if test="doPaginate">
             LIMIT #{limit} OFFSET #{offset}
         </if>
+    </select>
+
+    <select id="getVisibleSampleInternalIdCountForClinicalTable" resultType="Integer">
+        <bind name="doSearch" value="_parameter.containsKey('searchTerm') and searchTerm != null and not searchTerm.isBlank()" />
+        SELECT COUNT(DISTINCT sample.internal_id)
+        FROM sample
+        INNER JOIN patient ON sample.patient_id = patient.internal_id
+        INNER JOIN cancer_study ON patient.cancer_study_id = cancer_study.cancer_study_id
+        <if test="doSearch">
+            INNER JOIN (<include refid="searchedAttributeData"/>) as searchData
+            ON sample.internal_id = searchData.sampleInternalId
+        </if>
+        <include refid="whereSample"/>
     </select>
 
     <sql id="searchedAttributeData">

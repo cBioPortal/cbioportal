@@ -3,6 +3,7 @@ package org.cbioportal.legacy.persistence.mybatis;
 import java.util.List;
 import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 
 public interface ClinicalDataMapper {
@@ -69,7 +70,7 @@ public interface ClinicalDataMapper {
       String sortBy,
       String direction);
 
-  List<Integer> getVisibleSampleInternalIdsForClinicalTable(
+  List<Sample> getVisibleSamplesForClinicalTable(
       List<String> studyIds,
       List<String> sampleIds,
       String projection,
@@ -80,6 +81,9 @@ public interface ClinicalDataMapper {
       Boolean sortAttrIsNumber,
       Boolean sortIsPatientAttr,
       String direction);
+
+  Integer getVisibleSampleInternalIdCountForClinicalTable(
+      List<String> studyIds, List<String> sampleIds, String projection, String searchTerm);
 
   List<ClinicalData> getSampleClinicalDataBySampleInternalIds(List<Integer> sampleInternalIds);
 

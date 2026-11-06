@@ -9,8 +9,10 @@ import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
+import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,9 @@ public class PatientServiceImpl implements PatientService {
 
   @Value("${authenticate:false}")
   private String AUTHENTICATE;
+
+  // Proxy of this service, so calls through it are subject to the @PostFilter annotations.
+  @Lazy @Autowired private PatientService self;
 
   @Override
   @PostFilter(
@@ -45,7 +50,16 @@ public class PatientServiceImpl implements PatientService {
   @Override
   public BaseMeta getMetaPatients(String keyword) {
 
-    return patientRepository.getMetaPatients(keyword);
+    if (!PortalSecurityConfig.userAuthorizationEnabled(AUTHENTICATE)) {
+      return patientRepository.getMetaPatients(keyword);
+    }
+    // The count has to cover only what the caller may read, like the list endpoint does. A plain
+    // count query cannot tell, so when user authorization is on, count the rows that survive the
+    // @PostFilter of the list method. That filter only applies to calls through the Spring proxy,
+    // hence 'self' rather than 'this'.
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(self.getAllPatients(keyword, "ID", null, null, null, null).size());
+    return baseMeta;
   }
 
   @Override

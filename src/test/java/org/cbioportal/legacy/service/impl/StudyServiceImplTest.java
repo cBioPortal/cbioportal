@@ -59,7 +59,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     BaseMeta expectedBaseMeta = new BaseMeta();
     when(studyRepository.getMetaStudies(null)).thenReturn(expectedBaseMeta);
 
-    BaseMeta result = studyService.getMetaStudies(null);
+    BaseMeta result = studyService.getMetaStudies(null, AccessLevel.READ);
 
     Assert.assertEquals(expectedBaseMeta, result);
   }
@@ -132,8 +132,35 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
                 Mockito.eq(AccessLevel.READ)))
         .thenReturn(Arrays.asList(new CancerStudy(), new CancerStudy()));
 
-    Assert.assertEquals((Integer) 2, studyService.getMetaStudies(null).getTotalCount());
-    Assert.assertEquals((Integer) 2, studyService.getMetaStudies("brca").getTotalCount());
+    Assert.assertEquals(
+        (Integer) 2, studyService.getMetaStudies(null, AccessLevel.READ).getTotalCount());
+    Assert.assertEquals(
+        (Integer) 2, studyService.getMetaStudies("brca", AccessLevel.READ).getTotalCount());
     Mockito.verify(studyRepository, Mockito.never()).getMetaStudies(Mockito.any());
+  }
+
+  @Test
+  public void getMetaStudiesCountsWithTheAccessLevelOfTheList() throws Exception {
+
+    // With skin.home_page.show_unauthorized_studies the list is filtered with LIST rather than
+    // READ, so it also holds studies the caller may not read. The count must use the same level,
+    // or it reports fewer studies than the list returns.
+    ReflectionTestUtils.setField(studyService, "AUTHENTICATE", "true");
+    StudyService self = Mockito.mock(StudyService.class);
+    ReflectionTestUtils.setField(studyService, "self", self);
+    Mockito.when(
+            self.getAllStudies(
+                Mockito.any(),
+                Mockito.eq("SUMMARY"),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.eq(AccessLevel.LIST)))
+        .thenReturn(Arrays.asList(new CancerStudy(), new CancerStudy(), new CancerStudy()));
+
+    Assert.assertEquals(
+        (Integer) 3, studyService.getMetaStudies(null, AccessLevel.LIST).getTotalCount());
   }
 }

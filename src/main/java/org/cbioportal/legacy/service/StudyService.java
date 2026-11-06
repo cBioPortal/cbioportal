@@ -20,7 +20,7 @@ public interface StudyService {
       Authentication authentication,
       AccessLevel accessLevel);
 
-  BaseMeta getMetaStudies(String keyword);
+  BaseMeta getMetaStudies(String keyword, AccessLevel accessLevel);
 
   CancerStudy getStudy(String studyId) throws StudyNotFoundException;
 

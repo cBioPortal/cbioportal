@@ -419,6 +419,7 @@ public class ClickhouseAlterationMapperTest {
   }
 
   private static final String SAMPLE_UNIQUE_ID = "study_tcga_pub_tcga-a1-a0sh-01";
+  private static final String PATIENT_UNIQUE_ID = "study_tcga_pub_tcga-a1-a0sh";
   private static final String MUTATION_PROFILE_ID = "study_tcga_pub_mutations";
 
   @Test
@@ -430,6 +431,21 @@ public class ClickhouseAlterationMapperTest {
     assertFalse(result.isEmpty());
     result.forEach(
         entityToPanel -> assertEquals(SAMPLE_UNIQUE_ID, entityToPanel.getEntityUniqueId()));
+  }
+
+  @Test
+  public void getEntityToGenePanelsForPatients() {
+    // The patient id matches no sample id, so this returns nothing unless the patient column is
+    // the one selected and filtered on
+    var result =
+        mapper.getEntityToGenePanels(
+            List.of(PATIENT_UNIQUE_ID), List.of(MUTATION_PROFILE_ID), "patient_unique_id");
+
+    assertEquals(1, result.size());
+    var entityToPanel = result.get(0);
+    assertEquals(PATIENT_UNIQUE_ID, entityToPanel.getEntityUniqueId());
+    assertEquals("testpanel2", entityToPanel.getGenePanelId());
+    assertEquals(MUTATION_PROFILE_ID, entityToPanel.getGeneticProfileId());
   }
 
   @Test

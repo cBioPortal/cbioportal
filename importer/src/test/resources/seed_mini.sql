@@ -544,8 +544,10 @@ INSERT INTO authorities (`email`, `authority`) values ('Lonnie@openid.org','ROLE
 INSERT INTO authorities (`email`, `authority`) values ('Dhorak@yahoo.com','ROLE_USER');
 INSERT INTO authorities (`email`, `authority`) values ('Dhorak@yahoo.com','ROLE_MANAGER');
 
-INSERT INTO `info` (`db_schema_version`, `geneset_version`)
-VALUES ('3.1.0', 'test_geneset_version');
+-- The info row comes from the production schema.sql; only the geneset version is changed, to the
+-- value the dumpPortalInfo approval files expect. mutations_sync makes the update finish before
+-- the tests start.
+ALTER TABLE info UPDATE geneset_version = 'test_geneset_version' WHERE 1 SETTINGS mutations_sync = 1;
 
 --geneset
 INSERT INTO geneset (`id`, `genetic_entity_id`, `external_id`, `name`, `description`, `ref_link`) VALUES (1, 1, 'HGNC:1100', 'BRCA1', 'Breast cancer type 1 susceptibility protein', 'https://www.ncbi.nlm.nih.gov/gene/672');

@@ -163,6 +163,23 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<resources>
+			<!-- Only db-version.properties is filtered, to fill in db.version from the root POM. -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>org/mskcc/cbio/portal/util/db-version.properties</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>org/mskcc/cbio/portal/util/db-version.properties</include>
+				</includes>
+			</resource>
+		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

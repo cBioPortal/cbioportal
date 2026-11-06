@@ -11,10 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +21,9 @@ import org.slf4j.LoggerFactory;
 public class GlobalProperties {
     public static final String HOME_DIR = "PORTAL_HOME";
     private static final String PORTAL_PROPERTIES_FILE_NAME = "application.properties";
-    private static final String POM_RESOURCE_PATH = "META-INF/maven/org.mskcc.cbio/core/pom.xml";
+    // Written at build time from db.version in the root pom.xml (see importer/pom.xml)
+    private static final String DB_VERSION_RESOURCE = "db-version.properties";
     private static final String DEFAULT_DB_VERSION = "0";
-    private static final Pattern DB_VERSION_PATTERN = Pattern.compile("<db\\.version>\\s*([^<]+)\\s*</db\\.version>");
     public static final String DB_VERSION = "db.version";
     public static final String SPECIES = "species";
     public static final String DEFAULT_SPECIES = "human";
@@ -125,37 +122,29 @@ public class GlobalProperties {
         return properties;
     }
 
-    private static InputStream getPomResourceStream() {
-        InputStream pomStream = GlobalProperties.class.getClassLoader().getResourceAsStream(POM_RESOURCE_PATH);
-        if (pomStream != null) {
-            return pomStream;
-        }
-        return null;
-    }
-
-    private static String readDbVersionFromPom() {
-        try (InputStream pomStream = getPomResourceStream()) {
-            if (pomStream == null) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Unable to locate pom.xml for db.version lookup. " +
-                            "Checked classpath resource " + POM_RESOURCE_PATH);
-                }
+    /**
+     * Reads the schema version this importer was built for. It used to be read from the importer's
+     * own pom.xml inside the JAR, but since the importer became a module of the cbioportal build,
+     * db.version is declared only in the root POM, which the JAR doesn't contain.
+     */
+    private static String readDbVersionFromBuild() {
+        try (InputStream stream = GlobalProperties.class.getResourceAsStream(DB_VERSION_RESOURCE)) {
+            if (stream == null) {
+                LOG.error("{} not found on the classpath next to GlobalProperties", DB_VERSION_RESOURCE);
                 return null;
             }
-            String pomContents = new String(pomStream.readAllBytes(), StandardCharsets.UTF_8);
-            Matcher matcher = DB_VERSION_PATTERN.matcher(pomContents);
-            if (matcher.find()) {
-                return matcher.group(1).trim();
+            Properties properties = new Properties();
+            properties.load(stream);
+            String version = properties.getProperty(DB_VERSION);
+            if (version == null || version.isBlank() || version.startsWith("@")) {
+                LOG.error("{} has no db.version filled in: {}", DB_VERSION_RESOURCE, version);
+                return null;
             }
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("db.version was not found in pom.xml.");
-            }
+            return version.trim();
         } catch (IOException e) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Error reading pom.xml for db.version: " + e.getMessage());
-            }
+            LOG.error("Error reading {}: {}", DB_VERSION_RESOURCE, e.getMessage());
+            return null;
         }
-        return null;
     }
 
     public static String getProperty(String property) {
@@ -175,7 +164,7 @@ public class GlobalProperties {
         if (cachedDbVersion == null) {
             synchronized (GlobalProperties.class) {
                 if (cachedDbVersion == null) {
-                    String version = readDbVersionFromPom();
+                    String version = readDbVersionFromBuild();
                     cachedDbVersion = version == null ? DEFAULT_DB_VERSION : version;
                 }
             }

@@ -11,7 +11,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
@@ -166,8 +165,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       return false;
     }
 
+    // An empty id collection names no study, so there is nothing to protect: the endpoint
+    // returns an empty result. This is distinct from a non-empty target that resolves to no
+    // study, which is denied below.
+    if (targetId instanceof Collection<?> ids && ids.isEmpty()) {
+      return true;
+    }
+
     try {
+      // Empty when the target names no study (an empty filter, an unknown target type) or when
+      // any of its ids does not resolve to a known study. Ids are resolved against the
+      // authorization cache, which can lag behind the database, so an unresolved id is denied
+      // rather than passed through to the service layer.
       Collection<CancerStudy> cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
+      if (cancerStudies.isEmpty()) {
+        return false;
+      }
       for (CancerStudy cs : cancerStudies) {
         if (cs == null || !hasAccessToCancerStudy(authentication, cs, (AccessLevel) permission)) {
           return false;
@@ -292,14 +305,20 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    * @param ids The collection of ID strings.
    * @param targetType The type of the collection (e.g., {@code
    *     TARGET_TYPE_COLLECTION_OF_MOLECULAR_PROFILE_IDS}).
-   * @return A {@code Set<CancerStudy>} containing all unique, non-null studies linked to the
-   *     provided IDs.
+   * @return A {@code Set<CancerStudy>} containing all unique studies linked to the provided IDs, or
+   *     an empty set if any ID does not resolve to a study.
    */
   private Set<CancerStudy> extractCancerStudiesFromIds(Collection<String> ids, String targetType) {
-    return ids.stream()
-        .map(id -> extractCancerStudyById(id, getSingleTargetType(targetType)))
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
+    String singleTargetType = getSingleTargetType(targetType);
+    Set<CancerStudy> cancerStudies = new HashSet<>();
+    for (String id : ids) {
+      CancerStudy cancerStudy = extractCancerStudyById(id, singleTargetType);
+      if (cancerStudy == null) {
+        return new HashSet<>();
+      }
+      cancerStudies.add(cancerStudy);
+    }
+    return cancerStudies;
   }
 
   /**

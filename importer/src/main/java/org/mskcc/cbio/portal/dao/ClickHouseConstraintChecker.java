@@ -23,13 +23,14 @@ import java.util.stream.Collectors;
  * table_name, key_columns, key_values, duplicate_count
  * <p>
  * Notes:
- * - ClickHouse does not enforce FKs, so orphans are detected via LEFT JOIN + isNull().
+ * - ClickHouse does not enforce FKs, so orphans are detected via LEFT JOIN + isNull(), with
+ *   join_use_nulls = 1 so that an unmatched non-Nullable parent column reads as NULL.
  * - Unique keys are detected via GROUP BY + HAVING count() > 1.
  * - Table/column names are normalized to lower-case in the generated SQL.
  * - Rows are checked only when all FK/unique-key columns are non-NULL.
  * - "NULL" in referer/key values means the column value was NULL.
  * <p>
- * The constraint lists are hard-coded for the ClickHouse schema (see clickhouse_cgds.sql).
+ * The constraint lists are hard-coded for the ClickHouse schema (see src/main/resources/db-scripts/clickhouse/init/schema.sql at the repository root).
  * Update {@link #schemaForeignKeys()} and {@link #schemaUniqueKeys()} when the schema changes.
  */
 public class ClickHouseConstraintChecker {
@@ -199,7 +200,7 @@ public class ClickHouseConstraintChecker {
 
     /**
      * Foreign key list for the ClickHouse schema (lower-case names).
-     * Keep this in sync with clickhouse_cgds.sql.
+     * Keep this in sync with db-scripts/clickhouse/init/schema.sql.
      */
     private static List<ForeignKey> schemaForeignKeys() {
         List<ForeignKey> fks = new ArrayList<>();
@@ -360,7 +361,7 @@ public class ClickHouseConstraintChecker {
 
     /**
      * Unique key list for the ClickHouse schema (lower-case names).
-     * Keep this in sync with clickhouse_cgds.sql.
+     * Keep this in sync with db-scripts/clickhouse/init/schema.sql.
      */
     private static List<UniqueKey> schemaUniqueKeys() {
         List<UniqueKey> uniqueKeys = new ArrayList<>();
@@ -529,7 +530,11 @@ public class ClickHouseConstraintChecker {
                 + "LEFT JOIN " + fk.parentSource() + " " + parentAlias + "\n"
                 + "  ON " + joinPredicate + "\n"
                 + "WHERE " + childHasAllValues + "\n"
-                + "  AND " + parentMissing;
+                + "  AND " + parentMissing + "\n"
+                // Without this, ClickHouse fills an unmatched LEFT JOIN row's non-Nullable columns
+                // with their type's default (0 or ''), not NULL, so isNull() never matches and no
+                // orphan is reported. The production schema's key columns are not Nullable.
+                + "SETTINGS join_use_nulls = 1";
     }
 
     /**

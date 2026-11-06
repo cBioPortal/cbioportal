@@ -41,7 +41,7 @@ public abstract class IntegrationTestBase {
     private static final int CLICKHOUSE_HTTP_PORT = 8123;
     private static final String CLICKHOUSE_IMAGE = "clickhouse/clickhouse-server:24.3";
     private static final String SKIP_ENV = "CBIOPORTAL_TEST_DB_SKIP";
-    private static final String CGDS_SQL_FILE = "clickhouse_cgds.sql";
+    private static final String SCHEMA_SQL_FILE = "schema.sql";
     private static final String SEED_SQL_FILE = "seed_mini.sql";
 
     private static ClickHouseContainer container;
@@ -108,7 +108,7 @@ public abstract class IntegrationTestBase {
     private static void rebuildDatabase(ClickHouseContainer clickhouse) {
         executeClickHouseQuery(clickhouse, "DROP DATABASE IF EXISTS " + DB_NAME + " SYNC");
         executeClickHouseQuery(clickhouse, "CREATE DATABASE " + DB_NAME);
-        applySqlFile(clickhouse, "/tmp/" + CGDS_SQL_FILE);
+        applySqlFile(clickhouse, "/tmp/" + SCHEMA_SQL_FILE);
         applySqlFile(clickhouse, "/tmp/" + SEED_SQL_FILE);
     }
 
@@ -125,7 +125,7 @@ public abstract class IntegrationTestBase {
     }
 
     private static ClickHouseContainer startAndInitializeContainer() {
-        Path cgdsPath = ensureCgdsSql();
+        Path schemaPath = ensureSchemaSql();
         Path seedPath = ensureSeedSql();
         ClickHouseContainer clickhouse = new ClickHouseContainer(DockerImageName.parse(CLICKHOUSE_IMAGE))
             .withUsername(DB_USER)
@@ -133,7 +133,7 @@ public abstract class IntegrationTestBase {
             .withEnv("CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT", "1")
             .withStartupTimeout(Duration.ofMinutes(5));
         clickhouse.start();
-        applySchema(clickhouse, cgdsPath);
+        applySchema(clickhouse, schemaPath);
         applySeed(clickhouse, seedPath);
         setSystemProperties(clickhouse);
         waitForSchema(clickhouse);
@@ -212,7 +212,7 @@ public abstract class IntegrationTestBase {
     }
 
     private static void applySchema(ClickHouseContainer clickhouse, Path schemaPath) {
-        String containerSchemaPath = "/tmp/" + CGDS_SQL_FILE;
+        String containerSchemaPath = "/tmp/" + SCHEMA_SQL_FILE;
         clickhouse.copyFileToContainer(MountableFile.forHostPath(schemaPath), containerSchemaPath);
 
         executeClickHouseQuery(clickhouse, "CREATE DATABASE IF NOT EXISTS " + DB_NAME);
@@ -272,15 +272,16 @@ public abstract class IntegrationTestBase {
         }
     }
 
-    // The importer's own copy of the schema, read from this repository. It is not the same file as
-    // the web app's src/main/resources/db-scripts/clickhouse/init/schema.sql (see the RFC's
-    // "Choose the schema's source of truth").
-    private static Path ensureCgdsSql() {
-        Path cgdsPath = Paths.get(System.getProperty("user.dir"), "src", "test", "resources", CGDS_SQL_FILE);
-        if (!Files.exists(cgdsPath)) {
-            throw new IllegalStateException(CGDS_SQL_FILE + " not found at " + cgdsPath);
+    // The production schema, the same file a fresh cBioPortal install loads, so the importer is
+    // tested against the tables it writes to in production. The tests run with importer/ as their
+    // working directory; the schema is in the web app's resources at the repository root.
+    private static Path ensureSchemaSql() {
+        Path schemaPath = Paths.get(System.getProperty("user.dir"), "..", "src", "main", "resources",
+            "db-scripts", "clickhouse", "init", SCHEMA_SQL_FILE).normalize();
+        if (!Files.exists(schemaPath)) {
+            throw new IllegalStateException(SCHEMA_SQL_FILE + " not found at " + schemaPath);
         }
-        return cgdsPath;
+        return schemaPath;
     }
 
     private static Path ensureSeedSql() {

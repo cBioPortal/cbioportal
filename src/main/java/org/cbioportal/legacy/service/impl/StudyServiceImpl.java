@@ -108,7 +108,7 @@ public class StudyServiceImpl implements StudyService {
   }
 
   @Override
-  public BaseMeta getMetaStudies(String keyword) {
+  public BaseMeta getMetaStudies(String keyword, AccessLevel accessLevel) {
     if (!PortalSecurityConfig.userAuthorizationEnabled(AUTHENTICATE)) {
       if (keyword == null) {
         return studyRepository.getMetaStudies(keyword);
@@ -119,10 +119,11 @@ public class StudyServiceImpl implements StudyService {
           getAllStudies(keyword, "SUMMARY", null, null, null, null, null, AccessLevel.READ).size());
       return baseMeta;
     }
-    // The count has to cover only the studies the caller may read, like the list endpoint does. A
-    // plain count query cannot tell, so count the studies that survive the @PostFilter of
-    // getAllStudies. That filter only applies to calls through the Spring proxy, hence 'self'
-    // rather than 'this'.
+    // The count has to cover the same studies the list endpoint returns for this access level: the
+    // ones the caller may read, or with LIST (skin.home_page.show_unauthorized_studies) also the
+    // ones they may only see listed. A plain count query cannot tell, so count the studies that
+    // survive the @PostFilter of getAllStudies. That filter only applies to calls through the
+    // Spring proxy, hence 'self' rather than 'this'.
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(
         self.getAllStudies(
@@ -133,7 +134,7 @@ public class StudyServiceImpl implements StudyService {
                 null,
                 null,
                 SecurityContextHolder.getContext().getAuthentication(),
-                AccessLevel.READ)
+                accessLevel)
             .size());
     return baseMeta;
   }

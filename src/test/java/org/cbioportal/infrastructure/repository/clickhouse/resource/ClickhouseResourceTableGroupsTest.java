@@ -832,6 +832,118 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(context(query, null).readsCompactTable(query)).isTrue();
   }
 
+  private static final String SLIDE_108 =
+      "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id,"
+          + " sample_id, url, display_name, metadata) VALUES (108, 'GROUPED_SLIDE', 3, 'SAMPLE',"
+          + " 'GENIE-TEST-305', 'GENIE-TEST-305-01', 'https://example.com/g108.svs', 'Slide 108',"
+          + " '{\"stain_group\":\"H&E\",\"stain_name\":\"H&E\",\"block\":\"E1\"}')";
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void rowsReimportedWithTheSameCount_areNotTrusted() {
+    // Slide 108 reimported with corrected metadata after the compact table was built: the importer
+    // deletes the row and inserts it again under a new internal_id, so the study holds as many
+    // rows as before, under the same contract.
+    jdbcTemplate.execute(
+        "ALTER TABLE resource DELETE WHERE internal_id = 108 SETTINGS mutations_sync = 2");
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9301, ?, 3, 'SAMPLE',"
+            + " 'GENIE-TEST-305', 'GENIE-TEST-305-01', 'https://example.com/g108.svs',"
+            + " 'Slide 108', '{\"stain_group\":\"IHC\",\"stain_name\":\"ER\",\"block\":\"E1\"}')",
+        SLIDES);
+    try {
+      ResourceTableQuery query = q().build();
+      ResourceQueryContext context = context(query, null);
+
+      assertThat(context.scope().compactCurrent()).isFalse();
+      assertThat(context.readsCompactTable(query)).isFalse();
+      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
+      assertThat(page.totalRows()).isEqualTo(8);
+      assertThat(page.groups())
+          .filteredOn(g -> g.patientId().equals("GENIE-TEST-305"))
+          .singleElement()
+          .satisfies(g -> assertThat(g.counts().get(STAIN)).isEqualTo(Map.of("IHC", 1L)));
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9301 SETTINGS mutations_sync = 2");
+      jdbcTemplate.execute(SLIDE_108);
+    }
+    ResourceTableQuery query = q().build();
+    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void aStudyWithTooManyCompactRows_doesNotHideOneWithTooFew() {
+    // GROUPED_SLIDE also declared by acc_tcga under the same contract, with one row, 9201.
+    jdbcTemplate.update(
+        "INSERT INTO resource_definition (resource_id, cancer_study_id, resource_type,"
+            + " display_name, description, open_by_default, priority, custom_metadata)"
+            + " SELECT resource_id, 2, resource_type, display_name, description, open_by_default,"
+            + " priority, custom_metadata FROM resource_definition"
+            + " WHERE resource_id = ? AND cancer_study_id = 3",
+        SLIDES);
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9201, ?, 2, 'SAMPLE',"
+            + " 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/g9201.svs',"
+            + " 'Slide 9201', '{\"stain_group\":\"IHC\"}')",
+        SLIDES);
+    String copyRow9201AsStudy =
+        "INSERT INTO resource_compact_derived SELECT internal_id, resource_id, %d, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata,"
+            + " (SELECT any(contract_hash) FROM resource_compact_derived WHERE resource_id = '"
+            + SLIDES
+            + "') FROM resource WHERE internal_id = 9201";
+    try {
+      Q q = q();
+      q.studyIds = List.of(STUDY, "acc_tcga");
+      ResourceTableQuery query = q.build();
+
+      // Copied where it belongs, the compact table is current over both studies.
+      jdbcTemplate.execute(String.format(copyRow9201AsStudy, 2));
+      assertThat(context(query, null).scope().compactCurrent()).isTrue();
+      assertThat(context(query, null).readsCompactTable(query)).isTrue();
+
+      // Copied under the wrong study: summed over both studies the rows and their fingerprint
+      // still match resource, but acc_tcga's copy is missing a row and study_genie_pub's has one
+      // too many.
+      jdbcTemplate.execute(
+          "ALTER TABLE resource_compact_derived DELETE WHERE internal_id = 9201"
+              + " SETTINGS mutations_sync = 2");
+      jdbcTemplate.execute(String.format(copyRow9201AsStudy, 3));
+      ResourceQueryContext context = context(query, null);
+      assertThat(context.scope().compactCurrent()).isFalse();
+      assertThat(context.readsCompactTable(query)).isFalse();
+      assertThat(repository.getResourceTableGroups(query, context).groups())
+          .extracting(g -> g.studyId() + ":" + g.patientId())
+          .contains("acc_tcga:tcga-a1-a0sb");
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource_compact_derived DELETE WHERE internal_id = 9201"
+              + " SETTINGS mutations_sync = 2");
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9201 SETTINGS mutations_sync = 2");
+      jdbcTemplate.update(
+          "ALTER TABLE resource_definition DELETE WHERE resource_id = ? AND cancer_study_id = 2"
+              + " SETTINGS mutations_sync = 2",
+          SLIDES);
+    }
+    ResourceTableQuery query = q().build();
+    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+  }
+
+  @Test
+  public void aFreshCompactTable_isRead() {
+    ResourceTableQuery query = combined().build();
+    ResourceQueryContext context = context(query, null);
+
+    assertThat(mapper.isCompactTableCurrent(query)).isTrue();
+    assertThat(context.scope().compactCurrent()).isTrue();
+    assertThat(context.readsCompactTable(query)).isTrue();
+  }
+
   @Test
   public void locate_onAPagePastTheLastGroup_isStillReported() {
     Q q = combined();

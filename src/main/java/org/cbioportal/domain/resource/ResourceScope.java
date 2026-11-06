@@ -9,17 +9,17 @@ import java.util.Set;
 
 /**
  * The requested resources as the requested studies define and hold them, read once per request from
- * the definitions and the sorting keys of {@code resource} and {@code resource_compact_derived}
- * rather than from the rows' metadata.
+ * the definitions and the sorting keys and internal ids of {@code resource} and {@code
+ * resource_compact_derived} rather than from the rows' metadata.
  *
  * <p>It answers three questions: whether every requested resource exists, which contracts describe
  * a grouped table, and whether the compact metadata table holds everything a grouped query needs.
  *
  * @param rows one per requested resource and requested study that defines or holds it
- * @param compactCurrent whether the compact table's copy of every requested resource, over the
- *     requested studies, is current: as many rows copied under each study's present contract as
- *     {@code resource} holds. It is only checked for a query the contracts alone would let read the
- *     compact table, and is false otherwise.
+ * @param compactCurrent whether the compact table's copy of every requested resource, in each
+ *     requested study, is current: the same rows (by count and a fingerprint of their internal ids)
+ *     copied under the study's present contract as {@code resource} holds. It is only checked for a
+ *     query the contracts alone would let read the compact table, and is false otherwise.
  */
 public record ResourceScope(List<ResourceScopeRow> rows, boolean compactCurrent) {
 

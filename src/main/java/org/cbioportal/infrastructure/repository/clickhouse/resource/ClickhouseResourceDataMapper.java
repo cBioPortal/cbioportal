@@ -114,9 +114,10 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceScopeRow> getResourceScope(@Param("query") ResourceTableQuery query);
 
   /**
-   * Whether the compact table holds a current copy of every requested resource over the requested
-   * studies: as many rows, copied under each study's present contract, as {@code resource} holds.
-   * Answered from the sorting keys alone.
+   * Whether the compact table holds a current copy of every requested resource in each requested
+   * study: the same rows, by count and a fingerprint of their internal ids, copied under the
+   * study's present contract, as {@code resource} holds. Reads the sorting keys and {@code
+   * internal_id} only.
    */
   Boolean isCompactTableCurrent(@Param("query") ResourceTableQuery query);
 

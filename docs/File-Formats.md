@@ -1751,9 +1751,9 @@ row's full metadata.
 The compact table is derived, so it is only as current as the last rebuild: **repopulate the
 derived tables (`populate_derived_tables.sql`) after migrating the database to schema 3.2.0, and
 after importing a study's resources or changing a resource's `CUSTOM_METADATA`**. A study whose
-compact copy is out of date -- a different number of rows than the resource table holds, or rows
-copied under a different contract -- is detected and read from the full table instead, so results
-stay correct, but the grouped views lose their speed-up until the rebuild.
+compact copy is out of date -- rows added, removed or reimported since the rebuild (even when the
+count is unchanged), or rows copied under a different contract -- is detected and read from the full
+table instead, so results stay correct, but the grouped views lose their speed-up until the rebuild.
 
 The contract is declared per study, but a study view cohort can span several studies that each
 declare the same resource. The table then shows the **union** of their contracts, each key taking

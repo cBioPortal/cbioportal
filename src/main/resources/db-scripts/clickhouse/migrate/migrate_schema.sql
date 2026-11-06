@@ -146,8 +146,8 @@ DROP TABLE IF EXISTS resource_study;
 ## description: Add resource_compact_derived, resource rows with metadata reduced to their contract's declared keys
 -- The table is created empty. Run populate_derived_tables.sql after this migration, and again after
 -- importing a study's resources or changing a resource's custom_metadata contract. Until then the
--- grouped resource table finds the copy stale (it holds fewer rows under the current contract than
--- resource holds) and reads resource instead: correct, but slower.
+-- grouped resource table finds the copy stale (its rows under the current contract differ from
+-- resource's) and reads resource instead: correct, but slower.
 CREATE TABLE IF NOT EXISTS resource_compact_derived (
     `internal_id` Int64,
     `resource_id` String,

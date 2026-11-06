@@ -70,6 +70,9 @@ public class Saml2SecurityConfig {
             logout ->
                 logout
                     .logoutUrl(LOGOUT_URL)
+                    .invalidateHttpSession(true)
+                    .clearAuthentication(true)
+                    .deleteCookies("JSESSIONID")
                     .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
         .build();
   }

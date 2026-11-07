@@ -29,7 +29,6 @@ DROP TABLE IF EXISTS generic_assay_data_derived_temp;
 DROP TABLE IF EXISTS mutation_derived_temp;
 DROP TABLE IF EXISTS generic_assay_profile_entity_derived_temp;
 DROP TABLE IF EXISTS generic_assay_meta_derived_temp;
-DROP TABLE IF EXISTS resource_compact_derived_temp;
 
 -- Force deduplication of ReplacingMergeTree source tables before building derived tables
 OPTIMIZE TABLE clinical_patient FINAL;
@@ -532,47 +531,6 @@ LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
 WHERE ge.entity_type = 'GENERIC_ASSAY'
 GROUP BY ge.stable_id, ge.entity_type;
 
--- Resource rows whose definition declares a custom_metadata contract, with metadata reduced to
--- the declared keys; see resource_compact_derived in schema.sql.
-CREATE TABLE resource_compact_derived_temp AS resource_compact_derived;
-INSERT INTO resource_compact_derived_temp
-SELECT
-    r.internal_id,
-    r.resource_id,
-    r.cancer_study_id,
-    r.resource_scope,
-    r.patient_id,
-    r.sample_id,
-    r.url,
-    r.display_name,
-    -- Rebuilds the document from the declared pairs only. Raw values are copied verbatim, so a
-    -- string stays quoted, a number stays a number and a nested object stays an object.
-    if(r.metadata IS NULL, NULL,
-       concat('{',
-              arrayStringConcat(
-                  arrayMap(kv -> concat(toJSONString(kv.1), ':', kv.2),
-                           arrayFilter(kv -> has(d.declared_keys, kv.1),
-                                       JSONExtractKeysAndValuesRaw(assumeNotNull(r.metadata)))),
-                  ','),
-              '}')) AS metadata,
-    d.contract_hash
-FROM resource r
-INNER JOIN (
-    -- One row per definition, so a duplicated definition cannot duplicate the resource's rows.
-    -- max() picks the same contract the resource table's scope lookup picks.
-    SELECT resource_id,
-           cancer_study_id,
-           max(assumeNotNull(custom_metadata)) AS contract,
-           cityHash64(contract) AS contract_hash,
-           arrayFilter(k -> k != '',
-                       arrayMap(f -> JSONExtractString(f, 'key'),
-                                JSONExtractArrayRaw(contract, 'fields'))) AS declared_keys
-    FROM resource_definition
-    WHERE custom_metadata IS NOT NULL AND custom_metadata != ''
-    GROUP BY resource_id, cancer_study_id
-) d ON d.resource_id = r.resource_id AND d.cancer_study_id = r.cancer_study_id
-WHERE notEmpty(d.declared_keys);
-
 -- Merge parts.
 OPTIMIZE TABLE sample_to_gene_panel_derived_temp;
 OPTIMIZE TABLE gene_panel_to_gene_derived_temp;
@@ -585,7 +543,6 @@ OPTIMIZE TABLE genetic_alteration_derived_temp;
 OPTIMIZE TABLE generic_assay_data_derived_temp;
 OPTIMIZE TABLE generic_assay_profile_entity_derived_temp;
 OPTIMIZE TABLE generic_assay_meta_derived_temp;
-OPTIMIZE TABLE resource_compact_derived_temp;
 
 -- Cutover.
 EXCHANGE TABLES sample_to_gene_panel_derived AND sample_to_gene_panel_derived_temp;
@@ -600,7 +557,6 @@ EXCHANGE TABLES generic_assay_data_derived AND generic_assay_data_derived_temp;
 EXCHANGE TABLES mutation_derived AND mutation_derived_temp;
 EXCHANGE TABLES generic_assay_profile_entity_derived AND generic_assay_profile_entity_derived_temp;
 EXCHANGE TABLES generic_assay_meta_derived AND generic_assay_meta_derived_temp;
-EXCHANGE TABLES resource_compact_derived AND resource_compact_derived_temp;
 
 DROP TABLE IF EXISTS sample_to_gene_panel_derived_temp;
 DROP TABLE IF EXISTS gene_panel_to_gene_derived_temp;
@@ -614,4 +570,3 @@ DROP TABLE IF EXISTS generic_assay_data_derived_temp;
 DROP TABLE IF EXISTS mutation_derived_temp;
 DROP TABLE IF EXISTS generic_assay_profile_entity_derived_temp;
 DROP TABLE IF EXISTS generic_assay_meta_derived_temp;
-DROP TABLE IF EXISTS resource_compact_derived_temp;

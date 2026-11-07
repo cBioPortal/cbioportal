@@ -37,16 +37,8 @@ public class GetResourceTableGroupsUseCase {
     if (!GetResourceTableDataUseCase.isAnswerable(query)) {
       return ResourceTableGroupPage.empty();
     }
-    // A page of groups parses the metadata of every matching row only to apply a metadata column
-    // filter; its group counts parse just the page's groups.
-    boolean scansMetadata =
-        query.filters() != null
-            && query.filters().stream()
-                .anyMatch(filter -> filter != null && filter.metadataColumn());
     return resourceDataRepository.getResourceTableGroups(
-        query,
-        ResourceQueryContexts.resolve(
-            query, resourceDataRepository, studyViewService, scansMetadata));
+        query, ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService));
   }
 
   /** Rejects a request the groups endpoint cannot answer as asked, before anything is read. */

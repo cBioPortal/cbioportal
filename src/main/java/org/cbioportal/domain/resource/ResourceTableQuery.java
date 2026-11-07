@@ -200,29 +200,6 @@ public record ResourceTableQuery(
   }
 
   /**
-   * Metadata keys the query reads values of, through its filters and group counts. The compact
-   * metadata table can answer a grouped query only when it holds every one of them. A search reads
-   * every key, so it is not reduced to keys here; see {@link
-   * ResourceQueryContext#readsCompactTable}.
-   */
-  public Set<String> referencedMetadataKeys() {
-    Set<String> keys = new LinkedHashSet<>();
-    if (filters != null) {
-      for (ResourceColumnFilter filter : filters) {
-        if (filter != null && filter.metadataColumn()) {
-          keys.add(filter.metadataKey());
-        }
-      }
-    }
-    for (ResourceGroupCountColumn column : groupCountColumns()) {
-      if (column.metadataKey() != null) {
-        keys.add(column.metadataKey());
-      }
-    }
-    return keys;
-  }
-
-  /**
    * The id lists above as ClickHouse native arrays, bound as a single JDBC array parameter via
    * MyBatis' {@code ArrayTypeHandler} rather than expanded into one placeholder per id by a {@code
    * <foreach>}. Expanding a selection into one placeholder per id makes the SQL and the bound

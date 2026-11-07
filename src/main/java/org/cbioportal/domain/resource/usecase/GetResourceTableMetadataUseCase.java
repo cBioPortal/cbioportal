@@ -41,7 +41,7 @@ public class GetResourceTableMetadataUseCase {
     }
 
     ResourceQueryContext context =
-        ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService, true);
+        ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService);
     ResourceTableCounts counts = resourceDataRepository.getResourceTableCounts(query, context);
     ResourceTableMetadataView metadata =
         resourceDataRepository.getResourceTableMetadata(query, context);

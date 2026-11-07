@@ -67,7 +67,6 @@ DROP TABLE IF EXISTS reference_genome;
 DROP TABLE IF EXISTS reference_genome_gene;
 DROP TABLE IF EXISTS resource_definition;
 DROP TABLE IF EXISTS resource;
-DROP TABLE IF EXISTS resource_compact_derived;
 DROP TABLE IF EXISTS sample;
 DROP TABLE IF EXISTS sample_cna_event;
 DROP TABLE IF EXISTS sample_derived;
@@ -612,30 +611,6 @@ CREATE TABLE resource (
         'Map(String, String)'), 'JSON')
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
   SETTINGS allow_nullable_key = 1;
-
--- Derived: each row of a resource whose definition declares a custom_metadata contract, with
--- metadata reduced to the keys that contract declares. Grouped resource-table queries read it so
--- that filters, group counts and facets parse short documents rather than every key a row carries.
--- Rows of resources without a contract are not copied; queries over them read resource.
--- contract_hash is cityHash64 of the custom_metadata the rows were copied under. It follows
--- resource_id in the sorting key, which is constant per (study, resource), so the resource table can
--- select the rows copied under today's contract by key range, compare their count and internal_id
--- fingerprint with resource's per study, and read resource instead of a stale copy. Repopulate
--- after importing a study's resources or changing a contract.
-CREATE TABLE resource_compact_derived (
-    `internal_id` Int64,
-    `resource_id` String,
-    `cancer_study_id` Int64,
-    `resource_scope` String,
-    `patient_id` Nullable(String),
-    `sample_id` Nullable(String),
-    `url` String,
-    `display_name` Nullable(String),
-    `metadata` Nullable(String),
-    `contract_hash` UInt64
-) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, contract_hash, patient_id, sample_id, internal_id)
-  SETTINGS allow_nullable_key = 1;
-
 
 
 

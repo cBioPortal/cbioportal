@@ -15,13 +15,12 @@ import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.studyview.StudyViewFilterContext;
 
 /**
- * Statements over {@code resource}, and for grouped queries over {@code resource_compact_derived}.
+ * Statements over {@code resource}.
  *
  * <p>Every statement filtered by the request's cohort takes a {@code studyViewFilterContext}: when
  * it is non-null the cohort is that study-view filter, resolved by the shared study-view filter
  * SQL, and the request's identifier lists are ignored; when it is null the cohort is the request's
- * identifier lists. Statements that can read the compact table take a {@code compact} flag that
- * switches the table they read.
+ * identifier lists.
  */
 public interface ClickhouseResourceDataMapper {
   List<ResourceTableTab> getResourceTableTabs(@Param("request") ResourceTabsRequest request);
@@ -43,35 +42,14 @@ public interface ClickhouseResourceDataMapper {
   /**
    * Facet values for a grouped query: each value counts the groups (patients or samples) with at
    * least one row carrying it, rather than the rows.
-   *
-   * @param facetTupleType the named tuple type, one String element per key in {@code metadataKeys},
-   *     that each document is parsed into; see {@link #facetTupleType(String[])}
    */
   List<ResourceMetadataFacetValue> getResourceTableGroupedMetadataFacets(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact,
       @Param("metadataKeys") String[] metadataKeys,
-      @Param("facetTupleType") String facetTupleType,
       @Param("limitPerKey") int limitPerKey,
       @Param("maxMemoryBytes") long maxMemoryBytes,
       @Param("externalGroupByBytes") long externalGroupByBytes);
-
-  /**
-   * The ClickHouse type {@code Tuple(`k1` String, `k2` String, ...)} that parses just these keys
-   * out of a metadata document. Keys come from curator contracts, so each is backquoted with its
-   * backslashes and backquotes escaped; the type is then bound as a string literal.
-   */
-  static String facetTupleType(String[] keys) {
-    StringBuilder type = new StringBuilder("Tuple(");
-    for (int i = 0; i < keys.length; i++) {
-      if (i > 0) {
-        type.append(", ");
-      }
-      type.append('`').append(keys[i].replace("\\", "\\\\").replace("`", "\\`")).append("` String");
-    }
-    return type.append(')').toString();
-  }
 
   /**
    * Per-key stats (non-blank count, numeric-parseable count, min/max) used to decide whether a
@@ -82,7 +60,6 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceMetadataKeyStats> getResourceTableMetadataKeyStats(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact,
       @Param("sampleRows") int sampleRows,
       @Param("maxMemoryBytes") long maxMemoryBytes);
 
@@ -90,7 +67,6 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceMetadataRange> getResourceTableMetadataRanges(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact,
       @Param("metadataKeys") String[] metadataKeys);
 
   /**
@@ -103,8 +79,7 @@ public interface ClickhouseResourceDataMapper {
 
   ResourceTableCounts getResourceTableCounts(
       @Param("query") ResourceTableQuery query,
-      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact);
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
   /**
    * One (resource, study) row per requested resource that a requested study defines or holds rows
@@ -114,21 +89,12 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceScopeRow> getResourceScope(@Param("query") ResourceTableQuery query);
 
   /**
-   * Whether the compact table holds a current copy of every requested resource in each requested
-   * study: the same rows, by count and a fingerprint of their internal ids, copied under the
-   * study's present contract, as {@code resource} holds. Reads the sorting keys and {@code
-   * internal_id} only.
-   */
-  Boolean isCompactTableCurrent(@Param("query") ResourceTableQuery query);
-
-  /**
    * The requested page of groups, each carrying the totals over every group and, with a {@code
    * locate} group, its zero-based position (null if the filters remove it).
    */
   List<ResourceTableGroupRow> getResourceTableGroupPage(
       @Param("query") ResourceTableQuery query,
-      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact);
+      @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
   /**
    * Value counts for the page's groups only, named by their keys. Counting every group and then
@@ -137,7 +103,6 @@ public interface ClickhouseResourceDataMapper {
   List<ResourceGroupCountsRow> getResourceTableGroupCounts(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
-      @Param("compact") boolean compact,
       @Param("groupKeys") String[] groupKeys,
       @Param("groupKeyTuples") String[] groupKeyTuples);
 }

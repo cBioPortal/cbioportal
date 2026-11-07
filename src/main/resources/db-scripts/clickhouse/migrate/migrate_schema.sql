@@ -163,13 +163,14 @@ CREATE TABLE IF NOT EXISTS resource_compact_derived (
   SETTINGS allow_nullable_key = 1;
 
 ## db_schema_version: 3.3.0
-## description: Add resource.metadata_json, a JSON column materialized from metadata
+## description: Replace resource_compact_derived with resource.metadata_json, a JSON column materialized from metadata
 -- Requires ClickHouse 25.3 or later. The SET lets the section create and fill a JSON column on a
 -- server whose profile still disables the JSON type (e.g. compatibility set below 25.3); importers
 -- writing resource need the type enabled too. See metadata_json in init/schema.sql for what the
 -- column holds. MATERIALIZE COLUMN rewrites it into the existing parts; until it finishes, those
 -- parts compute it on read, so queries stay correct throughout.
 SET enable_json_type = 1;
+DROP TABLE IF EXISTS resource_compact_derived;
 ALTER TABLE resource ADD COLUMN IF NOT EXISTS `metadata_json` JSON MATERIALIZED CAST(CAST(
         arrayMap(kv -> (kv.1, concat(':', kv.2)),
             arrayFilter((kv, n) -> n = 1 AND kv.2 != '',

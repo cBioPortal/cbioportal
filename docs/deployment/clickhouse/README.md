@@ -2,6 +2,14 @@
 
 Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) as its sole database. This guide will help you set up and configure a ClickHouse-backed cBioPortal instance.
 
+> **Minimum ClickHouse version: 25.3.** From database schema `3.3.0` the `resource` table also
+> keeps each row's metadata in a `JSON` column, which lets the resource tables filter and count on a
+> few metadata keys without parsing every row's whole document. The `JSON` type is supported from
+> ClickHouse 25.3 and enabled by default there, but a server or user profile whose `compatibility`
+> setting names an older release turns it off. The users that create or migrate the schema and that
+> import data then need `enable_json_type = 1` in their profile (`migrate_db.py` sets it for the
+> migration itself). The portal only reads the column and needs no setting.
+
 ## Table of Contents
 
 1. [Installing the ClickHouse CLI](#1-installing-the-clickhouse-cli)

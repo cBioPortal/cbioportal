@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -27,10 +26,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
@@ -39,6 +36,7 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 public class Saml2SecurityConfig {
 
   private static final String LOGOUT_URL = "/logout";
+  private static final String LOGOUT_SUCCESS_URL = "/login?logout_success";
 
   @Value("${saml.idp.metadata.attribute.role:Role}")
   private String roleAttributeName;
@@ -48,7 +46,7 @@ public class Saml2SecurityConfig {
   public SecurityFilterChain samlFilterChain(
       HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
     return http.csrf(AbstractHttpConfigurer::disable)
-        .cors(Customizer.withDefaults())
+        .cors(withDefaults())
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
@@ -62,15 +60,17 @@ public class Saml2SecurityConfig {
                     PathPatternRequestMatcher.pathPattern("/api/**")))
         .saml2Login(withDefaults())
         .saml2Metadata(withDefaults())
-        // NOTE: I did not get the official .saml2Logout() DSL to work as
-        // described at
-        // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
-        // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
-        .logout(
-            logout ->
-                logout
+        .logout(logout -> logout.logoutUrl(LOGOUT_URL).logoutSuccessUrl(LOGOUT_SUCCESS_URL))
+        .saml2Logout(
+            saml2 ->
+                saml2
                     .logoutUrl(LOGOUT_URL)
-                    .logoutSuccessHandler(logoutSuccessHandler(relyingPartyRegistrationRepository)))
+                    .logoutRequest(
+                        request ->
+                            request.logoutRequestResolver(
+                                new OpenSaml5LogoutRequestResolver(
+                                    new DefaultRelyingPartyRegistrationResolver(
+                                        relyingPartyRegistrationRepository)))))
         .build();
   }
 
@@ -87,10 +87,11 @@ public class Saml2SecurityConfig {
     Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
         OpenSaml5AuthenticationProvider.createDefaultResponseAuthenticationConverter();
 
-    return (responseToken) -> {
+    return responseToken -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
       var principal =
           (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+
       // The default converter sets the registrationId on
       // Saml2AssertionAuthentication, not the principal. The logout resolver
       // reads it from the principal, so propagate it here.
@@ -99,27 +100,18 @@ public class Saml2SecurityConfig {
         defaultPrincipal.setRelyingPartyRegistrationId(
             assertionAuth.getRelyingPartyRegistrationId());
       }
+
       Collection<String> roles = principal.getAttribute(this.roleAttributeName);
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
       if (!Objects.isNull(roles)) {
         mappedAuthorities.addAll(GrantedAuthorityUtil.generateGrantedAuthoritiesFromRoles(roles));
       } else {
         mappedAuthorities.addAll(authentication.getAuthorities());
       }
+
       return new Saml2Authentication(
           principal, authentication.getSaml2Response(), mappedAuthorities);
     };
-  }
-
-  @Bean
-  public LogoutSuccessHandler logoutSuccessHandler(
-      RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-    // Perform logout at the SAML2 IDP
-    DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
-        new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
-    OpenSaml5LogoutRequestResolver logoutRequestResolver =
-        new OpenSaml5LogoutRequestResolver(relyingPartyRegistrationResolver);
-
-    return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
   }
 }

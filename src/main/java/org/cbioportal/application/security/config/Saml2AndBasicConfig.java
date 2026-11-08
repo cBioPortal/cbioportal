@@ -21,11 +21,13 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
+import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -35,7 +37,9 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 @EnableWebSecurity
 @ConditionalOnProperty(value = "authenticate", havingValue = "saml_plus_basic")
 public class Saml2AndBasicConfig {
+
   private static final String LOGOUT_URL = "/logout";
+  private static final String LOGOUT_SUCCESS_URL = "/login?logout_success";
   private static final String BASIC_LOGOUT_URL = "/j_spring_security_logout";
   private static final String BASIC_LOGOUT_SUCCESS_URL = "/";
 
@@ -52,8 +56,10 @@ public class Saml2AndBasicConfig {
   public SecurityFilterChain samlFilterChain(
       HttpSecurity http,
       AuthenticationManagerBuilder authenticationManagerBuilder,
-      LogoutSuccessHandler logoutSuccessHandler) {
+      RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
+
     buildAuthenticationManager(authenticationManagerBuilder, userDetailsService());
+
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(withDefaults())
         .authorizeHttpRequests(
@@ -75,20 +81,25 @@ public class Saml2AndBasicConfig {
         .saml2Metadata(withDefaults())
         .sessionManagement(
             sessionManagement -> sessionManagement.sessionFixation().migrateSession())
-        // SAML logout configuration
-        // NOTE: I did not get the official .saml2Logout() DSL to work as
-        // described at
-        // https://docs.spring.io/spring-security/reference/6.1/servlet/saml2/logout.html
-        // Logout Service POST Binding URL: http://localhost:8080/logout/saml2/slo
         .logout(
             logout ->
                 logout
                     .logoutUrl(LOGOUT_URL)
                     .clearAuthentication(true)
                     .invalidateHttpSession(true)
-                    .logoutSuccessHandler(logoutSuccessHandler));
+                    .logoutSuccessUrl(LOGOUT_SUCCESS_URL))
+        .saml2Logout(
+            saml2 ->
+                saml2
+                    .logoutUrl(LOGOUT_URL)
+                    .logoutRequest(
+                        request ->
+                            request.logoutRequestResolver(
+                                new OpenSaml5LogoutRequestResolver(
+                                    new DefaultRelyingPartyRegistrationResolver(
+                                        relyingPartyRegistrationRepository)))));
 
-    // Add basic auth logout filter
+    // Add Basic authentication logout filter.
     SimpleUrlLogoutSuccessHandler basicLogoutSuccessHandler = new SimpleUrlLogoutSuccessHandler();
     basicLogoutSuccessHandler.setDefaultTargetUrl(BASIC_LOGOUT_SUCCESS_URL);
 
@@ -97,9 +108,9 @@ public class Saml2AndBasicConfig {
             basicLogoutSuccessHandler,
             (request, response, authentication) -> {
               if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-                // Clear the authentication
+                // Clear the authentication.
                 SecurityContextHolder.clearContext();
-                // Invalidate the session
+                // Invalidate the session.
                 request.getSession(false).invalidate();
               }
             });

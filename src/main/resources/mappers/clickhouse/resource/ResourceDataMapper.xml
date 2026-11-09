@@ -582,7 +582,9 @@
 
     Given metadataKeys, it counts only those keys, read as ResourceMetadataKeyValuePairs reads them.
     The sample is taken from the rows carrying a value for at least one of them: the other rows add
-    to neither count.
+    to neither count. Under a search, which reads the raw documents anyway, it is taken from the
+    rows with a non-empty document instead, as discovery takes it: testing the keys' values there
+    would parse each document for them twice.
 
     Without metadataKeys it discovers the keys as well: it pulls every key/value pair of each
     sampled row's raw document out in one pass with JSONExtractKeysAndValuesRaw, and never carries
@@ -608,7 +610,14 @@
               SELECT <include refid="ResourceMetadataKeyValuePairs"/> AS sampledPairs
               <include refid="ResourceTableFromClause"/>
               <include refid="ResourceTableBaseFilters"/>
-              AND arrayExists(pair -> pair.2 != '', sampledPairs)
+              <choose>
+                <when test="query.hasSearch()">
+                  AND rdata.metadata IS NOT NULL AND rdata.metadata != '' AND rdata.metadata != '{}'
+                </when>
+                <otherwise>
+                  AND arrayExists(pair -> pair.2 != '', sampledPairs)
+                </otherwise>
+              </choose>
               LIMIT #{sampleRows}
             ) sampled
           ) pairs

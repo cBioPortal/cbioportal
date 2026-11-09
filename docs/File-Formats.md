@@ -39,7 +39,7 @@ Each molecular profile is defined by one metadata file, and its data must be in 
 
 ## Validation modes
 
-The additional preprocessing checks described here are opt-in. Run `validateData.py --strict -s STUDY_DIRECTORY` (or pass `--strict` to `metaImport.py`) to check OncoTree annotations, CNA gene identifier syntax and duplicates, unreferenced clinical/timeline/mutation files, mutation samples missing from `_sequenced`, and additional generated case lists. `--strict-mode` is an alias. Without this flag, existing validation errors and warnings still apply, but these additional requirements are not enforced. The existing `--strict_maf_checks` (`-m`) flag controls separate mutation-file checks; neither flag enables the other.
+The additional preprocessing checks described here are opt-in. Run `validateData.py --strict -s STUDY_DIRECTORY` (or pass `--strict` to `metaImport.py`) to check OncoTree annotations, CNA gene identifier syntax and duplicates, unreferenced clinical/timeline/mutation files, mutation samples missing from `_sequenced`, a missing `_sv` list when structural-variant metadata is present, and additional generated case lists. `--strict-mode` is an alias. Without this flag, existing validation errors and warnings still apply, but these additional requirements are not enforced. The existing `--strict_maf_checks` (`-m`) flag controls separate mutation-file checks; neither flag enables the other.
 
 Strict validation reports problems without rewriting study data. For OncoTree checks, the reference should match the destination database, but the validator does not discover that database's reference automatically:
 
@@ -304,14 +304,6 @@ OncoTree releases can rename, remove, or relabel codes. If the OncoTree referenc
 
 An empty value, `NA`, `N/A`, `Not Available`, `[Not Available]`, or `[Not Applicable]` is treated as missing, regardless of capitalization. Missing codes and labels do not need to be filled in. When no code is supplied, the OncoTree matching rules do not apply to the cancer type labels.
 
-#### Proposed handling of OncoTree updates
-
-The following update policy is proposed for review; it is not a description of automatic behavior in the current importer.
-
-Before updating a portal database's OncoTree reference, compare its current reference with the proposed replacement, identify affected codes and studies, and notify users. List the affected codes, the number and proportion of studies affected, and whether each code has a direct successor, requires a curator to choose among successors, or has no replacement. Allow users to prepare corrections before the update, and ask anyone concerned about an affected study to contact the portal maintainers.
-
-Where a direct successor exists, migrate the code and its cancer type labels together, using a mapping script such as `oncotree_to_oncotree.py` or an equivalent reviewed mapping. Where an update leaves a sample's code invalid and no replacement has been established, keep the study and set that sample's `ONCOTREE_CODE`, `CANCER_TYPE`, and `CANCER_TYPE_DETAILED` to `NA`. Notify users of the lost annotations. Retain an audit record with the study ID, sample ID, previous values of all three fields, and the old and new reference versions. Choices among multiple successors require curation. The study-level `type_of_cancer` also needs review when its code changes; the sample-level policy does not define how to migrate it.
-
 ### Custom columns in clinical data
 cBioPortal supports custom columns with clinical data in either the patient or sample file. They should follow the previously described 5-row header format. Be sure to provide the correct `Datatype`, for optimal search, sorting, filtering (in [clinical data tab](https://www.cbioportal.org/study?id=brca_tcga#clinical)) and visualization.
 
@@ -385,7 +377,7 @@ To avoid losing later rows during import, remove identical duplicate rows and cu
 
 For example, strict CNA validation treats two rows with `Entrez_Gene_Id` set to `7157` as duplicates even if their `Hugo_Symbol` values differ. It also normalizes the integer spellings `07157` and `7157` to the same gene ID. That normalization is limited to CNA under `--strict`: default-mode CNA, expression, and methylation validation count those two spellings as different gene identifiers.
 
-The file format does not impose a signed 32-bit maximum on Entrez gene IDs; the portal's `gene.entrez_gene_id` field is `Int64`. The companion validator in [cbioportal-core #183](https://github.com/cBioPortal/cbioportal-core/pull/183) currently rejects strict CNA IDs above `2147483647`; removing that implementation restriction remains follow-up work in that PR. A row that cannot be matched to an Entrez gene ID in the portal's `gene` table produces a validation warning and is skipped during import.
+A row that cannot be matched to an Entrez gene ID in the portal's `gene` table produces a validation warning and is skipped during import.
 
 ##### Example
 An example data file which includes the required column header would look like:
@@ -1110,7 +1102,7 @@ RET<TAB>5979<TAB>center.edu<TAB>SAMPLE_ID_3<TAB>Fusion<TAB>unknown<TAB>yes<TAB>u
 
 Case lists are used to define sample lists that can be selected on the query page. Some case lists have specific functionality, but it's also possible to add custom case lists. The case list files should be placed in a sub-directory called `case_lists` which exists alongside all the other cancer study data. 
 
-All files in the `case_lists` subdirectory are imported as case lists, except hidden files and editor backup files ending in `~`. File names are irrelevant during the import of case lists. The `stable_id` and `case_list_category` fields within each file determine how the case list is used, so naming a file `cases_sequenced.txt` does not make it the sequencing case list.
+All files in the `case_lists` subdirectory are imported as case lists, except hidden files and editor backup files ending in `~`. File names are irrelevant during the import of case lists. The sequencing case list is identified by its `stable_id`, `<study>_sequenced`; naming a file `cases_sequenced.txt` does not make it the sequencing case list.
 
 The case list file should contain the following fields:
 
@@ -1154,7 +1146,7 @@ The following case lists are required when the corresponding data is present:
 - `_all`: all samples in the study's clinical sample file. This can be generated by the importer if you set `add_global_case_list` to `true` in the [Study metadata](#cancer-study).
 - `_sequenced`: all samples profiled for mutations, including samples with no reported mutations. This case list is required when loading mutation data.
 - `_cna`: all samples profiled for discrete CNA, including samples with no reported copy number events. This case list is required when loading discrete CNA data.
-- `_sv`: all samples profiled for structural variants, including samples with no reported structural variants. This case list is required when loading structural variant data, as described in [Gene Panel Data](#gene-panel-data).
+- `_sv`: all samples profiled for structural variants, including samples with no reported structural variants. Strict validation requires this case list when structural-variant metadata is present, regardless of the data filename or whether any events are reported. Default validation does not enforce this requirement. See [Gene Panel Data](#gene-panel-data).
 
 Strict validation additionally checks that every sample with a called mutation appears in `_sequenced`. If a mutation, discrete CNA, or structural variant data file reports events for a sample that is not in the matching case list above, the data is in error. Do not fix this by adding the sample to the case list. Find out why a sample that was not profiled has reported events. The sample ID in the data file may be wrong, or the record of which samples were profiled may be incomplete. The lab or center that produced the data may need to correct both.
 
@@ -1164,7 +1156,7 @@ All IDs in `case_list_ids` must refer to samples in the study's clinical sample 
 
 For example, if `SAMPLE_1` and `SAMPLE_2` were sequenced but only `SAMPLE_1` has a mutation in the MAF, both samples belong in `_sequenced`. Leaving out `SAMPLE_2` would inflate the computed frequency of mutations across the study, because the absence of mutations in that sample would be ignored.
 
-The four rules above describe the baseline case-list requirements. A custom list may use a filename shown as an example for another list; its metadata determines its role. With `--strict`, the validator additionally checks the bundled `case_list_config.tsv` for lists implied by recognized staging filenames, including expression and combined-profile lists. A matching stable ID or an equivalent non-generic curated category can satisfy these additional checks without renaming or rewriting the list. If a required generated list is missing and its suggested filename is occupied by an unrelated list, strict validation reports the conflict; it never overwrites that file.
+The rules above describe the profile-specific case lists; the `_sv` check is enabled only with `--strict`. A custom list may use a filename shown as an example for another list; its metadata determines its role. With `--strict`, the validator additionally checks the bundled `case_list_config.tsv` for lists implied by recognized staging filenames, including expression and combined-profile lists. Each additional list must have the expected stable ID; a matching category does not substitute for it. Case-list filenames remain unrestricted, and existing lists are not rewritten. If a required generated list is missing and its suggested filename is occupied by an unrelated list, strict validation reports the conflict; it never overwrites that file.
 
 The other suffixes listed under [Case list stable id suffixes](#case-list-stable-id-suffixes) support profile selection and sample counts, but are not additional required case lists in default validation. Strict validation can require them when the configured staging files contain samples. For combined lists such as `_cnaseq`, include all samples profiled for every relevant profile type, such as both CNA and mutations for `_cnaseq`. Custom case lists may contain any subset of valid study samples.
 

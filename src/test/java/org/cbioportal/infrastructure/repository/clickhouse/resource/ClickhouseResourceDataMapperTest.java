@@ -743,6 +743,128 @@ public class ClickhouseResourceDataMapperTest {
     assertThat(contracts).extracting(ResourceContractRow::declared).containsExactly(true, false);
   }
 
+  /**
+   * The contracts of the (study, resource) pairs whose rows the request matches, under every way a
+   * request narrows its rows. PATHOLOGY is declared differently by each study; CYTOLOGY only by
+   * acc_tcga, while study_tcga_pub holds undeclared CYTOLOGY rows.
+   */
+  @Test
+  public void getResourceDefinitionCustomMetadata_followsTheRowsTheRequestMatches() {
+    List<String> both = List.of(STUDY_TCGA_PUB, STUDY_ACC);
+    String accPathology = "acc_tcga:Grade (acc)";
+    String accCytology = "acc_tcga:Preparation";
+    String tcgaUndeclared = "study_tcga_pub:";
+    String tcgaPathology = "study_tcga_pub:Stain (tcga)";
+
+    assertThat(contracts(both, "PATHOLOGY", null, null, null, null, null))
+        .containsExactly(accPathology, tcgaPathology);
+    // One study's rows only, by sample, by patient, by search and by column filter.
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-a1-a0zz-01"),
+                null,
+                null,
+                null))
+        .containsExactly(tcgaPathology);
+    assertThat(
+            contracts(
+                both, "PATHOLOGY", patients(STUDY_ACC, "tcga-zz-9999"), null, null, null, null))
+        .containsExactly(accPathology);
+    assertThat(contracts(both, "PATHOLOGY", null, null, "dr-b", null, null))
+        .containsExactly(accPathology);
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                null,
+                null,
+                List.of(new ResourceColumnFilter("metadata:stain", "in", List.of("HE"))),
+                null))
+        .containsExactly(tcgaPathology);
+    // A filter matching no row, and a study-qualified sample that only the other study holds.
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                null,
+                null,
+                List.of(new ResourceColumnFilter("patientId", "in", List.of())),
+                null))
+        .isEmpty();
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-zz-9999-01"),
+                null,
+                null,
+                null))
+        .isEmpty();
+    // Several resources: each pair contributes its own contract, or a blank one.
+    assertThat(contracts(both, null, null, null, null, null, List.of("PATHOLOGY", "CYTOLOGY")))
+        .containsExactlyInAnyOrder(accPathology, accCytology, tcgaPathology, tcgaUndeclared);
+    assertThat(contracts(both, "PATHOLOGY", null, null, null, null, List.of("CYTOLOGY")))
+        .containsExactlyInAnyOrder(accPathology, accCytology, tcgaPathology, tcgaUndeclared);
+    assertThat(
+            contracts(
+                both,
+                null,
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-a1-a0zz-01"),
+                null,
+                null,
+                List.of("PATHOLOGY", "CYTOLOGY")))
+        .containsExactlyInAnyOrder(tcgaPathology, tcgaUndeclared);
+    assertThat(contracts(List.of(STUDY_ACC), null, null, null, null, null, List.of("CYTOLOGY")))
+        .containsExactly(accCytology);
+  }
+
+  /** Each contract row as "firstStudy:marker", the marker being a label only that contract has. */
+  private List<String> contracts(
+      List<String> studyIds,
+      String resourceId,
+      List<org.cbioportal.legacy.web.parameter.PatientIdentifier> patientIdentifiers,
+      List<SampleIdentifier> sampleIdentifiers,
+      String search,
+      List<ResourceColumnFilter> filters,
+      List<String> resourceIds) {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            studyIds,
+            resourceId,
+            patientIdentifiers,
+            sampleIdentifiers,
+            search,
+            0,
+            10,
+            null,
+            null,
+            filters,
+            resourceIds,
+            null,
+            null,
+            null,
+            null);
+    return mapper.getResourceDefinitionCustomMetadata(query, null).stream()
+        .map(row -> row.firstStudy() + ":" + contractMarker(row.customMetadata()))
+        .toList();
+  }
+
+  private static String contractMarker(String customMetadata) {
+    for (String marker : List.of("Stain (tcga)", "Grade (acc)", "Preparation", "Dose Score")) {
+      if (customMetadata.contains(marker)) {
+        return marker;
+      }
+    }
+    return customMetadata;
+  }
+
   @Test
   public void getResourceTableRows_metadataBetweenFilter_matchesNumericRange() {
     ResourceColumnFilter betweenFilter =

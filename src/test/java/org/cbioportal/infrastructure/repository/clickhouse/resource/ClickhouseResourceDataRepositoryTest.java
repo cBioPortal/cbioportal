@@ -1,6 +1,7 @@
 package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.cbioportal.domain.resource.ResourceIdentifierFixtures.samples;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceGroupBy;
 import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceQueryContext;
+import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
@@ -36,9 +38,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringRunner.class)
 @Import({MyBatisConfig.class, ClickhouseResourceDataRepository.class})
@@ -54,6 +59,7 @@ public class ClickhouseResourceDataRepositoryTest {
   @Autowired private ClickhouseResourceDataRepository repository;
   @Autowired private ClickhouseResourceDataMapper mapper;
   @Autowired private SqlSessionFactory sqlSessionFactory;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   @Test
   public void
@@ -766,6 +772,149 @@ public class ClickhouseResourceDataRepositoryTest {
 
     @Override
     public void setProperties(Properties properties) {}
+  }
+
+  /** The ids of every statement the read runs. */
+  private List<String> statementIds(Runnable read) {
+    if (!sqlSessionFactory
+        .getConfiguration()
+        .getInterceptors()
+        .contains(StatementRecorder.INSTANCE)) {
+      sqlSessionFactory.getConfiguration().addInterceptor(StatementRecorder.INSTANCE);
+    }
+    StatementRecorder.INSTANCE.statements.clear();
+    StatementRecorder.INSTANCE.recording = true;
+    try {
+      read.run();
+    } finally {
+      StatementRecorder.INSTANCE.recording = false;
+    }
+    return StatementRecorder.INSTANCE.statements.stream().map(Map.Entry::getKey).toList();
+  }
+
+  // ---- contracts taken from the resource scope ----
+
+  private static final String CONTRACTS_STATEMENT = "getResourceDefinitionCustomMetadata";
+
+  private static ResourceTableQuery resourceIdsQuery(
+      List<String> studyIds,
+      List<String> resourceIds,
+      List<org.cbioportal.legacy.web.parameter.SampleIdentifier> sampleIdentifiers,
+      String search) {
+    return new ResourceTableQuery(
+        studyIds,
+        null,
+        null,
+        sampleIdentifiers,
+        search,
+        0,
+        10,
+        null,
+        null,
+        null,
+        resourceIds,
+        null,
+        null,
+        null,
+        null);
+  }
+
+  /** The metadata read with the request's resource scope, as the service resolves it. */
+  private ResourceTableMetadataView metadataWithScope(
+      ResourceTableQuery query, List<String> statementIds) {
+    ResourceQueryContext scoped =
+        new ResourceQueryContext(null, repository.getResourceScope(query));
+    ResourceTableMetadataView[] view = new ResourceTableMetadataView[1];
+    statementIds.addAll(
+        statementIds(() -> view[0] = repository.getResourceTableMetadata(query, scoped)));
+    return view[0];
+  }
+
+  @Test
+  public void resourceIdsWithOneContractAndNothingNarrowingTheRows_takeItFromTheScope() {
+    // One declared contract (RADIOLOGY; GROUPED_SLIDE with GROUPED_SLIDE_PATIENT, which declare the
+    // same one) or none at all (HE_SLIDE with CT_SCAN). Read over the rows the contract statement
+    // would return the same, so it is not issued, and the result is the one it would give.
+    for (ResourceTableQuery query :
+        List.of(
+            resourceIdsQuery(List.of(STUDY_TCGA_PUB), List.of("RADIOLOGY"), null, null),
+            resourceIdsQuery(
+                List.of("study_genie_pub"),
+                List.of("GROUPED_SLIDE", "GROUPED_SLIDE_PATIENT"),
+                null,
+                null),
+            resourceIdsQuery(
+                List.of(STUDY_TCGA_PUB), List.of("HE_SLIDE", "CT_SCAN"), null, null))) {
+      List<String> ids = new ArrayList<>();
+      ResourceTableMetadataView view = metadataWithScope(query, ids);
+
+      assertThat(ids).as("%s", query.resourceIds()).doesNotContain(CONTRACTS_STATEMENT);
+      assertThat(view)
+          .as("%s", query.resourceIds())
+          .isEqualTo(repository.getResourceTableMetadata(query, ResourceQueryContext.none()));
+    }
+  }
+
+  @Test
+  public void resourceIdsWithSeveralContractsOrNarrowedRows_readTheContractsOverTheRows() {
+    List<String> both = List.of(STUDY_TCGA_PUB, STUDY_ACC);
+    List<String> pathology = List.of("PATHOLOGY");
+    for (ResourceTableQuery query :
+        List.of(
+            // Two contracts: which apply depends on which studies' rows match.
+            resourceIdsQuery(both, pathology, null, null),
+            resourceIdsQuery(both, List.of("PATHOLOGY", "CYTOLOGY"), null, null),
+            // One contract, but the rows are narrowed.
+            resourceIdsQuery(
+                List.of(STUDY_TCGA_PUB),
+                List.of("RADIOLOGY"),
+                samples(STUDY_TCGA_PUB, "tcga-a1-a0se-01"),
+                null),
+            resourceIdsQuery(List.of(STUDY_TCGA_PUB), List.of("RADIOLOGY"), null, "tech-a"))) {
+      List<String> ids = new ArrayList<>();
+      ResourceTableMetadataView view = metadataWithScope(query, ids);
+
+      assertThat(ids).as("%s", query).contains(CONTRACTS_STATEMENT);
+      assertThat(view)
+          .as("%s", query)
+          .isEqualTo(repository.getResourceTableMetadata(query, ResourceQueryContext.none()));
+    }
+
+    // Narrowed to study_tcga_pub's row, only its contract applies: acc_tcga's "reviewer", which the
+    // scope would add, is not a column.
+    ResourceTableMetadataView narrowed =
+        metadataWithScope(
+            resourceIdsQuery(both, pathology, samples(STUDY_TCGA_PUB, "tcga-a1-a0zz-01"), null),
+            new ArrayList<>());
+    assertThat(narrowed.columns())
+        .extracting(ResourceColumnInfo::id)
+        .containsExactly("metadata:stain", "metadata:grade");
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void aDeclaredResourceWithNoRows_listsItsDeclaredColumns() {
+    // Over the rows there is no contract, so no columns; from the scope, the declared ones, as a
+    // grouped table lists them.
+    jdbcTemplate.update(
+        "INSERT INTO resource_definition (resource_id, cancer_study_id, resource_type,"
+            + " display_name, description, open_by_default, priority, custom_metadata) VALUES"
+            + " ('EMPTY_DECLARED', 2, 'SAMPLE', 'Empty', 'Declared, no rows', 1, 9,"
+            + " '{\"version\":1,\"fields\":[{\"key\":\"site\",\"type\":\"string\"}]}')");
+    try {
+      ResourceTableQuery query =
+          resourceIdsQuery(List.of(STUDY_ACC), List.of("EMPTY_DECLARED"), null, null);
+
+      assertThat(metadataWithScope(query, new ArrayList<>()).columns())
+          .extracting(ResourceColumnInfo::id)
+          .containsExactly("metadata:site");
+      assertThat(repository.getResourceTableMetadata(query, ResourceQueryContext.none()).columns())
+          .isEmpty();
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource_definition DELETE WHERE resource_id = 'EMPTY_DECLARED'"
+              + " SETTINGS mutations_sync = 2");
+    }
   }
 
   /** The metadata/fetch statements that read metadata values, by statement id. */

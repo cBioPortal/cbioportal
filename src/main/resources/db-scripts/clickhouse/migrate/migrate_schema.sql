@@ -143,38 +143,91 @@ DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
 
 ## db_schema_version: 3.2.0
-## description: Add resource_compact_derived, resource rows with metadata reduced to their contract's declared keys
--- The table is created empty. Run populate_derived_tables.sql after this migration, and again after
--- importing a study's resources or changing a resource's custom_metadata contract. Until then the
--- grouped resource table finds the copy stale (its rows under the current contract differ from
--- resource's) and reads resource instead: correct, but slower.
-CREATE TABLE IF NOT EXISTS resource_compact_derived (
-    `internal_id` Int64,
-    `resource_id` String,
-    `cancer_study_id` Int64,
-    `resource_scope` String,
-    `patient_id` Nullable(String),
-    `sample_id` Nullable(String),
-    `url` String,
-    `display_name` Nullable(String),
-    `metadata` Nullable(String),
-    `contract_hash` UInt64
-) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, contract_hash, patient_id, sample_id, internal_id)
-  SETTINGS allow_nullable_key = 1;
-
-## db_schema_version: 3.3.0
-## description: Replace resource_compact_derived with resource.metadata_json, a JSON column materialized from metadata
--- Requires ClickHouse 25.3 or later. The SET lets the section create and fill a JSON column on a
--- server whose profile still disables the JSON type (e.g. compatibility set below 25.3); importers
--- writing resource need the type enabled too. See metadata_json in init/schema.sql for what the
--- column holds. MATERIALIZE COLUMN rewrites it into the existing parts; until it finishes, those
--- parts compute it on read, so queries stay correct throughout.
+## description: Add resource.metadata_json, a JSON column materialized from metadata
+-- Requires ClickHouse 25.3 or later, with the JSON type enabled in the server's default profile:
+-- on 25.3, enable_json_type = 1 or a compatibility setting of 25.3 or later (newer releases allow
+-- the type whatever these settings say). MATERIALIZE COLUMN runs as a background mutation under the
+-- default profile, so the SET below is not enough on its own there; inserts into resource evaluate
+-- the column under the inserting user's profile. See metadata_json in init/schema.sql for what the
+-- column holds.
+--
+-- The section changes nothing until the probe has passed: it materializes the column into a
+-- temporary table first. A temporary table disappears with the session, so a failed probe leaves
+-- nothing behind. Until MATERIALIZE COLUMN has finished, a part written before the ALTER has no
+-- metadata_json data and reads every key's subcolumn as NULL, so the section waits for it and then
+-- checks the written values against metadata before returning. It is idempotent, and it also
+-- drops resource_compact_derived where an earlier draft of this version created it.
+SELECT throwIf(
+    (toUInt32OrZero(splitByChar('.', version())[1]), toUInt32OrZero(splitByChar('.', version())[2])) < (25, 3),
+    'db_schema_version 3.2.0 requires ClickHouse 25.3 or later'
+) FORMAT Null;
 SET enable_json_type = 1;
-DROP TABLE IF EXISTS resource_compact_derived;
+CREATE TEMPORARY TABLE metadata_json_probe (`id` UInt8, `metadata` Nullable(String))
+    ENGINE = MergeTree ORDER BY id;
+INSERT INTO metadata_json_probe (id, metadata) VALUES (1, '{"k":"v"}');
+ALTER TABLE metadata_json_probe ADD COLUMN `metadata_json` JSON MATERIALIZED CAST(CAST(
+        arrayMap(kv -> (kv.1, concat(':', kv.2)),
+            arrayFilter((kv, n) -> n = 1 AND kv.2 != '',
+                arrayMap(kv -> (kv.1, if(startsWith(kv.2, '"'), JSONExtractString(concat('[', kv.2, ']'), 1), if(kv.2 = 'null', '', kv.2))),
+                    JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}'))),
+                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
+        'Map(String, String)'), 'JSON');
+-- Issued without waiting, so that a failure can be reported below rather than as the mutation's
+-- own error; the second MATERIALIZE then waits for it.
+ALTER TABLE metadata_json_probe MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 0;
+SELECT sleep(1) FORMAT Null;
+SELECT throwIf(
+    count() > 0,
+    'ClickHouse could not write a JSON column in a background mutation: enable the JSON type in the server''s default profile (enable_json_type = 1, or compatibility of 25.3 or later), restart, and run the migration again'
+) FROM system.mutations
+WHERE database = '_temporary_and_external_tables'
+  AND table = (SELECT concat('_tmp_', toString(uuid)) FROM system.tables WHERE is_temporary AND name = 'metadata_json_probe')
+  AND latest_fail_reason != ''
+FORMAT Null;
+ALTER TABLE metadata_json_probe MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 2;
+SELECT throwIf(
+    countIf(substring(ifNull(CAST(metadata_json.k, 'Nullable(String)'), ''), 2) = 'v') != 1,
+    'ClickHouse did not read back the JSON column it wrote: enable the JSON type in the server''s default profile (enable_json_type = 1, or compatibility of 25.3 or later), restart, and run the migration again'
+) FROM metadata_json_probe FORMAT Null;
+DROP TEMPORARY TABLE metadata_json_probe;
+
 ALTER TABLE resource ADD COLUMN IF NOT EXISTS `metadata_json` JSON MATERIALIZED CAST(CAST(
         arrayMap(kv -> (kv.1, concat(':', kv.2)),
             arrayFilter((kv, n) -> n = 1 AND kv.2 != '',
-                JSONExtractKeysAndValues(ifNull(metadata, '{}'), 'String'),
-                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValues(ifNull(metadata, '{}'), 'String'))))),
+                arrayMap(kv -> (kv.1, if(startsWith(kv.2, '"'), JSONExtractString(concat('[', kv.2, ']'), 1), if(kv.2 = 'null', '', kv.2))),
+                    JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}'))),
+                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
         'Map(String, String)'), 'JSON');
-ALTER TABLE resource MATERIALIZE COLUMN `metadata_json`;
+ALTER TABLE resource MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 2;
+SELECT throwIf(
+    count() > 0,
+    'MATERIALIZE COLUMN metadata_json left an unfinished mutation on resource; see system.mutations'
+) FROM system.mutations
+WHERE database = currentDatabase() AND table = 'resource' AND is_done = 0
+FORMAT Null;
+SELECT throwIf(
+    countIf(NOT has(columns, 'metadata_json')) > 0,
+    'a part of resource holds no metadata_json data after MATERIALIZE COLUMN'
+) FROM (
+    SELECT name, groupArray(column) AS columns
+    FROM system.parts_columns
+    WHERE database = currentDatabase() AND table = 'resource' AND active
+    GROUP BY name
+) FORMAT Null;
+-- Parity on a sample: each key's value as metadata_json holds it against JSONExtractString on the
+-- raw document. toJSONString nests a dotted key's path, so dotted keys, and keys that a dotted key
+-- extends, are left out here.
+SELECT throwIf(
+    countIf(JSONExtractString(doc, key) != substring(JSONExtractString(stored, key), 2)) > 0,
+    'metadata_json does not match metadata on a sample of resource rows'
+) FROM (
+    SELECT doc, stored, arrayJoin(arrayFilter(
+        k -> position(k, '.') = 0 AND NOT arrayExists(o -> startsWith(o, concat(k, '.')), keys), keys)) AS key
+    FROM (
+        SELECT ifNull(metadata, '{}') AS doc, JSONExtractKeys(doc) AS keys, toJSONString(metadata_json) AS stored
+        FROM resource
+        WHERE metadata IS NOT NULL AND metadata != ''
+        LIMIT 10000
+    )
+) FORMAT Null;
+DROP TABLE IF EXISTS resource_compact_derived;

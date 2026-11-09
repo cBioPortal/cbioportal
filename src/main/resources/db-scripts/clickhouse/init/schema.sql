@@ -608,15 +608,19 @@ CREATE TABLE resource (
     -- metadata as a JSON column with one subcolumn per key, so that a query filtering, counting or
     -- faceting on a few keys reads only those keys. It is MATERIALIZED from metadata on every
     -- insert, so it is never stale and importers do not write it. Every value is stored as the
-    -- text JSONExtractString(metadata, key) returns, prefixed with ':' so that ClickHouse infers no
-    -- type from it (a date-like string would otherwise be reparsed as a Date); readers strip the
-    -- prefix. Duplicate keys keep the first value, keys with a null or empty value are left out
-    -- (they read back as ''), and invalid JSON gives an empty object.
+    -- text JSONExtractString(metadata, key) returns (a string's raw JSON unescaped, any other raw
+    -- value kept as its JSON text, null as ''), prefixed with ':' so that ClickHouse infers no type
+    -- from it (a date-like string would otherwise be reparsed as a Date); readers strip the prefix.
+    -- A duplicate key keeps its first value even when that is null, keys with a null or empty
+    -- value are left out (they read back as ''), and invalid JSON gives an empty object.
+    -- On ClickHouse 25.3 an insert needs the JSON type enabled in the inserting user's profile
+    -- (enable_json_type = 1, or compatibility of 25.3 or later); see the 3.2.0 migration.
     `metadata_json` JSON MATERIALIZED CAST(CAST(
         arrayMap(kv -> (kv.1, concat(':', kv.2)),
             arrayFilter((kv, n) -> n = 1 AND kv.2 != '',
-                JSONExtractKeysAndValues(ifNull(metadata, '{}'), 'String'),
-                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValues(ifNull(metadata, '{}'), 'String'))))),
+                arrayMap(kv -> (kv.1, if(startsWith(kv.2, '"'), JSONExtractString(concat('[', kv.2, ']'), 1), if(kv.2 = 'null', '', kv.2))),
+                    JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}'))),
+                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
         'Map(String, String)'), 'JSON')
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
   SETTINGS allow_nullable_key = 1;
@@ -742,4 +746,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.3.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.2.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

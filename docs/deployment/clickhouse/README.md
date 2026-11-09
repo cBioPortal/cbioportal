@@ -2,13 +2,25 @@
 
 Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) as its sole database. This guide will help you set up and configure a ClickHouse-backed cBioPortal instance.
 
-> **Minimum ClickHouse version: 25.3.** From database schema `3.3.0` the `resource` table also
-> keeps each row's metadata in a `JSON` column, which lets the resource tables filter and count on a
-> few metadata keys without parsing every row's whole document. The `JSON` type is supported from
-> ClickHouse 25.3 and enabled by default there, but a server or user profile whose `compatibility`
-> setting names an older release turns it off. The users that create or migrate the schema and that
-> import data then need `enable_json_type = 1` in their profile (`migrate_db.py` sets it for the
-> migration itself). The portal only reads the column and needs no setting.
+> **Minimum ClickHouse version: 25.3.** From database schema `3.2.0` the `resource` table also
+> keeps each row's metadata in a `JSON` column, `metadata_json`, which lets the resource tables
+> filter and count on a few metadata keys without parsing every row's whole document. ClickHouse
+> fills the column itself whenever a row is written, so on ClickHouse **25.3** the `JSON` type must
+> be enabled wherever that happens. It is enabled by default, but a profile whose `compatibility`
+> setting names a release before 25.3 turns it off; such a profile then needs
+> `enable_json_type = 1`, or a `compatibility` of 25.3 or later:
+>
+> - **The server's default profile.** The `3.2.0` migration fills the column for existing rows
+>   with `ALTER TABLE ... MATERIALIZE COLUMN`, and an `ALTER TABLE ... UPDATE` of `metadata`
+>   refills it. Both run as background mutations, which use the server's default profile rather
+>   than the session's settings, so a session `SET` does not help them. The migration checks this
+>   before it changes anything and stops with a message naming the setting.
+> - **The importer's user.** Every insert into `resource` computes the column under the inserting
+>   user's profile. This is the user cbioportal-core's importer connects as; if its profile turns
+>   the type off, its inserts into `resource` fail.
+>
+> The portal only reads the column and needs no setting. On ClickHouse 25.8 and 26.2 the `JSON`
+> type is allowed whatever these settings say, so neither profile needs a change there.
 
 ## Table of Contents
 
@@ -334,6 +346,15 @@ statements already succeeded:
 
 ```sql
 GRANT SHOW COLUMNS, SELECT ON system.mutations TO <your_clickhouse_user>;
+```
+
+The `3.2.0` section also creates a temporary MergeTree table to check that the server can write a `JSON`
+column before it changes `resource`, and reads `system.parts_columns` to check that every part of
+`resource` holds the new column afterwards:
+
+```sql
+GRANT CREATE ARBITRARY TEMPORARY TABLE ON *.* TO <your_clickhouse_user>;
+GRANT SHOW COLUMNS, SELECT ON system.parts_columns TO <your_clickhouse_user>;
 ```
 
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling

@@ -218,7 +218,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
     for (String key : metadataContext.columnKeys()) {
-      // A blank key cannot name a facet: it names no subcolumn of metadata_json.
+      // A blank key is never offered as a facet.
       if (key.isBlank() || !metadataContext.isFilterable(key)) {
         continue;
       }

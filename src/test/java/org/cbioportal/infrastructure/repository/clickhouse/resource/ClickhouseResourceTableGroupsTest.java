@@ -686,15 +686,25 @@ public class ClickhouseResourceTableGroupsTest {
 
   @Test
   public void groupedFacets_readKeysThatNeedQuoting() {
-    // Keys are bound, never spliced into the SQL, so any text names its own subcolumn. No fixture
-    // row carries these keys, so only stain_group has values.
-    ResourceTableQuery query = combined().build();
-    String[] keys = {"stain_group", "odd key`", "a\\b", "x') OR 1 = 1 --", "dotted.key"};
+    // Keys are spliced into the SQL escaped (ResourceMetadataValueSql), so any text names its own
+    // subcolumn, with or without a search. No fixture row carries these keys, so only stain_group
+    // has values.
+    String[] keys = {
+      "stain_group", "odd key`", "a\\b", "x') OR 1 = 1 --", "x`) OR 1 = 1 --", "dotted.key"
+    };
+    for (String search : new String[] {null, "example.com"}) {
+      Q q = combined();
+      q.search = search;
 
-    List<org.cbioportal.domain.resource.ResourceMetadataFacetValue> values =
-        mapper.getResourceTableGroupedMetadataFacets(query, null, keys, 10, 1L << 30, 1L << 29);
+      List<org.cbioportal.domain.resource.ResourceMetadataFacetValue> values =
+          mapper.getResourceTableGroupedMetadataFacets(
+              q.build(), null, keys, 10, 1L << 30, 1L << 29);
 
-    assertThat(values).extracting(v -> v.metaKey()).containsOnly("stain_group");
+      assertThat(values)
+          .as("search %s", search)
+          .extracting(v -> v.metaKey())
+          .containsOnly("stain_group");
+    }
   }
 
   // The tests below change resource between two reads. They run outside the test transaction,
@@ -738,6 +748,7 @@ public class ClickhouseResourceTableGroupsTest {
           "{\"v\":\"  spaced  \"}",
           "{\"v\":\"a\",\"v\":\"b\"}",
           "{\"v\":\"\",\"v\":\"b\"}",
+          "{\"v\":null,\"v\":\"b\"}",
           "{\"v\":\"\"}",
           "{\"v\":\"x\",\"v.x\":\"dot\"}",
           "{\"v\":1,\"w\":{\"v\":2}}",
@@ -800,7 +811,7 @@ public class ClickhouseResourceTableGroupsTest {
 
       // The facet values are the same text, and the dotted key reads its own value.
       q.groupCounts = List.of("metadata:v.x");
-      assertThat(group(groups(q.build()), "EDGE-125").counts().get("metadata:v.x"))
+      assertThat(group(groups(q.build()), "EDGE-126").counts().get("metadata:v.x"))
           .isEqualTo(Map.of("dot", 1L));
       ResourceTableQuery query = q.build();
       assertThat(
@@ -811,9 +822,102 @@ public class ClickhouseResourceTableGroupsTest {
           .extracting(ResourceFacetOption::value)
           .containsExactlyInAnyOrderElementsOf(
               expected.values().stream().filter(v -> !v.isEmpty()).distinct().toList());
+
+      // Under a search the facets read the raw documents instead, and give the same values. The
+      // search matches every edge row's url.
+      Q searched = q();
+      searched.resourceId = EDGE;
+      searched.search = "edge.svs";
+      ResourceTableQuery searchQuery = searched.build();
+      assertThat(
+              repository
+                  .getResourceTableMetadata(searchQuery, context(searchQuery, null))
+                  .facets()
+                  .get("metadata:v"))
+          .isEqualTo(
+              repository
+                  .getResourceTableMetadata(query, context(query, null))
+                  .facets()
+                  .get("metadata:v"));
     } finally {
       jdbcTemplate.update(
           "ALTER TABLE resource DELETE WHERE resource_id = ? SETTINGS mutations_sync = 2", EDGE);
+    }
+  }
+
+  /**
+   * Keys that MyBatis or the subcolumn syntax could read as something else: MyBatis placeholders
+   * and their escape, and the .: and .^ of the subcolumn syntax, alone and before a backquoted
+   * part.
+   */
+  private static final List<String> SYNTAX_KEYS =
+      List.of("#{search}", "\\#{x}", "${x}", "a.:`b`", "a.:b", "a.^b", "a.^`b`", "#");
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void keysShapedLikeMyBatisOrSubcolumnSyntax_readBackTheirOwnValues() throws Exception {
+    Map<String, String> document = new java.util.LinkedHashMap<>();
+    for (int i = 0; i < SYNTAX_KEYS.size(); i++) {
+      document.put(SYNTAX_KEYS.get(i), "value-" + i);
+    }
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9501, ?, 3, 'PATIENT',"
+            + " 'KEYS-1', NULL, 'https://example.com/keys.svs', NULL, ?)",
+        EDGE,
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(document));
+    try {
+      for (int i = 0; i < SYNTAX_KEYS.size(); i++) {
+        String key = SYNTAX_KEYS.get(i);
+        String column = "metadata:" + key;
+        String value = "value-" + i;
+        assertThat(
+                jdbcTemplate.queryForObject(
+                    "SELECT JSONExtractString(metadata, ?) FROM resource WHERE internal_id = 9501",
+                    String.class,
+                    key))
+            .isEqualTo(value);
+
+        Q q = q();
+        q.resourceId = EDGE;
+        q.groupCounts = List.of(column);
+        assertThat(groups(q.build()).groups())
+            .as("counts on %s", key)
+            .singleElement()
+            .satisfies(g -> assertThat(g.counts().get(column)).isEqualTo(Map.of(value, 1L)));
+
+        q.filters = List.of(new ResourceColumnFilter(column, "in", List.of(value)));
+        assertThat(keys(groups(q.build()))).as("filter on %s", key).containsExactly("KEYS-1");
+        q.filters = List.of(new ResourceColumnFilter(column, "in", List.of("other")));
+        assertThat(keys(groups(q.build()))).as("other value of %s", key).isEmpty();
+
+        q.sortBy = column;
+        q.groupBy = null;
+        q.filters = null;
+        assertThat(repository.getResourceTableRows(q.build(), context(q.build(), null)))
+            .as("sorted on %s", key)
+            .hasSize(1);
+
+        for (String search : new String[] {null, "keys.svs"}) {
+          Q f = q();
+          f.resourceId = EDGE;
+          f.search = search;
+          assertThat(
+                  mapper.getResourceTableGroupedMetadataFacets(
+                      f.build(), null, new String[] {key}, 10, 1L << 30, 1L << 29))
+              .as("facet on %s, search %s", key, search)
+              .singleElement()
+              .satisfies(
+                  v -> {
+                    assertThat(v.metaKey()).isEqualTo(key);
+                    assertThat(v.value()).isEqualTo(value);
+                    assertThat(v.count()).isEqualTo(1L);
+                  });
+        }
+      }
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9501 SETTINGS mutations_sync = 2");
     }
   }
 

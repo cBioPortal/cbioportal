@@ -836,7 +836,9 @@
 
     Each requested key is read from its own subcolumn of metadata_json with the expression the
     column filters use, so a facet value and a filter on it agree, and only the requested keys'
-    data is read rather than every row's whole document.
+    data is read rather than every row's whole document. A search reads every row's raw metadata to
+    match the text, so under a search the keys are read from that document instead, with
+    JSONExtractString, which gives the same values without reading the subcolumns as well.
 
     uniqExact keeps a set of groups per (key, value) until LIMIT BY applies, so a near-unique key
     holds about one set entry per row. The memory cap and the spill to disk bound what that can
@@ -847,7 +849,10 @@
     FROM (
       SELECT arrayJoin(arrayZip(
                #{metadataKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler},
-               [<foreach collection="metadataKeys" item="key" separator=",">${@org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceMetadataValueSql@of(key)}</foreach>])) AS kv,
+               [<foreach collection="metadataKeys" item="key" separator=","><choose>
+                 <when test="query.hasSearch()">${@org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceMetadataValueSql@raw(key)}</when>
+                 <otherwise>${@org.cbioportal.infrastructure.repository.clickhouse.resource.ResourceMetadataValueSql@of(key)}</otherwise>
+               </choose></foreach>])) AS kv,
              (rdata.cancer_study_id, <include refid="ResourceGroupKeyColumn"/>) AS groupKey
       <include refid="ResourceTableFromClause"/>
       <include refid="ResourceTableBaseFilters"/>

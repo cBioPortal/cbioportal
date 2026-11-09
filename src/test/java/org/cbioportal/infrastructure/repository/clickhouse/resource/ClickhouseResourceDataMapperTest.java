@@ -589,7 +589,8 @@ public class ClickhouseResourceDataMapperTest {
             null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(query, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(
+            query, null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats pages =
         stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
@@ -622,7 +623,8 @@ public class ClickhouseResourceDataMapperTest {
             null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(query, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(
+            query, null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats magnification =
         stats.stream().filter(s -> s.key().equals("magnification")).findFirst().orElseThrow();
@@ -1219,7 +1221,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats stats =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "file_size_bytes".equals(k.key()))
             .findFirst()
@@ -1248,7 +1250,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats scores =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "score".equals(k.key()))
             .findFirst()
@@ -1265,7 +1267,7 @@ public class ClickhouseResourceDataMapperTest {
     // With the bound set to one row, only that row's keys are discovered.
     List<ResourceMetadataKeyStats> stats =
         mapper.getResourceTableMetadataKeyStats(
-            slideSet(null, null, 0, 10), null, 1, TEST_MAX_MEMORY);
+            slideSet(null, null, 0, 10), null, null, 1, TEST_MAX_MEMORY);
 
     assertThat(stats).isNotEmpty();
     assertThat(stats).allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
@@ -1294,7 +1296,7 @@ public class ClickhouseResourceDataMapperTest {
     // limited to one row sees only that row's value; the range still spans all four.
     ResourceTableQuery query = slideSet(null, null, 0, 10);
 
-    assertThat(mapper.getResourceTableMetadataKeyStats(query, null, 1, TEST_MAX_MEMORY))
+    assertThat(mapper.getResourceTableMetadataKeyStats(query, null, null, 1, TEST_MAX_MEMORY))
         .allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
 
     assertThat(rangeFor(query, "score")).isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));

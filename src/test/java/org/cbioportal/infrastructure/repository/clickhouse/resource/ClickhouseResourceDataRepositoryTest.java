@@ -2,11 +2,28 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.regex.Pattern;
+import org.apache.ibatis.cache.CacheKey;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Intercepts;
+import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.plugin.Plugin;
+import org.apache.ibatis.plugin.Signature;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.cbioportal.domain.resource.ResourceColumnFilter;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
 import org.cbioportal.domain.resource.ResourceFacetOption;
+import org.cbioportal.domain.resource.ResourceGroupBy;
 import org.cbioportal.domain.resource.ResourceNumericRange;
 import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceTableQuery;
@@ -36,6 +53,7 @@ public class ClickhouseResourceDataRepositoryTest {
 
   @Autowired private ClickhouseResourceDataRepository repository;
   @Autowired private ClickhouseResourceDataMapper mapper;
+  @Autowired private SqlSessionFactory sqlSessionFactory;
 
   @Test
   public void
@@ -331,7 +349,7 @@ public class ClickhouseResourceDataRepositoryTest {
 
     Mockito.verify(spy, Mockito.never())
         .getResourceTableMetadataKeyStats(
-            Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+            Mockito.any(), Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
   }
 
   @Test
@@ -361,7 +379,7 @@ public class ClickhouseResourceDataRepositoryTest {
 
     Mockito.verify(spy)
         .getResourceTableMetadataKeyStats(
-            Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+            Mockito.any(), Mockito.any(), Mockito.isNull(), Mockito.anyInt(), Mockito.anyLong());
   }
 
   @Test
@@ -525,7 +543,7 @@ public class ClickhouseResourceDataRepositoryTest {
 
     Mockito.verify(spy)
         .getResourceTableMetadataKeyStats(
-            Mockito.any(), Mockito.any(), Mockito.anyInt(), Mockito.anyLong());
+            Mockito.any(), Mockito.any(), Mockito.isNull(), Mockito.anyInt(), Mockito.anyLong());
   }
 
   @Test
@@ -699,6 +717,164 @@ public class ClickhouseResourceDataRepositoryTest {
 
     assertThat(ranges).containsKey("metadata:score");
     assertThat(ranges).doesNotContainKey("metadata:operator");
+  }
+
+  // ---- which statements read the raw documents ----
+
+  /** Records the SQL of every query the mapper runs while it is recording. */
+  @Intercepts({
+    @Signature(
+        type = Executor.class,
+        method = "query",
+        args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
+    @Signature(
+        type = Executor.class,
+        method = "query",
+        args = {
+          MappedStatement.class,
+          Object.class,
+          RowBounds.class,
+          ResultHandler.class,
+          CacheKey.class,
+          BoundSql.class
+        })
+  })
+  static final class StatementRecorder implements Interceptor {
+    static final StatementRecorder INSTANCE = new StatementRecorder();
+    private final List<Map.Entry<String, String>> statements =
+        Collections.synchronizedList(new ArrayList<>());
+    private volatile boolean recording;
+
+    @Override
+    public Object intercept(Invocation invocation) throws Throwable {
+      if (recording) {
+        MappedStatement statement = (MappedStatement) invocation.getArgs()[0];
+        BoundSql sql =
+            invocation.getArgs().length > 5
+                ? (BoundSql) invocation.getArgs()[5]
+                : statement.getBoundSql(invocation.getArgs()[1]);
+        String id = statement.getId();
+        statements.add(Map.entry(id.substring(id.lastIndexOf('.') + 1), sql.getSql()));
+      }
+      return invocation.proceed();
+    }
+
+    @Override
+    public Object plugin(Object target) {
+      return Plugin.wrap(target, this);
+    }
+
+    @Override
+    public void setProperties(Properties properties) {}
+  }
+
+  /** The metadata/fetch statements that read metadata values, by statement id. */
+  private static final List<String> METADATA_VALUE_STATEMENTS =
+      List.of(
+          "getResourceTableMetadataKeyStats",
+          "getResourceTableMetadataRanges",
+          "getResourceTableMetadataFacets",
+          "getResourceTableGroupedMetadataFacets");
+
+  /** rdata.metadata, the raw document, as opposed to rdata.metadata_json. */
+  private static final Pattern RAW_METADATA = Pattern.compile("rdata\\.metadata(?!_json)");
+
+  /** The metadata statements a metadata/fetch for the query runs, by id, with their SQL. */
+  private List<Map.Entry<String, String>> metadataStatements(ResourceTableQuery query) {
+    if (!sqlSessionFactory
+        .getConfiguration()
+        .getInterceptors()
+        .contains(StatementRecorder.INSTANCE)) {
+      sqlSessionFactory.getConfiguration().addInterceptor(StatementRecorder.INSTANCE);
+    }
+    StatementRecorder.INSTANCE.statements.clear();
+    StatementRecorder.INSTANCE.recording = true;
+    try {
+      repository.getResourceTableMetadata(query, ResourceQueryContext.none());
+    } finally {
+      StatementRecorder.INSTANCE.recording = false;
+    }
+    return StatementRecorder.INSTANCE.statements.stream()
+        .filter(statement -> METADATA_VALUE_STATEMENTS.contains(statement.getKey()))
+        .toList();
+  }
+
+  private static ResourceTableQuery metadataQuery(
+      List<String> studyIds, String resourceId, String search, ResourceGroupBy groupBy) {
+    return new ResourceTableQuery(
+        studyIds,
+        resourceId,
+        null,
+        null,
+        search,
+        0,
+        10,
+        null,
+        null,
+        null,
+        null,
+        null,
+        groupBy,
+        null,
+        null);
+  }
+
+  @Test
+  public void aContractCoveringEveryStudy_readsOnlySubcolumns_withoutASearch() {
+    // PATHOLOGY over both studies: every study declares it, and the conflicting type leaves grade
+    // to be classified from the data. RADIOLOGY types every field and has a numeric one, so it
+    // reads a range. Grouped or not, none of these statements reads the raw documents.
+    List<String> both = List.of(STUDY_TCGA_PUB, STUDY_ACC);
+    List<String> tcga = List.of(STUDY_TCGA_PUB);
+    for (ResourceGroupBy groupBy : new ResourceGroupBy[] {null, ResourceGroupBy.PATIENT}) {
+      String facets =
+          groupBy == null
+              ? "getResourceTableMetadataFacets"
+              : "getResourceTableGroupedMetadataFacets";
+
+      List<Map.Entry<String, String>> pathology =
+          metadataStatements(metadataQuery(both, "PATHOLOGY", null, groupBy));
+      assertThat(pathology)
+          .extracting(Map.Entry::getKey)
+          .as("grouped by %s", groupBy)
+          .containsExactlyInAnyOrder("getResourceTableMetadataKeyStats", facets);
+
+      List<Map.Entry<String, String>> radiology =
+          metadataStatements(metadataQuery(tcga, "RADIOLOGY", null, groupBy));
+      assertThat(radiology)
+          .extracting(Map.Entry::getKey)
+          .as("grouped by %s", groupBy)
+          .containsExactlyInAnyOrder("getResourceTableMetadataRanges", facets);
+
+      for (Map.Entry<String, String> statement :
+          java.util.stream.Stream.concat(pathology.stream(), radiology.stream()).toList()) {
+        assertThat(statement.getValue())
+            .as("%s, grouped by %s", statement.getKey(), groupBy)
+            .contains("metadata_json")
+            .doesNotContainPattern(RAW_METADATA);
+      }
+    }
+  }
+
+  @Test
+  public void withoutACoveringContract_keyDiscoveryReadsTheRawDocuments() {
+    // HE_SLIDE has no contract, so its keys can only be found by reading each document.
+    assertThat(metadataStatements(metadataQuery(List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null)))
+        .filteredOn(statement -> statement.getKey().equals("getResourceTableMetadataKeyStats"))
+        .singleElement()
+        .satisfies(statement -> assertThat(statement.getValue()).containsPattern(RAW_METADATA));
+  }
+
+  @Test
+  public void underASearch_theValuesAreReadFromTheRawDocuments() {
+    // The search reads every row's raw document anyway, so the values come from it rather than
+    // from the subcolumns as well.
+    List<Map.Entry<String, String>> statements =
+        metadataStatements(
+            metadataQuery(List.of(STUDY_TCGA_PUB, STUDY_ACC), "PATHOLOGY", "example", null));
+    assertThat(statements).isNotEmpty();
+    assertThat(statements)
+        .allSatisfy(statement -> assertThat(statement.getValue()).doesNotContain("metadata_json"));
   }
 
   private ResourceColumnInfo columnById(ResourceTableQuery query, String id) {

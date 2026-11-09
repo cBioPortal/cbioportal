@@ -52,14 +52,17 @@ public interface ClickhouseResourceDataMapper {
       @Param("externalGroupByBytes") long externalGroupByBytes);
 
   /**
-   * Per-key stats (non-blank count, numeric-parseable count, min/max) used to decide whether a
-   * metadata key should be treated as numeric or categorical. Computed in one pass over the current
+   * Per-key stats (non-blank count, numeric-parseable count) used to decide whether a metadata key
+   * should be treated as numeric or categorical. Computed in one pass over a sample of the current
    * tab's rows (before any column-level filters), see {@link
    * org.cbioportal.infrastructure.repository.clickhouse.resource.ClickhouseResourceDataRepository}.
+   * With {@code metadataKeys} null every key in the sampled documents is discovered; otherwise only
+   * the named keys are counted.
    */
   List<ResourceMetadataKeyStats> getResourceTableMetadataKeyStats(
       @Param("query") ResourceTableQuery query,
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext,
+      @Param("metadataKeys") String[] metadataKeys,
       @Param("sampleRows") int sampleRows,
       @Param("maxMemoryBytes") long maxMemoryBytes);
 

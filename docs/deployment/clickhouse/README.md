@@ -348,12 +348,14 @@ statements already succeeded:
 GRANT SHOW COLUMNS, SELECT ON system.mutations TO <your_clickhouse_user>;
 ```
 
-The `3.2.0` section also creates a temporary MergeTree table to check that the server can write a `JSON`
-column before it changes `resource`, and reads `system.parts_columns` to check that every part of
-`resource` holds the new column afterwards:
+The `3.2.0` section also creates and drops a one-row table, `metadata_json_probe`, in the cBioPortal
+database to check that the server can write a `JSON` column before it changes `resource`. It is an
+ordinary table, not a temporary one, because ClickHouse Cloud does not allow MergeTree temporary
+tables. If the check fails, the table stays behind with its failed mutation, and the next run drops it.
+The section also reads `system.parts_columns` to check that every part of `resource` holds the new
+column afterwards:
 
 ```sql
-GRANT CREATE ARBITRARY TEMPORARY TABLE ON *.* TO <your_clickhouse_user>;
 GRANT SHOW COLUMNS, SELECT ON system.parts_columns TO <your_clickhouse_user>;
 ```
 

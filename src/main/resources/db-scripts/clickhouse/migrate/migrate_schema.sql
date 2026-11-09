@@ -151,9 +151,10 @@ DROP TABLE IF EXISTS resource_study;
 -- the column under the inserting user's profile. See metadata_json in init/schema.sql for what the
 -- column holds.
 --
--- The section changes nothing until the probe has passed: it materializes the column into a
--- temporary table first. A temporary table disappears with the session, so a failed probe leaves
--- nothing behind. Until MATERIALIZE COLUMN has finished, a part written before the ALTER has no
+-- The section changes nothing in resource until the probe has passed: it first materializes the
+-- column into a one-row table, metadata_json_probe. The probe is an ordinary table because ClickHouse
+-- Cloud does not allow MergeTree temporary tables. A failed probe leaves only that table, with its
+-- failed mutation, behind; the next run drops it before probing again. Until MATERIALIZE COLUMN has finished, a part written before the ALTER has no
 -- metadata_json data and reads every key's subcolumn as NULL, so the section waits for it and then
 -- checks the written values against metadata before returning. It is idempotent, and it also
 -- drops resource_compact_derived where an earlier draft of this version created it.
@@ -162,7 +163,8 @@ SELECT throwIf(
     'db_schema_version 3.2.0 requires ClickHouse 25.3 or later'
 ) FORMAT Null;
 SET enable_json_type = 1;
-CREATE TEMPORARY TABLE metadata_json_probe (`id` UInt8, `metadata` Nullable(String))
+DROP TABLE IF EXISTS metadata_json_probe SYNC;
+CREATE TABLE metadata_json_probe (`id` UInt8, `metadata` Nullable(String))
     ENGINE = MergeTree ORDER BY id;
 INSERT INTO metadata_json_probe (id, metadata) VALUES (1, '{"k":"v"}');
 ALTER TABLE metadata_json_probe ADD COLUMN `metadata_json` JSON MATERIALIZED CAST(CAST(
@@ -180,16 +182,14 @@ SELECT throwIf(
     count() > 0,
     'ClickHouse could not write a JSON column in a background mutation: enable the JSON type in the server''s default profile (enable_json_type = 1, or compatibility of 25.3 or later), restart, and run the migration again'
 ) FROM system.mutations
-WHERE database = '_temporary_and_external_tables'
-  AND table = (SELECT concat('_tmp_', toString(uuid)) FROM system.tables WHERE is_temporary AND name = 'metadata_json_probe')
-  AND latest_fail_reason != ''
+WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND latest_fail_reason != ''
 FORMAT Null;
 ALTER TABLE metadata_json_probe MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 2;
 SELECT throwIf(
     countIf(substring(ifNull(CAST(metadata_json.k, 'Nullable(String)'), ''), 2) = 'v') != 1,
     'ClickHouse did not read back the JSON column it wrote: enable the JSON type in the server''s default profile (enable_json_type = 1, or compatibility of 25.3 or later), restart, and run the migration again'
 ) FROM metadata_json_probe FORMAT Null;
-DROP TEMPORARY TABLE metadata_json_probe;
+DROP TABLE metadata_json_probe SYNC;
 
 ALTER TABLE resource ADD COLUMN IF NOT EXISTS `metadata_json` JSON MATERIALIZED CAST(CAST(
         arrayMap(kv -> (kv.1, concat(':', kv.2)),

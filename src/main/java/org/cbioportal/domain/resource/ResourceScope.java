@@ -9,31 +9,17 @@ import java.util.Set;
 
 /**
  * The requested resources as the requested studies define and hold them, read once per request from
- * the definitions and the sorting keys and internal ids of {@code resource} and {@code
- * resource_compact_derived} rather than from the rows' metadata.
+ * the definitions and the sorting key of {@code resource} rather than from the rows' metadata.
  *
- * <p>It answers three questions: whether every requested resource exists, which contracts describe
- * a grouped table, and whether the compact metadata table holds everything a grouped query needs.
+ * <p>It answers two questions: whether every requested resource exists, and which contracts
+ * describe a grouped table.
  *
  * @param rows one per requested resource and requested study that defines or holds it
- * @param compactCurrent whether the compact table's copy of every requested resource, in each
- *     requested study, is current: the same rows (by count and a fingerprint of their internal ids)
- *     copied under the study's present contract as {@code resource} holds. It is only checked for a
- *     query the contracts alone would let read the compact table, and is false otherwise.
  */
-public record ResourceScope(List<ResourceScopeRow> rows, boolean compactCurrent) {
+public record ResourceScope(List<ResourceScopeRow> rows) {
 
   public ResourceScope {
     rows = rows == null ? List.of() : List.copyOf(rows);
-  }
-
-  /** A scope whose compact copy has not been checked, and so is not read. */
-  public ResourceScope(List<ResourceScopeRow> rows) {
-    this(rows, false);
-  }
-
-  public ResourceScope withCompactCurrent(boolean current) {
-    return new ResourceScope(rows, current);
   }
 
   /** The requested resources that at least one requested study defines or holds rows of. */
@@ -63,37 +49,5 @@ public record ResourceScope(List<ResourceScopeRow> rows, boolean compactCurrent)
         .map(entry -> new ResourceContractRow(entry.getKey(), entry.getValue()))
         .sorted(Comparator.comparing(ResourceContractRow::firstStudy))
         .toList();
-  }
-
-  /**
-   * Whether the contracts would let the compact table answer a query reading these metadata keys.
-   *
-   * <p>The table copies a resource's rows only where its definition declares a contract with at
-   * least one key, and keeps only the declared keys. So every (resource, study) pair that may hold
-   * rows must have such a contract, and each key the query reads must be declared in every one of
-   * them; otherwise the table would be missing rows or values.
-   */
-  public boolean contractsCover(Set<String> referencedKeys) {
-    List<ResourceScopeRow> withRows = rows.stream().filter(ResourceScopeRow::mayHoldRows).toList();
-    if (withRows.isEmpty()) {
-      return false;
-    }
-    for (ResourceScopeRow row : withRows) {
-      Set<String> declared =
-          ResourceMetadataSchema.parse(row.customMetadata()).fieldsByKey().keySet();
-      if (declared.isEmpty() || !declared.containsAll(referencedKeys)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Whether the compact table can answer a query reading these metadata keys: the contracts cover
-   * them, and the table, which is only as fresh as the last repopulation, still holds a current
-   * copy of every row. Failing either, the query reads {@code resource}.
-   */
-  public boolean compactCovers(Set<String> referencedKeys) {
-    return compactCurrent && contractsCover(referencedKeys);
   }
 }

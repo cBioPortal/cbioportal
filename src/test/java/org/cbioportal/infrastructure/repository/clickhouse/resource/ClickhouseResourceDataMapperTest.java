@@ -481,7 +481,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    long count = mapper.getResourceTableCounts(query, null, false).rowCount();
+    long count = mapper.getResourceTableCounts(query, null).rowCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -506,7 +506,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    long count = mapper.getResourceTableCounts(query, null, false).patientCount();
+    long count = mapper.getResourceTableCounts(query, null).patientCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -531,7 +531,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    long count = mapper.getResourceTableCounts(query, null, false).sampleCount();
+    long count = mapper.getResourceTableCounts(query, null).sampleCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -557,7 +557,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null, false);
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null);
     long patientCount = counts.patientCount();
     long sampleCount = counts.sampleCount();
 
@@ -589,8 +589,7 @@ public class ClickhouseResourceDataMapperTest {
             null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(
-            query, null, false, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(query, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats pages =
         stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
@@ -623,8 +622,7 @@ public class ClickhouseResourceDataMapperTest {
             null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(
-            query, null, false, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(query, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats magnification =
         stats.stream().filter(s -> s.key().equals("magnification")).findFirst().orElseThrow();
@@ -925,7 +923,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    assertThat(mapper.getResourceTableCounts(query, null, false).rowCount()).isEqualTo(1L);
+    assertThat(mapper.getResourceTableCounts(query, null).rowCount()).isEqualTo(1L);
   }
 
   // ---- Multi-study cohorts ----
@@ -1013,7 +1011,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null, false);
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null);
 
     assertThat(counts.rowCount()).isEqualTo(4);
     assertThat(counts.sampleCount()).isEqualTo(4);
@@ -1221,7 +1219,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats stats =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), null, false, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "file_size_bytes".equals(k.key()))
             .findFirst()
@@ -1250,7 +1248,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats scores =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), null, false, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "score".equals(k.key()))
             .findFirst()
@@ -1267,7 +1265,7 @@ public class ClickhouseResourceDataMapperTest {
     // With the bound set to one row, only that row's keys are discovered.
     List<ResourceMetadataKeyStats> stats =
         mapper.getResourceTableMetadataKeyStats(
-            slideSet(null, null, 0, 10), null, false, 1, TEST_MAX_MEMORY);
+            slideSet(null, null, 0, 10), null, 1, TEST_MAX_MEMORY);
 
     assertThat(stats).isNotEmpty();
     assertThat(stats).allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
@@ -1285,7 +1283,7 @@ public class ClickhouseResourceDataMapperTest {
 
   /** The exact-range query, narrowed to one key. */
   private ResourceMetadataRange rangeFor(ResourceTableQuery query, String key) {
-    return mapper.getResourceTableMetadataRanges(query, null, false, new String[] {key}).stream()
+    return mapper.getResourceTableMetadataRanges(query, null, new String[] {key}).stream()
         .findFirst()
         .orElseThrow();
   }
@@ -1296,7 +1294,7 @@ public class ClickhouseResourceDataMapperTest {
     // limited to one row sees only that row's value; the range still spans all four.
     ResourceTableQuery query = slideSet(null, null, 0, 10);
 
-    assertThat(mapper.getResourceTableMetadataKeyStats(query, null, false, 1, TEST_MAX_MEMORY))
+    assertThat(mapper.getResourceTableMetadataKeyStats(query, null, 1, TEST_MAX_MEMORY))
         .allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
 
     assertThat(rangeFor(query, "score")).isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));

@@ -37,8 +37,9 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Grouped resource-table reads, the study-view cohort, combined resources and the compact metadata
- * table, over the GROUPED_* fixtures in study_genie_pub (see clickhouse_data.sql).
+ * Grouped resource-table reads, the study-view cohort, combined resources and the metadata_json
+ * column they read metadata values from, over the GROUPED_* fixtures in study_genie_pub (see
+ * clickhouse_data.sql).
  *
  * <p>Fixture summary, patient grouping over GROUPED_SLIDE and GROUPED_SLIDE_PATIENT: 301 has three
  * sample-level slides (H&E, IHC, IHC) and one patient-level IHC slide; 302 one sample-level and one
@@ -110,7 +111,7 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   private ResourceQueryContext context(ResourceTableQuery query, StudyViewFilterContext cohort) {
-    return new ResourceQueryContext(cohort, repository.getResourceScope(query, true));
+    return new ResourceQueryContext(cohort, repository.getResourceScope(query));
   }
 
   private ResourceTableGroupPage groups(ResourceTableQuery query) {
@@ -416,18 +417,10 @@ public class ClickhouseResourceTableGroupsTest {
   public void resourceScope_listsEachResourceThatTheStudiesDefineOrHold() {
     Q q = combined();
     q.resourceIds = List.of(SLIDES, PATIENT_SLIDES, "NOT_A_RESOURCE");
-    ResourceScope scope = repository.getResourceScope(q.build(), true);
+    ResourceScope scope = repository.getResourceScope(q.build());
 
     assertThat(scope.resourceIds()).containsExactlyInAnyOrder(SLIDES, PATIENT_SLIDES);
     assertThat(scope.rows()).allMatch(row -> row.defined() && row.mayHoldRows() && row.declared());
-    assertThat(scope.compactCurrent()).isTrue();
-    // A row query never reads the compact table, so its freshness is not checked.
-    q.groupBy = null;
-    q.groupCounts = null;
-    assertThat(repository.getResourceScope(q.build(), true).compactCurrent()).isFalse();
-    // Nor for a request that parses no metadata beyond a page of groups.
-    q.groupBy = "patient";
-    assertThat(repository.getResourceScope(q.build(), false).compactCurrent()).isFalse();
   }
 
   @Test
@@ -621,56 +614,24 @@ public class ClickhouseResourceTableGroupsTest {
         .containsExactly(new ResourceFacetOption("H&E", 6L), new ResourceFacetOption("IHC", 5L));
   }
 
-  // ---- compact metadata table ----
+  // ---- metadata_json ----
 
   @Test
-  public void compactTable_holdsOnlyTheContractsDeclaredKeys() {
-    String metadata =
-        jdbcTemplate.queryForObject(
-            "SELECT metadata FROM resource_compact_derived WHERE internal_id = 102", String.class);
+  public void metadataJson_holdsEveryKey_asPrefixedText() {
+    // Slide 102 carries the declared keys and an undeclared nested serving object.
+    Map<String, Object> stored =
+        jdbcTemplate.queryForMap(
+            "SELECT CAST(getSubcolumn(metadata_json, 'stain_name'), 'Nullable(String)') AS stain,"
+                + " CAST(getSubcolumn(metadata_json, 'serving'), 'Nullable(String)') AS serving,"
+                + " JSONExtractString(metadata, 'serving') AS servingText"
+                + " FROM resource WHERE internal_id = 102");
 
-    assertThat(metadata)
-        .isEqualTo("{\"stain_group\":\"IHC\",\"stain_name\":\"GATA3\",\"block\":\"A2\"}");
+    assertThat(stored.get("stain")).isEqualTo(":GATA3");
+    assertThat(stored.get("serving")).isEqualTo(":" + stored.get("servingText"));
   }
 
   @Test
-  public void compactTable_skipsResourcesWithoutAContract() {
-    Integer copied =
-        jdbcTemplate.queryForObject(
-            "SELECT count() FROM resource_compact_derived WHERE resource_id = ?",
-            Integer.class,
-            NO_CONTRACT);
-    Integer source =
-        jdbcTemplate.queryForObject(
-            "SELECT count() FROM resource WHERE resource_id = ?", Integer.class, SLIDES);
-    Integer copiedSlides =
-        jdbcTemplate.queryForObject(
-            "SELECT count() FROM resource_compact_derived WHERE resource_id = ?",
-            Integer.class,
-            SLIDES);
-
-    assertThat(copied).isZero();
-    assertThat(copiedSlides).isEqualTo(source);
-  }
-
-  @Test
-  public void groupedQueries_readTheCompactTable_onlyWhenItHoldsEveryKeyTheyRead() {
-    ResourceTableQuery declared = q().build();
-    Q undeclared = q();
-    undeclared.filters = List.of(new ResourceColumnFilter("metadata:serving", "in", List.of("x")));
-    Q noContract = q();
-    noContract.resourceId = NO_CONTRACT;
-    Q rows = q();
-    rows.groupBy = null;
-
-    assertThat(context(declared, null).readsCompactTable(declared)).isTrue();
-    assertThat(context(undeclared.build(), null).readsCompactTable(undeclared.build())).isFalse();
-    assertThat(context(noContract.build(), null).readsCompactTable(noContract.build())).isFalse();
-    assertThat(context(rows.build(), null).readsCompactTable(rows.build())).isFalse();
-  }
-
-  @Test
-  public void groupingAResourceWithoutAContract_fallsBackToTheFullTable() {
+  public void groupCounts_readKeysNoContractDeclares() {
     Q q = q();
     q.resourceId = NO_CONTRACT;
     q.groupCounts = List.of(STAIN, "metadata:extra");
@@ -680,156 +641,311 @@ public class ClickhouseResourceTableGroupsTest {
     ResourceTableGroup g302 = group(page, "GENIE-TEST-302");
     assertThat(g302.rowCount()).isEqualTo(2);
     assertThat(g302.counts().get(STAIN)).isEqualTo(Map.of("IHC", 2L));
-    // "extra" is in no contract; only the full table holds it.
     assertThat(g302.counts().get("metadata:extra")).isEqualTo(Map.of("y", 1L));
   }
 
   @Test
-  public void groupCountsOnAnUndeclaredKey_fallBackToTheFullTable() {
+  public void groupCounts_onANestedObject_countItsJsonText() {
+    // serving is an object in no contract; it counts by the text JSONExtractString gives it, the
+    // same text a filter on it compares.
     Q q = q();
     q.groupCounts = List.of("metadata:serving");
     ResourceTableQuery query = q.build();
+    String serving =
+        jdbcTemplate.queryForObject(
+            "SELECT JSONExtractString(metadata, 'serving') FROM resource WHERE internal_id = 101",
+            String.class);
 
-    assertThat(context(query, null).readsCompactTable(query)).isFalse();
-    // serving is an object, not a string, so it has no countable value either way; the point is
-    // that the query runs against resource rather than silently reading the compact table.
-    assertThat(groups(query).groups()).hasSize(5);
+    ResourceTableGroupPage page = groups(query);
+    assertThat(page.groups()).hasSize(5);
+    assertThat(group(page, "GENIE-TEST-301").counts().get("metadata:serving"))
+        .containsEntry(serving, 1L)
+        .hasSize(2);
+    assertThat(group(page, "GENIE-TEST-302").counts().get("metadata:serving")).isEmpty();
+
+    q.filters = List.of(new ResourceColumnFilter("metadata:serving", "in", List.of(serving)));
+    assertThat(keys(groups(q.build()))).containsExactly("GENIE-TEST-301");
   }
 
   @Test
-  public void compactAndFullTable_giveTheSameGroups() {
-    Q q = combined();
-    q.filters = List.of(new ResourceColumnFilter(STAIN, "in", List.of("H&E")));
-    q.groupCounts = List.of(STAIN, "metadata:stain_name");
-    ResourceTableQuery query = q.build();
-    ResourceQueryContext compact = context(query, null);
-    assertThat(compact.readsCompactTable(query)).isTrue();
-
-    List<ResourceTableGroupRow> fromCompact = mapper.getResourceTableGroupPage(query, null, true);
-    List<ResourceTableGroupRow> fromFull = mapper.getResourceTableGroupPage(query, null, false);
-
-    assertThat(fromCompact).isEqualTo(fromFull).isNotEmpty();
-  }
-
-  @Test
-  public void search_readsTheFullTable_andMatchesValuesOfUndeclaredKeys() {
-    // "opaque-101" is only in slide 101's undeclared serving key, which the compact table drops.
+  public void search_matchesValuesInTheRawMetadata() {
+    // "opaque-101" is only inside slide 101's nested serving object.
     Q q = combined();
     q.search = "opaque-101";
     q.groupCounts = List.of(STAIN, "metadata:stain_name");
     ResourceTableQuery query = q.build();
     ResourceQueryContext scoped = context(query, null);
-    ResourceQueryContext fullTable = ResourceQueryContext.none();
-    assertThat(scoped.readsCompactTable(query)).isFalse();
 
     ResourceTableGroupPage page = repository.getResourceTableGroups(query, scoped);
-    assertThat(page).isEqualTo(repository.getResourceTableGroups(query, fullTable));
     assertThat(keys(page)).containsExactly("GENIE-TEST-301");
     assertThat(page.totalRows()).isEqualTo(1);
     assertThat(page.groups().getFirst().counts().get(STAIN)).isEqualTo(Map.of("H&E", 1L));
-    // The compact table alone would have found nothing.
-    assertThat(mapper.getResourceTableGroupPage(query, null, true)).isEmpty();
-
-    assertThat(repository.getResourceTableMetadata(query, scoped))
-        .isEqualTo(repository.getResourceTableMetadata(query, fullTable));
-    assertThat(repository.getResourceTableCounts(query, scoped))
-        .isEqualTo(repository.getResourceTableCounts(query, fullTable));
     assertThat(repository.getResourceTableMetadata(query, scoped).facets().get(STAIN))
         .containsExactly(new ResourceFacetOption("H&E", 1L));
   }
 
-  // The tests below change the tables between two reads of the same statement. They run outside
-  // the test transaction, since inside it MyBatis would answer the second read from the first
-  // one's session cache.
+  @Test
+  public void groupedFacets_readKeysThatNeedQuoting() {
+    // Keys are spliced into the SQL escaped (ResourceMetadataValueSql), so any text names its own
+    // subcolumn, with or without a search. No fixture row carries these keys, so only stain_group
+    // has values.
+    String[] keys = {
+      "stain_group", "odd key`", "a\\b", "x') OR 1 = 1 --", "x`) OR 1 = 1 --", "dotted.key"
+    };
+    for (String search : new String[] {null, "example.com"}) {
+      Q q = combined();
+      q.search = search;
 
-  /** The default grouped query's groups, which must come out the same from either table. */
+      List<org.cbioportal.domain.resource.ResourceMetadataFacetValue> values =
+          mapper.getResourceTableGroupedMetadataFacets(
+              q.build(), null, keys, 10, 1L << 30, 1L << 29);
+
+      assertThat(values)
+          .as("search %s", search)
+          .extracting(v -> v.metaKey())
+          .containsOnly("stain_group");
+    }
+  }
+
+  // The tests below change resource between two reads. They run outside the test transaction,
+  // since inside it MyBatis would answer the second read from the first one's session cache.
+
+  /** The default grouped query's groups. */
   private static final List<String> ALL_SLIDE_PATIENTS =
       List.of(
           "GENIE-TEST-301", "GENIE-TEST-302", "GENIE-TEST-303", "GENIE-TEST-304", "GENIE-TEST-305");
 
+  private static final String EDGE = "GROUPED_EDGE";
+
+  /**
+   * Metadata documents whose values are easy to read back differently from JSONExtractString: by
+   * type inference (numbers, booleans, date-like strings), by structure (nested values, duplicate
+   * keys, dotted keys) or by not being a JSON object at all.
+   */
+  private static final List<String> EDGE_DOCUMENTS =
+      List.of(
+          "{\"v\":1.50}",
+          "{\"v\":1e3}",
+          "{\"v\":-0.0}",
+          "{\"v\":0.1}",
+          "{\"v\":123456789012345678}",
+          "{\"v\":18446744073709551616}",
+          "{\"v\":true}",
+          "{\"v\":false}",
+          "{\"v\":null}",
+          "{\"v\":{\"z\":1, \"y\":[1,2]}}",
+          "{\"v\":[1,\"a\"]}",
+          "{\"v\":\"caf\\u00e9\"}",
+          "{\"v\":\"007\"}",
+          "{\"v\":\"1.50\"}",
+          "{\"v\":\"true\"}",
+          "{\"v\":\"2024-01-01\"}",
+          "{\"v\":\"2024-1-1\"}",
+          "{\"v\":\"2024-13-45\"}",
+          "{\"v\":\"2024-01-01 10:00:00\"}",
+          "{\"v\":\"2024-01-01T10:00:00Z\"}",
+          "{\"v\":\"q\\\"uote\"}",
+          "{\"v\":\"  spaced  \"}",
+          "{\"v\":\"a\",\"v\":\"b\"}",
+          "{\"v\":\"\",\"v\":\"b\"}",
+          "{\"v\":null,\"v\":\"b\"}",
+          "{\"v\":\"\"}",
+          "{\"v\":\"x\",\"v.x\":\"dot\"}",
+          "{\"v\":1,\"w\":{\"v\":2}}",
+          "{}",
+          "not json",
+          "[1,2]");
+
   @Test
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void anEmptyCompactTable_isNotTrusted_andGroupsComeFromTheFullTable() {
-    jdbcTemplate.execute("DROP TABLE IF EXISTS compact_backup");
-    jdbcTemplate.execute("CREATE TABLE compact_backup AS resource_compact_derived");
-    jdbcTemplate.execute("INSERT INTO compact_backup SELECT * FROM resource_compact_derived");
-    try {
-      jdbcTemplate.execute("TRUNCATE TABLE resource_compact_derived");
-      ResourceTableQuery query = q().build();
-      ResourceQueryContext context = context(query, null);
-
-      assertThat(context.scope().compactCurrent()).isFalse();
-      assertThat(context.readsCompactTable(query)).isFalse();
-      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
-      assertThat(keys(page)).isEqualTo(ALL_SLIDE_PATIENTS);
-      assertThat(page.totalRows()).isEqualTo(8);
-      assertThat(page.groups().getFirst().counts().get(STAIN))
-          .isEqualTo(Map.of("H&E", 1L, "IHC", 2L));
-    } finally {
-      jdbcTemplate.execute("INSERT INTO resource_compact_derived SELECT * FROM compact_backup");
-      jdbcTemplate.execute("DROP TABLE compact_backup");
+  public void metadataValues_readBackExactlyAsJsonExtractStringGivesThem() {
+    for (int i = 0; i < EDGE_DOCUMENTS.size(); i++) {
+      jdbcTemplate.update(
+          "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+              + " patient_id, sample_id, url, display_name, metadata) VALUES (?, ?, 3, 'PATIENT',"
+              + " ?, NULL, 'https://example.com/edge.svs', NULL, ?)",
+          9400 + i,
+          EDGE,
+          "EDGE-" + (100 + i),
+          EDGE_DOCUMENTS.get(i));
     }
-    ResourceTableQuery query = q().build();
-    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9499, ?, 3, 'PATIENT',"
+            + " 'EDGE-999', NULL, 'https://example.com/edge.svs', NULL, NULL)",
+        EDGE);
+    try {
+      Map<String, String> expected = new java.util.TreeMap<>();
+      jdbcTemplate.query(
+          "SELECT patient_id, JSONExtractString(ifNull(metadata, '{}'), 'v') FROM resource"
+              + " WHERE resource_id = ?",
+          rs -> {
+            expected.put(rs.getString(1), rs.getString(2));
+          },
+          EDGE);
+      assertThat(expected).hasSize(EDGE_DOCUMENTS.size() + 1);
+
+      Q q = q();
+      q.resourceId = EDGE;
+      q.pageSize = 100;
+      q.groupCounts = List.of("metadata:v");
+      ResourceTableGroupPage page = groups(q.build());
+
+      assertThat(page.groups()).hasSize(expected.size());
+      for (ResourceTableGroup group : page.groups()) {
+        String value = expected.get(group.patientId());
+        Map<String, Long> counts = group.counts().get("metadata:v");
+        assertThat(counts)
+            .as("%s", group.patientId())
+            .isEqualTo(value.isEmpty() ? Map.of() : Map.of(value, 1L));
+        if (!value.isEmpty()) {
+          Q filtered = q();
+          filtered.resourceId = EDGE;
+          filtered.filters = List.of(new ResourceColumnFilter("metadata:v", "in", List.of(value)));
+          assertThat(keys(groups(filtered.build())))
+              .as("%s filtered on %s", group.patientId(), value)
+              .contains(group.patientId())
+              .allMatch(key -> expected.get(key).equals(value));
+        }
+      }
+
+      // The facet values are the same text, and the dotted key reads its own value.
+      q.groupCounts = List.of("metadata:v.x");
+      assertThat(group(groups(q.build()), "EDGE-126").counts().get("metadata:v.x"))
+          .isEqualTo(Map.of("dot", 1L));
+      ResourceTableQuery query = q.build();
+      assertThat(
+              repository
+                  .getResourceTableMetadata(query, context(query, null))
+                  .facets()
+                  .get("metadata:v"))
+          .extracting(ResourceFacetOption::value)
+          .containsExactlyInAnyOrderElementsOf(
+              expected.values().stream().filter(v -> !v.isEmpty()).distinct().toList());
+
+      // Under a search the facets read the raw documents instead, and give the same values. The
+      // search matches every edge row's url.
+      Q searched = q();
+      searched.resourceId = EDGE;
+      searched.search = "edge.svs";
+      ResourceTableQuery searchQuery = searched.build();
+      assertThat(
+              repository
+                  .getResourceTableMetadata(searchQuery, context(searchQuery, null))
+                  .facets()
+                  .get("metadata:v"))
+          .isEqualTo(
+              repository
+                  .getResourceTableMetadata(query, context(query, null))
+                  .facets()
+                  .get("metadata:v"));
+    } finally {
+      jdbcTemplate.update(
+          "ALTER TABLE resource DELETE WHERE resource_id = ? SETTINGS mutations_sync = 2", EDGE);
+    }
+  }
+
+  /**
+   * Keys that MyBatis or the subcolumn syntax could read as something else: MyBatis placeholders
+   * and their escape, and the .: and .^ of the subcolumn syntax, alone and before a backquoted
+   * part.
+   */
+  private static final List<String> SYNTAX_KEYS =
+      List.of("#{search}", "\\#{x}", "${x}", "a.:`b`", "a.:b", "a.^b", "a.^`b`", "#");
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void keysShapedLikeMyBatisOrSubcolumnSyntax_readBackTheirOwnValues() throws Exception {
+    Map<String, String> document = new java.util.LinkedHashMap<>();
+    for (int i = 0; i < SYNTAX_KEYS.size(); i++) {
+      document.put(SYNTAX_KEYS.get(i), "value-" + i);
+    }
+    jdbcTemplate.update(
+        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+            + " patient_id, sample_id, url, display_name, metadata) VALUES (9501, ?, 3, 'PATIENT',"
+            + " 'KEYS-1', NULL, 'https://example.com/keys.svs', NULL, ?)",
+        EDGE,
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(document));
+    try {
+      for (int i = 0; i < SYNTAX_KEYS.size(); i++) {
+        String key = SYNTAX_KEYS.get(i);
+        String column = "metadata:" + key;
+        String value = "value-" + i;
+        assertThat(
+                jdbcTemplate.queryForObject(
+                    "SELECT JSONExtractString(metadata, ?) FROM resource WHERE internal_id = 9501",
+                    String.class,
+                    key))
+            .isEqualTo(value);
+
+        Q q = q();
+        q.resourceId = EDGE;
+        q.groupCounts = List.of(column);
+        assertThat(groups(q.build()).groups())
+            .as("counts on %s", key)
+            .singleElement()
+            .satisfies(g -> assertThat(g.counts().get(column)).isEqualTo(Map.of(value, 1L)));
+
+        q.filters = List.of(new ResourceColumnFilter(column, "in", List.of(value)));
+        assertThat(keys(groups(q.build()))).as("filter on %s", key).containsExactly("KEYS-1");
+        q.filters = List.of(new ResourceColumnFilter(column, "in", List.of("other")));
+        assertThat(keys(groups(q.build()))).as("other value of %s", key).isEmpty();
+
+        q.sortBy = column;
+        q.groupBy = null;
+        q.filters = null;
+        assertThat(repository.getResourceTableRows(q.build(), context(q.build(), null)))
+            .as("sorted on %s", key)
+            .hasSize(1);
+
+        for (String search : new String[] {null, "keys.svs"}) {
+          Q f = q();
+          f.resourceId = EDGE;
+          f.search = search;
+          assertThat(
+                  mapper.getResourceTableGroupedMetadataFacets(
+                      f.build(), null, new String[] {key}, 10, 1L << 30, 1L << 29))
+              .as("facet on %s, search %s", key, search)
+              .singleElement()
+              .satisfies(
+                  v -> {
+                    assertThat(v.metaKey()).isEqualTo(key);
+                    assertThat(v.value()).isEqualTo(value);
+                    assertThat(v.count()).isEqualTo(1L);
+                  });
+        }
+      }
+    } finally {
+      jdbcTemplate.execute(
+          "ALTER TABLE resource DELETE WHERE internal_id = 9501 SETTINGS mutations_sync = 2");
+    }
   }
 
   @Test
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void rowsImportedWithoutRepopulating_areNotMissed() {
-    // A row added to resource after the compact table was built, as a study import that skipped
-    // populate_derived_tables.sql would leave it.
+  public void insertedRows_areReadAtOnce_withNoPopulateStep() {
     jdbcTemplate.update(
         "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
             + " patient_id, sample_id, url, display_name, metadata) VALUES (9101, ?, 3, 'SAMPLE',"
             + " 'GENIE-TEST-307', 'GENIE-TEST-307-01', 'https://example.com/g9101.svs',"
-            + " 'Slide 9101', '{\"stain_group\":\"IHC\"}')",
+            + " 'Slide 9101', '{\"stain_group\":\"Special\"}')",
         SLIDES);
     try {
-      ResourceTableQuery query = q().build();
-      ResourceQueryContext context = context(query, null);
+      Q q = q();
+      q.filters = List.of(new ResourceColumnFilter(STAIN, "in", List.of("Special")));
+      ResourceTableQuery query = q.build();
+      ResourceTableGroupPage page = groups(query);
 
-      assertThat(context.scope().compactCurrent()).isFalse();
-      assertThat(context.readsCompactTable(query)).isFalse();
-      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
-      assertThat(keys(page)).contains("GENIE-TEST-307");
-      assertThat(page.totalRows()).isEqualTo(9);
+      assertThat(keys(page)).containsExactly("GENIE-TEST-307");
+      assertThat(page.groups().getFirst().counts().get(STAIN)).isEqualTo(Map.of("Special", 1L));
+      assertThat(
+              repository.getResourceTableMetadata(query, context(query, null)).facets().get(STAIN))
+          .contains(new ResourceFacetOption("Special", 1L));
     } finally {
       jdbcTemplate.execute(
           "ALTER TABLE resource DELETE WHERE internal_id = 9101 SETTINGS mutations_sync = 2");
     }
-  }
-
-  @Test
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void rowsCopiedUnderAnEarlierContract_areNotTrusted() {
-    // The contract changed after the compact table was built: a second definition whose contract
-    // max() now picks declares "serving", which the compact rows were copied without.
-    String contract =
-        "{\"version\":2,\"fields\":[{\"key\":\"stain_group\"},{\"key\":\"serving\"}]}";
-    jdbcTemplate.update(
-        "INSERT INTO resource_definition (resource_id, cancer_study_id, resource_type,"
-            + " display_name, description, open_by_default, priority, custom_metadata)"
-            + " VALUES (?, 3, 'PATIENT', 'Slides', 'Patient-level slides', 1, 2, ?)",
-        PATIENT_SLIDES,
-        contract);
-    try {
-      ResourceTableQuery query = combined().build();
-      ResourceQueryContext context = context(query, null);
-
-      // The contracts alone would let the query read the compact table; its copy is stale.
-      assertThat(context.scope().contractsCover(query.referencedMetadataKeys())).isTrue();
-      assertThat(context.scope().compactCurrent()).isFalse();
-      assertThat(context.readsCompactTable(query)).isFalse();
-      assertThat(repository.getResourceTableGroups(query, context).totalRows()).isEqualTo(11);
-    } finally {
-      jdbcTemplate.update(
-          "ALTER TABLE resource_definition DELETE WHERE resource_id = ? AND custom_metadata = ?"
-              + " SETTINGS mutations_sync = 2",
-          PATIENT_SLIDES,
-          contract);
-    }
-    ResourceTableQuery query = combined().build();
-    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+    assertThat(keys(groups(q().build()))).isEqualTo(ALL_SLIDE_PATIENTS);
   }
 
   private static final String SLIDE_108 =
@@ -840,12 +956,10 @@ public class ClickhouseResourceTableGroupsTest {
 
   @Test
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void rowsReimportedWithTheSameCount_areNotTrusted() {
-    // Slide 108 reimported with corrected metadata after the compact table was built: the importer
-    // deletes the row and inserts it again under a new internal_id, so the study holds as many
-    // rows as before, under the same contract.
-    jdbcTemplate.execute(
-        "ALTER TABLE resource DELETE WHERE internal_id = 108 SETTINGS mutations_sync = 2");
+  public void reimportedRows_readTheirNewMetadata() {
+    // Slide 108 reimported with corrected metadata: the importer deletes the row and inserts it
+    // again under a new internal_id, here with a lightweight DELETE.
+    jdbcTemplate.execute("DELETE FROM resource WHERE internal_id = 108");
     jdbcTemplate.update(
         "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
             + " patient_id, sample_id, url, display_name, metadata) VALUES (9301, ?, 3, 'SAMPLE',"
@@ -853,95 +967,45 @@ public class ClickhouseResourceTableGroupsTest {
             + " 'Slide 108', '{\"stain_group\":\"IHC\",\"stain_name\":\"ER\",\"block\":\"E1\"}')",
         SLIDES);
     try {
-      ResourceTableQuery query = q().build();
-      ResourceQueryContext context = context(query, null);
-
-      assertThat(context.scope().compactCurrent()).isFalse();
-      assertThat(context.readsCompactTable(query)).isFalse();
-      ResourceTableGroupPage page = repository.getResourceTableGroups(query, context);
+      ResourceTableGroupPage page = groups(q().build());
       assertThat(page.totalRows()).isEqualTo(8);
-      assertThat(page.groups())
-          .filteredOn(g -> g.patientId().equals("GENIE-TEST-305"))
-          .singleElement()
-          .satisfies(g -> assertThat(g.counts().get(STAIN)).isEqualTo(Map.of("IHC", 1L)));
+      assertThat(group(page, "GENIE-TEST-305").counts().get(STAIN)).isEqualTo(Map.of("IHC", 1L));
+
+      Q heOnly = q();
+      heOnly.filters = List.of(new ResourceColumnFilter(STAIN, "in", List.of("H&E")));
+      assertThat(keys(groups(heOnly.build()))).doesNotContain("GENIE-TEST-305");
     } finally {
       jdbcTemplate.execute(
           "ALTER TABLE resource DELETE WHERE internal_id = 9301 SETTINGS mutations_sync = 2");
       jdbcTemplate.execute(SLIDE_108);
     }
-    ResourceTableQuery query = q().build();
-    assertThat(context(query, null).readsCompactTable(query)).isTrue();
+    assertThat(group(groups(q().build()), "GENIE-TEST-305").counts().get(STAIN))
+        .isEqualTo(Map.of("H&E", 1L));
   }
 
   @Test
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void aStudyWithTooManyCompactRows_doesNotHideOneWithTooFew() {
-    // GROUPED_SLIDE also declared by acc_tcga under the same contract, with one row, 9201.
-    jdbcTemplate.update(
-        "INSERT INTO resource_definition (resource_id, cancer_study_id, resource_type,"
-            + " display_name, description, open_by_default, priority, custom_metadata)"
-            + " SELECT resource_id, 2, resource_type, display_name, description, open_by_default,"
-            + " priority, custom_metadata FROM resource_definition"
-            + " WHERE resource_id = ? AND cancer_study_id = 3",
-        SLIDES);
-    jdbcTemplate.update(
-        "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
-            + " patient_id, sample_id, url, display_name, metadata) VALUES (9201, ?, 2, 'SAMPLE',"
-            + " 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/g9201.svs',"
-            + " 'Slide 9201', '{\"stain_group\":\"IHC\"}')",
-        SLIDES);
-    String copyRow9201AsStudy =
-        "INSERT INTO resource_compact_derived SELECT internal_id, resource_id, %d, resource_scope,"
-            + " patient_id, sample_id, url, display_name, metadata,"
-            + " (SELECT any(contract_hash) FROM resource_compact_derived WHERE resource_id = '"
-            + SLIDES
-            + "') FROM resource WHERE internal_id = 9201";
+  public void deletedRows_leaveTheGroupsAndCounts() {
+    // Patient 304's only slide, 107, removed with a mutation.
+    jdbcTemplate.execute(
+        "ALTER TABLE resource DELETE WHERE internal_id = 107 SETTINGS mutations_sync = 2");
     try {
-      Q q = q();
-      q.studyIds = List.of(STUDY, "acc_tcga");
-      ResourceTableQuery query = q.build();
-
-      // Copied where it belongs, the compact table is current over both studies.
-      jdbcTemplate.execute(String.format(copyRow9201AsStudy, 2));
-      assertThat(context(query, null).scope().compactCurrent()).isTrue();
-      assertThat(context(query, null).readsCompactTable(query)).isTrue();
-
-      // Copied under the wrong study: summed over both studies the rows and their fingerprint
-      // still match resource, but acc_tcga's copy is missing a row and study_genie_pub's has one
-      // too many.
-      jdbcTemplate.execute(
-          "ALTER TABLE resource_compact_derived DELETE WHERE internal_id = 9201"
-              + " SETTINGS mutations_sync = 2");
-      jdbcTemplate.execute(String.format(copyRow9201AsStudy, 3));
-      ResourceQueryContext context = context(query, null);
-      assertThat(context.scope().compactCurrent()).isFalse();
-      assertThat(context.readsCompactTable(query)).isFalse();
-      assertThat(repository.getResourceTableGroups(query, context).groups())
-          .extracting(g -> g.studyId() + ":" + g.patientId())
-          .contains("acc_tcga:tcga-a1-a0sb");
+      Q ihc = q();
+      ihc.filters = List.of(new ResourceColumnFilter(STAIN, "in", List.of("IHC")));
+      assertThat(keys(groups(ihc.build()))).containsExactly("GENIE-TEST-301");
+      ResourceTableQuery query = q().build();
+      assertThat(
+              repository.getResourceTableMetadata(query, context(query, null)).facets().get(STAIN))
+          .containsExactly(new ResourceFacetOption("H&E", 4L), new ResourceFacetOption("IHC", 1L));
     } finally {
       jdbcTemplate.execute(
-          "ALTER TABLE resource_compact_derived DELETE WHERE internal_id = 9201"
-              + " SETTINGS mutations_sync = 2");
-      jdbcTemplate.execute(
-          "ALTER TABLE resource DELETE WHERE internal_id = 9201 SETTINGS mutations_sync = 2");
-      jdbcTemplate.update(
-          "ALTER TABLE resource_definition DELETE WHERE resource_id = ? AND cancer_study_id = 2"
-              + " SETTINGS mutations_sync = 2",
-          SLIDES);
+          "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
+              + " patient_id, sample_id, url, display_name, metadata) VALUES (107,"
+              + " 'GROUPED_SLIDE', 3, 'SAMPLE', 'GENIE-TEST-304', 'GENIE-TEST-304-01',"
+              + " 'https://example.com/g107.svs', 'Slide 107',"
+              + " '{\"stain_group\":\"IHC\",\"stain_name\":\"PD-L1\",\"block\":\"D1\"}')");
     }
-    ResourceTableQuery query = q().build();
-    assertThat(context(query, null).readsCompactTable(query)).isTrue();
-  }
-
-  @Test
-  public void aFreshCompactTable_isRead() {
-    ResourceTableQuery query = combined().build();
-    ResourceQueryContext context = context(query, null);
-
-    assertThat(mapper.isCompactTableCurrent(query)).isTrue();
-    assertThat(context.scope().compactCurrent()).isTrue();
-    assertThat(context.readsCompactTable(query)).isTrue();
+    assertThat(keys(groups(q().build()))).isEqualTo(ALL_SLIDE_PATIENTS);
   }
 
   @Test
@@ -955,27 +1019,6 @@ public class ClickhouseResourceTableGroupsTest {
 
     assertThat(page.groups()).isEmpty();
     assertThat(page.locatedIndex()).isEqualTo(2L);
-  }
-
-  @Test
-  public void groupedFacets_parseKeysThatNeedQuotingInATupleType() {
-    assertThat(ClickhouseResourceDataMapper.facetTupleType(new String[] {"a b", "c`d", "e\\f"}))
-        .isEqualTo("Tuple(`a b` String, `c\\`d` String, `e\\\\f` String)");
-    // And the statement accepts such a type: no fixture row carries these keys, so no values.
-    Q q = combined();
-    ResourceTableQuery query = q.build();
-    String[] keys = {"stain_group", "odd key`"};
-    List<org.cbioportal.domain.resource.ResourceMetadataFacetValue> values =
-        mapper.getResourceTableGroupedMetadataFacets(
-            query,
-            null,
-            true,
-            keys,
-            ClickhouseResourceDataMapper.facetTupleType(keys),
-            10,
-            1L << 30,
-            1L << 29);
-    assertThat(values).extracting(v -> v.metaKey()).containsOnly("stain_group");
   }
 
   @Test
@@ -1024,9 +1067,9 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   @Test
-  public void aStudyHoldingRowsWithoutADefinition_keepsTheQueryOnTheFullTable() {
+  public void aStudyHoldingRowsWithoutADefinition_isGroupedWithTheRest() {
     // acc_tcga declares a CYTOLOGY contract; study_tcga_pub holds a CYTOLOGY row with no
-    // definition at all, which the compact table therefore lacks.
+    // definition at all.
     Q q = q();
     q.studyIds = List.of("study_tcga_pub", "acc_tcga");
     q.resourceId = "CYTOLOGY";
@@ -1037,7 +1080,6 @@ public class ClickhouseResourceTableGroupsTest {
     assertThat(context.scope().rows())
         .anyMatch(
             row -> row.studyId().equals("study_tcga_pub") && row.mayHoldRows() && !row.declared());
-    assertThat(context.readsCompactTable(query)).isFalse();
     assertThat(repository.getResourceTableGroups(query, context).groups())
         .extracting(g -> g.studyId() + ":" + g.patientId())
         .containsExactly("study_tcga_pub:tcga-a1-a0zz", "acc_tcga:tcga-zz-9999");

@@ -67,7 +67,7 @@ public class ResourceTableGroupsControllerTest {
 
   @Before
   public void knownResources() {
-    Mockito.when(resourceDataRepository.getResourceScope(Mockito.any(), Mockito.anyBoolean()))
+    Mockito.when(resourceDataRepository.getResourceScope(Mockito.any()))
         .thenReturn(
             new ResourceScope(
                 List.of(
@@ -262,8 +262,7 @@ public class ResourceTableGroupsControllerTest {
     post("/api/resource-table/query/fetch", body)
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(0)));
-    Mockito.verify(resourceDataRepository, Mockito.never())
-        .getResourceScope(Mockito.any(), Mockito.anyBoolean());
+    Mockito.verify(resourceDataRepository, Mockito.never()).getResourceScope(Mockito.any());
   }
 
   @Test
@@ -332,26 +331,5 @@ public class ResourceTableGroupsControllerTest {
         java.util.stream.IntStream.rangeClosed(1, 11).mapToObj(i -> "metadata:k" + i).toList());
     expectBadRequest(METADATA, body, "groupCounts may name at most 10 columns");
     expectBadRequest(GROUPS, body, "groupCounts may name at most 10 columns");
-  }
-
-  @Test
-  @WithMockUser
-  public void compactFreshness_isAskedForOnlyByRequestsScanningMetadata() throws Exception {
-    Map<String, Object> body = request();
-    post(GROUPS, body).andExpect(MockMvcResultMatchers.status().isOk());
-    Mockito.verify(resourceDataRepository).getResourceScope(Mockito.any(), Mockito.eq(false));
-
-    Mockito.clearInvocations(resourceDataRepository);
-    body.put(
-        "filters",
-        List.of(
-            Map.of(
-                "columnId", "metadata:stain_group", "operator", "in", "values", List.of("IHC"))));
-    post(GROUPS, body).andExpect(MockMvcResultMatchers.status().isOk());
-    Mockito.verify(resourceDataRepository).getResourceScope(Mockito.any(), Mockito.eq(true));
-
-    Mockito.clearInvocations(resourceDataRepository);
-    post(METADATA, request()).andExpect(MockMvcResultMatchers.status().isOk());
-    Mockito.verify(resourceDataRepository).getResourceScope(Mockito.any(), Mockito.eq(true));
   }
 }

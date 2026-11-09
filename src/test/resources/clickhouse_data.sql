@@ -739,9 +739,8 @@ insert into resource (internal_id, resource_id, cancer_study_id, resource_scope,
 
 -- Grouped resource-table fixtures, in study_genie_pub so they leave the other studies' tabs and
 -- counts alone. GROUPED_SLIDE (sample-level) and GROUPED_SLIDE_PATIENT (patient-level) declare the
--- same contract; their rows also carry an undeclared nested 'serving' key, which the compact
--- metadata table drops. Patient GENIE-TEST-306 has only a patient-level row. GROUPED_NO_CONTRACT
--- declares no contract, so grouped queries over it read the full resource table.
+-- same contract; their rows also carry an undeclared nested 'serving' key. Patient GENIE-TEST-306
+-- has only a patient-level row. GROUPED_NO_CONTRACT declares no contract.
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('GROUPED_SLIDE', 3, 'SAMPLE', 'Slides', 'Sample-level slides', 1, 1, '{"version":1,"fields":[{"key":"stain_group","type":"string","label":"Stain Group"},{"key":"stain_name","type":"string","label":"Stain"},{"key":"block","type":"string","label":"Block","filterable":false}]}');
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('GROUPED_SLIDE_PATIENT', 3, 'PATIENT', 'Slides', 'Patient-level slides', 1, 2, '{"version":1,"fields":[{"key":"stain_group","type":"string","label":"Stain Group"},{"key":"stain_name","type":"string","label":"Stain"},{"key":"block","type":"string","label":"Block","filterable":false}]}');
 insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('GROUPED_NO_CONTRACT', 3, 'SAMPLE', 'Uncontracted slides', 'Slides without a contract', 1, 3);

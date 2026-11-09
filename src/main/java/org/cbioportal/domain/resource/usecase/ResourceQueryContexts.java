@@ -42,27 +42,23 @@ final class ResourceQueryContexts {
 
   /**
    * Resolves the study-view cohort, if the query has one, and the resource scope, if the query
-   * needs it: grouped queries do, to choose their table, and so does any query naming {@code
+   * needs it: grouped queries do, for their contracts, and so does any query naming {@code
    * resourceIds}, whose ids are validated against it.
    *
-   * @param scansMetadata whether the request will parse the metadata of every row the query
-   *     matches, as facets and metadata column filters do; see {@link
-   *     ResourceDataRepository#getResourceScope}
    * @throws InvalidResourceTableQueryException when a scoped query names a resource that none of
    *     its studies defines or holds rows of
    */
   static ResourceQueryContext resolve(
       ResourceTableQuery query,
       ResourceDataRepository repository,
-      StudyViewService studyViewService,
-      boolean scansMetadata) {
+      StudyViewService studyViewService) {
     StudyViewFilterContext cohort =
         query.hasStudyViewFilter()
             ? studyViewService.buildStudyViewFilterContext(query.studyViewFilter())
             : null;
     ResourceScope scope = null;
     if (query.grouped() || query.hasResourceIds()) {
-      ResourceScope found = repository.getResourceScope(query, scansMetadata);
+      ResourceScope found = repository.getResourceScope(query);
       scope = found == null ? new ResourceScope(List.of()) : found;
       Set<String> known = scope.resourceIds();
       List<String> unknown =

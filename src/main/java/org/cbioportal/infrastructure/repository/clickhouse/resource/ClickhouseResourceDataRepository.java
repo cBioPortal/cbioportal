@@ -144,14 +144,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   /**
-   * How one request reads: its query, its study-view cohort, and whether it reads the compact
-   * metadata table. Carried together because every statement below takes all three.
+   * How one request reads: its query and what it resolved to, the study-view cohort and the
+   * resource scope. Carried together because every statement below takes the query and cohort.
    */
-  private record Reads(ResourceTableQuery query, ResourceQueryContext context, boolean compact) {
+  private record Reads(ResourceTableQuery query, ResourceQueryContext context) {
 
     static Reads of(ResourceTableQuery query, ResourceQueryContext context) {
-      ResourceQueryContext resolved = context == null ? ResourceQueryContext.none() : context;
-      return new Reads(query, resolved, resolved.readsCompactTable(query));
+      return new Reads(query, context == null ? ResourceQueryContext.none() : context);
     }
 
     StudyViewFilterContext cohort() {
@@ -159,7 +158,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     }
 
     Reads withQuery(ResourceTableQuery other) {
-      return new Reads(other, context, compact);
+      return new Reads(other, context);
     }
   }
 
@@ -190,8 +189,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   @Override
   public List<ResourceTableRow> getResourceTableRows(
       ResourceTableQuery query, ResourceQueryContext context) {
-    // Rows always come from resource: they return the full metadata, which the compact table
-    // does not hold.
     return mapper.getResourceTableRows(query, Reads.of(query, context).cohort());
   }
 
@@ -204,8 +201,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     // column, itself or another — e.g. deselecting every option in one column (a "1 = 0" filter
     // that zeroes out all matching rows) must not make that column's own options, or any other
     // column's options or keys, disappear.
-    // The table is chosen on the full query, so a column filter on a key the compact table lacks
-    // keeps every statement of the request on resource.
     //
     // Grouping changes only what a facet value counts: the groups carrying it rather than the rows.
     // The key classification and the numeric ranges describe the rows, so they are read exactly as
@@ -223,7 +218,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     List<String> categoricalKeys = new ArrayList<>();
     List<String> numericKeys = new ArrayList<>();
     for (String key : metadataContext.columnKeys()) {
-      // A blank key cannot name a facet: the grouped facets parse each key as a tuple element.
+      // A blank key is never offered as a facet.
       if (key.isBlank() || !metadataContext.isFilterable(key)) {
         continue;
       }
@@ -249,7 +244,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     Map<String, ResourceNumericRange> ranges = new LinkedHashMap<>();
     for (ResourceMetadataRange range :
         mapper.getResourceTableMetadataRanges(
-            scoped.query(), scoped.cohort(), scoped.compact(), keys.toArray(new String[0]))) {
+            scoped.query(), scoped.cohort(), keys.toArray(new String[0]))) {
       if (range.isUsable()) {
         ranges.put(
             ResourceColumnInfo.METADATA_COLUMN_PREFIX + range.metaKey(),
@@ -270,9 +265,7 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
             ? mapper.getResourceTableGroupedMetadataFacets(
                 scoped.query(),
                 scoped.cohort(),
-                scoped.compact(),
                 keyArray,
-                ClickhouseResourceDataMapper.facetTupleType(keyArray),
                 MAX_FACET_VALUES + 1,
                 GROUPED_FACETS_MAX_MEMORY_BYTES,
                 GROUPED_FACETS_EXTERNAL_GROUP_BY_BYTES)
@@ -360,7 +353,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         mapper.getResourceTableMetadataKeyStats(
             scoped.query(),
             scoped.cohort(),
-            scoped.compact(),
             KEY_DISCOVERY_SAMPLE_ROWS,
             KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();
@@ -471,24 +463,13 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
       ResourceTableQuery query, ResourceQueryContext context) {
     // Counts are over rows whether or not the query groups them; see getResourceTableMetadata.
     Reads reads = Reads.of(query, context).withQuery(query.withoutGrouping());
-    ResourceTableCounts counts =
-        mapper.getResourceTableCounts(reads.query(), reads.cohort(), reads.compact());
+    ResourceTableCounts counts = mapper.getResourceTableCounts(reads.query(), reads.cohort());
     return counts == null ? ResourceTableCounts.empty() : counts;
   }
 
   @Override
-  public ResourceScope getResourceScope(ResourceTableQuery query, boolean scansMetadata) {
-    ResourceScope scope = new ResourceScope(mapper.getResourceScope(query));
-    // The freshness probe is a statement of its own, so it runs only for a request the compact
-    // table can speed up: one scanning metadata, for a grouped query without a search, over
-    // contracts covering its keys.
-    if (scansMetadata
-        && query.grouped()
-        && !query.hasSearch()
-        && scope.contractsCover(query.referencedMetadataKeys())) {
-      scope = scope.withCompactCurrent(Boolean.TRUE.equals(mapper.isCompactTableCurrent(query)));
-    }
-    return scope;
+  public ResourceScope getResourceScope(ResourceTableQuery query) {
+    return new ResourceScope(mapper.getResourceScope(query));
   }
 
   /**
@@ -500,15 +481,14 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   public ResourceTableGroupPage getResourceTableGroups(
       ResourceTableQuery query, ResourceQueryContext context) {
     Reads reads = Reads.of(query, context);
-    List<ResourceTableGroupRow> page =
-        mapper.getResourceTableGroupPage(query, reads.cohort(), reads.compact());
+    List<ResourceTableGroupRow> page = mapper.getResourceTableGroupPage(query, reads.cohort());
 
     // Every row of the page carries the totals and the located index. A page past the last group
     // has no row to carry them, so the first group is read alone for them instead.
     ResourceTableGroupRow carrier = page.isEmpty() ? null : page.getFirst();
     if (carrier == null && query.offset() > 0) {
       List<ResourceTableGroupRow> first =
-          mapper.getResourceTableGroupPage(firstGroupOnly(query), reads.cohort(), reads.compact());
+          mapper.getResourceTableGroupPage(firstGroupOnly(query), reads.cohort());
       carrier = first.isEmpty() ? null : first.getFirst();
     }
 
@@ -586,7 +566,6 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
         mapper.getResourceTableGroupCounts(
             reads.query(),
             reads.cohort(),
-            reads.compact(),
             keys.toArray(new String[0]),
             tuples.toArray(new String[0]))) {
       byGroup.put(new GroupRef(row.studyId(), row.groupKey()), parseCounts(row.counts(), columns));

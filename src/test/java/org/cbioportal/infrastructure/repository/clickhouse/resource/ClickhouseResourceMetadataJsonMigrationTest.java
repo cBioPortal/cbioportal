@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.junit.Test;
+import org.testcontainers.clickhouse.ClickHouseContainer;
 import org.testcontainers.containers.Container.ExecResult;
 import org.testcontainers.images.builder.Transferable;
 
@@ -56,16 +57,20 @@ public class ClickhouseResourceMetadataJsonMigrationTest extends AbstractTestcon
   }
 
   private static ExecResult client(String... args) throws Exception {
+    return client(clickhouseContainer, args);
+  }
+
+  private static ExecResult client(ClickHouseContainer container, String... args) throws Exception {
     List<String> command =
         new ArrayList<>(
             List.of(
                 "clickhouse-client",
                 "--user",
-                clickhouseContainer.getUsername(),
+                container.getUsername(),
                 "--password",
-                clickhouseContainer.getPassword()));
+                container.getPassword()));
     command.addAll(List.of(args));
-    return clickhouseContainer.execInContainer(command.toArray(new String[0]));
+    return container.execInContainer(command.toArray(new String[0]));
   }
 
   private static String query(String sql) throws Exception {
@@ -75,8 +80,78 @@ public class ClickhouseResourceMetadataJsonMigrationTest extends AbstractTestcon
   }
 
   private static ExecResult migrate() throws Exception {
+    return migrate(clickhouseContainer);
+  }
+
+  private static ExecResult migrate(ClickHouseContainer container) throws Exception {
     return client(
-        "-d", DB, "--multiquery", "--mutations_sync", "2", "--queries-file", "/tmp/m320.sql");
+        container,
+        "-d",
+        DB,
+        "--multiquery",
+        "--mutations_sync",
+        "2",
+        "--queries-file",
+        "/tmp/m320.sql");
+  }
+
+  private static final String RESOURCE_310 =
+      "CREATE TABLE resource (`internal_id` Int64, `resource_id` String, `cancer_study_id` Int64,"
+          + " `resource_scope` String, `patient_id` Nullable(String), `sample_id`"
+          + " Nullable(String), `url` String, `display_name` Nullable(String), `metadata`"
+          + " Nullable(String)) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id,"
+          + " patient_id, sample_id, internal_id) SETTINGS allow_nullable_key = 1";
+
+  /**
+   * A server whose default profile turns the JSON type off, as a {@code compatibility} before 25.3
+   * does on 25.3. The session's SET lets the ALTERs through, but the background mutation runs under
+   * the default profile and fails, so the probe has to stop the migration before resource changes.
+   */
+  @Test
+  public void aServerThatCannotWriteTheJsonType_stopsAtTheProbe_andLeavesResourceUnchanged()
+      throws Exception {
+    try (ClickHouseContainer compat =
+        new ClickHouseContainer("clickhouse/clickhouse-server:25.3")
+            .withUsername("cbio_user")
+            .withPassword("P@ssword1")
+            .withCopyToContainer(
+                Transferable.of(
+                    "<clickhouse><profiles><default><compatibility>24.5</compatibility>"
+                        + "</default></profiles></clickhouse>"),
+                "/etc/clickhouse-server/users.d/compatibility.xml")) {
+      compat.start();
+      compat.copyFileToContainer(Transferable.of(section320()), "/tmp/m320.sql");
+      assertThat(client(compat, "-q", "CREATE DATABASE " + DB).getExitCode()).isZero();
+      assertThat(client(compat, "-d", DB, "-q", RESOURCE_310).getExitCode()).isZero();
+      assertThat(
+              client(
+                      compat,
+                      "-d",
+                      DB,
+                      "-q",
+                      "INSERT INTO resource VALUES (1, 'R', 1, 'PATIENT', 'P1', NULL, 'u', NULL,"
+                          + " '{\"v\":\"a\"}')")
+                  .getExitCode())
+          .isZero();
+
+      ExecResult result = migrate(compat);
+
+      assertThat(result.getExitCode()).isNotZero();
+      assertThat(result.getStderr())
+          .contains("ClickHouse could not write a JSON column in a background mutation");
+      assertThat(
+              client(
+                      compat,
+                      "-d",
+                      DB,
+                      "-q",
+                      "SELECT count() FROM system.columns WHERE database = currentDatabase()"
+                          + " AND table = 'resource' AND name = 'metadata_json'")
+                  .getStdout()
+                  .trim())
+          .as("resource has no metadata_json column")
+          .isEqualTo("0");
+    }
   }
 
   @Test
@@ -84,14 +159,7 @@ public class ClickhouseResourceMetadataJsonMigrationTest extends AbstractTestcon
     clickhouseContainer.copyFileToContainer(Transferable.of(section320()), "/tmp/m320.sql");
     client("-q", "DROP DATABASE IF EXISTS " + DB);
     client("-q", "CREATE DATABASE " + DB);
-    query(
-        "CREATE TABLE resource (`internal_id` Int64, `resource_id` String, `cancer_study_id` Int64,"
-            + " `resource_scope` String, `patient_id` Nullable(String), `sample_id`"
-            + " Nullable(String), `url` String, `display_name` Nullable(String), `metadata`"
-            + " Nullable(String)) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id,"
-            + " patient_id, sample_id, internal_id) SETTINGS allow_nullable_key = 1");
-    query(
-        "CREATE TABLE resource_compact_derived (`internal_id` Int64) ENGINE = MergeTree ORDER BY internal_id");
+    query(RESOURCE_310);
     // One insert per document, so the rows sit in several parts, plus bulk rows and a null.
     for (int i = 0; i < DOCUMENTS.size(); i++) {
       query(
@@ -127,7 +195,14 @@ public class ClickhouseResourceMetadataJsonMigrationTest extends AbstractTestcon
                 "SELECT substring(CAST(metadata_json.v, 'String'), 2) FROM resource WHERE internal_id = 3"))
         .as("a null before a duplicate key reads as the null")
         .isEmpty();
-    assertThat(query("EXISTS TABLE resource_compact_derived")).isEqualTo("0");
+    assertThat(
+            query(
+                "SELECT count() FROM (SELECT name, groupArray(column) AS columns FROM"
+                    + " system.parts_columns WHERE database = currentDatabase() AND table ="
+                    + " 'resource' AND active GROUP BY name) WHERE NOT has(columns,"
+                    + " 'metadata_json')"))
+        .as("every part of resource holds metadata_json")
+        .isEqualTo("0");
     assertThat(query("EXISTS TABLE metadata_json_probe"))
         .as("the probe table is dropped")
         .isEqualTo("0");

@@ -154,10 +154,13 @@ DROP TABLE IF EXISTS resource_study;
 -- The section changes nothing in resource until the probe has passed: it first materializes the
 -- column into a one-row table, metadata_json_probe. The probe is an ordinary table because ClickHouse
 -- Cloud does not allow MergeTree temporary tables. A failed probe leaves only that table, with its
--- failed mutation, behind; the next run drops it before probing again. Until MATERIALIZE COLUMN has finished, a part written before the ALTER has no
--- metadata_json data and reads every key's subcolumn as NULL, so the section waits for it and then
--- checks the written values against metadata before returning. It is idempotent, and it also
--- drops resource_compact_derived where an earlier draft of this version created it.
+-- failed mutation, behind; the next run drops it before probing again. Until MATERIALIZE COLUMN has
+-- finished, a part written before the ALTER has no metadata_json data and reads every key's
+-- subcolumn as NULL, so the section waits for it and then checks the written values against
+-- metadata before returning. It is idempotent.
+--
+-- Privileges: SELECT on system.mutations, and on the database CREATE TABLE, INSERT, DROP TABLE,
+-- SELECT and ALTER ADD COLUMN / MATERIALIZE COLUMN; see docs/deployment/clickhouse/README.md.
 SELECT throwIf(
     (toUInt32OrZero(splitByChar('.', version())[1]), toUInt32OrZero(splitByChar('.', version())[2])) < (25, 3),
     'db_schema_version 3.2.0 requires ClickHouse 25.3 or later'
@@ -175,9 +178,53 @@ ALTER TABLE metadata_json_probe ADD COLUMN `metadata_json` JSON MATERIALIZED CAS
                 arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
         'Map(String, String)'), 'JSON');
 -- Issued without waiting, so that a failure can be reported below rather than as the mutation's
--- own error; the second MATERIALIZE then waits for it.
+-- own error; the second MATERIALIZE then waits for it. A failing mutation records its reason after
+-- its first attempt, which a slow or busy server may not schedule at once. ClickHouse SQL has no
+-- loop, so the wait is written out: each statement below sleeps 3 s while the probe's mutation has
+-- neither finished nor failed, and returns at once after that, so the wait ends as soon as it
+-- has an answer and lasts at most 30 s. A mutation still pending after that is waited for by the
+-- second MATERIALIZE, which reports a later failure as the mutation's own error.
 ALTER TABLE metadata_json_probe MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 0;
-SELECT sleep(1) FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
+SELECT sleepEachRow(3) FROM system.one WHERE (
+    SELECT count() FROM system.mutations
+    WHERE database = currentDatabase() AND table = 'metadata_json_probe' AND NOT is_done AND latest_fail_reason = ''
+) > 0 FORMAT Null;
 SELECT throwIf(
     count() > 0,
     'ClickHouse could not write a JSON column in a background mutation: enable the JSON type in the server''s default profile (enable_json_type = 1, or compatibility of 25.3 or later), restart, and run the migration again'
@@ -199,21 +246,16 @@ ALTER TABLE resource ADD COLUMN IF NOT EXISTS `metadata_json` JSON MATERIALIZED 
                 arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
         'Map(String, String)'), 'JSON');
 ALTER TABLE resource MATERIALIZE COLUMN `metadata_json` SETTINGS mutations_sync = 2;
+-- A finished MATERIALIZE COLUMN mutation is ClickHouse's own record that every part written before
+-- it now holds the column; a part written after it computed the column on insert. So the check
+-- reads system.mutations: no mutation on resource that writes metadata_json may be unfinished.
 SELECT throwIf(
     count() > 0,
     'MATERIALIZE COLUMN metadata_json left an unfinished mutation on resource; see system.mutations'
 ) FROM system.mutations
-WHERE database = currentDatabase() AND table = 'resource' AND is_done = 0
+WHERE database = currentDatabase() AND table = 'resource' AND NOT is_done
+    AND position(command, 'metadata_json') > 0
 FORMAT Null;
-SELECT throwIf(
-    countIf(NOT has(columns, 'metadata_json')) > 0,
-    'a part of resource holds no metadata_json data after MATERIALIZE COLUMN'
-) FROM (
-    SELECT name, groupArray(column) AS columns
-    FROM system.parts_columns
-    WHERE database = currentDatabase() AND table = 'resource' AND active
-    GROUP BY name
-) FORMAT Null;
 -- Parity on a sample: each key's value as metadata_json holds it against JSONExtractString on the
 -- raw document. toJSONString nests a dotted key's path, so dotted keys, and keys that a dotted key
 -- extends, are left out here.
@@ -230,4 +272,3 @@ SELECT throwIf(
         LIMIT 10000
     )
 ) FORMAT Null;
-DROP TABLE IF EXISTS resource_compact_derived;

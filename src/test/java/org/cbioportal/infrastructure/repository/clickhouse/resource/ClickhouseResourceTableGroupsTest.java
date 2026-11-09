@@ -756,9 +756,8 @@ public class ClickhouseResourceTableGroupsTest {
           "not json",
           "[1,2]");
 
-  @Test
-  @Transactional(propagation = Propagation.NOT_SUPPORTED)
-  public void metadataValues_readBackExactlyAsJsonExtractStringGivesThem() {
+  /** One GROUPED_EDGE row per edge document, plus one with no metadata at all. */
+  private void insertEdgeDocuments() {
     for (int i = 0; i < EDGE_DOCUMENTS.size(); i++) {
       jdbcTemplate.update(
           "INSERT INTO resource (internal_id, resource_id, cancer_study_id, resource_scope,"
@@ -774,6 +773,98 @@ public class ClickhouseResourceTableGroupsTest {
             + " patient_id, sample_id, url, display_name, metadata) VALUES (9499, ?, 3, 'PATIENT',"
             + " 'EDGE-999', NULL, 'https://example.com/edge.svs', NULL, NULL)",
         EDGE);
+  }
+
+  private void deleteEdgeDocuments() {
+    jdbcTemplate.update(
+        "ALTER TABLE resource DELETE WHERE resource_id = ? SETTINGS mutations_sync = 2", EDGE);
+  }
+
+  /**
+   * The ungrouped facets, the numeric ranges and the key stats of named keys count the values
+   * JSONExtractString gives each row's key, with or without a search. A document that repeats a key
+   * counts its first value, as the column filters match it.
+   */
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void facetsRangesAndKeyStats_countTheValuesJsonExtractStringGives() {
+    insertEdgeDocuments();
+    try {
+      String[] keys = {"v", "w", "v.x"};
+      for (String search : new String[] {null, "edge.svs"}) {
+        Q q = q();
+        q.resourceId = EDGE;
+        q.groupBy = null;
+        q.search = search;
+        ResourceTableQuery query = q.build();
+        for (String key : keys) {
+          String value = "JSONExtractString(ifNull(metadata, '{}'), ?)";
+          Map<String, Long> expectedFacet = new java.util.TreeMap<>();
+          jdbcTemplate.query(
+              "SELECT "
+                  + value
+                  + " AS v, count() FROM resource WHERE resource_id = ? AND v != ''"
+                  + " GROUP BY v",
+              rs -> {
+                expectedFacet.put(rs.getString(1), rs.getLong(2));
+              },
+              key,
+              EDGE);
+          assertThat(expectedFacet).as("%s has values", key).isNotEmpty();
+          Map<String, Long> facet = new java.util.TreeMap<>();
+          mapper
+              .getResourceTableMetadataFacets(query, null, new String[] {key}, 1000)
+              .forEach(v -> facet.put(v.value(), v.count()));
+          assertThat(facet).as("facet on %s, search %s", key, search).isEqualTo(expectedFacet);
+
+          Map<String, Object> expectedStats =
+              jdbcTemplate.queryForMap(
+                  "SELECT countIf(v != '') AS nonBlank,"
+                      + " countIf(v != '' AND toFloat64OrNull(v) IS NOT NULL) AS numeric,"
+                      + " minIf(toFloat64OrNull(v), toFloat64OrNull(v) IS NOT NULL) AS lo,"
+                      + " maxIf(toFloat64OrNull(v), toFloat64OrNull(v) IS NOT NULL) AS hi"
+                      + " FROM (SELECT "
+                      + value
+                      + " AS v FROM resource WHERE resource_id = ?)",
+                  key,
+                  EDGE);
+          assertThat(
+                  mapper.getResourceTableMetadataKeyStats(
+                      query, null, new String[] {key}, 100_000, 1L << 30))
+              .as("key stats of %s, search %s", key, search)
+              .singleElement()
+              .satisfies(
+                  stats -> {
+                    assertThat(stats.key()).isEqualTo(key);
+                    assertThat(stats.nonBlankCount())
+                        .isEqualTo(((Number) expectedStats.get("nonBlank")).longValue());
+                    assertThat(stats.numericCount())
+                        .isEqualTo(((Number) expectedStats.get("numeric")).longValue());
+                  });
+          List<org.cbioportal.domain.resource.ResourceMetadataRange> ranges =
+              mapper.getResourceTableMetadataRanges(query, null, new String[] {key});
+          if (((Number) expectedStats.get("numeric")).longValue() == 0) {
+            assertThat(ranges).as("range of %s, search %s", key, search).isEmpty();
+          } else {
+            assertThat(ranges)
+                .as("range of %s, search %s", key, search)
+                .containsExactly(
+                    new org.cbioportal.domain.resource.ResourceMetadataRange(
+                        key,
+                        ((Number) expectedStats.get("lo")).doubleValue(),
+                        ((Number) expectedStats.get("hi")).doubleValue()));
+          }
+        }
+      }
+    } finally {
+      deleteEdgeDocuments();
+    }
+  }
+
+  @Test
+  @Transactional(propagation = Propagation.NOT_SUPPORTED)
+  public void metadataValues_readBackExactlyAsJsonExtractStringGivesThem() {
+    insertEdgeDocuments();
     try {
       Map<String, String> expected = new java.util.TreeMap<>();
       jdbcTemplate.query(
@@ -840,8 +931,7 @@ public class ClickhouseResourceTableGroupsTest {
                   .facets()
                   .get("metadata:v"));
     } finally {
-      jdbcTemplate.update(
-          "ALTER TABLE resource DELETE WHERE resource_id = ? SETTINGS mutations_sync = 2", EDGE);
+      deleteEdgeDocuments();
     }
   }
 

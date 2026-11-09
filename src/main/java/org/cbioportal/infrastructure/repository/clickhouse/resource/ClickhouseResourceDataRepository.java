@@ -69,6 +69,9 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
 
   private static final long GROUPED_FACETS_EXTERNAL_GROUP_BY_BYTES = 1024L * 1024 * 1024;
 
+  /** The declared types that decide a column's kind; any other leaves it to the data. */
+  private static final Set<String> DECLARED_TYPES = Set.of("string", "number");
+
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
   private static final TypeReference<Map<String, Map<String, Long>>> GROUP_COUNTS_TYPE =
       new TypeReference<>() {};
@@ -167,18 +170,41 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
     ResourceMetadataSchema schema = mergedSchema(scoped, contractRows);
     boolean coversEveryStudy =
         !contractRows.isEmpty() && contractRows.stream().allMatch(ResourceContractRow::declared);
-    // Key discovery scans the data to learn which keys exist and which look numeric. A contract
-    // that covers every study in scope and types every field already answers both, so the scan is
-    // skipped rather than repeated.
-    Map<String, ResourceMetadataKeyStats> stats =
-        coversEveryStudy && fullyTyped(schema) ? Map.of() : classifyMetadataKeys(scoped);
-    return new MetadataContext(schema, stats, coversEveryStudy);
+    return new MetadataContext(
+        schema, keyStats(scoped, schema, coversEveryStudy), coversEveryStudy);
   }
 
-  /** True when the contract declares every column and gives each one a type. */
+  /**
+   * The stats that classify the keys the contract leaves untyped.
+   *
+   * <p>Key discovery scans each row's raw document to learn which keys exist and which look
+   * numeric. A contract that covers every study in scope already names the columns, so only the
+   * keys whose type it leaves to the data need classifying, and they are counted from their own
+   * subcolumns rather than by parsing every document; with every key typed nothing is read at all.
+   * Without such a contract the keys found in the data become columns too, so they are discovered.
+   */
+  private Map<String, ResourceMetadataKeyStats> keyStats(
+      Reads scoped, ResourceMetadataSchema schema, boolean coversEveryStudy) {
+    if (!coversEveryStudy || schema.fieldsByKey().isEmpty()) {
+      return classifyMetadataKeys(scoped, null);
+    }
+    if (fullyTyped(schema)) {
+      return Map.of();
+    }
+    List<String> classified =
+        schema.fieldsByKey().entrySet().stream()
+            .filter(
+                field ->
+                    field.getValue().type() == null
+                        || !DECLARED_TYPES.contains(field.getValue().type()))
+            .map(Map.Entry::getKey)
+            .toList();
+    return classifyMetadataKeys(scoped, classified);
+  }
+
+  /** True when the contract gives every column a type. */
   private static boolean fullyTyped(ResourceMetadataSchema schema) {
-    return !schema.fieldsByKey().isEmpty()
-        && schema.fieldsByKey().values().stream().allMatch(field -> field.type() != null);
+    return schema.fieldsByKey().values().stream().allMatch(field -> field.type() != null);
   }
 
   @Override
@@ -345,14 +371,16 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
   }
 
   /**
-   * Returns per-key stats for every metadata key discovered in the current tab, keyed by the raw
-   * metadata key (not prefixed with "metadata:").
+   * Returns per-key stats for the given keys, or for every metadata key discovered in the current
+   * tab when {@code keys} is null, keyed by the raw metadata key (not prefixed with "metadata:").
    */
-  private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(Reads scoped) {
+  private Map<String, ResourceMetadataKeyStats> classifyMetadataKeys(
+      Reads scoped, List<String> keys) {
     List<ResourceMetadataKeyStats> stats =
         mapper.getResourceTableMetadataKeyStats(
             scoped.query(),
             scoped.cohort(),
+            keys == null ? null : keys.toArray(new String[0]),
             KEY_DISCOVERY_SAMPLE_ROWS,
             KEY_DISCOVERY_MAX_MEMORY_BYTES);
     Map<String, ResourceMetadataKeyStats> byKey = new LinkedHashMap<>();

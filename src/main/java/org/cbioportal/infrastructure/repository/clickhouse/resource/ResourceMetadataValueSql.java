@@ -10,8 +10,13 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
  * to be named as an identifier: {@code getSubcolumn(metadata_json, 'key')} gives the same value but
  * reads the whole column. So the key, which comes from the request, is spliced into the SQL here,
  * backquoted, which makes any text a single identifier naming that key's path. Every value is
- * stored with a ':' prefix, so that ClickHouse infers no type from it; {@code substring} drops it
- * again. See {@code metadata_json} in schema.sql.
+ * stored as a String with a ':' prefix, so that ClickHouse infers no type from it; {@code
+ * substring} drops it again. See {@code metadata_json} in schema.sql.
+ *
+ * <p>The path is read as its typed subcolumn, {@code metadata_json.`key`.:String}, which reads the
+ * String values directly rather than casting the path's Dynamic column. Since every stored value is
+ * a String the two give the same result, NULL included for a missing path, whether the path is
+ * stored as its own subcolumn or in the shared data past {@code max_dynamic_paths}.
  *
  * <p>Some keys are read from the raw document instead, with {@code JSONExtractString}:
  *
@@ -40,9 +45,7 @@ public final class ResourceMetadataValueSql {
     if (key == null || key.isEmpty() || key.contains(".:") || key.contains(".^")) {
       return raw(key);
     }
-    return "substring(ifNull(CAST(rdata.metadata_json.`"
-        + escape(key, '`')
-        + "`, 'Nullable(String)'), ''), 2)";
+    return "substring(ifNull(rdata.metadata_json.`" + escape(key, '`') + "`.:String, ''), 2)";
   }
 
   /**

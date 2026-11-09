@@ -128,16 +128,23 @@ public class ClickhouseResourceMetadataJsonMigrationTest extends AbstractTestcon
         .as("a null before a duplicate key reads as the null")
         .isEmpty();
     assertThat(query("EXISTS TABLE resource_compact_derived")).isEqualTo("0");
+    assertThat(query("EXISTS TABLE metadata_json_probe"))
+        .as("the probe table is dropped")
+        .isEqualTo("0");
     assertThat(
             query(
                 "SELECT count() FROM system.mutations WHERE database = currentDatabase() AND"
                     + " NOT is_done"))
         .isEqualTo("0");
 
+    // A probe table left behind by a failed run is dropped before the next probe.
+    query("CREATE TABLE metadata_json_probe (`id` UInt8) ENGINE = MergeTree ORDER BY id");
+
     // The section is idempotent: run again over a migrated table, it changes nothing.
     ExecResult second = migrate();
     assertThat(second.getExitCode()).as(second.getStderr()).isZero();
     assertThat(query(parity)).isEqualTo("0\t5006\t5012");
+    assertThat(query("EXISTS TABLE metadata_json_probe")).isEqualTo("0");
 
     client("-q", "DROP DATABASE " + DB);
   }

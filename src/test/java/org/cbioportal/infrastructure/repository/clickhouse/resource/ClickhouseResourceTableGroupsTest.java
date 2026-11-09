@@ -546,6 +546,67 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   @Test
+  public void groupedFacets_countSameNamedGroupsOfTwoStudiesApart() {
+    // Both studies hold a patient tcga-a1-a0sb with sample tcga-a1-a0sb-01 carrying 20x; 40x is on
+    // study_tcga_pub's tcga-a1-a0sd and acc_tcga's tcga-zz-9999.
+    for (String groupBy : new String[] {"patient", "sample"}) {
+      Q q = q();
+      q.studyIds = List.of("study_tcga_pub", "acc_tcga");
+      q.resourceId = "HE_SLIDE";
+      q.groupBy = groupBy;
+      q.groupCounts = null;
+      ResourceTableQuery query = q.build();
+
+      assertThat(
+              repository
+                  .getResourceTableMetadata(query, context(query, null))
+                  .facets()
+                  .get("metadata:magnification"))
+          .as("grouped by %s", groupBy)
+          .containsExactly(new ResourceFacetOption("20x", 2L), new ResourceFacetOption("40x", 2L));
+    }
+  }
+
+  @Test
+  public void groupedFacets_countTheGroupsWhoseRowsCarryEachValue() {
+    // Each facet count against the groups themselves, read by the groups statement: the number of
+    // groups whose value counts include the value. Across groupings, combined resources, a search
+    // and the study-view cohort.
+    for (String groupBy : new String[] {"patient", "sample"}) {
+      for (String search : new String[] {null, "g10"}) {
+        for (StudyViewFilter filter : new StudyViewFilter[] {null, centerFilter("msk")}) {
+          Q q = combined();
+          q.groupBy = groupBy;
+          q.search = search;
+          q.studyViewFilter = filter;
+          q.pageSize = 1000;
+          ResourceTableQuery query = q.build();
+          ResourceQueryContext context = context(query, filter == null ? null : cohort(filter));
+
+          Map<String, Long> fromGroups = new java.util.TreeMap<>();
+          for (ResourceTableGroup g : repository.getResourceTableGroups(query, context).groups()) {
+            g.counts()
+                .getOrDefault(STAIN, Map.of())
+                .keySet()
+                .forEach(value -> fromGroups.merge(value, 1L, Long::sum));
+          }
+          List<ResourceFacetOption> expected =
+              fromGroups.entrySet().stream()
+                  .map(e -> new ResourceFacetOption(e.getKey(), e.getValue()))
+                  .toList();
+
+          assertThat(expected)
+              .as("groups by %s, search %s, cohort %s", groupBy, search, filter)
+              .isNotEmpty();
+          assertThat(repository.getResourceTableMetadata(query, context).facets().get(STAIN))
+              .as("grouped by %s, search %s, cohort %s", groupBy, search, filter)
+              .isEqualTo(expected);
+        }
+      }
+    }
+  }
+
+  @Test
   public void contracts_followTheStudyViewCohort() {
     // GROUPED_NO_CONTRACT has rows of patients 301 and 302 only, which center=msk includes and
     // center=dfci does not.

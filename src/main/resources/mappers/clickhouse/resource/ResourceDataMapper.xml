@@ -888,9 +888,14 @@
     uniqExact keeps a set of groups per (key, value) until LIMIT BY applies, so a near-unique key
     holds about one set entry per row. The memory cap and the spill to disk bound what that can
     take, the same way the key-stats statement is bounded.
+
+    The set holds a 64-bit hash of each group rather than the group itself, which uniqExact would
+    otherwise hash to 128 bits per row; that is about a quarter of the statement's time. Two groups
+    carrying the same value would have to collide for a count to come out one low: for a value
+    carried by a million groups the chance is about 3 in 100 million.
   -->
   <select id="getResourceTableGroupedMetadataFacets" resultType="org.cbioportal.domain.resource.ResourceMetadataFacetValue">
-    SELECT kv.1 AS metaKey, kv.2 AS value, uniqExact(groupKey) AS count
+    SELECT kv.1 AS metaKey, kv.2 AS value, uniqExact(cityHash64(groupKey)) AS count
     FROM (
       SELECT arrayJoin(<include refid="ResourceMetadataKeyValuePairs"/>) AS kv,
              (rdata.cancer_study_id, <include refid="ResourceGroupKeyColumn"/>) AS groupKey

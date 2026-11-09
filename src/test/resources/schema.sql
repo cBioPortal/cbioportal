@@ -218,7 +218,13 @@ CREATE TABLE copy_number_seg (
     `start` Int64,
     `end` Int64,
     `num_probes` Int64,
-    `segment_mean` Float64
+    `segment_mean` Nullable(Float64),
+    `tcn` Nullable(Int32),
+    `lcn` Nullable(Int32),
+    `cellular_fraction` Nullable(Float64),
+    `purity` Nullable(Float64),
+    `ploidy` Nullable(Float64),
+    `dip_log_r` Nullable(Float64)
 ) ENGINE = MergeTree ORDER BY (seg_id);
 
 CREATE TABLE copy_number_seg_file (
@@ -722,20 +728,5 @@ CREATE TABLE users (
     `name` String,
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
-
-CREATE TABLE ascn_seg
-(
-    `seg_id` Int64,
-    `cancer_study_id` Int64,
-    `sample_id` Int64,
-    `tcn` Nullable(Int32),
-    `lcn` Nullable(Int32),
-    `cellular_fraction` Nullable(Float64),
-    `purity` Nullable(Float64),
-    `ploidy` Nullable(Float64),
-    `dip_log_r` Nullable(Float64)
-)
-    ENGINE = MergeTree
-ORDER BY (cancer_study_id, sample_id, seg_id);
 
 INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.2.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

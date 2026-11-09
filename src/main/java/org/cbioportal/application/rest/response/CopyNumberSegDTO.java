@@ -1,9 +1,14 @@
 package org.cbioportal.application.rest.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
-@Schema(name = "CopyNumberSeg", description = "Represents a copy number segment")
+@Schema(
+    name = "CopyNumberSeg",
+    description =
+        "Represents a copy number segment. The allele-specific fields (tcn, lcn, cellularFraction,"
+            + " purity, ploidy, dipLogR) are only returned with the DETAILED projection.")
 public class CopyNumberSegDTO {
   private String uniqueSampleKey;
   private String uniquePatientKey;
@@ -15,6 +20,24 @@ public class CopyNumberSegDTO {
   private Integer end;
   private Integer numberOfProbes;
   private BigDecimal segmentMean;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Integer tcn;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Integer lcn;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private BigDecimal cellularFraction;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private BigDecimal purity;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private BigDecimal ploidy;
+
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private BigDecimal dipLogR;
 
   public String getStudyId() {
     return studyId;
@@ -94,5 +117,53 @@ public class CopyNumberSegDTO {
 
   public void setSegmentMean(BigDecimal segmentMean) {
     this.segmentMean = segmentMean;
+  }
+
+  public Integer getTcn() {
+    return tcn;
+  }
+
+  public void setTcn(Integer tcn) {
+    this.tcn = tcn;
+  }
+
+  public Integer getLcn() {
+    return lcn;
+  }
+
+  public void setLcn(Integer lcn) {
+    this.lcn = lcn;
+  }
+
+  public BigDecimal getCellularFraction() {
+    return cellularFraction;
+  }
+
+  public void setCellularFraction(BigDecimal cellularFraction) {
+    this.cellularFraction = cellularFraction;
+  }
+
+  public BigDecimal getPurity() {
+    return purity;
+  }
+
+  public void setPurity(BigDecimal purity) {
+    this.purity = purity;
+  }
+
+  public BigDecimal getPloidy() {
+    return ploidy;
+  }
+
+  public void setPloidy(BigDecimal ploidy) {
+    this.ploidy = ploidy;
+  }
+
+  public BigDecimal getDipLogR() {
+    return dipLogR;
+  }
+
+  public void setDipLogR(BigDecimal dipLogR) {
+    this.dipLogR = dipLogR;
   }
 }

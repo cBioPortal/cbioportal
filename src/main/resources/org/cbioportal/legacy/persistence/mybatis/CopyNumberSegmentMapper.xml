@@ -14,6 +14,15 @@
         copy_number_seg.end AS "end",
         copy_number_seg.num_probes AS "numProbes",
         copy_number_seg.segment_mean AS "segmentMean"
+        <if test="projection == 'DETAILED'">
+            ,
+            copy_number_seg.tcn AS "tcn",
+            copy_number_seg.lcn AS "lcn",
+            copy_number_seg.cellular_fraction AS "cellularFraction",
+            copy_number_seg.purity AS "purity",
+            copy_number_seg.ploidy AS "ploidy",
+            copy_number_seg.dip_log_r AS "dipLogR"
+        </if>
     </sql>
 
     <sql id="from">

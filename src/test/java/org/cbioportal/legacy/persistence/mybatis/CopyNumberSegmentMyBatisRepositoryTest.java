@@ -85,6 +85,12 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 180057677, copyNumberSeg.getEnd());
     Assert.assertEquals((Integer) 291, copyNumberSeg.getNumProbes());
     Assert.assertEquals(new BigDecimal("0.0519"), copyNumberSeg.getSegmentMean());
+    Assert.assertNull(copyNumberSeg.getTcn());
+    Assert.assertNull(copyNumberSeg.getLcn());
+    Assert.assertNull(copyNumberSeg.getCellularFraction());
+    Assert.assertNull(copyNumberSeg.getPurity());
+    Assert.assertNull(copyNumberSeg.getPloidy());
+    Assert.assertNull(copyNumberSeg.getDipLogR());
 
     Assert.assertEquals(1, result1.size());
     Assert.assertEquals(1, result2.size());
@@ -167,6 +173,13 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     Assert.assertEquals((Integer) 180057677, copyNumberSeg.getEnd());
     Assert.assertEquals((Integer) 291, copyNumberSeg.getNumProbes());
     Assert.assertEquals(new BigDecimal("0.0519"), copyNumberSeg.getSegmentMean());
+    Assert.assertEquals((Integer) 3, copyNumberSeg.getTcn());
+    Assert.assertEquals((Integer) 1, copyNumberSeg.getLcn());
+    Assert.assertEquals(0, new BigDecimal("0.8").compareTo(copyNumberSeg.getCellularFraction()));
+    Assert.assertEquals(0, new BigDecimal("0.7").compareTo(copyNumberSeg.getPurity()));
+    Assert.assertEquals(0, new BigDecimal("2.5").compareTo(copyNumberSeg.getPloidy()));
+    Assert.assertEquals(0, new BigDecimal("0.1").compareTo(copyNumberSeg.getDipLogR()));
+    Assert.assertNull(result.get(1).getTcn());
   }
 
   @Test
@@ -253,6 +266,27 @@ public class CopyNumberSegmentMyBatisRepositoryTest {
     Assert.assertEquals("TCGA-A1-B0SO-01", result2.get(1).getSampleStableId());
 
     Assert.assertEquals(0, result3.size());
+  }
+
+  @Test
+  public void fetchCopyNumberSegmentsDetailedProjectionIncludesAscnFields() throws Exception {
+    List<String> studyIds = List.of("study_tcga_pub");
+    List<String> sampleIds = List.of("TCGA-A1-A0SB-01");
+
+    List<CopyNumberSeg> detailed =
+        copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
+            studyIds, sampleIds, "1", "DETAILED");
+    List<CopyNumberSeg> summary =
+        copyNumberSegmentMyBatisRepository.fetchCopyNumberSegments(
+            studyIds, sampleIds, "1", "SUMMARY");
+
+    Assert.assertEquals(1, detailed.size());
+    Assert.assertEquals((Integer) 3, detailed.get(0).getTcn());
+    Assert.assertEquals((Integer) 1, detailed.get(0).getLcn());
+    Assert.assertEquals(0, new BigDecimal("2.5").compareTo(detailed.get(0).getPloidy()));
+    Assert.assertEquals(1, summary.size());
+    Assert.assertNull(summary.get(0).getTcn());
+    Assert.assertNull(summary.get(0).getPloidy());
   }
 
   @Test

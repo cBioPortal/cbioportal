@@ -9,15 +9,15 @@ public class ResourceMetadataValueSqlTest {
   @Test
   public void namesTheKeysSubcolumn_andStripsThePrefix() {
     assertThat(ResourceMetadataValueSql.of("stain_group"))
-        .isEqualTo(
-            "substring(ifNull(CAST(rdata.metadata_json.`stain_group`, 'Nullable(String)'), ''), 2)");
+        .isEqualTo("substring(ifNull(rdata.metadata_json.`stain_group`.:String, ''), 2)");
   }
 
   @Test
   public void escapesBackquotesAndBackslashes_soAnyKeyStaysOneIdentifier() {
-    assertThat(ResourceMetadataValueSql.of("a`b\\c")).contains("rdata.metadata_json.`a\\`b\\\\c`,");
+    assertThat(ResourceMetadataValueSql.of("a`b\\c"))
+        .contains("rdata.metadata_json.`a\\`b\\\\c`.:String,");
     assertThat(ResourceMetadataValueSql.of("x`, 'String'), ''), 2) OR 1 = 1 --"))
-        .contains("rdata.metadata_json.`x\\`, 'String'), ''), 2) OR 1 = 1 --`,");
+        .contains("rdata.metadata_json.`x\\`, 'String'), ''), 2) OR 1 = 1 --`.:String,");
   }
 
   /**
@@ -27,10 +27,10 @@ public class ResourceMetadataValueSqlTest {
   @Test
   public void writesHashAsAnEscape_soMyBatisFindsNoPlaceholderInAKey() {
     assertThat(ResourceMetadataValueSql.of("#{search}"))
-        .isEqualTo(
-            "substring(ifNull(CAST(rdata.metadata_json.`\\x23{search}`, 'Nullable(String)'), ''), 2)");
-    assertThat(ResourceMetadataValueSql.of("\\#{x}")).contains("metadata_json.`\\\\\\x23{x}`,");
-    assertThat(ResourceMetadataValueSql.of("${x}")).contains("metadata_json.`${x}`,");
+        .isEqualTo("substring(ifNull(rdata.metadata_json.`\\x23{search}`.:String, ''), 2)");
+    assertThat(ResourceMetadataValueSql.of("\\#{x}"))
+        .contains("metadata_json.`\\\\\\x23{x}`.:String,");
+    assertThat(ResourceMetadataValueSql.of("${x}")).contains("metadata_json.`${x}`.:String,");
     assertThat(ResourceMetadataValueSql.of("a.:#{x}")).doesNotContain("#");
   }
 

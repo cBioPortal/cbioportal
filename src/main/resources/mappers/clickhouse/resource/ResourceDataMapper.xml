@@ -654,13 +654,24 @@
        this resource without declaring one. Blanks are kept rather than filtered out because
        "every study in scope declares" is what decides whether the contract is the complete
        column list; filtering them made a partially declared cohort look fully declared. -->
+  <!-- The matching rows are first reduced to their distinct (study, resource) pairs, and only those
+       are joined to their definitions. A contract is per pair, so this returns what joining every
+       matching row would, without carrying a copy of the contract string per row into the
+       aggregation. -->
   <select id="getResourceDefinitionCustomMetadata" resultMap="ResourceContractRowResultMap">
     SELECT customMetadata, firstStudy FROM (
       SELECT ifNull(rdef.custom_metadata, '') AS customMetadata,
-             min(cs.cancer_study_identifier) AS firstStudy
-      <include refid="ResourceTableFromClause"/>
-    <include refid="ResourceDefinitionJoin"/>
-      <include refid="ResourceTableBaseFilters"/>
+             min(pairs.studyId) AS firstStudy
+      FROM (
+        SELECT DISTINCT rdata.cancer_study_id AS cancer_study_id,
+                        rdata.resource_id AS resource_id,
+                        cs.cancer_study_identifier AS studyId
+        <include refid="ResourceTableFromClause"/>
+        <include refid="ResourceTableBaseFilters"/>
+      ) pairs
+      LEFT JOIN resource_definition rdef
+        ON rdef.resource_id = pairs.resource_id
+       AND rdef.cancer_study_id = pairs.cancer_study_id
       GROUP BY customMetadata
     ) contracts
     ORDER BY firstStudy ASC

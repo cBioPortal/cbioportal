@@ -546,6 +546,26 @@ public class ClickhouseResourceTableGroupsTest {
   }
 
   @Test
+  public void contracts_followTheStudyViewCohort() {
+    // GROUPED_NO_CONTRACT has rows of patients 301 and 302 only, which center=msk includes and
+    // center=dfci does not.
+    Q q = combined();
+    q.groupBy = null;
+    q.resourceIds = List.of(SLIDES, NO_CONTRACT);
+    for (Map.Entry<String, List<Boolean>> c :
+        Map.of("msk", List.of(true, false), "dfci", List.of(true), "nowhere", List.<Boolean>of())
+            .entrySet()) {
+      q.studyViewFilter = centerFilter(c.getKey());
+      ResourceTableQuery query = q.build();
+
+      assertThat(mapper.getResourceDefinitionCustomMetadata(query, cohort(q.studyViewFilter)))
+          .as("center %s", c.getKey())
+          .extracting(org.cbioportal.domain.resource.ResourceContractRow::declared)
+          .containsExactlyInAnyOrderElementsOf(c.getValue());
+    }
+  }
+
+  @Test
   public void groupedMetadata_countsGroupsInItsFacetsOnly() {
     Q q = combined();
     q.groupBy = "sample";

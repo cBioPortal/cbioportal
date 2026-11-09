@@ -400,19 +400,39 @@ public class ClickhouseResourceDataRepository implements ResourceDataRepository 
    *
    * <p>A grouped request has already read its resource scope from the definitions, so it takes the
    * contracts from there: the contract of every (resource, study) pair that may hold rows. Any
-   * other request reads them over the rows it matches, which joins every matching row to its
-   * definition and costs a scan of the cohort's rows (about 0.4 s over 1.7M rows). The two agree
-   * unless the cohort or the search removes every row of a study whose contract differs from the
-   * rest; a grouped table then still shows that study's declared columns, empty.
+   * other request reads them over the distinct (study, resource) pairs of the rows it matches. The
+   * two agree unless the cohort or the search removes every row of a study whose contract differs
+   * from the rest; a grouped table then still shows that study's declared columns, empty.
+   *
+   * <p>An ungrouped request naming {@code resourceIds} has read the scope too, and takes the
+   * contracts from it when reading them over the rows could not give a different answer: when
+   * nothing narrows the rows below the requested studies, and the pairs that may hold rows all
+   * carry the same contract, or none. Over the rows the statement would then return that one
+   * contract again, or nothing at all when the requested studies hold no row of the requested
+   * resources; in that case the table lists the declared columns, empty, rather than no columns.
+   * Every other request reads them over its rows.
    */
   private List<ResourceContractRow> contractRows(Reads scoped, boolean grouped) {
     ResourceScope scope = scoped.context().scope();
-    if (grouped && scope != null) {
-      return scope.contractRows();
+    if (scope != null) {
+      List<ResourceContractRow> fromScope = scope.contractRows();
+      if (grouped || (!narrowsRows(scoped) && fromScope.size() <= 1)) {
+        return fromScope;
+      }
     }
     List<ResourceContractRow> rows =
         mapper.getResourceDefinitionCustomMetadata(scoped.query(), scoped.cohort());
     return rows == null ? List.of() : rows;
+  }
+
+  /** Whether the request reads fewer rows than its studies hold of its resources. */
+  private static boolean narrowsRows(Reads reads) {
+    ResourceTableQuery query = reads.query();
+    return reads.cohort() != null
+        || query.hasPatients()
+        || query.hasSamples()
+        || query.hasSearch()
+        || (query.filters() != null && !query.filters().isEmpty());
   }
 
   /**

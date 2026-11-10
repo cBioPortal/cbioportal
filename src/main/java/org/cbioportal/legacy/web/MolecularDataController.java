@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -94,8 +95,11 @@ public class MolecularDataController {
 
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  // Served by ColumnStoreMolecularDataController at the original path. Kept under /api/legacy
+  // as a fallback until the legacy implementation is removed.
+  @Hidden
   @RequestMapping(
-      value = "/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
+      value = "/legacy/molecular-profiles/{molecularProfileId}/molecular-data/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -154,8 +158,11 @@ public class MolecularDataController {
 
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  // Served by ColumnStoreMolecularDataController at the original path. Kept under /api/legacy
+  // as a fallback until the legacy implementation is removed.
+  @Hidden
   @RequestMapping(
-      value = "/molecular-data/fetch",
+      value = "/legacy/molecular-data/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

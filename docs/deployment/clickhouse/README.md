@@ -218,10 +218,17 @@ This imports the study data without rebuilding derived tables unnecessarily.
 
 ### Important Notes
 
-- **Rebuild derived tables after data changes.** Derived tables must be rebuilt after importing studies or changing the underlying data. If you use `--no-derive-tables` during imports, run `derive-tables` after the batch is complete and before relying on Study View results.
-- **A rebuild swaps tables individually.** The rebuild script creates temporary tables with a `_temp` suffix, populates them, and exchanges them with the existing derived tables using `EXCHANGE TABLES`. These exchanges are not atomic as a group, so queries during the exchange phase may observe a mixture of old and new derived-table data.
-- The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data) if you encounter issues.
-- Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports.
+- **Base tables are updated in place during imports.** Study data is written to the existing base tables by the import process. The derived-table rebuild does not create temporary copies of the base tables. Before building the derived tables, the rebuild script also runs `OPTIMIZE TABLE ... FINAL` on relevant source tables to ensure that their data is deduplicated.
+
+- **Derived tables are rebuilt using temporary tables.** The rebuild script creates new derived tables with a `_temp` suffix and populates them while the existing derived tables remain in place. It then optimizes the temporary tables and exchanges each one with its corresponding existing table using `EXCHANGE TABLES`. After the exchanges, the old tables (now carrying the `_temp` suffix) are dropped.
+
+- **Allow additional disk space during rebuilds.** The existing derived tables and their replacement `_temp` tables coexist during the rebuild. Ensure that the ClickHouse instance has enough free disk space for these temporary copies, in addition to the space required by the existing database.
+
+- **A rebuild is not atomic across all derived tables.** Each `EXCHANGE TABLES` operation swaps one table at a time, so queries during the exchange phase may observe a mixture of old and new derived-table data. See Section 12 for operational guidance.
+
+- **Clear application caches after importing data.** Rebuilding derived tables does not automatically clear the cBioPortal backend's application caches. Clear or reinitialize the relevant caches using the cache-management procedure configured for your deployment before relying on the updated data.
+
+- **Derived tables cannot be incrementally updated.** They are fully rebuilt from the source data each time, even for incremental study imports. The derived-table scripts may also require significant memory for large databases. See [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data) if you encounter resource issues.
 
 ---
 

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,11 +25,18 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
+import org.cbioportal.legacy.web.parameter.GenePanelDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.MolecularDataMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
+import org.cbioportal.legacy.web.parameter.MutationMultipleStudyFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleMolecularIdentifier;
+import org.cbioportal.legacy.web.parameter.StructuralVariantFilter;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -331,6 +339,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    * @throws IllegalStateException if a molecular profile ID is encountered but the corresponding
    *     MolecularProfile object cannot be found.
    */
+  /**
+   * An unknown profile aborts the check (access denied) rather than silently shrinking the study
+   * set: an empty set would otherwise be treated as "nothing to protect".
+   */
+  private Set<String> extractStudyIdsFromMolecularProfileIds(Collection<String> profileIds) {
+    Set<String> studyIds = new HashSet<>();
+    for (String profileId : profileIds) {
+      MolecularProfile profile = cacheMapUtil.getMolecularProfileMap().get(profileId);
+      if (profile == null) {
+        throw new IllegalStateException("MolecularProfile not found: " + profileId);
+      }
+      studyIds.add(profile.getCancerStudyIdentifier());
+    }
+    return studyIds;
+  }
+
   private Set<String> extractStudyIdsFromFilter(Object filter) {
     return switch (filter) {
       case SampleFilter sampleFilter ->
@@ -339,6 +363,41 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
               .stream()
               .collect(Collectors.toSet());
       case StudyViewFilter studyViewFilter -> studyViewFilter.getUniqueStudyIds();
+      case ClinicalDataMultiStudyFilter clinicalDataFilter ->
+          clinicalDataFilter.getIdentifiers().stream()
+              .map(ClinicalDataIdentifier::getStudyId)
+              .collect(Collectors.toSet());
+      case MolecularDataMultipleStudyFilter molecularDataFilter ->
+          extractStudyIdsFromMolecularProfileIds(
+              molecularDataFilter.getMolecularProfileIds() != null
+                  ? molecularDataFilter.getMolecularProfileIds()
+                  : molecularDataFilter.getSampleMolecularIdentifiers().stream()
+                      .map(SampleMolecularIdentifier::getMolecularProfileId)
+                      .toList());
+      case GenePanelDataMultipleStudyFilter genePanelDataFilter ->
+          extractStudyIdsFromMolecularProfileIds(
+              genePanelDataFilter.getMolecularProfileIds() != null
+                  ? genePanelDataFilter.getMolecularProfileIds()
+                  : genePanelDataFilter.getSampleMolecularIdentifiers().stream()
+                      .map(SampleMolecularIdentifier::getMolecularProfileId)
+                      .toList());
+      case StructuralVariantFilter structuralVariantFilter ->
+          // like the structural variant use case, pairs take precedence over profile ids
+          extractStudyIdsFromMolecularProfileIds(
+              structuralVariantFilter.getSampleMolecularIdentifiers() != null
+                  ? structuralVariantFilter.getSampleMolecularIdentifiers().stream()
+                      .map(SampleMolecularIdentifier::getMolecularProfileId)
+                      .toList()
+                  : structuralVariantFilter.getMolecularProfileIds() != null
+                      ? structuralVariantFilter.getMolecularProfileIds()
+                      : List.of());
+      case MutationMultipleStudyFilter mutationFilter ->
+          extractStudyIdsFromMolecularProfileIds(
+              mutationFilter.getMolecularProfileIds() != null
+                  ? mutationFilter.getMolecularProfileIds()
+                  : mutationFilter.getSampleMolecularIdentifiers().stream()
+                      .map(SampleMolecularIdentifier::getMolecularProfileId)
+                      .toList());
       case ClinicalDataCountFilter clinicalDataCountFilter ->
           clinicalDataCountFilter.getStudyViewFilter() != null
               ? clinicalDataCountFilter.getStudyViewFilter().getUniqueStudyIds()

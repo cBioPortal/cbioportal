@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -98,10 +99,13 @@ public class DiscreteCopyNumberController {
     }
   }
 
+  // Served by ColumnStoreDiscreteCopyNumberController at the original path. Kept under /api/legacy
+  // as a fallback until the legacy implementation is removed.
+  @Hidden
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
+      value = "/legacy/molecular-profiles/{molecularProfileId}/discrete-copy-number/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

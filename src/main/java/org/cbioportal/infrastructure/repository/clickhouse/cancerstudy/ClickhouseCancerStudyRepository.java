@@ -38,7 +38,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<CancerStudyMetadata> getCancerStudiesMetadata(
       SortAndSearchCriteria sortAndSearchCriteria) {
     return cancerStudyMapper.getCancerStudiesMetadata(sortAndSearchCriteria, List.of());
@@ -55,7 +55,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<CancerStudyMetadata> getCancerStudiesMetadataSummary(
       SortAndSearchCriteria sortAndSearchCriteria) {
     return cancerStudyMapper.getCancerStudiesMetadataSummary(sortAndSearchCriteria, List.of());
@@ -70,7 +70,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public CancerStudyMetadata getCancerStudyMetadata(String studyId) {
     List<CancerStudyMetadata> results =
         cancerStudyMapper.getCancerStudiesMetadata(
@@ -81,7 +81,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<String> getFilteredStudyIds(StudyViewFilterContext studyViewFilterContext) {
     return cancerStudyMapper.getFilteredStudyIds(studyViewFilterContext);
   }
@@ -89,7 +89,7 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   @Override
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<ResourceCount> getResourceCountsForAllStudies() {
     return cancerStudyMapper.getResourceCountsForAllStudies();
   }

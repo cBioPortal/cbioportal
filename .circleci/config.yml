@@ -487,9 +487,11 @@ jobs:
     # terminal state and merges even when shards are red (`requires:` only
     # chains on success, which would skip this job exactly when it's most
     # useful). Unlike the frontend's merge job (which `checkout`s the
-    # frontend repo), this runs inside the backend repo, so it clones
-    # cbioportal-frontend master to get the end-to-end-test-playwright
-    # package needed to run `playwright merge-reports`.
+    # frontend repo), this runs inside the backend repo, so it takes the
+    # end-to-end-test-playwright package needed to run `playwright
+    # merge-reports` from the workspace, which holds the frontend commit
+    # the shards ran. A fresh clone of master could carry a different
+    # Playwright version than the one that wrote the shard blobs.
     e2e_localdb_merge:
       docker:
         - image: ghcr.io/cbioportal/cbioportal-frontend-playwright-ci:v1.59.1-jammy
@@ -503,10 +505,8 @@ jobs:
         - run:
             name: Install jq (not present in the Playwright Docker image)
             command: apt-get update && apt-get install -y jq
-        - run:
-            name: Clone cbioportal-frontend master for the Playwright test package
-            command: |
-              git clone --depth 1 -b master --single-branch https://github.com/cBioPortal/cbioportal-frontend.git
+        - attach_workspace:
+            at: /tmp/repos
         - run:
             name: Wait for all e2e_localdb_shards parallel runs to terminate
             command: |
@@ -897,11 +897,12 @@ workflows:
         # pull/<PR#> for a forked PR's build (confirmed on #12431) and the
         # real branch name otherwise (confirmed on #12361, a same-repo PR).
         # Filtering this job to pull/.* means it simply doesn't exist in
-        # the compiled workflow for same-repo branches/PRs, and a filtered-
-        # out job is treated as already satisfied by anything that
-        # `requires` it — so run_api_tests/e2e_localdb_shards below run
-        # immediately there, with no approval click needed, and only hold
-        # on an actual fork build until a maintainer approves them.
+        # the compiled workflow for same-repo branches/PRs. CircleCI ignores
+        # a filtered-out dependency, but skips a job whose dependencies are
+        # all filtered out, so every job that requires this gate must also
+        # require a job that always runs. With that, the gated jobs below
+        # run immediately on same-repo builds and only hold on a fork build
+        # until a maintainer approves them.
         - approve_clickhouse_tests:
             type: approval
             filters:
@@ -923,11 +924,12 @@ workflows:
         # merged HTML report is produced even when shards are red. This is
         # the check to mark required for branch protection. It requires the
         # approval gate so that on a fork build it starts only after the
-        # shards are released; same-repo builds have no gate and start it
-        # immediately.
+        # shards are released, and pull_cbioportal_frontend_codebase for the
+        # same frontend checkout the shards ran.
         - e2e_localdb_merge:
             requires:
               - approve_clickhouse_tests
+              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user

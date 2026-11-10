@@ -1,7 +1,11 @@
 package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.apache.ibatis.annotations.Param;
 import org.cbioportal.legacy.model.Mutation;
+import org.cbioportal.legacy.model.MutationSpectrum;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 
 /**
@@ -16,8 +20,9 @@ public interface ClickhouseMutationMapper {
    * <p>Returns only essential identifiers: molecularProfileId, sampleId, patientId, entrezGeneId
    * and studyId.
    *
-   * @param molecularProfileIds list of distinct molecularProfile
-   * @param sampleIds list of distinct sampleIds
+   * @param samplesByProfile requested molecular profile stable ids, each with the stable ids of the
+   *     samples requested in that profile (an empty set selects all samples of the profile). A
+   *     sample is only returned for the profiles it was requested in.
    * @param entrezGeneIds list of entrez gene identifiers to filter by
    * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide
    *     polymorphisms (SNPs) only
@@ -29,8 +34,7 @@ public interface ClickhouseMutationMapper {
    * @return list of mutation matching the criteria
    */
   List<Mutation> getMutationsInMultipleMolecularProfilesId(
-      List<String> molecularProfileIds,
-      List<String> sampleIds,
+      Map<String, Set<String>> samplesByProfile,
       List<Integer> entrezGeneIds,
       boolean snpOnly, // Currently hardcoded to false due to how the legacy worked
       String projection,
@@ -43,8 +47,9 @@ public interface ClickhouseMutationMapper {
    *
    * <p>Returns basic mutation information, but without detailed mutation metadata.
    *
-   * @param molecularProfileIds list of distinct molecularProfile
-   * @param sampleIds list of distinct sampleIds
+   * @param samplesByProfile requested molecular profile stable ids, each with the stable ids of the
+   *     samples requested in that profile (an empty set selects all samples of the profile). A
+   *     sample is only returned for the profiles it was requested in.
    * @param entrezGeneIds list of entrez gene identifiers to filter by
    * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide
    *     polymorphisms (SNPs) only
@@ -57,8 +62,7 @@ public interface ClickhouseMutationMapper {
    * @return list of mutation matching the criteria
    */
   List<Mutation> getSummaryMutationsInMultipleMolecularProfiles(
-      List<String> molecularProfileIds,
-      List<String> sampleIds,
+      Map<String, Set<String>> samplesByProfile,
       List<Integer> entrezGeneIds,
       boolean snpOnly, // Currently hardcoded to false due to how the legacy worked
       String projection,
@@ -73,8 +77,9 @@ public interface ClickhouseMutationMapper {
    * <p>Returns complete mutation data including all mutation fields. This projection provides the
    * most comprehensive data but may have higher performance costs due to joins.
    *
-   * @param molecularProfileIds list of distinct molecularProfile
-   * @param sampleIds list of distinct sampleIds
+   * @param samplesByProfile requested molecular profile stable ids, each with the stable ids of the
+   *     samples requested in that profile (an empty set selects all samples of the profile). A
+   *     sample is only returned for the profiles it was requested in.
    * @param entrezGeneIds list of entrez gene identifiers to filter by
    * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide
    *     polymorphisms (SNPs) only
@@ -87,8 +92,7 @@ public interface ClickhouseMutationMapper {
    * @return list of mutation matching the criteria
    */
   List<Mutation> getDetailedMutationsInMultipleMolecularProfiles(
-      List<String> molecularProfileIds,
-      List<String> sampleIds,
+      Map<String, Set<String>> samplesByProfile,
       List<Integer> entrezGeneIds,
       boolean snpOnly, // Currently hardcoded to false due to how the legacy worked
       String projection,
@@ -103,17 +107,22 @@ public interface ClickhouseMutationMapper {
    * <p>Returns total count and sample count that would be returned by a corresponding data
    * retrieval operation, without actually fetching the data.
    *
-   * @param molecularProfileIds list of distinct molecularProfile
-   * @param sampleIds list of distinct sampleIds
+   * @param samplesByProfile requested molecular profile stable ids, each with the stable ids of the
+   *     samples requested in that profile (an empty set selects all samples of the profile). A
+   *     sample is only returned for the profiles it was requested in.
    * @param entrezGeneIds list of entrez gene identifiers to filter by
    * @param snpOnly snpOnly flag indicating whether to restrict results to single nucleotide
    *     polymorphisms (SNPs) only
    * @return MutationMeta
    */
   MutationMeta getMetaMutationsInMultipleMolecularProfiles(
-      List<String> molecularProfileIds,
-      List<String> sampleIds,
+      Map<String, Set<String>> samplesByProfile,
       List<Integer> entrezGeneIds,
       boolean snpOnly // Currently hardcoded to false due to how the legacy worked
       );
+
+  List<MutationSpectrum> getMutationSpectrums(
+      @Param("molecularProfileId") String molecularProfileId,
+      @Param("sampleListId") String sampleListId,
+      @Param("sampleIds") List<String> sampleIds);
 }

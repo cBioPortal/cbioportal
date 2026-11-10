@@ -89,7 +89,7 @@ public class MutationSpectrumControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/mutation-spectrums/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -486,10 +486,9 @@ jobs:
     # on e2e_localdb_shards — it polls the CircleCI API for the shards' job
     # terminal state and merges even when shards are red (`requires:` only
     # chains on success, which would skip this job exactly when it's most
-    # useful). Unlike the frontend's merge job (which `checkout`s the
-    # frontend repo), this runs inside the backend repo, so it clones
-    # cbioportal-frontend master to get the end-to-end-test-playwright
-    # package needed to run `playwright merge-reports`.
+    # useful). It takes end-to-end-test-playwright from the workspace, the
+    # frontend commit the shards ran, so merge-reports uses the Playwright
+    # version that wrote the blobs.
     e2e_localdb_merge:
       docker:
         - image: ghcr.io/cbioportal/cbioportal-frontend-playwright-ci:v1.59.1-jammy
@@ -503,10 +502,8 @@ jobs:
         - run:
             name: Install jq (not present in the Playwright Docker image)
             command: apt-get update && apt-get install -y jq
-        - run:
-            name: Clone cbioportal-frontend master for the Playwright test package
-            command: |
-              git clone --depth 1 -b master --single-branch https://github.com/cBioPortal/cbioportal-frontend.git
+        - attach_workspace:
+            at: /tmp/repos
         - run:
             name: Wait for all e2e_localdb_shards parallel runs to terminate
             command: |
@@ -524,18 +521,6 @@ jobs:
                   echo "API call failed; retrying in ${POLL_INTERVAL}s"
                   sleep "$POLL_INTERVAL"
                   continue
-                fi
-                # Check the gate job itself rather than e2e_localdb_shards' own
-                # status: "blocked" (what shards reports while gated) is also
-                # CircleCI's generic "waiting on requires: dependencies" status
-                # and appears during ordinary startup with no gate involved at
-                # all — ambiguous. approve_clickhouse_tests' own status isn't:
-                # absent (same-repo, filtered out), "on_hold" (unapproved), or
-                # resolved (approved) are the only cases.
-                APPROVAL_STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="approve_clickhouse_tests") | .status' | head -n1)
-                if [ "$APPROVAL_STATUS" = "on_hold" ]; then
-                  echo "e2e_localdb_shards is waiting on the approve_clickhouse_tests manual approval step. A maintainer needs to approve it in the CircleCI UI before this check can run."
-                  exit 1
                 fi
                 STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .status' | head -n1)
                 JOB_NUMBER=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .job_number' | head -n1)
@@ -897,23 +882,16 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
-        # Manual gate for the two jobs below, which both talk to the real
-        # ClickHouse instance (run_api_tests hardcodes its credentials;
-        # e2e_localdb_shards runs against the same remote ClickHouse via
-        # docker-compose.remote.clickhouse.yml). CircleCI runs a job
-        # regardless of fork status — contexts only withhold secrets, they
-        # never block execution — so without this gate a forked PR can run
-        # both jobs unattended.
+        # Manual gate on fork PRs for the jobs below that use the remote
+        # ClickHouse credentials (clickhouse-public-staging-ro-user context).
+        # A context does not stop a job from running, so without this gate a
+        # fork PR runs them unattended.
         #
-        # Scoped to forked PRs only: CircleCI reports CIRCLE_BRANCH as
-        # pull/<PR#> for a forked PR's build (confirmed on #12431) and the
-        # real branch name otherwise (confirmed on #12361, a same-repo PR).
-        # Filtering this job to pull/.* means it simply doesn't exist in
-        # the compiled workflow for same-repo branches/PRs, and a filtered-
-        # out job is treated as already satisfied by anything that
-        # `requires` it — so run_api_tests/e2e_localdb_shards below run
-        # immediately there, with no approval click needed, and only hold
-        # on an actual fork build until a maintainer approves them.
+        # Filtered to pull/.*, which is CIRCLE_BRANCH only on fork builds
+        # (fork #12431, same-repo #12361), so same-repo builds have no gate.
+        # CircleCI drops a filtered-out job from requires: and skips a job
+        # left with none, so each job requiring the gate must also require a
+        # job that always runs.
         - approve_clickhouse_tests:
             type: approval
             filters:
@@ -933,11 +911,13 @@ workflows:
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is
-        # the check to mark required for branch protection. It has no
-        # `requires:` on approve_clickhouse_tests either, so it starts
-        # immediately and fails fast with an actionable message (rather
-        # than waiting out its 2h poll cap) while shards sit on hold.
-        - e2e_localdb_merge
+        # the check to mark required for branch protection. The gate holds it
+        # until fork shards are released; pull_cbioportal_frontend_codebase
+        # always runs and supplies the frontend checkout.
+        - e2e_localdb_merge:
+            requires:
+              - approve_clickhouse_tests
+              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user

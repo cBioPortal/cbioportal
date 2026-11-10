@@ -5,14 +5,15 @@ on:
     # branches to consider in the event; optional, defaults to all
     branches:
       - master
-  issues:
+  # pull_request_target gives fork PRs a writable token; safe because no PR code is checked out
+  pull_request_target:
     types: [labeled, unlabeled]
-  pull_request:
-    types: [labeled, unlabeled]
-  workflow_dispatch: 
+  workflow_dispatch:
 
 jobs:
   update_draft_release:
+    # the draft only lists merged PRs, so label changes on open PRs have nothing to update
+    if: github.event_name != 'pull_request_target' || github.event.pull_request.merged
     runs-on: ubuntu-latest
     steps:
       # Drafts your next Release notes as Pull Requests are merged into "master"

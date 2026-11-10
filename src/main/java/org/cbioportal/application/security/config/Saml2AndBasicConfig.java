@@ -58,7 +58,8 @@ public class Saml2AndBasicConfig {
         .cors(withDefaults())
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login")
+                // /error is public so a failed request is never saved as the post-login redirect
+                auth.requestMatchers("/api/health", "/images/**", "/js/**", "/login", "/error")
                     .permitAll()
                     .anyRequest()
                     .authenticated())

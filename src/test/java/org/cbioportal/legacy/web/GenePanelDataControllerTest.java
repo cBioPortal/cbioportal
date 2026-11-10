@@ -136,7 +136,7 @@ public class GenePanelDataControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/gene-panel-data/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/gene-panel-data/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genePanelDataMultipleStudyFilter)))

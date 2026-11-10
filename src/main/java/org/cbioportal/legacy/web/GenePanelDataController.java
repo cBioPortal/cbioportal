@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -85,10 +86,13 @@ public class GenePanelDataController {
     return new ResponseEntity<>(genePanelDataList, HttpStatus.OK);
   }
 
+  // Served by ColumnStoreGenePanelDataController at the original path. Kept under /api/legacy as
+  // a fallback until the legacy implementation is removed.
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/gene-panel-data/fetch",
+      value = "/legacy/gene-panel-data/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

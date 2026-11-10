@@ -15,7 +15,13 @@ public class CopyNumberSeg extends UniqueKeyBase {
   @NotNull private Integer start;
   @NotNull private Integer end;
   @NotNull private Integer numProbes;
-  @NotNull private BigDecimal segmentMean;
+  private BigDecimal segmentMean;
+  private Integer tcn;
+  private Integer lcn;
+  private BigDecimal cellularFraction;
+  private BigDecimal purity;
+  private BigDecimal ploidy;
+  private BigDecimal dipLogR;
 
   public Long getSegId() {
     return segId;
@@ -103,5 +109,53 @@ public class CopyNumberSeg extends UniqueKeyBase {
 
   public void setSegmentMean(BigDecimal segmentMean) {
     this.segmentMean = segmentMean;
+  }
+
+  public Integer getTcn() {
+    return tcn;
+  }
+
+  public void setTcn(Integer tcn) {
+    this.tcn = tcn;
+  }
+
+  public Integer getLcn() {
+    return lcn;
+  }
+
+  public void setLcn(Integer lcn) {
+    this.lcn = lcn;
+  }
+
+  public BigDecimal getCellularFraction() {
+    return cellularFraction;
+  }
+
+  public void setCellularFraction(BigDecimal cellularFraction) {
+    this.cellularFraction = cellularFraction;
+  }
+
+  public BigDecimal getPurity() {
+    return purity;
+  }
+
+  public void setPurity(BigDecimal purity) {
+    this.purity = purity;
+  }
+
+  public BigDecimal getPloidy() {
+    return ploidy;
+  }
+
+  public void setPloidy(BigDecimal ploidy) {
+    this.ploidy = ploidy;
+  }
+
+  public BigDecimal getDipLogR() {
+    return dipLogR;
+  }
+
+  public void setDipLogR(BigDecimal dipLogR) {
+    this.dipLogR = dipLogR;
   }
 }

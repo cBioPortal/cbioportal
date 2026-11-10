@@ -315,7 +315,7 @@ insert into sample_list_list (list_id,sample_id) values (13,10);
 insert into sample_list_list (list_id,sample_id) values (13,12);
 insert into sample_list_list (list_id,sample_id) values (14,15);
 
-insert into copy_number_seg (seg_id,cancer_study_id,sample_id,chr,start,end,num_probes,segment_mean) values (50236594,1,1,'1',324556,180057677,291,0.0519);
+insert into copy_number_seg (seg_id,cancer_study_id,sample_id,chr,start,end,num_probes,segment_mean,tcn,lcn,cellular_fraction,purity,ploidy,dip_log_r) values (50236594,1,1,'1',324556,180057677,291,0.0519,3,1,0.8,0.7,2.5,0.1);
 insert into copy_number_seg (seg_id,cancer_study_id,sample_id,chr,start,end,num_probes,segment_mean) values (50236595,1,1,'2',224556,327677,391,0.0219);
 insert into copy_number_seg (seg_id,cancer_study_id,sample_id,chr,start,end,num_probes,segment_mean) values (50236593,1,2,	'2',1402650,190262486,207,0.0265);
 insert into copy_number_seg (seg_id,cancer_study_id,sample_id,chr,start,end,num_probes,segment_mean) values (50236592,1,3,	'3',1449872,194238390,341,0.0347);

@@ -525,18 +525,6 @@ jobs:
                   sleep "$POLL_INTERVAL"
                   continue
                 fi
-                # Check the gate job itself rather than e2e_localdb_shards' own
-                # status: "blocked" (what shards reports while gated) is also
-                # CircleCI's generic "waiting on requires: dependencies" status
-                # and appears during ordinary startup with no gate involved at
-                # all — ambiguous. approve_clickhouse_tests' own status isn't:
-                # absent (same-repo, filtered out), "on_hold" (unapproved), or
-                # resolved (approved) are the only cases.
-                APPROVAL_STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="approve_clickhouse_tests") | .status' | head -n1)
-                if [ "$APPROVAL_STATUS" = "on_hold" ]; then
-                  echo "e2e_localdb_shards is waiting on the approve_clickhouse_tests manual approval step. A maintainer needs to approve it in the CircleCI UI before this check can run."
-                  exit 1
-                fi
                 STATUS=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .status' | head -n1)
                 JOB_NUMBER=$(echo "$BODY" | jq -r '.items[] | select(.name=="e2e_localdb_shards") | .job_number' | head -n1)
                 if [ -z "$STATUS" ]; then
@@ -933,11 +921,13 @@ workflows:
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is
-        # the check to mark required for branch protection. It has no
-        # `requires:` on approve_clickhouse_tests either, so it starts
-        # immediately and fails fast with an actionable message (rather
-        # than waiting out its 2h poll cap) while shards sit on hold.
-        - e2e_localdb_merge
+        # the check to mark required for branch protection. It requires the
+        # approval gate so that on a fork build it starts only after the
+        # shards are released; same-repo builds have no gate and start it
+        # immediately.
+        - e2e_localdb_merge:
+            requires:
+              - approve_clickhouse_tests
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user

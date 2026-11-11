@@ -148,7 +148,7 @@ DROP TABLE IF EXISTS resource_study;
 -- on 25.3, enable_json_type = 1 or a compatibility setting of 25.3 or later (newer releases allow
 -- the type whatever these settings say). MATERIALIZE COLUMN runs as a background mutation under the
 -- default profile, so the SET below is not enough on its own there; inserts into resource evaluate
--- the column under the inserting user's profile. See metadata_json in init/schema.sql for what the
+-- the column under the inserting user's profile. See schema_update_notes.md for what the
 -- column holds.
 --
 -- The section changes nothing in resource until the probe has passed: it first materializes the

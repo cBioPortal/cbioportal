@@ -605,16 +605,6 @@ CREATE TABLE resource (
     `url` String,
     `display_name` Nullable(String),
     `metadata` Nullable(String),
-    -- metadata as a JSON column with one subcolumn per key, so that a query filtering, counting or
-    -- faceting on a few keys reads only those keys. It is MATERIALIZED from metadata on every
-    -- insert, so it is never stale and importers do not write it. Every value is stored as the
-    -- text JSONExtractString(metadata, key) returns (a string's raw JSON unescaped, any other raw
-    -- value kept as its JSON text, null as ''), prefixed with ':' so that ClickHouse infers no type
-    -- from it (a date-like string would otherwise be reparsed as a Date); readers strip the prefix.
-    -- A duplicate key keeps its first value even when that is null, keys with a null or empty
-    -- value are left out (they read back as ''), and invalid JSON gives an empty object.
-    -- On ClickHouse 25.3 an insert needs the JSON type enabled in the inserting user's profile
-    -- (enable_json_type = 1, or compatibility of 25.3 or later); see the 3.2.0 migration.
     `metadata_json` JSON MATERIALIZED CAST(CAST(
         arrayMap(kv -> (kv.1, concat(':', kv.2)),
             arrayFilter((kv, n) -> n = 1 AND kv.2 != '',

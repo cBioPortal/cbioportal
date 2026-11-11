@@ -11,7 +11,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.resource;
  * reads the whole column. So the key, which comes from the request, is spliced into the SQL here,
  * backquoted, which makes any text a single identifier naming that key's path. Every value is
  * stored as a String with a ':' prefix, so that ClickHouse infers no type from it; {@code
- * substring} drops it again. See {@code metadata_json} in schema.sql.
+ * substring} drops it again. See {@code db-scripts/clickhouse/schema_update_notes.md}.
  *
  * <p>The path is read as its typed subcolumn, {@code metadata_json.`key`.:String}, which reads the
  * String values directly rather than casting the path's Dynamic column. Since every stored value is

@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.service.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -10,17 +11,17 @@ public class FisherExactTestCalculatorTest {
 
   @Test
   public void aurkaPValueShouldBeInvariantWhenGroupsAreSwapped() {
-    assertGroupOrderInvariant(299, 1, 298, 2, 1.0, 1e-7);
+    assertGroupOrderInvariant(299, 1, 298, 2, 1.0, 1e-12);
   }
 
   @Test
   public void abl1PValueShouldBeInvariantWhenGroupsAreSwapped() {
-    assertGroupOrderInvariant(296, 4, 298, 2, 0.685927, 1e-8);
+    assertGroupOrderInvariant(296, 4, 298, 2, 0.6859270045884647, 1e-12);
   }
 
   @Test
   public void egfrPValueShouldBeInvariantWhenGroupsAreSwapped() {
-    assertGroupOrderInvariant(265, 35, 285, 15, 0.004582812, 1e-9);
+    assertGroupOrderInvariant(265, 35, 285, 15, 0.00458281202627164, 1e-12);
   }
 
   private void assertGroupOrderInvariant(
@@ -32,5 +33,8 @@ public class FisherExactTestCalculatorTest {
     assertEquals(expected, pValue, delta);
     assertEquals(expected, swappedPValue, delta);
     assertEquals(pValue, swappedPValue, delta);
+
+    assertTrue(pValue <= 1.0);
+    assertTrue(swappedPValue <= 1.0);
   }
 }

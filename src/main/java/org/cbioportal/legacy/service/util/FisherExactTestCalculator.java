@@ -90,7 +90,7 @@ public class FisherExactTestCalculator {
         p += pTemp;
       }
     }
-    return p;
+    return Math.min(1.0, p);
   }
 
   public BigDecimal[] calcqValue(BigDecimal[] pValuesInIncreasingOrder) {

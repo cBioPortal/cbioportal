@@ -34,7 +34,9 @@ public class WebServletContextListener implements ServletContextListener, Initia
   public void contextInitialized(ServletContextEvent arg0) {
     this.properties = loadProperties(getResourceStream("application.properties"));
 
-    this.showOncokb = Boolean.parseBoolean(getProperty("show.oncokb", "true"));
+    this.showOncokb =
+        Boolean.parseBoolean(
+            getProperty("feature.annotation.oncokb", getProperty("show.oncokb", "true")));
     this.oncokbToken = getProperty("oncokb.token", "");
     this.oncokbURL = getProperty("oncokb.public_api.url", "");
 

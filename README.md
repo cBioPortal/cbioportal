@@ -85,7 +85,7 @@ java -Xms2g -Xmx4g \
      -Dspring.datasource.driver-class-name=com.clickhouse.jdbc.ClickHouseDriver \
      -Dspring.jpa.database-platform=org.hibernate.dialect.ClickHouseDialect \
      -Dspring.datasource.url='jdbc:ch://localhost:8123/cbioportal' \
-     -Dshow.civic=true \
+     -Dfeature.annotation.civic=true \
      -Dskin.footer='' \
      -Dapp.name='my-portal' \
      -Ddbconnector=dbcp \

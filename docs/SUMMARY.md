@@ -10,6 +10,7 @@
   * [Tutorials](user-guide/overview.md)
   * [Page Specific Resources](user-guide/by-page.md)
   * [OQL](user-guide/oql.md)
+  * [Install cBioPortal as an app](user-guide/install-as-app.md)
   * [News](News.md)
   * [Genie News](News-Genie.md)
 * [Web API and API Clients](web-API-and-Clients.md)

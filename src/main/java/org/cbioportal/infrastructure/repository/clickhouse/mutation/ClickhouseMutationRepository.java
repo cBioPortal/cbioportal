@@ -3,6 +3,7 @@ package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 import java.util.*;
 import org.cbioportal.domain.mutation.repository.MutationRepository;
 import org.cbioportal.legacy.model.Mutation;
+import org.cbioportal.legacy.model.MutationSpectrum;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.legacy.persistence.mybatis.util.MolecularProfileCaseIdentifierUtil;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
@@ -38,16 +39,11 @@ public class ClickhouseMutationRepository implements MutationRepository {
         molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(
             molecularProfileIds, sampleIds);
 
-    List<String> allMolecularProfileIds = new ArrayList<>(groupedCases.keySet());
-    List<String> allSampleIds =
-        groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
-
     var projection = mutationQueryOptions.projection();
     return switch (projection) {
       case ID ->
           mapper.getMutationsInMultipleMolecularProfilesId(
-              allMolecularProfileIds,
-              allSampleIds,
+              groupedCases,
               entrezGeneIds,
               false,
               mutationQueryOptions.projection().name(),
@@ -56,8 +52,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
               offset);
       case SUMMARY ->
           mapper.getSummaryMutationsInMultipleMolecularProfiles(
-              allMolecularProfileIds,
-              allSampleIds,
+              groupedCases,
               entrezGeneIds,
               false,
               mutationQueryOptions.projection().name(),
@@ -67,8 +62,7 @@ public class ClickhouseMutationRepository implements MutationRepository {
               mutationQueryOptions.direction().name());
       case DETAILED ->
           mapper.getDetailedMutationsInMultipleMolecularProfiles(
-              allMolecularProfileIds,
-              allSampleIds,
+              groupedCases,
               entrezGeneIds,
               false,
               mutationQueryOptions.projection().name(),
@@ -87,10 +81,12 @@ public class ClickhouseMutationRepository implements MutationRepository {
         molecularProfileCaseIdentifierUtil.getGroupedCasesByMolecularProfileId(
             molecularProfileIds, sampleIds);
 
-    List<String> allMolecularProfileIds = new ArrayList<>(groupedCases.keySet());
-    List<String> allSampleIds =
-        groupedCases.values().stream().flatMap(Collection::stream).distinct().toList();
-    return mapper.getMetaMutationsInMultipleMolecularProfiles(
-        allMolecularProfileIds, allSampleIds, entrezGeneIds, false);
+    return mapper.getMetaMutationsInMultipleMolecularProfiles(groupedCases, entrezGeneIds, false);
+  }
+
+  @Override
+  public List<MutationSpectrum> getMutationSpectrums(
+      String molecularProfileId, String sampleListId, List<String> sampleIds) {
+    return mapper.getMutationSpectrums(molecularProfileId, sampleListId, sampleIds);
   }
 }

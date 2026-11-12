@@ -63,7 +63,9 @@ public class GenesetDataControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+                    "/api/legacy/genetic-profiles/"
+                        + geneticProfileId
+                        + "/geneset-genetic-data/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +104,9 @@ public class GenesetDataControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/genetic-profiles/" + geneticProfileId + "/geneset-genetic-data/fetch")
+                    "/api/legacy/genetic-profiles/"
+                        + geneticProfileId
+                        + "/geneset-genetic-data/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

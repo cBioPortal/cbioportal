@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -36,10 +37,13 @@ public class GenesetDataController {
 
   @Autowired private GenesetDataService genesetDataService;
 
+  // Served by ColumnStoreGenesetDataController at the original path. Kept under /api/legacy as a
+  // fallback until the legacy implementation is removed.
+  @Hidden
   @PreAuthorize(
       "hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch",
+      value = "/legacy/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

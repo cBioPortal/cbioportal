@@ -6,6 +6,7 @@
 
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -44,10 +45,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class StructuralVariantController {
   @Autowired private StructuralVariantService structuralVariantService;
 
+  // Served by ColumnStoreStructuralVariantController at the original path. Kept under /api/legacy
+  // as a fallback until the legacy implementation is removed.
+  @Hidden
   @PreAuthorize(
       "hasPermission(#involvedCancerStudies, 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/structural-variant/fetch",
+      value = "/legacy/structural-variant/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

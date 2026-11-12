@@ -2,6 +2,7 @@ package org.cbioportal.domain.mutation.repository;
 
 import java.util.List;
 import org.cbioportal.legacy.model.Mutation;
+import org.cbioportal.legacy.model.MutationSpectrum;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 import org.cbioportal.shared.MutationQueryOptions;
 
@@ -45,4 +46,14 @@ public interface MutationRepository {
    */
   MutationMeta getMetaMutationsInMultipleMolecularProfiles(
       List<String> molecularProfileIds, List<String> sampleIds, List<Integer> entrezGeneIds);
+
+  /**
+   * Counts the single nucleotide variants of each sample of a mutation profile by substitution
+   * type. Only samples with at least one such variant are returned.
+   *
+   * @param sampleListId sample list restricting the samples, or null
+   * @param sampleIds stable sample ids restricting the samples, or null
+   */
+  List<MutationSpectrum> getMutationSpectrums(
+      String molecularProfileId, String sampleListId, List<String> sampleIds);
 }

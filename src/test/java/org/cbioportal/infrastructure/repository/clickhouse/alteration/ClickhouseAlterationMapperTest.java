@@ -426,7 +426,9 @@ public class ClickhouseAlterationMapperTest {
   public void getEntityToGenePanels() {
     var result =
         mapper.getEntityToGenePanels(
-            List.of(SAMPLE_UNIQUE_ID), List.of(MUTATION_PROFILE_ID), "sample_unique_id");
+            new String[] {SAMPLE_UNIQUE_ID},
+            new String[] {MUTATION_PROFILE_ID},
+            "sample_unique_id");
 
     assertFalse(result.isEmpty());
     result.forEach(
@@ -439,7 +441,9 @@ public class ClickhouseAlterationMapperTest {
     // the one selected and filtered on
     var result =
         mapper.getEntityToGenePanels(
-            List.of(PATIENT_UNIQUE_ID), List.of(MUTATION_PROFILE_ID), "patient_unique_id");
+            new String[] {PATIENT_UNIQUE_ID},
+            new String[] {MUTATION_PROFILE_ID},
+            "patient_unique_id");
 
     assertEquals(1, result.size());
     var entityToPanel = result.get(0);
@@ -458,14 +462,14 @@ public class ClickhouseAlterationMapperTest {
     assertTrue(
         mapper
             .getEntityToGenePanels(
-                List.of(unionPayload), List.of(MUTATION_PROFILE_ID), "sample_unique_id")
+                new String[] {unionPayload}, new String[] {MUTATION_PROFILE_ID}, "sample_unique_id")
             .isEmpty());
 
     // Had the payload ended up in the SQL, this would return the panels of every sample
     var result =
         mapper.getEntityToGenePanels(
-            List.of(SAMPLE_UNIQUE_ID, tautologyPayload),
-            List.of(MUTATION_PROFILE_ID),
+            new String[] {SAMPLE_UNIQUE_ID, tautologyPayload},
+            new String[] {MUTATION_PROFILE_ID},
             "sample_unique_id");
     assertFalse(result.isEmpty());
     result.forEach(
@@ -476,8 +480,8 @@ public class ClickhouseAlterationMapperTest {
   public void getEntityToGenePanelsTreatsProfileIdsAsValuesNotAsSql() {
     var result =
         mapper.getEntityToGenePanels(
-            List.of(SAMPLE_UNIQUE_ID),
-            List.of("x') OR 1=1 --", MUTATION_PROFILE_ID),
+            new String[] {SAMPLE_UNIQUE_ID},
+            new String[] {"x') OR 1=1 --", MUTATION_PROFILE_ID},
             "sample_unique_id");
 
     assertFalse(result.isEmpty());
@@ -490,8 +494,8 @@ public class ClickhouseAlterationMapperTest {
     // The column is not bound as a parameter, so it must never be taken from the input as is
     var result =
         mapper.getEntityToGenePanels(
-            List.of(SAMPLE_UNIQUE_ID),
-            List.of(MUTATION_PROFILE_ID),
+            new String[] {SAMPLE_UNIQUE_ID},
+            new String[] {MUTATION_PROFILE_ID},
             "sample_unique_id FROM cancer_study --");
 
     assertFalse(result.isEmpty());

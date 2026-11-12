@@ -241,7 +241,6 @@ public class GenericAssayDataController {
     if (genericAssayDataMultipleStudyFilter == null) {
       return false;
     }
-
     boolean hasMolecularProfileIds =
         !CollectionUtils.isEmpty(genericAssayDataMultipleStudyFilter.getMolecularProfileIds());
     boolean hasSampleMolecularIdentifiers =

@@ -8,6 +8,7 @@ import java.util.Set;
 import org.cbioportal.application.file.export.exporters.GenePanelMatrixDatatypeExporter;
 import org.cbioportal.application.file.export.services.GenePanelMatrixService;
 import org.cbioportal.application.file.model.GenePanelMatrixItem;
+import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.cbioportal.application.file.model.Table;
 import org.cbioportal.application.file.utils.CloseableIterator;
 import org.junit.Test;
@@ -45,6 +46,10 @@ public class GenePanelMatrixDatatypeExporterTests {
     try (var table = exporter.getData("demo", Set.of("sample1"))) {
       assertEquals(List.of("SAMPLE_ID", "demo_mutations"), List.copyOf(table.getHeader()));
       assertEquals(Map.of("SAMPLE_ID", "sample1", "demo_mutations", "panel1"), table.next());
+      var metadata = new GeneticProfileDatatypeMetadata();
+      metadata.setCancerStudyIdentifier("demo");
+      metadata.setStableId("demo_demo_mutations");
+      assertEquals(table.getHeader().getLast(), metadata.toMetadataKeyValues().get("stable_id"));
     }
   }
 }

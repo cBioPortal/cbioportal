@@ -23,7 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-@ConditionalOnExpression("{'oauth2','saml','optional_oauth2'}.contains('${authenticate}')")
+@ConditionalOnExpression(
+    "{'oauth2','saml','saml_plus_basic','optional_oauth2'}.contains('${authenticate}')")
 public class LoginPageController {
   private static final Logger log = LoggerFactory.getLogger(LoginPageController.class);
 

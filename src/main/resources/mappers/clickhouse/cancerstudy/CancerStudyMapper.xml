@@ -116,6 +116,13 @@
         -->
     </select>
 
+    <select id="getCancerStudyIdentifier" resultType="String">
+        SELECT cancer_study_identifier
+        FROM cancer_study
+        WHERE cancer_study_identifier = #{studyId}
+        LIMIT 1
+    </select>
+
     <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">
         WITH sample_counts as (
             SELECT

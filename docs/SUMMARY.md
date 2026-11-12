@@ -31,6 +31,7 @@
     * [Authenticating Users via LDAP](deployment/authorization-and-authentication/Authenticating-Users-via-LDAP.md)
     * [Authenticating and Authorizing Users via Keycloak](deployment/authorization-and-authentication/Authenticating-and-Authorizing-Users-via-keycloak.md)
     * [Authenticating Users via Tokens](deployment/authorization-and-authentication/Authenticating-Users-via-Tokens.md)
+    * [Authorizing Proxied Services by Study](deployment/authorization-and-authentication/Authorizing-Proxied-Services.md)
     * [Keycloak Management via API and User creation](deployment/authorization-and-authentication/Keycloak-API-Access-and-User-Creation.md)
   * [Customization](deployment/customization/Customizing-your-instance-of-cBioPortal.md)
     * [Customizing your cBioPortal Instance via application.properties](deployment/customization/Customizing-your-instance-of-cBioPortal.md)

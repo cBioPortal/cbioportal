@@ -105,6 +105,6 @@ public class GenePanelMatrixDatatypeExporter
 
   private static String withoutStudySuffix(String studyId, String stableId) {
     var removePrefix = studyId + "_";
-    return stableId.replace(removePrefix, "");
+    return stableId.startsWith(removePrefix) ? stableId.substring(removePrefix.length()) : stableId;
   }
 }

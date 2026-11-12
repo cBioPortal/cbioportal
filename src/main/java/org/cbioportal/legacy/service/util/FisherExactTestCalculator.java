@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class FisherExactTestCalculator {
 
+  private static final double RELATIVE_TOLERANCE = 1e-7;
+
   private double getPValue(int a, int b, int c, int d, double[] f) {
 
     int n = a + b + c + d;
@@ -70,12 +72,12 @@ public class FisherExactTestCalculator {
     min = (c < b) ? c : b;
     for (i = 0; i < min; i++) {
       double tempP = getPValue(++a, --b, --c, ++d, f);
-      if (tempP <= baseP) {
+      if (tempP <= baseP * (1.0 + RELATIVE_TOLERANCE)) {
         p += tempP;
       }
     }
 
-    // reset the values to their original so we can repeat this process for the other side
+    // Reset the values to their original state before checking the other side.
     a = initialA;
     b = initialB;
     c = initialC;
@@ -84,7 +86,7 @@ public class FisherExactTestCalculator {
     min = (a < d) ? a : d;
     for (i = 0; i < min; i++) {
       double pTemp = getPValue(--a, ++b, ++c, --d, f);
-      if (pTemp <= baseP) {
+      if (pTemp <= baseP * (1.0 + RELATIVE_TOLERANCE)) {
         p += pTemp;
       }
     }

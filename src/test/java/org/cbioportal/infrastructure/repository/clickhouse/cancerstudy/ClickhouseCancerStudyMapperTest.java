@@ -17,10 +17,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
- * Covers {@code getResourceCountsForAllStudies}, which had no coverage at all and was still reading
- * the legacy resource_sample/resource_patient tables after the importer stopped writing them. The
- * test schema's stale copies of those tables were what kept it passing; once the test schema
- * matched production, the query could not resolve its tables.
+ * Covers {@code getCancerStudyIdentifier} and {@code getResourceCountsForAllStudies}. The latter
+ * had no coverage at all and was still reading the legacy resource_sample/resource_patient tables
+ * after the importer stopped writing them. The test schema's stale copies of those tables were what
+ * kept it passing; once the test schema matched production, the query could not resolve its tables.
  */
 @RunWith(SpringRunner.class)
 @Import(MyBatisConfig.class)
@@ -58,5 +58,11 @@ public class ClickhouseCancerStudyMapperTest {
           .as("sampleCount for HE_SLIDE in %s", count.cancerStudyIdentifier())
           .isLessThanOrEqualTo(2);
     }
+  }
+
+  @Test
+  public void getCancerStudyIdentifier_findsExistingStudyOnly() {
+    assertThat(mapper.getCancerStudyIdentifier("study_tcga_pub")).isEqualTo("study_tcga_pub");
+    assertThat(mapper.getCancerStudyIdentifier("no_such_study")).isNull();
   }
 }

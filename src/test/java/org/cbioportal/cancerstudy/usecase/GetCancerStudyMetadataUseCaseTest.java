@@ -2,7 +2,9 @@ package org.cbioportal.cancerstudy.usecase;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.cbioportal.domain.cancerstudy.repository.CancerStudyRepository;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
 import org.cbioportal.shared.SortAndSearchCriteria;
@@ -41,5 +43,19 @@ public class GetCancerStudyMetadataUseCaseTest {
         getCancerStudyMetadataUseCase
             .execute(ProjectionType.META, new SortAndSearchCriteria("", "", "", null, null))
             .isEmpty());
+  }
+
+  @Test
+  public void findStudyIdentifierReturnsStoredIdentifier() {
+    when(cancerStudyRepository.getCancerStudyIdentifier("acc_tcga")).thenReturn("acc_tcga");
+
+    Assert.assertEquals(
+        Optional.of("acc_tcga"), getCancerStudyMetadataUseCase.findStudyIdentifier("acc_tcga"));
+  }
+
+  @Test
+  public void findStudyIdentifierIsEmptyForUnknownStudy() {
+    Assert.assertEquals(
+        Optional.empty(), getCancerStudyMetadataUseCase.findStudyIdentifier("no_such_study"));
   }
 }

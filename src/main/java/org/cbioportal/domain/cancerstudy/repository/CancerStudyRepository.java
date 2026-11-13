@@ -70,5 +70,14 @@ public interface CancerStudyRepository {
 
   CancerStudyMetadata getCancerStudyMetadata(String studyId);
 
+  /**
+   * Looks up a cancer study identifier without loading the study's metadata. Suited to cheap
+   * existence checks.
+   *
+   * @param studyId the cancer study identifier to look up
+   * @return the stored identifier, or {@code null} if no study has it
+   */
+  String getCancerStudyIdentifier(String studyId);
+
   List<ResourceCount> getResourceCountsForAllStudies();
 }

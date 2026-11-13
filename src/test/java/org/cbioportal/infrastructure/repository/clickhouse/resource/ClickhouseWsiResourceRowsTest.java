@@ -47,7 +47,13 @@ public class ClickhouseWsiResourceRowsTest {
             10_000,
             null,
             null,
-            null));
+            null,
+            null,
+            null,
+            null,
+            null,
+            null),
+        null);
   }
 
   @Test

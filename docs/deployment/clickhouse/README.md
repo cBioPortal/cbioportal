@@ -2,6 +2,29 @@
 
 Starting with version 7, cBioPortal uses [ClickHouse](https://clickhouse.com/) as its sole database. This guide will help you set up and configure a ClickHouse-backed cBioPortal instance.
 
+> **Minimum ClickHouse version: 25.3.** From database schema `3.2.0` the `resource` table also
+> keeps each row's metadata in a `JSON` column, `metadata_json`, which lets the resource tables
+> filter and count on a few metadata keys without parsing every row's whole document. ClickHouse
+> fills the column itself whenever a row is written, so on ClickHouse **25.3** the `JSON` type must
+> be enabled wherever that happens. It is enabled by default, but a profile whose `compatibility`
+> setting names a release before 25.3 turns it off; such a profile then needs
+> `enable_json_type = 1`, or a `compatibility` of 25.3 or later:
+>
+> - **The server's default profile.** The `3.2.0` migration fills the column for existing rows
+>   with `ALTER TABLE ... MATERIALIZE COLUMN`, and an `ALTER TABLE ... UPDATE` of `metadata`
+>   refills it. Both run as background mutations, which use the server's default profile rather
+>   than the session's settings, so a session `SET` does not help them. The migration checks this
+>   before it changes anything and stops with a message naming the setting.
+> - **The importer's user.** Every insert into `resource` computes the column under the inserting
+>   user's profile. This is the user cbioportal-core's importer connects as; if its profile turns
+>   the type off, its inserts into `resource` fail.
+>
+> The portal only reads the column and needs no setting. On ClickHouse 25.8 and 26.2 the `JSON`
+> type is allowed whatever these settings say, so neither profile needs a change there.
+>
+> The migration user needs a few privileges for this section beyond reading and writing rows; see
+> [the privileges it needs](#migrating-to-schema-320).
+
 ## Table of Contents
 
 1. [Installing the ClickHouse CLI](#1-installing-the-clickhouse-cli)
@@ -328,6 +351,17 @@ statements already succeeded:
 GRANT SHOW COLUMNS, SELECT ON system.mutations TO <your_clickhouse_user>;
 ```
 
+The `3.2.0` section also creates and drops a one-row table, `metadata_json_probe`, in the cBioPortal
+database to check that the server can write a `JSON` column before it changes `resource`. It is an
+ordinary table, not a temporary one, because ClickHouse Cloud does not allow MergeTree temporary
+tables. If the check fails, the table stays behind with its failed mutation, and the next run drops it.
+The section also reads `system.parts_columns` to check that every part of `resource` holds the new
+column afterwards:
+
+```sql
+GRANT SHOW COLUMNS, SELECT ON system.parts_columns TO <your_clickhouse_user>;
+```
+
 Upgrades from **before** `3.0.0` (i.e. the original v6→v7 migration, or any pre-migration-tooling
 ClickHouse deployment) still require the manual re-import process, since no migration path exists
 for versions prior to `3.0.0`:
@@ -400,6 +434,42 @@ For clickhouse server versions between 24.10 and 25.6:
 
 For clickhouse server versions beginning with 25.7 and onward:
 `GRANT READ ON REMOTE TO my_cbioportal_admin`
+
+#### Migrating to schema 3.2.0
+
+The `3.2.0` migration adds the `metadata_json` column to `resource`. Before it changes `resource`
+it checks that the server can write the column: it creates an ordinary one-row table,
+`metadata_json_probe`, adds the column to it, materializes it, and drops the table again. It then
+adds and materializes the column on `resource` and checks the result. The migration user therefore
+needs, on the database:
+
+- `CREATE TABLE`, `INSERT`, `SELECT` and `DROP TABLE`, for the probe table;
+- `ALTER ADD COLUMN` and `ALTER MATERIALIZE COLUMN`, on the probe table and on `resource`;
+
+and, to follow the mutations and read their failures:
+
+- `SELECT` on `system.mutations`.
+
+The broad grants above already include all of these (`ALTER` covers `ALTER ADD COLUMN` and
+`ALTER MATERIALIZE COLUMN`). A role restricted to exactly these would be granted, for example:
+
+```sql
+GRANT CREATE TABLE, DROP TABLE, INSERT, SELECT, ALTER ADD COLUMN, ALTER MATERIALIZE COLUMN
+    ON my_cbioportal_db.* TO my_cbioportal_admin;
+GRANT SELECT ON system.mutations TO my_cbioportal_admin;
+```
+
+On ClickHouse Cloud, a role that may not create tables, or that has no access to
+`system.mutations`, stops the migration at the probe with an `ACCESS_DENIED` error, before
+`resource` has changed. Grant the privileges above and run the migration again. The migration does
+not use temporary tables, so it needs no `CREATE TEMPORARY TABLE` or
+`CREATE ARBITRARY TEMPORARY TABLE` grant, and it does not read `system.parts_columns`: that the
+column has been written to every part of `resource` is checked from the finished mutation in
+`system.mutations` instead.
+
+If the probe fails because the server's default profile does not allow the `JSON` type, the
+migration stops with a message naming the setting, and leaves only `metadata_json_probe`, with its
+failed mutation, behind. The next run drops that table before probing again.
 
 By using restricted-privilege Clickhouse users, a compromised user account would be limited to improper
 data access or disruption related to a particular cBioPortal deployment. Other databases operating on

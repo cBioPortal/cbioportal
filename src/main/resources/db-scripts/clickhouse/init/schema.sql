@@ -604,7 +604,14 @@ CREATE TABLE resource (
     `sample_id` Nullable(String),
     `url` String,
     `display_name` Nullable(String),
-    `metadata` Nullable(String)
+    `metadata` Nullable(String),
+    `metadata_json` JSON MATERIALIZED CAST(CAST(
+        arrayMap(kv -> (kv.1, concat(':', kv.2)),
+            arrayFilter((kv, n) -> n = 1 AND kv.2 != '',
+                arrayMap(kv -> (kv.1, if(startsWith(kv.2, '"'), JSONExtractString(concat('[', kv.2, ']'), 1), if(kv.2 = 'null', '', kv.2))),
+                    JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}'))),
+                arrayEnumerateUniq(arrayMap(kv -> kv.1, JSONExtractKeysAndValuesRaw(ifNull(metadata, '{}')))))),
+        'Map(String, String)'), 'JSON')
 ) ENGINE = MergeTree ORDER BY (cancer_study_id, resource_id, patient_id, sample_id, internal_id)
   SETTINGS allow_nullable_key = 1;
 
@@ -729,4 +736,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.1.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.2.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

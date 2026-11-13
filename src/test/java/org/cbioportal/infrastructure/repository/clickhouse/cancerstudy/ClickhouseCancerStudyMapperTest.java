@@ -59,4 +59,22 @@ public class ClickhouseCancerStudyMapperTest {
           .isLessThanOrEqualTo(2);
     }
   }
+
+  @Test
+  public void getResourceCountsForAllStudies_carryTheDefinitionsUrlTemplate() {
+    List<ResourceCount> counts = mapper.getResourceCountsForAllStudies();
+
+    assertThat(counts)
+        .filteredOn(c -> "TEMPLATED_SLIDE".equals(c.resourceId()))
+        .isNotEmpty()
+        .allMatch(
+            c ->
+                ("${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}"
+                        + "&slideKey=${metadata.slide_key}")
+                    .equals(c.urlTemplate()));
+    assertThat(counts)
+        .filteredOn(c -> "HE_SLIDE".equals(c.resourceId()))
+        .isNotEmpty()
+        .allMatch(c -> c.urlTemplate() == null);
+  }
 }

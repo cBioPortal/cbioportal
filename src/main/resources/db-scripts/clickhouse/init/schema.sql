@@ -591,7 +591,8 @@ CREATE TABLE resource_definition (
     `open_by_default` Nullable(Int32),
     `priority` Int64,
     `cancer_study_id` Int64,
-    `custom_metadata` Nullable(String)
+    `custom_metadata` Nullable(String),
+    `url_template` Nullable(String)
 ) ENGINE = MergeTree ORDER BY (resource_id, cancer_study_id);
 
 -- this table replaced tables resource_sample, resource_patient, and resource_study
@@ -729,4 +730,4 @@ CREATE TABLE users (
     `enabled` Int32
 ) ENGINE = MergeTree ORDER BY (email);
 
-INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.1.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');
+INSERT INTO info (`db_schema_version`, `geneset_version`, `gene_table_version`) VALUES ('3.2.0', 'msigdb_v2025.1.Hs', 'hgnc_v7_2025.10.7');

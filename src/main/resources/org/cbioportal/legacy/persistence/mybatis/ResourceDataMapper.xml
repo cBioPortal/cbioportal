@@ -10,6 +10,8 @@
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , resource_sample.url AS "${prefix}url"
+            , <include refid="urlTemplate"/> AS "${prefix}urlTemplate"
+            , if(empty(resource_sample.url), resource_sample.metadata, NULL) AS "${prefix}metadata"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -25,6 +27,8 @@
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , resource_patient.url AS "${prefix}url"
+            , <include refid="urlTemplate"/> AS "${prefix}urlTemplate"
+            , if(empty(resource_patient.url), resource_patient.metadata, NULL) AS "${prefix}metadata"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -39,6 +43,8 @@
         cancer_study.cancer_study_identifier AS "${prefix}studyId"
         <if test="projection == 'SUMMARY' || projection == 'DETAILED'">
             , resource_study.url AS "${prefix}url"
+            , <include refid="urlTemplate"/> AS "${prefix}urlTemplate"
+            , if(empty(resource_study.url), resource_study.metadata, NULL) AS "${prefix}metadata"
         </if>
         <if test="projection == 'DETAILED'">
             ,
@@ -53,31 +59,65 @@
         resource_sample/resource_patient/resource_study. resource stores stable IDs, so the
         joins onto sample/patient go through stable_id; those are unique only within a study, so
         every join is scoped by cancer_study_id.
+
+        Each row also carries its definition's url_template and, when its own URL is empty, its
+        metadata, from which the controller expands the URL the row is served with. DETAILED reads
+        the template from the resource_definition join it already makes for the definition fields;
+        SUMMARY joins one deduplicated row per (resource_id, cancer_study_id), so a definition
+        loaded twice cannot multiply the rows served.
     -->
+    <sql id="urlTemplateDefinition">
+        (SELECT resource_id, cancer_study_id, any(url_template) AS template
+         FROM resource_definition
+         WHERE url_template IS NOT NULL AND url_template != ''
+         GROUP BY resource_id, cancer_study_id) AS url_template_definition
+    </sql>
+
+    <sql id="urlTemplate">
+        <choose>
+            <when test="projection == 'DETAILED'">nullIf(resource_definition.url_template, '')</when>
+            <otherwise>url_template_definition.template</otherwise>
+        </choose>
+    </sql>
     <sql id="fromSample">
-        FROM (SELECT resource_id, cancer_study_id, sample_id, url
+        FROM (SELECT resource_id, cancer_study_id, sample_id, url, metadata
               FROM resource
               WHERE resource_scope = 'SAMPLE' AND sample_id IS NOT NULL) AS resource_sample
         INNER JOIN cancer_study ON resource_sample.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN sample ON sample.stable_id = resource_sample.sample_id
         INNER JOIN patient ON sample.patient_id = patient.internal_id
                           AND patient.cancer_study_id = resource_sample.cancer_study_id
+        <if test="projection == 'SUMMARY'">
+        LEFT JOIN <include refid="urlTemplateDefinition"/>
+               ON url_template_definition.resource_id = resource_sample.resource_id
+              AND url_template_definition.cancer_study_id = resource_sample.cancer_study_id
+        </if>
     </sql>
 
     <sql id="fromPatient">
-        FROM (SELECT resource_id, cancer_study_id, patient_id, url
+        FROM (SELECT resource_id, cancer_study_id, patient_id, url, metadata
               FROM resource
               WHERE resource_scope = 'PATIENT' AND patient_id IS NOT NULL) AS resource_patient
         INNER JOIN cancer_study ON resource_patient.cancer_study_id = cancer_study.cancer_study_id
         INNER JOIN patient ON patient.stable_id = resource_patient.patient_id
                           AND patient.cancer_study_id = resource_patient.cancer_study_id
+        <if test="projection == 'SUMMARY'">
+        LEFT JOIN <include refid="urlTemplateDefinition"/>
+               ON url_template_definition.resource_id = resource_patient.resource_id
+              AND url_template_definition.cancer_study_id = resource_patient.cancer_study_id
+        </if>
     </sql>
 
     <sql id="fromStudy">
-        FROM (SELECT resource_id, cancer_study_id, url
+        FROM (SELECT resource_id, cancer_study_id, url, metadata
               FROM resource
               WHERE resource_scope = 'STUDY') AS resource_study
         INNER JOIN cancer_study ON resource_study.cancer_study_id = cancer_study.cancer_study_id
+        <if test="projection == 'SUMMARY'">
+        LEFT JOIN <include refid="urlTemplateDefinition"/>
+               ON url_template_definition.resource_id = resource_study.resource_id
+              AND url_template_definition.cancer_study_id = resource_study.cancer_study_id
+        </if>
     </sql>
 
     <sql id="whereSample">

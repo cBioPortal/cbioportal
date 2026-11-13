@@ -11,6 +11,7 @@ public record ResourceCount(
     Boolean openByDefault,
     String cancerStudyIdentifier,
     String customMetaData,
+    String urlTemplate,
     Integer sampleCount,
     Integer patientCount)
     implements Serializable {}

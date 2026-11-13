@@ -754,3 +754,19 @@ values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://po
 insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
 values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=b3286836fc27','H&E, Initial - Specimen 1 / Block 1','{"slide_key":"b3286836fc27","reference_sample_id":"WSI-SAMPLE","part_key":"part:b3286836fc27","part_number":"1","part_type":"SMALL BOWEL","part_description":"Specimen 1","block_key":"block:b3286836fc27","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::part:b3286836fc27::block:b3286836fc27"}');
 
+
+-- URL template fixtures. TEMPLATED_SLIDE's rows mostly carry no URL of their own; the portal
+-- expands the definition's url_template for them. Row 900203 has a URL, which wins.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, url_template)
+values ('TEMPLATED_SLIDE',9001,'SAMPLE','Templated slides','Slides linked through a URL template',0,2,'${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900201,'TEMPLATED_SLIDE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','','Templated sample slide','{"slide_key":"c0ffee000001"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900202,'TEMPLATED_SLIDE',9001,'PATIENT','WSI-PATIENT',NULL,'','Templated patient slide','{"slide_key":"c0ffee000002"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900203,'TEMPLATED_SLIDE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://example.com/own-url.svs','Slide with its own URL','{"slide_key":"c0ffee000003"}');
+-- A second templated resource in the same study, with a template of its own.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, url_template)
+values ('TEMPLATED_VIEWER',9001,'PATIENT','Templated viewer','Viewer links through a second URL template',0,3,'https://viewer.example.org/${RESOURCE_ID}/${metadata.slide_key}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900204,'TEMPLATED_VIEWER',9001,'PATIENT','WSI-PATIENT',NULL,'','Templated viewer link','{"slide_key":"c0ffee000004"}');

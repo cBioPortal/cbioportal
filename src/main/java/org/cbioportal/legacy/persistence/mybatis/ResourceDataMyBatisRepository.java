@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
+import org.cbioportal.domain.resource.ResourceUrlTemplate;
 import org.cbioportal.legacy.model.ResourceData;
 import org.cbioportal.legacy.persistence.ResourceDataRepository;
 import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
@@ -23,15 +24,16 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataOfSampleInStudy(
-        studyId,
-        sampleId,
-        resourceId,
-        projection,
-        pageSize,
-        PaginationCalculator.offset(pageSize, pageNumber),
-        sortBy,
-        direction);
+    return retainTemplateMetadata(
+        resourceDataMapper.getResourceDataOfSampleInStudy(
+            studyId,
+            sampleId,
+            resourceId,
+            projection,
+            pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber),
+            sortBy,
+            direction));
   }
 
   @Override
@@ -45,15 +47,16 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataOfPatientInStudy(
-        studyId,
-        patientId,
-        resourceId,
-        projection,
-        pageSize,
-        PaginationCalculator.offset(pageSize, pageNumber),
-        sortBy,
-        direction);
+    return retainTemplateMetadata(
+        resourceDataMapper.getResourceDataOfPatientInStudy(
+            studyId,
+            patientId,
+            resourceId,
+            projection,
+            pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber),
+            sortBy,
+            direction));
   }
 
   @Override
@@ -66,14 +69,15 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataForStudy(
-        studyId,
-        resourceId,
-        projection,
-        pageSize,
-        PaginationCalculator.offset(pageSize, pageNumber),
-        sortBy,
-        direction);
+    return retainTemplateMetadata(
+        resourceDataMapper.getResourceDataForStudy(
+            studyId,
+            resourceId,
+            projection,
+            pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber),
+            sortBy,
+            direction));
   }
 
   @Override
@@ -86,15 +90,16 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataOfPatientInStudy(
-        studyId,
-        null,
-        resourceId,
-        projection,
-        pageSize,
-        PaginationCalculator.offset(pageSize, pageNumber),
-        sortBy,
-        direction);
+    return retainTemplateMetadata(
+        resourceDataMapper.getResourceDataOfPatientInStudy(
+            studyId,
+            null,
+            resourceId,
+            projection,
+            pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber),
+            sortBy,
+            direction));
   }
 
   @Override
@@ -107,14 +112,41 @@ public class ResourceDataMyBatisRepository implements ResourceDataRepository {
       String sortBy,
       String direction) {
 
-    return resourceDataMapper.getResourceDataOfSampleInStudy(
-        studyId,
-        null,
-        resourceId,
-        projection,
-        pageSize,
-        PaginationCalculator.offset(pageSize, pageNumber),
-        sortBy,
-        direction);
+    return retainTemplateMetadata(
+        resourceDataMapper.getResourceDataOfSampleInStudy(
+            studyId,
+            null,
+            resourceId,
+            projection,
+            pageSize,
+            PaginationCalculator.offset(pageSize, pageNumber),
+            sortBy,
+            direction));
+  }
+
+  /**
+   * Keeps of each row's metadata only what its URL template reads, and drops it from rows that do
+   * not need it.
+   *
+   * <p>The rows are cached (the study-wide ones in the static repository cache), and a templated
+   * row's full metadata JSON can be large. Trimming here, as the rows are loaded, keeps that cost
+   * out of the cache while leaving the controller everything it needs to expand the URL.
+   */
+  static List<ResourceData> retainTemplateMetadata(List<ResourceData> rows) {
+    if (rows == null) {
+      return null;
+    }
+    for (ResourceData row : rows) {
+      if (row.getMetadata() == null) {
+        continue;
+      }
+      if (row.getUrlTemplate() == null || ResourceUrlTemplate.hasUrl(row.getUrl())) {
+        row.setMetadata(null);
+      } else {
+        row.setMetadata(
+            ResourceUrlTemplate.retainTemplateMetadata(row.getMetadata(), row.getUrlTemplate()));
+      }
+    }
+    return rows;
   }
 }

@@ -6,6 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.List;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
@@ -53,6 +54,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 @ContextConfiguration(
     classes = {
       ResourceTableController.class,
+      PortalBaseUrl.class,
       TestConfig.class,
       ResourceTableControllerSecurityTest.MethodSecurityTestConfig.class
     })
@@ -159,7 +161,8 @@ public class ResourceTableControllerSecurityTest {
   public void queryFetch_permittedUser_isAllowedAndCheckedAgainstTheRequestedStudies()
       throws Exception {
     grant(true);
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(null);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(null);
 
     mockMvc
         .perform(

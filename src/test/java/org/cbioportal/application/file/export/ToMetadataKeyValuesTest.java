@@ -5,11 +5,29 @@ import static org.junit.Assert.assertEquals;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.cbioportal.application.file.model.CancerStudyMetadata;
+import org.cbioportal.application.file.model.CaseListMetadata;
 import org.cbioportal.application.file.model.ClinicalAttributesMetadata;
 import org.cbioportal.application.file.model.GeneticProfileDatatypeMetadata;
 import org.junit.Test;
 
 public class ToMetadataKeyValuesTest {
+
+  @Test
+  public void testCaseListStableIdRemovesOnlyLeadingStudyPrefix() {
+    var metadata = new CaseListMetadata();
+    metadata.setCancerStudyIdentifier("demo");
+    metadata.setStableId("demo_demo_sequenced");
+    assertEquals("demo_sequenced", metadata.getCaseListTypeStableId());
+    metadata.setStableId("other_demo_sequenced");
+    assertEquals("other_demo_sequenced", metadata.getCaseListTypeStableId());
+    metadata.setStableId("demo_sequenced");
+    assertEquals("sequenced", metadata.getCaseListTypeStableId());
+    metadata.setStableId(null);
+    assertEquals(null, metadata.getCaseListTypeStableId());
+    metadata.setStableId("demo_sequenced");
+    metadata.setCancerStudyIdentifier(null);
+    assertEquals("demo_sequenced", metadata.getCaseListTypeStableId());
+  }
 
   @Test
   public void testCancerStudyMetadataMetadata() {

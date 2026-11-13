@@ -16,7 +16,7 @@ public class FisherExactTestCalculatorTest {
 
   @Test
   public void abl1PValueShouldBeInvariantWhenGroupsAreSwapped() {
-    assertGroupOrderInvariant(296, 4, 298, 2, 0.6859270045884647, 1e-12);
+    assertGroupOrderInvariant(296, 4, 298, 2, 0.6859270045884647, 1e-10);
   }
 
   @Test

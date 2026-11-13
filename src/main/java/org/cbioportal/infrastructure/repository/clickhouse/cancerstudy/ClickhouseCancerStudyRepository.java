@@ -79,9 +79,12 @@ public class ClickhouseCancerStudyRepository implements CancerStudyRepository {
   }
 
   @Override
+  // Not caching misses: a study imported after a miss would otherwise stay unknown until the cache
+  // is cleared.
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()",
+      unless = "#result == null")
   public String getCancerStudyIdentifier(String studyId) {
     return cancerStudyMapper.getCancerStudyIdentifier(studyId);
   }

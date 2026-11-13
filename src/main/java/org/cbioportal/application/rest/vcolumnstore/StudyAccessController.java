@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Optional;
 import org.cbioportal.application.rest.availability.StudyUnavailableException;
+import org.cbioportal.application.security.CancerStudyPermissionEvaluator;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
-import org.cbioportal.legacy.web.config.PublicApiTags;
-import org.cbioportal.legacy.web.config.annotation.PublicApi;
+import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,13 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
  * Answers whether the caller may read a study, for reverse proxies that authorize requests to other
  * services with a subrequest (nginx {@code auth_request}, ingress-nginx {@code auth-url}).
  *
- * <p>The answer is a bare status: 204 when the study is readable, 401 when authentication is
- * required and missing, and 403 otherwise. An unknown study, and a study being (re)imported, are
- * also 403: a proxy treats any other status as an error, and a distinct status for unknown studies
- * would reveal which studies exist.
+ * <p>The answer is a bare status: 204 when the study is readable, 401 when the API requires
+ * authentication and the request has none, and 403 otherwise. An unknown study, and a study being
+ * (re)imported, are also 403: a proxy treats any other status as an error, and a distinct status
+ * for unknown studies would reveal which studies exist.
+ *
+ * <p>Internal rather than public API: it serves reverse proxies in front of other services, not API
+ * clients, which read studies through {@code /api/studies/{studyId}}.
  */
-@PublicApi
-@Tag(name = PublicApiTags.STUDIES, description = " ")
+@InternalApi
+@Tag(name = "Study Access", description = " ")
 @RestController
 @RequestMapping("/api")
 public class StudyAccessController {
@@ -50,9 +55,18 @@ public class StudyAccessController {
       new AuthenticationTrustResolverImpl();
 
   private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
+  private final CacheMapUtil cacheMapUtil;
 
-  public StudyAccessController(GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase) {
+  /** Whether study permissions are enforced, i.e. method security and its evaluator are active. */
+  private final boolean permissionsEnforced;
+
+  public StudyAccessController(
+      GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
+      CacheMapUtil cacheMapUtil,
+      Optional<CancerStudyPermissionEvaluator> permissionEvaluator) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
+    this.cacheMapUtil = cacheMapUtil;
+    this.permissionsEnforced = permissionEvaluator.isPresent();
   }
 
   @PreAuthorize(
@@ -68,10 +82,17 @@ public class StudyAccessController {
       headers = {
         @Header(
             name = USER_HEADER,
-            description = "Name of the authenticated user; absent for anonymous callers"),
+            description =
+                "Name of the authenticated user (Authentication.getName()); absent for anonymous"
+                    + " callers"),
         @Header(name = STUDY_HEADER, description = "Identifier of the study that was checked")
       })
-  @ApiResponse(responseCode = "401", description = "Authentication is required", content = @Content)
+  @ApiResponse(
+      responseCode = "401",
+      description =
+          "The API requires authentication and the request has none; never returned with"
+              + " authenticate=optional_oauth2",
+      content = @Content)
   @ApiResponse(
       responseCode = "403",
       description = "The caller may not read the study, or no such study is available",
@@ -79,12 +100,18 @@ public class StudyAccessController {
   public ResponseEntity<Void> checkStudyAccess(
       @Parameter(required = true, description = "Study ID e.g. acc_tcga") @PathVariable
           String studyId) {
-    // With method security on, the permission evaluator has already refused studies missing from
-    // its cache. Without it (authenticate=false), this lookup is the only existence check.
     String studyIdentifier =
         getCancerStudyMetadataUseCase
             .findStudyIdentifier(studyId)
             .orElseThrow(() -> new AccessDeniedException("Study access denied"));
+    // CancerStudyPermissionEvaluator allows an id that is missing from its study permission map,
+    // which is refreshed periodically (cache.cancer_study_permission.ttl_seconds). A study imported
+    // since the last refresh is in the database but not yet in the map, so its groups have not been
+    // checked: refuse it until the map includes it.
+    if (permissionsEnforced
+        && !cacheMapUtil.getCancerStudyPermissionMap().containsKey(studyIdentifier)) {
+      throw new AccessDeniedException("Study access denied");
+    }
 
     ResponseEntity.HeadersBuilder<?> response =
         ResponseEntity.noContent()
@@ -94,7 +121,13 @@ public class StudyAccessController {
     if (authentication != null
         && authentication.isAuthenticated()
         && !TRUST_RESOLVER.isAnonymous(authentication)) {
-      response.header(USER_HEADER, authentication.getName());
+      String userName = authentication.getName();
+      // A protected service that trusts the header must never see an authenticated request
+      // without a user.
+      if (userName == null || userName.isBlank()) {
+        throw new AccessDeniedException("Authenticated user has no name");
+      }
+      response.header(USER_HEADER, userName);
     }
     return response.build();
   }

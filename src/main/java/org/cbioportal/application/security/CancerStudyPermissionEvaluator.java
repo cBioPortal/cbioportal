@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
@@ -24,11 +25,16 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.Group;
+import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,7 +333,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    * @param filter An object instance of a known filter type (e.g., {@code SampleFilter}, {@code
    *     StudyViewFilter}).
    * @return A {@code Set<String>} of unique cancer study identifiers referenced by the filter.
-   *     Returns an empty set for unknown filter types or filters that yield no studies.
+   *     Returns an empty set for filters that yield no studies.
+   * @throws IllegalArgumentException if the filter type is not supported, or if the studies it
+   *     refers to cannot be determined. The caller treats this as a denial.
    * @throws IllegalStateException if a molecular profile ID is encountered but the corresponding
    *     MolecularProfile object cannot be found.
    */
@@ -371,11 +379,65 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .map(m -> m.getCancerStudyIdentifier())
             .collect(Collectors.toSet());
       }
+      case ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter ->
+          requireStudyIds(
+              clinicalDataMultiStudyFilter.getIdentifiers(),
+              ClinicalDataIdentifier::getStudyId,
+              clinicalDataMultiStudyFilter);
+      case GroupFilter groupFilter -> {
+        if (groupFilter.getGroups() == null) {
+          throw unresolvableFilter(groupFilter);
+        }
+        Set<String> studyIds = new HashSet<>();
+        for (Group group : groupFilter.getGroups()) {
+          if (group == null) {
+            throw unresolvableFilter(groupFilter);
+          }
+          studyIds.addAll(
+              requireStudyIds(group.getSampleIdentifiers(), SampleIdentifier::getStudyId, group));
+        }
+        yield studyIds;
+      }
+      // Fail closed. An empty study set would make the permission check pass vacuously, so a
+      // filter type that is used as a permission target but not handled above must be denied
+      // rather than waved through.
       default -> {
-        log.debug("hasPermission(), unknown filter type: {}", filter.getClass().getName());
-        yield new HashSet<>();
+        log.warn(
+            "hasPermission(), denying access: unsupported filter type: {}",
+            filter.getClass().getName());
+        throw new IllegalArgumentException(
+            "Unsupported filter type: " + filter.getClass().getName());
       }
     };
+  }
+
+  /**
+   * Collects the study identifier of every element. Fails (and thereby denies access) when the
+   * collection or one of its elements, or a study identifier, is missing: a study the request
+   * refers to but that is left out here would escape the permission check.
+   */
+  private static <T> Set<String> requireStudyIds(
+      Collection<T> elements, Function<T, String> studyIdOf, Object filter) {
+    if (elements == null) {
+      throw unresolvableFilter(filter);
+    }
+    Set<String> studyIds = new HashSet<>();
+    for (T element : elements) {
+      String studyId = element == null ? null : studyIdOf.apply(element);
+      if (studyId == null) {
+        throw unresolvableFilter(filter);
+      }
+      studyIds.add(studyId);
+    }
+    return studyIds;
+  }
+
+  private static IllegalArgumentException unresolvableFilter(Object filter) {
+    log.warn(
+        "hasPermission(), denying access: could not determine the studies of a {}",
+        filter.getClass().getName());
+    return new IllegalArgumentException(
+        "Could not determine the studies of a " + filter.getClass().getName());
   }
 
   /**

@@ -1,6 +1,9 @@
 package org.cbioportal.legacy.service.impl;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
@@ -10,6 +13,7 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
@@ -53,7 +57,6 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   String sortBy = "column name";
   String direction = "ASC";
   List<Integer> sampleInternalIds = Arrays.asList(0, 1);
-  List<Integer> sampleInternalIdsAll = Arrays.asList(0, 1, 2, 3);
 
   @Before
   public void init() {
@@ -475,9 +478,21 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
   @Test
   public void fetchSampleClinicalTableHappyCase() {
 
-    when(clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
-            sampleStudyIds, sampleIds, null, null, searchTerm, sortBy, direction))
-        .thenReturn(sampleInternalIdsAll);
+    Sample sample1 = new Sample();
+    sample1.setInternalId(0);
+    sample1.setStableId("SampleA");
+    sample1.setCancerStudyIdentifier("Study1");
+    Sample sample2 = new Sample();
+    sample2.setInternalId(1);
+    sample2.setStableId("SampleA");
+    sample2.setCancerStudyIdentifier("Study2");
+
+    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
+            sampleStudyIds, sampleIds, searchTerm))
+        .thenReturn(4);
+    when(clinicalDataRepository.getVisibleSamplesForClinicalTable(
+            sampleStudyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction))
+        .thenReturn(List.of(sample1, sample2));
 
     when(clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(sampleInternalIds))
         .thenReturn(List.of(datum1, datum2));
@@ -510,6 +525,8 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
     Assert.assertEquals(
         "Study2",
         clinicalDataCollection.getByUniqueSampleKey().get(uniqueKeySample2).get(0).getStudyId());
+    Assert.assertEquals(
+        List.of(uniqueKeySample1, uniqueKeySample2), clinicalDataCollection.getOrderedSampleKeys());
   }
 
   @Test
@@ -552,5 +569,35 @@ public class ClinicalDataServiceImplTest extends BaseServiceImplTest {
             .getLeft()
             .getByUniqueSampleKey()
             .size());
+  }
+
+  @Test
+  public void fetchSampleClinicalTableOutOfRangePagePreservesTotalCount() {
+    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
+            sampleStudyIds, sampleIds, searchTerm))
+        .thenReturn(501);
+
+    ImmutablePair<SampleClinicalDataCollection, Integer> result =
+        clinicalDataService.fetchSampleClinicalTable(
+            sampleStudyIds, sampleIds, pageSize, 251, searchTerm, sortBy, direction);
+
+    Assert.assertEquals((Integer) 501, result.getRight());
+    Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());
+    verify(clinicalDataRepository, never())
+        .getVisibleSamplesForClinicalTable(any(), any(), any(), any(), any(), any(), any());
+  }
+
+  @Test
+  public void fetchSampleClinicalTableHugePageNumberDoesNotOverflow() {
+    when(clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
+            sampleStudyIds, sampleIds, searchTerm))
+        .thenReturn(501);
+
+    ImmutablePair<SampleClinicalDataCollection, Integer> result =
+        clinicalDataService.fetchSampleClinicalTable(
+            sampleStudyIds, sampleIds, 1000, Integer.MAX_VALUE, searchTerm, sortBy, direction);
+
+    Assert.assertEquals((Integer) 501, result.getRight());
+    Assert.assertTrue(result.getLeft().getByUniqueSampleKey().isEmpty());
   }
 }

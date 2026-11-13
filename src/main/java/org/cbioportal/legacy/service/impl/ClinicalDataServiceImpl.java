@@ -12,10 +12,10 @@ import org.cbioportal.legacy.model.ClinicalData;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.model.ClinicalDataCountItem;
 import org.cbioportal.legacy.model.Patient;
+import org.cbioportal.legacy.model.Sample;
 import org.cbioportal.legacy.model.SampleClinicalDataCollection;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.ClinicalDataRepository;
-import org.cbioportal.legacy.persistence.mybatis.util.PaginationCalculator;
 import org.cbioportal.legacy.service.ClinicalAttributeService;
 import org.cbioportal.legacy.service.ClinicalDataService;
 import org.cbioportal.legacy.service.PatientService;
@@ -310,43 +310,68 @@ public class ClinicalDataServiceImpl implements ClinicalDataService {
       return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
     }
 
-    // Request un-paginated data.
-    List<Integer> allSampleInternalIds =
-        clinicalDataRepository.getVisibleSampleInternalIdsForClinicalTable(
-            studyIds, sampleIds, null, null, searchTerm, sortBy, direction);
-    Integer offset = PaginationCalculator.offset(pageSize, pageNumber);
-
-    if (allSampleInternalIds.isEmpty() || offset >= allSampleInternalIds.size()) {
-      return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), 0);
+    List<Sample> visibleSamples;
+    Integer totalSampleCount;
+    if (pageSize == null || pageSize == 0) {
+      visibleSamples =
+          clinicalDataRepository.getVisibleSamplesForClinicalTable(
+              studyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction);
+      totalSampleCount = visibleSamples.size();
+    } else {
+      totalSampleCount =
+          clinicalDataRepository.getVisibleSampleInternalIdCountForClinicalTable(
+              studyIds, sampleIds, searchTerm);
+      // Long math so a huge page number cannot overflow into a negative offset.
+      if (pageNumber != null && (long) pageSize * pageNumber >= totalSampleCount) {
+        return new ImmutablePair<>(
+            SampleClinicalDataCollection.builder().build(), totalSampleCount);
+      }
+      visibleSamples =
+          clinicalDataRepository.getVisibleSamplesForClinicalTable(
+              studyIds, sampleIds, pageSize, pageNumber, searchTerm, sortBy, direction);
     }
 
-    return buildSampleClinicalDataCollection(allSampleInternalIds, offset, pageSize);
+    if (visibleSamples.isEmpty()) {
+      return new ImmutablePair<>(SampleClinicalDataCollection.builder().build(), totalSampleCount);
+    }
+
+    return buildSampleClinicalDataCollection(visibleSamples, totalSampleCount);
   }
 
   private ImmutablePair<SampleClinicalDataCollection, Integer> buildSampleClinicalDataCollection(
-      List<Integer> allSampleInternalIds, Integer offset, Integer pageSize) {
+      List<Sample> visibleSamples, Integer totalSampleCount) {
 
-    // Apply pagination to the sampleId list.
-    Integer toIndex = PaginationCalculator.lastIndex(offset, pageSize, allSampleInternalIds.size());
-    List<Integer> visibleSampleInternalIds = allSampleInternalIds.subList(offset, toIndex);
-
+    List<Integer> visibleSampleInternalIds =
+        visibleSamples.stream().map(Sample::getInternalId).collect(Collectors.toList());
     List<ClinicalData> sampleClinicalData =
         clinicalDataRepository.getSampleClinicalDataBySampleInternalIds(visibleSampleInternalIds);
     List<ClinicalData> patientClinicalData =
         clinicalDataRepository.getPatientClinicalDataBySampleInternalIds(visibleSampleInternalIds);
 
-    // Merge sample and patient level clinical data and key by unique sample-key.
+    List<String> orderedSampleKeys =
+        visibleSamples.stream()
+            .map(sample -> calculateBase64(sample.getStableId(), sample.getCancerStudyIdentifier()))
+            .collect(Collectors.toList());
+
+    // Merge sample and patient level clinical data and key by unique sample-key. Samples without
+    // clinical values are kept as empty rows so every requested sample appears on the page.
+    Map<String, List<ClinicalData>> clinicalDataBySampleKey =
+        Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
+            .collect(
+                Collectors.groupingBy(
+                    clinicalDatum ->
+                        calculateBase64(clinicalDatum.getSampleId(), clinicalDatum.getStudyId()),
+                    LinkedHashMap::new,
+                    Collectors.toList()));
+    orderedSampleKeys.forEach(
+        sampleKey -> clinicalDataBySampleKey.putIfAbsent(sampleKey, new ArrayList<>()));
+
     SampleClinicalDataCollection sampleClinicalDataCollection =
         SampleClinicalDataCollection.builder()
-            .withByUniqueSampleKey(
-                Stream.concat(sampleClinicalData.stream(), patientClinicalData.stream())
-                    .collect(
-                        Collectors.groupingBy(
-                            clinicalDatum ->
-                                calculateBase64(
-                                    clinicalDatum.getSampleId(), clinicalDatum.getStudyId()))))
+            .withByUniqueSampleKey(clinicalDataBySampleKey)
+            .withOrderedSampleKeys(orderedSampleKeys)
             .build();
 
-    return new ImmutablePair<>(sampleClinicalDataCollection, allSampleInternalIds.size());
+    return new ImmutablePair<>(sampleClinicalDataCollection, totalSampleCount);
   }
 }

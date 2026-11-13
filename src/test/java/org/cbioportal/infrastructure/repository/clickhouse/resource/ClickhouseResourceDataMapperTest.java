@@ -176,9 +176,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).resourceId()).isEqualTo("CT_SCAN");
@@ -189,9 +194,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_returnsRowsForResourceId() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(2);
     assertThat(rows).allMatch(r -> r.resourceId().equals("HE_SLIDE"));
@@ -202,9 +221,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_pagination_limitsResults() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            1,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
   }
@@ -213,7 +246,21 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_sortByPatientId_ascDescWorks() {
     ResourceTableQuery asc =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, "patientId", "ASC", null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            "patientId",
+            "ASC",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     ResourceTableQuery desc =
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB),
@@ -225,10 +272,15 @@ public class ClickhouseResourceDataMapperTest {
             10,
             "patientId",
             "DESC",
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    List<ResourceTableRow> ascending = mapper.getResourceTableRows(asc);
-    List<ResourceTableRow> descending = mapper.getResourceTableRows(desc);
+    List<ResourceTableRow> ascending = mapper.getResourceTableRows(asc, null);
+    List<ResourceTableRow> descending = mapper.getResourceTableRows(desc, null);
 
     assertThat(ascending.get(0).patientId()).isLessThanOrEqualTo(ascending.get(1).patientId());
     assertThat(descending.get(0).patientId()).isGreaterThanOrEqualTo(descending.get(1).patientId());
@@ -238,9 +290,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_searchFilterOnPatientId() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, "a0sb", 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            "a0sb",
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).patientId()).contains("a0sb");
@@ -250,9 +316,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_metadataIsDeserialized() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).isNotEmpty();
     ResourceTableRow rowWithMeta =
@@ -279,9 +359,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(displayNameFilter));
+            List.of(displayNameFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).isNotEmpty();
     assertThat(rows).allMatch(r -> "H&E Sample 1".equals(r.displayName()));
@@ -302,9 +387,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(metaFilter));
+            List.of(metaFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(2); // both HE_SLIDE rows have stain=HE
   }
@@ -328,7 +418,12 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(stainFilter));
+            List.of(stainFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
     List<ResourceFacetOption> magnificationFacets =
         metadataFacet(query, "magnification", TEST_FACET_LIMIT);
@@ -342,9 +437,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRows_searchMatchesMetadataValue() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, "40x", 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            "40x",
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata().get("magnification")).isEqualTo("40x");
@@ -356,9 +465,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableRowCount_returnsCorrectTotal() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    long count = mapper.getResourceTableCounts(query).rowCount();
+    long count = mapper.getResourceTableCounts(query, null).rowCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -367,9 +490,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTablePatientCount_returnsDistinctPatients() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    long count = mapper.getResourceTableCounts(query).patientCount();
+    long count = mapper.getResourceTableCounts(query, null).patientCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -378,9 +515,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceTableSampleCount_returnsDistinctSamples() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    long count = mapper.getResourceTableCounts(query).sampleCount();
+    long count = mapper.getResourceTableCounts(query, null).sampleCount();
 
     assertThat(count).isEqualTo(2);
   }
@@ -390,9 +541,23 @@ public class ClickhouseResourceDataMapperTest {
     // FIGURES resource has ENTITY_TYPE=STUDY, so patient/sample count should be 0
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "FIGURES",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    ResourceTableCounts counts = mapper.getResourceTableCounts(query);
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null);
     long patientCount = counts.patientCount();
     long sampleCount = counts.sampleCount();
 
@@ -407,10 +572,25 @@ public class ClickhouseResourceDataMapperTest {
     // FIGURES rows have {"pages": 10} and {"pages": 25} — both parse as numbers.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "FIGURES", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "FIGURES",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(query, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(
+            query, null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats pages =
         stats.stream().filter(s -> s.key().equals("pages")).findFirst().orElseThrow();
@@ -426,10 +606,25 @@ public class ClickhouseResourceDataMapperTest {
     // means toFloat64OrNull can't parse them, so this key should stay categorical.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(query, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(
+            query, null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY);
 
     ResourceMetadataKeyStats magnification =
         stats.stream().filter(s -> s.key().equals("magnification")).findFirst().orElseThrow();
@@ -442,9 +637,23 @@ public class ClickhouseResourceDataMapperTest {
   public void getResourceDefinitionCustomMetadata_returnsSchemaJson_whenPresent() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "RADIOLOGY", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "RADIOLOGY",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query, null);
 
     assertThat(contracts).hasSize(1);
     assertThat(contracts.get(0).customMetadata()).contains("dose_id").contains("score");
@@ -458,9 +667,23 @@ public class ClickhouseResourceDataMapperTest {
     // whole column list.
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of(STUDY_TCGA_PUB),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query, null);
 
     assertThat(contracts).hasSize(1);
     assertThat(contracts.get(0).declared()).isFalse();
@@ -479,9 +702,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query, null);
 
     assertThat(contracts).hasSize(2);
     assertThat(contracts)
@@ -503,11 +731,138 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query);
+    List<ResourceContractRow> contracts = mapper.getResourceDefinitionCustomMetadata(query, null);
 
     assertThat(contracts).extracting(ResourceContractRow::declared).containsExactly(true, false);
+  }
+
+  /**
+   * The contracts of the (study, resource) pairs whose rows the request matches, under every way a
+   * request narrows its rows. PATHOLOGY is declared differently by each study; CYTOLOGY only by
+   * acc_tcga, while study_tcga_pub holds undeclared CYTOLOGY rows.
+   */
+  @Test
+  public void getResourceDefinitionCustomMetadata_followsTheRowsTheRequestMatches() {
+    List<String> both = List.of(STUDY_TCGA_PUB, STUDY_ACC);
+    String accPathology = "acc_tcga:Grade (acc)";
+    String accCytology = "acc_tcga:Preparation";
+    String tcgaUndeclared = "study_tcga_pub:";
+    String tcgaPathology = "study_tcga_pub:Stain (tcga)";
+
+    assertThat(contracts(both, "PATHOLOGY", null, null, null, null, null))
+        .containsExactly(accPathology, tcgaPathology);
+    // One study's rows only, by sample, by patient, by search and by column filter.
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-a1-a0zz-01"),
+                null,
+                null,
+                null))
+        .containsExactly(tcgaPathology);
+    assertThat(
+            contracts(
+                both, "PATHOLOGY", patients(STUDY_ACC, "tcga-zz-9999"), null, null, null, null))
+        .containsExactly(accPathology);
+    assertThat(contracts(both, "PATHOLOGY", null, null, "dr-b", null, null))
+        .containsExactly(accPathology);
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                null,
+                null,
+                List.of(new ResourceColumnFilter("metadata:stain", "in", List.of("HE"))),
+                null))
+        .containsExactly(tcgaPathology);
+    // A filter matching no row, and a study-qualified sample that only the other study holds.
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                null,
+                null,
+                List.of(new ResourceColumnFilter("patientId", "in", List.of())),
+                null))
+        .isEmpty();
+    assertThat(
+            contracts(
+                both,
+                "PATHOLOGY",
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-zz-9999-01"),
+                null,
+                null,
+                null))
+        .isEmpty();
+    // Several resources: each pair contributes its own contract, or a blank one.
+    assertThat(contracts(both, null, null, null, null, null, List.of("PATHOLOGY", "CYTOLOGY")))
+        .containsExactlyInAnyOrder(accPathology, accCytology, tcgaPathology, tcgaUndeclared);
+    assertThat(contracts(both, "PATHOLOGY", null, null, null, null, List.of("CYTOLOGY")))
+        .containsExactlyInAnyOrder(accPathology, accCytology, tcgaPathology, tcgaUndeclared);
+    assertThat(
+            contracts(
+                both,
+                null,
+                null,
+                samples(STUDY_TCGA_PUB, "tcga-a1-a0zz-01"),
+                null,
+                null,
+                List.of("PATHOLOGY", "CYTOLOGY")))
+        .containsExactlyInAnyOrder(tcgaPathology, tcgaUndeclared);
+    assertThat(contracts(List.of(STUDY_ACC), null, null, null, null, null, List.of("CYTOLOGY")))
+        .containsExactly(accCytology);
+  }
+
+  /** Each contract row as "firstStudy:marker", the marker being a label only that contract has. */
+  private List<String> contracts(
+      List<String> studyIds,
+      String resourceId,
+      List<org.cbioportal.legacy.web.parameter.PatientIdentifier> patientIdentifiers,
+      List<SampleIdentifier> sampleIdentifiers,
+      String search,
+      List<ResourceColumnFilter> filters,
+      List<String> resourceIds) {
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            studyIds,
+            resourceId,
+            patientIdentifiers,
+            sampleIdentifiers,
+            search,
+            0,
+            10,
+            null,
+            null,
+            filters,
+            resourceIds,
+            null,
+            null,
+            null,
+            null);
+    return mapper.getResourceDefinitionCustomMetadata(query, null).stream()
+        .map(row -> row.firstStudy() + ":" + contractMarker(row.customMetadata()))
+        .toList();
+  }
+
+  private static String contractMarker(String customMetadata) {
+    for (String marker : List.of("Stain (tcga)", "Grade (acc)", "Preparation", "Dose Score")) {
+      if (customMetadata.contains(marker)) {
+        return marker;
+      }
+    }
+    return customMetadata;
   }
 
   @Test
@@ -525,9 +880,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(betweenFilter));
+            List.of(betweenFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata().get("pages")).isEqualTo(10);
@@ -551,9 +911,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(betweenFilter));
+            List.of(betweenFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).isEmpty();
   }
@@ -582,9 +947,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(stainFilter, magnificationFilter));
+            List.of(stainFilter, magnificationFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("stain", "HE");
@@ -609,9 +979,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(scoreFilter, doseFilter));
+            List.of(scoreFilter, doseFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
@@ -634,9 +1009,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(scoreFilter, doseFilter));
+            List.of(scoreFilter, doseFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
@@ -660,9 +1040,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(scoreFilter, doseFilter));
+            List.of(scoreFilter, doseFilter),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(mapper.getResourceTableCounts(query).rowCount()).isEqualTo(1L);
+    assertThat(mapper.getResourceTableCounts(query, null).rowCount()).isEqualTo(1L);
   }
 
   // ---- Multi-study cohorts ----
@@ -696,9 +1081,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<ResourceTableRow> rows = mapper.getResourceTableRows(query, null);
 
     // acc-he-collides.jpg belongs to acc_tcga's tcga-a1-a0sb-01, which the cohort never selected.
     assertThat(rows)
@@ -738,9 +1128,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    ResourceTableCounts counts = mapper.getResourceTableCounts(query);
+    ResourceTableCounts counts = mapper.getResourceTableCounts(query, null);
 
     assertThat(counts.rowCount()).isEqualTo(4);
     assertThat(counts.sampleCount()).isEqualTo(4);
@@ -760,9 +1155,14 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
 
-    assertThat(mapper.getResourceTableRows(query))
+    assertThat(mapper.getResourceTableRows(query, null))
         .extracting(ResourceTableRow::url)
         .containsExactly("https://example.com/he1.jpg");
   }
@@ -783,13 +1183,18 @@ public class ClickhouseResourceDataMapperTest {
         size,
         sortBy,
         direction,
+        null,
+        null,
+        null,
+        null,
+        null,
         null);
   }
 
   @Test
   public void getResourceTableRows_numericMetadataSort_ordersNumericallyNotAsText() {
     List<ResourceTableRow> rows =
-        mapper.getResourceTableRows(slideSet("metadata:score", "asc", 0, 10));
+        mapper.getResourceTableRows(slideSet("metadata:score", "asc", 0, 10), null);
 
     assertThat(rows)
         .extracting(ResourceTableRow::displayName)
@@ -799,7 +1204,7 @@ public class ClickhouseResourceDataMapperTest {
   @Test
   public void getResourceTableRows_numericMetadataSort_descending() {
     List<ResourceTableRow> rows =
-        mapper.getResourceTableRows(slideSet("metadata:score", "desc", 0, 10));
+        mapper.getResourceTableRows(slideSet("metadata:score", "desc", 0, 10), null);
 
     assertThat(rows)
         .extracting(ResourceTableRow::displayName)
@@ -824,7 +1229,8 @@ public class ClickhouseResourceDataMapperTest {
     // on one page and drop another entirely.
     List<String> paged =
         java.util.stream.Stream.of(0, 1)
-            .flatMap(page -> mapper.getResourceTableRows(slideSet(null, null, page, 2)).stream())
+            .flatMap(
+                page -> mapper.getResourceTableRows(slideSet(null, null, page, 2), null).stream())
             .map(ResourceTableRow::displayName)
             .toList();
 
@@ -840,7 +1246,10 @@ public class ClickhouseResourceDataMapperTest {
     List<String> paged =
         java.util.stream.Stream.of(0, 1)
             .flatMap(
-                page -> mapper.getResourceTableRows(slideSet("sampleId", "asc", page, 2)).stream())
+                page ->
+                    mapper
+                        .getResourceTableRows(slideSet("sampleId", "asc", page, 2), null)
+                        .stream())
             .map(ResourceTableRow::displayName)
             .toList();
 
@@ -884,9 +1293,14 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(
                 new ResourceColumnFilter(
-                    "metadata:file_size_bytes", "between", List.of("50", "500"))));
+                    "metadata:file_size_bytes", "between", List.of("50", "500"))),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(mapper.getResourceTableRows(query))
+    assertThat(mapper.getResourceTableRows(query, null))
         .extracting(ResourceTableRow::displayName)
         .containsExactlyInAnyOrder("Set 9", "Set 100"); // file_size_bytes 100 and 400
   }
@@ -904,16 +1318,22 @@ public class ClickhouseResourceDataMapperTest {
             10,
             null,
             null,
-            List.of(new ResourceColumnFilter("metadata:is_hne", "equals", List.of("true"))));
+            List.of(new ResourceColumnFilter("metadata:is_hne", "equals", List.of("true"))),
+            null,
+            null,
+            null,
+            null,
+            null);
 
-    assertThat(mapper.getResourceTableRows(query))
+    assertThat(mapper.getResourceTableRows(query, null))
         .extracting(ResourceTableRow::displayName)
         .containsExactlyInAnyOrder("Set 9", "Set 20");
   }
 
   @Test
   public void metadataSort_onAJsonIntegerIsNumeric() {
-    assertThat(mapper.getResourceTableRows(slideSet("metadata:file_size_bytes", "asc", 0, 10)))
+    assertThat(
+            mapper.getResourceTableRows(slideSet("metadata:file_size_bytes", "asc", 0, 10), null))
         .extracting(ResourceTableRow::displayName)
         .containsExactly("Set 20", "Set 9", "Set 100", "Set 10"); // 30, 100, 400, 2000
   }
@@ -923,7 +1343,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats stats =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "file_size_bytes".equals(k.key()))
             .findFirst()
@@ -952,7 +1372,7 @@ public class ClickhouseResourceDataMapperTest {
     ResourceMetadataKeyStats scores =
         mapper
             .getResourceTableMetadataKeyStats(
-                slideSet(null, null, 0, 10), TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
+                slideSet(null, null, 0, 10), null, null, TEST_SAMPLE_ROWS, TEST_MAX_MEMORY)
             .stream()
             .filter(k -> "score".equals(k.key()))
             .findFirst()
@@ -968,7 +1388,8 @@ public class ClickhouseResourceDataMapperTest {
   public void keyStats_sampleBoundLimitsRowsRead() {
     // With the bound set to one row, only that row's keys are discovered.
     List<ResourceMetadataKeyStats> stats =
-        mapper.getResourceTableMetadataKeyStats(slideSet(null, null, 0, 10), 1, TEST_MAX_MEMORY);
+        mapper.getResourceTableMetadataKeyStats(
+            slideSet(null, null, 0, 10), null, null, 1, TEST_MAX_MEMORY);
 
     assertThat(stats).isNotEmpty();
     assertThat(stats).allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
@@ -977,14 +1398,16 @@ public class ClickhouseResourceDataMapperTest {
   /** The batched facet query, narrowed to one key, so per-key assertions stay readable. */
   private List<ResourceFacetOption> metadataFacet(
       ResourceTableQuery query, String key, int limitPerKey) {
-    return mapper.getResourceTableMetadataFacets(query, new String[] {key}, limitPerKey).stream()
+    return mapper
+        .getResourceTableMetadataFacets(query, null, new String[] {key}, limitPerKey)
+        .stream()
         .map(v -> new ResourceFacetOption(v.value(), v.count()))
         .toList();
   }
 
   /** The exact-range query, narrowed to one key. */
   private ResourceMetadataRange rangeFor(ResourceTableQuery query, String key) {
-    return mapper.getResourceTableMetadataRanges(query, new String[] {key}).stream()
+    return mapper.getResourceTableMetadataRanges(query, null, new String[] {key}).stream()
         .findFirst()
         .orElseThrow();
   }
@@ -995,7 +1418,7 @@ public class ClickhouseResourceDataMapperTest {
     // limited to one row sees only that row's value; the range still spans all four.
     ResourceTableQuery query = slideSet(null, null, 0, 10);
 
-    assertThat(mapper.getResourceTableMetadataKeyStats(query, 1, TEST_MAX_MEMORY))
+    assertThat(mapper.getResourceTableMetadataKeyStats(query, null, null, 1, TEST_MAX_MEMORY))
         .allSatisfy(k -> assertThat(k.nonBlankCount()).isEqualTo(1));
 
     assertThat(rangeFor(query, "score")).isEqualTo(new ResourceMetadataRange("score", 9.0, 100.0));

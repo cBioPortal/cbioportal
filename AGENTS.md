@@ -66,11 +66,7 @@ So a mapper that reads study-specific data must constrain `cancer_study_identifi
 fragment where the selects take the same parameter object, and repeat the condition inline where
 they do not.
 
-`ResourceDataMapperStudyFilterTest` enforces this for `ResourceDataMapper.xml`: a select there that
-neither includes `ResourceTableBaseFilters` nor filters on `cancer_study_identifier IN` fails the
-build. No other ClickHouse mapper is covered by a test. Nearly all of their selects carry the same
-condition; the few that do not read reference data, or are scoped by sample or profile identifiers
-that the request was already authorized for, rather than by study. That has not been audited.
+`AllClickhouseMappersStudyFilterArchTest` and `ResourceDataMapperStudyFilterTest` enforce this across ClickHouse mappers: a select that neither includes study filters (e.g. `cancer_study_identifier IN`, `StudyViewBaseFilters`) nor is registered in `AUDITED_EXCEPTIONS` fails the build.
 
 The check is textual. It catches a select added or copied without the filter; it does not prove the
 filter is reachable in every branch of a select that has one.

@@ -37,8 +37,6 @@
     <!-- The rest can be set in the dependencyManagement section -->
     <spring.social.version>1.1.6.RELEASE</spring.social.version>
 
-    <mysql-connector.version>8.0.28</mysql-connector.version>
-    <mysql.version>8.2.0</mysql.version>
     <springfox.version>3.0.0</springfox.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -58,12 +56,6 @@
     <sonar.coverage.jacoco.xmlReportPaths>
       ${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
 
-    <db.test.driver>com.mysql.jdbc.Driver</db.test.driver>
-    <!-- For MySQL < 5.5 change 'default_storage_engine' to 'storage_engine' -->
-    <db.test.url>
-      jdbc:mysql://127.0.0.1:3306/cgds_test?sessionVariables=default_storage_engine=InnoDB&amp;allowLoadLocalInfile=true</db.test.url>
-    <db.test.username>cbio_user</db.test.username>
-    <db.test.password>somepassword</db.test.password>
 
     <!--For
     tomcat instances, the scope to tomcat catalina lib should be provided. this prop is used in
@@ -365,11 +357,6 @@
       <version>0.22.1</version>
     </dependency>
     <dependency>
-      <groupId>com.mysql</groupId>
-      <artifactId>mysql-connector-j</artifactId>
-      <version>${mysql.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
     </dependency>
@@ -387,11 +374,6 @@
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>testcontainers</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.testcontainers</groupId>
-      <artifactId>mysql</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

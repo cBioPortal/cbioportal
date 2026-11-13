@@ -541,6 +541,14 @@ wsi.tile_server.url=https://cbioportal.example.org/wsi
 
 If this property is unset, the viewer is hidden.
 
+The study's clinical files can also carry six slide-count attributes, which
+the Study View shows: `WSI_{SAMPLE,PATIENT}_SLIDE_COUNT` and the part- and
+block-matched `WSI_{SAMPLE,PATIENT}_{PART,BLOCK}_MATCHED_SLIDE_COUNT`
+(`NUMBER`). They count the slides the viewer can open: sample counts cover
+matched slides, patient counts include unmatched slides. The part- and
+block-matched counts don't overlap: a slide matched to a block is counted only
+as block-matched. A sample or patient without a viewable slide has `NA`.
+
 **Note:** This is an internal MSK prototype. The tile server checks access by
 calling `GET /api/studies/{studyId}` with the user's session cookie at the
 ingress.

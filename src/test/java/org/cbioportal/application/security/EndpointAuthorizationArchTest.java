@@ -94,8 +94,7 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.MutationCountController", // no study IDs in request/response
           "org.cbioportal.legacy.web.MskEntityTranslationController", // study-specific lookups
           "org.cbioportal.legacy.web.GenericAssayController", // @PreAuthorize removed for perf
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController", // @PreAuthorize removed for perf
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController" // study data
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController" // @PreAuthorize removed for perf
           );
 
   /**
@@ -116,7 +115,9 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.SampleListController.getAllSampleLists",
           "org.cbioportal.legacy.web.ClinicalAttributeController.getAllClinicalAttributes",
           "org.cbioportal.legacy.web.MolecularProfileController.getAllMolecularProfiles",
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreSampleController.getSamplesByKeyword");
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreSampleController.getSamplesByKeyword",
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController.getAllStudies",
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController.getAllStudiesMeta");
 
   private static boolean isEndpointMethod(JavaMethod method) {
     return method.isAnnotatedWith(RequestMapping.class)

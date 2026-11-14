@@ -28,6 +28,7 @@ import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.PermissionEvaluator;
@@ -110,8 +111,8 @@ public class ColumnStoreStudyController {
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
    *     and an HTTP status code {@link HttpStatus#OK}. When {@value
-   *     StudyAvailabilityConfig#ENABLED_PROPERTY} is on, {@code readPermission} is false for a
-   *     study being (re)imported, in every auth mode, so clients leave it out of per-study requests
+   *     StudyAvailabilityConfig#ENABLED_PROPERTY} is on, {@code readPermission} is false for locked
+   *     or unavailable studies, in every auth mode, so clients leave them out of per-study requests
    *     that would be answered with 423.
    * @see ProjectionType
    * @see StudySortBy
@@ -177,6 +178,7 @@ public class ColumnStoreStudyController {
       int toIndex = (int) Math.min(offset + pageSize, studies.size());
       studies = studies.subList(fromIndex, toIndex);
     }
+
     var headers = new HttpHeaders();
     if (projection == ProjectionType.META) {
       headers.add(HeaderKeyConstants.TOTAL_COUNT, String.valueOf(totalCount));
@@ -188,17 +190,20 @@ public class ColumnStoreStudyController {
       responseBody = List.of();
     } else {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
       // Without the 423 blocking, status does not affect reads, so it does not affect
       // readPermission either; otherwise data whose importer never set cancer_study.status to
       // AVAILABLE would show every such study as unreadable in the study list.
       Map<String, String> unavailable =
           studyAvailabilityEnabled ? unavailableStudyIdentifiers.get() : Map.of();
+
       responseBody =
           studies.stream()
               .map(
                   study -> {
                     // Default to true if security is disabled (permissionEvaluator is null)
                     boolean hasReadPermission = true;
+
                     if (permissionEvaluator != null && authentication != null) {
                       hasReadPermission =
                           permissionEvaluator.hasPermission(
@@ -207,6 +212,13 @@ public class ColumnStoreStudyController {
                               "CancerStudyId",
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
+
+                    // A locked study is always unreadable.
+                    // Do not let the permission evaluator override this restriction.
+                    if (Integer.valueOf(0).equals(study.status())) {
+                      hasReadPermission = false;
+                    }
+
                     hasReadPermission &= !unavailable.containsKey(study.cancerStudyIdentifier());
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })

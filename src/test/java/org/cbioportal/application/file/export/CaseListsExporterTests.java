@@ -131,4 +131,13 @@ public class CaseListsExporterTests {
     """,
         fileContents.get("case_lists/cases_stable_id_2.txt").toString());
   }
+
+  @Test
+  public void testCaseListTypeStableIdRemovesOnlyLeadingStudyIdentifier() {
+    var metadata = new CaseListMetadata();
+    metadata.setCancerStudyIdentifier("demo");
+    metadata.setStableId("demo_demo_all");
+
+    assertEquals("demo_all", metadata.getCaseListTypeStableId());
+  }
 }

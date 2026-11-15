@@ -4,8 +4,8 @@ This file contains rules and conventions that AI coding agents (Claude Code, Cop
 
 ## Build & Test
 
-- Build: `mvn install -DskipTests`
-- Run all tests: `mvn integration-test`
+- Build: `mvn install -DskipTests` (or `./mvnw install -DskipTests`)
+- Run all tests: `mvn integration-test` (or `./mvnw integration-test`)
 - All new development targets the `master` branch (v7)
 
 ## Endpoint Authorization (Security-Critical)

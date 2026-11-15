@@ -493,6 +493,7 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (315,'subty
 insert into clinical_patient (internal_id,attr_id,attr_value) values (316,'subtype','NA');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (317,'subtype','Luminal B');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (318,'subtype','');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (321,'subtype','Triple Negative');
 
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'other_sample_id','5c631ce8-f96a-4c35-a459-556fc4ab21e1');
 insert into clinical_sample (internal_id,attr_id,attr_value) values (1,'days_to_collection','276');

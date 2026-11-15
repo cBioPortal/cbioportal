@@ -12,6 +12,7 @@ import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.model.ClinicalDataCount;
 import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -593,5 +594,34 @@ public class ClickhouseClinicalDataMapperTest {
     var count = counts.stream().filter(c -> c.getValue().equals(attrValue)).findAny().orElse(null);
 
     return count == null ? 0 : count.getCount();
+  }
+
+  @Test
+  public void getConflictingAttributeCountsWithSelectedSample() {
+    SampleIdentifier selectedSample = new SampleIdentifier();
+    selectedSample.setStudyId(STUDY_GENIE_PUB);
+    selectedSample.setSampleId("GENIE-TEST-321-01");
+
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setSampleIdentifiers(List.of(selectedSample));
+
+    var filteredClinicalDataCounts =
+        mapper.getClinicalDataCountsByStudyViewFilter(
+            StudyViewFilterFactory.make(studyViewFilter, null, List.of(STUDY_GENIE_PUB), null),
+            Collections.emptyList(),
+            Collections.emptyList(),
+            List.of("subtype"));
+
+    var subtypeCounts =
+        filteredClinicalDataCounts.stream()
+            .filter(c -> c.getAttributeId().equals("subtype"))
+            .findFirst()
+            .orElseThrow()
+            .getCounts();
+
+    assertEquals(
+        "Only the selected sample should be counted",
+        1,
+        findClinicalDataCount(subtypeCounts, "Triple Negative"));
   }
 }

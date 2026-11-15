@@ -211,7 +211,7 @@
             <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
                 #{studyId}
             </foreach>
-        </if> 
+        </if>
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
             <choose>
@@ -327,6 +327,11 @@
                 <when test="'${type}' == 'sample'">
                     <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingSampleId"/>
                 </when>
+                <when test="'${isConflicting}' == 'true'">
+                    sd.sample_unique_id IN (
+                        <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.sampleUniqueIdsFromStudyViewFilter"/>
+                    )
+                </when>
                 <otherwise>
                     <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
                 </otherwise>
@@ -403,10 +408,10 @@
             attribute_value AS value,
             cast(count(*) AS INTEGER) as count
         FROM clinical_data_derived cdd
-            <if test="'${isConflicting}' == 'true'">
-                <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
-                LEFT JOIN sample_derived sd ON cdd.patient_unique_id = sd.patient_unique_id
-            </if>
+        <if test="'${isConflicting}' == 'true'">
+            <!-- JOIN patient data with sample table to map patient-level attributes to sample-level counts -->
+            LEFT JOIN sample_derived sd ON cdd.patient_unique_id = sd.patient_unique_id
+        </if>
         WHERE
             <!-- Filter NA values -->
             NOT (

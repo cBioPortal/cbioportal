@@ -41,7 +41,7 @@ public class ClinicalDataBinner {
 
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public List<ClinicalDataBin> fetchClinicalDataBinCounts(
       DataBinMethod dataBinMethod,
       ClinicalDataBinCountFilter dataBinCountFilter,

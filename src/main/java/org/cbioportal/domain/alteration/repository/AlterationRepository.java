@@ -76,7 +76,7 @@ public interface AlterationRepository {
 
   @Cacheable(
       cacheResolver = "staticRepositoryCacheOneResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   Map<String, Map<String, GenePanelToGene>> getGenePanelsToGenes();
 
   /**

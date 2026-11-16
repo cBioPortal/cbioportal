@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.application.rest.availability.SearchKeyword;
 import org.cbioportal.application.rest.mapper.CancerStudyMapper;
 import org.cbioportal.application.rest.response.CancerStudyDTO;
 import org.cbioportal.legacy.model.CancerStudy;
@@ -105,6 +106,7 @@ public class StudyController {
           @Content(array = @ArraySchema(schema = @Schema(implementation = CancerStudyDTO.class))))
   public ResponseEntity<List<CancerStudyDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
+          @SearchKeyword
           @RequestParam(required = false)
           String keyword,
       @Parameter(description = "Level of detail of the response")
@@ -145,7 +147,7 @@ public class StudyController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
-          studyService.getMetaStudies(keyword).getTotalCount().toString());
+          studyService.getMetaStudies(keyword, getAccessLevel()).getTotalCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(

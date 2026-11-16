@@ -6,6 +6,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.enums.DataSource;
 import org.cbioportal.legacy.web.parameter.CategorizedGenericAssayDataCountFilter;
@@ -42,6 +43,13 @@ public final class StudyViewFilterHelper {
       List<GenomicDataFilter> mergedGenomicDataFilters =
           mergeDataFilters(studyViewFilter.getGenomicDataFilters());
       studyViewFilter.setGenomicDataFilters(mergedGenomicDataFilters);
+    }
+    // Filter out clinicalDataFilters with null or empty values to prevent SQL errors
+    if (studyViewFilter.getClinicalDataFilters() != null) {
+      studyViewFilter.setClinicalDataFilters(
+          studyViewFilter.getClinicalDataFilters().stream()
+              .filter(f -> f.getValues() != null && !f.getValues().isEmpty())
+              .collect(Collectors.toList()));
     }
     if (studyViewFilter.getClinicalDataFilters() != null
         && !studyViewFilter.getClinicalDataFilters().isEmpty()) {
@@ -181,7 +189,8 @@ public final class StudyViewFilterHelper {
    * database when filtering.
    */
   public static <T extends DataFilter> List<T> mergeDataFilters(List<T> filters) {
-    // this should throw error or move to all binning endpoints in the future for input validation
+    // this should throw error or move to all binning endpoints in the future for
+    // input validation
     if (!areValidFilters(filters)) {
       return filters;
     }
@@ -213,12 +222,17 @@ public final class StudyViewFilterHelper {
           mergedStart = start;
           mergedEnd = end;
         }
-        // else we already has a merging range, we check if this one is consecutive of our range
-        else if (mergedEnd.equals(start)) {
+        // else we already has a merging range, we check if this one is consecutive of
+        // our range
+        // Use compareTo rather than equals: BigDecimal.equals() considers scale, so
+        // 1.0.equals(1.00)
+        // returns false even though the values are numerically equal.
+        else if (mergedEnd.compareTo(start) == 0) {
           // if true, we expand our range
           mergedEnd = end;
         } else {
-          // otherwise it's a gap, so we save our current range first, and then use current bin to
+          // otherwise it's a gap, so we save our current range first, and then use
+          // current bin to
           // start the next range
           mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));
           mergedStart = start;
@@ -226,7 +240,8 @@ public final class StudyViewFilterHelper {
         }
       }
 
-      // in the end we need to save the final range, but if everything is non-numerical then no need
+      // in the end we need to save the final range, but if everything is
+      // non-numerical then no need
       // to
       if (hasNumericalValue) {
         mergedValues.add(new DataFilterValue(mergedStart, mergedEnd));

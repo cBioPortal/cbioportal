@@ -23,6 +23,8 @@ cBioPortal is a multimodal cancer data visualization tool and supports a variety
 
 There are several other data types for which there is no native support. However cBioPortal offers a generic way of linking in additional viewers using the [Resource Data Format](./File-Formats.md#resource-data). Technically this is known as an iframe link. These viewers can be linked at the cohort, patient or individual sample level. Beyond just linking viewers, we also have several suggestions on what kind of derived data can be added from these assays directly into cBioPortal for multimodal analysis. This mainly leverages the [Generic Assay Format](./File-Formats.md#generic-assay).
 
+A linked resource can also carry per-item metadata — the stain, magnification or percent tumor cells of an individual slide, say. Those fields become searchable, sortable and filterable columns in the study's Files & Links tab, so a researcher can narrow thousands of linked images down to the few worth opening instead of paging through a list of links. A curator decides how each field is labelled, typed and filtered through the [CUSTOM_METADATA contract](./File-Formats.md#describing-metadata-columns-with-custom_metadata).
+
 
 | Assay | External Viewer | Derived data to load into cBioPortal | Example cBioPortal Study |
 | --- | --- | --- | --- |

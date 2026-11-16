@@ -6,8 +6,10 @@ import static org.junit.Assert.assertNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.cbioportal.legacy.web.parameter.ClinicalDataFilter;
 import org.cbioportal.legacy.web.parameter.DataFilterValue;
 import org.cbioportal.legacy.web.parameter.GenomicDataFilter;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 
 public class StudyViewFilterHelperTest {
@@ -223,5 +225,30 @@ public class StudyViewFilterHelperTest {
     BigDecimal secondEnd = mergedDataFilterValues.get(1).getEnd();
     assertEquals(0, BigDecimal.valueOf(2).compareTo(secondStart));
     assertEquals(0, BigDecimal.valueOf(4).compareTo(secondEnd));
+  }
+
+  // Regression test: a clinicalDataFilter without values (null or empty) must be dropped by
+  // build(), otherwise isCategoricalClinicalDataFilter's unguarded getValues().getFirst() throws.
+  @Test
+  public void buildFiltersOutClinicalDataFilterWithNullOrEmptyValues() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    ClinicalDataFilter filterWithNullValues = new ClinicalDataFilter();
+    filterWithNullValues.setAttributeId("null_values_attr");
+    ClinicalDataFilter filterWithEmptyValues = new ClinicalDataFilter();
+    filterWithEmptyValues.setAttributeId("empty_values_attr");
+    filterWithEmptyValues.setValues(new ArrayList<>());
+    ClinicalDataFilter filterWithValues = new ClinicalDataFilter();
+    filterWithValues.setAttributeId("valid_attr");
+    List<DataFilterValue> values = new ArrayList<>();
+    values.add(new DataFilterValue("Female"));
+    filterWithValues.setValues(values);
+    studyViewFilter.setClinicalDataFilters(
+        List.of(filterWithNullValues, filterWithEmptyValues, filterWithValues));
+
+    StudyViewFilterHelper helper = StudyViewFilterHelper.build(studyViewFilter, null, null, null);
+
+    List<ClinicalDataFilter> resultFilters = helper.studyViewFilter().getClinicalDataFilters();
+    assertEquals(1, resultFilters.size());
+    assertEquals("valid_attr", resultFilters.getFirst().getAttributeId());
   }
 }

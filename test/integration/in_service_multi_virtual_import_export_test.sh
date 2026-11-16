@@ -32,8 +32,8 @@ find ./output_study_multi_virtual/virtual_multi_study_study_es_0/ -type f -exec 
 find ./output_study_multi_virtual/virtual_multi_study_study_es_0_import_export/ -type f -exec sed -i "s/${hash}_//g" {} +
 
 echo "Sorting content of text files from both folders to make order during comparison unimportant."
-./cbioportal/test/integration/copy_and_sort.sh /cbioportal/test/test_data/study_es_0_import_export/ ./input_study_es_0_import_export_sorted/ 
-./cbioportal/test/integration/copy_and_sort.sh ./output_study_multi_virtual/ ./output_study_multi_virtual_sorted/
+/cbioportal/test/integration/copy_and_sort.sh /cbioportal/test/test_data/study_es_0_import_export/ ./input_study_es_0_import_export_sorted/ 
+/cbioportal/test/integration/copy_and_sort.sh ./output_study_multi_virtual/ ./output_study_multi_virtual_sorted/
 
 echo "Comparing the original and exported studies."
 

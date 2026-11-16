@@ -14,6 +14,7 @@ on:
 env:
   JAVA_VERSION: '21'
   JAVA_DIST: 'temurin'
+  MAVEN_VERSION: '3.9.16'
   MAVEN_SERVER: 'central'
   DEPLOYMENT_NAME_PREFIX: 'cbioportal'
 
@@ -47,6 +48,14 @@ jobs:
           server-password: MAVEN_PASSWORD
           gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      # Maven 3.10 adds local-repository files to the central-publishing bundle,
+      # and Central rejects them ("Bundle has content that does NOT have a .pom file").
+      - name: Install Maven ${{ env.MAVEN_VERSION }}
+        run: |
+          curl -fsSL "https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz" \
+            | tar -xz -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/apache-maven-${MAVEN_VERSION}/bin" >> "$GITHUB_PATH"
 
       - name: Set maven version from source ref (manual trigger)
         if: github.event_name == 'workflow_dispatch'

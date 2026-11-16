@@ -688,3 +688,69 @@ insert into generic_entity_properties (id,genetic_entity_id,name,value) values (
 -- allele specific copy number data
 insert into allele_specific_copy_number (mutation_event_id, genetic_profile_id, sample_id, ascn_integer_copy_number, ascn_method, ccf_expected_copies_upper, ccf_expected_copies, clonal, minor_copy_number, expected_alt_copies, total_copy_number) values (2040, 6, 1, 3, 'facets', 1.25, 1.75, 'clonal', 2, 1, 4);
 insert into allele_specific_copy_number (mutation_event_id, genetic_profile_id, sample_id, ascn_integer_copy_number, ascn_method, ccf_expected_copies_upper, ccf_expected_copies, clonal, minor_copy_number, expected_alt_copies, total_copy_number) values (2038, 6, 6, 1, 'facets', 1.25, 1.75, 'subclonal', 1, 1, 2);
+-- resource table test data
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('HE_SLIDE', 1, 'SAMPLE', 'H&E Slide', 'Hematoxylin and Eosin Slide', 1, 1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('CT_SCAN', 1, 'PATIENT', 'CT Scan', 'CT Scan images', 1, 2);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority) values ('FIGURES', 1, 'STUDY', 'Figures', 'Study figures', 1, 3);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('RADIOLOGY', 1, 'SAMPLE', 'Radiology', 'Radiology images', 1, 4, '{"version":1,"fields":[{"key":"score","type":"number","label":"Dose Score","description":"Radiation dose score","visibleByDefault":true},{"key":"dose_id","type":"string","label":"Dose ID"},{"key":"operator","type":"string","label":"Operator","filterable":false},{"key":"series","type":"string","label":"Series"}]}');
+
+-- Multi-study contract divergence fixtures. These hang off their own patient so that the
+-- cohort-filtering tests above keep the tab sets they were written for.
+-- Contracts are ordered by cancer_study_identifier,
+-- and 'acc_tcga' sorts before 'study_tcga_pub', so study 2's contract is the first one.
+-- PATHOLOGY is declared by BOTH studies, differently: acc_tcga declares grade/reviewer,
+-- study_tcga_pub declares stain/grade, and the two disagree on grade's type.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('PATHOLOGY', 1, 'SAMPLE', 'Pathology (tcga)', 'Pathology reports', 1, 5, '{"version":1,"fields":[{"key":"stain","type":"string","label":"Stain (tcga)"},{"key":"grade","type":"number","label":"Grade (tcga)","visibleByDefault":true}]}');
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('PATHOLOGY', 2, 'SAMPLE', 'Pathology (acc)', 'Pathology reports', 1, 5, '{"version":1,"fields":[{"key":"grade","type":"string","label":"Grade (acc)"},{"key":"reviewer","type":"string","label":"Reviewer"}]}');
+-- CYTOLOGY has rows in both studies but only acc_tcga declares it at all, so study_tcga_pub's
+-- rows were never checked against that contract and it cannot be the whole column list for a
+-- cohort over both. It is also the only resource with data in a study that does not define it,
+-- which is what makes the tab label fall back to the resource id.
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority, custom_metadata) values ('CYTOLOGY', 2, 'SAMPLE', 'Cytology (acc)', 'Cytology slides', 1, 6, '{"version":1,"fields":[{"key":"preparation","type":"string","label":"Preparation"}]}');
+
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (1, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/he1.jpg', 'H&E Sample 1', '{"stain":"HE","magnification":"20x"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (2, 'HE_SLIDE', 1, 'SAMPLE', 'tcga-a1-a0sd', 'tcga-a1-a0sd-01', 'https://example.com/he2.jpg', 'H&E Sample 2', '{"stain":"HE","magnification":"40x"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (3, 'CT_SCAN', 1, 'PATIENT', 'tcga-a1-a0sb', NULL, 'https://example.com/ct1.dcm', 'CT Scan Patient 1', NULL);
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (4, 'FIGURES', 1, 'STUDY', NULL, NULL, 'https://example.com/fig1.pdf', 'Study Figure', '{"pages":10}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (5, 'FIGURES', 1, 'STUDY', NULL, NULL, 'https://example.com/fig2.pdf', 'Study Figure 2', '{"pages":25}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (6, 'RADIOLOGY', 1, 'SAMPLE', 'tcga-a1-a0se', 'tcga-a1-a0se-01', 'https://example.com/rad1.dcm', 'Radiology 1', '{"dose_id":"1001","score":"85","operator":"tech-a","aperture":"wide"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (7, 'RADIOLOGY', 1, 'SAMPLE', 'tcga-a1-a0sf', 'tcga-a1-a0sf-01', 'https://example.com/rad2.dcm', 'Radiology 2', '{"dose_id":"1002","score":"42","operator":"tech-b","aperture":"narrow"}');
+
+-- Study 2 (acc_tcga) deliberately reuses stable ids that also exist in study 1. Stable ids are
+-- unique only within a study, so a cohort spanning both studies must not match study 2's
+-- 'tcga-a1-a0sb-01' just because study 1's sample of that name was selected, and the distinct
+-- patient/sample counts must not collapse the two into one.
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (8, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-a1-a0sb', 'tcga-a1-a0sb-01', 'https://example.com/acc-he-collides.jpg', 'ACC H&E (same barcode, different sample)', '{"stain":"HE","magnification":"20x"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (9, 'HE_SLIDE', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/acc-he-own.jpg', 'ACC H&E (own sample)', '{"stain":"HE","magnification":"40x"}');
+
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (14, 'PATHOLOGY', 1, 'SAMPLE', 'tcga-a1-a0zz', 'tcga-a1-a0zz-01', 'https://example.com/path1.pdf', 'Pathology 1', '{"stain":"HE","grade":"3"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (15, 'PATHOLOGY', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/path2.pdf', 'Pathology 2', '{"grade":"high","reviewer":"dr-b"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (16, 'CYTOLOGY', 1, 'SAMPLE', 'tcga-a1-a0zz', 'tcga-a1-a0zz-01', 'https://example.com/cyto1.jpg', 'Cytology 1', '{"fixative":"alcohol"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (17, 'CYTOLOGY', 2, 'SAMPLE', 'tcga-zz-9999', 'tcga-zz-9999-01', 'https://example.com/cyto2.jpg', 'Cytology 2', '{"preparation":"smear"}');
+
+-- Four rows on the SAME patient and sample, so (patient_id, sample_id) is not a unique ordering
+-- and paging is only stable if the sort carries a tiebreaker. 'score' is stored as a JSON
+-- *number*, and the values are chosen so lexicographic and numeric order disagree: sorted as text
+-- they read 10, 100, 20, 9.
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (10, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-9.svs', 'Set 9', '{"score":9,"file_size_bytes":100,"is_hne":true,"mpp":0.5}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (11, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-10.svs', 'Set 10', '{"score":10,"file_size_bytes":2000,"is_hne":false,"mpp":0.25}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (12, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-20.svs', 'Set 20', '{"score":20,"file_size_bytes":30,"is_hne":true,"mpp":1.0}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (13, 'SLIDE_SET', 1, 'SAMPLE', 'tcga-a1-a0sk', 'tcga-a1-a0sk-01', 'https://example.com/set-100.svs', 'Set 100', '{"score":100,"file_size_bytes":400,"is_hne":false,"mpp":0.75}');
+
+-- WSI resource test data
+insert into cancer_study (cancer_study_id,cancer_study_identifier,type_of_cancer_id,name,description,public)
+values (9001,'wsi_test_study','dummy','WSI test study','WSI fixture',1);
+insert into patient (internal_id,stable_id,cancer_study_id) values (9001,'WSI-PATIENT',9001);
+insert into sample (internal_id,stable_id,sample_type,patient_id) values (9001,'WSI-SAMPLE','primary tumor',9001);
+
+-- WSI slide rows. The resource rows return metadata.serving (key, sealed_source, tile metadata,
+-- thumbnail size) as JSON for the viewer; cBioPortal never decrypts sealed_source (contract test key).
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_SAMPLE',9001,'SAMPLE','Pathology slides','Whole-slide images linked to samples',0,1);
+insert into resource_definition (resource_id, cancer_study_id, resource_type, display_name, description, open_by_default, priority)
+values ('WSI_PATIENT',9001,'PATIENT','Pathology slides','Whole-slide images linked to patients',0,1);
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900101,'WSI_SAMPLE',9001,'SAMPLE','WSI-PATIENT','WSI-SAMPLE','https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=2351e12d4955','H&E, Initial - Specimen 2 / Block 1','{"slide_key":"2351e12d4955","reference_sample_id":"WSI-SAMPLE","part_key":"part:2351e12d4955","part_number":"2","part_type":"FALLOPIAN TUBE","part_description":"Specimen 2","block_key":"block:2351e12d4955","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":716956681,"can_serve_tiles":true,"slide_type":"H&E","match_level":"BLOCK","specimen_key":"block::part:2351e12d4955::block:2351e12d4955","serving":{"key":"2351e12d4955","sealed_source":"AQEBAQEBAQEBAQEBMc_tL9dUso8ZSDg1JZIFeeclGKwdmpgGohT4JR793-tUE3oED7qLjtQhP_usT08BCC6kpTQl6az5wJ6AMvgEt1zCZgqnjk2gcXeEODZFCRVg80fRaEk2FQaFx_eROJgD6ajaxtdJ1OJw4aKN06MJD0Hc6zBDxi77WsoS","tile_metadata_json":{"dimensions":{"width":2048,"height":1024},"levels":1,"level_dimensions":[{"width":2048,"height":1024}],"level_downsamples":[1.0],"max_zoom":0,"safe_min_level":0,"tile_size":256,"tile_metadata_schema_version":2,"decode_policy_version":"geometry-v2;tile-max=16777216;thumbnail-max=16777216","max_decode_pixels":16777216,"thumbnail_max_decode_pixels":16777216},"thumbnail_width":128,"thumbnail_height":64,"thumbnail_content_type":"image/jpeg"}}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata)
+values (900102,'WSI_PATIENT',9001,'PATIENT','WSI-PATIENT',NULL,'https://portal.example.org/wsi/patient/WSI-PATIENT?studyId=wsi_test_study&slideKey=b3286836fc27','H&E, Initial - Specimen 1 / Block 1','{"slide_key":"b3286836fc27","reference_sample_id":"WSI-SAMPLE","part_key":"part:b3286836fc27","part_number":"1","part_type":"SMALL BOWEL","part_description":"Specimen 1","block_key":"block:b3286836fc27","block_number":"1","block_label":"Block 1","stain_name":"H&E, Initial","stain_group":"H&E (Initial)","is_hne":true,"is_ihc":false,"magnification":"20x","file_size_bytes":1014457317,"can_serve_tiles":false,"slide_type":"H&E","match_level":"UNMATCHED","specimen_key":"unmatched::part:b3286836fc27::block:b3286836fc27"}');
+

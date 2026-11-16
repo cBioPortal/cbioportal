@@ -1,18 +1,5 @@
 /*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.cbioportal.legacy.web;
@@ -34,13 +21,13 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -70,7 +57,7 @@ public class DataAccessTokenControllerTest {
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
-  @MockBean private DataAccessTokenService tokenService;
+  @MockitoBean private DataAccessTokenService tokenService;
 
   @Autowired private MockMvc mockMvc;
 
@@ -255,7 +242,7 @@ public class DataAccessTokenControllerTest {
   public void createTokenUnauthorizedUserTestWithUserRole() throws Exception {
     when(tokenService.createDataAccessToken(ArgumentMatchers.anyString()))
         .thenReturn(MOCK_TOKEN_INFO);
-    HttpSession session = getSession(MOCK_USER, MOCK_PASSWORD);
+    HttpSession session = getSession("UNAUTHORIZED_MOCK_USER", "UNAUTHORIZED_MOCK_PASSWORD");
     MvcResult result =
         mockMvc
             .perform(

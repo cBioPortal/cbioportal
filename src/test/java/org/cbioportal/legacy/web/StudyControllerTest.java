@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -72,7 +72,7 @@ public class StudyControllerTest {
   private static final String TEST_TAGS_3 =
       "{\"Analyst\":{\"Name\":\"Frank\",\"Email\":\"frank@something.com\"},\"Load id\":43}";
 
-  @MockBean private StudyService studyService;
+  @MockitoBean private StudyService studyService;
 
   @Autowired private StudyController studyController;
 
@@ -190,12 +190,34 @@ public class StudyControllerTest {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(2);
 
-    Mockito.when(studyService.getMetaStudies(Mockito.any())).thenReturn(baseMeta);
+    Mockito.when(studyService.getMetaStudies(Mockito.any(), eq(AccessLevel.READ)))
+        .thenReturn(baseMeta);
 
     mockMvc
         .perform(MockMvcRequestBuilders.get("/api/legacy/studies").param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+  }
+
+  @Test
+  @WithMockUser
+  public void getAllStudiesMetaProjectionUsesTheAccessLevelOfTheList() throws Exception {
+
+    ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", true);
+
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(3);
+    Mockito.when(studyService.getMetaStudies(Mockito.any(), eq(AccessLevel.LIST)))
+        .thenReturn(baseMeta);
+
+    try {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get("/api/legacy/studies").param("projection", "META"))
+          .andExpect(MockMvcResultMatchers.status().isOk())
+          .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "3"));
+    } finally {
+      ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);
+    }
   }
 
   @Test

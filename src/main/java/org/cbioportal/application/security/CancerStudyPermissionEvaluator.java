@@ -1,33 +1,7 @@
 /*
  * Copyright (c) 2015 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.cbioportal.application.security;
@@ -39,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.cbioportal.application.security.util.CancerStudyExtractorUtil;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
@@ -50,11 +25,16 @@ import org.cbioportal.legacy.model.SampleList;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataCountFilter;
+import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
+import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
+import org.cbioportal.legacy.web.parameter.Group;
+import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.MolecularProfileCasesGroupAndAlterationTypeFilter;
 import org.cbioportal.legacy.web.parameter.SampleFilter;
+import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,30 +201,29 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
       case MolecularProfile mp -> {
         var cs = mp.getCancerStudy();
         if (mp.getCancerStudy() == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(mp.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(mp.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case SampleList sl -> {
         var cs = sl.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(sl.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(sl.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
       case Patient p -> {
         var cs = p.getCancerStudy();
         if (cs == null) {
-          cs = cacheMapUtil.getCancerStudyMap().get(p.getCancerStudyIdentifier());
+          cs = cacheMapUtil.getCancerStudyPermissionMap().get(p.getCancerStudyIdentifier());
         }
         extractedCancerStudy = cs;
       }
-      case CancerStudyMetadata csm -> {
-        extractedCancerStudy = cacheMapUtil.getCancerStudyMap().get(csm.cancerStudyIdentifier());
-      }
+      case CancerStudyMetadata csm ->
+          extractedCancerStudy =
+              cacheMapUtil.getCancerStudyPermissionMap().get(csm.cancerStudyIdentifier());
 
-      default ->
-          log.debug("hasPermission(), unknown targetType '" + target.getClass().getName() + "'");
+      default -> log.debug("hasPermission(), unknown targetType '{}'", target.getClass().getName());
     }
     return extractedCancerStudy;
   }
@@ -296,7 +275,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    */
   private CancerStudy extractCancerStudyById(String id, String targetType) {
     return switch (targetType) {
-      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyMap().get(id);
+      case TARGET_TYPE_CANCER_STUDY_ID -> cacheMapUtil.getCancerStudyPermissionMap().get(id);
       case TARGET_TYPE_MOLECULAR_PROFILE_ID, TARGET_TYPE_GENETIC_PROFILE_ID -> {
         var mp = cacheMapUtil.getMolecularProfileMap().get(id);
         yield extractCancerStudy(mp);
@@ -354,7 +333,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
    * @param filter An object instance of a known filter type (e.g., {@code SampleFilter}, {@code
    *     StudyViewFilter}).
    * @return A {@code Set<String>} of unique cancer study identifiers referenced by the filter.
-   *     Returns an empty set for unknown filter types or filters that yield no studies.
+   *     Returns an empty set for filters that yield no studies.
+   * @throws IllegalArgumentException if the filter type is not supported, or if the studies it
+   *     refers to cannot be determined. The caller treats this as a denial.
    * @throws IllegalStateException if a molecular profile ID is encountered but the corresponding
    *     MolecularProfile object cannot be found.
    */
@@ -388,7 +369,7 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
                 .flatMap(group -> group.getMolecularProfileCaseIdentifiers().stream())
                 .map(MolecularProfileCaseIdentifier::getMolecularProfileId)
                 .map(id -> cacheMapUtil.getMolecularProfileMap().get(id))
-                .collect(Collectors.toList());
+                .toList();
 
         if (molecularProfiles.contains(null)) {
           throw new IllegalStateException("MolecularProfile not found ");
@@ -398,11 +379,65 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
             .map(m -> m.getCancerStudyIdentifier())
             .collect(Collectors.toSet());
       }
+      case ClinicalDataMultiStudyFilter clinicalDataMultiStudyFilter ->
+          requireStudyIds(
+              clinicalDataMultiStudyFilter.getIdentifiers(),
+              ClinicalDataIdentifier::getStudyId,
+              clinicalDataMultiStudyFilter);
+      case GroupFilter groupFilter -> {
+        if (groupFilter.getGroups() == null) {
+          throw unresolvableFilter(groupFilter);
+        }
+        Set<String> studyIds = new HashSet<>();
+        for (Group group : groupFilter.getGroups()) {
+          if (group == null) {
+            throw unresolvableFilter(groupFilter);
+          }
+          studyIds.addAll(
+              requireStudyIds(group.getSampleIdentifiers(), SampleIdentifier::getStudyId, group));
+        }
+        yield studyIds;
+      }
+      // Fail closed. An empty study set would make the permission check pass vacuously, so a
+      // filter type that is used as a permission target but not handled above must be denied
+      // rather than waved through.
       default -> {
-        log.debug("hasPermission(), unknown filter type: " + filter.getClass().getName());
-        yield new HashSet<>();
+        log.warn(
+            "hasPermission(), denying access: unsupported filter type: {}",
+            filter.getClass().getName());
+        throw new IllegalArgumentException(
+            "Unsupported filter type: " + filter.getClass().getName());
       }
     };
+  }
+
+  /**
+   * Collects the study identifier of every element. Fails (and thereby denies access) when the
+   * collection or one of its elements, or a study identifier, is missing: a study the request
+   * refers to but that is left out here would escape the permission check.
+   */
+  private static <T> Set<String> requireStudyIds(
+      Collection<T> elements, Function<T, String> studyIdOf, Object filter) {
+    if (elements == null) {
+      throw unresolvableFilter(filter);
+    }
+    Set<String> studyIds = new HashSet<>();
+    for (T element : elements) {
+      String studyId = element == null ? null : studyIdOf.apply(element);
+      if (studyId == null) {
+        throw unresolvableFilter(filter);
+      }
+      studyIds.add(studyId);
+    }
+    return studyIds;
+  }
+
+  private static IllegalArgumentException unresolvableFilter(Object filter) {
+    log.warn(
+        "hasPermission(), denying access: could not determine the studies of a {}",
+        filter.getClass().getName());
+    return new IllegalArgumentException(
+        "Could not determine the studies of a " + filter.getClass().getName());
   }
 
   /**

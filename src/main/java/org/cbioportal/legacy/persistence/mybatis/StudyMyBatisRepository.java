@@ -36,6 +36,11 @@ public class StudyMyBatisRepository implements StudyRepository {
   }
 
   @Override
+  public List<CancerStudy> getStudyPermissions() {
+    return studyMapper.getStudyPermissions();
+  }
+
+  @Override
   public BaseMeta getMetaStudies(String keyword) {
     return studyMapper.getMetaStudies(null, keyword);
   }

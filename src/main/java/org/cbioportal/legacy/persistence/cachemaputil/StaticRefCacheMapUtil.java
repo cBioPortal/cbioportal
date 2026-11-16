@@ -1,33 +1,7 @@
 /*
  * Copyright (c) 2018 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.cbioportal.legacy.persistence.cachemaputil;
@@ -58,6 +32,14 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
 
   @Autowired private CacheMapBuilder cacheMapBuilder;
 
+  // Cancer-study permissions have their own short-TTL cache, decoupled from the rest of this
+  // class's forever-cached maps -- see CancerStudyPermissionCache.
+  private final CancerStudyPermissionCache cancerStudyPermissionCache;
+
+  public StaticRefCacheMapUtil(CancerStudyPermissionCache cancerStudyPermissionCache) {
+    this.cancerStudyPermissionCache = cancerStudyPermissionCache;
+  }
+
   // This implementation of the CacheMapUtils keeps a locally cached/referenced HashMap and does
   // not defer to any Spring managed caching solution.
 
@@ -67,7 +49,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   // two version appeared to exist in context. A mechanism with bean injection did not work here.
   static Map<String, MolecularProfile> molecularProfileCache;
   static Map<String, SampleList> sampleListCache;
-  static Map<String, CancerStudy> cancerStudyCache;
 
   @PostConstruct
   private void init() {
@@ -78,7 +59,6 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
     LOG.debug("creating cache maps for authorization");
     molecularProfileCache = cacheMapBuilder.buildMolecularProfileMap();
     sampleListCache = cacheMapBuilder.buildSampleListMap();
-    cancerStudyCache = cacheMapBuilder.buildCancerStudyMap();
   }
 
   @Override
@@ -92,8 +72,8 @@ public class StaticRefCacheMapUtil implements CacheMapUtil {
   }
 
   @Override
-  public Map<String, CancerStudy> getCancerStudyMap() {
-    return cancerStudyCache;
+  public Map<String, CancerStudy> getCancerStudyPermissionMap() {
+    return cancerStudyPermissionCache.getCancerStudyPermissionMap();
   }
 
   @Override

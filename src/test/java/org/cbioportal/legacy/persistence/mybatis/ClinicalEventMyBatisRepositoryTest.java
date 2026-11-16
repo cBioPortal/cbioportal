@@ -17,8 +17,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,7 +30,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
   ClinicalEventMyBatisRepository.class,
   MolecularProfileCaseIdentifierUtil.class
 })
-@DataJpaTest
+@JdbcTest
 @DirtiesContext
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(initializers = AbstractLegacyTestcontainers.Initializer.class)
@@ -154,6 +154,13 @@ public class ClinicalEventMyBatisRepositoryTest {
     ClinicalEventData gisticToGene4 = result.get(3);
     Assert.assertEquals("SAMPLE_ID", gisticToGene4.getKey());
     Assert.assertEquals("TCGA-A1-A0SB-01", gisticToGene4.getValue());
+  }
+
+  @Test
+  public void getDataOfClinicalEventsEmptyIdsReturnsEmpty() throws Exception {
+
+    Assert.assertTrue(
+        clinicalEventMyBatisRepository.getDataOfClinicalEvents(new ArrayList<>()).isEmpty());
   }
 
   @Test

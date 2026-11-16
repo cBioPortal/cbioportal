@@ -27,7 +27,7 @@ See [https://docs.cbioportal.org](https://docs.cbioportal.org)
 
 ## 🤝 License
 
-See [LICENSE](./LICENSE)
+cBioPortal is licensed under the [Apache License 2.0](./LICENSE). Versions released before October 2026 were licensed under AGPL-3.0.
 
 ## 💻 Run Backend
 

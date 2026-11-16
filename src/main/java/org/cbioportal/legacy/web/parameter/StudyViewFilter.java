@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.cbioportal.legacy.model.AlterationFilter;
 import org.cbioportal.legacy.model.GeneFilter;
 import org.cbioportal.legacy.model.StudyViewStructuralVariantFilter;
@@ -107,7 +108,7 @@ public class StudyViewFilter implements Serializable {
     if (dataFilters != null) {
       invalidCount =
           dataFilters.stream()
-              .flatMap(f -> f.getValues().stream())
+              .flatMap(f -> f.getValues() == null ? Stream.empty() : f.getValues().stream())
               .filter(Objects::nonNull)
               .filter(v -> v.getValue() != null == (v.getStart() != null || v.getEnd() != null))
               .count();

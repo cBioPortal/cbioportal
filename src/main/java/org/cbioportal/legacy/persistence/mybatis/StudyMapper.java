@@ -1,6 +1,7 @@
 package org.cbioportal.legacy.persistence.mybatis;
 
 import java.util.List;
+import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.CancerStudyTags;
 import org.cbioportal.legacy.model.ResourceCount;
@@ -17,6 +18,14 @@ public interface StudyMapper {
       String sortBy,
       String direction);
 
+  /**
+   * Returns the minimal per-study data needed to evaluate access permissions: cancer study id,
+   * stable identifier, and authorization groups. Unlike {@link #getStudies}, this does not join
+   * against sample lists/sample list membership, reference genome, or type of cancer, since none of
+   * that data is used for permission checks.
+   */
+  List<CancerStudy> getStudyPermissions();
+
   BaseMeta getMetaStudies(List<String> studyIds, String keyword);
 
   CancerStudy getStudy(String studyId, String projection);
@@ -28,4 +37,11 @@ public interface StudyMapper {
   List<ResourceCount> getResourceCountsForAllStudies();
 
   List<ResourceCount> getResourceCounts(List<String> studyIds);
+
+  /**
+   * Returns one row per identifier (study id, molecular profile stable id, sample list stable id)
+   * owned by a study whose status is not AVAILABLE, with keys {@code identifier} and {@code
+   * studyId}.
+   */
+  List<Map<String, String>> getUnavailableStudyIdentifiers();
 }

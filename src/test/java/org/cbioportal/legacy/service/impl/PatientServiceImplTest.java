@@ -6,6 +6,7 @@ import java.util.List;
 import org.cbioportal.legacy.model.Patient;
 import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.PatientRepository;
+import org.cbioportal.legacy.service.PatientService;
 import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
@@ -183,5 +184,22 @@ public class PatientServiceImplTest extends BaseServiceImplTest {
 
     Assert.assertEquals(1, result.size());
     Assert.assertEquals(PATIENT_ID_1, result.get(0).getStableId());
+  }
+
+  @Test
+  public void getMetaPatientsCountsOnlyWhatTheCallerMayRead() throws Exception {
+
+    // With user authorization enabled the count is derived from the list method, whose
+    // @PostFilter removes what the caller may not read, instead of from the repository count query
+    ReflectionTestUtils.setField(patientService, "AUTHENTICATE", "true");
+    PatientService self = Mockito.mock(PatientService.class);
+    ReflectionTestUtils.setField(patientService, "self", self);
+    Mockito.when(self.getAllPatients(KEYWORD, "ID", null, null, null, null))
+        .thenReturn(Arrays.asList(new Patient(), new Patient()));
+
+    BaseMeta result = patientService.getMetaPatients(KEYWORD);
+
+    Assert.assertEquals((Integer) 2, result.getTotalCount());
+    Mockito.verify(patientRepository, Mockito.never()).getMetaPatients(KEYWORD);
   }
 }

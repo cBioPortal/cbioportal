@@ -30,6 +30,9 @@ categories:
   - title: '⚙️ REST API Changes'
     labels:
       - 'api'
+  - title: '🔒 Security fixes'
+    labels:
+      - 'security'
   - title: '⚙️ Changes to handle external APIs'
     labels:
       - 'external api'
@@ -73,6 +76,12 @@ categories:
   - title: '📐 Prototype (Internal Use)'
     labels:
       - 'cl-prototype'
+  - title: '🌐 Public Portal Only'
+    labels:
+      - 'cl-public-portal'
+  - title: '🗂 Miscellaneous'
+    labels:
+      - 'cl-misc'
 exclude-labels:
   - 'skip-changelog'
   - 'cl-skip-changelog'

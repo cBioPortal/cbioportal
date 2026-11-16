@@ -4,6 +4,21 @@ We are committed to maintaining a secure and reliable platform by integrating pr
 ## Current Vulnerability Status
 We provide a [status badge](https://github.com/cBioPortal/cbioportal?tab=readme-ov-file#cbioportal) that displays the current vulnerability status of the cBioPortal application. Additionally, we maintain a Software Bill of Materials (SBOM) integrated with our Github Dependabot Security system.
 
+## Third-party Dependency Reports
+
+The repository root contains two generated reports for the backend's compile and runtime Maven dependencies:
+
+- `OPEN-SOURCE-DOCUMENTATION` lists each dependency and the license declared in its Maven POM.
+- `bom.json` contains the same dependency graph as a CycloneDX 1.6 SBOM.
+
+Regenerate both files after changing Maven dependencies:
+
+```bash
+scripts/generate-third-party-report.sh
+```
+
+The license names are dependency metadata and still require review before being used as legal attribution. These reports do not inventory bundled static assets under `src/main/resources/webapp` or the separately packaged cBioPortal frontend; those artifacts require separate dependency and license audits. A pull request check regenerates the Maven reports and fails when the committed copies are stale.
+
 ## Vulnerability Detection in Pull Requests
 We utilize **SonarCloud** to ensure the integrity and security of our codebase. SonarCloud is configured to automatically analyze all pull requests and merged code. This enables us to:
 - Detect security vulnerabilities, bugs, and code smells during the review process.

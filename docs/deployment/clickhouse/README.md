@@ -396,7 +396,7 @@ Additional system level monitoring privileges are required as well:
 `GRANT SHOW COLUMNS, SELECT ON system.one TO my_cbioportal_admin`
 
 For clickhouse server versions between 24.10 and 25.6:
-`GRANT CLUSTER ON *.* TO my_cbioportal_admin`
+`GRANT REMOTE ON *.* TO my_cbioportal_admin`
 
 For clickhouse server versions beginning with 25.7 and onward:
 `GRANT READ ON REMOTE TO my_cbioportal_admin`

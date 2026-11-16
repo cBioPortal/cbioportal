@@ -9,6 +9,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.util.List;
+import java.util.Map;
+import org.cbioportal.application.rest.availability.SearchKeyword;
+import org.cbioportal.application.rest.availability.StudyAvailabilityConfig;
+import org.cbioportal.application.rest.availability.UnavailableStudyIdentifiers;
 import org.cbioportal.application.rest.mapper.CancerStudyMetadataMapper;
 import org.cbioportal.application.rest.response.CancerStudyMetadataDTO;
 import org.cbioportal.domain.cancerstudy.usecase.GetCancerStudyMetadataUseCase;
@@ -22,6 +26,7 @@ import org.cbioportal.legacy.web.parameter.sort.StudySortBy;
 import org.cbioportal.shared.SortAndSearchCriteria;
 import org.cbioportal.shared.enums.ProjectionType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -59,6 +64,8 @@ public class ColumnStoreStudyController {
 
   private final GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase;
   private final PermissionEvaluator permissionEvaluator;
+  private final UnavailableStudyIdentifiers unavailableStudyIdentifiers;
+  private final boolean studyAvailabilityEnabled;
 
   /**
    * Constructs a new {@link ColumnStoreStudyController}, with the specified use case and an
@@ -67,12 +74,20 @@ public class ColumnStoreStudyController {
    * @param getCancerStudyMetadataUseCase the use case responsible for retrieving cancer study
    *     metadata.
    * @param permissionEvaluator defines the permission of the cancer study.
+   * @param unavailableStudyIdentifiers studies being (re)imported, which nobody can read
+   * @param studyAvailabilityEnabled whether {@value StudyAvailabilityConfig#ENABLED_PROPERTY} is
+   *     on; only then are unavailable studies reported as unreadable
    */
   public ColumnStoreStudyController(
       GetCancerStudyMetadataUseCase getCancerStudyMetadataUseCase,
-      @Autowired(required = false) PermissionEvaluator permissionEvaluator) {
+      @Autowired(required = false) PermissionEvaluator permissionEvaluator,
+      UnavailableStudyIdentifiers unavailableStudyIdentifiers,
+      @Value("${" + StudyAvailabilityConfig.ENABLED_PROPERTY + ":false}")
+          boolean studyAvailabilityEnabled) {
     this.getCancerStudyMetadataUseCase = getCancerStudyMetadataUseCase;
     this.permissionEvaluator = permissionEvaluator;
+    this.unavailableStudyIdentifiers = unavailableStudyIdentifiers;
+    this.studyAvailabilityEnabled = studyAvailabilityEnabled;
   }
 
   /**
@@ -94,7 +109,10 @@ public class ColumnStoreStudyController {
    *     treated as page 1 for backward compatibility. Must be {@code >= 0}.
    * @param direction the direction of the sort. Defaults to {@link Direction#ASC}.
    * @return a {@link ResponseEntity} containing a list of {@link CancerStudyMetadataDTO} objects
-   *     and an HTTP status code {@link HttpStatus#OK}.
+   *     and an HTTP status code {@link HttpStatus#OK}. When {@value
+   *     StudyAvailabilityConfig#ENABLED_PROPERTY} is on, {@code readPermission} is false for a
+   *     study being (re)imported, in every auth mode, so clients leave it out of per-study requests
+   *     that would be answered with 423.
    * @see ProjectionType
    * @see StudySortBy
    * @see Direction
@@ -112,6 +130,7 @@ public class ColumnStoreStudyController {
                   @ArraySchema(schema = @Schema(implementation = CancerStudyMetadataDTO.class))))
   public ResponseEntity<List<CancerStudyMetadataDTO>> getAllStudies(
       @Parameter(description = "Search keyword that applies to name and cancer type of the studies")
+          @SearchKeyword
           @RequestParam(required = false)
           String keyword,
       @Parameter(description = "Level of detail of the response")
@@ -169,6 +188,11 @@ public class ColumnStoreStudyController {
       responseBody = List.of();
     } else {
       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      // Without the 423 blocking, status does not affect reads, so it does not affect
+      // readPermission either; otherwise data whose importer never set cancer_study.status to
+      // AVAILABLE would show every such study as unreadable in the study list.
+      Map<String, String> unavailable =
+          studyAvailabilityEnabled ? unavailableStudyIdentifiers.get() : Map.of();
       responseBody =
           studies.stream()
               .map(
@@ -183,6 +207,7 @@ public class ColumnStoreStudyController {
                               "CancerStudyId",
                               org.cbioportal.legacy.utils.security.AccessLevel.READ);
                     }
+                    hasReadPermission &= !unavailable.containsKey(study.cancerStudyIdentifier());
                     return CancerStudyMetadataMapper.INSTANCE.toDto(study, hasReadPermission);
                   })
               .toList();
@@ -227,7 +252,7 @@ public class ColumnStoreStudyController {
    */
   @RequestMapping(method = RequestMethod.GET, value = "/studies/meta")
   public ResponseEntity<Void> getAllStudiesMeta(
-      @RequestParam(required = false) String keyword,
+      @SearchKeyword @RequestParam(required = false) String keyword,
       @RequestParam(required = false) StudySortBy sortBy,
       @RequestParam(defaultValue = "ASC") Direction direction) {
 

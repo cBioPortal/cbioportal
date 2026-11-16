@@ -60,6 +60,8 @@ public class EndpointAuthorizationArchTest {
 
           // robots.txt: a crawl policy, no study data
           "org.cbioportal.application.seo.RobotsController",
+          // llms.txt: deployment-supplied guidance for automated clients, no study data
+          "org.cbioportal.application.seo.LlmsTxtController",
 
           // UI pages and documentation
           "org.cbioportal.legacy.web.IndexPageController",
@@ -67,7 +69,6 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.SamlAndBasicLoginController",
           "org.cbioportal.legacy.web.DocRedirectController",
           "org.cbioportal.legacy.web.LegacyApiController",
-          "org.cbioportal.application.documentation.ExternalPageController",
 
           // Explicitly public data
           "org.cbioportal.legacy.web.PublicVirtualStudiesController",

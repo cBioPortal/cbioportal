@@ -49,12 +49,13 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 
 ## The Hyve
 * Oleguer Plantalech
-* Jessica Singh
-* Tim Kuijpers
-* Sowmiyaa Senthil Kumar
-* Floris Vleugels
-* Laura Varela
-* Zeynep Karagoz
+* Martijn Prevoo
+* Berke Yildiz
+* Sanne van der Stam
+* Wouter Maessen
+* Fedde Schaeffer
+* Ilya Vasilchenko
+* Architha Keijsers
 * Henk-Jan van den Ham
 
 ## SE4BIO
@@ -106,7 +107,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * James Xu
 * Dionne Zaal
 * Kelsey Zhu
-* Fedde Schaeffer
 * Riza Nugraha
 * Ngoc Nguyen
 * Diana Baiceanu
@@ -118,6 +118,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Elena G Lara
 * Sjoerd van Hagen
 * Anika Bongaarts
+* Sowmiyaa Senthil Kumar
+* Tim Kuijpers
+* Zeynep Karagoz
+* Floris Vleugels
+* Laura Varela
+* Jessica Singh
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

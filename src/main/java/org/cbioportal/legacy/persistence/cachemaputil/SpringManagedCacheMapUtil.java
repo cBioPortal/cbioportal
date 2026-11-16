@@ -1,33 +1,7 @@
 /*
  * Copyright (c) 2018 - 2019 Memorial Sloan-Kettering Cancer Center.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS
- * FOR A PARTICULAR PURPOSE. The software and documentation provided hereunder
- * is on an "as is" basis, and Memorial Sloan-Kettering Cancer Center has no
- * obligations to provide maintenance, support, updates, enhancements or
- * modifications. In no event shall Memorial Sloan-Kettering Cancer Center be
- * liable to any party for direct, indirect, special, incidental or
- * consequential damages, including lost profits, arising out of the use of this
- * software and its documentation, even if Memorial Sloan-Kettering Cancer
- * Center has been advised of the possibility of such damage.
- */
-
-/*
- * This file is part of cBioPortal.
- *
- * cBioPortal is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 package org.cbioportal.legacy.persistence.cachemaputil;
@@ -66,6 +40,14 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
 
   @Autowired private CacheMapBuilder cacheMapBuilder;
 
+  // Cancer-study permissions have their own short-TTL cache, decoupled from the general
+  // Spring-managed cache's much longer TTL -- see CancerStudyPermissionCache.
+  private final CancerStudyPermissionCache cancerStudyPermissionCache;
+
+  public SpringManagedCacheMapUtil(CancerStudyPermissionCache cancerStudyPermissionCache) {
+    this.cancerStudyPermissionCache = cancerStudyPermissionCache;
+  }
+
   @PostConstruct
   public void init() {
     // Make sure the user does not have a conflicting configuration. Explode if there is.
@@ -101,12 +83,8 @@ public class SpringManagedCacheMapUtil implements CacheMapUtil {
   }
 
   @Override
-  @Cacheable(
-      cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
-  public Map<String, CancerStudy> getCancerStudyMap() {
-    LOG.debug("Building cancerStudyMap (cache miss)");
-    return cacheMapBuilder.buildCancerStudyMap();
+  public Map<String, CancerStudy> getCancerStudyPermissionMap() {
+    return cancerStudyPermissionCache.getCancerStudyPermissionMap();
   }
 
   //  bean is only instantiated when there is user authorization

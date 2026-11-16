@@ -38,7 +38,7 @@ public class GetGenericAssayMetaUseCase {
   // lists produce null keys. Non-null entries are filtered to exclude nulls.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()",
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()",
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
@@ -50,7 +50,7 @@ public class GetGenericAssayMetaUseCase {
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()",
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()",
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"
@@ -110,7 +110,7 @@ public class GetGenericAssayMetaUseCase {
   // reported total-count won't line up with what's actually paginable for that projection.
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()",
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()",
       key =
           "{#stableIds == null ? null : new java.util.TreeSet(#stableIds.?[#this != null]),"
               + " #molecularProfileIds == null ? null : new java.util.TreeSet(#molecularProfileIds.?[#this != null]),"

@@ -25,6 +25,10 @@ public class RobotsController {
 
   @Autowired private SitemapFeature sitemapFeature;
 
+  // When set, /llms.txt is served (see LlmsTxtController) and robots.txt points to it.
+  @Value("${llms_txt.location:}")
+  private String llmsTxtLocation;
+
   // Path prefixes disallowed for all crawlers (comma-separated). Defaults to /proxy/ (external
   // OncoKB/Genome Nexus annotation, the heaviest fan-out and no indexable content). /api/ is
   // deliberately left crawlable: study and patient pages are a client-rendered SPA populated by
@@ -51,6 +55,12 @@ public class RobotsController {
     String baseUrl = SeoRequestUtil.resolveBaseUrl(request);
 
     StringBuilder body = new StringBuilder();
+
+    if (!llmsTxtLocation.isBlank()) {
+      body.append("# Guidance for AI agents and bulk data access: ")
+          .append(baseUrl)
+          .append("/llms.txt\n\n");
+    }
 
     // Deployment-specific bots to block, each as its own group, before the shared policy below.
     for (String userAgent : disallowUserAgents.split(",")) {

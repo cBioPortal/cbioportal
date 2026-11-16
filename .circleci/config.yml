@@ -324,6 +324,13 @@ jobs:
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1
+              # Public read-only staging ClickHouse creds, from the
+              # clickhouse-public-staging-ro-user context (API_TEST_DB_*) —
+              # renamed here to what the remote-clickhouse compose override
+              # expects, since `environment:` above can't reference them.
+              export CLICKHOUSE_URL="$API_TEST_DB_URL"
+              export CLICKHOUSE_USER="$API_TEST_DB_USER"
+              export CLICKHOUSE_PASSWORD="$API_TEST_DB_PW"
               nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
@@ -479,10 +486,9 @@ jobs:
     # on e2e_localdb_shards — it polls the CircleCI API for the shards' job
     # terminal state and merges even when shards are red (`requires:` only
     # chains on success, which would skip this job exactly when it's most
-    # useful). Unlike the frontend's merge job (which `checkout`s the
-    # frontend repo), this runs inside the backend repo, so it clones
-    # cbioportal-frontend master to get the end-to-end-test-playwright
-    # package needed to run `playwright merge-reports`.
+    # useful). It takes end-to-end-test-playwright from the workspace, the
+    # frontend commit the shards ran, so merge-reports uses the Playwright
+    # version that wrote the blobs.
     e2e_localdb_merge:
       docker:
         - image: ghcr.io/cbioportal/cbioportal-frontend-playwright-ci:v1.59.1-jammy
@@ -496,10 +502,8 @@ jobs:
         - run:
             name: Install jq (not present in the Playwright Docker image)
             command: apt-get update && apt-get install -y jq
-        - run:
-            name: Clone cbioportal-frontend master for the Playwright test package
-            command: |
-              git clone --depth 1 -b master --single-branch https://github.com/cBioPortal/cbioportal-frontend.git
+        - attach_workspace:
+            at: /tmp/repos
         - run:
             name: Wait for all e2e_localdb_shards parallel runs to terminate
             command: |
@@ -642,17 +646,19 @@ jobs:
             environment:
               APP_CLICKHOUSE_MODE: "true"
               APP_CUSTOM_ARGS: << pipeline.parameters.custom_springboot_args >>
-              # Public read-only staging ClickHouse. Hardcoded rather than read from the
-              # clickhouse-public-staging-ro-user context because CircleCI does not pass
-              # context env vars to forked-PR builds. The remote-clickhouse override pushes
-              # these into the container, replacing the local .env default.
-              CLICKHOUSE_URL: "jdbc:ch:https://dl96orhu96.us-east-1.aws.clickhouse.cloud:8443/cbioportal_public_clone_2026_05_27?zeroDateTimeBehavior=convertToNull&socket_timeout=300000"
-              CLICKHOUSE_USER: "apitests"
-              CLICKHOUSE_PASSWORD: "aPitestspw@2345"
             command: |
               cd cbioportal-test
               export DOCKER_IMAGE_CBIOPORTAL=$DOCKER_REPO:$CIRCLE_SHA1-web-shenandoah
-              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              # Public read-only staging ClickHouse creds, from the
+              # clickhouse-public-staging-ro-user context (API_TEST_DB_*).
+              # `environment:` entries above can't reference other env vars —
+              # that only works in a command's own shell — so the rename to
+              # what the remote-clickhouse compose override expects happens
+              # here.
+              export CLICKHOUSE_URL="$API_TEST_DB_URL"
+              export CLICKHOUSE_USER="$API_TEST_DB_USER"
+              export CLICKHOUSE_PASSWORD="$API_TEST_DB_PW"
+              nohup ./scripts/docker-compose.sh --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml -f /tmp/repos/cbioportal/.circleci/docker-compose.study-availability.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Wait for cbioportal to be live at localhost
             command: |
@@ -706,6 +712,12 @@ jobs:
         BASE_REPO: cbioportal/cbioportal
         DEV_REPO: cbioportal/cbioportal-dev
         OUTPUT_FORMAT: '{severity: .cvss.severity, source_id: .source_id, vulnerable_range: .vulnerable_range, fixed_by: .fixed_by, url: .url, description: .description}'
+        SUCCESS_MESSAGE: 'Passing'
+        SUCCESS_COLOR: 'brightgreen'
+        FAILURE_MESSAGE: 'Failing'
+        FAILURE_COLOR: 'FF0A0A'
+        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
+        UPSTREAM_REPO_URL: 'https://github.com/cBioPortal/cbioportal.git'
         SORT: 'sort_by(.severity | if . == "CRITICAL" then 0 elif . == "HIGH" then 1 elif . == "MEDIUM" then 2 elif . == "LOW" then 3 else 4 end)'
       steps:
         - attach_workspace:
@@ -723,21 +735,29 @@ jobs:
             command: |
               export DOCKER_TAG=$CIRCLE_SHA1
               docker load -i $DOCKER_TAG-web-shenandoah.tar
+        # Baseline: the last image published to cbioportal/cbioportal by the
+        # GitHub Actions workflow. On a master pipeline this is the PREVIOUS
+        # master build, which is exactly what makes the diff below mean "CVEs
+        # this change introduces". It is NOT a scan of the commit under test,
+        # so it must never be what the security badge reports.
         - run:
-            name: Run Docker Scout on master
+            name: Run Docker Scout on published master (baseline)
             command: |
               IMAGE=$BASE_REPO:master-web-shenandoah
               docker pull $IMAGE
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > master_report.sbom
-              echo "Docker Scout Report for Master"
-              cat master_report.sbom | jq
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > baseline_report.sbom
+              echo "Docker Scout Report for published master (baseline)"
+              cat baseline_report.sbom | jq
+        # Head: the image this pipeline just built from CIRCLE_SHA1. On a master
+        # pipeline that commit is master head, so this -- not the baseline -- is
+        # the scan the security badge is computed from.
         - run:
-            name: Run Docker Scout on PR
+            name: Run Docker Scout on commit under test (head)
             command: |
               IMAGE=$DEV_REPO:$CIRCLE_SHA1-web-shenandoah
-              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > pr_report.sbom
-              echo "Docker Scout Report for PR"
-              cat pr_report.sbom | jq
+              docker-scout cves $IMAGE --format sbom | jq -r "[.vulnerabilities[].vulnerabilities[] | $OUTPUT_FORMAT] | $SORT" > head_report.sbom
+              echo "Docker Scout Report for commit under test (head)"
+              cat head_report.sbom | jq
         - run:
             name: Analyze and report results
             # Severity-aware gate: fail only on new CRITICAL/HIGH findings (the
@@ -747,8 +767,8 @@ jobs:
             # distro advisories it happens to surface (e.g. swapping a base
             # image trades Go-stdlib HIGHs for no-fix-available Ubuntu MEDIUMs).
             command: |
-              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' pr_report.sbom master_report.sbom)
-              NEW=$(jq --argjson ids "$DIFF" '[.[] | select(.source_id as $a | $ids | index($a))]' pr_report.sbom)
+              DIFF=$(jq -s 'map(map(.source_id)) | .[0] - .[1]' head_report.sbom baseline_report.sbom)
+              NEW=$(jq --argjson ids "$DIFF" '[.[] | select(.source_id as $a | $ids | index($a))]' head_report.sbom)
               SEVERE_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length')
               OTHER_COUNT=$(echo "$NEW" | jq '[.[] | select(.severity != "CRITICAL" and .severity != "HIGH")] | length')
               if [ "$OTHER_COUNT" -gt 0 ]; then
@@ -761,49 +781,52 @@ jobs:
                 exit 1
               else
                 echo "No new CRITICAL/HIGH vulnerabilities found!"
-                echo "Individual reports for master and pr have been saved under the Artifacts tab."
+                echo "Individual baseline and head reports have been saved under the Artifacts tab."
                 exit 0
               fi
-        - persist_to_workspace:
-            root: /tmp/repos
-            paths:
-              - master_report.sbom
-        - store_artifacts:
-            path: /tmp/repos/master_report.sbom
-        - store_artifacts:
-            path: /tmp/repos/pr_report.sbom
-
-    update_security_status_badge:
-      machine:
-        image: ubuntu-2204:2024.08.1
-      resource_class: medium
-      working_directory: /tmp/repos
-      environment:
-        SUCCESS_MESSAGE: 'Passing'
-        SUCCESS_COLOR: 'brightgreen'
-        FAILURE_MESSAGE: 'Failing'
-        FAILURE_COLOR: 'FF0A0A'
-        TEST_REPO_URL: 'git@github.com:cBioPortal/cbioportal-test.git'
-      steps:
-        - attach_workspace:
-            at: /tmp/repos
+        # The badge is published from this job rather than a downstream one so
+        # that nothing has to poll for the scan or shuttle it through artifacts.
+        # `when: always` is what makes that work: these steps still run after the
+        # gate above exits 1, which is exactly when the badge must go red.
         - add_ssh_keys:
             fingerprints:
               - "SHA256:vtzpWrYBLQAMgZIsEv3Nuc1HeINJXFFtUB+IpSY/AK4"
         - run:
-            name: Set up git user
+            name: Update security status badge (master only)
+            when: always
             command: |
+              if [ "$CIRCLE_BRANCH" != "master" ]; then
+                echo "Not master; the badge is only published from master pipelines."
+                exit 0
+              fi
+              # An earlier step can die before producing the scan (image load or
+              # docker-scout itself failing). There is then nothing to publish,
+              # and the previous badge stands rather than being cleared.
+              if [ ! -s head_report.sbom ]; then
+                echo "No head_report.sbom produced; leaving the badge unchanged."
+                exit 0
+              fi
+              # Master pipelines overlap and can finish out of order, so an older
+              # run must not clobber a newer run's badge. If CIRCLE_SHA1 is no
+              # longer master head, a newer pipeline owns the badge. ls-remote is
+              # used rather than the GitHub API: no token, and no 60/hr per-IP
+              # rate limit to share with every other project on this runner.
+              # Fails open -- an unreachable remote keeps the previous behaviour.
+              HEAD_SHA=$(git ls-remote $UPSTREAM_REPO_URL refs/heads/master | cut -f1)
+              if [ -n "$HEAD_SHA" ] && [ "$HEAD_SHA" != "$CIRCLE_SHA1" ]; then
+                echo "master advanced to $HEAD_SHA since this pipeline started ($CIRCLE_SHA1); leaving the badge to that pipeline."
+                exit 0
+              fi
               git config --global user.name "CircleCI Bot"
               git config --global user.email "bot@circleci.com"
-        - run:
-            name: Clone test repo using ssh url
-            command: |
+              # The workspace carries an https clone of cbioportal-test; replace
+              # it with an ssh one so the push below can authenticate.
               rm -rf cbioportal-test
               git clone $TEST_REPO_URL
-        - run:
-            name: Count vulnerabilities and update status badge
-            command: |
-              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' master_report.sbom)
+              # head_report.sbom is the scan of CIRCLE_SHA1, i.e. master head for
+              # this pipeline. Counting the baseline here instead would describe
+              # the previous master build, one commit stale.
+              COUNT=$(jq '[.[] | select(.severity == "CRITICAL" or .severity == "HIGH")] | length' head_report.sbom)
               cd cbioportal-test
               if [ $COUNT -eq 0 ]; then
                 jq --arg msg "$SUCCESS_MESSAGE" --arg col "$SUCCESS_COLOR" '.message = $msg | .color = $col' security-status.json > temp.json
@@ -816,15 +839,19 @@ jobs:
               # Publish the scan the badge was computed from alongside the badge
               # state, so the README badge can link to the exact report. Committed
               # in the same commit as security-status.json to keep them atomic.
-              cp ../master_report.sbom security-report.json
-        - run:
-            name: Push new security status to cbioportal/cbioportal-test
-            command: |
-              cd cbioportal-test
+              cp ../head_report.sbom security-report.json
               git diff --stat
               git add security-status.json security-report.json
-              git commit -m "Update security status" || echo "No changes to commit"
+              git commit -m "Update security status for ${CIRCLE_SHA1}" || echo "No changes to commit"
               git push
+        # when: always -- the reports are most useful precisely when the gate
+        # above exited 1, which would otherwise skip these steps.
+        - store_artifacts:
+            path: /tmp/repos/baseline_report.sbom
+            when: always
+        - store_artifacts:
+            path: /tmp/repos/head_report.sbom
+            when: always
 
 workflows:
     tests:
@@ -855,33 +882,50 @@ workflows:
             requires:
               - checkout_pr
               - pull_cbioportal_test_codebase
+        # Manual gate on fork PRs for the jobs below that use the remote
+        # ClickHouse credentials (clickhouse-public-staging-ro-user context).
+        # A context does not stop a job from running, so without this gate a
+        # fork PR runs them unattended.
+        #
+        # Filtered to pull/.*, which is CIRCLE_BRANCH only on fork builds
+        # (fork #12431, same-repo #12361), so same-repo builds have no gate.
+        # CircleCI drops a filtered-out job from requires: and skips a job
+        # left with none, so each job requiring the gate must also require a
+        # job that always runs.
+        - approve_clickhouse_tests:
+            type: approval
+            filters:
+              branches:
+                only: /^pull\/.*$/
         # Playwright localdb e2e, replacing the retired WDIO run_e2e_localdb_tests.
         # Shards need the frontend dist/specs (build_frontend) and the PR's
         # backend image tar (build_web_and_data_image); cbioportal-test +
         # cbioportal-frontend reach the shards through the workspace closure.
         - e2e_localdb_shards:
+            context:
+              - clickhouse-public-staging-ro-user
             requires:
+              - approve_clickhouse_tests
               - build_frontend
               - build_web_and_data_image
         # Intentionally NOT requiring e2e_localdb_shards: this job polls the
         # CircleCI API for the shards' terminal state and merges, so the
         # merged HTML report is produced even when shards are red. This is
-        # the check to mark required for branch protection.
-        - e2e_localdb_merge
+        # the check to mark required for branch protection. The gate holds it
+        # until fork shards are released; pull_cbioportal_frontend_codebase
+        # always runs and supplies the frontend checkout.
+        - e2e_localdb_merge:
+            requires:
+              - approve_clickhouse_tests
+              - pull_cbioportal_frontend_codebase
         - run_api_tests:
             context:
               - clickhouse-public-staging-ro-user
             requires:
+              - approve_clickhouse_tests
               - build_web_image
         - run_security_tests:
             context:
               - docker-scout
             requires:
               - build_web_image
-        - update_security_status_badge:
-            requires:
-              - run_security_tests
-            filters:
-              branches:
-                only:
-                  - master

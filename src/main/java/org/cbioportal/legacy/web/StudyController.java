@@ -147,7 +147,7 @@ public class StudyController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.add(
           HeaderKeyConstants.TOTAL_COUNT,
-          studyService.getMetaStudies(keyword).getTotalCount().toString());
+          studyService.getMetaStudies(keyword, getAccessLevel()).getTotalCount().toString());
       return new ResponseEntity<>(responseHeaders, HttpStatus.OK);
     } else {
       return new ResponseEntity<>(

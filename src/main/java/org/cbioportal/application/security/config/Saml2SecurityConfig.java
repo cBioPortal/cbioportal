@@ -19,17 +19,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml5AuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AssertionAuthentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml5LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2RelyingPartyInitiatedLogoutSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -44,8 +46,7 @@ public class Saml2SecurityConfig {
   @Bean
   @ConditionalOnProperty(value = "authenticate", havingValue = "saml")
   public SecurityFilterChain samlFilterChain(
-      HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository)
-      throws Exception {
+      HttpSecurity http, RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
     return http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
@@ -58,7 +59,7 @@ public class Saml2SecurityConfig {
             eh ->
                 eh.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    AntPathRequestMatcher.antMatcher("/api/**")))
+                    PathPatternRequestMatcher.pathPattern("/api/**")))
         .saml2Login(withDefaults())
         .saml2Metadata(withDefaults())
         // NOTE: I did not get the official .saml2Logout() DSL to work as
@@ -74,22 +75,30 @@ public class Saml2SecurityConfig {
   }
 
   @Bean
-  public OpenSaml4AuthenticationProvider openSaml4AuthenticationProvider() {
-    OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
+  public OpenSaml5AuthenticationProvider openSaml4AuthenticationProvider() {
+    OpenSaml5AuthenticationProvider authenticationProvider = new OpenSaml5AuthenticationProvider();
     authenticationProvider.setResponseAuthenticationConverter(rolesConverter());
     return authenticationProvider;
   }
 
-  private Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication>
+  private Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication>
       rolesConverter() {
 
-    Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
-        OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter();
+    Converter<OpenSaml5AuthenticationProvider.ResponseToken, Saml2Authentication> delegate =
+        OpenSaml5AuthenticationProvider.createDefaultResponseAuthenticationConverter();
 
     return (responseToken) -> {
       Saml2Authentication authentication = delegate.convert(responseToken);
       var principal =
           (Saml2AuthenticatedPrincipal) Objects.requireNonNull(authentication).getPrincipal();
+      // The default converter sets the registrationId on
+      // Saml2AssertionAuthentication, not the principal. The logout resolver
+      // reads it from the principal, so propagate it here.
+      if (principal instanceof DefaultSaml2AuthenticatedPrincipal defaultPrincipal
+          && authentication instanceof Saml2AssertionAuthentication assertionAuth) {
+        defaultPrincipal.setRelyingPartyRegistrationId(
+            assertionAuth.getRelyingPartyRegistrationId());
+      }
       Collection<String> roles = principal.getAttribute(this.roleAttributeName);
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
       if (!Objects.isNull(roles)) {
@@ -108,8 +117,8 @@ public class Saml2SecurityConfig {
     // Perform logout at the SAML2 IDP
     DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
         new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository);
-    OpenSaml4LogoutRequestResolver logoutRequestResolver =
-        new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+    OpenSaml5LogoutRequestResolver logoutRequestResolver =
+        new OpenSaml5LogoutRequestResolver(relyingPartyRegistrationResolver);
 
     return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
   }

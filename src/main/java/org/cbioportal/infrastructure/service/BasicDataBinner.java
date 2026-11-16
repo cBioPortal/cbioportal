@@ -76,7 +76,7 @@ public class BasicDataBinner {
 
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
-      condition = "@cacheEnabledConfig.getEnabled()")
+      condition = "@cacheEnabledConfig.getEnabledClickhouse()")
   public <T extends DataBinCountFilter, S extends DataBinFilter, U extends DataBin>
       List<U> getDataBins(
           DataBinMethod dataBinMethod, T dataBinCountFilter, boolean shouldRemoveSelfFromFilter) {

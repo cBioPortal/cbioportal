@@ -69,7 +69,6 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.SamlAndBasicLoginController",
           "org.cbioportal.legacy.web.DocRedirectController",
           "org.cbioportal.legacy.web.LegacyApiController",
-          "org.cbioportal.application.documentation.ExternalPageController",
 
           // Explicitly public data
           "org.cbioportal.legacy.web.PublicVirtualStudiesController",

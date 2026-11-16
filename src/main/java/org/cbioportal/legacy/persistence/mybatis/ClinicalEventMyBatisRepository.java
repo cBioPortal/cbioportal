@@ -47,7 +47,10 @@ public class ClinicalEventMyBatisRepository implements ClinicalEventRepository {
 
   @Override
   public List<ClinicalEventData> getDataOfClinicalEvents(List<Long> clinicalEventIds) {
-
+    // The mapper omits the IN filter for an empty list, which would select every row.
+    if (clinicalEventIds == null || clinicalEventIds.isEmpty()) {
+      return Collections.emptyList();
+    }
     return clinicalEventMapper.getDataOfClinicalEvents(clinicalEventIds);
   }
 

@@ -59,8 +59,8 @@ public class SwaggerConfig {
                     "1.0 (beta). Backwards compatibility will be maintained (after 1.0 release)")
                 .license(
                     new License()
-                        .name("License")
-                        .url("https://github.com/cBioPortal/cbioportal/blob/master/LICENSE"))
+                        .name("Apache-2.0")
+                        .url("https://www.apache.org/licenses/LICENSE-2.0"))
                 .contact(
                     new Contact()
                         .name("cbioportal")

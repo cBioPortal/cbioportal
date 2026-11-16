@@ -64,8 +64,8 @@
       "licenses" : [
         {
           "license" : {
-            "id" : "AGPL-3.0",
-            "url" : "https://www.gnu.org/licenses/agpl.txt"
+            "id" : "Apache-2.0",
+            "url" : "https://www.apache.org/licenses/LICENSE-2.0"
           }
         }
       ],

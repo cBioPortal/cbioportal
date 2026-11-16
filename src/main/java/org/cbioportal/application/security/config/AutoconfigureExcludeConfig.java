@@ -3,9 +3,9 @@ package org.cbioportal.application.security.config;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.saml2.Saml2RelyingPartyAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
+import org.springframework.boot.security.oauth2.client.autoconfigure.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.security.saml2.autoconfigure.Saml2RelyingPartyAutoConfiguration;
 import org.springframework.context.annotation.Configuration;
 
 // Conditionally disable autoconfguration for Spring Boot components.
@@ -35,6 +35,6 @@ public class AutoconfigureExcludeConfig {
   @Configuration
   @ConditionalOnExpression(
       "T(org.apache.commons.lang3.StringUtils).isEmpty('${spring.session.store-type:}')")
-  @EnableAutoConfiguration(exclude = RedisAutoConfiguration.class)
+  @EnableAutoConfiguration(exclude = DataRedisAutoConfiguration.class)
   public static class Redis {}
 }

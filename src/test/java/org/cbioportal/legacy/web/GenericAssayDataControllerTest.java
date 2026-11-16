@@ -89,7 +89,7 @@ public class GenericAssayDataControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/generic_assay_data/" + PROF_ID + "/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/generic_assay_data/" + PROF_ID + "/fetch")
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(genericAssayDataFilter)))

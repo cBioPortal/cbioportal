@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.geneset_data.ClickhouseGenesetDataMapper">
+
+    <!--
+        Gene set scores are only available in the packed genetic_alteration table (one row per gene
+        set holding all sample values as a comma separated string, in the order of
+        genetic_profile_samples.ordered_sample_list). They are unpacked here in ClickHouse, pairing
+        every value with its sample, so no per-profile sample bookkeeping is needed in Java.
+        arrayResize guards against a sample list and a value list of different length.
+    -->
+    <select id="getGenesetData" resultType="org.cbioportal.legacy.model.GenesetMolecularData">
+        WITH
+        profile AS (
+            SELECT
+                genetic_profile.genetic_profile_id AS id,
+                cancer_study.cancer_study_identifier AS study_id
+            FROM genetic_profile
+            INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id
+            WHERE genetic_profile.stable_id = #{molecularProfileId}
+        ),
+        sample_order AS (
+            SELECT genetic_profile_id AS profile_id, splitByChar(',', ordered_sample_list) AS sample_ids
+            FROM genetic_profile_samples
+            WHERE genetic_profile_id IN (SELECT id FROM profile)
+        ),
+        entries AS (
+            SELECT
+                geneset.external_id AS geneset_id,
+                arrayJoin(
+                    arrayZip(
+                        sample_order.sample_ids,
+                        arrayResize(splitByChar(',', genetic_alteration.`values`), length(sample_order.sample_ids), '')
+                    )
+                ) AS entry
+            FROM genetic_alteration
+            INNER JOIN geneset ON geneset.genetic_entity_id = genetic_alteration.genetic_entity_id
+            INNER JOIN sample_order ON sample_order.profile_id = genetic_alteration.genetic_profile_id
+            WHERE genetic_alteration.genetic_profile_id IN (SELECT id FROM profile)
+            <if test="genesetIds != null and !genesetIds.isEmpty()">
+                AND geneset.external_id IN
+                <foreach item="item" collection="genesetIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+        )
+        SELECT
+            #{molecularProfileId} AS "molecularProfileId",
+            s.sample_stable_id AS "sampleId",
+            s.patient_stable_id AS "patientId",
+            s.cancer_study_identifier AS "studyId",
+            entries.geneset_id AS "genesetId",
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.genomic_data.ClickhouseGeneMolecularDataMapper.roundedValue">
+                <property name="valueColumn" value="entries.entry.2"/>
+            </include>
+        FROM entries
+        INNER JOIN sample_derived s ON s.internal_id = toInt64OrZero(entries.entry.1)
+        WHERE s.cancer_study_identifier IN (SELECT study_id FROM profile)
+        <if test="sampleIds != null">
+            AND s.sample_stable_id IN
+            <foreach item="item" collection="sampleIds" open="(" separator="," close=")">#{item}</foreach>
+        </if>
+    </select>
+
+</mapper>

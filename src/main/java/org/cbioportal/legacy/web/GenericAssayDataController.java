@@ -1,5 +1,6 @@
 package org.cbioportal.legacy.web;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -86,10 +87,13 @@ public class GenericAssayDataController {
     }
   }
 
+  // Served by ColumnStoreGenericAssayDataController at the original path. Kept under /api/legacy
+  // as a fallback until the legacy implementation is removed.
+  @Hidden
   @PreAuthorize(
       "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
-      value = "/generic_assay_data/{molecularProfileId}/fetch",
+      value = "/legacy/generic_assay_data/{molecularProfileId}/fetch",
       method = RequestMethod.POST,
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)

@@ -235,7 +235,7 @@ public class DiscreteCopyNumberControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
                 .with(csrf())
                 .param(
                     "discreteCopyNumberEventType",
@@ -284,7 +284,7 @@ public class DiscreteCopyNumberControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
                 .with(csrf())
                 .param(
                     "discreteCopyNumberEventType",
@@ -340,7 +340,7 @@ public class DiscreteCopyNumberControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/discrete-copy-number/fetch")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(discreteCopyNumberFilter))

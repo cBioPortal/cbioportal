@@ -594,4 +594,39 @@ public class ClickhouseClinicalDataMapperTest {
 
     return count == null ? 0 : count.getCount();
   }
+
+  @Test
+  public void fetchDoesNotReturnPaddedEmptyValues() {
+    // GENIE-TEST-301-01 has a mutation_count; 317 to 319 have none, which clinical_data_derived
+    // stores as empty values. The API only returns real values, like the legacy implementation.
+    List<String> ids =
+        List.of(
+            "study_genie_pub_GENIE-TEST-301-01",
+            "study_genie_pub_GENIE-TEST-317-01",
+            "study_genie_pub_GENIE-TEST-318-01",
+            "study_genie_pub_GENIE-TEST-319-01");
+    List<String> attributes = List.of("mutation_count");
+
+    List<ClinicalData> summary =
+        mapper.fetchClinicalDataSummary(ids, attributes, List.of(STUDY_GENIE_PUB), "sample");
+    List<ClinicalData> idOnly =
+        mapper.fetchClinicalDataId(ids, attributes, List.of(STUDY_GENIE_PUB), "sample");
+    Integer count =
+        mapper.fetchClinicalDataMeta(ids, attributes, List.of(STUDY_GENIE_PUB), "sample");
+
+    assertEquals(1, summary.size());
+    assertEquals("GENIE-TEST-301-01", summary.get(0).sampleId());
+    assertEquals("11", summary.get(0).attrValue());
+    assertEquals(1, idOnly.size());
+    assertEquals(1, count.intValue());
+  }
+
+  @Test
+  public void fetchedValuesAreNeverEmpty() {
+    List<ClinicalData> all =
+        mapper.fetchClinicalDataSummary(null, null, List.of(STUDY_GENIE_PUB), "sample");
+
+    assertFalse(all.isEmpty());
+    assertTrue(all.stream().noneMatch(d -> d.attrValue() == null || d.attrValue().isEmpty()));
+  }
 }

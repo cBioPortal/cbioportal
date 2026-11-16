@@ -1,0 +1,86 @@
+package org.cbioportal.application.rest.vcolumnstore;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.List;
+import org.cbioportal.application.rest.mapper.GenesetMolecularDataMapper;
+import org.cbioportal.application.rest.response.GenesetMolecularDataDTO;
+import org.cbioportal.domain.geneset_data.usecase.FetchGenesetDataUseCase;
+import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.service.exception.SampleListNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
+import org.cbioportal.legacy.web.parameter.GenesetDataFilterCriteria;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@InternalApi
+@RestController
+@RequestMapping("/api")
+@Validated
+@Tag(name = "Gene Set Scores", description = " ")
+public class ColumnStoreGenesetDataController {
+
+  private final FetchGenesetDataUseCase fetchGenesetDataUseCase;
+
+  public ColumnStoreGenesetDataController(FetchGenesetDataUseCase fetchGenesetDataUseCase) {
+    this.fetchGenesetDataUseCase = fetchGenesetDataUseCase;
+  }
+
+  @PreAuthorize(
+      "hasPermission(#geneticProfileId, 'GeneticProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/genetic-profiles/{geneticProfileId}/geneset-genetic-data/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(
+      description =
+          "Fetch gene set \"genetic data\" items (gene set scores) by profile Id, gene set ids and sample ids")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array =
+                  @ArraySchema(schema = @Schema(implementation = GenesetMolecularDataDTO.class))))
+  public ResponseEntity<List<GenesetMolecularDataDTO>> fetchGeneticDataItems(
+      @Parameter(required = true, description = "Genetic profile ID, e.g. gbm_tcga_gsva_scores")
+          @PathVariable
+          String geneticProfileId,
+      @Parameter(
+              required = true,
+              description =
+                  "Search criteria to return the values for a given set of samples and gene set items. "
+                      + "genesetIds: The list of identifiers for the gene sets of interest, e.g. HINATA_NFKB_MATRIX. "
+                      + "Use one of these if you want to specify a subset of samples:"
+                      + "(1) sampleListId: Identifier of pre-defined sample list with samples to query, e.g. brca_tcga_all "
+                      + "or (2) sampleIds: custom list of samples or patients to query, e.g. TCGA-BH-A1EO-01, TCGA-AR-A1AR-01")
+          @RequestBody
+          GenesetDataFilterCriteria genesetDataFilterCriteria)
+      throws MolecularProfileNotFoundException, SampleListNotFoundException {
+
+    String sampleListId = genesetDataFilterCriteria.getSampleListId();
+    boolean hasSampleList = sampleListId != null && !sampleListId.trim().isEmpty();
+    return new ResponseEntity<>(
+        GenesetMolecularDataMapper.INSTANCE.toDtos(
+            fetchGenesetDataUseCase.execute(
+                geneticProfileId,
+                hasSampleList ? sampleListId : null,
+                genesetDataFilterCriteria.getSampleIds(),
+                genesetDataFilterCriteria.getGenesetIds())),
+        HttpStatus.OK);
+  }
+}

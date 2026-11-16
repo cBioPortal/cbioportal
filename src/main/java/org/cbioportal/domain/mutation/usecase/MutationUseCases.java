@@ -13,4 +13,5 @@ import org.springframework.stereotype.Service;
  */
 public record MutationUseCases(
     FetchMetaMutationsUseCase fetchMetaMutationsUseCase,
-    FetchAllMutationsInProfileUseCase fetchAllMutationsInProfileUseCase) {}
+    FetchAllMutationsInProfileUseCase fetchAllMutationsInProfileUseCase,
+    FetchMutationsInSingleProfileUseCase fetchMutationsInSingleProfileUseCase) {}

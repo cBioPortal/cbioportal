@@ -571,7 +571,7 @@ public class MutationControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/mutations/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/mutations/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -718,7 +718,7 @@ public class MutationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/mutations/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -865,7 +865,7 @@ public class MutationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/mutations/fetch")
                 .with(csrf())
                 .param("projection", "DETAILED")
                 .accept(MediaType.APPLICATION_JSON)
@@ -1065,7 +1065,7 @@ public class MutationControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/mutations/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/mutations/fetch")
                 .with(csrf())
                 .param("projection", "META")
                 .contentType(MediaType.APPLICATION_JSON)

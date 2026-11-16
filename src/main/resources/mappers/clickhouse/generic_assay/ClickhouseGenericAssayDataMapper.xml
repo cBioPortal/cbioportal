@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.generic_assay.ClickhouseGenericAssayDataMapper">
+
+    <!--
+        Values of ONE generic assay profile for a set of samples, read from generic_assay_data_derived
+        instead of the legacy packed genetic_alteration.values string. Empty values and "NA" are
+        dropped in SQL: the derived table keeps them (most of a sparse profile can be empty) while
+        the API never returns them.
+
+        Samples and data are restricted to the study of the (already authorized) profile.
+    -->
+    <select id="getGenericAssayData" resultType="org.cbioportal.legacy.model.GenericAssayData">
+        WITH samples AS (
+            SELECT sample_unique_id, sample_stable_id, patient_stable_id
+            FROM sample_derived
+            WHERE cancer_study_identifier = #{studyId}
+            <if test="sampleUniqueIds != null">
+                AND sample_unique_id IN (#{sampleUniqueIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+        )
+        SELECT
+            #{molecularProfileId} AS "molecularProfileId",
+            s.sample_stable_id AS "sampleId",
+            s.patient_stable_id AS "patientId",
+            #{studyId} AS "studyId",
+            d.entity_stable_id AS "genericAssayStableId",
+            <include refid="org.cbioportal.infrastructure.repository.clickhouse.genomic_data.ClickhouseGeneMolecularDataMapper.roundedValue">
+                <property name="valueColumn" value="d.value"/>
+            </include>,
+            d.patient_level != 0 AS "patientLevel"
+        FROM generic_assay_data_derived d
+        INNER JOIN samples s ON s.sample_unique_id = d.sample_unique_id
+        WHERE d.profile_type = #{profileType}
+          AND d.profile_stable_id = #{molecularProfileId}
+          AND d.value != '' AND d.value != 'NA'
+          <if test="genericAssayStableIds != null and !genericAssayStableIds.isEmpty()">
+              AND d.entity_stable_id IN
+              <foreach item="item" collection="genericAssayStableIds" open="(" separator="," close=")">#{item}</foreach>
+          </if>
+          AND d.sample_unique_id IN (SELECT sample_unique_id FROM samples)
+    </select>
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.gene_panel_data.ClickhouseGenePanelDataMapper">
+
+    <!-- The requested profiles with the study they belong to. Unknown profile ids drop out here. -->
+    <sql id="profilesCte">
+        profiles AS (
+            SELECT
+                genetic_profile.genetic_profile_id AS id,
+                genetic_profile.stable_id AS stable_id,
+                genetic_profile.genetic_alteration_type AS alteration_type,
+                cancer_study.cancer_study_identifier AS study_id
+            FROM genetic_profile
+            INNER JOIN cancer_study ON cancer_study.cancer_study_id = genetic_profile.cancer_study_id
+            WHERE genetic_profile.stable_id IN
+            <foreach item="item" collection="profileIds" open="(" separator="," close=")">#{item}</foreach>
+        )
+    </sql>
+
+    <!--
+        One row per sample of the profile's study and per profile. A sample is profiled when it has
+        a sample_profile row. For mutation profiles it is also profiled when it is part of the
+        study's "_sequenced" sample list (mutation profiles have no per-sample gene panel rows).
+    -->
+    <sql id="select">
+        SELECT
+            nullIf(gene_panel.stable_id, '') AS "genePanelId",
+            s.sample_stable_id AS "sampleId",
+            s.patient_stable_id AS "patientId",
+            p.study_id AS "studyId",
+            p.stable_id AS "molecularProfileId",
+            (
+                sample_profile.genetic_profile_id != 0
+                OR (
+                    p.alteration_type = 'MUTATION_EXTENDED'
+                    AND s.internal_id IN (
+                        SELECT sample_list_list.sample_id
+                        FROM sample_list_list
+                        INNER JOIN sample_list ON sample_list.list_id = sample_list_list.list_id
+                        WHERE sample_list.stable_id IN (SELECT concat(study_id, '_sequenced') FROM profiles)
+                    )
+                )
+            ) AS "profiled"
+    </sql>
+
+    <sql id="from">
+        FROM sample_derived s
+        INNER JOIN profiles p ON p.study_id = s.cancer_study_identifier
+    </sql>
+
+    <sql id="joinGenePanel">
+        LEFT JOIN sample_profile ON sample_profile.genetic_profile_id = p.id AND sample_profile.sample_id = s.internal_id
+        LEFT JOIN gene_panel ON sample_profile.panel_id = gene_panel.internal_id
+    </sql>
+
+    <select id="getGenePanelDataByProfileIds" resultType="org.cbioportal.legacy.model.GenePanelData">
+        WITH
+        <include refid="profilesCte"/>
+        <include refid="select"/>
+        <include refid="from"/>
+        <include refid="joinGenePanel"/>
+        WHERE s.cancer_study_identifier IN (SELECT study_id FROM profiles)
+    </select>
+
+    <select id="getGenePanelDataByProfileSamplePairs" resultType="org.cbioportal.legacy.model.GenePanelData">
+        WITH
+        <include refid="profilesCte"/>,
+        pairs AS (
+            SELECT DISTINCT profile_id, sample_id
+            FROM VALUES(
+                'profile_id String, sample_id String',
+                <foreach item="identifier" collection="identifiers" separator=",">(#{identifier.molecularProfileId}, #{identifier.sampleId})</foreach>
+            )
+        )
+        <include refid="select"/>
+        <include refid="from"/>
+        INNER JOIN pairs ON pairs.profile_id = p.stable_id AND pairs.sample_id = s.sample_stable_id
+        <include refid="joinGenePanel"/>
+        WHERE s.cancer_study_identifier IN (SELECT study_id FROM profiles)
+    </select>
+
+</mapper>

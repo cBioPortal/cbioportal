@@ -130,7 +130,7 @@ public class MolecularDataControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +175,7 @@ public class MolecularDataControllerTest {
     mockMvc
         .perform(
             MockMvcRequestBuilders.post(
-                    "/api/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
+                    "/api/legacy/molecular-profiles/test_molecular_profile_id/molecular-data/fetch")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(molecularDataFilter))
@@ -204,7 +204,7 @@ public class MolecularDataControllerTest {
 
     mockMvc
         .perform(
-            MockMvcRequestBuilders.post("/api/molecular-data/fetch")
+            MockMvcRequestBuilders.post("/api/legacy/molecular-data/fetch")
                 .with(csrf())
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.cbioportal.infrastructure.repository.clickhouse.genomic_data.ClickhouseGeneMolecularDataMapper">
+
+    <resultMap id="geneMolecularDataResultMap" type="org.cbioportal.legacy.model.GeneMolecularData">
+        <result property="molecularProfileId" column="molecularProfileId"/>
+        <result property="sampleId" column="sampleId"/>
+        <result property="patientId" column="patientId"/>
+        <result property="studyId" column="studyId"/>
+        <result property="entrezGeneId" column="entrezGeneId"/>
+        <result property="value" column="value"/>
+        <association property="gene" javaType="org.cbioportal.legacy.model.Gene" columnPrefix="gene_">
+            <result property="entrezGeneId" column="entrezGeneId"/>
+            <result property="hugoGeneSymbol" column="hugoGeneSymbol"/>
+            <result property="type" column="type"/>
+        </association>
+    </resultMap>
+
+    <!--
+        Same rounding as the legacy getTruncatedGeneticAlterationValues (MolecularDataMapper.xml)
+        so the API output is unchanged: non-numeric values are kept as is, zero stays '0',
+        very small numbers use scientific notation, everything else is rounded to 4 decimals.
+    -->
+    <sql id="roundedValue">
+        multiIf(
+            isNull(accurateCastOrNull(${valueColumn}, 'Float64')),
+            ${valueColumn},
+            toFloat64OrZero(${valueColumn}) = 0,
+            '0',
+            abs(toFloat64OrZero(${valueColumn})) &lt; 0.0001,
+            concat(
+                toString(round(toFloat64OrZero(${valueColumn}) / pow(10, floor(log10(abs(toFloat64OrZero(${valueColumn}))))), 3)),
+                'e',
+                toString(floor(log10(abs(toFloat64OrZero(${valueColumn})))))
+            ),
+            toString(round(toFloat64OrZero(${valueColumn}), 4))
+        ) AS "value"
+    </sql>
+
+    <!--
+        Gene-level measurements of ONE molecular profile for a set of samples, read from
+        genetic_alteration_derived (one row per gene/sample) instead of the legacy packed
+        genetic_alteration.values string. The WHERE clause follows the table's sorting key
+        (study, gene, profile type, sample) so ClickHouse can prune granules.
+
+        Every table is restricted to the study of the (already authorized) molecular profile,
+        so a sample list or sample ids from another study can never leak data.
+    -->
+    <select id="getGeneMolecularData" resultMap="geneMolecularDataResultMap">
+        WITH
+        genes AS (
+            SELECT entrez_gene_id, hugo_gene_symbol, type
+            FROM gene
+            <if test="entrezGeneIds != null and !entrezGeneIds.isEmpty()">
+                WHERE entrez_gene_id IN
+                <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
+            </if>
+        ),
+        samples AS (
+            SELECT sample_unique_id, sample_stable_id, patient_stable_id
+            FROM sample_derived
+            WHERE cancer_study_identifier = #{studyId}
+            <if test="sampleUniqueIds != null">
+                AND sample_unique_id IN (#{sampleUniqueIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+            <if test="sampleListId != null">
+                AND internal_id IN (
+                    SELECT sample_list_list.sample_id
+                    FROM sample_list_list
+                    INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
+                    WHERE sample_list.stable_id = #{sampleListId}
+                )
+            </if>
+        )
+        SELECT
+            #{molecularProfileId} AS "molecularProfileId",
+            s.sample_stable_id AS "sampleId",
+            s.patient_stable_id AS "patientId",
+            #{studyId} AS "studyId",
+            g.entrez_gene_id AS "entrezGeneId",
+            <if test="includeGene">
+                g.entrez_gene_id AS "gene_entrezGeneId",
+                g.hugo_gene_symbol AS "gene_hugoGeneSymbol",
+                g.type AS "gene_type",
+            </if>
+            <include refid="roundedValue"><property name="valueColumn" value="d.alteration_value"/></include>
+        FROM genetic_alteration_derived d
+        INNER JOIN genes g ON g.hugo_gene_symbol = d.hugo_gene_symbol
+        INNER JOIN samples s ON s.sample_unique_id = d.sample_unique_id
+        WHERE d.cancer_study_identifier = #{studyId}
+          AND d.profile_type = #{profileType}
+          AND d.hugo_gene_symbol IN (SELECT hugo_gene_symbol FROM genes)
+          AND d.sample_unique_id IN (SELECT sample_unique_id FROM samples)
+    </select>
+
+    <!--
+        Gene-level measurements of SEVERAL molecular profiles (possibly of different studies).
+        A profile's type is its stable id without the "<study>_" prefix. When sampleUniqueIds is
+        given, every sample is looked up in every requested profile of its own study (the unique id
+        contains the study), matching the legacy behaviour of the multi-profile endpoint. Without
+        it, all samples that have data in a profile are returned.
+    -->
+    <select id="getGeneMolecularDataInMultipleProfiles" resultMap="geneMolecularDataResultMap">
+        WITH
+        profiles AS (
+            SELECT
+                study_id,
+                profile_id,
+                replaceOne(profile_id, concat(study_id, '_'), '') AS profile_type
+            FROM VALUES(
+                'study_id String, profile_id String',
+                <foreach item="profile" collection="profiles" separator=",">(#{profile.cancerStudyIdentifier}, #{profile.stableId})</foreach>
+            )
+        ),
+        genes AS (
+            SELECT entrez_gene_id, hugo_gene_symbol, type
+            FROM gene
+            WHERE entrez_gene_id IN
+            <foreach item="item" collection="entrezGeneIds" open="(" separator="," close=")">#{item}</foreach>
+        ),
+        samples AS (
+            SELECT sample_unique_id, sample_stable_id, patient_stable_id
+            FROM sample_derived
+            WHERE cancer_study_identifier IN (SELECT study_id FROM profiles)
+            <if test="sampleUniqueIds != null">
+                AND sample_unique_id IN (#{sampleUniqueIds, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
+            </if>
+        )
+        SELECT
+            p.profile_id AS "molecularProfileId",
+            s.sample_stable_id AS "sampleId",
+            s.patient_stable_id AS "patientId",
+            p.study_id AS "studyId",
+            g.entrez_gene_id AS "entrezGeneId",
+            <if test="includeGene">
+                g.entrez_gene_id AS "gene_entrezGeneId",
+                g.hugo_gene_symbol AS "gene_hugoGeneSymbol",
+                g.type AS "gene_type",
+            </if>
+            <include refid="roundedValue"><property name="valueColumn" value="d.alteration_value"/></include>
+        FROM genetic_alteration_derived d
+        INNER JOIN profiles p ON p.study_id = d.cancer_study_identifier AND p.profile_type = d.profile_type
+        INNER JOIN genes g ON g.hugo_gene_symbol = d.hugo_gene_symbol
+        INNER JOIN samples s ON s.sample_unique_id = d.sample_unique_id
+        WHERE d.cancer_study_identifier IN (SELECT study_id FROM profiles)
+          AND d.profile_type IN (SELECT profile_type FROM profiles)
+          AND d.hugo_gene_symbol IN (SELECT hugo_gene_symbol FROM genes)
+          AND d.sample_unique_id IN (SELECT sample_unique_id FROM samples)
+    </select>
+
+</mapper>

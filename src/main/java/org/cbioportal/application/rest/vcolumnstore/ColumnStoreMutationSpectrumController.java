@@ -1,0 +1,75 @@
+package org.cbioportal.application.rest.vcolumnstore;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import java.util.List;
+import org.cbioportal.application.rest.mapper.MutationSpectrumMapper;
+import org.cbioportal.application.rest.response.MutationSpectrumDTO;
+import org.cbioportal.domain.mutation.usecase.FetchMutationSpectrumsUseCase;
+import org.cbioportal.legacy.service.exception.MolecularProfileNotFoundException;
+import org.cbioportal.legacy.web.config.annotation.InternalApi;
+import org.cbioportal.legacy.web.parameter.MutationSpectrumFilter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+@InternalApi
+@RestController
+@RequestMapping("/api")
+@Validated
+@Tag(name = "Mutation Spectrums", description = " ")
+public class ColumnStoreMutationSpectrumController {
+
+  private final FetchMutationSpectrumsUseCase fetchMutationSpectrumsUseCase;
+
+  public ColumnStoreMutationSpectrumController(
+      FetchMutationSpectrumsUseCase fetchMutationSpectrumsUseCase) {
+    this.fetchMutationSpectrumsUseCase = fetchMutationSpectrumsUseCase;
+  }
+
+  @PreAuthorize(
+      "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+  @RequestMapping(
+      value = "/molecular-profiles/{molecularProfileId}/mutation-spectrums/fetch",
+      method = RequestMethod.POST,
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(description = "Fetch mutation spectrums in a molecular profile")
+  @ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content =
+          @Content(
+              array = @ArraySchema(schema = @Schema(implementation = MutationSpectrumDTO.class))))
+  public ResponseEntity<List<MutationSpectrumDTO>> fetchMutationSpectrums(
+      @Parameter(required = true, description = "Molecular Profile ID e.g. acc_tcga_mutations")
+          @PathVariable
+          String molecularProfileId,
+      @Parameter(required = true, description = "List of Sample IDs/Sample List ID")
+          @Valid
+          @RequestBody
+          MutationSpectrumFilter mutationSpectrumFilter)
+      throws MolecularProfileNotFoundException {
+
+    return new ResponseEntity<>(
+        MutationSpectrumMapper.INSTANCE.toDtos(
+            fetchMutationSpectrumsUseCase.execute(
+                molecularProfileId,
+                mutationSpectrumFilter.getSampleListId(),
+                mutationSpectrumFilter.getSampleIds())),
+        HttpStatus.OK);
+  }
+}

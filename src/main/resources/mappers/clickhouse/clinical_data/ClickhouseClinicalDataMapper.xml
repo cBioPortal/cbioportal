@@ -206,11 +206,12 @@
 
     <sql id="fetchClinicalDataWhereClause">
         WHERE cd.type = #{clinicalDataType}
+        <!-- clinical_data_derived pads samples/patients that have no value with an empty value. The
+             fetch API only returns real values, like the legacy implementation. -->
+        AND cd.attribute_value != ''
         <if test="studyIds != null and !studyIds.isEmpty()">
             AND cd.cancer_study_identifier IN
-            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
-                #{studyId}
-            </foreach>
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">#{studyId}</foreach>
         </if> 
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
@@ -222,15 +223,11 @@
                     cd.patient_unique_id IN
                 </otherwise>
             </choose>
-            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">
-                #{uniqueId}
-            </foreach>
+            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">#{uniqueId}</foreach>
         </if>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND cd.attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">#{attributeId}</foreach>
         </if>
     </sql>
 
@@ -239,11 +236,12 @@
         SELECT COUNT(*)
         FROM clinical_data_derived cd
         WHERE cd.type = #{clinicalDataType}
+        <!-- clinical_data_derived pads samples/patients that have no value with an empty value. The
+             fetch API only returns real values, like the legacy implementation. -->
+        AND cd.attribute_value != ''
         <if test="studyIds != null and !studyIds.isEmpty()">
             AND cd.cancer_study_identifier IN
-            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">
-                #{studyId}
-            </foreach>
+            <foreach item="studyId" collection="studyIds" open="(" separator="," close=")">#{studyId}</foreach>
         </if>
         <if test="uniqueIds != null and !uniqueIds.isEmpty()">
             AND
@@ -255,15 +253,11 @@
                     cd.patient_unique_id IN
                 </otherwise>
             </choose>
-            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">
-                #{uniqueId}
-            </foreach>
+            <foreach item="uniqueId" collection="uniqueIds" open="(" separator="," close=")">#{uniqueId}</foreach>
         </if>
         <if test="attributeIds != null and !attributeIds.isEmpty()">
             AND cd.attribute_name IN
-            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">
-                #{attributeId}
-            </foreach>
+            <foreach item="attributeId" collection="attributeIds" open="(" separator="," close=")">#{attributeId}</foreach>
         </if>
     </select>
 

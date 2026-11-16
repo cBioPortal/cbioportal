@@ -190,12 +190,34 @@ public class StudyControllerTest {
     BaseMeta baseMeta = new BaseMeta();
     baseMeta.setTotalCount(2);
 
-    Mockito.when(studyService.getMetaStudies(Mockito.any())).thenReturn(baseMeta);
+    Mockito.when(studyService.getMetaStudies(Mockito.any(), eq(AccessLevel.READ)))
+        .thenReturn(baseMeta);
 
     mockMvc
         .perform(MockMvcRequestBuilders.get("/api/legacy/studies").param("projection", "META"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "2"));
+  }
+
+  @Test
+  @WithMockUser
+  public void getAllStudiesMetaProjectionUsesTheAccessLevelOfTheList() throws Exception {
+
+    ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", true);
+
+    BaseMeta baseMeta = new BaseMeta();
+    baseMeta.setTotalCount(3);
+    Mockito.when(studyService.getMetaStudies(Mockito.any(), eq(AccessLevel.LIST)))
+        .thenReturn(baseMeta);
+
+    try {
+      mockMvc
+          .perform(MockMvcRequestBuilders.get("/api/legacy/studies").param("projection", "META"))
+          .andExpect(MockMvcResultMatchers.status().isOk())
+          .andExpect(MockMvcResultMatchers.header().string(HeaderKeyConstants.TOTAL_COUNT, "3"));
+    } finally {
+      ReflectionTestUtils.setField(studyController, "showUnauthorizedStudiesOnHomePage", false);
+    }
   }
 
   @Test

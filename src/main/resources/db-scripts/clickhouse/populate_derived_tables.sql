@@ -531,18 +531,6 @@ LEFT JOIN generic_entity_properties gep ON ge.id = gep.genetic_entity_id
 WHERE ge.entity_type = 'GENERIC_ASSAY'
 GROUP BY ge.stable_id, ge.entity_type;
 
--- Merge parts.
-OPTIMIZE TABLE sample_to_gene_panel_derived_temp;
-OPTIMIZE TABLE gene_panel_to_gene_derived_temp;
-OPTIMIZE TABLE sample_derived_temp;
-OPTIMIZE TABLE genomic_event_derived_temp;
-OPTIMIZE TABLE clinical_data_derived_temp;
-OPTIMIZE TABLE clinical_event_derived_temp;
-OPTIMIZE TABLE clinical_event_data_derived_temp;
-OPTIMIZE TABLE genetic_alteration_derived_temp;
-OPTIMIZE TABLE generic_assay_data_derived_temp;
-OPTIMIZE TABLE generic_assay_profile_entity_derived_temp;
-OPTIMIZE TABLE generic_assay_meta_derived_temp;
 
 -- Cutover.
 EXCHANGE TABLES sample_to_gene_panel_derived AND sample_to_gene_panel_derived_temp;

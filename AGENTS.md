@@ -44,7 +44,6 @@ The following controllers have known authorization gaps that are tracked as TODO
 - `MskEntityTranslationController` — accesses study-specific data but lacks `@PreAuthorize`; currently allowed in the ArchUnit test to avoid breaking the build
 - `GenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
 - `ColumnStoreGenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
-- `ColumnStoreStudyController` — serves study data without per-study authorization; currently allowed in the ArchUnit test to avoid breaking the build
 
 Any new exception must be documented here with a justification.
 

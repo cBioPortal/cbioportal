@@ -259,7 +259,6 @@ genomespace=true
 # see: https://github.com/cBioPortal/session-service
 # excluding this value or setting it to an empty string will revert to the previous bookmarking method
 # WARNING: do not use session service with -Dauthenticate=false
-#  either use authentication or change to -Dauthenticate=noauthsessionservice
 session.service.url=https://cbioportal-session-service.herokuapp.com/session_service/api/sessions/heroku_portal/
 # if basic authentication is enabled on session service one should set:
 #session.service.user=

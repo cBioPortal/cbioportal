@@ -1,0 +1,92 @@
+# publiccode.yml for cBioPortal
+# More info at https://github.com/publiccodeyml/publiccode.yml
+publiccodeYmlVersion: "0.8"
+
+name: cBioPortal
+applicationSuite: cBioPortal for Cancer Genomics
+url: "https://github.com/cBioPortal/cbioportal"
+landingURL: "https://www.cbioportal.org"
+softwareVersion: "7.1.2"
+releaseDate: "2026-09-17"
+logo: src/main/resources/webapp/images/cbioportal_logo.png
+
+platforms:
+  - web
+  - linux
+
+categories:
+  - data-analytics
+  - data-visualization
+  - knowledge-management
+
+developmentStatus: stable
+
+softwareType: "standalone"
+
+intendedAudience:
+  scope:
+    - healthcare
+    - research
+    - science-and-technology
+
+description:
+  en:
+    localisedName: cBioPortal
+    shortDescription: >
+      Open-source platform for visualization, analysis and download of
+      large-scale cancer genomics data sets.
+    longDescription: >
+      The cBioPortal for Cancer Genomics is an open-access resource for
+      interactive exploration of multidimensional cancer genomics data
+      sets. It lets researchers and clinicians explore mutations,
+      copy-number alterations, expression and clinical data without
+      requiring bioinformatics expertise.
+      This repository contains the backend; the web frontend lives in the
+      cbioportal-frontend repository. Institutions can deploy a private
+      instance to explore and share their own studies.
+    documentation: "https://docs.cbioportal.org"
+    features:
+      - Visualization of cancer genomics data
+      - Cross-study query and comparison of cancer cohorts
+      - Mutation, copy-number, expression and clinical data analysis
+      - REST API for programmatic access
+      - Model Context Protocol (MCP) server for connecting AI assistants and agents to cBioPortal data
+      - Private deployment for institutional data sharing
+
+legal:
+  license: Apache-2.0
+  mainCopyrightOwner: "cBioPortal contributors"
+
+maintenance:
+  type: community
+  contacts:
+    - name: cBioPortal Team
+      email: cbioportal@cbioportal.org
+    - name: Nikolaus Schultz
+      affiliation: Memorial Sloan Kettering Cancer Center
+    - name: James Lindsay
+      affiliation: Dana-Farber Cancer Institute
+    - name: Trevor Pugh
+      affiliation: Princess Margaret Cancer Centre
+    - name: Adam Resnick
+      affiliation: Children's Hospital of Philadelphia
+    - name: Pieter Lukasse
+      affiliation: SE4BIO
+    - name: Henk-Jan van den Ham
+      affiliation: The Hyve 
+    
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en
+
+dependsOn:
+  open:
+    - name: ClickHouse
+      optional: false
+    - name: Java Runtime Environment
+      optional: false
+    - name: Docker
+      optional: false
+    - name: Redis
+      optional: false

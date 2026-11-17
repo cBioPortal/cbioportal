@@ -25,8 +25,11 @@ public class ExportController {
     this.exportService = exportService;
   }
 
+  // A virtual study id is never a key of the study permission map, so the study id is first
+  // resolved to the studies the export covers: the members of a virtual study, or the study itself.
+  // Read access to each of them is required; an id that resolves to no known study is denied.
   @PreAuthorize(
-      "hasPermission(#studyId, 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(@virtualStudyAwareExportService.getStudyIdsToAuthorize(#studyId), 'Collection<CancerStudyId>', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @GetMapping("/export/study/{studyId}.zip")
   public ResponseEntity<StreamingResponseBody> downloadStudyData(@PathVariable String studyId) {
     if (!exportService.isStudyExportable(studyId)) {

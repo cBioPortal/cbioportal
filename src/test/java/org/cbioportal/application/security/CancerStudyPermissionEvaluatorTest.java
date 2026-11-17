@@ -11,11 +11,13 @@ import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.legacy.utils.Encoder;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.Group;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
+import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Before;
@@ -132,6 +134,47 @@ public class CancerStudyPermissionEvaluatorTest {
     privateOnly.setStudyIds(List.of(PRIVATE_STUDY));
     assertFalse(allowed(user, privateOnly, "StudyViewFilter"));
     assertTrue(allowed(privateStudyUser, privateOnly, "StudyViewFilter"));
+  }
+
+  // Filters whose selection names no study
+
+  @Test
+  public void sampleFilterWithNoSampleIdentifiersIsAllowed() {
+    SampleFilter filter = new SampleFilter();
+    filter.setSampleIdentifiers(List.of());
+    assertTrue(allowed(user, filter, "SampleFilter"));
+  }
+
+  @Test
+  public void sampleFilterWithNoUniqueSampleKeysIsAllowed() {
+    SampleFilter filter = new SampleFilter();
+    filter.setUniqueSampleKeys(List.of());
+    assertTrue(allowed(user, filter, "SampleFilter"));
+  }
+
+  @Test
+  public void studyViewFilterWithNoStudyIdsIsAllowed() {
+    StudyViewFilter filter = new StudyViewFilter();
+    filter.setStudyIds(List.of());
+    assertTrue(allowed(user, filter, "StudyViewFilter"));
+  }
+
+  @Test
+  public void sampleFilterNamingAnUnknownStudyIsDenied() {
+    SampleFilter filter = new SampleFilter();
+    filter.setSampleIdentifiers(List.of(sample(PUBLIC_STUDY), sample("unknown_study")));
+    assertFalse(allowed(user, filter, "SampleFilter"));
+
+    SampleFilter byKey = new SampleFilter();
+    byKey.setUniqueSampleKeys(List.of(Encoder.calculateBase64("any_sample", "unknown_study")));
+    assertFalse(allowed(user, byKey, "SampleFilter"));
+  }
+
+  @Test
+  public void studyViewFilterNamingAnUnknownStudyIsDenied() {
+    StudyViewFilter filter = new StudyViewFilter();
+    filter.setStudyIds(List.of("unknown_study"));
+    assertFalse(allowed(privateStudyUser, filter, "StudyViewFilter"));
   }
 
   // Study and profile ids, and collections of them

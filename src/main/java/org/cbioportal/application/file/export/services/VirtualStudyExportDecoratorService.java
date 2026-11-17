@@ -3,6 +3,8 @@ package org.cbioportal.application.file.export.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import org.cbioportal.application.file.export.ExportException;
 import org.cbioportal.application.file.export.exporters.ExportDetails;
@@ -22,6 +24,25 @@ public class VirtualStudyExportDecoratorService implements Exporter {
       VirtualStudyService virtualStudyService, ExportService exportService) {
     this.virtualStudyService = virtualStudyService;
     this.exportService = exportService;
+  }
+
+  /**
+   * Returns the ids of the cancer studies whose read access an export of {@code studyId} requires:
+   * the member studies of a virtual study, or {@code studyId} itself for a physical study. A
+   * virtual study id is never a key of the study permission map, so it has to be resolved to its
+   * members before access can be checked. A virtual study without members resolves to its own id,
+   * which is then denied as an unknown study. Used by the {@code @PreAuthorize} check of the export
+   * endpoint; the list is serializable, as a permission target must be.
+   */
+  public ArrayList<String> getStudyIdsToAuthorize(String studyId) {
+    List<String> memberStudyIds =
+        virtualStudyService
+            .getVirtualStudyByIdIfExists(studyId)
+            .map(VirtualStudy::getData)
+            .map(VirtualStudyData::getStudies)
+            .map(studies -> studies.stream().map(VirtualStudySamples::getId).distinct().toList())
+            .orElse(List.of());
+    return new ArrayList<>(memberStudyIds.isEmpty() ? List.of(studyId) : memberStudyIds);
   }
 
   public boolean isStudyExportable(String studyId) {

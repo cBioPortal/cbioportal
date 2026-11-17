@@ -179,11 +179,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
     }
 
     try {
-      // Empty when the target names no study (an empty filter, an unknown target type) or when
-      // any of its ids does not resolve to a known study. Ids are resolved against the
-      // authorization cache, which can lag behind the database, so an unresolved id is denied
-      // rather than passed through to the service layer.
-      Collection<CancerStudy> cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
+      Collection<CancerStudy> cancerStudies;
+      if (targetType.contains("Filter")) {
+        Set<String> studyIds = extractStudyIdsFromFilter(targetId);
+        // A filter whose selection is empty (for example no sample identifiers) names no study,
+        // so, like an empty id collection, it is allowed and the endpoint returns an empty result.
+        if (studyIds.isEmpty()) {
+          return true;
+        }
+        cancerStudies =
+            extractCancerStudiesFromIds(studyIds, TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS);
+      } else {
+        cancerStudies = extractCancerStudiesFromTarget(targetId, targetType);
+      }
+      // Empty when the target type is unknown or when any of its ids does not resolve to a known
+      // study. Ids are resolved against the authorization cache, which can lag behind the
+      // database, so an unresolved id is denied rather than passed through to the service layer.
       if (cancerStudies.isEmpty()) {
         return false;
       }
@@ -242,10 +253,9 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
   }
 
   /**
-   * Converts a target ID/collection/filter into a set of unique {@code CancerStudy} objects.
+   * Converts a target ID or collection of IDs into a set of unique {@code CancerStudy} objects.
    *
-   * @param target The target object, which can be a single ID, a collection of IDs, or a filter
-   *     object.
+   * @param target The target object, a single ID or a collection of IDs.
    * @param targetType The string indicating the type of the target (e.g., 'MolecularProfileId',
    *     'Collection<SampleListId>').
    * @return A {@code Set} of associated {@code CancerStudy} objects. Returns an empty set if the
@@ -255,12 +265,6 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
   private Set<CancerStudy> extractCancerStudiesFromTarget(Object target, String targetType) {
     if (target == null) {
       return new HashSet<>();
-    }
-
-    // Handle Filter Types
-    if (targetType.contains("Filter")) {
-      Set<String> studyIds = extractStudyIdsFromFilter(target);
-      return extractCancerStudiesFromIds(studyIds, TARGET_TYPE_COLLECTION_OF_CANCER_STUDY_IDS);
     }
 
     // Handle Collections

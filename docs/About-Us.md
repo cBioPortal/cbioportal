@@ -83,7 +83,9 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Michael Heuer
 * Anders Jacobsen
 * Mirella Kalafati
+* Karthik Kalletla
 * Peter Kok
+* Priti Kumari
 * Erik Larsson
 * Dong Li
 * Augustin Luna

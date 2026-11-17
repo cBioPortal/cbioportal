@@ -555,6 +555,11 @@ feature.study.export.timeout_ms=600000
 # Ceiling on a single streamed chat response. Applied per request, independently of the global
 # async timeout that feature.study.export configures.
 # chat.sidebar.stream_timeout_ms=600000
+# The natural-language-to-OQL endpoints under /api/chat/oql are exempt from both lists: anyone who
+# can use the portal may call them, and no user is passed to the chat server. Ceiling on one of
+# those requests, which can make several model calls. Request bodies are capped at 16 KB for
+# translate and 64 KB for the others.
+# chat.sidebar.oql_timeout_ms=60000
 #
 # NOTE: do not add text/event-stream to server.compression.mime-types -- Tomcat would buffer the
 # chat stream in order to compress it, which defeats incremental token delivery.

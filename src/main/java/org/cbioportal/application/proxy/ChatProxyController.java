@@ -67,19 +67,31 @@ public class ChatProxyController {
 
   private static final int BUFFER_SIZE = 4096;
 
+  /**
+   * Request body limits for the open OQL endpoints. A translate prompt is at most 2000 characters,
+   * about 8 KB with studies in the worst encoding; the others carry a whole query, about 32 KB for
+   * 100 genes with six alterations each.
+   */
+  private static final int MAX_OQL_TRANSLATE_BODY_BYTES = 16 * 1024;
+
+  private static final int MAX_OQL_BODY_BYTES = 64 * 1024;
+
   private final String upstreamBaseUrl;
   private final long requestTimeoutMs;
   private final long streamTimeoutMs;
+  private final long oqlTimeoutMs;
   private final HttpClient httpClient;
 
   public ChatProxyController(
       @Value("${chat.sidebar.url}") String upstreamBaseUrl,
       @Value("${chat.sidebar.connect_timeout_ms:5000}") long connectTimeoutMs,
       @Value("${chat.sidebar.request_timeout_ms:10000}") long requestTimeoutMs,
-      @Value("${chat.sidebar.stream_timeout_ms:600000}") long streamTimeoutMs) {
+      @Value("${chat.sidebar.stream_timeout_ms:600000}") long streamTimeoutMs,
+      @Value("${chat.sidebar.oql_timeout_ms:60000}") long oqlTimeoutMs) {
     this.upstreamBaseUrl = upstreamBaseUrl.replaceFirst("/$", "");
     this.requestTimeoutMs = requestTimeoutMs;
     this.streamTimeoutMs = streamTimeoutMs;
+    this.oqlTimeoutMs = oqlTimeoutMs;
     this.httpClient =
         HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(connectTimeoutMs))
@@ -96,7 +108,29 @@ public class ChatProxyController {
     // metadata.
     long timeoutMs =
         "POST".equalsIgnoreCase(request.getMethod()) ? streamTimeoutMs : requestTimeoutMs;
-    return proxy(request, body, timeoutMs);
+    return proxy(request, body, timeoutMs, true);
+  }
+
+  /**
+   * Natural language to OQL, used by the query page. Open to everyone who can use the portal: no
+   * allowlist, and no user is passed upstream, which records all of it under one anonymous id.
+   * Takes precedence over {@link #chatApi} as the more specific pattern.
+   */
+  @PreAuthorize("permitAll()")
+  @RequestMapping(
+      value = "/api/chat/oql/**",
+      method = {RequestMethod.GET, RequestMethod.POST})
+  public ResponseEntity<StreamingResponseBody> oqlApi(
+      HttpServletRequest request, @RequestBody(required = false) byte[] body)
+      throws InterruptedException {
+    int maxBytes =
+        request.getRequestURI().endsWith("/translate")
+            ? MAX_OQL_TRANSLATE_BODY_BYTES
+            : MAX_OQL_BODY_BYTES;
+    if (body != null && body.length > maxBytes) {
+      return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).build();
+    }
+    return proxy(request, body, oqlTimeoutMs, false);
   }
 
   /**
@@ -109,11 +143,12 @@ public class ChatProxyController {
       method = {RequestMethod.GET, RequestMethod.HEAD})
   public ResponseEntity<StreamingResponseBody> chatSidebarAssets(HttpServletRequest request)
       throws InterruptedException {
-    return proxy(request, null, requestTimeoutMs);
+    return proxy(request, null, requestTimeoutMs, true);
   }
 
   private ResponseEntity<StreamingResponseBody> proxy(
-      HttpServletRequest servletRequest, byte[] body, long timeoutMs) throws InterruptedException {
+      HttpServletRequest servletRequest, byte[] body, long timeoutMs, boolean forwardUser)
+      throws InterruptedException {
 
     // Async processing hasn't started yet -- StreamingResponseBody starts it only after this
     // method returns -- so the timeout can still be set, and setting it here affects this request
@@ -149,7 +184,7 @@ public class ChatProxyController {
     Collections.list(servletRequest.getHeaderNames()).stream()
         .filter(name -> FORWARDED_REQUEST_HEADERS.contains(name.toLowerCase(Locale.ROOT)))
         .forEach(name -> builder.header(name, servletRequest.getHeader(name)));
-    if (servletRequest.getUserPrincipal() != null) {
+    if (forwardUser && servletRequest.getUserPrincipal() != null) {
       builder.header("X-Chat-User", servletRequest.getUserPrincipal().getName());
     }
     builder.method(

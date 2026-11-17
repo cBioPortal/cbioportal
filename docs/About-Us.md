@@ -42,10 +42,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Resnick
 * Miguel Brown
 
-## Caris Life Sciences
-* Priti Kumari
-* Karthik Kalletla
-
 ## The Hyve
 * Oleguer Plantalech
 * Jessica Singh

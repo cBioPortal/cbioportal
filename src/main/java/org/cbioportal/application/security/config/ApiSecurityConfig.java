@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,6 +43,9 @@ public class ApiSecurityConfig {
     http.csrf(AbstractHttpConfigurer::disable)
         // This filter chain only grabs requests to the '/api' path.
         .securityMatcher("/api/**", "/webservice.do")
+        // Spring Security adds CORS on its own only for a UrlBasedCorsConfigurationSource bean,
+        // and the corsConfigurationSource bean in CorsConfig is not one.
+        .cors(Customizer.withDefaults())
         .authorizeHttpRequests(
             authorize ->
                 authorize

@@ -68,11 +68,14 @@ public class ChatProxyControllerOqlTest {
   public void setUp() {
     lastPath = null;
     lastChatUser = null;
-    mockMvc =
-        MockMvcBuilders.standaloneSetup(
-                new ChatProxyController(
-                    "http://127.0.0.1:" + UPSTREAM_PORT, 2000, 5000, 5000, 5000))
-            .build();
+    mockMvc = mockMvcWith(true);
+  }
+
+  private static MockMvc mockMvcWith(boolean oqlWizardEnabled) {
+    return MockMvcBuilders.standaloneSetup(
+            new ChatProxyController(
+                "http://127.0.0.1:" + UPSTREAM_PORT, 2000, 5000, 5000, 5000, oqlWizardEnabled))
+        .build();
   }
 
   private MvcResult postAs(String path, String user, String body) throws Exception {
@@ -136,6 +139,17 @@ public class ChatProxyControllerOqlTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"dsl\":\"" + "x".repeat(64 * 1024) + "\"}"))
         .andExpect(status().isPayloadTooLarge());
+    assertNull(lastPath);
+  }
+
+  @Test
+  public void oqlRequestsAreNotFoundWhenTheWizardIsDisabled() throws Exception {
+    mockMvcWith(false)
+        .perform(
+            post("/api/chat/oql/translate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"prompt\":\"KRAS G12C\"}"))
+        .andExpect(status().isNotFound());
     assertNull(lastPath);
   }
 }

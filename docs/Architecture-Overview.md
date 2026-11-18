@@ -82,7 +82,7 @@ interpretation of peer-reviewed publications pertaining to the clinical
 relevance of variants (or biomarker alterations) in cancer. For information on
 how to deploy this service yourself see:
 https://github.com/griffithlab/civic-server. It is also possible to disable
-showing CIVIC in cBioPortal by setting `show.civic=false` in the
+showing CIVIC in cBioPortal by setting `feature.annotation.civic=false` in the
 `application.properties` (See [application.properties reference](deployment/customization/application.properties-Reference.md#civic-integration)).
 
 ### Genome Nexus

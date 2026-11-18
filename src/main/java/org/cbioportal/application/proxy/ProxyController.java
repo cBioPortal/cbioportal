@@ -36,7 +36,7 @@ public class ProxyController {
   @Value("${oncokb.public_api.url:https://public.api.oncokb.org/api/v1}")
   private String oncokbApiUrl;
 
-  @Value("${show.oncokb:false}")
+  @Value("${feature.annotation.oncokb:${show.oncokb:false}}")
   private Boolean showOncokb;
 
   public ProxyController(Monkifier monkifier) {

@@ -541,9 +541,10 @@ wsi.tile_server.url=https://cbioportal.example.org/wsi
 
 If this property is unset, the viewer is hidden.
 
-**Note:** This is an internal MSK prototype. The tile server checks access by
-calling `GET /api/studies/{studyId}` with the user's session cookie at the
-ingress.
+**Note:** This is an internal MSK prototype. The proxy in front of the tile
+server checks access by calling `GET /api/studies/{studyId}/access` with the
+user's session cookie; see
+[Authorizing Proxied Services](../authorization-and-authentication/Authorizing-Proxied-Services.md).
 
 ## OncoPrint
 

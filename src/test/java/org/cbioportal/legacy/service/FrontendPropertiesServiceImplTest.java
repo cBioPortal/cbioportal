@@ -2,6 +2,9 @@ package org.cbioportal.legacy.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -86,5 +89,34 @@ public class FrontendPropertiesServiceImplTest {
   @Test
   public void getSkinHideDownloadControlsValueShouldPreserveNull() {
     assertNull(FrontendPropertiesServiceImpl.getSkinHideDownloadControlsValue(null));
+  }
+
+  /** A service whose environment sets only the given property, leaving every other default. */
+  private FrontendPropertiesServiceImpl serviceWith(String name, String value) {
+    lenient()
+        .when(env.getProperty(anyString(), (String) any()))
+        .thenAnswer(invocation -> invocation.getArgument(1));
+    if (name != null) {
+      lenient().when(env.getProperty(name, "false")).thenReturn(value);
+    }
+    FrontendPropertiesServiceImpl service = new FrontendPropertiesServiceImpl();
+    ReflectionTestUtils.setField(service, "env", env);
+    service.init();
+    return service;
+  }
+
+  @Test
+  public void oqlWizardIsOffByDefault() {
+    assertEquals(
+        "false", serviceWith(null, null).getFrontendProperties().get("oql_wizard_enabled"));
+  }
+
+  @Test
+  public void oqlWizardEnabledReachesTheFrontend() {
+    assertEquals(
+        "true",
+        serviceWith("oql_wizard.enabled", "true")
+            .getFrontendProperties()
+            .get("oql_wizard_enabled"));
   }
 }

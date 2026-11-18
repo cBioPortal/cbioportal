@@ -555,11 +555,16 @@ feature.study.export.timeout_ms=600000
 # Ceiling on a single streamed chat response. Applied per request, independently of the global
 # async timeout that feature.study.export configures.
 # chat.sidebar.stream_timeout_ms=600000
-# The natural-language-to-OQL endpoints under /api/chat/oql are exempt from both lists: anyone who
-# can use the portal may call them, and no user is passed to the chat server. Ceiling on one of
-# those requests, which can make several model calls. Request bodies are capped at 16 KB for
-# translate and 64 KB for the others.
+# Ceiling on one request to the OQL wizard's endpoints (see oql_wizard.enabled below), which can make
+# several model calls.
 # chat.sidebar.oql_timeout_ms=60000
+#
+# OQL wizard (experimental): turns a plain-language description into an OQL query on the query
+# page. The translation runs on the chat server above, so chat.sidebar.url must be set too. Its
+# endpoints under /api/chat/oql are exempt from both lists: anyone who can use the portal may call
+# them, and no user is passed to the chat server. Request bodies are capped at 16 KB for translate
+# and 64 KB for the others. When false, the wizard is hidden and those endpoints answer 404.
+# oql_wizard.enabled=false
 #
 # NOTE: do not add text/event-stream to server.compression.mime-types -- Tomcat would buffer the
 # chat stream in order to compress it, which defeats incremental token delivery.

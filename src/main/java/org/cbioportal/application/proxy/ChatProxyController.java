@@ -80,6 +80,7 @@ public class ChatProxyController {
   private final long requestTimeoutMs;
   private final long streamTimeoutMs;
   private final long oqlTimeoutMs;
+  private final boolean oqlWizardEnabled;
   private final HttpClient httpClient;
 
   public ChatProxyController(
@@ -87,11 +88,13 @@ public class ChatProxyController {
       @Value("${chat.sidebar.connect_timeout_ms:5000}") long connectTimeoutMs,
       @Value("${chat.sidebar.request_timeout_ms:10000}") long requestTimeoutMs,
       @Value("${chat.sidebar.stream_timeout_ms:600000}") long streamTimeoutMs,
-      @Value("${chat.sidebar.oql_timeout_ms:60000}") long oqlTimeoutMs) {
+      @Value("${chat.sidebar.oql_timeout_ms:60000}") long oqlTimeoutMs,
+      @Value("${oql_wizard.enabled:false}") boolean oqlWizardEnabled) {
     this.upstreamBaseUrl = upstreamBaseUrl.replaceFirst("/$", "");
     this.requestTimeoutMs = requestTimeoutMs;
     this.streamTimeoutMs = streamTimeoutMs;
     this.oqlTimeoutMs = oqlTimeoutMs;
+    this.oqlWizardEnabled = oqlWizardEnabled;
     this.httpClient =
         HttpClient.newBuilder()
             .connectTimeout(Duration.ofMillis(connectTimeoutMs))
@@ -112,9 +115,10 @@ public class ChatProxyController {
   }
 
   /**
-   * Natural language to OQL, used by the query page. Open to everyone who can use the portal: no
-   * allowlist, and no user is passed upstream, which records all of it under one anonymous id.
-   * Takes precedence over {@link #chatApi} as the more specific pattern.
+   * Natural language to OQL, used by the query page's OQL wizard. Open to everyone who can use the
+   * portal: no allowlist, and no user is passed upstream, which records all of it under one
+   * anonymous id. Takes precedence over {@link #chatApi} as the more specific pattern, so with
+   * oql_wizard.enabled off these paths answer 404 rather than reaching the chat API.
    */
   @PreAuthorize("permitAll()")
   @RequestMapping(
@@ -123,6 +127,9 @@ public class ChatProxyController {
   public ResponseEntity<StreamingResponseBody> oqlApi(
       HttpServletRequest request, @RequestBody(required = false) byte[] body)
       throws InterruptedException {
+    if (!oqlWizardEnabled) {
+      return ResponseEntity.notFound().build();
+    }
     int maxBytes =
         request.getRequestURI().endsWith("/translate")
             ? MAX_OQL_TRANSLATE_BODY_BYTES

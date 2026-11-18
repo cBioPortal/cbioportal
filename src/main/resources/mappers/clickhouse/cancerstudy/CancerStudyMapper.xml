@@ -114,6 +114,7 @@
             LIMIT #{sortAndSearchCriteria.pageSize} OFFSET #{sortAndSearchCriteria.offset}
         </if>
         -->
+        SETTINGS SQL_cbioportal_email = #{userId}
     </select>
 
     <select id="getCancerStudiesMetadataSummary" resultMap="CancerStudyMetadataSummaryResultMap">
@@ -169,6 +170,7 @@
                 ORDER BY cs.name ASC
             </when>
         </choose>
+        SETTINGS SQL_cbioportal_email = #{userId}
     </select>
 
     <resultMap id="CancerStudyMetadataResultMap" 

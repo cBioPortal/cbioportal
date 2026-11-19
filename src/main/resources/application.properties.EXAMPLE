@@ -27,6 +27,13 @@ server.compression.enabled=true
 # uncomment this property so redirects preserve the original protocol and host.
 #server.forward-headers-strategy=NATIVE
 
+# Base URL substituted for ${base_url} in resource URL templates (the resource definition's
+# URL_TEMPLATE), e.g. https://cbioportal.example.org or https://example.org/cbioportal. Leave it
+# unset to take the base URL from each request; behind a reverse proxy that reflects the
+# client-facing address only when forwarded headers are applied (see the property above; Spring
+# Boot also applies them by default on Kubernetes). Set it to pin the links to one address.
+#resource.url_template.base_url=https://cbioportal.example.org
+
 # set tomcat_resource_name when using dbconnector=jndi instead of the default
 # dbconnector=dbcp. Note that dbconnector needs to be set in CATLINA_OPTS when
 # using Tomcat (CATALINA_OPTS="-Ddbconnector=jndi"). It does not get picked up

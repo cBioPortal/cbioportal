@@ -540,6 +540,15 @@ insert into genetic_alteration (genetic_profile_id,genetic_entity_id,`values`) v
 insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id) values ('HE', 'H&E Slide', 'H&E Slide', 'SAMPLE', 1, 1, 1);
 insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id) values ('IDC_OHIF_V2', 'CT Scan', 'CT Scan', 'PATIENT', 1, 1, 1);
 insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id) values ('FIGURES', 'Figures', 'Figures', 'STUDY', 1, 1, 2);
+-- SLIDE leaves most rows' URL empty; the portal expands its url_template for them.
+insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id, url_template) values ('SLIDE', 'Slide', 'Slide', 'SAMPLE', 1, 2, 2, '${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (101, 'SLIDE', 2, 'SAMPLE', 'TCGA-A1-B0SQ', 'TCGA-A1-B0SQ-01', '', NULL, '{"slide_key":"c0ffee000001","notes":"not read by the template"}');
+-- DUP_SLIDE's definition was loaded twice; its one row must still be served once.
+insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id, url_template) values ('DUP_SLIDE', 'Slide', 'Slide', 'SAMPLE', 0, 3, 2, '${base_url}/slides/${metadata.slide_key}');
+insert into resource_definition (resource_id, display_name, description, resource_type, open_by_default, priority, cancer_study_id, url_template) values ('DUP_SLIDE', 'Slide', 'Slide', 'SAMPLE', 0, 3, 2, '${base_url}/slides/${metadata.slide_key}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (104, 'DUP_SLIDE', 2, 'SAMPLE', 'TCGA-A1-B0SQ', 'TCGA-A1-B0SQ-01', '', NULL, '{"slide_key":"c0ffee000004"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (102, 'SLIDE', 2, 'PATIENT', 'TCGA-A1-B0SP', NULL, '', NULL, '{"slide_key":"c0ffee000002"}');
+insert into resource (internal_id, resource_id, cancer_study_id, resource_scope, patient_id, sample_id, url, display_name, metadata) values (103, 'SLIDE', 2, 'SAMPLE', 'TCGA-A1-A0SB', 'TCGA-A1-A0SB-01', 'https://example.com/own-url.svs', NULL, '{"slide_key":"c0ffee000003"}');
 
 
 

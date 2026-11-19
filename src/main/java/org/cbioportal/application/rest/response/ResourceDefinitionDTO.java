@@ -13,6 +13,7 @@ public class ResourceDefinitionDTO {
   private Boolean openByDefault;
   private String studyId;
   private String customMetaData;
+  private String urlTemplate;
 
   public String getResourceId() {
     return resourceId;
@@ -76,5 +77,13 @@ public class ResourceDefinitionDTO {
 
   public void setCustomMetaData(String customMetaData) {
     this.customMetaData = customMetaData;
+  }
+
+  public String getUrlTemplate() {
+    return urlTemplate;
+  }
+
+  public void setUrlTemplate(String urlTemplate) {
+    this.urlTemplate = urlTemplate;
   }
 }

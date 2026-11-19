@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.domain.resource.ResourceTableMetadataResult;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
@@ -35,14 +36,17 @@ public class ResourceTableController {
   private final GetResourceTableTabsUseCase getTabsUseCase;
   private final GetResourceTableDataUseCase getDataUseCase;
   private final GetResourceTableMetadataUseCase getMetadataUseCase;
+  private final PortalBaseUrl portalBaseUrl;
 
   public ResourceTableController(
       GetResourceTableTabsUseCase getTabsUseCase,
       GetResourceTableDataUseCase getDataUseCase,
-      GetResourceTableMetadataUseCase getMetadataUseCase) {
+      GetResourceTableMetadataUseCase getMetadataUseCase,
+      PortalBaseUrl portalBaseUrl) {
     this.getTabsUseCase = getTabsUseCase;
     this.getDataUseCase = getDataUseCase;
     this.getMetadataUseCase = getMetadataUseCase;
+    this.portalBaseUrl = portalBaseUrl;
   }
 
   @Hidden
@@ -86,7 +90,7 @@ public class ResourceTableController {
           @Content(array = @ArraySchema(schema = @Schema(implementation = ResourceTableRow.class))))
   public ResponseEntity<List<ResourceTableRow>> fetchResourceTableData(
       @Valid @RequestBody(required = false) ResourceTableQuery query) {
-    return ResponseEntity.ok(getDataUseCase.execute(query));
+    return ResponseEntity.ok(getDataUseCase.execute(query, portalBaseUrl.current()));
   }
 
   @Hidden

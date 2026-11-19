@@ -141,3 +141,7 @@ SELECT throwIf(
 DROP TABLE IF EXISTS resource_sample;
 DROP TABLE IF EXISTS resource_patient;
 DROP TABLE IF EXISTS resource_study;
+
+## db_schema_version: 3.2.0
+## description: Add resource_definition.url_template, a per-resource URL template the portal expands for rows without a URL
+ALTER TABLE resource_definition ADD COLUMN IF NOT EXISTS url_template Nullable(String);

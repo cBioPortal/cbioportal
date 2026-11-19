@@ -13,9 +13,9 @@ import org.cbioportal.domain.resource.ResourceMetadataKeyStats;
 import org.cbioportal.domain.resource.ResourceMetadataRange;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
@@ -178,7 +178,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).resourceId()).isEqualTo("CT_SCAN");
@@ -191,7 +191,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(2);
     assertThat(rows).allMatch(r -> r.resourceId().equals("HE_SLIDE"));
@@ -204,7 +204,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 1, null, null, null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
   }
@@ -227,8 +227,8 @@ public class ClickhouseResourceDataMapperTest {
             "DESC",
             null);
 
-    List<ResourceTableRow> ascending = mapper.getResourceTableRows(asc);
-    List<ResourceTableRow> descending = mapper.getResourceTableRows(desc);
+    List<StoredResourceTableRow> ascending = mapper.getResourceTableRows(asc);
+    List<StoredResourceTableRow> descending = mapper.getResourceTableRows(desc);
 
     assertThat(ascending.get(0).patientId()).isLessThanOrEqualTo(ascending.get(1).patientId());
     assertThat(descending.get(0).patientId()).isGreaterThanOrEqualTo(descending.get(1).patientId());
@@ -240,7 +240,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, "a0sb", 0, 10, null, null, null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).patientId()).contains("a0sb");
@@ -252,10 +252,10 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).isNotEmpty();
-    ResourceTableRow rowWithMeta =
+    StoredResourceTableRow rowWithMeta =
         rows.stream()
             .filter(r -> r.metadata() != null && !r.metadata().isEmpty())
             .findFirst()
@@ -281,7 +281,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(displayNameFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).isNotEmpty();
     assertThat(rows).allMatch(r -> "H&E Sample 1".equals(r.displayName()));
@@ -304,7 +304,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(metaFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(2); // both HE_SLIDE rows have stain=HE
   }
@@ -344,7 +344,7 @@ public class ClickhouseResourceDataMapperTest {
         new ResourceTableQuery(
             List.of(STUDY_TCGA_PUB), "HE_SLIDE", null, null, "40x", 0, 10, null, null, null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata().get("magnification")).isEqualTo("40x");
@@ -527,7 +527,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(betweenFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata().get("pages")).isEqualTo(10);
@@ -553,7 +553,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(betweenFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).isEmpty();
   }
@@ -584,7 +584,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(stainFilter, magnificationFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("stain", "HE");
@@ -611,7 +611,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(scoreFilter, doseFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
@@ -636,7 +636,7 @@ public class ClickhouseResourceDataMapperTest {
             null,
             List.of(scoreFilter, doseFilter));
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     assertThat(rows).hasSize(1);
     assertThat(rows.get(0).metadata()).containsEntry("dose_id", "1001");
@@ -698,11 +698,11 @@ public class ClickhouseResourceDataMapperTest {
             null,
             null);
 
-    List<ResourceTableRow> rows = mapper.getResourceTableRows(query);
+    List<StoredResourceTableRow> rows = mapper.getResourceTableRows(query);
 
     // acc-he-collides.jpg belongs to acc_tcga's tcga-a1-a0sb-01, which the cohort never selected.
     assertThat(rows)
-        .extracting(ResourceTableRow::url)
+        .extracting(StoredResourceTableRow::url)
         .containsExactlyInAnyOrder(
             "https://example.com/he1.jpg", "https://example.com/acc-he-own.jpg");
   }
@@ -763,7 +763,7 @@ public class ClickhouseResourceDataMapperTest {
             null);
 
     assertThat(mapper.getResourceTableRows(query))
-        .extracting(ResourceTableRow::url)
+        .extracting(StoredResourceTableRow::url)
         .containsExactly("https://example.com/he1.jpg");
   }
 
@@ -788,21 +788,21 @@ public class ClickhouseResourceDataMapperTest {
 
   @Test
   public void getResourceTableRows_numericMetadataSort_ordersNumericallyNotAsText() {
-    List<ResourceTableRow> rows =
+    List<StoredResourceTableRow> rows =
         mapper.getResourceTableRows(slideSet("metadata:score", "asc", 0, 10));
 
     assertThat(rows)
-        .extracting(ResourceTableRow::displayName)
+        .extracting(StoredResourceTableRow::displayName)
         .containsExactly("Set 9", "Set 10", "Set 20", "Set 100");
   }
 
   @Test
   public void getResourceTableRows_numericMetadataSort_descending() {
-    List<ResourceTableRow> rows =
+    List<StoredResourceTableRow> rows =
         mapper.getResourceTableRows(slideSet("metadata:score", "desc", 0, 10));
 
     assertThat(rows)
-        .extracting(ResourceTableRow::displayName)
+        .extracting(StoredResourceTableRow::displayName)
         .containsExactly("Set 100", "Set 20", "Set 10", "Set 9");
   }
 
@@ -825,7 +825,7 @@ public class ClickhouseResourceDataMapperTest {
     List<String> paged =
         java.util.stream.Stream.of(0, 1)
             .flatMap(page -> mapper.getResourceTableRows(slideSet(null, null, page, 2)).stream())
-            .map(ResourceTableRow::displayName)
+            .map(StoredResourceTableRow::displayName)
             .toList();
 
     assertThat(paged)
@@ -841,7 +841,7 @@ public class ClickhouseResourceDataMapperTest {
         java.util.stream.Stream.of(0, 1)
             .flatMap(
                 page -> mapper.getResourceTableRows(slideSet("sampleId", "asc", page, 2)).stream())
-            .map(ResourceTableRow::displayName)
+            .map(StoredResourceTableRow::displayName)
             .toList();
 
     assertThat(paged).containsExactlyInAnyOrder("Set 9", "Set 10", "Set 20", "Set 100");
@@ -887,7 +887,7 @@ public class ClickhouseResourceDataMapperTest {
                     "metadata:file_size_bytes", "between", List.of("50", "500"))));
 
     assertThat(mapper.getResourceTableRows(query))
-        .extracting(ResourceTableRow::displayName)
+        .extracting(StoredResourceTableRow::displayName)
         .containsExactlyInAnyOrder("Set 9", "Set 100"); // file_size_bytes 100 and 400
   }
 
@@ -907,14 +907,14 @@ public class ClickhouseResourceDataMapperTest {
             List.of(new ResourceColumnFilter("metadata:is_hne", "equals", List.of("true"))));
 
     assertThat(mapper.getResourceTableRows(query))
-        .extracting(ResourceTableRow::displayName)
+        .extracting(StoredResourceTableRow::displayName)
         .containsExactlyInAnyOrder("Set 9", "Set 20");
   }
 
   @Test
   public void metadataSort_onAJsonIntegerIsNumeric() {
     assertThat(mapper.getResourceTableRows(slideSet("metadata:file_size_bytes", "asc", 0, 10)))
-        .extracting(ResourceTableRow::displayName)
+        .extracting(StoredResourceTableRow::displayName)
         .containsExactly("Set 20", "Set 9", "Set 100", "Set 10"); // 30, 100, 400, 2000
   }
 

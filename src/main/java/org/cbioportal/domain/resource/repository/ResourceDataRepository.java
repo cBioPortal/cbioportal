@@ -4,14 +4,15 @@ import java.util.List;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
-import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
+import org.cbioportal.domain.resource.StoredResourceTableRow;
 
 public interface ResourceDataRepository {
   List<ResourceTableTab> getResourceTableTabs(ResourceTabsRequest request);
 
-  List<ResourceTableRow> getResourceTableRows(ResourceTableQuery query);
+  /** One page of rows, each with its own resource definition's url_template. */
+  List<StoredResourceTableRow> getResourceTableRows(ResourceTableQuery query);
 
   /** Row, patient and sample counts for the filtered set, in one pass. */
   ResourceTableCounts getResourceTableCounts(ResourceTableQuery query);

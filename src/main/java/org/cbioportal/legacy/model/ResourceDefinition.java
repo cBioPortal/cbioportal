@@ -13,6 +13,7 @@ public class ResourceDefinition implements Serializable {
   private Boolean openByDefault;
   @NotNull private String cancerStudyIdentifier;
   private String customMetaData;
+  private String urlTemplate;
 
   public String getResourceId() {
     return resourceId;
@@ -76,5 +77,13 @@ public class ResourceDefinition implements Serializable {
 
   public void setCustomMetaData(String customMetaData) {
     this.customMetaData = customMetaData;
+  }
+
+  public String getUrlTemplate() {
+    return urlTemplate;
+  }
+
+  public void setUrlTemplate(String urlTemplate) {
+    this.urlTemplate = urlTemplate;
   }
 }

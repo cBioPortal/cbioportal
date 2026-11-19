@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
+import org.cbioportal.application.rest.util.PortalBaseUrl;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.ResourceTableTab;
@@ -30,7 +31,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebMvcTest
-@ContextConfiguration(classes = {ResourceTableController.class, TestConfig.class})
+@ContextConfiguration(
+    classes = {ResourceTableController.class, PortalBaseUrl.class, TestConfig.class})
 public class ResourceTableControllerTest {
 
   private static final String STUDY_ID = "study_tcga_pub";
@@ -121,7 +123,8 @@ public class ResourceTableControllerTest {
                 "H&E Sample 2",
                 Map.of("stain", "HE")));
 
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(rows);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(rows);
 
     ResourceTableQuery query =
         new ResourceTableQuery(
@@ -151,7 +154,8 @@ public class ResourceTableControllerTest {
   @Test
   @WithMockUser
   public void fetchResourceTableData_nullQuery_returnsEmptyResult() throws Exception {
-    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(List.of());
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any(), Mockito.any()))
+        .thenReturn(List.of());
 
     mockMvc
         .perform(

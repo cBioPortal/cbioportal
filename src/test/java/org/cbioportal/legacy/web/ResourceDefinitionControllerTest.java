@@ -47,7 +47,8 @@ public class ResourceDefinitionControllerTest {
             + "    \"resourceType\": \"SAMPLE\","
             + "    \"priority\": \"1\","
             + "    \"openByDefault\": true,"
-            + "    \"cancerStudyIdentifier\": \"test_study_id\""
+            + "    \"cancerStudyIdentifier\": \"test_study_id\","
+            + "    \"urlTemplate\": \"${base_url}/wsi/patient/${PATIENT_ID}\""
             + "  },"
             + "  {"
             + "    \"resourceId\": \"PATIENT_NOTES\","
@@ -94,7 +95,11 @@ public class ResourceDefinitionControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].resourceId").value("PATHOLOGY_SLIDE"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].studyId").value("test_study_id"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].resourceType").value("SAMPLE"))
+        .andExpect(
+            MockMvcResultMatchers.jsonPath("$[0].urlTemplate")
+                .value("${base_url}/wsi/patient/${PATIENT_ID}"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].resourceId").value("PATIENT_NOTES"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].urlTemplate").doesNotExist())
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].resourceType").value("PATIENT"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[2].resourceId").value("STUDY_SPONSORS"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[2].resourceType").value("STUDY"));

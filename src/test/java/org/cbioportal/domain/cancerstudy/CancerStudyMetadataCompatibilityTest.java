@@ -26,7 +26,17 @@ public class CancerStudyMetadataCompatibilityTest {
     JsonNode resourceCount =
         objectMapper.valueToTree(
             new ResourceCount(
-                "resource", "display", "desc", "type", "priority", true, "study_1", "meta", 1, 2));
+                "resource",
+                "display",
+                "desc",
+                "type",
+                "priority",
+                true,
+                "study_1",
+                "meta",
+                null,
+                1,
+                2));
 
     assertThat(resourceCount.get("cancerStudyIdentifier").asText()).isEqualTo("study_1");
     assertFalse("studyId alias must not be present", resourceCount.has("studyId"));

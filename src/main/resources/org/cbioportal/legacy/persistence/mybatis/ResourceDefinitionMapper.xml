@@ -13,7 +13,8 @@
             resource_definition.description AS "${prefix}description",
             resource_definition.resource_type AS "${prefix}resourceType",
             resource_definition.priority AS "${prefix}priority",
-            resource_definition.custom_metadata AS "${prefix}customMetaData"
+            resource_definition.custom_metadata AS "${prefix}customMetaData",
+            resource_definition.url_template AS "${prefix}urlTemplate"
         </if>
     </sql>
 

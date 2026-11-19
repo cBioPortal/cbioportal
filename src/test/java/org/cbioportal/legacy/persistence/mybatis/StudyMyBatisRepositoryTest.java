@@ -350,6 +350,19 @@ public class StudyMyBatisRepositoryTest {
   }
 
   @Test
+  public void getResourceCounts_carryTheDefinitionsUrlTemplate() {
+    List<ResourceCount> counts =
+        studyMyBatisRepository.getResourceCounts(Arrays.asList("acc_tcga"));
+
+    ResourceCount slide =
+        counts.stream().filter(c -> "SLIDE".equals(c.getResourceId())).findFirst().orElseThrow();
+    Assert.assertEquals(
+        "${base_url}/wsi/patient/${PATIENT_ID}?studyId=${STUDY_ID}&slideKey=${metadata.slide_key}",
+        slide.getUrlTemplate());
+    Assert.assertNull(resourceCountFor("study_tcga_pub", "HE").getUrlTemplate());
+  }
+
+  @Test
   public void getResourceCounts_excludesStudyLevelResources() {
     // FIGURES is STUDY-level: it belongs to neither the sample nor the patient half.
     List<ResourceCount> counts =

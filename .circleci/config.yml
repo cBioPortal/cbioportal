@@ -543,7 +543,7 @@ jobs:
             command: |
               JOB_NUMBER=$(cat /tmp/shards_job_number)
               : "${JOB_NUMBER:?missing shards job_number from previous step}"
-              API="https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${JOB_NUMBER}/artifacts"
+              API="https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/job/${JOB_NUMBER}/artifacts"
               mkdir -p blob-report
               cd blob-report
               URLS=$(curl -fsS "$API" | jq -r '.items[] | select(.path | startswith("blob-report/")) | select(.path | endswith(".zip")) | .url')

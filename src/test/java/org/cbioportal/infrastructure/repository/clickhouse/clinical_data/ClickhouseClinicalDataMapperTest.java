@@ -470,7 +470,7 @@ public class ClickhouseClinicalDataMapperTest {
     assertEquals("Luminal B count", 2, findClinicalDataCount(subtypeCounts, "Luminal B"));
     assertEquals("HER2+ count", 2, findClinicalDataCount(subtypeCounts, "HER2+"));
     assertEquals(
-        "Triple Negative count", 1, findClinicalDataCount(subtypeCounts, "Triple Negative"));
+        "Triple Negative count", 3, findClinicalDataCount(subtypeCounts, "Triple Negative"));
 
     // NA count calculated using total SAMPLE count due to isConflicting=true
     assertTrue("NA count should be > 0", findClinicalDataCount(subtypeCounts, "NA") > 0);

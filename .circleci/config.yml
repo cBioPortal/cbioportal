@@ -546,7 +546,8 @@ jobs:
               API="https://circleci.com/api/v2/project/gh/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/${JOB_NUMBER}/artifacts"
               mkdir -p blob-report
               cd blob-report
-              URLS=$(curl -fsS "$API" | jq -r '.items[] | select(.path | startswith("blob-report/")) | select(.path | endswith(".zip")) | .url')
+              : "${CIRCLE_TOKEN:?CIRCLE_TOKEN is not set; the job-artifacts API requires authentication}"
+              URLS=$(curl -fsS -H "Circle-Token: ${CIRCLE_TOKEN}" "$API" | jq -r '.items[] | select(.path | startswith("blob-report/")) | select(.path | endswith(".zip")) | .url')
               COUNT=$(echo "$URLS" | grep -c . || true)
               echo "Found $COUNT blob artifacts on job ${JOB_NUMBER}."
               if [ "$COUNT" = "0" ]; then
@@ -556,7 +557,7 @@ jobs:
               echo "$URLS" | while read -r URL; do
                 [ -z "$URL" ] && continue
                 echo "GET $URL"
-                curl -fsSLO --retry 3 --retry-delay 2 "$URL"
+                curl -fsSLO --retry 3 --retry-delay 2 -H "Circle-Token: ${CIRCLE_TOKEN}" "$URL"
               done
               ls -la
         - run:
@@ -915,6 +916,8 @@ workflows:
         # until fork shards are released; pull_cbioportal_frontend_codebase
         # always runs and supplies the frontend checkout.
         - e2e_localdb_merge:
+            context:
+              - circleci-api-read
             requires:
               - approve_clickhouse_tests
               - pull_cbioportal_frontend_codebase

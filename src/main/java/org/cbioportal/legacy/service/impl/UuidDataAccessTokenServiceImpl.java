@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import org.cbioportal.application.security.token.uuid.UuidTokenAuthenticationRequest;
 import org.cbioportal.legacy.model.DataAccessToken;
 import org.cbioportal.legacy.persistence.DataAccessTokenRepository;
 import org.cbioportal.legacy.service.DataAccessTokenService;
@@ -20,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -157,13 +157,6 @@ public class UuidDataAccessTokenServiceImpl implements DataAccessTokenService {
       log.error("invalid token = " + token);
       throw new BadCredentialsException("Invalid access token");
     }
-    String userName = getUsername(token);
-
-    // when DaoAuthenticationProvider does authentication on user returned by
-    // PortalUserDetailsService
-    // which has password "unused", this password won't match, and then there is a BadCredentials
-    // exception thrown
-    // this is a good way to catch that the wrong authetication provider is being used
-    return new UsernamePasswordAuthenticationToken(userName, "does not match unused");
+    return new UuidTokenAuthenticationRequest(getUsername(token));
   }
 }

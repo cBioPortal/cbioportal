@@ -11,6 +11,7 @@ import org.cbioportal.legacy.model.meta.BaseMeta;
 import org.cbioportal.legacy.persistence.StudyRepository;
 import org.cbioportal.legacy.service.CancerTypeService;
 import org.cbioportal.legacy.service.ReadPermissionService;
+import org.cbioportal.legacy.service.StudyService;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.junit.Assert;
@@ -18,7 +19,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StudyServiceImplTest extends BaseServiceImplTest {
@@ -56,7 +59,7 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     BaseMeta expectedBaseMeta = new BaseMeta();
     when(studyRepository.getMetaStudies(null)).thenReturn(expectedBaseMeta);
 
-    BaseMeta result = studyService.getMetaStudies(null);
+    BaseMeta result = studyService.getMetaStudies(null, AccessLevel.READ);
 
     Assert.assertEquals(expectedBaseMeta, result);
   }
@@ -106,5 +109,58 @@ public class StudyServiceImplTest extends BaseServiceImplTest {
     BaseMeta result = studyService.fetchMetaStudies(Arrays.asList(STUDY_ID));
 
     Assert.assertEquals(expectedBaseMeta, result);
+  }
+
+  @Test
+  public void getMetaStudiesCountsOnlyWhatTheCallerMayRead() throws Exception {
+
+    // With user authorization enabled the count is derived from getAllStudies, whose @PostFilter
+    // removes the studies the caller may not read, instead of from the repository count query.
+    // This holds with and without a keyword.
+    ReflectionTestUtils.setField(studyService, "AUTHENTICATE", "true");
+    StudyService self = Mockito.mock(StudyService.class);
+    ReflectionTestUtils.setField(studyService, "self", self);
+    Mockito.when(
+            self.getAllStudies(
+                Mockito.any(),
+                Mockito.eq("SUMMARY"),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.eq(AccessLevel.READ)))
+        .thenReturn(Arrays.asList(new CancerStudy(), new CancerStudy()));
+
+    Assert.assertEquals(
+        (Integer) 2, studyService.getMetaStudies(null, AccessLevel.READ).getTotalCount());
+    Assert.assertEquals(
+        (Integer) 2, studyService.getMetaStudies("brca", AccessLevel.READ).getTotalCount());
+    Mockito.verify(studyRepository, Mockito.never()).getMetaStudies(Mockito.any());
+  }
+
+  @Test
+  public void getMetaStudiesCountsWithTheAccessLevelOfTheList() throws Exception {
+
+    // With skin.home_page.show_unauthorized_studies the list is filtered with LIST rather than
+    // READ, so it also holds studies the caller may not read. The count must use the same level,
+    // or it reports fewer studies than the list returns.
+    ReflectionTestUtils.setField(studyService, "AUTHENTICATE", "true");
+    StudyService self = Mockito.mock(StudyService.class);
+    ReflectionTestUtils.setField(studyService, "self", self);
+    Mockito.when(
+            self.getAllStudies(
+                Mockito.any(),
+                Mockito.eq("SUMMARY"),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.any(),
+                Mockito.eq(AccessLevel.LIST)))
+        .thenReturn(Arrays.asList(new CancerStudy(), new CancerStudy(), new CancerStudy()));
+
+    Assert.assertEquals(
+        (Integer) 3, studyService.getMetaStudies(null, AccessLevel.LIST).getTotalCount());
   }
 }

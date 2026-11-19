@@ -23,12 +23,11 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Nikolaus Schultz
 
 ## Dana-Farber Cancer Institute
-* Ethan Cerami
 * Tali Mazor
-* Jeremy Easton-Marks
 * Zhaoyuan (Ryan) Fu
-* Augustin Luna
 * James Lindsay
+
+## Harvard Medical School
 * Chris Sander
 
 ## Princess Margaret Cancer Centre, Toronto
@@ -43,18 +42,15 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Adam Resnick
 * Miguel Brown
 
-## Caris Life Sciences
-* Priti Kumari
-* Karthik Kalletla
-
 ## The Hyve
 * Oleguer Plantalech
-* Jessica Singh
-* Tim Kuijpers
-* Sowmiyaa Senthil Kumar
-* Floris Vleugels
-* Laura Varela
-* Zeynep Karagoz
+* Martijn Prevoo
+* Berke Yildiz
+* Sanne van der Stam
+* Wouter Maessen
+* Fedde Schaeffer
+* Ilya Vasilchenko
+* Architha Keijsers
 * Henk-Jan van den Ham
 
 ## SE4BIO
@@ -72,6 +68,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * M Salih Altun
 * Istemi Bahceci
 * Caitlin Byrne
+* Ethan Cerami
 * Hsiao-Wei Chen
 * Ersin Ciftci
 * Fred Criscuolo
@@ -79,6 +76,7 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Gideon Dresdner
 * Andy Dufilie
 * Catherine Del Vecchio Fitz
+* Jeremy Easton-Marks
 * Olivier Elemento
 * Ziya Erkoc
 * Arthur Goldberg
@@ -86,9 +84,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Michael Heuer
 * Anders Jacobsen
 * Mirella Kalafati
+* Karthik Kalletla
 * Peter Kok
+* Priti Kumari
 * Erik Larsson
 * Dong Li
+* Augustin Luna
 * Divya Madala
 * Tamba Monrose
 * Matthijs Pon
@@ -106,7 +107,6 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * James Xu
 * Dionne Zaal
 * Kelsey Zhu
-* Fedde Schaeffer
 * Riza Nugraha
 * Ngoc Nguyen
 * Diana Baiceanu
@@ -118,6 +118,12 @@ The cBioPortal for Cancer Genomics was originally developed at [Memorial Sloan K
 * Elena G Lara
 * Sjoerd van Hagen
 * Anika Bongaarts
+* Sowmiyaa Senthil Kumar
+* Tim Kuijpers
+* Zeynep Karagoz
+* Floris Vleugels
+* Laura Varela
+* Jessica Singh
 
 ## Funding for the cBioPortal for Cancer Genomics is or has been provided by:
 

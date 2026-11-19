@@ -205,6 +205,31 @@ public class ClickhouseSampleMapperTest {
   }
 
   @Test
+  public void getSamplesFilteredByClinicalDataInScientificNotation() {
+    StudyViewFilter studyViewFilter = new StudyViewFilter();
+    studyViewFilter.setStudyIds(List.of(STUDY_ACC_TCGA));
+
+    // patient tcga-a1-b0sp has OS_MONTHS '2.4E1' (24)
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("os_months", List.of(newDataFilterValue(20.0, 30.0, null)))));
+    var filteredSamples1 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(1, filteredSamples1.size());
+    assertEquals("tcga-a1-b0sp-01", filteredSamples1.getFirst().stableId());
+
+    // single value bin [24, 24]
+    studyViewFilter.setClinicalDataFilters(
+        List.of(newClinicalDataFilter("os_months", List.of(newDataFilterValue(24.0, 24.0, null)))));
+    var filteredSamples2 =
+        mapper.getFilteredSamples(
+            StudyViewFilterFactory.make(
+                studyViewFilter, List.of(), studyViewFilter.getStudyIds(), null));
+    assertEquals(1, filteredSamples2.size());
+  }
+
+  @Test
   public void getSamplesFilteredBySampleLevelGenericAssaySelection() {
     StudyViewFilter studyViewFilter = new StudyViewFilter();
     studyViewFilter.setStudyIds(Collections.singletonList(STUDY_ACC_TCGA));

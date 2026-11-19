@@ -326,13 +326,13 @@
                     We need to make sure to treat these values as numerical for filtering purposes.
                 -->
                 <if test="dataFilterValue.start != null and dataFilterValue.end == null">
-                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND match(${attribute_value}, '^>?=?[-+]?[0-9]*[.,]?[0-9]+([eE][-+]?[0-9]+)?$')
                 </if>
                 <if test="dataFilterValue.start == null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND match(${attribute_value}, '^&lt;?=?[-+]?[0-9]*[.,]?[0-9]+([eE][-+]?[0-9]+)?$')
                 </if>
                 <if test="dataFilterValue.start != null and dataFilterValue.end != null">
-                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+$')
+                    AND match(${attribute_value}, '^[-+]?[0-9]*[.,]?[0-9]+([eE][-+]?[0-9]+)?$')
                 </if>
                 <!--
                     Actual filtering of values that fall within the range of (start, end].
@@ -957,7 +957,7 @@
     <sql id="castStringValueToFloat">
         multiIf(
                    -- This condition is to prevent casting non numerical values to float
-                   NOT match(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+$'),
+                   NOT match(${attribute_value}, '^[>&lt;]?=?[-+]?[0-9]*[.,]?[0-9]+([eE][-+]?[0-9]+)?$'),
                    NULL,
                    (startsWith(${attribute_value}, '&lt;=') OR startsWith(${attribute_value}, '>=')),
                    cast(substr(${attribute_value}, 3) as float),

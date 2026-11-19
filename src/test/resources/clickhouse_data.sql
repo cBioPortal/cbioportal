@@ -439,6 +439,7 @@ insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'dfs_mo
 insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'dfs_status','1:recurred/progressed');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'os_months','12.3');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (15,'os_status','0:living');
+insert into clinical_patient (internal_id,attr_id,attr_value) values (16,'os_months','2.4E1');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (18,'retrospective_collection','no');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (301,'center','msk');
 insert into clinical_patient (internal_id,attr_id,attr_value) values (302,'center','msk');

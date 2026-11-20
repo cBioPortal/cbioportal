@@ -36,7 +36,7 @@ description:
     localisedName: cBioPortal
     shortDescription: >
       Open-source platform for visualization, analysis and download of
-      large-scale cancer genomics data sets.
+      large-scale multimodal cancer data.
     longDescription: >
       The cBioPortal for Cancer Genomics is an open-access resource for
       interactive exploration of multimodal cancer data. It lets
@@ -54,7 +54,7 @@ description:
     documentation: "https://docs.cbioportal.org"
     apiDocumentation: "https://docs.cbioportal.org/web-api-and-clients/"
     features:
-      - Visualization of cancer genomics data
+      - Visualization of multimodal cancer data
       - Cross-study query and comparison of cancer cohorts
       - Mutation, copy-number, expression and clinical data analysis
       - REST API for programmatic access

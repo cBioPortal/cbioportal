@@ -76,14 +76,3 @@ localisation:
   localisationReady: false
   availableLanguages:
     - en
-
-dependsOn:
-  open:
-    - name: ClickHouse
-      optional: false
-    - name: Java Runtime Environment
-      optional: false
-    - name: Docker
-      optional: false
-    - name: Redis
-      optional: false

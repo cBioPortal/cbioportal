@@ -87,4 +87,36 @@ class ClaimRoleExtractorUtilTest {
     assertTrue(result.contains("GROUP_X"));
     assertTrue(result.contains("GROUP_Y"));
   }
+
+  @Test
+  void shouldExtractNestedKeycloakRealmRoles() {
+    String claims =
+        """
+            {"realm_access": {"roles": ["portal:PUBLIC", "portal:TEAM_A"]}}
+            """;
+    var result = ClaimRoleExtractorUtil.extractClientRoles(claims, "realm_access::roles");
+    assertEquals(2, result.size());
+    assertTrue(result.contains("portal:PUBLIC"));
+    assertTrue(result.contains("portal:TEAM_A"));
+  }
+
+  @Test
+  void shouldReturnNoRolesWhenPathIsMissing() {
+    String claims =
+        """
+            {"realm_access": {"other": ["role1"]}}
+            """;
+    assertTrue(ClaimRoleExtractorUtil.extractClientRoles(claims, "realm_access::roles").isEmpty());
+    assertTrue(
+        ClaimRoleExtractorUtil.extractClientRoles(claims, "resource_access::cbioportal::roles")
+            .isEmpty());
+    assertTrue(ClaimRoleExtractorUtil.extractClientRoles(Map.of("sub", "user"), "roles").isEmpty());
+  }
+
+  @Test
+  void shouldReturnNoRolesForMalformedClaims() {
+    assertTrue(ClaimRoleExtractorUtil.extractClientRoles("not json", "roles").isEmpty());
+    assertTrue(
+        ClaimRoleExtractorUtil.extractClientRoles("{\"roles\": \"not json\"}", "roles").isEmpty());
+  }
 }

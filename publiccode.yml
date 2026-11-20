@@ -39,8 +39,7 @@ description:
       large-scale cancer genomics data sets.
     longDescription: >
       The cBioPortal for Cancer Genomics is an open-access resource for
-      interactive exploration of multidimensional cancer genomics data
-      sets. It lets researchers and clinicians explore mutations,
+      interactive exploration of multimodal cancer data sets. It lets researchers and clinicians explore mutations,
       copy-number alterations, expression and clinical data without
       requiring bioinformatics expertise.
       This repository contains the backend; the web frontend lives in the

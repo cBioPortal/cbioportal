@@ -6,8 +6,6 @@ name: cBioPortal
 applicationSuite: cBioPortal for Cancer Genomics
 url: "https://github.com/cBioPortal/cbioportal"
 landingURL: "https://www.cbioportal.org"
-softwareVersion: "7.1.2"
-releaseDate: "2026-09-17"
 logo: src/main/resources/webapp/images/cbioportal_logo.png
 
 organisation:

@@ -2,6 +2,7 @@ package org.cbioportal.application.security.config;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.startsWith;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -14,6 +15,8 @@ import org.cbioportal.application.security.token.oauth2.OAuth2TokenAuthenticatio
 import org.cbioportal.application.security.token.oauth2.OAuth2TokenRefreshRestTemplate;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.TestPropertySource;
@@ -28,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @SpringJUnitWebConfig(
     classes = {
       Saml2SecurityConfig.class,
+      Saml2AndBasicConfig.class,
       ApiSecurityConfig.class,
       MethodSecurityConfig.class,
       DataAccessTokenConfig.class,
@@ -40,6 +44,9 @@ import org.springframework.web.client.RestTemplate;
       "authorization=false",
       "filter_groups_by_appname=false",
       "security.cors.allowed-origins=*",
+      // Basic credentials are set to show that authenticate=saml ignores them.
+      "basic.username=" + SamlPlusBasicWithOAuth2TokensSecurityTest.BASIC_USER,
+      "basic.password=" + SamlPlusBasicWithOAuth2TokensSecurityTest.BASIC_PASSWORD_HASH,
       "dat.method=oauth2",
       "dat.unauth_users=anonymousUser",
       "dat.oauth2.issuer=https://idp.example.org/realms/cbio",
@@ -58,6 +65,8 @@ class SamlWithOAuth2TokensSecurityTest extends SecurityChainTestSupport {
   @MockitoBean private OAuth2TokenRefreshRestTemplate tokenRefreshRestTemplate;
   @MockitoBean private JwtTokenVerifierBuilder jwtTokenVerifierBuilder;
   @MockitoBean private RestTemplate restTemplate;
+
+  @Autowired private ApplicationContext applicationContext;
 
   @Test
   void apiWithoutLoginIsUnauthorized() throws Exception {
@@ -91,9 +100,12 @@ class SamlWithOAuth2TokensSecurityTest extends SecurityChainTestSupport {
 
   @Test
   void basicLoginIsNotAvailable() throws Exception {
+    assertEquals(0, applicationContext.getBeanNamesForType(Saml2AndBasicConfig.class).length);
     mockMvc
         .perform(
-            post("/j_spring_security_check").param("j_username", "user").param("j_password", "x"))
+            post("/j_spring_security_check")
+                .param("j_username", SamlPlusBasicWithOAuth2TokensSecurityTest.BASIC_USER)
+                .param("j_password", SamlPlusBasicWithOAuth2TokensSecurityTest.BASIC_PASSWORD))
         .andExpect(unauthenticated());
   }
 

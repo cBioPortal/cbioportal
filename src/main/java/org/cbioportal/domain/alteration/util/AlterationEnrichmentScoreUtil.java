@@ -11,8 +11,13 @@ public abstract class AlterationEnrichmentScoreUtil {
 
   private AlterationEnrichmentScoreUtil() {}
 
+  /**
+   * @return the p-value, or null when no test can be run (fewer than two profiled groups, or a
+   *     group with more altered than profiled cases)
+   */
   public static BigDecimal calculateEnrichmentScore(AlterationEnrichment alterationEnrichment) {
-    double pValue = 0;
+    // stays null when no test is run: 0 would report the gene as maximally significant
+    Double pValue = null;
 
     List<CountSummary> counts = alterationEnrichment.getCounts();
     List<CountSummary> filteredCounts =
@@ -60,10 +65,10 @@ public abstract class AlterationEnrichmentScoreUtil {
 
         // set p-value to 1 when the cases in all groups are altered
         if (Double.isNaN(pValue)) {
-          pValue = 1;
+          pValue = 1.0;
         }
       }
     }
-    return BigDecimal.valueOf(pValue);
+    return pValue == null ? null : BigDecimal.valueOf(pValue);
   }
 }

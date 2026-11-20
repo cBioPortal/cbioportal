@@ -10,6 +10,10 @@ softwareVersion: "7.1.2"
 releaseDate: "2026-09-17"
 logo: src/main/resources/webapp/images/cbioportal_logo.png
 
+organisation:
+  name: cBioPortal for Cancer Genomics
+  uri: "https://github.com/cBioPortal"
+
 platforms:
   - web
   - linux
@@ -21,7 +25,7 @@ categories:
 
 developmentStatus: stable
 
-softwareType: "standalone"
+softwareType: "standalone/web"
 
 intendedAudience:
   scope:
@@ -44,7 +48,13 @@ description:
       This repository contains the backend; the web frontend lives in the
       cbioportal-frontend repository. Institutions can deploy a private
       instance to explore and share their own studies.
+      cBioPortal was originally developed at Memorial Sloan Kettering Cancer
+      Center and is now developed and maintained by a multi-institutional
+      team: Memorial Sloan Kettering Cancer Center, Dana-Farber Cancer
+      Institute, Princess Margaret Cancer Centre, Children's Hospital of
+      Philadelphia, The Hyve, SE4BIO and Bilkent University.
     documentation: "https://docs.cbioportal.org"
+    apiDocumentation: "https://docs.cbioportal.org/web-api-and-clients/"
     features:
       - Visualization of cancer genomics data
       - Cross-study query and comparison of cancer cohorts
@@ -60,21 +70,10 @@ legal:
 maintenance:
   type: community
   contacts:
-    - name: cBioPortal Team
+    - name: cBioPortal Community
       email: cbioportal@cbioportal.org
-    - name: Nikolaus Schultz
-      affiliation: Memorial Sloan Kettering Cancer Center
-    - name: James Lindsay
-      affiliation: Dana-Farber Cancer Institute
-    - name: Trevor Pugh
-      affiliation: Princess Margaret Cancer Centre
-    - name: Adam Resnick
-      affiliation: Children's Hospital of Philadelphia
-    - name: Pieter Lukasse
-      affiliation: SE4BIO
-    - name: Henk-Jan van den Ham
-      affiliation: The Hyve 
-    
+      affiliation: General inquiries
+
 localisation:
   localisationReady: false
   availableLanguages:

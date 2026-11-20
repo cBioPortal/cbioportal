@@ -439,9 +439,9 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
     //   acbc_mskcc_2015 (Adenoid Cystic Breast Carcinoma, MSK 2015):
     //     TUMOR_STAGE -> patientAttribute=false, datatype=STRING
     //
-    // The same attribute ID "TUMOR_STAGE" is modeled at patient level in one study and sample
-    // level in another. This is a known curation inconsistency in cBioPortal where different
-    // studies follow different conventions for the same clinical concept.
+    // The same attribute ID "TUMOR_STAGE" is modeled at patient level in one study and
+    // sample level in another. This is a known curation inconsistency in cBIOPortal where
+    // different studies follow different conventions for the same clinical concept.
     //
     // WHAT THE FIX DOES (commit af3b1505):
     //   ClinicalAttributeUtil.categorizeClinicalAttributes detects that TUMOR_STAGE has
@@ -536,6 +536,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     true,
                     "1",
+                    null,
                     1,
                     studyTracerx),
                 // acbc_mskcc_2015 stores TUMOR_STAGE as a SAMPLE attribute
@@ -546,6 +547,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     false,
                     "1",
+                    null,
                     1,
                     studyAcbc)));
 
@@ -592,7 +594,8 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
             List.of(
                 studyAcbc + "_P-0000001-T01-IM3",
                 studyAcbc + "_P-0000002-T01-IM3"), // group 2 sampleUniqueIds
-            List.of(studyAcbc + "_P-0000001", studyAcbc + "_P-0000002"), // group 2 patientUniqueIds
+            List.of(
+                studyAcbc + "_P-0000001", studyAcbc + "_P-0000002"), // group 2 patientUniqueIds
             List.of(), // sampleAttributeIds (empty; conflicting attrs not dual-routed)
             List.of(), // patientAttributeIds (empty)
             List.of("TUMOR_STAGE"))) // conflictingAttributeIds <- sole routing for conflicting attr
@@ -628,7 +631,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
     // TISSUE_SOURCE_SITE records which tissue bank/site contributed the specimen. TCGA studies
     // (like thca_tcga) typically attach this to the patient record since one patient belongs to
     // one site. MSK studies may attach it to the sample since the same patient could have
-    // samples from different sites (e.g., primary and metastatic biopsies from different centres).
+    // samples from different sites (e.g. primary and metastatic biopsies from different centres).
     //
     // CONFLICT SCENARIO WITH MIXED GROUPS:
     // Both groups contain samples from BOTH studies. This represents the real enrichment use case
@@ -721,6 +724,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     true,
                     "1",
+                    null,
                     1,
                     studyThca),
                 // nsclc_mskcc_2015: TISSUE_SOURCE_SITE is a SAMPLE attribute (per-biopsy site)
@@ -731,6 +735,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     false,
                     "1",
+                    null,
                     1,
                     studyNsclc)));
 
@@ -868,6 +873,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     true,
                     "1",
+                    null,
                     1,
                     studyTracerx),
                 new ClinicalAttribute(
@@ -877,6 +883,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
                     "STRING",
                     false,
                     "1",
+                    null,
                     1,
                     studyAcbc)));
 
@@ -1000,7 +1007,7 @@ class FetchClinicalDataEnrichmentsUseCaseTest {
   private ClinicalAttribute createClinicalAttribute(
       String attrId, String datatype, boolean isPatient) {
     return new ClinicalAttribute(
-        attrId, attrId + " Name", attrId + " Desc", datatype, isPatient, "1", 1, STUDY_ID);
+        attrId, attrId + " Name", attrId + " Desc", datatype, isPatient, "1", null, 1, STUDY_ID);
   }
 
   private ClinicalData createClinicalData(String entityId, String attrId, String value) {

@@ -252,11 +252,31 @@ jobs:
     # stack and runs ~1/12 of tests/local. The user-facing verdict is the
     # downstream e2e_localdb_merge job, which merges every shard's blob
     # report into one HTML report and fails on any test failure.
+    #
+    # The auth_mode parameters run the login specs (tests/local/auth) against
+    # a backend in another login mode, set by a compose file from
+    # cbioportal-docker-compose's dev/keycloak. Those runs report through their
+    # own job status; e2e_localdb_merge collects only e2e_localdb_shards.
     e2e_localdb_shards:
+      parameters:
+        parallelism:
+          type: integer
+          default: 12
+        auth_mode:
+          description: The backend's authenticate value; empty means saml from dev/keycloak/keycloak.yml
+          type: string
+          default: ""
+        auth_compose_extensions:
+          description: Compose arguments, from cbioportal-docker-compose, that set auth_mode
+          type: string
+          default: ""
+        tests:
+          type: string
+          default: tests/local
       machine:
         image: ubuntu-2204:2024.08.1
       resource_class: large
-      parallelism: 12
+      parallelism: << parameters.parallelism >>
       working_directory: /tmp/repos
       environment:
         BACKEND_PORT: 8080
@@ -273,6 +293,7 @@ jobs:
         # Opt this job into running tests/local/** (excluded by default in
         # the Playwright config so the remote suite doesn't pick them up).
         PW_LOCAL: '1'
+        PW_AUTH_MODE: << parameters.auth_mode >>
       steps:
         - attach_workspace:
             at: /tmp/repos
@@ -331,7 +352,7 @@ jobs:
               export CLICKHOUSE_URL="$API_TEST_DB_URL"
               export CLICKHOUSE_USER="$API_TEST_DB_USER"
               export CLICKHOUSE_PASSWORD="$API_TEST_DB_PW"
-              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
+              nohup ./scripts/docker-compose.sh --portal_type='keycloak' --compose_extensions='-f addon/clickhouse/docker-compose.remote.clickhouse.yml << parameters.auth_compose_extensions >>' >> /tmp/repos/docker-compose-logs.txt 2>&1 &
         - run:
             name: Install Playwright suite dependencies
             working_directory: /tmp/repos/cbioportal-frontend/end-to-end-test-playwright
@@ -426,7 +447,7 @@ jobs:
               # --workers=2 lets 2 spec files in a shard run concurrently;
               # resource_class large (4 vCPU/8GB) is shared with the mysql +
               # cbioportal + keycloak + clickhouse containers, so we cap at 2.
-              npx playwright test tests/local \
+              npx playwright test << parameters.tests >> \
                 --shard="${SHARD_NUM}/${CIRCLE_NODE_TOTAL}" \
                 --workers=2 \
                 --reporter=list,junit,blob
@@ -471,8 +492,12 @@ jobs:
                 echo "Playwright shard exit: 0"
                 exit 0
               fi
+              echo "Tests failed (Playwright exit $EXIT)."
+              if [ "$CIRCLE_NODE_TOTAL" = "1" ]; then
+                echo "Report: this job's Artifacts tab → test-results."
+                exit $EXIT
+              fi
               echo "================================================================"
-              echo "Tests failed in this shard (Playwright exit $EXIT)."
               echo "This is ONE OF $CIRCLE_NODE_TOTAL parallel shards. The"
               echo "consolidated, screenshot-diff-rich HTML report lives in the"
               echo "'e2e_localdb_merge' job → Artifacts tab → playwright-report/index.html."
@@ -902,6 +927,30 @@ workflows:
         # backend image tar (build_web_and_data_image); cbioportal-test +
         # cbioportal-frontend reach the shards through the workspace closure.
         - e2e_localdb_shards:
+            context:
+              - clickhouse-public-staging-ro-user
+            requires:
+              - approve_clickhouse_tests
+              - build_frontend
+              - build_web_and_data_image
+        - e2e_localdb_shards:
+            name: e2e_localdb_auth_saml_plus_basic
+            parallelism: 1
+            auth_mode: saml_plus_basic
+            auth_compose_extensions: -f dev/keycloak/keycloak-saml-plus-basic.yml
+            tests: tests/local/auth
+            context:
+              - clickhouse-public-staging-ro-user
+            requires:
+              - approve_clickhouse_tests
+              - build_frontend
+              - build_web_and_data_image
+        - e2e_localdb_shards:
+            name: e2e_localdb_auth_oauth2
+            parallelism: 1
+            auth_mode: oauth2
+            auth_compose_extensions: -f dev/keycloak/keycloak-oidc.yml
+            tests: tests/local/auth
             context:
               - clickhouse-public-staging-ro-user
             requires:

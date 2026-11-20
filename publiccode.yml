@@ -1,0 +1,78 @@
+# publiccode.yml for cBioPortal
+# More info at https://github.com/publiccodeyml/publiccode.yml
+publiccodeYmlVersion: "0.8"
+
+name: cBioPortal
+applicationSuite: cBioPortal for Cancer Genomics
+url: "https://github.com/cBioPortal/cbioportal"
+landingURL: "https://www.cbioportal.org"
+logo: src/main/resources/webapp/images/cbioportal_logo.png
+
+organisation:
+  name: cBioPortal for Cancer Genomics
+  uri: "https://github.com/cBioPortal"
+
+platforms:
+  - web
+  - linux
+
+categories:
+  - data-analytics
+  - data-visualization
+  - knowledge-management
+
+developmentStatus: stable
+
+softwareType: "standalone/web"
+
+intendedAudience:
+  scope:
+    - healthcare
+    - research
+    - science-and-technology
+
+description:
+  en:
+    localisedName: cBioPortal
+    shortDescription: >
+      Open-source platform for visualization, analysis and download of
+      large-scale multimodal cancer data.
+    longDescription: >
+      The cBioPortal for Cancer Genomics is an open-access resource for
+      interactive exploration of multimodal cancer data. It lets
+      researchers and clinicians explore mutations, copy-number
+      alterations, expression and clinical data without requiring
+      bioinformatics expertise.
+      This repository contains the backend; the web frontend lives in the
+      cbioportal-frontend repository. Institutions can deploy a private
+      instance to explore and share their own studies.
+      cBioPortal was originally developed at Memorial Sloan Kettering Cancer
+      Center and is now developed and maintained by a multi-institutional
+      team: Memorial Sloan Kettering Cancer Center, Dana-Farber Cancer
+      Institute, Princess Margaret Cancer Centre, Children's Hospital of
+      Philadelphia, The Hyve, SE4BIO and Bilkent University.
+    documentation: "https://docs.cbioportal.org"
+    apiDocumentation: "https://docs.cbioportal.org/web-api-and-clients/"
+    features:
+      - Visualization of multimodal cancer data
+      - Cross-study query and comparison of cancer cohorts
+      - Mutation, copy-number, expression and clinical data analysis
+      - REST API for programmatic access
+      - Model Context Protocol (MCP) server for connecting AI assistants and agents to cBioPortal data
+      - Private deployment for institutional data sharing
+
+legal:
+  license: Apache-2.0
+  mainCopyrightOwner: "cBioPortal contributors"
+
+maintenance:
+  type: community
+  contacts:
+    - name: cBioPortal Community
+      email: cbioportal@cbioportal.org
+      affiliation: General inquiries
+
+localisation:
+  localisationReady: false
+  availableLanguages:
+    - en

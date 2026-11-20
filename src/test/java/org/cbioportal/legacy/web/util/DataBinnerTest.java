@@ -854,6 +854,110 @@ public class DataBinnerTest {
   }
 
   @Test
+  public void testLinearDataBinnerQuartileBinsWithSpecialOutlierAboveQ1() {
+    String studyId = "skcm_broad";
+    String attributeId = "AGE_AT_PROCUREMENT";
+    // 20, 22, ..., 90 and "<=40": 38 and 40 are below Q2 but also in the "<=40" bin
+    String[] values =
+        Stream.concat(
+                IntStream.rangeClosed(10, 45).mapToObj(i -> String.valueOf(i * 2)),
+                Stream.of("<=40"))
+            .toArray(String[]::new);
+
+    ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+    clinicalDataBinFilter.setAttributeId(attributeId);
+    clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
+
+    List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
+    List<String> patientIds = getCaseIds(clinicalData, true);
+
+    List<DataBin> dataBins =
+        dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+    List<DataBin> expected =
+        Arrays.asList(
+            createDataBin("<=", null, "40", 12),
+            createDataBin(null, "40", "55", 7),
+            createDataBin(null, "55", "73", 9),
+            createDataBin(">", "73", null, 9));
+
+    testBinsIdentical(expected, dataBins);
+  }
+
+  @Test
+  public void testLinearDataBinnerGenerateBinsWithSpecialOutlierAboveFirstBin() {
+    String studyId = "skcm_broad";
+    String attributeId = "AGE_AT_PROCUREMENT";
+    // 20, 25, ..., 90 and "<=35": the generated bins 20-30 and 30-40 start below 35
+    String[] values =
+        Stream.concat(
+                IntStream.rangeClosed(4, 18).mapToObj(i -> String.valueOf(i * 5)),
+                Stream.of("<=35"))
+            .toArray(String[]::new);
+
+    ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+    clinicalDataBinFilter.setAttributeId(attributeId);
+    clinicalDataBinFilter.setBinMethod(BinMethod.GENERATE);
+    BinsGeneratorConfig generateBins = new BinsGeneratorConfig();
+    generateBins.setBinSize(new BigDecimal(10));
+    generateBins.setAnchorValue(new BigDecimal(0));
+    clinicalDataBinFilter.setBinsGeneratorConfig(generateBins);
+
+    List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
+    List<String> patientIds = getCaseIds(clinicalData, true);
+
+    List<DataBin> dataBins =
+        dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+    List<DataBin> expected =
+        Arrays.asList(
+            createDataBin("<=", null, "35", 5),
+            createDataBin(null, "35", "40", 1),
+            createDataBin(null, "40", "50", 2),
+            createDataBin(null, "50", "60", 2),
+            createDataBin(null, "60", "70", 2),
+            createDataBin(null, "70", "80", 2),
+            createDataBin(">", "80", null, 2));
+
+    testBinsIdentical(expected, dataBins);
+  }
+
+  @Test
+  public void testLinearDataBinnerCustomBinsWithBoundaryAtSpecialOutlier() {
+    String studyId = "skcm_broad";
+    String attributeId = "AGE_AT_PROCUREMENT";
+    // 20, 22, ..., 90 and ">52", with a custom boundary at 52 and one above it
+    String[] values =
+        Stream.concat(
+                IntStream.rangeClosed(10, 45).mapToObj(i -> String.valueOf(i * 2)),
+                Stream.of(">52"))
+            .toArray(String[]::new);
+
+    ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+    clinicalDataBinFilter.setAttributeId(attributeId);
+    clinicalDataBinFilter.setBinMethod(BinMethod.CUSTOM);
+    clinicalDataBinFilter.setCustomBins(
+        Arrays.asList(new BigDecimal("40"), new BigDecimal("52"), new BigDecimal("60")));
+
+    List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
+    List<String> patientIds = getCaseIds(clinicalData, true);
+
+    List<DataBin> dataBins =
+        dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+    List<DataBin> expected =
+        Arrays.asList(
+            createDataBin("<=", null, "40", 11),
+            createDataBin(null, "40", "52", 6),
+            createDataBin(">", "52", null, 20));
+
+    testBinsIdentical(expected, dataBins);
+  }
+
+  @Test
   public void testLinearDataBinnerQuartileBinsLowComplexitySeriesQ1Q2Q3Identical() {
     String studyId = "skcm_broad";
     String attributeId = "AGE_AT_PROCUREMENT";

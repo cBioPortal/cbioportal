@@ -361,23 +361,29 @@ public class DataBinner {
       // In this case, number of bins = number of distinct data values
       dataBins = discreteDataBinner.calculateDataBins(withoutOutliers, uniqueValues);
     } else if (!withoutOutliers.isEmpty()) {
+      // custom, generated or quartile bins after adjusting them w.r.t. outliers
+      List<BigDecimal> adjustedBins = null;
 
       if (DataBinFilter.BinMethod.CUSTOM == binMethod && customBins != null) {
         // adjust custom bins w.r.t. outliers (if any)
-        customBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
-        dataBins = linearDataBinner.calculateDataBins(customBins, numericalValues);
+        adjustedBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
+        dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (DataBinFilter.BinMethod.GENERATE == binMethod && binsGeneratorConfig != null) {
         List<BigDecimal> bins =
             DataBinHelper.generateBins(
                 sortedNumericalValues,
                 binsGeneratorConfig.getBinSize(),
                 binsGeneratorConfig.getAnchorValue());
-        dataBins = linearDataBinner.calculateDataBins(bins, numericalValues);
+        // adjust generated bins w.r.t. outliers (if any)
+        adjustedBins = this.adjustCustomBins(bins, lowerOutlierBin, upperOutlierBin);
+        dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
         // NOOP - handled later
       } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
         List<BigDecimal> boundaries = DataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
-        dataBins = linearDataBinner.calculateDataBins(boundaries, numericalValues);
+        // adjust quartile boundaries w.r.t. outliers (if any)
+        adjustedBins = this.adjustCustomBins(boundaries, lowerOutlierBin, upperOutlierBin);
+        dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (boxRange
                   .upperEndpoint()
                   .subtract(boxRange.lowerEndpoint())
@@ -436,13 +442,11 @@ public class DataBinner {
         BigDecimal median = DataBinHelper.calcMedian(sortedNumericalValues);
         lowerOutlierBin.setEnd(median);
         upperOutlierBin.setStart(median);
-        // Covers the situation where there is a single custom boundary (i.e. there are only outlier
+        // Covers the situation where there is a single boundary left (i.e. there are only outlier
         // bins).
-      } else if (DataBinFilter.BinMethod.CUSTOM == binMethod
-          && customBins != null
-          && customBins.size() == 1) {
-        lowerOutlierBin.setEnd(customBins.get(0));
-        upperOutlierBin.setStart(customBins.get(0));
+      } else if (adjustedBins != null && adjustedBins.size() == 1) {
+        lowerOutlierBin.setEnd(adjustedBins.get(0));
+        upperOutlierBin.setStart(adjustedBins.get(0));
       }
 
       // adjust the outlier limits:
@@ -586,15 +590,16 @@ public class DataBinner {
             .collect(Collectors.toList());
 
     // we need to add back lower bound if we removed values below the lower bound from the original
-    // bin list
-    if (customBins.stream()
-        .anyMatch(bin -> lowerBound != null && bin.compareTo(lowerBound) == -1)) {
+    // bin list, unless the bound is already one of the bins
+    if (customBins.stream().anyMatch(bin -> lowerBound != null && bin.compareTo(lowerBound) == -1)
+        && binsWithinBounds.stream().noneMatch(bin -> bin.compareTo(lowerBound) == 0)) {
       binsWithinBounds.add(0, lowerBound);
     }
 
     // we need to add back upper bound if we removed values above the upper bound from the original
-    // bin list
-    if (customBins.stream().anyMatch(bin -> upperBound != null && bin.compareTo(upperBound) == 1)) {
+    // bin list, unless the bound is already one of the bins
+    if (customBins.stream().anyMatch(bin -> upperBound != null && bin.compareTo(upperBound) == 1)
+        && binsWithinBounds.stream().noneMatch(bin -> bin.compareTo(upperBound) == 0)) {
       binsWithinBounds.add(upperBound);
     }
 

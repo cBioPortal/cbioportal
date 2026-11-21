@@ -336,6 +336,9 @@
                     <include refid="org.cbioportal.infrastructure.repository.clickhouse.studyview.ClickhouseStudyViewFilterMapper.applyStudyViewFilterUsingPatientId"/>
                 </otherwise>
             </choose>
+            <if test="'${isConflicting}' == 'true'">
+                AND (cdd.type = 'patient' OR cdd.sample_unique_id = sd.sample_unique_id)
+            </if>
             AND attribute_name IN
             <foreach item="attributeId" collection="${attributeIds}" open="(" separator="," close=")">
                 #{attributeId}
@@ -419,6 +422,9 @@
                     <property name="attribute_value" value="attribute_value"/>
                 </include>
             )
+            <if test="'${isConflicting}' == 'true'">
+                AND (cdd.type = 'patient' OR cdd.sample_unique_id = sd.sample_unique_id)
+            </if>
             <!-- Filter by unique IDs based on data type -->
             <if test="${uniqueIds} != null and !${uniqueIds}.isEmpty()">
                 AND

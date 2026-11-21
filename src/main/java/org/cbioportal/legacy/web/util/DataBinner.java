@@ -366,7 +366,7 @@ public class DataBinner {
 
       if (DataBinFilter.BinMethod.CUSTOM == binMethod && customBins != null) {
         // adjust custom bins w.r.t. outliers (if any)
-        adjustedBins = this.adjustCustomBins(customBins, lowerOutlierBin, upperOutlierBin);
+        adjustedBins = this.adjustBinsToOutliers(customBins, lowerOutlierBin, upperOutlierBin);
         dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (DataBinFilter.BinMethod.GENERATE == binMethod && binsGeneratorConfig != null) {
         List<BigDecimal> bins =
@@ -375,14 +375,14 @@ public class DataBinner {
                 binsGeneratorConfig.getBinSize(),
                 binsGeneratorConfig.getAnchorValue());
         // adjust generated bins w.r.t. outliers (if any)
-        adjustedBins = this.adjustCustomBins(bins, lowerOutlierBin, upperOutlierBin);
+        adjustedBins = this.adjustBinsToOutliers(bins, lowerOutlierBin, upperOutlierBin);
         dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (DataBinFilter.BinMethod.MEDIAN == binMethod) {
         // NOOP - handled later
       } else if (DataBinFilter.BinMethod.QUARTILE == binMethod) {
         List<BigDecimal> boundaries = DataBinHelper.calcQuartileBoundaries(sortedNumericalValues);
         // adjust quartile boundaries w.r.t. outliers (if any)
-        adjustedBins = this.adjustCustomBins(boundaries, lowerOutlierBin, upperOutlierBin);
+        adjustedBins = this.adjustBinsToOutliers(boundaries, lowerOutlierBin, upperOutlierBin);
         dataBins = linearDataBinner.calculateDataBins(adjustedBins, numericalValues);
       } else if (boxRange
                   .upperEndpoint()
@@ -435,18 +435,18 @@ public class DataBinner {
                 areAllIntegers, boxRange, withoutOutliers, lowerOutlier, upperOutlier, attributeId);
       }
 
-      if (DataBinFilter.BinMethod.MEDIAN == binMethod
+      // Covers the situation where there is a single boundary left (i.e. there are only outlier
+      // bins).
+      if (adjustedBins != null && adjustedBins.size() == 1) {
+        lowerOutlierBin.setEnd(adjustedBins.get(0));
+        upperOutlierBin.setStart(adjustedBins.get(0));
+      } else if (DataBinFilter.BinMethod.MEDIAN == binMethod
           // In edge cases all quartile values can be identical (all
           // values are in the outlier bins).
           || (DataBinFilter.BinMethod.QUARTILE == binMethod && dataBins.size() == 0)) {
         BigDecimal median = DataBinHelper.calcMedian(sortedNumericalValues);
         lowerOutlierBin.setEnd(median);
         upperOutlierBin.setStart(median);
-        // Covers the situation where there is a single boundary left (i.e. there are only outlier
-        // bins).
-      } else if (adjustedBins != null && adjustedBins.size() == 1) {
-        lowerOutlierBin.setEnd(adjustedBins.get(0));
-        upperOutlierBin.setStart(adjustedBins.get(0));
       }
 
       // adjust the outlier limits:
@@ -572,12 +572,12 @@ public class DataBinner {
 
   /**
    * We cannot do an exact calculation for values below/above the special outlier values. We need to
-   * adjust custom bins for those cases.
+   * adjust custom, generated and quartile bins for those cases.
    *
    * <p>example: assume we have special values <18 and >90 in our dataset custom bins => [10, 15,
    * 40, 70, 95, 100] adjusted custom bins => [18, 40, 70, 90]
    */
-  public List<BigDecimal> adjustCustomBins(
+  public List<BigDecimal> adjustBinsToOutliers(
       List<BigDecimal> customBins, DataBin lowerOutlierBin, DataBin upperOutlierBin) {
     BigDecimal lowerBound = lowerOutlierBin.getEnd();
     BigDecimal upperBound = upperOutlierBin.getStart();

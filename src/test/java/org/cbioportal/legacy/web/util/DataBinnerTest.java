@@ -886,6 +886,32 @@ public class DataBinnerTest {
   }
 
   @Test
+  public void testLinearDataBinnerQuartileBinsWithSpecialOutlierAtQ3() {
+    String studyId = "skcm_broad";
+    String attributeId = "AGE_AT_PROCUREMENT";
+    // 1, 2, ..., 46 and "<=35": Q3 is 35, so the special value is the only boundary left
+    String[] values =
+        Stream.concat(IntStream.rangeClosed(1, 46).mapToObj(String::valueOf), Stream.of("<=35"))
+            .toArray(String[]::new);
+
+    ClinicalDataBinFilter clinicalDataBinFilter = new ClinicalDataBinFilter();
+    clinicalDataBinFilter.setAttributeId(attributeId);
+    clinicalDataBinFilter.setBinMethod(BinMethod.QUARTILE);
+
+    List<Binnable> clinicalData = mockClinicalData(attributeId, studyId, values);
+    List<String> patientIds = getCaseIds(clinicalData, true);
+
+    List<DataBin> dataBins =
+        dataBinner.calculateDataBins(
+            clinicalDataBinFilter, ClinicalDataType.PATIENT, clinicalData, patientIds);
+
+    List<DataBin> expected =
+        Arrays.asList(createDataBin("<=", null, "35", 36), createDataBin(">", "35", null, 11));
+
+    testBinsIdentical(expected, dataBins);
+  }
+
+  @Test
   public void testLinearDataBinnerGenerateBinsWithSpecialOutlierAboveFirstBin() {
     String studyId = "skcm_broad";
     String attributeId = "AGE_AT_PROCUREMENT";

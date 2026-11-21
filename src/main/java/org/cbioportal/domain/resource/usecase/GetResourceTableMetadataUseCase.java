@@ -3,11 +3,13 @@ package org.cbioportal.domain.resource.usecase;
 import java.util.ArrayList;
 import java.util.List;
 import org.cbioportal.domain.resource.ResourceColumnInfo;
+import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableMetadataResult;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.cbioportal.domain.studyview.StudyViewService;
 import org.springframework.stereotype.Service;
 
 /** Serves the page-invariant half of the resource table; see ResourceTableMetadataResult. */
@@ -15,18 +17,34 @@ import org.springframework.stereotype.Service;
 public class GetResourceTableMetadataUseCase {
 
   private final ResourceDataRepository resourceDataRepository;
+  private final StudyViewService studyViewService;
 
-  public GetResourceTableMetadataUseCase(ResourceDataRepository resourceDataRepository) {
+  public GetResourceTableMetadataUseCase(
+      ResourceDataRepository resourceDataRepository, StudyViewService studyViewService) {
     this.resourceDataRepository = resourceDataRepository;
+    this.studyViewService = studyViewService;
   }
 
+  /**
+   * With {@code groupBy} set, only the facets change: each facet value counts the groups carrying
+   * it, i.e. how many patients (or samples) have a row with that value, over the rows that belong
+   * to a group. The numeric ranges and the row, patient and sample counts are the same as for the
+   * query without {@code groupBy}, and so are the columns, except that a grouped request takes its
+   * contracts from the resource definitions rather than from the rows it matches (see
+   * ClickhouseResourceDataRepository#contractRows). {@code groupCounts}, {@code locate} and paging
+   * do not apply here.
+   */
   public ResourceTableMetadataResult execute(ResourceTableQuery query) {
+    ResourceQueryContexts.validateGroupingParameters(query);
     if (!GetResourceTableDataUseCase.isAnswerable(query)) {
       return ResourceTableMetadataResult.empty();
     }
 
-    ResourceTableCounts counts = resourceDataRepository.getResourceTableCounts(query);
-    ResourceTableMetadataView metadata = resourceDataRepository.getResourceTableMetadata(query);
+    ResourceQueryContext context =
+        ResourceQueryContexts.resolve(query, resourceDataRepository, studyViewService);
+    ResourceTableCounts counts = resourceDataRepository.getResourceTableCounts(query, context);
+    ResourceTableMetadataView metadata =
+        resourceDataRepository.getResourceTableMetadata(query, context);
 
     List<ResourceColumnInfo> columns =
         new ArrayList<>(GetResourceTableDataUseCase.builtinColumns());

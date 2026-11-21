@@ -16,6 +16,9 @@ services:
      - $PORTAL_SOURCE_DIR/src/main/resources/db-scripts:/cbioportal/db-scripts
      - $PORTAL_SOURCE_DIR/test/integration/integration_test_oncokb_import.sh:/cbioportal/integration_test_oncokb_import.sh
   cbioportal-database:
+    # schema.sql declares a JSON column (resource.metadata_json), which needs ClickHouse 25.3 or
+    # later; see docs/deployment/clickhouse/README.md
+    image: clickhouse/clickhouse-server:25.3
     healthcheck:
       # check via the container IP instead of localhost: during initdb ClickHouse only listens on
       # 127.0.0.1, so a localhost check can pass before other containers are able to connect

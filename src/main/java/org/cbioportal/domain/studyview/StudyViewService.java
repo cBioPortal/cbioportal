@@ -342,7 +342,12 @@ public class StudyViewService {
             shouldFilterNonEmptyClinicalData);
   }
 
-  private StudyViewFilterContext buildStudyViewFilterContext(StudyViewFilter studyViewFilter) {
+  /**
+   * Resolves a study-view filter into the context the ClickHouse study-view filter SQL reads. Other
+   * features that take a study-view cohort, such as the resource table, resolve it here so that a
+   * cohort means the same samples everywhere.
+   */
+  public StudyViewFilterContext buildStudyViewFilterContext(StudyViewFilter studyViewFilter) {
     return StudyViewFilterFactory.make(
         studyViewFilter, this.customDataFilterUtil, getGenericAssayProfilesMap());
   }

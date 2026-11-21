@@ -73,7 +73,7 @@ public class OAuth2SecurityConfig {
     return http.build();
   }
 
-  private GrantedAuthoritiesMapper userAuthoritiesMapper() {
+  GrantedAuthoritiesMapper userAuthoritiesMapper() {
     return (authorities) -> {
       Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 

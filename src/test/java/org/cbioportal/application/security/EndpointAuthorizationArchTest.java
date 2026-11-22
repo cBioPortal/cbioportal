@@ -12,6 +12,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.Set;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -87,21 +88,13 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.MatchMinerController",
 
           // URL shortener (utility, no study data)
-          "org.cbioportal.legacy.url_shortener.URLShortenerController",
-
-          // TODO: These controllers access study-specific data and SHOULD have @PreAuthorize.
-          // They are listed here temporarily to avoid breaking the build.
-          // Each should be fixed and removed from this list.
-          "org.cbioportal.legacy.web.MutationCountController", // no study IDs in request/response
-          "org.cbioportal.legacy.web.MskEntityTranslationController", // study-specific lookups
-          "org.cbioportal.legacy.web.GenericAssayController", // @PreAuthorize removed for perf
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController" // @PreAuthorize removed for perf
-          );
+          "org.cbioportal.legacy.url_shortener.URLShortenerController");
 
   /**
    * Individual methods that are exempt from requiring {@code @PreAuthorize}. These are endpoints in
    * controllers that otherwise DO have authorization, but specific methods use service-layer
-   * filtering instead. Format: "fully.qualified.ClassName.methodName"
+   * filtering instead or query public entity metadata. Format:
+   * "fully.qualified.ClassName.methodName"
    */
   private static final Set<String> METHOD_EXCEPTIONS =
       Set.of(
@@ -117,9 +110,15 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.ClinicalAttributeController.getAllClinicalAttributes",
           "org.cbioportal.legacy.web.MolecularProfileController.getAllMolecularProfiles",
           "org.cbioportal.application.rest.vcolumnstore.ColumnStoreSampleController.getSamplesByKeyword",
-          // Collection endpoints filtered via @PostFilter on GetCancerStudyMetadataUseCase.execute()
+          // Collection endpoints filtered via @PostFilter on
+          // GetCancerStudyMetadataUseCase.execute()
           "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController.getAllStudies",
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController.getAllStudiesMeta");
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreStudyController.getAllStudiesMeta",
+          // Aggregate mutation counts filtered to user's readable studies via StudyService
+          "org.cbioportal.legacy.web.MutationCountController.fetchMutationCountsByPosition",
+          // Generic assay entity metadata by stable ID (study-independent reference metadata)
+          "org.cbioportal.legacy.web.GenericAssayController.getGenericAssayMetaByStableId",
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController.getGenericAssayMetaByStableId");
 
   private static boolean isEndpointMethod(JavaMethod method) {
     return method.isAnnotatedWith(RequestMapping.class)
@@ -136,6 +135,9 @@ public class EndpointAuthorizationArchTest {
           .that()
           .areDeclaredInClassesThat()
           .areAnnotatedWith(RestController.class)
+          .or()
+          .areDeclaredInClassesThat()
+          .areAnnotatedWith(Controller.class)
           .should(
               new ArchCondition<>("have @PreAuthorize or be in AUTHORIZED_EXCEPTIONS") {
                 @Override

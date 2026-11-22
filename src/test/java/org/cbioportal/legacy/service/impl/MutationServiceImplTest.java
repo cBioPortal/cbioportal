@@ -337,6 +337,26 @@ public class MutationServiceImplTest extends BaseServiceImplTest {
   }
 
   @Test
+  public void fetchMutationCountsByPosition_withStudyIds() throws Exception {
+    List<String> studyIds = Arrays.asList(STUDY_ID);
+    MutationCountByPosition expectedMutationCountByPosition = new MutationCountByPosition();
+    Mockito.when(
+            mutationRepository.getMutationCountByPosition(
+                ENTREZ_GENE_ID_1, PROTEIN_POS_START, PROTEIN_POS_END, studyIds))
+        .thenReturn(expectedMutationCountByPosition);
+
+    List<MutationCountByPosition> result =
+        mutationService.fetchMutationCountsByPosition(
+            Arrays.asList(ENTREZ_GENE_ID_1),
+            Arrays.asList(PROTEIN_POS_START),
+            Arrays.asList(PROTEIN_POS_END),
+            studyIds);
+
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(expectedMutationCountByPosition, result.get(0));
+  }
+
+  @Test
   public void getMutationCountsByType() {
     GenomicDataCountItem expectedGenomicDataCountItem = new GenomicDataCountItem();
     expectedGenomicDataCountItem.setProfileType(PROFILE_TYPE_1);

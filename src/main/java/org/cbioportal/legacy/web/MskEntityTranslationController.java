@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -82,6 +83,10 @@ public class MskEntityTranslationController {
     return Pattern.compile("(P-[0-9]{7,})-T[0-9]{2,}-(\\w{3,})");
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/epic/sample/{sampleID}"},
       method = RequestMethod.GET)
@@ -90,6 +95,10 @@ public class MskEntityTranslationController {
     return new ModelAndView(getRedirectURL(decryptedId), model);
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/cis/{sampleID}"},
       method = RequestMethod.GET)
@@ -97,11 +106,19 @@ public class MskEntityTranslationController {
     return new ModelAndView(getRedirectURL(sampleID), model);
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(value = "/api-legacy/crdb/{sampleID}", method = RequestMethod.GET)
   public ModelAndView redirectCRDB(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(value = "/api-legacy/darwin/{sampleID}", method = RequestMethod.GET)
   public ModelAndView redirectDarwin(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);
@@ -156,6 +173,10 @@ public class MskEntityTranslationController {
     return redirectURL;
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {
         "/api-legacy/cis/{sampleID}/exists",
@@ -170,6 +191,10 @@ public class MskEntityTranslationController {
     return result;
   }
 
+  @PreAuthorize(
+      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
+          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/epic/{sampleID}/exists"},
       method = RequestMethod.GET)

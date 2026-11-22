@@ -7,10 +7,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Group;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
@@ -42,6 +44,11 @@ public class CancerStudyPermissionEvaluatorTest {
             Map.of(
                 PUBLIC_STUDY, study(PUBLIC_STUDY, "PUBLIC_GROUP"),
                 PRIVATE_STUDY, study(PRIVATE_STUDY, "PRIVATE_GROUP")));
+    Mockito.when(cacheMapUtil.getMolecularProfileMap())
+        .thenReturn(
+            Map.of(
+                "public_study_generic_assay", profile("public_study_generic_assay", PUBLIC_STUDY),
+                "restricted_study_generic_assay", profile("restricted_study_generic_assay", PRIVATE_STUDY)));
     evaluator = new CancerStudyPermissionEvaluator("cbioportal", "false", null, cacheMapUtil);
   }
 
@@ -115,6 +122,38 @@ public class CancerStudyPermissionEvaluatorTest {
     assertFalse(allowed(user, groups(group(PUBLIC_STUDY), null), "GroupFilter"));
   }
 
+  // GenericAssayMetaFilter (generic-assay-meta/fetch)
+
+  @Test
+  public void genericAssayMetaFilterAllowsAuthorizedProfile() {
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setMolecularProfileIds(List.of("public_study_generic_assay"));
+    assertTrue(allowed(user, filter, "GenericAssayMetaFilter"));
+  }
+
+  @Test
+  public void genericAssayMetaFilterDeniesUnauthorizedProfile() {
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setMolecularProfileIds(
+        List.of("public_study_generic_assay", "restricted_study_generic_assay"));
+    assertFalse(allowed(user, filter, "GenericAssayMetaFilter"));
+    assertTrue(allowed(privateStudyUser, filter, "GenericAssayMetaFilter"));
+  }
+
+  @Test
+  public void genericAssayMetaFilterDeniesUnknownProfile() {
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setMolecularProfileIds(List.of("non_existent_profile"));
+    assertFalse(allowed(user, filter, "GenericAssayMetaFilter"));
+  }
+
+  @Test
+  public void genericAssayMetaFilterAllowsWhenOnlyStableIdsProvided() {
+    GenericAssayMetaFilter filter = new GenericAssayMetaFilter();
+    filter.setGenericAssayStableIds(List.of("ENTITY_1", "ENTITY_2"));
+    assertTrue(allowed(user, filter, "GenericAssayMetaFilter"));
+  }
+
   // Filter types the evaluator does not know
 
   @Test
@@ -142,6 +181,13 @@ public class CancerStudyPermissionEvaluatorTest {
     study.setCancerStudyIdentifier(id);
     study.setGroups(groups);
     return study;
+  }
+
+  private static MolecularProfile profile(String stableId, String cancerStudyIdentifier) {
+    MolecularProfile profile = new MolecularProfile();
+    profile.setStableId(stableId);
+    profile.setCancerStudyIdentifier(cancerStudyIdentifier);
+    return profile;
   }
 
   private static ClinicalDataIdentifier clinicalDataIdentifier(String studyId) {

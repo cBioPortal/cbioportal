@@ -39,17 +39,11 @@ Controllers serving only public/reference data do not need authorization. These 
 - `IndexPageController` / `LoginPageController` — UI pages
 - `PublicVirtualStudiesController` — explicitly public
 
-The following controllers have known authorization gaps that are tracked as TODOs:
-- `MutationCountController` — returns aggregate mutation counts across all studies with no study IDs in the request or response; `@PostFilter` is not applicable; authorization approach needs further investigation
-- `MskEntityTranslationController` — accesses study-specific data but lacks `@PreAuthorize`; currently allowed in the ArchUnit test to avoid breaking the build
-- `GenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
-- `ColumnStoreGenericAssayController` — accesses study-specific data; `@PreAuthorize` was removed for performance reasons; currently allowed in the ArchUnit test to avoid breaking the build
-
 Any new exception must be documented here with a justification.
 
 ### Enforcement
 
-An ArchUnit test (`EndpointAuthorizationArchTest`) verifies that all `@RequestMapping` methods in `@RestController` classes have `@PreAuthorize`, unless the controller or method is in a documented exceptions list. If you add a new endpoint, the test will fail unless you either:
+An ArchUnit test (`EndpointAuthorizationArchTest`) verifies that all `@RequestMapping` methods in `@RestController` and `@Controller` classes have `@PreAuthorize`, unless the controller or method is in a documented exceptions list. If you add a new endpoint, the test will fail unless you either:
 1. Add `@PreAuthorize` to the method, OR
 2. Add the controller to `AUTHORIZED_EXCEPTIONS` (or the method to `METHOD_EXCEPTIONS`) with a justification comment
 

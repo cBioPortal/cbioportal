@@ -27,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,7 +60,8 @@ public class ColumnStoreGenericAssayController {
     this.objectMapper = objectMapper;
   }
 
-  // PreAuthorize is removed for performance reason
+  @PreAuthorize(
+      "hasPermission(#genericAssayMetaFilter, 'GenericAssayMetaFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/generic-assay-meta/fetch",
       method = RequestMethod.POST,
@@ -117,7 +119,8 @@ public class ColumnStoreGenericAssayController {
     return streamJson(GenericAssayMetaMapper.INSTANCE.toDTOs(result), totalCount);
   }
 
-  // PreAuthorize is removed for performance reason
+  @PreAuthorize(
+      "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/generic-assay-meta/{molecularProfileId}",
       method = RequestMethod.GET,

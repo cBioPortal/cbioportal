@@ -364,6 +364,13 @@
             WHERE entrezGeneId = #{entrezGeneId}
                 AND proteinPosStart >= #{proteinPosStart}
                 AND proteinPosEnd <![CDATA[ <= ]]> #{proteinPosEnd}
+                <if test="studyIds != null">
+                    AND studyId IN
+                    <if test="studyIds.isEmpty()">(NULL)</if>
+                    <if test="!studyIds.isEmpty()">
+                        <foreach item="item" collection="studyIds" open="(" separator="," close=")">#{item}</foreach>
+                    </if>
+                </if>
         GROUP BY entrezGeneId
         )
     </select>

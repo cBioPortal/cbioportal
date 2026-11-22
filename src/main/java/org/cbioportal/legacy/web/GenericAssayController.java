@@ -20,6 +20,7 @@ import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,7 +43,8 @@ public class GenericAssayController {
     this.genericAssayService = genericAssayService;
   }
 
-  // PreAuthorize is removed for performance reason
+  @PreAuthorize(
+      "hasPermission(#genericAssayMetaFilter, 'GenericAssayMetaFilter', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/generic_assay_meta/fetch",
       method = RequestMethod.POST,
@@ -83,7 +85,8 @@ public class GenericAssayController {
     return streamJson(result);
   }
 
-  // PreAuthorize is removed for performance reason
+  @PreAuthorize(
+      "hasPermission(#molecularProfileId, 'MolecularProfileId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = "/generic-assay-meta/{molecularProfileId}",
       method = RequestMethod.GET,

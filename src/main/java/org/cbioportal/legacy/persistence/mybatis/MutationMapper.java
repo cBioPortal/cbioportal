@@ -58,7 +58,7 @@ public interface MutationMapper {
       boolean snpOnly);
 
   MutationCountByPosition getMutationCountByPosition(
-      Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd);
+      Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd, List<String> studyIds);
 
   GenomicDataCountItem getMutationCountsByType(
       List<String> molecularProfileIds,

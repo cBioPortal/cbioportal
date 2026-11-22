@@ -118,7 +118,11 @@ public class EndpointAuthorizationArchTest {
           "org.cbioportal.legacy.web.MutationCountController.fetchMutationCountsByPosition",
           // Generic assay entity metadata by stable ID (study-independent reference metadata)
           "org.cbioportal.legacy.web.GenericAssayController.getGenericAssayMetaByStableId",
-          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController.getGenericAssayMetaByStableId");
+          "org.cbioportal.application.rest.vcolumnstore.ColumnStoreGenericAssayController.getGenericAssayMetaByStableId",
+          // Epic endpoints decrypt the sampleID first before resolving and checking permission on
+          // the target study via PermissionEvaluator
+          "org.cbioportal.legacy.web.MskEntityTranslationController.redirectIMPACTSampleForEpic",
+          "org.cbioportal.legacy.web.MskEntityTranslationController.existsForEpic");
 
   private static boolean isEndpointMethod(JavaMethod method) {
     return method.isAnnotatedWith(RequestMapping.class)

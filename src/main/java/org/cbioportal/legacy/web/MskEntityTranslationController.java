@@ -15,6 +15,7 @@ import org.cbioportal.legacy.service.exception.PatientNotFoundException;
 import org.cbioportal.legacy.service.exception.SampleNotFoundException;
 import org.cbioportal.legacy.service.exception.StudyNotFoundException;
 import org.cbioportal.legacy.utils.config.annotation.ConditionalOnProperty;
+import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -24,7 +25,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -52,6 +57,9 @@ public class MskEntityTranslationController {
   @Autowired private SampleService sampleService;
 
   @Autowired private PatientService patientService;
+
+  @Autowired(required = false)
+  private PermissionEvaluator permissionEvaluator;
 
   private String sampleViewURL;
 
@@ -83,10 +91,6 @@ public class MskEntityTranslationController {
     return Pattern.compile("(P-[0-9]{7,})-T[0-9]{2,}-(\\w{3,})");
   }
 
-  @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/epic/sample/{sampleID}"},
       method = RequestMethod.GET)
@@ -96,9 +100,7 @@ public class MskEntityTranslationController {
   }
 
   @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(@mskEntityTranslationController.getCancerStudy(#sampleID), 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/cis/{sampleID}"},
       method = RequestMethod.GET)
@@ -107,18 +109,14 @@ public class MskEntityTranslationController {
   }
 
   @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(@mskEntityTranslationController.getCancerStudy(#sampleID), 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(value = "/api-legacy/crdb/{sampleID}", method = RequestMethod.GET)
   public ModelAndView redirectCRDB(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);
   }
 
   @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(@mskEntityTranslationController.getCancerStudy(#sampleID), 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(value = "/api-legacy/darwin/{sampleID}", method = RequestMethod.GET)
   public ModelAndView redirectDarwin(@PathVariable String sampleID, ModelMap model) {
     return new ModelAndView(getRedirectURL(sampleID), model);
@@ -147,10 +145,12 @@ public class MskEntityTranslationController {
   private String getRedirectURL(String sampleID) {
     String redirectURL = "redirect:" + sampleViewURL;
     String studyID = getCancerStudy(sampleID);
+    ensureHasReadPermission(studyID);
     if (!checkIfSampleExistsInStudy(studyID, sampleID)) {
       if (studyID.equals(ARCHER)) {
         String patientID = getPatientID(sampleID);
         if (patientID != null) {
+          ensureHasReadPermission(IMPACT);
           return getPatientRedirectURL(patientID);
         }
         // else patientID is null
@@ -174,9 +174,7 @@ public class MskEntityTranslationController {
   }
 
   @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
+      "hasPermission(@mskEntityTranslationController.getCancerStudy(#sampleID), 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {
         "/api-legacy/cis/{sampleID}/exists",
@@ -191,10 +189,6 @@ public class MskEntityTranslationController {
     return result;
   }
 
-  @PreAuthorize(
-      "hasPermission('mskimpact', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskarcher', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)"
-          + " and hasPermission('mskraindance', 'CancerStudyId', T(org.cbioportal.legacy.utils.security.AccessLevel).READ)")
   @RequestMapping(
       value = {"/api-legacy/epic/{sampleID}/exists"},
       method = RequestMethod.GET)
@@ -206,7 +200,18 @@ public class MskEntityTranslationController {
     return result;
   }
 
+  private void ensureHasReadPermission(String studyID) {
+    if (permissionEvaluator != null) {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (!permissionEvaluator.hasPermission(
+          authentication, studyID, "CancerStudyId", AccessLevel.READ)) {
+        throw new AccessDeniedException("Access Denied");
+      }
+    }
+  }
+
   private boolean checkIfPatientExists(String studyID, String sampleID) {
+    ensureHasReadPermission(studyID);
     try {
       String patientID = getPatientID(sampleID);
       if (patientID != null) {
@@ -224,6 +229,7 @@ public class MskEntityTranslationController {
 
   private boolean checkIfSampleExists(String sampleID) {
     String studyID = getCancerStudy(sampleID);
+    ensureHasReadPermission(studyID);
     // note if we map to a study that they do not have permission to view
     // then an AccessDeniedException will be thrown that we cannot catch here
     if (!checkIfSampleExistsInStudy(studyID, sampleID)) {
@@ -258,7 +264,7 @@ public class MskEntityTranslationController {
     return null;
   }
 
-  private String getCancerStudy(String sampleID) {
+  public String getCancerStudy(String sampleID) {
     // TODO: create tech stack to get study id given sample id
     Matcher matcher = dmpSampleIDPattern.matcher(sampleID);
     if (matcher.find()) {

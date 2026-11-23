@@ -220,7 +220,7 @@ This imports the study data without rebuilding derived tables unnecessarily.
 
 - **Always rebuild derived tables as the last step before viewing a cBioPortal instance connected to the database** in production. Without them, the website may fail to load or display inaccurate data.
 - The derived table scripts may require significant memory for large databases. See [Notes for Users with High-Volume Data](#9-notes-for-users-with-high-volume-data) if you encounter issues.
-- Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports.
+- Derived tables **cannot be incrementally updated** — they are fully rebuilt from scratch each time, even for incremental imports. The rebuild populates `_temp` copies and swaps them in with `EXCHANGE TABLES` at the end, so a live instance keeps serving the previous derived tables until the swap; stopping the web service during the rebuild is still recommended (see [§12 Version Migration](#12-version-migration)).
 
 ---
 
@@ -290,11 +290,14 @@ There is a single `db_schema_version` covering both base and derived tables — 
 *structure* is defined in `schema.sql` alongside every other table, so a derived-table structure
 change ships as an ordinary `migrate_schema.sql` section like any other schema change. Derived
 table *data* is repopulated separately by `db-scripts/clickhouse/populate_derived_tables.sql`,
-which doesn't have its own version — it only clears and rebuilds data, never structure, and can
-be run any time (after an import, after a migration, or manually) **as long as no backend web
-service is connected to the database in production**. It `TRUNCATE`s derived tables before
-repopulating them, so a live instance querying the database mid-run will see empty or
-partially-rebuilt derived tables and surface errors — take the web service offline first.
+which doesn't have its own version — it only rebuilds data, never structure, and can be run any
+time (after an import, after a migration, or manually). It builds each derived table as a
+`<name>_temp` copy and swaps it in with `EXCHANGE TABLES` once every table has been populated, so
+a backend web service querying the database mid-run keeps reading the previous, complete derived
+tables rather than empty or partially-rebuilt ones. Disconnecting the web service first is still
+recommended: a few preparatory steps in the script (such as repairing `sample_profile`) write to
+live tables rather than to a `_temp` copy, and the rebuild is resource-intensive. For full
+isolation, rebuild on a separate instance and cut over (blue/green).
 
 **Docker Compose deployments:** `git pull` the latest `cbioportal-docker-compose` master, then
 `docker compose up`. The migration step runs automatically before the `cbioportal` service starts;

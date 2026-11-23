@@ -453,6 +453,14 @@ jobs:
                 --reporter=list,junit,blob
               EXIT=$?
               set -e
+              # Playwright exits 0 when the test path matches no specs. Only
+              # single-container jobs check this: sharding can leave a shard
+              # with no tests.
+              TESTS=$(grep -o 'tests="[0-9]*"' test-results/junit.xml 2>/dev/null | head -1 | grep -o '[0-9]*' || true)
+              if [ "$CIRCLE_NODE_TOTAL" = "1" ] && [ "${TESTS:-0}" = "0" ]; then
+                echo "*** No tests ran for << parameters.tests >>."
+                EXIT=1
+              fi
               # uniquify the blob name so the merge job's downloads don't
               # collide on a shared blob-report/*.zip filename.
               mv blob-report/report-*.zip blob-report/blob-${CIRCLE_NODE_INDEX}.zip || true

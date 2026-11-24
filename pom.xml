@@ -102,17 +102,12 @@
          flagged for CVE-2026-65182 (important), CVE-2026-65905 and CVE-2026-68525, all fixed
          in 11.0.25. Stay on the 11.0.x line Boot 4 is built against. -->
     <tomcat.version>11.0.27</tomcat.version>
-    <!-- CVE fixes ahead of the Spring Boot BOM: netty 4.1.135 (managed by Boot
-         3.5.16) misses the Bzip2Decoder event-loop hang (GHSA-558v-64gr-wgg4),
-         and jackson 2.21.4 is flagged for two @JsonView bypasses fixed in
-         2.21.5 (CVE-2026-59889, GHSA-mhm7-754m-9p8w). 4.1.137.Final further
-         clears CVE-2026-75595 (critical) / CVE-2026-75596 (medium) -->
-    <netty.version>4.1.137.Final</netty.version>
+    <netty.version>4.2.21.Final</netty.version>
     <!-- jackson-bom.version (the old override point) is now Boot's own property for the
          *new* tools.jackson:jackson-bom coordinate (Jackson 3); pinning it to a Jackson-2
          version here breaks BOM resolution outright. Boot 4 exposes the legacy Jackson 2
          line as a separate jackson-2-bom.version property instead (default 2.21.4), which
-         still needs the same CVE-2026-59889 / GHSA-mhm7-754m-9p8w override as above. -->
+         still needs an override for CVE-2026-59889 / GHSA-mhm7-754m-9p8w. -->
     <jackson-2-bom.version>2.21.6</jackson-2-bom.version>
     <velocity.version>2.4</velocity.version>
     <!-- Override the Spring Boot BOM (httpcore5 5.3.x): httpcore5 < 5.4.3 is flagged

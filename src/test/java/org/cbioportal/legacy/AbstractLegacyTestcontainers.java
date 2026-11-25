@@ -14,7 +14,7 @@ public abstract class AbstractLegacyTestcontainers {
 
   @ClassRule
   public static final ClickHouseContainer clickhouseContainer =
-      new ClickHouseContainer("clickhouse/clickhouse-server:24.5")
+      new ClickHouseContainer("clickhouse/clickhouse-server:25.3")
           .withUsername("cbio_user")
           .withPassword("P@ssword1")
           .withUrlParam("use_server_time_zone", "false")

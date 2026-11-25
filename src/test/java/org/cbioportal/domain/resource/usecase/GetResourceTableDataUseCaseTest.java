@@ -9,22 +9,28 @@ import java.util.List;
 import java.util.Map;
 import org.cbioportal.domain.resource.ResourceFacetOption;
 import org.cbioportal.domain.resource.ResourceNumericRange;
+import org.cbioportal.domain.resource.ResourceQueryContext;
 import org.cbioportal.domain.resource.ResourceTableCounts;
 import org.cbioportal.domain.resource.ResourceTableMetadataResult;
 import org.cbioportal.domain.resource.ResourceTableMetadataView;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTableRow;
 import org.cbioportal.domain.resource.repository.ResourceDataRepository;
+import org.cbioportal.domain.studyview.StudyViewFilterContext;
+import org.cbioportal.domain.studyview.StudyViewService;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class GetResourceTableDataUseCaseTest {
 
   @Mock private ResourceDataRepository resourceDataRepository;
+  @Mock private StudyViewService studyViewService;
 
   @InjectMocks private GetResourceTableDataUseCase useCase;
   @InjectMocks private GetResourceTableMetadataUseCase metadataUseCase;
@@ -33,7 +39,21 @@ public class GetResourceTableDataUseCaseTest {
   public void execute_returnsComputedFacets() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of("study_tcga_pub"), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of("study_tcga_pub"),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     List<ResourceTableRow> rows = List.of();
     Map<String, List<ResourceFacetOption>> facets =
         Map.of(
@@ -42,9 +62,9 @@ public class GetResourceTableDataUseCaseTest {
     Map<String, ResourceNumericRange> facetRanges =
         Map.of("metadata:pages", new ResourceNumericRange(1.0, 10.0));
 
-    when(resourceDataRepository.getResourceTableCounts(query))
+    when(resourceDataRepository.getResourceTableCounts(query, ResourceQueryContext.none()))
         .thenReturn(new ResourceTableCounts(2L, 1L, 2L, 1L, 1L, 5L));
-    when(resourceDataRepository.getResourceTableMetadata(query))
+    when(resourceDataRepository.getResourceTableMetadata(query, ResourceQueryContext.none()))
         .thenReturn(new ResourceTableMetadataView(List.of(), facets, facetRanges));
 
     ResourceTableMetadataResult result = metadataUseCase.execute(query);
@@ -60,15 +80,62 @@ public class GetResourceTableDataUseCaseTest {
   public void execute_returnsOnlyTheRequestedPage() {
     ResourceTableQuery query =
         new ResourceTableQuery(
-            List.of("study_tcga_pub"), "HE_SLIDE", null, null, null, 0, 10, null, null, null);
+            List.of("study_tcga_pub"),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
     List<ResourceTableRow> rows = List.of();
-    when(resourceDataRepository.getResourceTableRows(query)).thenReturn(rows);
+    when(resourceDataRepository.getResourceTableRows(query, ResourceQueryContext.none()))
+        .thenReturn(rows);
 
     assertThat(useCase.execute(query)).isEqualTo(rows);
 
     // The rows endpoint must not pay for the page-invariant work; that is the whole point of
     // splitting them.
-    verify(resourceDataRepository, never()).getResourceTableMetadata(query);
-    verify(resourceDataRepository, never()).getResourceTableCounts(query);
+    verify(resourceDataRepository, never()).getResourceTableMetadata(Mockito.any(), Mockito.any());
+    verify(resourceDataRepository, never()).getResourceTableCounts(Mockito.any(), Mockito.any());
+  }
+
+  @Test
+  public void execute_resolvesAStudyViewFilterCohortOnTheServer() {
+    StudyViewFilter filter = new StudyViewFilter();
+    filter.setStudyIds(List.of("study_tcga_pub"));
+    ResourceTableQuery query =
+        new ResourceTableQuery(
+            List.of("study_tcga_pub"),
+            "HE_SLIDE",
+            null,
+            null,
+            null,
+            0,
+            10,
+            null,
+            null,
+            null,
+            null,
+            filter,
+            null,
+            null,
+            null);
+    StudyViewFilterContext cohort = Mockito.mock(StudyViewFilterContext.class);
+    when(studyViewService.buildStudyViewFilterContext(filter)).thenReturn(cohort);
+
+    useCase.execute(query);
+
+    verify(resourceDataRepository)
+        .getResourceTableRows(query, new ResourceQueryContext(cohort, null));
+    // A single resource without grouping needs no scope lookup.
+    verify(resourceDataRepository, never()).getResourceScope(Mockito.any());
   }
 }

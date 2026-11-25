@@ -9,9 +9,11 @@ import java.util.List;
 import org.cbioportal.domain.resource.ResourceTableQuery;
 import org.cbioportal.domain.resource.ResourceTabsRequest;
 import org.cbioportal.domain.resource.usecase.GetResourceTableDataUseCase;
+import org.cbioportal.domain.resource.usecase.GetResourceTableGroupsUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableMetadataUseCase;
 import org.cbioportal.domain.resource.usecase.GetResourceTableTabsUseCase;
 import org.cbioportal.legacy.web.config.TestConfig;
+import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,6 +83,7 @@ public class ResourceTableControllerSecurityTest {
   @MockitoBean private GetResourceTableTabsUseCase getResourceTableTabsUseCase;
   @MockitoBean private GetResourceTableDataUseCase getResourceTableDataUseCase;
   @MockitoBean private GetResourceTableMetadataUseCase getResourceTableMetadataUseCase;
+  @MockitoBean private GetResourceTableGroupsUseCase getResourceTableGroupsUseCase;
 
   @Autowired private MockMvc mockMvc;
   @Autowired private PermissionEvaluator permissionEvaluator;
@@ -178,6 +181,11 @@ public class ResourceTableControllerSecurityTest {
                             25,
                             null,
                             null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
                             null))))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
@@ -206,7 +214,166 @@ public class ResourceTableControllerSecurityTest {
                             25,
                             null,
                             null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
                             null))))
         .andExpect(MockMvcResultMatchers.status().isForbidden());
+  }
+
+  private void grantByTargetType(boolean studies, boolean studyViewFilter) {
+    Mockito.when(
+            permissionEvaluator.hasPermission(
+                Mockito.any(Authentication.class),
+                Mockito.<Serializable>any(),
+                Mockito.eq("Collection<CancerStudyId>"),
+                Mockito.any()))
+        .thenReturn(studies);
+    Mockito.when(
+            permissionEvaluator.hasPermission(
+                Mockito.any(Authentication.class),
+                Mockito.<Serializable>any(),
+                Mockito.eq("StudyViewFilter"),
+                Mockito.any()))
+        .thenReturn(studyViewFilter);
+  }
+
+  private static String studyViewFilterQuery(String path) {
+    return "{\"studyIds\":[\""
+        + STUDY_ID
+        + "\"],\"resourceId\":\"HE_SLIDE\",\"pageSize\":25"
+        + (path.contains("groups") ? ",\"groupBy\":\"patient\"" : "")
+        + ",\"studyViewFilter\":{\"studyIds\":[\"other_study\"]}}";
+  }
+
+  @Test
+  @WithMockUser
+  public void studyViewFilterQuery_isCheckedAgainstTheFiltersStudiesToo() throws Exception {
+    grantByTargetType(true, true);
+    Mockito.when(getResourceTableDataUseCase.execute(Mockito.any())).thenReturn(List.of());
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/query/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(studyViewFilterQuery("query")))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    ArgumentCaptor<Serializable> filter = ArgumentCaptor.forClass(Serializable.class);
+    Mockito.verify(permissionEvaluator)
+        .hasPermission(
+            Mockito.any(Authentication.class),
+            filter.capture(),
+            Mockito.eq("StudyViewFilter"),
+            Mockito.any());
+    assertThat(((StudyViewFilter) filter.getValue()).getStudyIds()).containsExactly("other_study");
+  }
+
+  @Test
+  @WithMockUser
+  public void studyViewFilterQuery_isForbidden_whenTheFiltersStudiesAreNotReadable()
+      throws Exception {
+    for (String path :
+        List.of(
+            "/api/resource-table/query/fetch",
+            "/api/resource-table/metadata/fetch",
+            "/api/resource-table/groups/fetch")) {
+      Mockito.reset(permissionEvaluator);
+      grantByTargetType(true, false);
+
+      mockMvc
+          .perform(
+              MockMvcRequestBuilders.post(path)
+                  .with(csrf())
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(studyViewFilterQuery(path)))
+          .andExpect(MockMvcResultMatchers.status().isForbidden());
+    }
+  }
+
+  @Test
+  @WithMockUser
+  public void queryWithoutStudyViewFilter_isNotCheckedAsAStudyViewFilter() throws Exception {
+    grantByTargetType(true, false);
+    Mockito.when(getResourceTableGroupsUseCase.execute(Mockito.any())).thenReturn(null);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/groups/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"studyIds\":[\""
+                        + STUDY_ID
+                        + "\"],\"resourceId\":\"HE_SLIDE\",\"groupBy\":\"patient\",\"pageSize\":25}"))
+        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    assertThat(capturedPermissionTarget()).isEqualTo(List.of(STUDY_ID));
+  }
+
+  @Test
+  @WithMockUser
+  public void groupsFetch_userWithoutAccessToTheStudies_isForbidden() throws Exception {
+    grant(false);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/groups/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"studyIds\":[\""
+                        + STUDY_ID
+                        + "\"],\"resourceId\":\"HE_SLIDE\",\"groupBy\":\"patient\",\"pageSize\":25}"))
+        .andExpect(MockMvcResultMatchers.status().isForbidden());
+  }
+
+  @Test
+  @WithMockUser
+  public void metadataAndGroupsFetch_permittedUser_isAllowed() throws Exception {
+    for (String path :
+        List.of("/api/resource-table/metadata/fetch", "/api/resource-table/groups/fetch")) {
+      Mockito.reset(permissionEvaluator);
+      grantByTargetType(true, true);
+
+      mockMvc
+          .perform(
+              MockMvcRequestBuilders.post(path)
+                  .with(csrf())
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(studyViewFilterQuery(path)))
+          .andExpect(MockMvcResultMatchers.status().isOk());
+
+      Mockito.verify(permissionEvaluator)
+          .hasPermission(
+              Mockito.any(Authentication.class),
+              Mockito.<Serializable>eq((Serializable) List.of(STUDY_ID)),
+              Mockito.eq("Collection<CancerStudyId>"),
+              Mockito.any());
+      Mockito.verify(permissionEvaluator)
+          .hasPermission(
+              Mockito.any(Authentication.class),
+              Mockito.<Serializable>any(),
+              Mockito.eq("StudyViewFilter"),
+              Mockito.any());
+    }
+  }
+
+  @Test
+  @WithMockUser
+  public void groupsFetch_withoutABody_isNotAServerError() throws Exception {
+    // The expression navigates the missing body safely on both of its terms; whatever the
+    // evaluator says about a null target, the request does not fail inside the expression.
+    grant(true);
+
+    mockMvc
+        .perform(
+            MockMvcRequestBuilders.post("/api/resource-table/groups/fetch")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(MockMvcResultMatchers.status().isOk());
   }
 }

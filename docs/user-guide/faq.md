@@ -161,11 +161,11 @@ Group Comparison is a suite of analysis features which allows a user to compare 
 #### What are the statistical significance tests in Group Comparison?
 - Survival tab: Log-rank test
 - Clinical tab:
-    - Continuous data: Chi-squared test
-    - Categorical data: Kruskal Wallis test
+    - Continuous data: Kruskal Wallis test
+    - Categorical data: Chi-squared test
 - Other tabs
     - 2 groups
-        - Continuous data: one-sided t-test
+        - Continuous data: two-sided t-test (Welch's, unequal variances)
         - Categorical data: two-sided Fisher's exact test
     - 3 or more groups
         - Continuous data: one-way ANOVA

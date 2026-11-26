@@ -14,7 +14,7 @@ public class CaseListMetadata implements StudyRelatedMetadata {
   /**
    * Get the stable ID of the case list without the cancer study identifier.
    *
-   * @return
+   * @return the stable ID without the cancer study identifier prefix
    */
   public String getCaseListTypeStableId() {
     if (stableId == null) {
@@ -23,7 +23,9 @@ public class CaseListMetadata implements StudyRelatedMetadata {
     if (cancerStudyIdentifier == null) {
       return stableId;
     }
-    return stableId.replace(this.cancerStudyIdentifier + "_", "");
+
+    String prefix = this.cancerStudyIdentifier + "_";
+    return stableId.startsWith(prefix) ? stableId.substring(prefix.length()) : stableId;
   }
 
   @Override

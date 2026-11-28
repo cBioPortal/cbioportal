@@ -51,4 +51,12 @@ public interface ClickhouseCancerStudyMapper {
       @Param("studyViewFilterContext") StudyViewFilterContext studyViewFilterContext);
 
   List<ResourceCount> getResourceCountsForAllStudies();
+
+  /**
+   * Looks up a single cancer study identifier without computing any study metadata.
+   *
+   * @param studyId the cancer study identifier to look up
+   * @return the stored identifier, or {@code null} if no study has it
+   */
+  String getCancerStudyIdentifier(@Param("studyId") String studyId);
 }

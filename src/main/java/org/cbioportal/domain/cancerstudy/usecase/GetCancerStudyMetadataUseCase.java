@@ -3,6 +3,7 @@ package org.cbioportal.domain.cancerstudy.usecase;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.cbioportal.domain.cancerstudy.CancerStudyMetadata;
 import org.cbioportal.domain.cancerstudy.ResourceCount;
@@ -141,6 +142,16 @@ public class GetCancerStudyMetadataUseCase {
             .filter(rc -> studyId.equals(rc.cancerStudyIdentifier()))
             .toList();
     return new CancerStudyMetadata(metadata, resourceCounts);
+  }
+
+  /**
+   * Looks up a study's identifier without loading its metadata, for cheap existence checks.
+   *
+   * @param studyId the cancer study identifier to look up
+   * @return the stored identifier, or empty if no study has it
+   */
+  public Optional<String> findStudyIdentifier(String studyId) {
+    return Optional.ofNullable(studyRepository.getCancerStudyIdentifier(studyId));
   }
 
   public List<ResourceCount> getResourceCountsForAllStudies(ProjectionType projectionType) {

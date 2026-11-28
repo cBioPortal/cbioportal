@@ -151,7 +151,16 @@ public class MutationMyBatisRepository implements MutationRepository {
   public MutationCountByPosition getMutationCountByPosition(
       Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd) {
 
-    return mutationMapper.getMutationCountByPosition(entrezGeneId, proteinPosStart, proteinPosEnd);
+    return mutationMapper.getMutationCountByPosition(
+        entrezGeneId, proteinPosStart, proteinPosEnd, null);
+  }
+
+  @Override
+  public MutationCountByPosition getMutationCountByPosition(
+      Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd, List<String> studyIds) {
+
+    return mutationMapper.getMutationCountByPosition(
+        entrezGeneId, proteinPosStart, proteinPosEnd, studyIds);
   }
 
   @Override

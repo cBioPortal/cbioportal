@@ -5,8 +5,11 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.StudyService;
+import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.config.TestConfig;
 import org.cbioportal.legacy.web.parameter.MutationPositionIdentifier;
 import org.hamcrest.Matchers;
@@ -20,6 +23,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -39,6 +43,9 @@ public class MutationCountControllerTest {
   private static final int TEST_MUTATION_COUNT_2 = 200;
 
   @MockitoBean private MutationService mutationService;
+  @MockitoBean private StudyService studyService;
+
+  @Autowired private MutationCountController mutationCountController;
 
   private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -106,5 +113,58 @@ public class MutationCountControllerTest {
             MockMvcResultMatchers.jsonPath("$[1].proteinPosEnd")
                 .value(TEST_ONCOTATOR_PROTEIN_POS_END_2))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].count").value(TEST_MUTATION_COUNT_2));
+  }
+
+  @Test
+  @WithMockUser
+  public void fetchMutationCountsByPosition_withUserAuthEnabled_filtersByAuthorizedStudies()
+      throws Exception {
+    ReflectionTestUtils.setField(mutationCountController, "authenticate", "oauth2");
+    try {
+      CancerStudy authorizedStudy = new CancerStudy();
+      authorizedStudy.setCancerStudyIdentifier("study_tcga_pub");
+      Mockito.when(
+              studyService.getAllStudies(
+                  Mockito.any(),
+                  Mockito.eq("SUMMARY"),
+                  Mockito.anyInt(),
+                  Mockito.anyInt(),
+                  Mockito.any(),
+                  Mockito.anyString(),
+                  Mockito.any(),
+                  Mockito.eq(AccessLevel.READ)))
+          .thenReturn(List.of(authorizedStudy));
+
+      MutationCountByPosition count1 = new MutationCountByPosition();
+      count1.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+      count1.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
+      count1.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
+      count1.setCount(42);
+      Mockito.when(
+              mutationService.fetchMutationCountsByPosition(
+                  Mockito.eq(List.of(TEST_ENTREZ_GENE_ID_1)),
+                  Mockito.eq(List.of(TEST_ONCOTATOR_PROTEIN_POS_START_1)),
+                  Mockito.eq(List.of(TEST_ONCOTATOR_PROTEIN_POS_END_1)),
+                  Mockito.eq(List.of("study_tcga_pub"))))
+          .thenReturn(List.of(count1));
+
+      MutationPositionIdentifier identifier = new MutationPositionIdentifier();
+      identifier.setEntrezGeneId(TEST_ENTREZ_GENE_ID_1);
+      identifier.setProteinPosStart(TEST_ONCOTATOR_PROTEIN_POS_START_1);
+      identifier.setProteinPosEnd(TEST_ONCOTATOR_PROTEIN_POS_END_1);
+
+      mockMvc
+          .perform(
+              MockMvcRequestBuilders.post("/api/mutation-counts-by-position/fetch")
+                  .with(csrf())
+                  .accept(MediaType.APPLICATION_JSON)
+                  .contentType(MediaType.APPLICATION_JSON)
+                  .content(objectMapper.writeValueAsString(List.of(identifier))))
+          .andExpect(MockMvcResultMatchers.status().isOk())
+          .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(1)))
+          .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(42));
+    } finally {
+      ReflectionTestUtils.setField(mutationCountController, "authenticate", "false");
+    }
   }
 }

@@ -177,6 +177,27 @@ public class MutationServiceImpl implements MutationService {
   }
 
   @Override
+  public List<MutationCountByPosition> fetchMutationCountsByPosition(
+      List<Integer> entrezGeneIds,
+      List<Integer> proteinPosStarts,
+      List<Integer> proteinPosEnds,
+      List<String> studyIds) {
+    if (studyIds == null) {
+      return fetchMutationCountsByPosition(entrezGeneIds, proteinPosStarts, proteinPosEnds);
+    }
+
+    List<MutationCountByPosition> mutationCountByPositionList = new ArrayList<>();
+    for (int i = 0; i < entrezGeneIds.size(); i++) {
+      MutationCountByPosition mutationCountByPosition =
+          mutationRepository.getMutationCountByPosition(
+              entrezGeneIds.get(i), proteinPosStarts.get(i), proteinPosEnds.get(i), studyIds);
+      mutationCountByPositionList.add(mutationCountByPosition);
+    }
+
+    return mutationCountByPositionList;
+  }
+
+  @Override
   public GenomicDataCountItem getMutationCountsByType(
       List<String> molecularProfileIds,
       List<String> sampleIds,

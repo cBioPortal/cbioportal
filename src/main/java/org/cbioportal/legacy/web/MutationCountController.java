@@ -10,12 +10,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.cbioportal.legacy.model.CancerStudy;
 import org.cbioportal.legacy.model.MutationCountByPosition;
 import org.cbioportal.legacy.service.MutationService;
+import org.cbioportal.legacy.service.StudyService;
+import org.cbioportal.legacy.utils.security.AccessLevel;
+import org.cbioportal.legacy.utils.security.PortalSecurityConfig;
 import org.cbioportal.legacy.web.config.InternalApiTags;
 import org.cbioportal.legacy.web.config.annotation.InternalApi;
+import org.cbioportal.legacy.web.parameter.Direction;
 import org.cbioportal.legacy.web.parameter.MutationPositionIdentifier;
+import org.cbioportal.legacy.web.parameter.PagingConstants;
+import org.cbioportal.legacy.web.parameter.Projection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,7 +42,13 @@ public class MutationCountController {
 
   public static final int MUTATION_MAX_PAGE_SIZE = 10000000;
 
+  @Value("${authenticate:false}")
+  private String authenticate;
+
   @Autowired private MutationService mutationService;
+
+  @Autowired(required = false)
+  private StudyService studyService;
 
   @RequestMapping(
       value = "/api/mutation-counts-by-position/fetch",
@@ -62,6 +77,27 @@ public class MutationCountController {
       entrezGeneIds.add(mutationPositionIdentifier.getEntrezGeneId());
       proteinPosStarts.add(mutationPositionIdentifier.getProteinPosStart());
       proteinPosEnds.add(mutationPositionIdentifier.getProteinPosEnd());
+    }
+
+    if (PortalSecurityConfig.userAuthorizationEnabled(authenticate) && studyService != null) {
+      List<String> studyIds =
+          studyService
+              .getAllStudies(
+                  null,
+                  Projection.SUMMARY.name(),
+                  PagingConstants.MAX_PAGE_SIZE,
+                  0,
+                  null,
+                  Direction.ASC.name(),
+                  null,
+                  AccessLevel.READ)
+              .stream()
+              .map(CancerStudy::getCancerStudyIdentifier)
+              .collect(Collectors.toList());
+      return new ResponseEntity<>(
+          mutationService.fetchMutationCountsByPosition(
+              entrezGeneIds, proteinPosStarts, proteinPosEnds, studyIds),
+          HttpStatus.OK);
     }
 
     return new ResponseEntity<>(

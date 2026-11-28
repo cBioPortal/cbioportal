@@ -29,6 +29,7 @@ import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.DataBinCountFilter;
 import org.cbioportal.legacy.web.parameter.GenericAssayDataCountFilter;
+import org.cbioportal.legacy.web.parameter.GenericAssayMetaFilter;
 import org.cbioportal.legacy.web.parameter.GenomicDataCountFilter;
 import org.cbioportal.legacy.web.parameter.Group;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
@@ -363,6 +364,22 @@ public class CancerStudyPermissionEvaluator implements PermissionEvaluator {
           genericAssayDataCountFilter.getStudyViewFilter() != null
               ? genericAssayDataCountFilter.getStudyViewFilter().getUniqueStudyIds()
               : new HashSet<>();
+      case GenericAssayMetaFilter genericAssayMetaFilter -> {
+        if (genericAssayMetaFilter.getMolecularProfileIds() == null
+            || genericAssayMetaFilter.getMolecularProfileIds().isEmpty()) {
+          yield new HashSet<>();
+        }
+        Collection<MolecularProfile> molecularProfiles =
+            genericAssayMetaFilter.getMolecularProfileIds().stream()
+                .map(id -> cacheMapUtil.getMolecularProfileMap().get(id))
+                .toList();
+        if (molecularProfiles.contains(null)) {
+          throw new IllegalStateException("MolecularProfile not found ");
+        }
+        yield molecularProfiles.stream()
+            .map(MolecularProfile::getCancerStudyIdentifier)
+            .collect(Collectors.toSet());
+      }
       case MolecularProfileCasesGroupAndAlterationTypeFilter mpgFilter -> {
         Collection<MolecularProfile> molecularProfiles =
             mpgFilter.getMolecularProfileCasesGroupFilter().stream()

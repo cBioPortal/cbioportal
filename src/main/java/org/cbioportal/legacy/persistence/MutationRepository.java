@@ -91,6 +91,12 @@ public interface MutationRepository {
   @Cacheable(
       cacheResolver = "generalRepositoryCacheResolver",
       condition = "@cacheEnabledConfig.getEnabled()")
+  MutationCountByPosition getMutationCountByPosition(
+      Integer entrezGeneId, Integer proteinPosStart, Integer proteinPosEnd, List<String> studyIds);
+
+  @Cacheable(
+      cacheResolver = "generalRepositoryCacheResolver",
+      condition = "@cacheEnabledConfig.getEnabled()")
   GenomicDataCountItem getMutationCountsByType(
       List<String> molecularProfileIds,
       List<String> sampleIds,

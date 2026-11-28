@@ -554,8 +554,8 @@ public class ClickhouseSampleMapperTest {
             "-02",
             null,
             null,
-            null,
-            null);
+            "sampleId",
+            "ASC");
     assertKeywordFilteredSamplesSummary(keywordFilteredSamplesForAccAndTcgaAndGenie);
     assertNull(keywordFilteredSamplesForAccAndTcgaAndGenie.getFirst().sequenced());
     assertNull(keywordFilteredSamplesForAccAndTcgaAndGenie.getFirst().copyNumberSegmentPresent());
@@ -655,8 +655,8 @@ public class ClickhouseSampleMapperTest {
             "-02",
             null,
             null,
-            null,
-            null);
+            "sampleId",
+            "ASC");
     assertKeywordFilteredSamplesDetailed(keywordFilteredSamplesForAccAndTcgaAndGenie);
   }
 

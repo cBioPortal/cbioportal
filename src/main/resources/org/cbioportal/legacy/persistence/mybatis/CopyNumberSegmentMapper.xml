@@ -23,11 +23,24 @@
         INNER JOIN patient ON sample.patient_id = patient.internal_id
     </sql>
 
+    <!--
+        The CONCAT filter spans two joined tables, so ClickHouse can only apply it after reading and
+        joining every row of copy_number_seg. The sample_id subquery applies the same filter to
+        copy_number_seg directly; the CONCAT condition is kept so the result is unchanged.
+    -->
     <sql id="where">
         <where>
             <if test="sampleIds != null and !sampleIds.isEmpty()">
                 <bind name="sampleUniqueKeys" value="@org.cbioportal.legacy.persistence.mybatis.util.SqlUtils@combineStudyAndEntityIds(studyIds, sampleIds)" />
-                CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
+                copy_number_seg.sample_id IN (
+                    SELECT s.internal_id FROM sample s
+                    INNER JOIN patient p ON s.patient_id = p.internal_id
+                    INNER JOIN cancer_study cs ON p.cancer_study_id = cs.cancer_study_id
+                    WHERE CONCAT(cs.cancer_study_identifier, ':', s.stable_id) IN (
+                        #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
+                    )
+                )
+                AND CONCAT(cancer_study.cancer_study_identifier, ':', sample.stable_id) IN (
                     #{sampleUniqueKeys, typeHandler=org.apache.ibatis.type.ArrayTypeHandler}
                 )
             </if>
@@ -85,7 +98,16 @@
         <include refid="from"/>
         INNER JOIN sample_list_list ON copy_number_seg.sample_id = sample_list_list.sample_id
         INNER JOIN sample_list ON sample_list_list.list_id = sample_list.list_id
-        WHERE 
+        WHERE
+            copy_number_seg.cancer_study_id = (
+                SELECT cancer_study_id FROM cancer_study cs WHERE cs.cancer_study_identifier = #{studyId}
+            )
+        AND
+            copy_number_seg.sample_id IN (
+                SELECT sample_id FROM sample_list_list
+                WHERE list_id = (SELECT list_id FROM sample_list sl WHERE sl.stable_id = #{sampleListId})
+            )
+        AND
             cancer_study.cancer_study_identifier = #{studyId}
         AND
             sample_list.stable_id = #{sampleListId}

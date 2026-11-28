@@ -3,16 +3,21 @@ package org.cbioportal.application.security;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.cbioportal.legacy.model.CancerStudy;
+import org.cbioportal.legacy.model.MolecularProfile;
 import org.cbioportal.legacy.persistence.cachemaputil.CacheMapUtil;
+import org.cbioportal.legacy.utils.Encoder;
 import org.cbioportal.legacy.utils.security.AccessLevel;
 import org.cbioportal.legacy.web.parameter.ClinicalDataIdentifier;
 import org.cbioportal.legacy.web.parameter.ClinicalDataMultiStudyFilter;
 import org.cbioportal.legacy.web.parameter.Group;
 import org.cbioportal.legacy.web.parameter.GroupFilter;
+import org.cbioportal.legacy.web.parameter.SampleFilter;
 import org.cbioportal.legacy.web.parameter.SampleIdentifier;
 import org.cbioportal.legacy.web.parameter.StudyViewFilter;
 import org.junit.Before;
@@ -129,6 +134,147 @@ public class CancerStudyPermissionEvaluatorTest {
     privateOnly.setStudyIds(List.of(PRIVATE_STUDY));
     assertFalse(allowed(user, privateOnly, "StudyViewFilter"));
     assertTrue(allowed(privateStudyUser, privateOnly, "StudyViewFilter"));
+  }
+
+  // Filters whose selection names no study
+
+  @Test
+  public void sampleFilterWithNoSampleIdentifiersIsAllowed() {
+    SampleFilter filter = new SampleFilter();
+    filter.setSampleIdentifiers(List.of());
+    assertTrue(allowed(user, filter, "SampleFilter"));
+  }
+
+  @Test
+  public void sampleFilterWithNoUniqueSampleKeysIsAllowed() {
+    SampleFilter filter = new SampleFilter();
+    filter.setUniqueSampleKeys(List.of());
+    assertTrue(allowed(user, filter, "SampleFilter"));
+  }
+
+  @Test
+  public void studyViewFilterWithNoStudyIdsIsAllowed() {
+    StudyViewFilter filter = new StudyViewFilter();
+    filter.setStudyIds(List.of());
+    assertTrue(allowed(user, filter, "StudyViewFilter"));
+  }
+
+  @Test
+  public void sampleFilterNamingAnUnknownStudyIsDenied() {
+    SampleFilter filter = new SampleFilter();
+    filter.setSampleIdentifiers(List.of(sample(PUBLIC_STUDY), sample("unknown_study")));
+    assertFalse(allowed(user, filter, "SampleFilter"));
+
+    SampleFilter byKey = new SampleFilter();
+    byKey.setUniqueSampleKeys(List.of(Encoder.calculateBase64("any_sample", "unknown_study")));
+    assertFalse(allowed(user, byKey, "SampleFilter"));
+  }
+
+  @Test
+  public void studyViewFilterNamingAnUnknownStudyIsDenied() {
+    StudyViewFilter filter = new StudyViewFilter();
+    filter.setStudyIds(List.of("unknown_study"));
+    assertFalse(allowed(privateStudyUser, filter, "StudyViewFilter"));
+  }
+
+  // Study and profile ids, and collections of them
+
+  private static final String STUDY_ID = "authorized_study";
+  private static final String OTHER_AUTHORIZED_STUDY_ID = "other_authorized_study";
+  private static final String UNAUTHORIZED_STUDY_ID = "unauthorized_study";
+  private static final String UNKNOWN_STUDY_ID = "unknown_study";
+  private static final String PROFILE_ID = "authorized_study_mutations";
+  private static final String STUDY_IDS = "Collection<CancerStudyId>";
+  private static final String PROFILE_IDS = "Collection<MolecularProfileId>";
+
+  private final Authentication idUser =
+      new TestingAuthenticationToken(
+          "user",
+          null,
+          "cbioportal:" + STUDY_ID.toUpperCase(),
+          "cbioportal:" + OTHER_AUTHORIZED_STUDY_ID.toUpperCase());
+
+  private CancerStudyPermissionEvaluator idEvaluator() {
+    CancerStudy authorized = study(STUDY_ID, "");
+    MolecularProfile profile = new MolecularProfile();
+    profile.setStableId(PROFILE_ID);
+    profile.setCancerStudyIdentifier(STUDY_ID);
+    profile.setCancerStudy(authorized);
+    CacheMapUtil cacheMapUtil = Mockito.mock(CacheMapUtil.class);
+    Mockito.when(cacheMapUtil.getCancerStudyPermissionMap())
+        .thenReturn(
+            Map.of(
+                STUDY_ID,
+                authorized,
+                OTHER_AUTHORIZED_STUDY_ID,
+                study(OTHER_AUTHORIZED_STUDY_ID, ""),
+                UNAUTHORIZED_STUDY_ID,
+                study(UNAUTHORIZED_STUDY_ID, "")));
+    Mockito.when(cacheMapUtil.getMolecularProfileMap()).thenReturn(Map.of(PROFILE_ID, profile));
+    return new CancerStudyPermissionEvaluator("cbioportal", "true", "", cacheMapUtil);
+  }
+
+  private boolean check(Serializable target, String targetType) {
+    return idEvaluator().hasPermission(idUser, target, targetType, AccessLevel.READ);
+  }
+
+  private static ArrayList<String> ids(String... ids) {
+    return new ArrayList<>(List.of(ids));
+  }
+
+  @Test
+  public void grantsAnAuthorizedStudy() {
+    assertTrue(check(STUDY_ID, "CancerStudyId"));
+  }
+
+  @Test
+  public void deniesAnUnauthorizedStudy() {
+    assertFalse(check(UNAUTHORIZED_STUDY_ID, "CancerStudyId"));
+  }
+
+  @Test
+  public void deniesASingleStudyIdThatResolvesToNoStudy() {
+    assertFalse(check(UNKNOWN_STUDY_ID, "CancerStudyId"));
+  }
+
+  @Test
+  public void grantsAnEmptyCollectionOfStudyIds() {
+    assertTrue(check(ids(), STUDY_IDS));
+  }
+
+  @Test
+  public void grantsAnEmptyCollectionOfProfileIds() {
+    assertTrue(check(ids(), PROFILE_IDS));
+  }
+
+  @Test
+  public void grantsACollectionWhoseStudiesAllResolveAndAreAuthorized() {
+    assertTrue(check(ids(STUDY_ID, OTHER_AUTHORIZED_STUDY_ID), STUDY_IDS));
+  }
+
+  @Test
+  public void deniesACollectionWithAnAuthorizedAndAnUnknownStudy() {
+    assertFalse(check(ids(STUDY_ID, UNKNOWN_STUDY_ID), STUDY_IDS));
+  }
+
+  @Test
+  public void deniesACollectionWhoseStudiesAreAllUnknown() {
+    assertFalse(check(ids(UNKNOWN_STUDY_ID, "another_unknown_study"), STUDY_IDS));
+  }
+
+  @Test
+  public void deniesACollectionWithAnAuthorizedAndAnUnauthorizedStudy() {
+    assertFalse(check(ids(STUDY_ID, UNAUTHORIZED_STUDY_ID), STUDY_IDS));
+  }
+
+  @Test
+  public void grantsAResolvedProfileOfAnAuthorizedStudy() {
+    assertTrue(check(ids(PROFILE_ID), PROFILE_IDS));
+  }
+
+  @Test
+  public void deniesAProfileCollectionWithAnUnknownProfile() {
+    assertFalse(check(ids(PROFILE_ID, "unknown_profile"), PROFILE_IDS));
   }
 
   private boolean allowed(Authentication authentication, java.io.Serializable filter, String type) {

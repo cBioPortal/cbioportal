@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 125 125" role="img" aria-labelledby="title">
+  <title id="title">Data contribution</title>
+  <rect x="5" y="5" width="115" height="115" rx="20" fill="#eaf3ff"/>
+  <ellipse cx="62.5" cy="34" rx="33" ry="11" fill="#3b82f6"/>
+  <path d="M29.5 34v48c0 6 14.8 11 33 11s33-5 33-11V34" fill="#bfdbfe" stroke="#2563eb" stroke-width="3"/>
+  <path d="M29.5 50c0 6 14.8 11 33 11s33-5 33-11M29.5 66c0 6 14.8 11 33 11s33-5 33-11" fill="none" stroke="#2563eb" stroke-width="3"/>
+  <circle cx="62.5" cy="34" r="3" fill="#eff6ff"/>
+</svg>

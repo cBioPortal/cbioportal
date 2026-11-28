@@ -7,11 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(uses = DateMapper.class)
 public interface CancerStudyMetadataMapper {
   CancerStudyMetadataMapper INSTANCE = Mappers.getMapper(CancerStudyMetadataMapper.class);
 
-  @Mapping(target = "importDate", source = "importDate", dateFormat = "yyyy-MM-dd HH:mm:ss")
+  @Mapping(target = "importDate", source = "importDate", qualifiedByName = "utcDateTime")
   @Mapping(target = "studyId", source = "cancerStudyIdentifier")
   @Mapping(target = "cancerTypeId", source = "typeOfCancerId")
   @Mapping(target = "cancerType", source = "typeOfCancer")
@@ -22,7 +22,7 @@ public interface CancerStudyMetadataMapper {
   @Mapping(
       target = "importDate",
       source = "cancerStudyMetadata.importDate",
-      dateFormat = "yyyy-MM-dd HH:mm:ss")
+      qualifiedByName = "utcDateTime")
   @Mapping(target = "studyId", source = "cancerStudyMetadata.cancerStudyIdentifier")
   @Mapping(target = "cancerTypeId", source = "cancerStudyMetadata.typeOfCancerId")
   @Mapping(target = "cancerType", source = "cancerStudyMetadata.typeOfCancer")

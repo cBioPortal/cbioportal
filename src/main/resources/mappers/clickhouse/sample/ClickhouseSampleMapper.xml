@@ -274,17 +274,21 @@
             (#{sampleListIdsArray, typeHandler=org.apache.ibatis.type.ArrayTypeHandler})
         )
     </sql>
-
     <sql id="sortAndLimit">
-        <if test="sortBy != null and '${projection}' != 'ID'">
-            ORDER BY "${sortBy}" ${direction}
-        </if>
-        <if test="'${projection}' == 'ID' and keyword == null">
-            ORDER BY sample_stable_id ASC
-        </if>
-        <if test="keyword != null">
-            ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), sample_stable_id
-        </if>
+        <choose>
+            <when test="keyword != null and sortBy != null and '${projection}' != 'ID'">
+                ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), "${sortBy}" ${direction}, sample_stable_id
+            </when>
+            <when test="keyword != null">
+                ORDER BY if(sample_stable_id ILIKE concat(#{keyword}, '%'), 0, 1), sample_stable_id
+            </when>
+            <when test="sortBy != null and '${projection}' != 'ID'">
+                ORDER BY "${sortBy}" ${direction}
+            </when>
+            <when test="'${projection}' == 'ID'">
+                ORDER BY sample_stable_id ASC
+            </when>
+        </choose>
         <if test="limit != null and limit != 0">
             LIMIT #{limit} OFFSET #{offset}
         </if>

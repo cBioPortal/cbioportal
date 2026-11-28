@@ -1,6 +1,10 @@
 package org.cbioportal.infrastructure.repository.clickhouse.mutation;
 
+import java.util.Collection;
 import java.util.List;
+import org.cbioportal.domain.mutation.PatientGenePanel;
+import org.cbioportal.domain.mutation.PatientMutatedGene;
+import org.cbioportal.legacy.model.GenePanelToGene;
 import org.cbioportal.legacy.model.Mutation;
 import org.cbioportal.legacy.model.meta.MutationMeta;
 
@@ -116,4 +120,49 @@ public interface ClickhouseMutationMapper {
       List<Integer> entrezGeneIds,
       boolean snpOnly // Currently hardcoded to false due to how the legacy worked
       );
+
+  /**
+   * Checks whether a molecular profile is a mutation profile of the given study.
+   *
+   * @param studyId cancer study identifier
+   * @param molecularProfileId molecular profile stable ID
+   * @return {@code true} if the study has a mutation profile with this ID
+   */
+  boolean isMutationMolecularProfileOfStudy(String studyId, String molecularProfileId);
+
+  /**
+   * Retrieves the distinct patients and genes of the called mutations in a molecular profile.
+   *
+   * @param molecularProfileId mutation profile stable ID
+   * @param hugoGeneSymbols upper-case Hugo gene symbols to restrict the genes to
+   * @return one entry per distinct patient and mutated gene
+   */
+  List<PatientMutatedGene> getMutatedGenesOfPatients(
+      String molecularProfileId, List<String> hugoGeneSymbols);
+
+  /**
+   * Retrieves the gene panels of the reference patient and of every patient with a called mutation
+   * in one of the given genes, as profiled in a molecular profile.
+   *
+   * @param studyId cancer study identifier of the molecular profile
+   * @param molecularProfileId mutation profile stable ID
+   * @param hugoGeneSymbols upper-case Hugo gene symbols
+   * @param referencePatientId patient whose gene panels are included even without such mutations
+   * @return one entry per distinct patient and gene panel
+   */
+  List<PatientGenePanel> getGenePanelsOfPatients(
+      String studyId,
+      String molecularProfileId,
+      List<String> hugoGeneSymbols,
+      String referencePatientId);
+
+  /**
+   * Retrieves which of the given genes each of the given gene panels covers.
+   *
+   * @param genePanelIds gene panel stable IDs
+   * @param hugoGeneSymbols upper-case Hugo gene symbols
+   * @return one entry per gene panel and covered gene, with the gene panel ID and Hugo gene symbol
+   */
+  List<GenePanelToGene> getGenePanelGenes(
+      Collection<String> genePanelIds, List<String> hugoGeneSymbols);
 }

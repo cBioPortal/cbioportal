@@ -4,6 +4,10 @@ import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.cbioportal.domain.mutation.PatientGenePanel;
+import org.cbioportal.domain.mutation.PatientMutatedGene;
 import org.cbioportal.infrastructure.repository.clickhouse.AbstractTestcontainers;
 import org.cbioportal.infrastructure.repository.clickhouse.config.MyBatisConfig;
 import org.cbioportal.legacy.model.Mutation;
@@ -113,5 +117,71 @@ public class ClickhouseMutationMapperTest {
     assertEquals(5, resultDetailed.size());
     assertEquals(5, resultSummary.size());
     assertEquals(5, resultID.size());
+  }
+
+  @Test
+  public void isMutationMolecularProfileOfStudy() {
+    assertTrue(
+        clickhouseMutationMapper.isMutationMolecularProfileOfStudy(
+            "study_tcga_pub", "study_tcga_pub_mutations"));
+    // not a mutation profile
+    assertFalse(
+        clickhouseMutationMapper.isMutationMolecularProfileOfStudy(
+            "study_tcga_pub", "study_tcga_pub_gistic"));
+    // mutation profile of another study
+    assertFalse(
+        clickhouseMutationMapper.isMutationMolecularProfileOfStudy(
+            "study_tcga_pub", "acc_tcga_mutations"));
+    assertFalse(
+        clickhouseMutationMapper.isMutationMolecularProfileOfStudy(
+            "study_tcga_pub", "no_such_profile"));
+  }
+
+  @Test
+  public void getMutatedGenesOfPatients() {
+    var result =
+        clickhouseMutationMapper.getMutatedGenesOfPatients(
+            "study_tcga_pub_mutations", List.of("AKT1", "AKT2", "BRCA1"));
+
+    // tcga-a1-a0sh has two BRCA1 mutations, which count once
+    assertEquals(7, result.size());
+    assertEquals(
+        Set.of(
+            new PatientMutatedGene("tcga-a1-a0sb", "AKT1"),
+            new PatientMutatedGene("tcga-a1-a0sd", "AKT1"),
+            new PatientMutatedGene("tcga-a1-a0se", "AKT2"),
+            new PatientMutatedGene("tcga-a1-a0sh", "BRCA1"),
+            new PatientMutatedGene("tcga-a1-a0si", "BRCA1"),
+            new PatientMutatedGene("tcga-a1-a0so", "BRCA1"),
+            new PatientMutatedGene("tcga-a1-a0sp", "BRCA1")),
+        Set.copyOf(result));
+  }
+
+  @Test
+  public void getGenePanelsOfPatients() {
+    // tcga-a1-a0se is the only patient with an AKT2 mutation; the reference patient has none
+    var result =
+        clickhouseMutationMapper.getGenePanelsOfPatients(
+            "study_tcga_pub", "study_tcga_pub_mutations", List.of("AKT2"), "tcga-a1-a0sj");
+
+    assertEquals(
+        Set.of(
+            new PatientGenePanel("tcga-a1-a0se", "testpanel2"),
+            new PatientGenePanel("tcga-a1-a0sj", "WES")),
+        Set.copyOf(result));
+  }
+
+  @Test
+  public void getGenePanelGenes() {
+    var result =
+        clickhouseMutationMapper.getGenePanelGenes(
+            List.of("testpanel2", "WES"), List.of("AKT1", "AKT2", "BRCA1"));
+
+    // testpanel2 does not cover BRCA1, the whole exome covers every gene
+    assertEquals(
+        Set.of("testpanel2:AKT1", "testpanel2:AKT2", "WES:AKT1", "WES:AKT2", "WES:BRCA1"),
+        result.stream()
+            .map(gene -> gene.getGenePanelId() + ":" + gene.getHugoGeneSymbol())
+            .collect(Collectors.toSet()));
   }
 }

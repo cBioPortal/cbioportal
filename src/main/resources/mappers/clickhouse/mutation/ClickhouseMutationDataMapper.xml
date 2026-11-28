@@ -268,4 +268,68 @@
         INNER JOIN mutation_event ON mutation.mutation_event_id = mutation_event.mutation_event_id
         <include refid="whereInMultipleMolecularProfiles"/>
     </select>
+
+    <select id="isMutationMolecularProfileOfStudy" resultType="boolean">
+        SELECT count() > 0
+        FROM genetic_profile gp
+            INNER JOIN cancer_study cs ON gp.cancer_study_id = cs.cancer_study_id
+        WHERE gp.stable_id = #{molecularProfileId}
+          AND cs.cancer_study_identifier = #{studyId}
+          AND gp.genetic_alteration_type = 'MUTATION_EXTENDED'
+    </select>
+
+    <!-- called mutations of the molecular profile in the given (upper-case) genes -->
+    <sql id="calledMutationsInGenes">
+        genetic_profile_stable_id = #{molecularProfileId}
+        AND variant_type = 'mutation'
+        AND mutation_status != 'UNCALLED'
+        AND upper(hugo_gene_symbol) IN
+        <foreach item="hugoGeneSymbol" collection="hugoGeneSymbols" open="(" separator="," close=")">
+            #{hugoGeneSymbol}
+        </foreach>
+    </sql>
+
+    <select id="getMutatedGenesOfPatients" resultType="org.cbioportal.domain.mutation.PatientMutatedGene">
+        SELECT DISTINCT
+            replaceOne(patient_unique_id, concat(cancer_study_identifier, '_'), '') AS patientId,
+            hugo_gene_symbol AS hugoGeneSymbol
+        FROM genomic_event_derived
+        WHERE <include refid="calledMutationsInGenes"/>
+    </select>
+
+    <select id="getGenePanelsOfPatients" resultType="org.cbioportal.domain.mutation.PatientGenePanel">
+        SELECT DISTINCT
+            sd.patient_stable_id AS patientId,
+            stgp.gene_panel_id AS genePanelId
+        FROM sample_to_gene_panel_derived stgp
+            INNER JOIN (
+                SELECT sample_unique_id, patient_unique_id, patient_stable_id
+                FROM sample_derived
+                WHERE cancer_study_identifier = #{studyId}
+            ) sd ON sd.sample_unique_id = stgp.sample_unique_id
+        WHERE stgp.genetic_profile_id = #{molecularProfileId}
+          AND (
+            sd.patient_stable_id = #{referencePatientId}
+            OR sd.patient_unique_id IN (
+                SELECT patient_unique_id
+                FROM genomic_event_derived
+                WHERE <include refid="calledMutationsInGenes"/>
+            )
+          )
+    </select>
+
+    <select id="getGenePanelGenes" resultType="org.cbioportal.legacy.model.GenePanelToGene">
+        SELECT
+            gene_panel_id AS genePanelId,
+            gene AS hugoGeneSymbol
+        FROM gene_panel_to_gene_derived
+        WHERE gene_panel_id IN
+        <foreach item="genePanelId" collection="genePanelIds" open="(" separator="," close=")">
+            #{genePanelId}
+        </foreach>
+          AND upper(gene) IN
+        <foreach item="hugoGeneSymbol" collection="hugoGeneSymbols" open="(" separator="," close=")">
+            #{hugoGeneSymbol}
+        </foreach>
+    </select>
 </mapper>

@@ -86,6 +86,7 @@ public abstract class ClinicalAttributeUtil {
     legacyClinicalAttribute.setDatatype(clinicalAttribute.datatype());
     legacyClinicalAttribute.setPatientAttribute(clinicalAttribute.patientAttribute());
     legacyClinicalAttribute.setPriority(clinicalAttribute.priority());
+    legacyClinicalAttribute.setChartType(clinicalAttribute.chartType());
     legacyClinicalAttribute.setCancerStudyId(clinicalAttribute.cancerStudyId());
     legacyClinicalAttribute.setCancerStudyIdentifier(clinicalAttribute.cancerStudyIdentifier());
     return legacyClinicalAttribute;

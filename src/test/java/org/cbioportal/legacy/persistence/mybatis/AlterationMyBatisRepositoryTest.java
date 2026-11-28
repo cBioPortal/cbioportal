@@ -1011,11 +1011,11 @@ public class AlterationMyBatisRepositoryTest {
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
     Assert.assertEquals(3, result.size());
-    Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 2, result57670.getTotalCount());
     Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1039,13 +1039,13 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 6, result57670.getTotalCount());
     Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+    Assert.assertEquals((Integer) 5, result8031.getTotalCount());
     Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1109,11 +1109,11 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 1, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 2, result57670.getTotalCount());
     Assert.assertEquals((Integer) 1, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1137,13 +1137,13 @@ public class AlterationMyBatisRepositoryTest {
         result.stream().filter(r -> r.getEntrezGeneId() == 27436).findFirst().get();
     AlterationCountByGene result7113 =
         result.stream().filter(r -> r.getEntrezGeneId() == 7113).findFirst().get();
-    Assert.assertEquals((Integer) 3, result57670.getTotalCount());
+    Assert.assertEquals((Integer) 6, result57670.getTotalCount());
     Assert.assertEquals((Integer) 3, result57670.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 3, result8031.getTotalCount());
+    Assert.assertEquals((Integer) 5, result8031.getTotalCount());
     Assert.assertEquals((Integer) 2, result8031.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result27436.getTotalCount());
+    Assert.assertEquals((Integer) 2, result27436.getTotalCount());
     Assert.assertEquals((Integer) 1, result27436.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, result7113.getTotalCount());
+    Assert.assertEquals((Integer) 2, result7113.getTotalCount());
     Assert.assertEquals((Integer) 1, result7113.getNumberOfAlteredCases());
   }
 
@@ -1205,15 +1205,15 @@ public class AlterationMyBatisRepositoryTest {
     // TODO cannot find null, could be related to ANY_VALUE introduced in the SQL
     // AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
     AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", "", result);
-    Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultEmlAlk.getTotalCount());
     Assert.assertEquals((Integer) 2, resultEmlAlk.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 4, resultKiaaBraf.getTotalCount());
+    Assert.assertEquals((Integer) 8, resultKiaaBraf.getTotalCount());
     Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultNcoRet.getTotalCount());
     Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
     Assert.assertEquals((Integer) 1, resultNcoNull.getTotalCount());
     Assert.assertEquals((Integer) 1, resultNcoNull.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultTmprsErg.getTotalCount());
     Assert.assertEquals((Integer) 2, resultTmprsErg.getNumberOfAlteredCases());
   }
 
@@ -1247,11 +1247,11 @@ public class AlterationMyBatisRepositoryTest {
     AlterationCountByStructuralVariant resultEmlAlk = findStructVarCount("EML4", "ALK", result);
     AlterationCountByStructuralVariant resultTmprsErg =
         findStructVarCount("TMPRSS2", "ERG", result);
-    Assert.assertEquals((Integer) 1, resultKiaaBraf.getTotalCount());
+    Assert.assertEquals((Integer) 2, resultKiaaBraf.getTotalCount());
     Assert.assertEquals((Integer) 1, resultKiaaBraf.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
+    Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
     Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
+    Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
     Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
   }
 
@@ -1274,15 +1274,15 @@ public class AlterationMyBatisRepositoryTest {
     // TODO cannot find null, could be related to ANY_VALUE introduced in the SQL
     // AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", null, result);
     AlterationCountByStructuralVariant resultNcoNull = findStructVarCount("NCOA4", "", result);
-    Assert.assertEquals((Integer) 1, resultEmlAlk.getTotalCount());
+    Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
     Assert.assertEquals((Integer) 1, resultEmlAlk.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 3, resultKiaaBraf.getTotalCount());
+    Assert.assertEquals((Integer) 6, resultKiaaBraf.getTotalCount());
     Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultNcoRet.getTotalCount());
     Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
     Assert.assertEquals((Integer) 1, resultNcoNull.getTotalCount());
     Assert.assertEquals((Integer) 1, resultNcoNull.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 1, resultTmprsErg.getTotalCount());
+    Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
     Assert.assertEquals((Integer) 1, resultTmprsErg.getNumberOfAlteredCases());
   }
 
@@ -1299,13 +1299,13 @@ public class AlterationMyBatisRepositoryTest {
     AlterationCountByStructuralVariant resultTmprsErg =
         findStructVarCount("TMPRSS2", "ERG", result);
     AlterationCountByStructuralVariant resultNcoRet = findStructVarCount("NCOA4", "RET", result);
-    Assert.assertEquals((Integer) 2, resultEmlAlk.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultEmlAlk.getTotalCount());
     Assert.assertEquals((Integer) 2, resultEmlAlk.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 4, resultKiaaBraf.getTotalCount());
+    Assert.assertEquals((Integer) 8, resultKiaaBraf.getTotalCount());
     Assert.assertEquals((Integer) 3, resultKiaaBraf.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 2, resultNcoRet.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultNcoRet.getTotalCount());
     Assert.assertEquals((Integer) 2, resultNcoRet.getNumberOfAlteredCases());
-    Assert.assertEquals((Integer) 2, resultTmprsErg.getTotalCount());
+    Assert.assertEquals((Integer) 4, resultTmprsErg.getTotalCount());
     Assert.assertEquals((Integer) 2, resultTmprsErg.getNumberOfAlteredCases());
   }
 

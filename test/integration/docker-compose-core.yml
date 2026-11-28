@@ -1,0 +1,11 @@
+# Optional override (used on top of docker-compose-localbuild.yml) that replaces the importer
+# bundled in the cbioportal image with a cbioportal-core build under test.
+#
+# CORE_DIR must have the same layout as /core in the image:
+#   core-IMPORTER.jar, scripts/, requirements.txt
+# Not mounted read-only: the compose entrypoint.sh injects application.properties into the jar.
+
+services:
+  cbioportal:
+    volumes:
+     - $CORE_DIR:/core
